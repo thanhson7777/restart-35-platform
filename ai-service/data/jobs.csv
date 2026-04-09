@@ -1,0 +1,501 @@
+id,title,company,skills,location,salary_min,salary_max,type,age_preference,experience_required,education_required,description
+job_0001,Lái xe,HTX Phúc An,Đọc bản đồ|Bảo dưỡng xe,Thái Nguyên,5944343,10947035,temporary,<55,10,none,Cần tuyển gấp Lái xe cho HTX Phúc An.
+job_0002,Nhân viên kho vận,Doanh nghiệp tư nhân Hòa Bình,Kiểm kê|Kho vận|Nhập liệu,Hải Phòng,4882734,9815818,part-time,<55,2,high,Nhân viên kho vận - Doanh nghiệp tư nhân Hòa Bình. Địa điểm làm việc: Hải Phòng.
+job_0003,Thợ lành nghề,Hợp tác xã Đông Á,Lắp đặt|Sửa chữa,Bắc Ninh,6702818,14785461,full-time,<55,10,primary,Thợ lành nghề - Hợp tác xã Đông Á. Địa điểm làm việc: Bắc Ninh.
+job_0004,Kế toán / Hành chính,HTX Cường Thịnh,Chăm sóc khách hàng|Kế toán|Bán hàng|Quản lý thời gian,Bắc Ninh,5511594,10312691,freelance,any,5,none,Tuyển dụng Kế toán / Hành chính cho HTX Cường Thịnh tại Bắc Ninh.
+job_0005,Lao động xây dựng,Siêu thị Bình Minh,Sơn sửa nhà|Lắp đặt|Xây dựng|Trộn vữa,Vũng Tàu,6093217,12701661,freelance,<50,1,vocational,Cần tuyển gấp Lao động xây dựng cho Siêu thị Bình Minh.
+job_0006,Nhân viên phục vụ,Cửa hàng Phú Hưng,Phục vụ bàn|Nấu ăn|Trang trí món ăn|Vệ sinh an toàn thực phẩm,Nam Định,4538208,8715191,temporary,<40,7,high,Nhân viên phục vụ - Cửa hàng Phú Hưng. Địa điểm làm việc: Nam Định.
+job_0007,Thợ lành nghề,Doanh nghiệp tư nhân Hùng Vương,Đọc bản vẽ|Điện nước|Sơn sửa nhà,Hải Phòng,6974311,15230848,part-time,any,2,none,Thợ lành nghề - Doanh nghiệp tư nhân Hùng Vương. Địa điểm làm việc: Hải Phòng.
+job_0008,Nông dân / Nông nghiệp,Siêu thị Phú Quốc,Chăn nuôi|Trồng trọt|Chế biến thực phẩm|Sử dụng máy nông nghiệp,Vũng Tàu,4423259,8749311,part-time,<50,10,university,Siêu thị Phú Quốc cần tuyển Nông dân / Nông nghiệp. Môi trường làm việc chuyên nghiệp.
+job_0009,Lái xe,Công ty TNHH Thanh Bình,Đọc bản đồ|Kho vận|Bảo dưỡng xe,Bắc Ninh,5562056,10973694,part-time,<55,1,none,Công ty TNHH Thanh Bình cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0010,Thợ lành nghề,Trang trại Đại Phát,Điện nước|Sơn sửa nhà|Lắp đặt,Hải Phòng,7017960,15059258,freelance,<50,9,primary,Trang trại Đại Phát cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0011,Giúp việc / Dịch vụ,Doanh nghiệp tư nhân Phú Thọ,Chăm sóc người già|Nấu ăn|Giặt ủi,Nha Trang,4387498,8131155,full-time,<45,4,university,Tuyển dụng Giúp việc / Dịch vụ cho Doanh nghiệp tư nhân Phú Thọ tại Nha Trang.
+job_0012,Nông dân / Nông nghiệp,Công ty CP Tân Á,Trồng trọt|Chế biến thực phẩm,Nam Định,3524630,7997129,temporary,<55,9,high,Cần tuyển gấp Nông dân / Nông nghiệp cho Công ty CP Tân Á.
+job_0013,Nông dân / Nông nghiệp,Cửa hàng Bắc Việt,Bán hàng nông sản|Chế biến thực phẩm|Sử dụng máy nông nghiệp,Cần Thơ,3582285,7532995,full-time,<55,7,high,Cần tuyển gấp Nông dân / Nông nghiệp cho Cửa hàng Bắc Việt.
+job_0014,Lái xe,Siêu thị Nam Phát,Bảo dưỡng xe|Giao hàng,TP. Hồ Chí Minh,6260721,11201535,part-time,<50,2,college,Siêu thị Nam Phát cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0015,Nông dân / Nông nghiệp,Quán ăn Hoàng Gia,Trồng trọt|Chăn nuôi,Hải Phòng,4157332,8454775,full-time,<50,5,primary,Cần tuyển gấp Nông dân / Nông nghiệp cho Quán ăn Hoàng Gia.
+job_0016,Nhân viên kho vận,Nhà hàng Phú Quốc,Nhập liệu|Kho vận|Giao hàng|Kiểm kê,Thanh Hóa,5464379,8764213,part-time,<50,6,university,Nhà hàng Phú Quốc cần tuyển Nhân viên kho vận. Môi trường làm việc chuyên nghiệp.
+job_0017,Nhân viên bán hàng,Cửa hàng Hòa Bình,Kế toán|Chăm sóc khách hàng|Thu ngân|Nhập liệu,Cần Thơ,5277941,9394300,temporary,<40,6,university,Cần tuyển gấp Nhân viên bán hàng cho Cửa hàng Hòa Bình.
+job_0018,Bảo vệ,HTX Phú Quốc,PCCC|Giao tiếp,Hải Phòng,5400813,9103439,full-time,<45,5,high,Cần tuyển gấp Bảo vệ cho HTX Phú Quốc.
+job_0019,Thợ lành nghề,Cửa hàng Đại Phát,Điện nước|Lắp đặt|Sơn sửa nhà|Sửa chữa,Thái Nguyên,7404524,14519463,freelance,<55,4,vocational,Cần tuyển gấp Thợ lành nghề cho Cửa hàng Đại Phát.
+job_0020,Lao động xây dựng,Siêu thị Cường Thịnh,Trộn vữa|Điện nước,Cần Thơ,5688473,12811742,full-time,<45,9,university,Cần tuyển gấp Lao động xây dựng cho Siêu thị Cường Thịnh.
+job_0021,Bảo vệ,Xưởng sản xuất Bắc Việt,Làm việc nhóm|Bảo vệ,Hải Phòng,5338365,8324555,freelance,<55,5,vocational,Bảo vệ - Xưởng sản xuất Bắc Việt. Địa điểm làm việc: Hải Phòng.
+job_0022,Nông dân / Nông nghiệp,Trung tâm Thịnh Vượng,Trồng trọt|Sử dụng máy nông nghiệp|Bán hàng nông sản|Chăn nuôi,Cần Thơ,4306750,8626666,full-time,<40,0,primary,Trung tâm Thịnh Vượng cần tuyển Nông dân / Nông nghiệp. Môi trường làm việc chuyên nghiệp.
+job_0023,Công nhân sản xuất,Công ty CP Bình Minh,Vận hành máy móc|Đóng gói|Kiểm tra chất lượng|May mặc,Vũng Tàu,5532391,10233345,full-time,<40,3,none,Tuyển dụng Công nhân sản xuất cho Công ty CP Bình Minh tại Vũng Tàu.
+job_0024,Nhân viên bán hàng,Hợp tác xã Trung Sơn,Chăm sóc khách hàng|Thu ngân,Cần Thơ,5101220,9665379,freelance,<55,8,college,Hợp tác xã Trung Sơn cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0025,Giúp việc / Dịch vụ,Công ty CP Bắc Việt,Chăm sóc người già|Giặt ủi,Nha Trang,4087070,8030909,freelance,any,2,university,Tuyển dụng Giúp việc / Dịch vụ cho Công ty CP Bắc Việt tại Nha Trang.
+job_0026,Lao động xây dựng,Hợp tác xã Nam Việt,Trộn vữa|Lắp đặt|Điện nước|Xây dựng,Qui Nhơn,5936393,12182024,freelance,<40,1,high,Hợp tác xã Nam Việt cần tuyển Lao động xây dựng. Môi trường làm việc chuyên nghiệp.
+job_0027,Nhân viên kho vận,Siêu thị Bình Minh,Kiểm kê|Sắp xếp hàng hóa|Kho vận,Nam Định,4851309,8679240,part-time,<40,2,middle,Tuyển dụng Nhân viên kho vận cho Siêu thị Bình Minh tại Nam Định.
+job_0028,Công nhân sản xuất,Cửa hàng Hồng Phát,Đóng gói|Lắp ráp,Hà Nội,5786894,9951003,temporary,<55,0,high,Cửa hàng Hồng Phát cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0029,Nhân viên bán hàng,Công ty CP Hòa Bình,Chăm sóc khách hàng|Nhập liệu|Kế toán,Hải Dương,5464823,9020959,full-time,<55,7,vocational,Nhân viên bán hàng - Công ty CP Hòa Bình. Địa điểm làm việc: Hải Dương.
+job_0030,Nông dân / Nông nghiệp,Cửa hàng Phú Quốc,Chăn nuôi|Trồng trọt,Nha Trang,4324266,8643243,part-time,<45,2,none,Cần tuyển gấp Nông dân / Nông nghiệp cho Cửa hàng Phú Quốc.
+job_0031,Nhân viên phục vụ,Trang trại Trung Sơn,Phục vụ bàn|Nấu ăn,TP. Hồ Chí Minh,4585537,8544348,temporary,<45,10,primary,Cần tuyển gấp Nhân viên phục vụ cho Trang trại Trung Sơn.
+job_0032,Nhân viên kho vận,Quán ăn Việt Tiến,Kiểm kê|Kho vận,Cần Thơ,5153532,8555762,freelance,<55,3,none,Tuyển dụng Nhân viên kho vận cho Quán ăn Việt Tiến tại Cần Thơ.
+job_0033,Lao động xây dựng,Quán ăn Trung Sơn,Xây dựng|Điện nước|Lắp đặt|Sơn sửa nhà,Thái Nguyên,6373771,11646304,temporary,<55,5,middle,Cần tuyển gấp Lao động xây dựng cho Quán ăn Trung Sơn.
+job_0034,Pha chế,Quán ăn Việt Tiến,Chăm sóc khách hàng|Pha chế đồ uống|Phục vụ bàn|Kế toán,Nam Định,4774681,9465190,part-time,<45,6,none,Pha chế - Quán ăn Việt Tiến. Địa điểm làm việc: Nam Định.
+job_0035,Công nhân sản xuất,Doanh nghiệp tư nhân Bình Minh,Vận hành máy móc|Lắp ráp|Đóng gói,Hải Dương,5822595,10020373,part-time,<40,0,middle,Doanh nghiệp tư nhân Bình Minh cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0036,Nhân viên kho vận,HTX Phúc An,Kho vận|Nhập liệu,Buôn Ma Thuột,4871693,9411137,part-time,<40,3,middle,Tuyển dụng Nhân viên kho vận cho HTX Phúc An tại Buôn Ma Thuột.
+job_0037,Thợ lành nghề,Công ty CP Phú Hưng,Sửa chữa|Sơn sửa nhà|Đọc bản vẽ|Lắp đặt,Hải Dương,6760815,14828167,full-time,<50,5,none,Tuyển dụng Thợ lành nghề cho Công ty CP Phú Hưng tại Hải Dương.
+job_0038,Lao động xây dựng,Công ty CP Hùng Vương,Lắp đặt|Điện nước|Sơn sửa nhà|Xây dựng,Đà Lạt,6472831,12759152,full-time,<40,3,vocational,Công ty CP Hùng Vương cần tuyển Lao động xây dựng. Môi trường làm việc chuyên nghiệp.
+job_0039,Bảo vệ,HTX Minh Châu,Làm việc nhóm|Giao tiếp|PCCC,Nam Định,4522649,8624946,full-time,<40,2,none,Tuyển dụng Bảo vệ cho HTX Minh Châu tại Nam Định.
+job_0040,Thợ lành nghề,Cửa hàng Bình Minh,Đọc bản vẽ|Sửa chữa|Lắp đặt,Hà Nội,6513904,14776573,temporary,any,10,none,Tuyển dụng Thợ lành nghề cho Cửa hàng Bình Minh tại Hà Nội.
+job_0041,Kế toán / Hành chính,Nhà hàng Bắc Việt,Kế toán|Nhập liệu|Quản lý thời gian|Bán hàng,Thái Nguyên,5030072,10735019,full-time,<55,2,none,Cần tuyển gấp Kế toán / Hành chính cho Nhà hàng Bắc Việt.
+job_0042,Bảo vệ,Cửa hàng Minh Châu,Bảo vệ|Làm việc nhóm|Giao tiếp|Chịu áp lực,Qui Nhơn,5469060,8444439,temporary,any,5,university,Cửa hàng Minh Châu cần tuyển Bảo vệ. Môi trường làm việc chuyên nghiệp.
+job_0043,Công nhân sản xuất,Xưởng sản xuất Phú Quốc,Vận hành máy móc|May mặc|Lắp ráp|Đóng gói,Cần Thơ,5870878,9731572,temporary,<50,10,university,Xưởng sản xuất Phú Quốc cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0044,Kế toán / Hành chính,Siêu thị Phúc An,Quản lý thời gian|Bán hàng|Chăm sóc khách hàng|Nhập liệu,Thái Nguyên,5866974,10886254,freelance,<45,9,middle,Kế toán / Hành chính - Siêu thị Phúc An. Địa điểm làm việc: Thái Nguyên.
+job_0045,Pha chế,Doanh nghiệp tư nhân Trung Sơn,Chăm sóc khách hàng|Bartender,Nha Trang,4939817,9124373,part-time,<40,9,none,Doanh nghiệp tư nhân Trung Sơn cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0046,Nhân viên kho vận,Cửa hàng Nam Việt,Nhập liệu|Giao hàng|Kho vận|Kiểm kê,Nha Trang,5101966,9045100,part-time,<55,9,none,Nhân viên kho vận - Cửa hàng Nam Việt. Địa điểm làm việc: Nha Trang.
+job_0047,Nhân viên phục vụ,Cửa hàng Nam Việt,Trang trí món ăn|Pha chế đồ uống|Phục vụ bàn|Vệ sinh an toàn thực phẩm,Thái Nguyên,4260064,8745548,part-time,<40,8,middle,Nhân viên phục vụ - Cửa hàng Nam Việt. Địa điểm làm việc: Thái Nguyên.
+job_0048,Bảo vệ,Xưởng sản xuất Phú Hưng,Bảo vệ|Làm việc nhóm|Giao tiếp,Qui Nhơn,4710274,9464747,part-time,<55,7,vocational,Xưởng sản xuất Phú Hưng cần tuyển Bảo vệ. Môi trường làm việc chuyên nghiệp.
+job_0049,Lái xe,Doanh nghiệp tư nhân Bắc Việt,Lái xe|Đọc bản đồ,Huế,5549731,11290547,freelance,<40,10,primary,Tuyển dụng Lái xe cho Doanh nghiệp tư nhân Bắc Việt tại Huế.
+job_0050,Công nhân sản xuất,Doanh nghiệp tư nhân Trung Sơn,Đóng gói|Kiểm tra chất lượng|Vận hành máy móc,Buôn Ma Thuột,5344698,9661632,full-time,<55,3,vocational,Tuyển dụng Công nhân sản xuất cho Doanh nghiệp tư nhân Trung Sơn tại Buôn Ma Thuột.
+job_0051,Kế toán / Hành chính,Công ty CP Nam Phát,Quản lý thời gian|Chăm sóc khách hàng|Bán hàng|Nhập liệu,Đà Nẵng,5866568,9796035,temporary,<45,1,middle,Kế toán / Hành chính - Công ty CP Nam Phát. Địa điểm làm việc: Đà Nẵng.
+job_0052,Giúp việc / Dịch vụ,HTX Hoàng Gia,Giặt ủi|Nấu ăn,Thái Nguyên,3913885,8478295,part-time,any,7,none,HTX Hoàng Gia cần tuyển Giúp việc / Dịch vụ. Môi trường làm việc chuyên nghiệp.
+job_0053,Công nhân sản xuất,Xưởng sản xuất Thịnh Vượng,Kiểm tra chất lượng|Lắp ráp|May mặc,Qui Nhơn,5268488,10260440,part-time,<40,5,none,Cần tuyển gấp Công nhân sản xuất cho Xưởng sản xuất Thịnh Vượng.
+job_0054,Giúp việc / Dịch vụ,Cửa hàng Nam Phát,Giữ trẻ|Nấu ăn|Giặt ủi|Chăm sóc người già,Vinhy,4334312,8454322,freelance,<50,10,none,Cửa hàng Nam Phát cần tuyển Giúp việc / Dịch vụ. Môi trường làm việc chuyên nghiệp.
+job_0055,Giúp việc / Dịch vụ,Xưởng sản xuất Minh Châu,Chăm sóc người già|Dọn dẹp|Giữ trẻ|Nấu ăn,Nam Định,3734200,8424227,freelance,<45,6,college,Tuyển dụng Giúp việc / Dịch vụ cho Xưởng sản xuất Minh Châu tại Nam Định.
+job_0056,Lái xe,Công ty TNHH Đông Á,Đọc bản đồ|Kho vận|Bảo dưỡng xe|Lái xe,Nha Trang,5952864,11758872,freelance,any,3,primary,Lái xe - Công ty TNHH Đông Á. Địa điểm làm việc: Nha Trang.
+job_0057,Thợ lành nghề,Doanh nghiệp tư nhân Vạn Phúc,Đọc bản vẽ|Sơn sửa nhà|Điện nước|Sửa chữa,Bắc Ninh,7291233,14507314,freelance,<50,10,vocational,Tuyển dụng Thợ lành nghề cho Doanh nghiệp tư nhân Vạn Phúc tại Bắc Ninh.
+job_0058,Thợ lành nghề,Hợp tác xã Đông Á,Lắp đặt|Sửa chữa|Sơn sửa nhà|Đọc bản vẽ,Thái Nguyên,7402268,15869385,full-time,any,10,none,Cần tuyển gấp Thợ lành nghề cho Hợp tác xã Đông Á.
+job_0059,Công nhân sản xuất,Công ty TNHH Phúc An,Kiểm tra chất lượng|Vận hành máy móc|Đóng gói|Lắp ráp,Vũng Tàu,5858934,10931072,freelance,<50,2,vocational,Công ty TNHH Phúc An cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0060,Kế toán / Hành chính,Nhà hàng Hoàng Gia,Chăm sóc khách hàng|Bán hàng|Nhập liệu,Bình Dương,5279874,10545965,temporary,any,7,university,Nhà hàng Hoàng Gia cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0061,Lái xe,Nhà hàng Đông Á,Bảo dưỡng xe|Đọc bản đồ|Kho vận|Lái xe,Nha Trang,5543896,11693318,temporary,<45,5,none,Nhà hàng Đông Á cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0062,Lái xe,Công ty TNHH Tân Á,Lái xe|Giao hàng,Hải Dương,5838012,11807190,temporary,<50,2,high,Công ty TNHH Tân Á cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0063,Thợ lành nghề,Hợp tác xã Nam Việt,Đọc bản vẽ|Sơn sửa nhà|Lắp đặt,Qui Nhơn,7441721,15766863,freelance,<40,4,high,Cần tuyển gấp Thợ lành nghề cho Hợp tác xã Nam Việt.
+job_0064,Thợ lành nghề,HTX Hoàng Gia,Sửa chữa|Đọc bản vẽ|Điện nước|Sơn sửa nhà,Đà Lạt,6821216,15661206,full-time,any,1,primary,Cần tuyển gấp Thợ lành nghề cho HTX Hoàng Gia.
+job_0065,Nhân viên bán hàng,Nhà hàng Hồng Phát,Nhập liệu|Bán hàng|Thu ngân,Vĩnh Phúc,4801259,9639364,full-time,<55,2,high,Tuyển dụng Nhân viên bán hàng cho Nhà hàng Hồng Phát tại Vĩnh Phúc.
+job_0066,Bảo vệ,Công ty TNHH Nam Việt,Bảo vệ|Chịu áp lực|Làm việc nhóm,Hải Phòng,4781446,8870649,part-time,<55,9,primary,Tuyển dụng Bảo vệ cho Công ty TNHH Nam Việt tại Hải Phòng.
+job_0067,Thợ lành nghề,Công ty TNHH Minh Châu,Sơn sửa nhà|Sửa chữa|Lắp đặt|Đọc bản vẽ,Nha Trang,6680151,15686133,part-time,any,10,none,Thợ lành nghề - Công ty TNHH Minh Châu. Địa điểm làm việc: Nha Trang.
+job_0068,Nhân viên bán hàng,Công ty CP Hồng Phát,Chăm sóc khách hàng|Thu ngân,Nam Định,5057820,8584725,part-time,<45,4,university,Công ty CP Hồng Phát cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0069,Lái xe,Xưởng sản xuất Phúc An,Bảo dưỡng xe|Giao hàng,Đà Nẵng,5799974,11562170,temporary,<55,5,vocational,Cần tuyển gấp Lái xe cho Xưởng sản xuất Phúc An.
+job_0070,Bảo vệ,Công ty CP Bình Minh,Chịu áp lực|Làm việc nhóm,Bắc Ninh,5015610,8488550,full-time,<40,0,high,Bảo vệ - Công ty CP Bình Minh. Địa điểm làm việc: Bắc Ninh.
+job_0071,Lái xe,Công ty TNHH Hoàng Gia,Bảo dưỡng xe|Kho vận|Đọc bản đồ,Thanh Hóa,5713363,10595634,full-time,<45,3,vocational,Lái xe - Công ty TNHH Hoàng Gia. Địa điểm làm việc: Thanh Hóa.
+job_0072,Lái xe,Quán ăn Nam Phát,Đọc bản đồ|Lái xe,Hải Phòng,6157724,10896837,temporary,<55,9,college,Lái xe - Quán ăn Nam Phát. Địa điểm làm việc: Hải Phòng.
+job_0073,Lái xe,Xưởng sản xuất Hoàng Gia,Bảo dưỡng xe|Lái xe,Vinhy,5695198,10664118,full-time,<55,10,college,Tuyển dụng Lái xe cho Xưởng sản xuất Hoàng Gia tại Vinhy.
+job_0074,Nhân viên phục vụ,Trung tâm Hòa Bình,Pha chế đồ uống|Nấu ăn,Bắc Ninh,4366498,8853714,part-time,<50,1,college,Cần tuyển gấp Nhân viên phục vụ cho Trung tâm Hòa Bình.
+job_0075,Kế toán / Hành chính,Xưởng sản xuất Trung Sơn,Nhập liệu|Chăm sóc khách hàng,Vĩnh Phúc,5187183,10118242,full-time,<40,3,university,Tuyển dụng Kế toán / Hành chính cho Xưởng sản xuất Trung Sơn tại Vĩnh Phúc.
+job_0076,Kế toán / Hành chính,Nhà hàng Hòa Bình,Kế toán|Chăm sóc khách hàng|Nhập liệu|Quản lý thời gian,Hà Nội,5814694,9623867,full-time,<50,8,primary,Tuyển dụng Kế toán / Hành chính cho Nhà hàng Hòa Bình tại Hà Nội.
+job_0077,Lái xe,Siêu thị Vạn Phúc,Bảo dưỡng xe|Kho vận|Giao hàng,Qui Nhơn,5767541,11022649,part-time,any,6,college,Cần tuyển gấp Lái xe cho Siêu thị Vạn Phúc.
+job_0078,Thợ lành nghề,Công ty TNHH Thanh Bình,Lắp đặt|Sơn sửa nhà|Đọc bản vẽ|Điện nước,Biên Hòa,6504977,15448098,temporary,<40,5,middle,Công ty TNHH Thanh Bình cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0079,Công nhân sản xuất,Xưởng sản xuất Cường Thịnh,Lắp ráp|Kiểm tra chất lượng|Vận hành máy móc,Huế,5475332,9667770,freelance,<55,8,middle,Xưởng sản xuất Cường Thịnh cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0080,Bảo vệ,Quán ăn Hòa Bình,PCCC|Bảo vệ,Vinhy,4721067,8713858,freelance,<45,3,high,Quán ăn Hòa Bình cần tuyển Bảo vệ. Môi trường làm việc chuyên nghiệp.
+job_0081,Nhân viên kho vận,HTX Phú Hưng,Sắp xếp hàng hóa|Giao hàng|Kho vận|Nhập liệu,Vũng Tàu,4620077,9644489,part-time,<45,2,vocational,Nhân viên kho vận - HTX Phú Hưng. Địa điểm làm việc: Vũng Tàu.
+job_0082,Giúp việc / Dịch vụ,Công ty CP Hùng Vương,Chăm sóc người già|Dọn dẹp,Vĩnh Phúc,4183380,8275923,part-time,<55,9,primary,Cần tuyển gấp Giúp việc / Dịch vụ cho Công ty CP Hùng Vương.
+job_0083,Nhân viên bán hàng,Trang trại Phúc An,Chăm sóc khách hàng|Nhập liệu|Bán hàng|Thu ngân,TP. Hồ Chí Minh,4920949,8656516,temporary,<55,0,primary,Nhân viên bán hàng - Trang trại Phúc An. Địa điểm làm việc: TP. Hồ Chí Minh.
+job_0084,Nhân viên bán hàng,Công ty TNHH Trung Sơn,Chăm sóc khách hàng|Thu ngân,TP. Hồ Chí Minh,5320738,8560007,freelance,<55,5,middle,Cần tuyển gấp Nhân viên bán hàng cho Công ty TNHH Trung Sơn.
+job_0085,Nhân viên kho vận,Công ty TNHH Hoàng Gia,Sắp xếp hàng hóa|Kho vận,Huế,5086739,9627101,full-time,any,9,vocational,Công ty TNHH Hoàng Gia cần tuyển Nhân viên kho vận. Môi trường làm việc chuyên nghiệp.
+job_0086,Lái xe,Nhà hàng Hồng Thịnh,Đọc bản đồ|Giao hàng|Bảo dưỡng xe,Huế,6492397,11507656,full-time,<55,5,high,Cần tuyển gấp Lái xe cho Nhà hàng Hồng Thịnh.
+job_0087,Nhân viên phục vụ,Doanh nghiệp tư nhân Bắc Việt,Pha chế đồ uống|Phục vụ bàn|Trang trí món ăn|Vệ sinh an toàn thực phẩm,Nam Định,4499804,8081727,temporary,any,1,none,Cần tuyển gấp Nhân viên phục vụ cho Doanh nghiệp tư nhân Bắc Việt.
+job_0088,Kế toán / Hành chính,Quán ăn Hồng Phát,Nhập liệu|Bán hàng,Thái Nguyên,5032146,9882783,freelance,<45,1,middle,Quán ăn Hồng Phát cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0089,Bảo vệ,Trang trại Hùng Vương,Bảo vệ|Chịu áp lực,Buôn Ma Thuột,5047045,9039234,freelance,<55,10,college,Tuyển dụng Bảo vệ cho Trang trại Hùng Vương tại Buôn Ma Thuột.
+job_0090,Nông dân / Nông nghiệp,Quán ăn Bình Minh,Sử dụng máy nông nghiệp|Chăn nuôi|Trồng trọt|Chế biến thực phẩm,Buôn Ma Thuột,3897897,8164270,freelance,any,0,vocational,Nông dân / Nông nghiệp - Quán ăn Bình Minh. Địa điểm làm việc: Buôn Ma Thuột.
+job_0091,Pha chế,Trang trại An Khang,Bartender|Chăm sóc khách hàng,Đà Lạt,4766383,9746076,full-time,<55,2,none,Pha chế - Trang trại An Khang. Địa điểm làm việc: Đà Lạt.
+job_0092,Thợ lành nghề,Siêu thị Vạn Phúc,Sơn sửa nhà|Lắp đặt|Điện nước|Sửa chữa,Bắc Ninh,6808049,15741273,freelance,<40,5,college,Cần tuyển gấp Thợ lành nghề cho Siêu thị Vạn Phúc.
+job_0093,Nông dân / Nông nghiệp,Siêu thị Bình Minh,Chăn nuôi|Bán hàng nông sản|Trồng trọt,Đà Nẵng,3526498,7677460,freelance,<45,4,university,Siêu thị Bình Minh cần tuyển Nông dân / Nông nghiệp. Môi trường làm việc chuyên nghiệp.
+job_0094,Nhân viên bán hàng,Nhà hàng Bắc Việt,Bán hàng|Nhập liệu|Thu ngân,Thái Nguyên,4901850,9047135,temporary,<45,7,high,Nhà hàng Bắc Việt cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0095,Nhân viên bán hàng,Hợp tác xã Việt Tiến,Nhập liệu|Bán hàng|Thu ngân|Kế toán,Cần Thơ,4900687,9737030,temporary,<45,0,university,Cần tuyển gấp Nhân viên bán hàng cho Hợp tác xã Việt Tiến.
+job_0096,Thợ lành nghề,Siêu thị Hòa Bình,Điện nước|Lắp đặt|Đọc bản vẽ|Sơn sửa nhà,Hải Dương,6776092,14793888,part-time,<45,2,college,Cần tuyển gấp Thợ lành nghề cho Siêu thị Hòa Bình.
+job_0097,Lao động xây dựng,Siêu thị Hồng Thịnh,Trộn vữa|Lắp đặt,Qui Nhơn,6198033,11769852,freelance,<45,4,none,Tuyển dụng Lao động xây dựng cho Siêu thị Hồng Thịnh tại Qui Nhơn.
+job_0098,Pha chế,HTX Tân Á,Bartender|Chăm sóc khách hàng|Pha chế đồ uống,Buôn Ma Thuột,5007266,9934044,freelance,<50,3,vocational,HTX Tân Á cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0099,Nhân viên phục vụ,Doanh nghiệp tư nhân Vạn Phúc,Pha chế đồ uống|Vệ sinh an toàn thực phẩm,Đà Nẵng,4773957,7853696,part-time,any,1,none,Nhân viên phục vụ - Doanh nghiệp tư nhân Vạn Phúc. Địa điểm làm việc: Đà Nẵng.
+job_0100,Công nhân sản xuất,Trang trại Hùng Vương,Vận hành máy móc|May mặc|Đóng gói,Biên Hòa,5447370,9685934,full-time,<40,10,vocational,Cần tuyển gấp Công nhân sản xuất cho Trang trại Hùng Vương.
+job_0101,Nhân viên kho vận,Xưởng sản xuất Bình Minh,Nhập liệu|Giao hàng|Kho vận,TP. Hồ Chí Minh,5064559,9925215,full-time,any,6,primary,Cần tuyển gấp Nhân viên kho vận cho Xưởng sản xuất Bình Minh.
+job_0102,Lái xe,Trung tâm Nam Phát,Lái xe|Bảo dưỡng xe,Biên Hòa,5888270,11702846,part-time,any,5,vocational,Lái xe - Trung tâm Nam Phát. Địa điểm làm việc: Biên Hòa.
+job_0103,Giúp việc / Dịch vụ,Nhà hàng Thanh Bình,Chăm sóc người già|Nấu ăn,Hải Dương,3886301,7764057,full-time,<45,1,high,Giúp việc / Dịch vụ - Nhà hàng Thanh Bình. Địa điểm làm việc: Hải Dương.
+job_0104,Pha chế,Trang trại Vạn Phúc,Kế toán|Chăm sóc khách hàng|Phục vụ bàn,Vũng Tàu,4871528,9414998,freelance,<40,9,high,Tuyển dụng Pha chế cho Trang trại Vạn Phúc tại Vũng Tàu.
+job_0105,Nhân viên bán hàng,Công ty TNHH Việt Tiến,Bán hàng|Chăm sóc khách hàng,Vũng Tàu,4930951,9447978,full-time,<55,2,none,Nhân viên bán hàng - Công ty TNHH Việt Tiến. Địa điểm làm việc: Vũng Tàu.
+job_0106,Pha chế,Hợp tác xã Phú Hưng,Chăm sóc khách hàng|Pha chế đồ uống,Bắc Ninh,4808199,9159346,temporary,<55,6,high,Hợp tác xã Phú Hưng cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0107,Nhân viên bán hàng,Công ty TNHH Bắc Việt,Nhập liệu|Thu ngân|Bán hàng,Thanh Hóa,5477999,9864113,temporary,<50,7,high,Cần tuyển gấp Nhân viên bán hàng cho Công ty TNHH Bắc Việt.
+job_0108,Công nhân sản xuất,Hợp tác xã Hồng Thịnh,Đóng gói|Vận hành máy móc|May mặc|Lắp ráp,Hải Phòng,5999809,10169099,freelance,<45,9,college,Công nhân sản xuất - Hợp tác xã Hồng Thịnh. Địa điểm làm việc: Hải Phòng.
+job_0109,Lái xe,Cửa hàng Hùng Vương,Giao hàng|Bảo dưỡng xe|Lái xe,Buôn Ma Thuột,6375643,11283412,temporary,any,0,high,Cửa hàng Hùng Vương cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0110,Bảo vệ,HTX Phúc An,Bảo vệ|Giao tiếp,Buôn Ma Thuột,4591960,9202700,temporary,<50,7,vocational,Cần tuyển gấp Bảo vệ cho HTX Phúc An.
+job_0111,Công nhân sản xuất,Siêu thị Phú Quốc,May mặc|Đóng gói|Vận hành máy móc|Kiểm tra chất lượng,Thanh Hóa,5547383,9961265,freelance,<55,1,middle,Siêu thị Phú Quốc cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0112,Lái xe,Nhà hàng Thanh Bình,Kho vận|Giao hàng,Đà Lạt,5554271,11792128,freelance,any,6,high,Lái xe - Nhà hàng Thanh Bình. Địa điểm làm việc: Đà Lạt.
+job_0113,Lao động xây dựng,Xưởng sản xuất Minh Châu,Xây dựng|Trộn vữa|Điện nước,Đà Lạt,6343221,11586313,temporary,<55,4,none,Cần tuyển gấp Lao động xây dựng cho Xưởng sản xuất Minh Châu.
+job_0114,Lái xe,Siêu thị Phú Hưng,Đọc bản đồ|Lái xe|Giao hàng|Bảo dưỡng xe,Đà Lạt,6344476,11112610,part-time,<45,8,college,Siêu thị Phú Hưng cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0115,Nhân viên kho vận,Hợp tác xã Đông Á,Giao hàng|Sắp xếp hàng hóa|Kiểm kê|Kho vận,Biên Hòa,5112792,8696868,freelance,<40,8,primary,Tuyển dụng Nhân viên kho vận cho Hợp tác xã Đông Á tại Biên Hòa.
+job_0116,Nhân viên phục vụ,Nhà hàng Phú Thọ,Nấu ăn|Pha chế đồ uống|Phục vụ bàn|Trang trí món ăn,Nam Định,4221175,7986988,part-time,any,3,high,Nhân viên phục vụ - Nhà hàng Phú Thọ. Địa điểm làm việc: Nam Định.
+job_0117,Công nhân sản xuất,Hợp tác xã Thanh Bình,Lắp ráp|Đóng gói|Vận hành máy móc,Vũng Tàu,5029595,10692540,freelance,<55,10,vocational,Công nhân sản xuất - Hợp tác xã Thanh Bình. Địa điểm làm việc: Vũng Tàu.
+job_0118,Giúp việc / Dịch vụ,Công ty CP Phú Hưng,Giữ trẻ|Giặt ủi,Vũng Tàu,3999742,7263032,freelance,<50,4,high,Tuyển dụng Giúp việc / Dịch vụ cho Công ty CP Phú Hưng tại Vũng Tàu.
+job_0119,Nhân viên phục vụ,Xưởng sản xuất Phú Quốc,Vệ sinh an toàn thực phẩm|Phục vụ bàn,Đà Nẵng,4684277,8458381,part-time,<50,1,vocational,Tuyển dụng Nhân viên phục vụ cho Xưởng sản xuất Phú Quốc tại Đà Nẵng.
+job_0120,Kế toán / Hành chính,Trung tâm Phú Quốc,Nhập liệu|Quản lý thời gian|Chăm sóc khách hàng|Kế toán,Đà Nẵng,5331027,10502290,part-time,<55,4,high,Cần tuyển gấp Kế toán / Hành chính cho Trung tâm Phú Quốc.
+job_0121,Nhân viên bán hàng,Trung tâm Minh Châu,Chăm sóc khách hàng|Kế toán|Bán hàng,Biên Hòa,4568441,9960246,freelance,<55,5,primary,Nhân viên bán hàng - Trung tâm Minh Châu. Địa điểm làm việc: Biên Hòa.
+job_0122,Nhân viên bán hàng,Công ty TNHH Phú Thọ,Bán hàng|Chăm sóc khách hàng,Vinhy,4719978,9835845,freelance,<50,3,primary,Nhân viên bán hàng - Công ty TNHH Phú Thọ. Địa điểm làm việc: Vinhy.
+job_0123,Nhân viên kho vận,Siêu thị Thanh Bình,Kho vận|Kiểm kê|Giao hàng|Nhập liệu,Vĩnh Phúc,5143797,9019592,temporary,<40,6,middle,Cần tuyển gấp Nhân viên kho vận cho Siêu thị Thanh Bình.
+job_0124,Giúp việc / Dịch vụ,Doanh nghiệp tư nhân Đông Á,Nấu ăn|Giặt ủi,Vĩnh Phúc,4468191,7081778,freelance,<40,3,primary,Giúp việc / Dịch vụ - Doanh nghiệp tư nhân Đông Á. Địa điểm làm việc: Vĩnh Phúc.
+job_0125,Thợ lành nghề,Doanh nghiệp tư nhân Thanh Bình,Lắp đặt|Đọc bản vẽ|Sơn sửa nhà|Điện nước,Nha Trang,7124905,15254434,part-time,<40,1,primary,Doanh nghiệp tư nhân Thanh Bình cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0126,Lao động xây dựng,Quán ăn Vạn Phúc,Điện nước|Xây dựng,Vinhy,5833128,12726239,freelance,<55,2,college,Cần tuyển gấp Lao động xây dựng cho Quán ăn Vạn Phúc.
+job_0127,Nhân viên bán hàng,Công ty CP Thanh Bình,Chăm sóc khách hàng|Kế toán,Thái Nguyên,5255287,8843244,full-time,<45,0,college,Tuyển dụng Nhân viên bán hàng cho Công ty CP Thanh Bình tại Thái Nguyên.
+job_0128,Nông dân / Nông nghiệp,Siêu thị Hùng Vương,Sử dụng máy nông nghiệp|Chăn nuôi,Đà Lạt,4124660,7538039,full-time,<55,0,college,Cần tuyển gấp Nông dân / Nông nghiệp cho Siêu thị Hùng Vương.
+job_0129,Nhân viên phục vụ,HTX Minh Châu,Trang trí món ăn|Vệ sinh an toàn thực phẩm|Phục vụ bàn|Nấu ăn,Hà Nội,4714503,8092215,full-time,<55,0,primary,HTX Minh Châu cần tuyển Nhân viên phục vụ. Môi trường làm việc chuyên nghiệp.
+job_0130,Thợ lành nghề,Siêu thị Cường Thịnh,Đọc bản vẽ|Sửa chữa|Điện nước,Vinhy,6974298,14711421,full-time,<45,7,none,Cần tuyển gấp Thợ lành nghề cho Siêu thị Cường Thịnh.
+job_0131,Giúp việc / Dịch vụ,Trung tâm Hồng Thịnh,Dọn dẹp|Nấu ăn,Qui Nhơn,4089867,7823128,freelance,<40,8,vocational,Giúp việc / Dịch vụ - Trung tâm Hồng Thịnh. Địa điểm làm việc: Qui Nhơn.
+job_0132,Kế toán / Hành chính,Quán ăn Thanh Bình,Nhập liệu|Bán hàng,Vĩnh Phúc,5033211,9959949,part-time,<55,2,none,Tuyển dụng Kế toán / Hành chính cho Quán ăn Thanh Bình tại Vĩnh Phúc.
+job_0133,Bảo vệ,Siêu thị Nam Phát,Giao tiếp|Làm việc nhóm,Thái Nguyên,4661976,9467535,freelance,<45,5,vocational,Bảo vệ - Siêu thị Nam Phát. Địa điểm làm việc: Thái Nguyên.
+job_0134,Nông dân / Nông nghiệp,Trung tâm Hồng Thịnh,Chăn nuôi|Bán hàng nông sản,Đà Nẵng,3705487,8680676,full-time,<55,1,high,Trung tâm Hồng Thịnh cần tuyển Nông dân / Nông nghiệp. Môi trường làm việc chuyên nghiệp.
+job_0135,Thợ lành nghề,Công ty CP Nam Phát,Sơn sửa nhà|Lắp đặt,Bình Dương,6681136,14989291,full-time,<50,8,none,Thợ lành nghề - Công ty CP Nam Phát. Địa điểm làm việc: Bình Dương.
+job_0136,Pha chế,Trung tâm Việt Tiến,Bartender|Pha chế đồ uống|Phục vụ bàn,TP. Hồ Chí Minh,4593073,8817791,temporary,any,7,college,Pha chế - Trung tâm Việt Tiến. Địa điểm làm việc: TP. Hồ Chí Minh.
+job_0137,Công nhân sản xuất,Công ty TNHH Phúc An,Lắp ráp|Vận hành máy móc|Đóng gói,Qui Nhơn,5901691,10618760,full-time,<45,6,high,Công ty TNHH Phúc An cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0138,Kế toán / Hành chính,Trang trại Đông Á,Bán hàng|Quản lý thời gian|Kế toán,Vũng Tàu,5576363,10236283,full-time,<40,1,university,Cần tuyển gấp Kế toán / Hành chính cho Trang trại Đông Á.
+job_0139,Bảo vệ,Quán ăn Thanh Bình,Bảo vệ|Giao tiếp,Đà Nẵng,4638185,8855218,temporary,<40,2,high,Bảo vệ - Quán ăn Thanh Bình. Địa điểm làm việc: Đà Nẵng.
+job_0140,Công nhân sản xuất,Siêu thị Việt Tiến,Kiểm tra chất lượng|Vận hành máy móc|Lắp ráp,Hà Nội,5138942,10282963,part-time,any,2,vocational,Công nhân sản xuất - Siêu thị Việt Tiến. Địa điểm làm việc: Hà Nội.
+job_0141,Lái xe,Công ty TNHH Phú Hưng,Lái xe|Giao hàng|Kho vận|Đọc bản đồ,Biên Hòa,5847240,11805775,part-time,<40,1,university,Tuyển dụng Lái xe cho Công ty TNHH Phú Hưng tại Biên Hòa.
+job_0142,Kế toán / Hành chính,Công ty TNHH Nam Việt,Bán hàng|Chăm sóc khách hàng|Kế toán|Quản lý thời gian,Hà Nội,5672364,9656132,temporary,<40,4,university,Tuyển dụng Kế toán / Hành chính cho Công ty TNHH Nam Việt tại Hà Nội.
+job_0143,Nhân viên kho vận,Trung tâm Việt Tiến,Kiểm kê|Nhập liệu|Sắp xếp hàng hóa|Giao hàng,Vũng Tàu,4653701,9143130,part-time,<50,9,college,Nhân viên kho vận - Trung tâm Việt Tiến. Địa điểm làm việc: Vũng Tàu.
+job_0144,Giúp việc / Dịch vụ,Nhà hàng Đại Phát,Giặt ủi|Giữ trẻ|Nấu ăn,Bắc Ninh,3709968,7056075,freelance,<40,3,none,Cần tuyển gấp Giúp việc / Dịch vụ cho Nhà hàng Đại Phát.
+job_0145,Kế toán / Hành chính,Quán ăn Phú Quốc,Kế toán|Bán hàng,Hải Phòng,5350238,10021980,freelance,<40,10,university,Quán ăn Phú Quốc cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0146,Thợ lành nghề,Cửa hàng Bắc Việt,Đọc bản vẽ|Sửa chữa|Điện nước,Hải Dương,7299876,14977557,full-time,<45,10,vocational,Cửa hàng Bắc Việt cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0147,Nông dân / Nông nghiệp,Cửa hàng Thịnh Vượng,Bán hàng nông sản|Trồng trọt|Chăn nuôi,Đà Nẵng,3788054,7641716,freelance,<45,1,primary,Cửa hàng Thịnh Vượng cần tuyển Nông dân / Nông nghiệp. Môi trường làm việc chuyên nghiệp.
+job_0148,Kế toán / Hành chính,Nhà hàng Phú Thọ,Nhập liệu|Quản lý thời gian,Qui Nhơn,5698699,10946807,full-time,<45,5,university,Kế toán / Hành chính - Nhà hàng Phú Thọ. Địa điểm làm việc: Qui Nhơn.
+job_0149,Bảo vệ,Nhà hàng Tân Á,Chịu áp lực|PCCC|Làm việc nhóm,Vĩnh Phúc,5421682,8372509,temporary,<55,0,college,Tuyển dụng Bảo vệ cho Nhà hàng Tân Á tại Vĩnh Phúc.
+job_0150,Nhân viên kho vận,Xưởng sản xuất Hồng Thịnh,Giao hàng|Sắp xếp hàng hóa|Kiểm kê,Biên Hòa,5206382,8567387,part-time,<45,2,college,Nhân viên kho vận - Xưởng sản xuất Hồng Thịnh. Địa điểm làm việc: Biên Hòa.
+job_0151,Lái xe,HTX An Khang,Bảo dưỡng xe|Lái xe|Kho vận,Thái Nguyên,6344177,11965769,part-time,<45,8,university,HTX An Khang cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0152,Nhân viên bán hàng,Hợp tác xã Cường Thịnh,Thu ngân|Chăm sóc khách hàng|Kế toán|Bán hàng,Hải Phòng,5168898,9929554,full-time,<45,4,high,Hợp tác xã Cường Thịnh cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0153,Lao động xây dựng,Cửa hàng Hoàng Gia,Điện nước|Lắp đặt|Trộn vữa|Xây dựng,Hà Nội,6166967,12560940,temporary,<50,5,primary,Cần tuyển gấp Lao động xây dựng cho Cửa hàng Hoàng Gia.
+job_0154,Công nhân sản xuất,HTX Bình Minh,Lắp ráp|May mặc|Đóng gói|Kiểm tra chất lượng,TP. Hồ Chí Minh,5119973,10967261,temporary,any,4,none,Công nhân sản xuất - HTX Bình Minh. Địa điểm làm việc: TP. Hồ Chí Minh.
+job_0155,Nông dân / Nông nghiệp,Quán ăn Bình Minh,Trồng trọt|Chăn nuôi|Chế biến thực phẩm|Sử dụng máy nông nghiệp,Đà Nẵng,3880530,8276562,full-time,<50,5,university,Nông dân / Nông nghiệp - Quán ăn Bình Minh. Địa điểm làm việc: Đà Nẵng.
+job_0156,Giúp việc / Dịch vụ,Cửa hàng Hoàng Gia,Chăm sóc người già|Nấu ăn,Vũng Tàu,4066269,7642423,freelance,<55,3,high,Tuyển dụng Giúp việc / Dịch vụ cho Cửa hàng Hoàng Gia tại Vũng Tàu.
+job_0157,Nhân viên phục vụ,Doanh nghiệp tư nhân Tân Á,Vệ sinh an toàn thực phẩm|Trang trí món ăn,Vũng Tàu,4223440,8985366,full-time,<40,10,university,Doanh nghiệp tư nhân Tân Á cần tuyển Nhân viên phục vụ. Môi trường làm việc chuyên nghiệp.
+job_0158,Nhân viên kho vận,Siêu thị Bình Minh,Kho vận|Sắp xếp hàng hóa,Hà Nội,4557960,8923171,freelance,<55,7,university,Cần tuyển gấp Nhân viên kho vận cho Siêu thị Bình Minh.
+job_0159,Bảo vệ,Siêu thị Trung Sơn,Giao tiếp|Làm việc nhóm|Chịu áp lực|Bảo vệ,Thái Nguyên,5165299,9039343,temporary,<45,6,middle,Siêu thị Trung Sơn cần tuyển Bảo vệ. Môi trường làm việc chuyên nghiệp.
+job_0160,Nhân viên bán hàng,HTX Trung Sơn,Chăm sóc khách hàng|Bán hàng|Kế toán,Bình Dương,4596025,8913487,temporary,any,6,high,Tuyển dụng Nhân viên bán hàng cho HTX Trung Sơn tại Bình Dương.
+job_0161,Lái xe,Siêu thị Hùng Vương,Kho vận|Bảo dưỡng xe,Qui Nhơn,5774321,11988098,full-time,<50,0,college,Siêu thị Hùng Vương cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0162,Thợ lành nghề,HTX Hồng Phát,Lắp đặt|Điện nước|Sửa chữa,Hải Phòng,7469111,15867826,full-time,<50,0,high,Thợ lành nghề - HTX Hồng Phát. Địa điểm làm việc: Hải Phòng.
+job_0163,Nhân viên phục vụ,Nhà hàng Đại Phát,Trang trí món ăn|Vệ sinh an toàn thực phẩm,Hải Phòng,4966240,8449614,temporary,<50,2,middle,Nhà hàng Đại Phát cần tuyển Nhân viên phục vụ. Môi trường làm việc chuyên nghiệp.
+job_0164,Thợ lành nghề,Nhà hàng Hoàng Gia,Sơn sửa nhà|Sửa chữa,Thanh Hóa,6811999,14870827,temporary,any,1,none,Tuyển dụng Thợ lành nghề cho Nhà hàng Hoàng Gia tại Thanh Hóa.
+job_0165,Nông dân / Nông nghiệp,Trung tâm Hồng Thịnh,Chế biến thực phẩm|Sử dụng máy nông nghiệp,Biên Hòa,3822208,8196283,temporary,<55,8,high,Cần tuyển gấp Nông dân / Nông nghiệp cho Trung tâm Hồng Thịnh.
+job_0166,Giúp việc / Dịch vụ,Siêu thị An Khang,Nấu ăn|Giữ trẻ|Giặt ủi|Chăm sóc người già,Hà Nội,3730388,7793409,temporary,<55,1,middle,Tuyển dụng Giúp việc / Dịch vụ cho Siêu thị An Khang tại Hà Nội.
+job_0167,Công nhân sản xuất,Siêu thị Đông Á,May mặc|Lắp ráp,Bình Dương,5769037,10960834,full-time,<40,8,none,Tuyển dụng Công nhân sản xuất cho Siêu thị Đông Á tại Bình Dương.
+job_0168,Giúp việc / Dịch vụ,Công ty CP Đại Phát,Giặt ủi|Chăm sóc người già|Dọn dẹp|Giữ trẻ,Bắc Ninh,3500063,8353057,temporary,<50,6,primary,Tuyển dụng Giúp việc / Dịch vụ cho Công ty CP Đại Phát tại Bắc Ninh.
+job_0169,Bảo vệ,Xưởng sản xuất Tân Á,Làm việc nhóm|Chịu áp lực|Giao tiếp|PCCC,Bình Dương,4924195,9412783,temporary,<45,7,primary,Bảo vệ - Xưởng sản xuất Tân Á. Địa điểm làm việc: Bình Dương.
+job_0170,Lái xe,Siêu thị Phú Thọ,Giao hàng|Kho vận,Hải Dương,6068673,10977840,temporary,<40,9,vocational,Lái xe - Siêu thị Phú Thọ. Địa điểm làm việc: Hải Dương.
+job_0171,Nhân viên phục vụ,Trang trại Phú Hưng,Trang trí món ăn|Pha chế đồ uống,Bình Dương,4928438,8343509,part-time,<40,3,college,Trang trại Phú Hưng cần tuyển Nhân viên phục vụ. Môi trường làm việc chuyên nghiệp.
+job_0172,Pha chế,Cửa hàng Hồng Phát,Pha chế đồ uống|Chăm sóc khách hàng,Buôn Ma Thuột,4575728,9960930,freelance,any,4,middle,Cần tuyển gấp Pha chế cho Cửa hàng Hồng Phát.
+job_0173,Nông dân / Nông nghiệp,Siêu thị Thịnh Vượng,Trồng trọt|Chế biến thực phẩm|Sử dụng máy nông nghiệp,Thanh Hóa,3752647,8506240,temporary,<55,2,vocational,Siêu thị Thịnh Vượng cần tuyển Nông dân / Nông nghiệp. Môi trường làm việc chuyên nghiệp.
+job_0174,Nhân viên phục vụ,Hợp tác xã Trung Sơn,Vệ sinh an toàn thực phẩm|Phục vụ bàn,Biên Hòa,4811334,7667894,temporary,<40,9,primary,Tuyển dụng Nhân viên phục vụ cho Hợp tác xã Trung Sơn tại Biên Hòa.
+job_0175,Nhân viên bán hàng,Xưởng sản xuất Hoàng Gia,Thu ngân|Chăm sóc khách hàng|Bán hàng,Qui Nhơn,4917066,9693045,temporary,<55,6,university,Cần tuyển gấp Nhân viên bán hàng cho Xưởng sản xuất Hoàng Gia.
+job_0176,Bảo vệ,Hợp tác xã Việt Tiến,Bảo vệ|Giao tiếp|Chịu áp lực|Làm việc nhóm,Vũng Tàu,5259507,9131397,full-time,any,6,university,Bảo vệ - Hợp tác xã Việt Tiến. Địa điểm làm việc: Vũng Tàu.
+job_0177,Nhân viên kho vận,Công ty CP Phú Thọ,Nhập liệu|Giao hàng|Sắp xếp hàng hóa,Thái Nguyên,4677345,9170271,full-time,<50,4,university,Nhân viên kho vận - Công ty CP Phú Thọ. Địa điểm làm việc: Thái Nguyên.
+job_0178,Giúp việc / Dịch vụ,Công ty TNHH Vạn Phúc,Chăm sóc người già|Dọn dẹp,Hải Dương,4476814,8145313,full-time,<45,1,university,Tuyển dụng Giúp việc / Dịch vụ cho Công ty TNHH Vạn Phúc tại Hải Dương.
+job_0179,Lái xe,Trang trại Thịnh Vượng,Lái xe|Giao hàng|Bảo dưỡng xe,Hà Nội,6410482,11224114,temporary,<45,8,high,Trang trại Thịnh Vượng cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0180,Công nhân sản xuất,Doanh nghiệp tư nhân Hòa Bình,Vận hành máy móc|Lắp ráp,Biên Hòa,5529991,10676737,temporary,any,0,primary,Doanh nghiệp tư nhân Hòa Bình cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0181,Nhân viên bán hàng,Xưởng sản xuất Bình Minh,Chăm sóc khách hàng|Bán hàng|Thu ngân,Hà Nội,5073968,9983924,freelance,<50,8,none,Xưởng sản xuất Bình Minh cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0182,Pha chế,Công ty TNHH Phúc An,Bartender|Kế toán,Vũng Tàu,4643972,8959812,freelance,<50,6,none,Tuyển dụng Pha chế cho Công ty TNHH Phúc An tại Vũng Tàu.
+job_0183,Nhân viên bán hàng,Nhà hàng Nam Phát,Chăm sóc khách hàng|Nhập liệu,Hải Dương,5011908,9206370,part-time,<40,8,none,Nhân viên bán hàng - Nhà hàng Nam Phát. Địa điểm làm việc: Hải Dương.
+job_0184,Kế toán / Hành chính,Xưởng sản xuất Phú Quốc,Nhập liệu|Bán hàng,Qui Nhơn,5899217,10839597,part-time,<55,4,high,Xưởng sản xuất Phú Quốc cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0185,Giúp việc / Dịch vụ,Doanh nghiệp tư nhân Thịnh Vượng,Nấu ăn|Giặt ủi,Thanh Hóa,4414186,7627072,part-time,<45,4,high,Tuyển dụng Giúp việc / Dịch vụ cho Doanh nghiệp tư nhân Thịnh Vượng tại Thanh Hóa.
+job_0186,Lao động xây dựng,Doanh nghiệp tư nhân Hùng Vương,Xây dựng|Sơn sửa nhà|Trộn vữa,Vĩnh Phúc,5856820,12746006,freelance,<45,7,university,Lao động xây dựng - Doanh nghiệp tư nhân Hùng Vương. Địa điểm làm việc: Vĩnh Phúc.
+job_0187,Thợ lành nghề,Nhà hàng Minh Châu,Sơn sửa nhà|Sửa chữa|Đọc bản vẽ|Lắp đặt,Hà Nội,6618855,15229426,temporary,<50,0,high,Thợ lành nghề - Nhà hàng Minh Châu. Địa điểm làm việc: Hà Nội.
+job_0188,Công nhân sản xuất,Công ty TNHH Hòa Bình,Kiểm tra chất lượng|May mặc|Đóng gói|Lắp ráp,Bình Dương,5031558,10027829,part-time,<40,4,vocational,Công ty TNHH Hòa Bình cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0189,Công nhân sản xuất,Cửa hàng Thanh Bình,Lắp ráp|Đóng gói|Kiểm tra chất lượng|Vận hành máy móc,Vĩnh Phúc,5475834,9607654,temporary,any,6,college,Cửa hàng Thanh Bình cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0190,Bảo vệ,Xưởng sản xuất Đông Á,Chịu áp lực|Giao tiếp,Bình Dương,5386220,8823874,full-time,any,5,none,Cần tuyển gấp Bảo vệ cho Xưởng sản xuất Đông Á.
+job_0191,Công nhân sản xuất,Cửa hàng Hồng Phát,Kiểm tra chất lượng|May mặc,Đà Nẵng,5322124,9764176,full-time,<55,4,middle,Tuyển dụng Công nhân sản xuất cho Cửa hàng Hồng Phát tại Đà Nẵng.
+job_0192,Lao động xây dựng,Trang trại Việt Tiến,Trộn vữa|Điện nước,Hải Phòng,6226935,11580691,part-time,<50,2,primary,Cần tuyển gấp Lao động xây dựng cho Trang trại Việt Tiến.
+job_0193,Giúp việc / Dịch vụ,Quán ăn Minh Châu,Nấu ăn|Giặt ủi|Chăm sóc người già,Hải Phòng,4278519,7045194,temporary,<45,2,vocational,Cần tuyển gấp Giúp việc / Dịch vụ cho Quán ăn Minh Châu.
+job_0194,Lao động xây dựng,Trung tâm Bình Minh,Điện nước|Sơn sửa nhà|Xây dựng|Trộn vữa,Thanh Hóa,5993029,11765205,full-time,<50,1,university,Lao động xây dựng - Trung tâm Bình Minh. Địa điểm làm việc: Thanh Hóa.
+job_0195,Lái xe,Nhà hàng Vạn Phúc,Kho vận|Giao hàng|Lái xe,Buôn Ma Thuột,5598791,11835013,part-time,<40,6,high,Nhà hàng Vạn Phúc cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0196,Nhân viên bán hàng,Nhà hàng Bắc Việt,Kế toán|Bán hàng|Nhập liệu|Thu ngân,Biên Hòa,5343735,9834971,temporary,any,6,university,Nhà hàng Bắc Việt cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0197,Kế toán / Hành chính,Công ty TNHH Vạn Phúc,Kế toán|Chăm sóc khách hàng,Bình Dương,5560380,9650865,full-time,<45,7,middle,Tuyển dụng Kế toán / Hành chính cho Công ty TNHH Vạn Phúc tại Bình Dương.
+job_0198,Kế toán / Hành chính,Công ty TNHH Việt Tiến,Kế toán|Bán hàng|Quản lý thời gian|Nhập liệu,Bình Dương,5240535,10263785,freelance,<50,0,none,Tuyển dụng Kế toán / Hành chính cho Công ty TNHH Việt Tiến tại Bình Dương.
+job_0199,Bảo vệ,Siêu thị Hồng Thịnh,PCCC|Giao tiếp|Bảo vệ|Làm việc nhóm,Cần Thơ,5351174,8862244,part-time,<45,8,college,Bảo vệ - Siêu thị Hồng Thịnh. Địa điểm làm việc: Cần Thơ.
+job_0200,Bảo vệ,Công ty TNHH Minh Châu,Làm việc nhóm|Giao tiếp,Thái Nguyên,5463099,9310437,temporary,<50,1,middle,Công ty TNHH Minh Châu cần tuyển Bảo vệ. Môi trường làm việc chuyên nghiệp.
+job_0201,Lái xe,Nhà hàng Việt Tiến,Lái xe|Giao hàng|Đọc bản đồ,Qui Nhơn,5571094,10532991,part-time,<45,3,primary,Cần tuyển gấp Lái xe cho Nhà hàng Việt Tiến.
+job_0202,Nông dân / Nông nghiệp,Công ty CP Phú Quốc,Bán hàng nông sản|Trồng trọt|Chế biến thực phẩm,Vĩnh Phúc,4291278,8502014,temporary,<55,4,none,Cần tuyển gấp Nông dân / Nông nghiệp cho Công ty CP Phú Quốc.
+job_0203,Nhân viên bán hàng,Quán ăn Nam Phát,Chăm sóc khách hàng|Kế toán|Nhập liệu,Nha Trang,5006701,9736353,part-time,<45,4,university,Quán ăn Nam Phát cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0204,Nhân viên kho vận,Công ty TNHH Thanh Bình,Kiểm kê|Sắp xếp hàng hóa|Giao hàng,Đà Lạt,5153374,9426829,part-time,<50,10,high,Nhân viên kho vận - Công ty TNHH Thanh Bình. Địa điểm làm việc: Đà Lạt.
+job_0205,Lao động xây dựng,Siêu thị Hồng Thịnh,Sơn sửa nhà|Xây dựng|Điện nước|Trộn vữa,TP. Hồ Chí Minh,5598604,11566776,temporary,<40,1,college,Cần tuyển gấp Lao động xây dựng cho Siêu thị Hồng Thịnh.
+job_0206,Nông dân / Nông nghiệp,Hợp tác xã Nam Phát,Bán hàng nông sản|Sử dụng máy nông nghiệp|Trồng trọt,Vinhy,3951291,8024258,part-time,<50,8,middle,Cần tuyển gấp Nông dân / Nông nghiệp cho Hợp tác xã Nam Phát.
+job_0207,Pha chế,Xưởng sản xuất Việt Tiến,Chăm sóc khách hàng|Phục vụ bàn|Kế toán|Pha chế đồ uống,Nam Định,5415297,9316602,temporary,<50,7,primary,Cần tuyển gấp Pha chế cho Xưởng sản xuất Việt Tiến.
+job_0208,Thợ lành nghề,Công ty TNHH Nam Phát,Điện nước|Sơn sửa nhà,Nha Trang,6933211,15953952,freelance,any,3,college,Công ty TNHH Nam Phát cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0209,Công nhân sản xuất,Siêu thị An Khang,Kiểm tra chất lượng|Vận hành máy móc,Bắc Ninh,5160195,10208060,temporary,<45,3,middle,Công nhân sản xuất - Siêu thị An Khang. Địa điểm làm việc: Bắc Ninh.
+job_0210,Giúp việc / Dịch vụ,Trang trại Đại Phát,Giữ trẻ|Nấu ăn|Giặt ủi|Dọn dẹp,Qui Nhơn,4249311,8026543,part-time,<40,9,none,Cần tuyển gấp Giúp việc / Dịch vụ cho Trang trại Đại Phát.
+job_0211,Pha chế,Siêu thị Hùng Vương,Phục vụ bàn|Bartender|Pha chế đồ uống,TP. Hồ Chí Minh,4501183,8996948,freelance,<50,9,vocational,Siêu thị Hùng Vương cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0212,Kế toán / Hành chính,Công ty CP Bình Minh,Quản lý thời gian|Nhập liệu|Kế toán|Chăm sóc khách hàng,Hà Nội,5778508,9703194,full-time,<45,5,college,Công ty CP Bình Minh cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0213,Thợ lành nghề,Trang trại Hồng Phát,Sơn sửa nhà|Sửa chữa|Lắp đặt,Vinhy,7226709,15849088,temporary,<45,6,college,Tuyển dụng Thợ lành nghề cho Trang trại Hồng Phát tại Vinhy.
+job_0214,Thợ lành nghề,Trung tâm Nam Phát,Lắp đặt|Sơn sửa nhà,Vinhy,7107193,15576481,full-time,<55,10,vocational,Cần tuyển gấp Thợ lành nghề cho Trung tâm Nam Phát.
+job_0215,Bảo vệ,Nhà hàng Việt Tiến,Giao tiếp|Bảo vệ|PCCC|Chịu áp lực,Vinhy,4791772,8835403,full-time,<45,6,university,Cần tuyển gấp Bảo vệ cho Nhà hàng Việt Tiến.
+job_0216,Thợ lành nghề,Công ty TNHH Bắc Việt,Sơn sửa nhà|Sửa chữa,Nam Định,6599936,14647678,part-time,<45,8,none,Tuyển dụng Thợ lành nghề cho Công ty TNHH Bắc Việt tại Nam Định.
+job_0217,Nông dân / Nông nghiệp,Siêu thị Tân Á,Chế biến thực phẩm|Trồng trọt|Chăn nuôi|Bán hàng nông sản,Hà Nội,4104111,8196577,temporary,<55,4,primary,Nông dân / Nông nghiệp - Siêu thị Tân Á. Địa điểm làm việc: Hà Nội.
+job_0218,Thợ lành nghề,Nhà hàng Phúc An,Đọc bản vẽ|Lắp đặt,Đà Nẵng,7275066,15686357,part-time,<45,4,middle,Nhà hàng Phúc An cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0219,Thợ lành nghề,Trung tâm Hồng Thịnh,Lắp đặt|Sửa chữa,Thái Nguyên,7465451,15757190,temporary,any,0,none,Trung tâm Hồng Thịnh cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0220,Giúp việc / Dịch vụ,Quán ăn Nam Phát,Dọn dẹp|Giữ trẻ|Nấu ăn|Giặt ủi,Đà Nẵng,4489649,7855276,full-time,<45,8,middle,Cần tuyển gấp Giúp việc / Dịch vụ cho Quán ăn Nam Phát.
+job_0221,Nông dân / Nông nghiệp,Công ty CP Hồng Phát,Sử dụng máy nông nghiệp|Trồng trọt|Chăn nuôi,Nha Trang,3760735,7615558,full-time,<50,1,college,Cần tuyển gấp Nông dân / Nông nghiệp cho Công ty CP Hồng Phát.
+job_0222,Nhân viên bán hàng,Nhà hàng Hồng Thịnh,Thu ngân|Nhập liệu,Nam Định,4510397,8688506,freelance,<55,10,college,Tuyển dụng Nhân viên bán hàng cho Nhà hàng Hồng Thịnh tại Nam Định.
+job_0223,Giúp việc / Dịch vụ,Trang trại Minh Châu,Giữ trẻ|Chăm sóc người già|Dọn dẹp|Giặt ủi,Vũng Tàu,4385871,8347121,full-time,any,7,high,Tuyển dụng Giúp việc / Dịch vụ cho Trang trại Minh Châu tại Vũng Tàu.
+job_0224,Nông dân / Nông nghiệp,HTX Nam Phát,Bán hàng nông sản|Chế biến thực phẩm,Đà Nẵng,3957050,7609051,full-time,<55,8,none,HTX Nam Phát cần tuyển Nông dân / Nông nghiệp. Môi trường làm việc chuyên nghiệp.
+job_0225,Nhân viên bán hàng,Nhà hàng Hùng Vương,Kế toán|Nhập liệu,Vũng Tàu,4918278,9063307,part-time,<45,3,primary,Nhà hàng Hùng Vương cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0226,Bảo vệ,HTX Phú Quốc,Bảo vệ|Chịu áp lực|PCCC|Làm việc nhóm,Thanh Hóa,5128935,8740613,freelance,any,2,primary,HTX Phú Quốc cần tuyển Bảo vệ. Môi trường làm việc chuyên nghiệp.
+job_0227,Kế toán / Hành chính,HTX Tân Á,Bán hàng|Nhập liệu|Kế toán,Hà Nội,5055519,10386566,freelance,<50,2,primary,HTX Tân Á cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0228,Pha chế,Cửa hàng Việt Tiến,Chăm sóc khách hàng|Phục vụ bàn|Pha chế đồ uống|Kế toán,Qui Nhơn,4836033,9590947,full-time,any,4,vocational,Cần tuyển gấp Pha chế cho Cửa hàng Việt Tiến.
+job_0229,Lao động xây dựng,HTX Hồng Phát,Trộn vữa|Xây dựng|Lắp đặt|Điện nước,Huế,5729889,12045417,part-time,<45,2,college,Cần tuyển gấp Lao động xây dựng cho HTX Hồng Phát.
+job_0230,Nhân viên phục vụ,Cửa hàng Trung Sơn,Vệ sinh an toàn thực phẩm|Trang trí món ăn,Bắc Ninh,4114512,8661341,part-time,<45,5,high,Tuyển dụng Nhân viên phục vụ cho Cửa hàng Trung Sơn tại Bắc Ninh.
+job_0231,Nhân viên kho vận,Siêu thị Tân Á,Kho vận|Kiểm kê|Giao hàng,Vinhy,4615003,9440136,part-time,<40,9,university,Cần tuyển gấp Nhân viên kho vận cho Siêu thị Tân Á.
+job_0232,Kế toán / Hành chính,Hợp tác xã Phú Hưng,Nhập liệu|Chăm sóc khách hàng|Kế toán,Thanh Hóa,5884376,10393730,full-time,any,6,middle,Hợp tác xã Phú Hưng cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0233,Nông dân / Nông nghiệp,Trung tâm Việt Tiến,Bán hàng nông sản|Sử dụng máy nông nghiệp|Chăn nuôi,Bình Dương,3555420,7730682,temporary,<50,4,none,Cần tuyển gấp Nông dân / Nông nghiệp cho Trung tâm Việt Tiến.
+job_0234,Nhân viên kho vận,Siêu thị Tân Á,Kho vận|Sắp xếp hàng hóa|Kiểm kê,Thanh Hóa,5426850,9940321,temporary,any,5,middle,Siêu thị Tân Á cần tuyển Nhân viên kho vận. Môi trường làm việc chuyên nghiệp.
+job_0235,Nhân viên phục vụ,Xưởng sản xuất Hồng Phát,Nấu ăn|Vệ sinh an toàn thực phẩm|Pha chế đồ uống,Biên Hòa,4732328,8447275,temporary,any,9,none,Tuyển dụng Nhân viên phục vụ cho Xưởng sản xuất Hồng Phát tại Biên Hòa.
+job_0236,Thợ lành nghề,HTX Đông Á,Sơn sửa nhà|Lắp đặt|Điện nước,Biên Hòa,7251137,15682098,part-time,<55,3,middle,Tuyển dụng Thợ lành nghề cho HTX Đông Á tại Biên Hòa.
+job_0237,Giúp việc / Dịch vụ,HTX Đại Phát,Nấu ăn|Giữ trẻ,TP. Hồ Chí Minh,4498591,7655730,freelance,<45,2,vocational,Cần tuyển gấp Giúp việc / Dịch vụ cho HTX Đại Phát.
+job_0238,Bảo vệ,Trang trại Cường Thịnh,Chịu áp lực|Làm việc nhóm,Nha Trang,4927021,8559733,full-time,<55,6,primary,Bảo vệ - Trang trại Cường Thịnh. Địa điểm làm việc: Nha Trang.
+job_0239,Thợ lành nghề,Siêu thị Hồng Thịnh,Lắp đặt|Điện nước|Sơn sửa nhà|Đọc bản vẽ,Bắc Ninh,7440741,15291330,freelance,any,10,primary,Siêu thị Hồng Thịnh cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0240,Kế toán / Hành chính,Cửa hàng Hoàng Gia,Bán hàng|Nhập liệu|Kế toán|Chăm sóc khách hàng,Thanh Hóa,5389293,10976113,freelance,<55,5,vocational,Cửa hàng Hoàng Gia cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0241,Thợ lành nghề,Công ty CP Phú Thọ,Sửa chữa|Lắp đặt|Đọc bản vẽ,Qui Nhơn,6823733,15384088,part-time,any,6,primary,Cần tuyển gấp Thợ lành nghề cho Công ty CP Phú Thọ.
+job_0242,Nhân viên bán hàng,Xưởng sản xuất An Khang,Kế toán|Bán hàng,Nha Trang,5019555,9213117,freelance,<55,6,none,Nhân viên bán hàng - Xưởng sản xuất An Khang. Địa điểm làm việc: Nha Trang.
+job_0243,Nông dân / Nông nghiệp,Quán ăn Phú Thọ,Trồng trọt|Chăn nuôi|Sử dụng máy nông nghiệp,Bình Dương,4044665,7700128,temporary,any,3,university,Quán ăn Phú Thọ cần tuyển Nông dân / Nông nghiệp. Môi trường làm việc chuyên nghiệp.
+job_0244,Giúp việc / Dịch vụ,Cửa hàng Hùng Vương,Giữ trẻ|Dọn dẹp,Vinhy,4004062,8406517,freelance,<40,6,primary,Giúp việc / Dịch vụ - Cửa hàng Hùng Vương. Địa điểm làm việc: Vinhy.
+job_0245,Nhân viên phục vụ,HTX Việt Tiến,Phục vụ bàn|Vệ sinh an toàn thực phẩm|Pha chế đồ uống,Biên Hòa,4896423,7707073,freelance,<55,2,middle,Tuyển dụng Nhân viên phục vụ cho HTX Việt Tiến tại Biên Hòa.
+job_0246,Kế toán / Hành chính,HTX Nam Việt,Chăm sóc khách hàng|Bán hàng|Kế toán|Quản lý thời gian,Vinhy,5484633,9583587,part-time,<50,2,none,Kế toán / Hành chính - HTX Nam Việt. Địa điểm làm việc: Vinhy.
+job_0247,Nhân viên bán hàng,Trung tâm Đông Á,Bán hàng|Nhập liệu|Kế toán|Thu ngân,Nha Trang,4706593,9952092,temporary,<40,0,university,Tuyển dụng Nhân viên bán hàng cho Trung tâm Đông Á tại Nha Trang.
+job_0248,Pha chế,Cửa hàng Đại Phát,Pha chế đồ uống|Bartender,TP. Hồ Chí Minh,5156777,8850616,freelance,any,10,primary,Cửa hàng Đại Phát cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0249,Kế toán / Hành chính,Cửa hàng Cường Thịnh,Nhập liệu|Kế toán|Quản lý thời gian,Bắc Ninh,5787532,10742267,part-time,any,7,university,Tuyển dụng Kế toán / Hành chính cho Cửa hàng Cường Thịnh tại Bắc Ninh.
+job_0250,Nhân viên bán hàng,Doanh nghiệp tư nhân Hòa Bình,Kế toán|Nhập liệu,Hải Phòng,4965645,9027923,full-time,<50,0,none,Tuyển dụng Nhân viên bán hàng cho Doanh nghiệp tư nhân Hòa Bình tại Hải Phòng.
+job_0251,Giúp việc / Dịch vụ,Nhà hàng Hoàng Gia,Giữ trẻ|Dọn dẹp,Nam Định,3788420,7574564,full-time,<55,3,university,Cần tuyển gấp Giúp việc / Dịch vụ cho Nhà hàng Hoàng Gia.
+job_0252,Lao động xây dựng,Siêu thị Phú Hưng,Điện nước|Lắp đặt,Đà Nẵng,5842398,12442742,full-time,<45,7,university,Cần tuyển gấp Lao động xây dựng cho Siêu thị Phú Hưng.
+job_0253,Công nhân sản xuất,Hợp tác xã Minh Châu,Vận hành máy móc|Đóng gói|May mặc,Vinhy,5425384,10761980,full-time,<50,7,vocational,Công nhân sản xuất - Hợp tác xã Minh Châu. Địa điểm làm việc: Vinhy.
+job_0254,Thợ lành nghề,Trang trại Đông Á,Sửa chữa|Đọc bản vẽ,Nha Trang,7106431,15862596,temporary,any,7,none,Thợ lành nghề - Trang trại Đông Á. Địa điểm làm việc: Nha Trang.
+job_0255,Kế toán / Hành chính,Công ty CP Minh Châu,Quản lý thời gian|Chăm sóc khách hàng|Nhập liệu,Hải Dương,5869979,10330291,part-time,<40,5,middle,Công ty CP Minh Châu cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0256,Kế toán / Hành chính,Nhà hàng An Khang,Bán hàng|Kế toán,Hải Phòng,5953468,10272199,part-time,<50,0,college,Kế toán / Hành chính - Nhà hàng An Khang. Địa điểm làm việc: Hải Phòng.
+job_0257,Lái xe,Công ty CP Đại Phát,Lái xe|Bảo dưỡng xe,Qui Nhơn,5534307,11679931,part-time,<50,1,high,Cần tuyển gấp Lái xe cho Công ty CP Đại Phát.
+job_0258,Nhân viên kho vận,Hợp tác xã Bình Minh,Giao hàng|Nhập liệu|Kiểm kê|Kho vận,Đà Lạt,5170966,9239220,freelance,any,6,primary,Hợp tác xã Bình Minh cần tuyển Nhân viên kho vận. Môi trường làm việc chuyên nghiệp.
+job_0259,Bảo vệ,Quán ăn An Khang,Làm việc nhóm|Bảo vệ|Giao tiếp|Chịu áp lực,Thanh Hóa,5007954,8338801,full-time,<50,9,college,Cần tuyển gấp Bảo vệ cho Quán ăn An Khang.
+job_0260,Lao động xây dựng,Công ty CP Đại Phát,Trộn vữa|Điện nước,Vĩnh Phúc,5832071,12642120,temporary,<45,5,none,Công ty CP Đại Phát cần tuyển Lao động xây dựng. Môi trường làm việc chuyên nghiệp.
+job_0261,Giúp việc / Dịch vụ,Công ty CP Đông Á,Giữ trẻ|Nấu ăn|Giặt ủi|Dọn dẹp,Huế,4147340,7289318,freelance,<40,1,primary,Cần tuyển gấp Giúp việc / Dịch vụ cho Công ty CP Đông Á.
+job_0262,Lái xe,Siêu thị Tân Á,Kho vận|Bảo dưỡng xe,Vũng Tàu,5719347,10596265,part-time,<50,4,high,Lái xe - Siêu thị Tân Á. Địa điểm làm việc: Vũng Tàu.
+job_0263,Lao động xây dựng,Siêu thị Cường Thịnh,Xây dựng|Sơn sửa nhà,Bình Dương,5722434,11891994,temporary,<40,1,university,Siêu thị Cường Thịnh cần tuyển Lao động xây dựng. Môi trường làm việc chuyên nghiệp.
+job_0264,Nhân viên kho vận,Siêu thị Tân Á,Nhập liệu|Giao hàng|Kiểm kê|Sắp xếp hàng hóa,Vinhy,5406325,8618359,full-time,<40,8,vocational,Tuyển dụng Nhân viên kho vận cho Siêu thị Tân Á tại Vinhy.
+job_0265,Kế toán / Hành chính,Nhà hàng Đại Phát,Kế toán|Quản lý thời gian,Cần Thơ,5677801,10633565,full-time,<45,0,university,Kế toán / Hành chính - Nhà hàng Đại Phát. Địa điểm làm việc: Cần Thơ.
+job_0266,Giúp việc / Dịch vụ,HTX Phú Hưng,Chăm sóc người già|Dọn dẹp|Giặt ủi,Thái Nguyên,3904391,8064209,full-time,<40,10,none,HTX Phú Hưng cần tuyển Giúp việc / Dịch vụ. Môi trường làm việc chuyên nghiệp.
+job_0267,Nhân viên bán hàng,Nhà hàng Bình Minh,Chăm sóc khách hàng|Kế toán|Nhập liệu|Bán hàng,Cần Thơ,5356438,9599879,temporary,<55,8,middle,Nhân viên bán hàng - Nhà hàng Bình Minh. Địa điểm làm việc: Cần Thơ.
+job_0268,Kế toán / Hành chính,Cửa hàng Bình Minh,Kế toán|Quản lý thời gian|Nhập liệu|Chăm sóc khách hàng,Hải Phòng,5137844,10665840,part-time,<45,7,university,Tuyển dụng Kế toán / Hành chính cho Cửa hàng Bình Minh tại Hải Phòng.
+job_0269,Lao động xây dựng,Công ty TNHH Hoàng Gia,Lắp đặt|Điện nước|Trộn vữa|Sơn sửa nhà,Cần Thơ,5833513,11851083,freelance,<55,5,primary,Tuyển dụng Lao động xây dựng cho Công ty TNHH Hoàng Gia tại Cần Thơ.
+job_0270,Lao động xây dựng,Quán ăn Phúc An,Trộn vữa|Xây dựng,Hà Nội,5513457,11983501,part-time,<40,8,middle,Cần tuyển gấp Lao động xây dựng cho Quán ăn Phúc An.
+job_0271,Công nhân sản xuất,Nhà hàng Đại Phát,May mặc|Vận hành máy móc|Kiểm tra chất lượng|Đóng gói,Bình Dương,5732309,10419222,freelance,<50,10,middle,Tuyển dụng Công nhân sản xuất cho Nhà hàng Đại Phát tại Bình Dương.
+job_0272,Thợ lành nghề,Hợp tác xã Đại Phát,Lắp đặt|Sửa chữa|Đọc bản vẽ,Đà Nẵng,6985624,15907627,part-time,<45,5,middle,Tuyển dụng Thợ lành nghề cho Hợp tác xã Đại Phát tại Đà Nẵng.
+job_0273,Thợ lành nghề,Trang trại Vạn Phúc,Đọc bản vẽ|Điện nước|Sửa chữa,Vĩnh Phúc,6792764,15212668,temporary,<45,7,none,Tuyển dụng Thợ lành nghề cho Trang trại Vạn Phúc tại Vĩnh Phúc.
+job_0274,Thợ lành nghề,Cửa hàng Trung Sơn,Sơn sửa nhà|Sửa chữa|Lắp đặt|Điện nước,Hà Nội,6727463,14907704,temporary,<45,4,primary,Cửa hàng Trung Sơn cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0275,Nhân viên phục vụ,Công ty TNHH Hồng Thịnh,Trang trí món ăn|Vệ sinh an toàn thực phẩm|Nấu ăn,Bình Dương,4830121,8937323,freelance,<45,6,high,Tuyển dụng Nhân viên phục vụ cho Công ty TNHH Hồng Thịnh tại Bình Dương.
+job_0276,Nhân viên bán hàng,Công ty CP Vạn Phúc,Chăm sóc khách hàng|Nhập liệu|Thu ngân,Bình Dương,5401653,9654426,part-time,<50,2,university,Cần tuyển gấp Nhân viên bán hàng cho Công ty CP Vạn Phúc.
+job_0277,Bảo vệ,Quán ăn Hồng Thịnh,Làm việc nhóm|PCCC|Giao tiếp|Bảo vệ,Hà Nội,5226634,8442313,part-time,<55,3,college,Quán ăn Hồng Thịnh cần tuyển Bảo vệ. Môi trường làm việc chuyên nghiệp.
+job_0278,Kế toán / Hành chính,Xưởng sản xuất Phúc An,Kế toán|Quản lý thời gian,TP. Hồ Chí Minh,5389901,10276249,freelance,<50,8,vocational,Cần tuyển gấp Kế toán / Hành chính cho Xưởng sản xuất Phúc An.
+job_0279,Nông dân / Nông nghiệp,Doanh nghiệp tư nhân Vạn Phúc,Bán hàng nông sản|Sử dụng máy nông nghiệp|Chế biến thực phẩm|Trồng trọt,Đà Nẵng,3844138,7591661,freelance,<50,5,vocational,Cần tuyển gấp Nông dân / Nông nghiệp cho Doanh nghiệp tư nhân Vạn Phúc.
+job_0280,Bảo vệ,HTX Phú Thọ,Bảo vệ|Chịu áp lực|Làm việc nhóm|PCCC,Bắc Ninh,4712397,8857747,full-time,<45,4,high,Cần tuyển gấp Bảo vệ cho HTX Phú Thọ.
+job_0281,Lái xe,Doanh nghiệp tư nhân Bình Minh,Giao hàng|Đọc bản đồ|Lái xe|Kho vận,TP. Hồ Chí Minh,5729846,11936481,part-time,<50,1,primary,Doanh nghiệp tư nhân Bình Minh cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0282,Kế toán / Hành chính,Trung tâm Thịnh Vượng,Kế toán|Chăm sóc khách hàng|Nhập liệu|Bán hàng,Nam Định,5426337,10673151,full-time,any,8,university,Cần tuyển gấp Kế toán / Hành chính cho Trung tâm Thịnh Vượng.
+job_0283,Nhân viên phục vụ,Cửa hàng Thanh Bình,Nấu ăn|Vệ sinh an toàn thực phẩm|Phục vụ bàn,Hà Nội,4026610,8246967,part-time,<40,7,college,Cần tuyển gấp Nhân viên phục vụ cho Cửa hàng Thanh Bình.
+job_0284,Lao động xây dựng,Công ty TNHH Cường Thịnh,Điện nước|Trộn vữa|Sơn sửa nhà,Bình Dương,6470786,12601944,part-time,<40,1,high,Công ty TNHH Cường Thịnh cần tuyển Lao động xây dựng. Môi trường làm việc chuyên nghiệp.
+job_0285,Nhân viên kho vận,Cửa hàng Việt Tiến,Sắp xếp hàng hóa|Kho vận,Đà Lạt,5007253,9110750,temporary,<50,9,university,Cần tuyển gấp Nhân viên kho vận cho Cửa hàng Việt Tiến.
+job_0286,Bảo vệ,Trung tâm Nam Việt,Chịu áp lực|Làm việc nhóm|Giao tiếp,Vĩnh Phúc,4606730,8014664,part-time,<40,10,vocational,Cần tuyển gấp Bảo vệ cho Trung tâm Nam Việt.
+job_0287,Thợ lành nghề,Trung tâm Hòa Bình,Lắp đặt|Sửa chữa|Đọc bản vẽ,Biên Hòa,7369118,15370546,freelance,<40,6,university,Trung tâm Hòa Bình cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0288,Kế toán / Hành chính,Công ty TNHH An Khang,Kế toán|Bán hàng|Chăm sóc khách hàng,TP. Hồ Chí Minh,5042062,10104779,freelance,<40,8,vocational,Công ty TNHH An Khang cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0289,Bảo vệ,Quán ăn Bình Minh,Giao tiếp|Chịu áp lực|PCCC|Bảo vệ,TP. Hồ Chí Minh,4536818,9398378,freelance,<55,4,high,Tuyển dụng Bảo vệ cho Quán ăn Bình Minh tại TP. Hồ Chí Minh.
+job_0290,Công nhân sản xuất,Xưởng sản xuất Trung Sơn,May mặc|Vận hành máy móc|Kiểm tra chất lượng|Lắp ráp,Biên Hòa,5141961,10664213,part-time,<55,2,middle,Công nhân sản xuất - Xưởng sản xuất Trung Sơn. Địa điểm làm việc: Biên Hòa.
+job_0291,Kế toán / Hành chính,Cửa hàng Đông Á,Nhập liệu|Bán hàng|Kế toán|Quản lý thời gian,Bắc Ninh,5675862,10916556,full-time,<45,3,middle,Kế toán / Hành chính - Cửa hàng Đông Á. Địa điểm làm việc: Bắc Ninh.
+job_0292,Nhân viên bán hàng,Công ty TNHH Việt Tiến,Bán hàng|Kế toán|Nhập liệu,Vinhy,4711787,9383412,temporary,<55,3,none,Tuyển dụng Nhân viên bán hàng cho Công ty TNHH Việt Tiến tại Vinhy.
+job_0293,Lái xe,Công ty TNHH Trung Sơn,Đọc bản đồ|Bảo dưỡng xe,Bình Dương,5867518,10831471,freelance,<40,5,high,Cần tuyển gấp Lái xe cho Công ty TNHH Trung Sơn.
+job_0294,Bảo vệ,Quán ăn Hồng Thịnh,Bảo vệ|Chịu áp lực|PCCC|Giao tiếp,Hà Nội,4664411,8072218,temporary,<50,0,none,Cần tuyển gấp Bảo vệ cho Quán ăn Hồng Thịnh.
+job_0295,Lái xe,Xưởng sản xuất Nam Phát,Bảo dưỡng xe|Lái xe|Giao hàng,TP. Hồ Chí Minh,5866266,10959889,full-time,<40,10,college,Tuyển dụng Lái xe cho Xưởng sản xuất Nam Phát tại TP. Hồ Chí Minh.
+job_0296,Giúp việc / Dịch vụ,Trung tâm Bắc Việt,Giặt ủi|Dọn dẹp,Cần Thơ,3845202,8488408,full-time,<55,0,primary,Trung tâm Bắc Việt cần tuyển Giúp việc / Dịch vụ. Môi trường làm việc chuyên nghiệp.
+job_0297,Pha chế,Doanh nghiệp tư nhân Phúc An,Kế toán|Pha chế đồ uống|Phục vụ bàn,Cần Thơ,5380430,9004351,temporary,any,2,college,Doanh nghiệp tư nhân Phúc An cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0298,Lái xe,Nhà hàng An Khang,Bảo dưỡng xe|Kho vận|Lái xe|Giao hàng,Nam Định,6162054,10841303,freelance,<50,3,college,Nhà hàng An Khang cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0299,Nông dân / Nông nghiệp,Hợp tác xã Phú Hưng,Chăn nuôi|Bán hàng nông sản|Trồng trọt,Cần Thơ,3846847,7676246,part-time,<55,2,vocational,Cần tuyển gấp Nông dân / Nông nghiệp cho Hợp tác xã Phú Hưng.
+job_0300,Thợ lành nghề,Quán ăn Hòa Bình,Lắp đặt|Đọc bản vẽ|Điện nước|Sửa chữa,Hà Nội,6708401,15809263,full-time,<40,9,college,Cần tuyển gấp Thợ lành nghề cho Quán ăn Hòa Bình.
+job_0301,Nhân viên kho vận,Xưởng sản xuất Đông Á,Nhập liệu|Sắp xếp hàng hóa|Giao hàng,Đà Lạt,5326475,9990624,part-time,<50,2,middle,Xưởng sản xuất Đông Á cần tuyển Nhân viên kho vận. Môi trường làm việc chuyên nghiệp.
+job_0302,Kế toán / Hành chính,Hợp tác xã Nam Việt,Chăm sóc khách hàng|Nhập liệu,Huế,5198497,9583117,temporary,any,5,none,Kế toán / Hành chính - Hợp tác xã Nam Việt. Địa điểm làm việc: Huế.
+job_0303,Kế toán / Hành chính,Quán ăn Thanh Bình,Chăm sóc khách hàng|Quản lý thời gian|Nhập liệu,Hải Phòng,5345440,10872064,full-time,<40,10,university,Cần tuyển gấp Kế toán / Hành chính cho Quán ăn Thanh Bình.
+job_0304,Bảo vệ,Xưởng sản xuất Phú Hưng,PCCC|Giao tiếp|Chịu áp lực,Cần Thơ,5381110,8078799,temporary,<45,4,high,Cần tuyển gấp Bảo vệ cho Xưởng sản xuất Phú Hưng.
+job_0305,Công nhân sản xuất,Hợp tác xã Thịnh Vượng,Lắp ráp|Kiểm tra chất lượng,Vinhy,5719848,9604638,part-time,<55,7,university,Hợp tác xã Thịnh Vượng cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0306,Thợ lành nghề,Doanh nghiệp tư nhân Trung Sơn,Đọc bản vẽ|Lắp đặt|Sơn sửa nhà|Điện nước,Biên Hòa,6782010,15472370,part-time,<40,7,vocational,Doanh nghiệp tư nhân Trung Sơn cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0307,Nông dân / Nông nghiệp,Trung tâm Minh Châu,Trồng trọt|Bán hàng nông sản|Sử dụng máy nông nghiệp,Hải Dương,4468327,8892779,full-time,<40,9,vocational,Tuyển dụng Nông dân / Nông nghiệp cho Trung tâm Minh Châu tại Hải Dương.
+job_0308,Nhân viên kho vận,Siêu thị Nam Phát,Nhập liệu|Kho vận|Kiểm kê,TP. Hồ Chí Minh,5389159,8830840,temporary,<45,4,college,Siêu thị Nam Phát cần tuyển Nhân viên kho vận. Môi trường làm việc chuyên nghiệp.
+job_0309,Nhân viên phục vụ,Trang trại Bình Minh,Nấu ăn|Phục vụ bàn|Vệ sinh an toàn thực phẩm|Pha chế đồ uống,Bắc Ninh,4363199,8187548,part-time,<50,7,middle,Trang trại Bình Minh cần tuyển Nhân viên phục vụ. Môi trường làm việc chuyên nghiệp.
+job_0310,Giúp việc / Dịch vụ,Xưởng sản xuất An Khang,Giặt ủi|Dọn dẹp,Biên Hòa,3745445,7311419,full-time,<45,7,university,Giúp việc / Dịch vụ - Xưởng sản xuất An Khang. Địa điểm làm việc: Biên Hòa.
+job_0311,Giúp việc / Dịch vụ,Quán ăn Hồng Thịnh,Dọn dẹp|Nấu ăn|Giặt ủi,Thái Nguyên,4012030,7492820,freelance,any,7,none,Tuyển dụng Giúp việc / Dịch vụ cho Quán ăn Hồng Thịnh tại Thái Nguyên.
+job_0312,Nhân viên kho vận,HTX Hùng Vương,Sắp xếp hàng hóa|Giao hàng|Nhập liệu,Đà Nẵng,5395850,8785274,freelance,<50,1,middle,Tuyển dụng Nhân viên kho vận cho HTX Hùng Vương tại Đà Nẵng.
+job_0313,Nhân viên bán hàng,Siêu thị Cường Thịnh,Kế toán|Thu ngân,Đà Lạt,4864710,9839654,temporary,<50,9,none,Nhân viên bán hàng - Siêu thị Cường Thịnh. Địa điểm làm việc: Đà Lạt.
+job_0314,Công nhân sản xuất,Công ty TNHH An Khang,Vận hành máy móc|Đóng gói,Vinhy,5760847,10421093,temporary,<50,8,middle,Cần tuyển gấp Công nhân sản xuất cho Công ty TNHH An Khang.
+job_0315,Bảo vệ,Trang trại Đại Phát,Giao tiếp|Chịu áp lực|Làm việc nhóm|Bảo vệ,Thái Nguyên,4892892,8610706,freelance,any,7,middle,Trang trại Đại Phát cần tuyển Bảo vệ. Môi trường làm việc chuyên nghiệp.
+job_0316,Giúp việc / Dịch vụ,Quán ăn Tân Á,Giặt ủi|Giữ trẻ|Nấu ăn|Chăm sóc người già,Đà Lạt,3930842,7999349,full-time,<40,9,high,Cần tuyển gấp Giúp việc / Dịch vụ cho Quán ăn Tân Á.
+job_0317,Nhân viên kho vận,Siêu thị Bắc Việt,Nhập liệu|Kiểm kê|Sắp xếp hàng hóa|Giao hàng,Vĩnh Phúc,5383743,9382025,freelance,<40,7,vocational,Cần tuyển gấp Nhân viên kho vận cho Siêu thị Bắc Việt.
+job_0318,Lao động xây dựng,Trung tâm Bình Minh,Sơn sửa nhà|Xây dựng,Vũng Tàu,6387045,11970897,full-time,any,7,college,Lao động xây dựng - Trung tâm Bình Minh. Địa điểm làm việc: Vũng Tàu.
+job_0319,Nhân viên kho vận,Công ty CP Đông Á,Sắp xếp hàng hóa|Nhập liệu,Vĩnh Phúc,4934225,9937301,full-time,any,9,primary,Công ty CP Đông Á cần tuyển Nhân viên kho vận. Môi trường làm việc chuyên nghiệp.
+job_0320,Nhân viên phục vụ,Quán ăn Nam Việt,Nấu ăn|Vệ sinh an toàn thực phẩm|Trang trí món ăn|Pha chế đồ uống,Nam Định,4514667,7628656,temporary,<55,4,middle,Tuyển dụng Nhân viên phục vụ cho Quán ăn Nam Việt tại Nam Định.
+job_0321,Bảo vệ,Công ty CP Cường Thịnh,Bảo vệ|Giao tiếp,Nha Trang,4517374,9294931,freelance,<40,4,high,Cần tuyển gấp Bảo vệ cho Công ty CP Cường Thịnh.
+job_0322,Nhân viên phục vụ,Cửa hàng Phú Quốc,Pha chế đồ uống|Nấu ăn,Thái Nguyên,4539908,8111493,freelance,<40,6,college,Cần tuyển gấp Nhân viên phục vụ cho Cửa hàng Phú Quốc.
+job_0323,Bảo vệ,HTX Nam Phát,Bảo vệ|Làm việc nhóm|PCCC,TP. Hồ Chí Minh,4640872,9381647,full-time,<40,7,university,Bảo vệ - HTX Nam Phát. Địa điểm làm việc: TP. Hồ Chí Minh.
+job_0324,Lao động xây dựng,Hợp tác xã Phú Quốc,Sơn sửa nhà|Lắp đặt,TP. Hồ Chí Minh,6122902,12012699,part-time,any,9,middle,Cần tuyển gấp Lao động xây dựng cho Hợp tác xã Phú Quốc.
+job_0325,Kế toán / Hành chính,HTX Bắc Việt,Quản lý thời gian|Nhập liệu|Bán hàng|Chăm sóc khách hàng,Hải Phòng,5869927,10831101,temporary,<45,4,college,Kế toán / Hành chính - HTX Bắc Việt. Địa điểm làm việc: Hải Phòng.
+job_0326,Nhân viên kho vận,Trang trại Hồng Phát,Giao hàng|Nhập liệu|Kho vận|Kiểm kê,Nam Định,4612366,8576522,part-time,<45,8,middle,Nhân viên kho vận - Trang trại Hồng Phát. Địa điểm làm việc: Nam Định.
+job_0327,Nhân viên kho vận,Xưởng sản xuất Cường Thịnh,Nhập liệu|Kho vận|Giao hàng,Nha Trang,5056364,8812274,part-time,<40,10,university,Tuyển dụng Nhân viên kho vận cho Xưởng sản xuất Cường Thịnh tại Nha Trang.
+job_0328,Giúp việc / Dịch vụ,Trang trại Hoàng Gia,Nấu ăn|Dọn dẹp,Nha Trang,4137933,7601366,full-time,<40,10,college,Cần tuyển gấp Giúp việc / Dịch vụ cho Trang trại Hoàng Gia.
+job_0329,Nhân viên kho vận,HTX Bắc Việt,Sắp xếp hàng hóa|Nhập liệu,Thanh Hóa,5431906,8945826,part-time,any,10,none,Cần tuyển gấp Nhân viên kho vận cho HTX Bắc Việt.
+job_0330,Nhân viên phục vụ,Doanh nghiệp tư nhân Đại Phát,Trang trí món ăn|Nấu ăn|Pha chế đồ uống,Đà Nẵng,4993290,8809213,part-time,<40,5,vocational,Cần tuyển gấp Nhân viên phục vụ cho Doanh nghiệp tư nhân Đại Phát.
+job_0331,Thợ lành nghề,Xưởng sản xuất Đại Phát,Lắp đặt|Sửa chữa,Hà Nội,7032674,15193138,temporary,<50,8,high,Thợ lành nghề - Xưởng sản xuất Đại Phát. Địa điểm làm việc: Hà Nội.
+job_0332,Nhân viên phục vụ,Cửa hàng Phú Hưng,Trang trí món ăn|Phục vụ bàn,Vĩnh Phúc,4040675,8112108,part-time,<55,2,primary,Tuyển dụng Nhân viên phục vụ cho Cửa hàng Phú Hưng tại Vĩnh Phúc.
+job_0333,Thợ lành nghề,HTX Bắc Việt,Sửa chữa|Sơn sửa nhà|Đọc bản vẽ|Điện nước,Cần Thơ,7427041,14821522,part-time,<45,9,college,HTX Bắc Việt cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0334,Thợ lành nghề,Siêu thị Đại Phát,Sơn sửa nhà|Đọc bản vẽ|Lắp đặt,TP. Hồ Chí Minh,7357464,15347101,part-time,any,0,none,Tuyển dụng Thợ lành nghề cho Siêu thị Đại Phát tại TP. Hồ Chí Minh.
+job_0335,Nhân viên kho vận,HTX Hồng Thịnh,Kiểm kê|Sắp xếp hàng hóa|Nhập liệu|Giao hàng,Nam Định,5067252,8971142,full-time,<40,8,primary,HTX Hồng Thịnh cần tuyển Nhân viên kho vận. Môi trường làm việc chuyên nghiệp.
+job_0336,Nhân viên bán hàng,Cửa hàng Đại Phát,Kế toán|Thu ngân|Chăm sóc khách hàng,Thái Nguyên,4926856,9942155,full-time,<50,3,university,Cửa hàng Đại Phát cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0337,Công nhân sản xuất,Xưởng sản xuất Phúc An,Vận hành máy móc|Kiểm tra chất lượng,Hải Phòng,5119144,10713409,freelance,<50,3,none,Xưởng sản xuất Phúc An cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0338,Thợ lành nghề,Nhà hàng Tân Á,Lắp đặt|Điện nước,Hà Nội,6743064,15002595,temporary,any,5,middle,Tuyển dụng Thợ lành nghề cho Nhà hàng Tân Á tại Hà Nội.
+job_0339,Kế toán / Hành chính,HTX Phú Quốc,Bán hàng|Nhập liệu|Chăm sóc khách hàng|Quản lý thời gian,Nam Định,5775506,10920447,temporary,<55,0,university,Kế toán / Hành chính - HTX Phú Quốc. Địa điểm làm việc: Nam Định.
+job_0340,Thợ lành nghề,Nhà hàng Hùng Vương,Lắp đặt|Sơn sửa nhà,Hà Nội,7169474,15832435,part-time,<45,6,primary,Cần tuyển gấp Thợ lành nghề cho Nhà hàng Hùng Vương.
+job_0341,Lao động xây dựng,Trang trại Phú Hưng,Xây dựng|Sơn sửa nhà|Trộn vữa|Điện nước,Biên Hòa,6085574,12018006,part-time,<50,0,middle,Tuyển dụng Lao động xây dựng cho Trang trại Phú Hưng tại Biên Hòa.
+job_0342,Lái xe,HTX Đông Á,Lái xe|Kho vận,Bắc Ninh,5648233,11352277,full-time,any,7,primary,HTX Đông Á cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0343,Lái xe,Trung tâm Thịnh Vượng,Kho vận|Bảo dưỡng xe,Bình Dương,6427704,11151414,full-time,<45,6,high,Tuyển dụng Lái xe cho Trung tâm Thịnh Vượng tại Bình Dương.
+job_0344,Công nhân sản xuất,Trang trại Việt Tiến,Lắp ráp|Kiểm tra chất lượng|Đóng gói|May mặc,Cần Thơ,5949371,9546611,full-time,<40,6,high,Cần tuyển gấp Công nhân sản xuất cho Trang trại Việt Tiến.
+job_0345,Nhân viên bán hàng,Hợp tác xã Bình Minh,Kế toán|Thu ngân|Nhập liệu|Chăm sóc khách hàng,Đà Nẵng,5141372,8990731,part-time,<55,8,university,Tuyển dụng Nhân viên bán hàng cho Hợp tác xã Bình Minh tại Đà Nẵng.
+job_0346,Lao động xây dựng,Hợp tác xã Phú Hưng,Xây dựng|Sơn sửa nhà|Lắp đặt,Bắc Ninh,6323530,11798332,freelance,<40,9,middle,Hợp tác xã Phú Hưng cần tuyển Lao động xây dựng. Môi trường làm việc chuyên nghiệp.
+job_0347,Bảo vệ,Quán ăn Vạn Phúc,PCCC|Làm việc nhóm,Buôn Ma Thuột,4944836,8378779,temporary,<55,8,college,Tuyển dụng Bảo vệ cho Quán ăn Vạn Phúc tại Buôn Ma Thuột.
+job_0348,Công nhân sản xuất,Quán ăn Vạn Phúc,Đóng gói|Vận hành máy móc|Kiểm tra chất lượng,Vũng Tàu,5870832,9679865,freelance,<50,4,university,Cần tuyển gấp Công nhân sản xuất cho Quán ăn Vạn Phúc.
+job_0349,Thợ lành nghề,Xưởng sản xuất Hoàng Gia,Sơn sửa nhà|Sửa chữa,Hải Phòng,7406806,15575049,part-time,<40,5,none,Thợ lành nghề - Xưởng sản xuất Hoàng Gia. Địa điểm làm việc: Hải Phòng.
+job_0350,Lái xe,Hợp tác xã Hùng Vương,Giao hàng|Bảo dưỡng xe|Kho vận|Đọc bản đồ,Bình Dương,5557882,11135796,freelance,<55,2,primary,Tuyển dụng Lái xe cho Hợp tác xã Hùng Vương tại Bình Dương.
+job_0351,Thợ lành nghề,Công ty TNHH Minh Châu,Lắp đặt|Sửa chữa,Đà Nẵng,7472090,15872704,part-time,any,4,middle,Thợ lành nghề - Công ty TNHH Minh Châu. Địa điểm làm việc: Đà Nẵng.
+job_0352,Giúp việc / Dịch vụ,HTX Minh Châu,Giặt ủi|Dọn dẹp|Chăm sóc người già|Nấu ăn,Qui Nhơn,3594928,7600506,temporary,<50,9,university,Giúp việc / Dịch vụ - HTX Minh Châu. Địa điểm làm việc: Qui Nhơn.
+job_0353,Lao động xây dựng,Doanh nghiệp tư nhân Hùng Vương,Lắp đặt|Sơn sửa nhà|Điện nước,Đà Lạt,5601218,12632545,temporary,any,6,high,Cần tuyển gấp Lao động xây dựng cho Doanh nghiệp tư nhân Hùng Vương.
+job_0354,Nhân viên phục vụ,Trang trại Đông Á,Nấu ăn|Phục vụ bàn|Vệ sinh an toàn thực phẩm,Hà Nội,4127419,7713216,part-time,<40,3,college,Tuyển dụng Nhân viên phục vụ cho Trang trại Đông Á tại Hà Nội.
+job_0355,Pha chế,Xưởng sản xuất Trung Sơn,Pha chế đồ uống|Phục vụ bàn,Bắc Ninh,4858068,8962215,part-time,any,10,high,Pha chế - Xưởng sản xuất Trung Sơn. Địa điểm làm việc: Bắc Ninh.
+job_0356,Công nhân sản xuất,Nhà hàng Phú Thọ,Đóng gói|Lắp ráp|May mặc|Kiểm tra chất lượng,Hải Phòng,5694324,10653010,freelance,<40,10,vocational,Cần tuyển gấp Công nhân sản xuất cho Nhà hàng Phú Thọ.
+job_0357,Bảo vệ,Xưởng sản xuất Thanh Bình,Giao tiếp|Làm việc nhóm,Cần Thơ,4622688,8172343,temporary,<55,9,university,Cần tuyển gấp Bảo vệ cho Xưởng sản xuất Thanh Bình.
+job_0358,Thợ lành nghề,Trung tâm Hoàng Gia,Sửa chữa|Lắp đặt,Thanh Hóa,7058119,14840681,full-time,any,3,college,Tuyển dụng Thợ lành nghề cho Trung tâm Hoàng Gia tại Thanh Hóa.
+job_0359,Thợ lành nghề,Công ty TNHH Nam Việt,Điện nước|Sơn sửa nhà,Bình Dương,6743159,15246477,freelance,any,8,middle,Thợ lành nghề - Công ty TNHH Nam Việt. Địa điểm làm việc: Bình Dương.
+job_0360,Nhân viên kho vận,Doanh nghiệp tư nhân Thanh Bình,Kiểm kê|Sắp xếp hàng hóa|Giao hàng|Nhập liệu,Biên Hòa,4526183,9162602,temporary,<55,7,high,Doanh nghiệp tư nhân Thanh Bình cần tuyển Nhân viên kho vận. Môi trường làm việc chuyên nghiệp.
+job_0361,Kế toán / Hành chính,Trang trại Bình Minh,Bán hàng|Chăm sóc khách hàng|Kế toán,Buôn Ma Thuột,5016628,10197976,temporary,<50,9,primary,Tuyển dụng Kế toán / Hành chính cho Trang trại Bình Minh tại Buôn Ma Thuột.
+job_0362,Nhân viên kho vận,Công ty CP Thanh Bình,Giao hàng|Nhập liệu|Kho vận|Kiểm kê,Nam Định,4898087,9845514,temporary,any,0,primary,Nhân viên kho vận - Công ty CP Thanh Bình. Địa điểm làm việc: Nam Định.
+job_0363,Kế toán / Hành chính,Xưởng sản xuất Minh Châu,Quản lý thời gian|Nhập liệu|Kế toán|Chăm sóc khách hàng,Biên Hòa,5055732,9754082,temporary,<45,7,middle,Xưởng sản xuất Minh Châu cần tuyển Kế toán / Hành chính. Môi trường làm việc chuyên nghiệp.
+job_0364,Thợ lành nghề,Nhà hàng Hoàng Gia,Sơn sửa nhà|Sửa chữa,Thái Nguyên,7355521,14646162,freelance,<45,10,college,Thợ lành nghề - Nhà hàng Hoàng Gia. Địa điểm làm việc: Thái Nguyên.
+job_0365,Thợ lành nghề,Hợp tác xã Đông Á,Điện nước|Lắp đặt|Sửa chữa|Sơn sửa nhà,Thái Nguyên,6636012,15841393,part-time,<50,4,middle,Hợp tác xã Đông Á cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0366,Pha chế,Nhà hàng Phú Thọ,Pha chế đồ uống|Bartender|Phục vụ bàn|Chăm sóc khách hàng,Vũng Tàu,5101401,9305300,part-time,<55,3,none,Tuyển dụng Pha chế cho Nhà hàng Phú Thọ tại Vũng Tàu.
+job_0367,Giúp việc / Dịch vụ,Siêu thị Việt Tiến,Dọn dẹp|Giặt ủi|Chăm sóc người già|Giữ trẻ,Biên Hòa,4119918,7356400,temporary,<55,3,high,Siêu thị Việt Tiến cần tuyển Giúp việc / Dịch vụ. Môi trường làm việc chuyên nghiệp.
+job_0368,Thợ lành nghề,Công ty CP Phú Quốc,Sơn sửa nhà|Đọc bản vẽ|Điện nước,Thanh Hóa,6715821,14984963,freelance,<50,1,university,Tuyển dụng Thợ lành nghề cho Công ty CP Phú Quốc tại Thanh Hóa.
+job_0369,Lao động xây dựng,Nhà hàng Nam Việt,Xây dựng|Sơn sửa nhà|Điện nước|Trộn vữa,Bắc Ninh,5869725,11600247,part-time,<55,1,vocational,Cần tuyển gấp Lao động xây dựng cho Nhà hàng Nam Việt.
+job_0370,Pha chế,Công ty TNHH Đông Á,Kế toán|Chăm sóc khách hàng|Phục vụ bàn|Pha chế đồ uống,Hà Nội,5312436,9594252,part-time,<55,6,primary,Cần tuyển gấp Pha chế cho Công ty TNHH Đông Á.
+job_0371,Thợ lành nghề,Trung tâm Trung Sơn,Lắp đặt|Sơn sửa nhà|Điện nước|Sửa chữa,Nha Trang,6933124,15397035,freelance,<40,0,none,Cần tuyển gấp Thợ lành nghề cho Trung tâm Trung Sơn.
+job_0372,Lái xe,Công ty CP Phúc An,Lái xe|Bảo dưỡng xe|Đọc bản đồ|Kho vận,Nha Trang,5771507,11851403,part-time,<55,10,primary,Lái xe - Công ty CP Phúc An. Địa điểm làm việc: Nha Trang.
+job_0373,Pha chế,Công ty CP Phú Thọ,Chăm sóc khách hàng|Pha chế đồ uống|Kế toán|Bartender,TP. Hồ Chí Minh,5161105,9175252,temporary,<50,8,middle,Công ty CP Phú Thọ cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0374,Lái xe,Hợp tác xã Hồng Phát,Lái xe|Đọc bản đồ|Bảo dưỡng xe|Giao hàng,Nam Định,5809559,11447747,full-time,<45,1,university,Cần tuyển gấp Lái xe cho Hợp tác xã Hồng Phát.
+job_0375,Bảo vệ,HTX Phú Thọ,PCCC|Làm việc nhóm,Bắc Ninh,5361368,8578967,freelance,<50,5,middle,Cần tuyển gấp Bảo vệ cho HTX Phú Thọ.
+job_0376,Pha chế,Công ty TNHH Nam Việt,Pha chế đồ uống|Chăm sóc khách hàng|Kế toán,Hà Nội,4672580,9713917,full-time,<45,2,high,Pha chế - Công ty TNHH Nam Việt. Địa điểm làm việc: Hà Nội.
+job_0377,Kế toán / Hành chính,Trung tâm An Khang,Nhập liệu|Chăm sóc khách hàng|Kế toán,Đà Lạt,5460758,10931498,full-time,<45,8,high,Tuyển dụng Kế toán / Hành chính cho Trung tâm An Khang tại Đà Lạt.
+job_0378,Lao động xây dựng,Doanh nghiệp tư nhân Hoàng Gia,Xây dựng|Điện nước|Trộn vữa|Lắp đặt,Huế,5543991,12923953,part-time,<50,6,middle,Lao động xây dựng - Doanh nghiệp tư nhân Hoàng Gia. Địa điểm làm việc: Huế.
+job_0379,Pha chế,Hợp tác xã Đại Phát,Kế toán|Phục vụ bàn|Pha chế đồ uống,Bắc Ninh,4642519,9090909,part-time,<50,10,college,Hợp tác xã Đại Phát cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0380,Công nhân sản xuất,Trang trại Thịnh Vượng,Đóng gói|Vận hành máy móc,Vĩnh Phúc,5168474,10318517,freelance,<50,1,middle,Công nhân sản xuất - Trang trại Thịnh Vượng. Địa điểm làm việc: Vĩnh Phúc.
+job_0381,Nông dân / Nông nghiệp,Cửa hàng Tân Á,Bán hàng nông sản|Chế biến thực phẩm|Trồng trọt|Chăn nuôi,Thanh Hóa,4131801,7710874,freelance,<50,7,none,Cần tuyển gấp Nông dân / Nông nghiệp cho Cửa hàng Tân Á.
+job_0382,Nhân viên phục vụ,Nhà hàng Việt Tiến,Nấu ăn|Vệ sinh an toàn thực phẩm|Pha chế đồ uống|Phục vụ bàn,Biên Hòa,4983777,8712947,temporary,<40,8,vocational,Cần tuyển gấp Nhân viên phục vụ cho Nhà hàng Việt Tiến.
+job_0383,Lái xe,Hợp tác xã Tân Á,Kho vận|Lái xe,Vũng Tàu,6434543,10609965,part-time,<45,2,middle,Hợp tác xã Tân Á cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0384,Nông dân / Nông nghiệp,Cửa hàng Bình Minh,Trồng trọt|Sử dụng máy nông nghiệp,Đà Nẵng,3718236,8561535,full-time,<40,0,vocational,Tuyển dụng Nông dân / Nông nghiệp cho Cửa hàng Bình Minh tại Đà Nẵng.
+job_0385,Lao động xây dựng,Công ty CP Thanh Bình,Trộn vữa|Lắp đặt|Điện nước,Hà Nội,5543326,11927700,freelance,<45,3,high,Tuyển dụng Lao động xây dựng cho Công ty CP Thanh Bình tại Hà Nội.
+job_0386,Lái xe,HTX Hồng Thịnh,Đọc bản đồ|Kho vận|Lái xe|Giao hàng,Bắc Ninh,6102073,10755825,temporary,<45,3,college,Lái xe - HTX Hồng Thịnh. Địa điểm làm việc: Bắc Ninh.
+job_0387,Nhân viên bán hàng,Quán ăn Hồng Phát,Bán hàng|Thu ngân,Biên Hòa,4877631,9787765,part-time,<50,7,university,Tuyển dụng Nhân viên bán hàng cho Quán ăn Hồng Phát tại Biên Hòa.
+job_0388,Giúp việc / Dịch vụ,Công ty CP Trung Sơn,Giặt ủi|Nấu ăn|Chăm sóc người già,Đà Nẵng,3857036,8144848,part-time,any,3,vocational,Tuyển dụng Giúp việc / Dịch vụ cho Công ty CP Trung Sơn tại Đà Nẵng.
+job_0389,Nông dân / Nông nghiệp,Hợp tác xã Bắc Việt,Bán hàng nông sản|Sử dụng máy nông nghiệp,Bắc Ninh,3853620,8103874,temporary,<50,4,primary,Cần tuyển gấp Nông dân / Nông nghiệp cho Hợp tác xã Bắc Việt.
+job_0390,Bảo vệ,Cửa hàng Thịnh Vượng,Giao tiếp|Chịu áp lực,TP. Hồ Chí Minh,4740748,8447607,temporary,<40,6,none,Cần tuyển gấp Bảo vệ cho Cửa hàng Thịnh Vượng.
+job_0391,Giúp việc / Dịch vụ,Doanh nghiệp tư nhân Tân Á,Chăm sóc người già|Giặt ủi|Nấu ăn,Nam Định,4260155,7177660,part-time,<40,10,college,Cần tuyển gấp Giúp việc / Dịch vụ cho Doanh nghiệp tư nhân Tân Á.
+job_0392,Thợ lành nghề,Trang trại Thịnh Vượng,Đọc bản vẽ|Lắp đặt|Sửa chữa|Điện nước,Biên Hòa,7000256,14878565,full-time,<55,2,none,Cần tuyển gấp Thợ lành nghề cho Trang trại Thịnh Vượng.
+job_0393,Nhân viên phục vụ,Xưởng sản xuất Hồng Phát,Trang trí món ăn|Vệ sinh an toàn thực phẩm|Nấu ăn|Phục vụ bàn,Biên Hòa,4039426,8872152,temporary,<40,0,high,Nhân viên phục vụ - Xưởng sản xuất Hồng Phát. Địa điểm làm việc: Biên Hòa.
+job_0394,Lao động xây dựng,Công ty TNHH Minh Châu,Lắp đặt|Điện nước|Xây dựng,Bình Dương,5682908,11783733,part-time,any,9,none,Tuyển dụng Lao động xây dựng cho Công ty TNHH Minh Châu tại Bình Dương.
+job_0395,Lái xe,Trung tâm Hùng Vương,Giao hàng|Lái xe|Bảo dưỡng xe,Hà Nội,6168990,11998826,freelance,<50,8,middle,Cần tuyển gấp Lái xe cho Trung tâm Hùng Vương.
+job_0396,Nhân viên kho vận,Siêu thị Bình Minh,Giao hàng|Kiểm kê|Nhập liệu|Sắp xếp hàng hóa,Qui Nhơn,4665385,8654335,temporary,<40,8,primary,Tuyển dụng Nhân viên kho vận cho Siêu thị Bình Minh tại Qui Nhơn.
+job_0397,Pha chế,Hợp tác xã Thanh Bình,Pha chế đồ uống|Kế toán|Chăm sóc khách hàng|Phục vụ bàn,Nha Trang,5246133,8762501,temporary,<45,9,high,Tuyển dụng Pha chế cho Hợp tác xã Thanh Bình tại Nha Trang.
+job_0398,Lái xe,Xưởng sản xuất Việt Tiến,Đọc bản đồ|Bảo dưỡng xe|Lái xe|Kho vận,Đà Nẵng,6428340,10764972,temporary,<40,5,university,Xưởng sản xuất Việt Tiến cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0399,Giúp việc / Dịch vụ,Quán ăn Thanh Bình,Nấu ăn|Dọn dẹp,Đà Nẵng,4206865,7506544,freelance,<50,7,high,Giúp việc / Dịch vụ - Quán ăn Thanh Bình. Địa điểm làm việc: Đà Nẵng.
+job_0400,Pha chế,Cửa hàng Nam Phát,Kế toán|Chăm sóc khách hàng|Bartender,Thanh Hóa,4720802,8563716,full-time,<45,9,primary,Cửa hàng Nam Phát cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0401,Lái xe,Trang trại Nam Việt,Kho vận|Đọc bản đồ|Giao hàng|Bảo dưỡng xe,TP. Hồ Chí Minh,6444389,11144095,freelance,any,1,high,Trang trại Nam Việt cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0402,Giúp việc / Dịch vụ,Công ty TNHH Hòa Bình,Nấu ăn|Dọn dẹp|Giặt ủi|Chăm sóc người già,Thái Nguyên,3958114,7097896,part-time,<45,4,college,Công ty TNHH Hòa Bình cần tuyển Giúp việc / Dịch vụ. Môi trường làm việc chuyên nghiệp.
+job_0403,Lao động xây dựng,Công ty TNHH Phú Quốc,Điện nước|Lắp đặt|Xây dựng,Vinhy,6035792,12402081,temporary,<50,9,primary,Cần tuyển gấp Lao động xây dựng cho Công ty TNHH Phú Quốc.
+job_0404,Pha chế,Quán ăn Việt Tiến,Chăm sóc khách hàng|Bartender|Phục vụ bàn|Pha chế đồ uống,Nha Trang,4620571,8710091,temporary,<50,5,middle,Pha chế - Quán ăn Việt Tiến. Địa điểm làm việc: Nha Trang.
+job_0405,Pha chế,Trung tâm Nam Việt,Pha chế đồ uống|Kế toán,Nha Trang,4804197,9371555,part-time,<55,1,university,Pha chế - Trung tâm Nam Việt. Địa điểm làm việc: Nha Trang.
+job_0406,Pha chế,Hợp tác xã Vạn Phúc,Kế toán|Bartender,Huế,4597232,9907497,full-time,<50,4,college,Cần tuyển gấp Pha chế cho Hợp tác xã Vạn Phúc.
+job_0407,Pha chế,HTX Việt Tiến,Kế toán|Phục vụ bàn,Bắc Ninh,5247984,9033446,part-time,<55,6,primary,HTX Việt Tiến cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0408,Bảo vệ,Siêu thị Bắc Việt,Chịu áp lực|Bảo vệ,Bình Dương,4592082,8331082,part-time,<45,10,none,Cần tuyển gấp Bảo vệ cho Siêu thị Bắc Việt.
+job_0409,Thợ lành nghề,Công ty TNHH Thanh Bình,Lắp đặt|Sửa chữa|Sơn sửa nhà,Nha Trang,7298121,15676576,part-time,<45,1,high,Cần tuyển gấp Thợ lành nghề cho Công ty TNHH Thanh Bình.
+job_0410,Bảo vệ,Quán ăn Phú Quốc,Giao tiếp|Làm việc nhóm,Hà Nội,4827866,9153143,full-time,<40,3,university,Tuyển dụng Bảo vệ cho Quán ăn Phú Quốc tại Hà Nội.
+job_0411,Công nhân sản xuất,Trung tâm Nam Việt,Vận hành máy móc|Lắp ráp|Kiểm tra chất lượng,Bình Dương,5170398,10231743,temporary,<50,5,vocational,Công nhân sản xuất - Trung tâm Nam Việt. Địa điểm làm việc: Bình Dương.
+job_0412,Bảo vệ,Trung tâm Hùng Vương,Làm việc nhóm|Giao tiếp|PCCC|Chịu áp lực,Hải Phòng,5446716,8708334,temporary,any,8,high,Bảo vệ - Trung tâm Hùng Vương. Địa điểm làm việc: Hải Phòng.
+job_0413,Pha chế,Quán ăn Nam Việt,Phục vụ bàn|Chăm sóc khách hàng|Kế toán|Bartender,Qui Nhơn,5093872,8775405,freelance,any,10,middle,Quán ăn Nam Việt cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0414,Nhân viên phục vụ,HTX Tân Á,Pha chế đồ uống|Trang trí món ăn,Vinhy,4591642,7580600,part-time,<45,6,none,Nhân viên phục vụ - HTX Tân Á. Địa điểm làm việc: Vinhy.
+job_0415,Lao động xây dựng,Siêu thị Bắc Việt,Điện nước|Lắp đặt,Đà Lạt,5800807,12872225,part-time,<45,4,primary,Lao động xây dựng - Siêu thị Bắc Việt. Địa điểm làm việc: Đà Lạt.
+job_0416,Kế toán / Hành chính,Công ty CP Nam Việt,Chăm sóc khách hàng|Nhập liệu,Vĩnh Phúc,5127656,9712900,temporary,<45,6,none,Kế toán / Hành chính - Công ty CP Nam Việt. Địa điểm làm việc: Vĩnh Phúc.
+job_0417,Công nhân sản xuất,Xưởng sản xuất Nam Phát,Lắp ráp|Đóng gói|Kiểm tra chất lượng,Bắc Ninh,5880285,10821824,temporary,<55,0,high,Cần tuyển gấp Công nhân sản xuất cho Xưởng sản xuất Nam Phát.
+job_0418,Nhân viên bán hàng,Trung tâm Tân Á,Nhập liệu|Bán hàng,Hà Nội,5479566,9510281,part-time,<50,4,high,Cần tuyển gấp Nhân viên bán hàng cho Trung tâm Tân Á.
+job_0419,Pha chế,Xưởng sản xuất Đông Á,Bartender|Phục vụ bàn,Vinhy,5471001,8991790,freelance,any,0,high,Cần tuyển gấp Pha chế cho Xưởng sản xuất Đông Á.
+job_0420,Lái xe,Doanh nghiệp tư nhân Đại Phát,Giao hàng|Lái xe|Kho vận,Vũng Tàu,6469149,11811559,full-time,<40,8,high,Cần tuyển gấp Lái xe cho Doanh nghiệp tư nhân Đại Phát.
+job_0421,Lao động xây dựng,HTX Đại Phát,Điện nước|Trộn vữa|Lắp đặt,Qui Nhơn,6231849,12438224,full-time,any,0,none,HTX Đại Phát cần tuyển Lao động xây dựng. Môi trường làm việc chuyên nghiệp.
+job_0422,Nhân viên bán hàng,Công ty CP Đại Phát,Thu ngân|Nhập liệu|Bán hàng|Kế toán,Hải Phòng,5342963,8615100,full-time,<40,1,college,Cần tuyển gấp Nhân viên bán hàng cho Công ty CP Đại Phát.
+job_0423,Nhân viên phục vụ,Hợp tác xã Hồng Thịnh,Nấu ăn|Trang trí món ăn|Vệ sinh an toàn thực phẩm,Hải Dương,4774229,8924238,full-time,<45,10,primary,Cần tuyển gấp Nhân viên phục vụ cho Hợp tác xã Hồng Thịnh.
+job_0424,Lái xe,HTX Vạn Phúc,Kho vận|Đọc bản đồ|Lái xe|Giao hàng,Huế,5983457,11254947,part-time,any,5,vocational,HTX Vạn Phúc cần tuyển Lái xe. Môi trường làm việc chuyên nghiệp.
+job_0425,Công nhân sản xuất,Trang trại Hồng Phát,Đóng gói|Lắp ráp,Vĩnh Phúc,5006698,9569127,freelance,<55,4,high,Cần tuyển gấp Công nhân sản xuất cho Trang trại Hồng Phát.
+job_0426,Thợ lành nghề,Hợp tác xã Đại Phát,Sơn sửa nhà|Lắp đặt|Điện nước|Sửa chữa,Hải Phòng,6842909,15589606,part-time,any,7,middle,Thợ lành nghề - Hợp tác xã Đại Phát. Địa điểm làm việc: Hải Phòng.
+job_0427,Pha chế,Nhà hàng Đại Phát,Chăm sóc khách hàng|Bartender,Huế,5097932,8915676,full-time,any,3,college,Nhà hàng Đại Phát cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0428,Kế toán / Hành chính,Trang trại Hòa Bình,Chăm sóc khách hàng|Nhập liệu|Bán hàng,Qui Nhơn,5292843,10706916,full-time,any,7,university,Tuyển dụng Kế toán / Hành chính cho Trang trại Hòa Bình tại Qui Nhơn.
+job_0429,Công nhân sản xuất,Trang trại Hùng Vương,May mặc|Vận hành máy móc,Bắc Ninh,5666353,10972557,part-time,any,4,middle,Tuyển dụng Công nhân sản xuất cho Trang trại Hùng Vương tại Bắc Ninh.
+job_0430,Pha chế,Công ty TNHH Thanh Bình,Bartender|Pha chế đồ uống|Kế toán|Phục vụ bàn,Huế,5431739,8795991,temporary,<50,3,vocational,Cần tuyển gấp Pha chế cho Công ty TNHH Thanh Bình.
+job_0431,Kế toán / Hành chính,Công ty TNHH Hồng Thịnh,Bán hàng|Kế toán|Chăm sóc khách hàng,Vinhy,5861705,10842410,full-time,<45,7,primary,Cần tuyển gấp Kế toán / Hành chính cho Công ty TNHH Hồng Thịnh.
+job_0432,Nhân viên bán hàng,Hợp tác xã Thịnh Vượng,Nhập liệu|Bán hàng|Kế toán|Chăm sóc khách hàng,Buôn Ma Thuột,5359376,9722334,freelance,any,4,primary,Hợp tác xã Thịnh Vượng cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0433,Giúp việc / Dịch vụ,Công ty CP Thanh Bình,Giặt ủi|Nấu ăn|Dọn dẹp,Vĩnh Phúc,3821118,8284491,freelance,<45,5,high,Tuyển dụng Giúp việc / Dịch vụ cho Công ty CP Thanh Bình tại Vĩnh Phúc.
+job_0434,Thợ lành nghề,Nhà hàng Hồng Thịnh,Điện nước|Đọc bản vẽ,Cần Thơ,7424066,15906686,full-time,<40,7,college,Thợ lành nghề - Nhà hàng Hồng Thịnh. Địa điểm làm việc: Cần Thơ.
+job_0435,Nhân viên phục vụ,Doanh nghiệp tư nhân Hồng Phát,Nấu ăn|Vệ sinh an toàn thực phẩm|Trang trí món ăn|Pha chế đồ uống,Nha Trang,4934402,8648944,freelance,any,2,none,Doanh nghiệp tư nhân Hồng Phát cần tuyển Nhân viên phục vụ. Môi trường làm việc chuyên nghiệp.
+job_0436,Nhân viên bán hàng,Công ty TNHH An Khang,Bán hàng|Thu ngân|Nhập liệu,Nam Định,4533744,9470724,part-time,any,9,high,Tuyển dụng Nhân viên bán hàng cho Công ty TNHH An Khang tại Nam Định.
+job_0437,Công nhân sản xuất,Quán ăn Trung Sơn,Lắp ráp|May mặc|Vận hành máy móc|Kiểm tra chất lượng,Đà Lạt,5309264,10188663,temporary,<45,1,primary,Công nhân sản xuất - Quán ăn Trung Sơn. Địa điểm làm việc: Đà Lạt.
+job_0438,Lái xe,Doanh nghiệp tư nhân Hoàng Gia,Bảo dưỡng xe|Kho vận,Bắc Ninh,5779840,11474727,freelance,<55,4,middle,Lái xe - Doanh nghiệp tư nhân Hoàng Gia. Địa điểm làm việc: Bắc Ninh.
+job_0439,Nông dân / Nông nghiệp,Trang trại Cường Thịnh,Sử dụng máy nông nghiệp|Trồng trọt,Đà Nẵng,4444104,8713915,freelance,<50,3,none,Cần tuyển gấp Nông dân / Nông nghiệp cho Trang trại Cường Thịnh.
+job_0440,Công nhân sản xuất,Hợp tác xã Nam Phát,Lắp ráp|May mặc,Qui Nhơn,5621018,10106674,freelance,<45,2,university,Cần tuyển gấp Công nhân sản xuất cho Hợp tác xã Nam Phát.
+job_0441,Giúp việc / Dịch vụ,Trung tâm Hoàng Gia,Giữ trẻ|Chăm sóc người già,Biên Hòa,3593642,7803165,temporary,<50,9,middle,Giúp việc / Dịch vụ - Trung tâm Hoàng Gia. Địa điểm làm việc: Biên Hòa.
+job_0442,Kế toán / Hành chính,Trung tâm Thịnh Vượng,Nhập liệu|Chăm sóc khách hàng|Bán hàng,Buôn Ma Thuột,5461477,10700718,temporary,any,0,university,Tuyển dụng Kế toán / Hành chính cho Trung tâm Thịnh Vượng tại Buôn Ma Thuột.
+job_0443,Nhân viên kho vận,HTX Thanh Bình,Nhập liệu|Giao hàng|Kho vận,TP. Hồ Chí Minh,4635795,8960920,temporary,<45,9,primary,Tuyển dụng Nhân viên kho vận cho HTX Thanh Bình tại TP. Hồ Chí Minh.
+job_0444,Nhân viên phục vụ,Xưởng sản xuất Minh Châu,Trang trí món ăn|Pha chế đồ uống,Thái Nguyên,4945665,8056372,full-time,<45,5,primary,Xưởng sản xuất Minh Châu cần tuyển Nhân viên phục vụ. Môi trường làm việc chuyên nghiệp.
+job_0445,Nhân viên bán hàng,Quán ăn Đông Á,Bán hàng|Thu ngân,Qui Nhơn,5325272,8796003,freelance,<50,7,middle,Tuyển dụng Nhân viên bán hàng cho Quán ăn Đông Á tại Qui Nhơn.
+job_0446,Nhân viên phục vụ,Xưởng sản xuất Hồng Thịnh,Phục vụ bàn|Trang trí món ăn|Vệ sinh an toàn thực phẩm,Nha Trang,4697508,7972800,part-time,<55,2,college,Nhân viên phục vụ - Xưởng sản xuất Hồng Thịnh. Địa điểm làm việc: Nha Trang.
+job_0447,Lao động xây dựng,Doanh nghiệp tư nhân Nam Việt,Xây dựng|Điện nước,Bắc Ninh,5678127,11985508,part-time,<40,3,middle,Tuyển dụng Lao động xây dựng cho Doanh nghiệp tư nhân Nam Việt tại Bắc Ninh.
+job_0448,Nông dân / Nông nghiệp,Siêu thị Phúc An,Chăn nuôi|Sử dụng máy nông nghiệp|Trồng trọt,Hải Phòng,3882899,7991887,temporary,<40,7,vocational,Tuyển dụng Nông dân / Nông nghiệp cho Siêu thị Phúc An tại Hải Phòng.
+job_0449,Lái xe,Hợp tác xã Phú Quốc,Kho vận|Lái xe,Đà Nẵng,5782773,11011565,part-time,<50,3,high,Tuyển dụng Lái xe cho Hợp tác xã Phú Quốc tại Đà Nẵng.
+job_0450,Công nhân sản xuất,Doanh nghiệp tư nhân Phú Quốc,Lắp ráp|Đóng gói|Kiểm tra chất lượng|Vận hành máy móc,Biên Hòa,5146088,10782223,full-time,<50,6,primary,Tuyển dụng Công nhân sản xuất cho Doanh nghiệp tư nhân Phú Quốc tại Biên Hòa.
+job_0451,Thợ lành nghề,Xưởng sản xuất Minh Châu,Điện nước|Đọc bản vẽ|Lắp đặt|Sơn sửa nhà,Thái Nguyên,6599949,15920786,freelance,<45,6,university,Tuyển dụng Thợ lành nghề cho Xưởng sản xuất Minh Châu tại Thái Nguyên.
+job_0452,Lao động xây dựng,Siêu thị Đại Phát,Sơn sửa nhà|Lắp đặt|Điện nước|Xây dựng,Thái Nguyên,5806572,11903498,part-time,<40,3,none,Cần tuyển gấp Lao động xây dựng cho Siêu thị Đại Phát.
+job_0453,Nhân viên bán hàng,Trung tâm Tân Á,Nhập liệu|Bán hàng|Chăm sóc khách hàng|Kế toán,Hải Dương,5151891,9235087,freelance,<45,4,middle,Tuyển dụng Nhân viên bán hàng cho Trung tâm Tân Á tại Hải Dương.
+job_0454,Giúp việc / Dịch vụ,Công ty TNHH Phú Quốc,Giữ trẻ|Chăm sóc người già|Dọn dẹp,Hải Phòng,4192582,7320429,temporary,<40,4,vocational,Tuyển dụng Giúp việc / Dịch vụ cho Công ty TNHH Phú Quốc tại Hải Phòng.
+job_0455,Công nhân sản xuất,Cửa hàng Phú Thọ,Lắp ráp|May mặc|Vận hành máy móc,Vũng Tàu,5809539,10666697,part-time,any,3,vocational,Cửa hàng Phú Thọ cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0456,Giúp việc / Dịch vụ,HTX Đại Phát,Nấu ăn|Giữ trẻ|Giặt ủi|Chăm sóc người già,Thái Nguyên,3732590,7021811,part-time,<50,4,primary,Giúp việc / Dịch vụ - HTX Đại Phát. Địa điểm làm việc: Thái Nguyên.
+job_0457,Nhân viên bán hàng,Doanh nghiệp tư nhân Phú Hưng,Chăm sóc khách hàng|Bán hàng|Nhập liệu|Thu ngân,TP. Hồ Chí Minh,5245425,8994159,freelance,<45,7,vocational,Cần tuyển gấp Nhân viên bán hàng cho Doanh nghiệp tư nhân Phú Hưng.
+job_0458,Bảo vệ,Xưởng sản xuất Minh Châu,Làm việc nhóm|Chịu áp lực,Hải Dương,4910116,9034189,freelance,any,0,none,Tuyển dụng Bảo vệ cho Xưởng sản xuất Minh Châu tại Hải Dương.
+job_0459,Nhân viên phục vụ,Trung tâm Thịnh Vượng,Vệ sinh an toàn thực phẩm|Pha chế đồ uống|Phục vụ bàn,Đà Nẵng,4140081,8834468,part-time,<50,0,vocational,Trung tâm Thịnh Vượng cần tuyển Nhân viên phục vụ. Môi trường làm việc chuyên nghiệp.
+job_0460,Nông dân / Nông nghiệp,Trang trại Thịnh Vượng,Chế biến thực phẩm|Sử dụng máy nông nghiệp|Trồng trọt|Bán hàng nông sản,Bắc Ninh,3763367,8126956,freelance,any,6,college,Cần tuyển gấp Nông dân / Nông nghiệp cho Trang trại Thịnh Vượng.
+job_0461,Giúp việc / Dịch vụ,Doanh nghiệp tư nhân Hùng Vương,Giặt ủi|Giữ trẻ,Nam Định,3704688,7446228,freelance,<45,2,university,Tuyển dụng Giúp việc / Dịch vụ cho Doanh nghiệp tư nhân Hùng Vương tại Nam Định.
+job_0462,Nhân viên bán hàng,Nhà hàng Hoàng Gia,Chăm sóc khách hàng|Nhập liệu,Cần Thơ,5004993,9254787,full-time,any,8,vocational,Nhân viên bán hàng - Nhà hàng Hoàng Gia. Địa điểm làm việc: Cần Thơ.
+job_0463,Nhân viên phục vụ,Trang trại Nam Việt,Trang trí món ăn|Pha chế đồ uống,Nha Trang,4233933,8784781,part-time,<55,10,college,Tuyển dụng Nhân viên phục vụ cho Trang trại Nam Việt tại Nha Trang.
+job_0464,Pha chế,Trang trại Nam Phát,Bartender|Chăm sóc khách hàng|Phục vụ bàn|Pha chế đồ uống,Qui Nhơn,4940484,9112997,full-time,<55,3,middle,Pha chế - Trang trại Nam Phát. Địa điểm làm việc: Qui Nhơn.
+job_0465,Công nhân sản xuất,HTX Thanh Bình,Lắp ráp|Vận hành máy móc|May mặc|Đóng gói,Nha Trang,5003449,10575846,part-time,<45,0,vocational,HTX Thanh Bình cần tuyển Công nhân sản xuất. Môi trường làm việc chuyên nghiệp.
+job_0466,Lái xe,Công ty TNHH Hồng Phát,Kho vận|Bảo dưỡng xe|Giao hàng,Bắc Ninh,6030596,10568316,part-time,any,8,university,Cần tuyển gấp Lái xe cho Công ty TNHH Hồng Phát.
+job_0467,Kế toán / Hành chính,Trung tâm Thịnh Vượng,Bán hàng|Kế toán|Chăm sóc khách hàng,Đà Lạt,5908618,10988475,freelance,<45,2,university,Kế toán / Hành chính - Trung tâm Thịnh Vượng. Địa điểm làm việc: Đà Lạt.
+job_0468,Nông dân / Nông nghiệp,Công ty CP Bình Minh,Chế biến thực phẩm|Chăn nuôi,Nam Định,4033230,8588083,temporary,<40,2,primary,Cần tuyển gấp Nông dân / Nông nghiệp cho Công ty CP Bình Minh.
+job_0469,Thợ lành nghề,HTX Việt Tiến,Đọc bản vẽ|Lắp đặt,Hải Dương,7423584,15817055,temporary,<45,10,none,Tuyển dụng Thợ lành nghề cho HTX Việt Tiến tại Hải Dương.
+job_0470,Công nhân sản xuất,Trang trại Hùng Vương,Kiểm tra chất lượng|Đóng gói|Vận hành máy móc,Đà Nẵng,5987403,10321267,full-time,<50,10,high,Cần tuyển gấp Công nhân sản xuất cho Trang trại Hùng Vương.
+job_0471,Lái xe,Quán ăn Nam Phát,Giao hàng|Đọc bản đồ,Buôn Ma Thuột,5969097,11766929,part-time,<55,7,university,Cần tuyển gấp Lái xe cho Quán ăn Nam Phát.
+job_0472,Pha chế,Trang trại Hồng Phát,Chăm sóc khách hàng|Pha chế đồ uống|Phục vụ bàn|Kế toán,Vinhy,5293995,9555410,freelance,any,5,primary,Cần tuyển gấp Pha chế cho Trang trại Hồng Phát.
+job_0473,Thợ lành nghề,Hợp tác xã Tân Á,Đọc bản vẽ|Lắp đặt,Hải Phòng,6876273,15117210,part-time,<55,3,college,Cần tuyển gấp Thợ lành nghề cho Hợp tác xã Tân Á.
+job_0474,Lái xe,Siêu thị Phú Hưng,Lái xe|Bảo dưỡng xe,Bắc Ninh,5774300,11800682,full-time,<40,7,none,Lái xe - Siêu thị Phú Hưng. Địa điểm làm việc: Bắc Ninh.
+job_0475,Kế toán / Hành chính,Công ty CP Thịnh Vượng,Chăm sóc khách hàng|Kế toán|Quản lý thời gian,Bình Dương,5754644,9656223,temporary,<45,0,university,Kế toán / Hành chính - Công ty CP Thịnh Vượng. Địa điểm làm việc: Bình Dương.
+job_0476,Giúp việc / Dịch vụ,Trung tâm Thanh Bình,Chăm sóc người già|Dọn dẹp|Giặt ủi|Giữ trẻ,Huế,4405005,7420436,freelance,<50,10,vocational,Giúp việc / Dịch vụ - Trung tâm Thanh Bình. Địa điểm làm việc: Huế.
+job_0477,Lao động xây dựng,Doanh nghiệp tư nhân Đông Á,Lắp đặt|Trộn vữa|Điện nước,TP. Hồ Chí Minh,5779978,12635857,full-time,any,6,vocational,Doanh nghiệp tư nhân Đông Á cần tuyển Lao động xây dựng. Môi trường làm việc chuyên nghiệp.
+job_0478,Nhân viên phục vụ,Nhà hàng Hoàng Gia,Phục vụ bàn|Vệ sinh an toàn thực phẩm|Pha chế đồ uống|Nấu ăn,Buôn Ma Thuột,4602731,8310857,temporary,<45,7,university,Nhân viên phục vụ - Nhà hàng Hoàng Gia. Địa điểm làm việc: Buôn Ma Thuột.
+job_0479,Thợ lành nghề,Doanh nghiệp tư nhân Vạn Phúc,Đọc bản vẽ|Lắp đặt,Vinhy,7150476,15450653,full-time,any,7,none,Tuyển dụng Thợ lành nghề cho Doanh nghiệp tư nhân Vạn Phúc tại Vinhy.
+job_0480,Nông dân / Nông nghiệp,Nhà hàng Hoàng Gia,Trồng trọt|Chế biến thực phẩm|Sử dụng máy nông nghiệp,Bắc Ninh,3770167,8323111,full-time,<45,10,primary,Tuyển dụng Nông dân / Nông nghiệp cho Nhà hàng Hoàng Gia tại Bắc Ninh.
+job_0481,Giúp việc / Dịch vụ,Trung tâm Hòa Bình,Dọn dẹp|Nấu ăn|Giặt ủi|Chăm sóc người già,Hải Phòng,4344688,7927762,part-time,<50,1,university,Giúp việc / Dịch vụ - Trung tâm Hòa Bình. Địa điểm làm việc: Hải Phòng.
+job_0482,Pha chế,Hợp tác xã Phú Hưng,Phục vụ bàn|Chăm sóc khách hàng,Qui Nhơn,4656534,9490383,part-time,any,3,none,Pha chế - Hợp tác xã Phú Hưng. Địa điểm làm việc: Qui Nhơn.
+job_0483,Nhân viên phục vụ,HTX Đại Phát,Vệ sinh an toàn thực phẩm|Phục vụ bàn,Cần Thơ,4730957,8933504,freelance,any,5,none,Nhân viên phục vụ - HTX Đại Phát. Địa điểm làm việc: Cần Thơ.
+job_0484,Kế toán / Hành chính,Trung tâm Trung Sơn,Quản lý thời gian|Bán hàng|Chăm sóc khách hàng,Buôn Ma Thuột,5611249,9937119,temporary,<55,1,primary,Kế toán / Hành chính - Trung tâm Trung Sơn. Địa điểm làm việc: Buôn Ma Thuột.
+job_0485,Pha chế,HTX Minh Châu,Bartender|Kế toán|Chăm sóc khách hàng|Pha chế đồ uống,Thái Nguyên,4738313,9236303,part-time,<50,10,vocational,HTX Minh Châu cần tuyển Pha chế. Môi trường làm việc chuyên nghiệp.
+job_0486,Nhân viên kho vận,HTX Phú Quốc,Kho vận|Nhập liệu|Kiểm kê,TP. Hồ Chí Minh,4546215,9174435,temporary,<45,1,vocational,Nhân viên kho vận - HTX Phú Quốc. Địa điểm làm việc: TP. Hồ Chí Minh.
+job_0487,Bảo vệ,Trang trại Phú Thọ,Bảo vệ|PCCC|Giao tiếp|Chịu áp lực,Huế,5113853,8158402,freelance,<50,2,middle,Trang trại Phú Thọ cần tuyển Bảo vệ. Môi trường làm việc chuyên nghiệp.
+job_0488,Nông dân / Nông nghiệp,Xưởng sản xuất Bình Minh,Bán hàng nông sản|Trồng trọt,Buôn Ma Thuột,4009590,8615981,full-time,<45,0,university,Tuyển dụng Nông dân / Nông nghiệp cho Xưởng sản xuất Bình Minh tại Buôn Ma Thuột.
+job_0489,Bảo vệ,Trung tâm Thanh Bình,Giao tiếp|Bảo vệ,Buôn Ma Thuột,5224700,8108014,temporary,<50,3,vocational,Bảo vệ - Trung tâm Thanh Bình. Địa điểm làm việc: Buôn Ma Thuột.
+job_0490,Nhân viên phục vụ,Xưởng sản xuất Phúc An,Nấu ăn|Trang trí món ăn|Phục vụ bàn|Vệ sinh an toàn thực phẩm,Hà Nội,4671798,7666477,freelance,<40,5,primary,Xưởng sản xuất Phúc An cần tuyển Nhân viên phục vụ. Môi trường làm việc chuyên nghiệp.
+job_0491,Thợ lành nghề,Hợp tác xã Việt Tiến,Sửa chữa|Sơn sửa nhà|Đọc bản vẽ,Hải Dương,7411665,15958062,freelance,<50,3,university,Cần tuyển gấp Thợ lành nghề cho Hợp tác xã Việt Tiến.
+job_0492,Bảo vệ,Hợp tác xã Tân Á,Bảo vệ|Giao tiếp|Làm việc nhóm|PCCC,Đà Lạt,4946138,8959068,freelance,<40,10,none,Bảo vệ - Hợp tác xã Tân Á. Địa điểm làm việc: Đà Lạt.
+job_0493,Nhân viên phục vụ,Nhà hàng Phú Quốc,Nấu ăn|Phục vụ bàn|Trang trí món ăn|Pha chế đồ uống,Vũng Tàu,4244350,7866852,part-time,<40,10,none,Cần tuyển gấp Nhân viên phục vụ cho Nhà hàng Phú Quốc.
+job_0494,Nhân viên bán hàng,Xưởng sản xuất Nam Việt,Chăm sóc khách hàng|Kế toán,Buôn Ma Thuột,5453286,9455221,full-time,<50,7,high,Xưởng sản xuất Nam Việt cần tuyển Nhân viên bán hàng. Môi trường làm việc chuyên nghiệp.
+job_0495,Nhân viên phục vụ,Siêu thị Đông Á,Vệ sinh an toàn thực phẩm|Trang trí món ăn,Huế,4383208,8509170,full-time,any,10,high,Cần tuyển gấp Nhân viên phục vụ cho Siêu thị Đông Á.
+job_0496,Giúp việc / Dịch vụ,HTX Hùng Vương,Giặt ủi|Chăm sóc người già,Huế,3713617,8231277,part-time,any,0,college,Tuyển dụng Giúp việc / Dịch vụ cho HTX Hùng Vương tại Huế.
+job_0497,Giúp việc / Dịch vụ,Trang trại Phú Quốc,Giữ trẻ|Nấu ăn|Giặt ủi,Vinhy,4054216,7099233,temporary,any,3,university,Giúp việc / Dịch vụ - Trang trại Phú Quốc. Địa điểm làm việc: Vinhy.
+job_0498,Nhân viên kho vận,Doanh nghiệp tư nhân Tân Á,Kiểm kê|Giao hàng|Nhập liệu|Sắp xếp hàng hóa,Vinhy,5465527,8608202,part-time,<40,0,primary,Cần tuyển gấp Nhân viên kho vận cho Doanh nghiệp tư nhân Tân Á.
+job_0499,Thợ lành nghề,Nhà hàng An Khang,Lắp đặt|Sơn sửa nhà|Điện nước|Sửa chữa,Đà Lạt,6985928,14840991,temporary,<55,10,vocational,Nhà hàng An Khang cần tuyển Thợ lành nghề. Môi trường làm việc chuyên nghiệp.
+job_0500,Kế toán / Hành chính,Siêu thị An Khang,Quản lý thời gian|Kế toán|Bán hàng|Chăm sóc khách hàng,Hải Phòng,5918592,10101819,freelance,<55,4,none,Kế toán / Hành chính - Siêu thị An Khang. Địa điểm làm việc: Hải Phòng.
