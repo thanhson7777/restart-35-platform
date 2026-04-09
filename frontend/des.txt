@@ -1,0 +1,75 @@
+1. PROJECT OVERVIEW
+
+Project Name: Nền tảng hỗ trợ tái hòa nhập và lập nghiệp cho lao động trung niên (35+).
+
+Domain: HR Tech, EdTech, Social Impact, Micro-finance.
+
+Core Problem: Lực lượng lao động phổ thông sau tuổi 35 đối mặt với rủi ro mất việc cao, khó cạnh tranh và thiếu định hướng chuyển đổi nghề nghiệp.
+
+Core Solution: Một nền tảng kết nối đa bên (Multi-sided Platform) giúp người lớn tuổi: (1) Tìm việc làm phù hợp độ tuổi, (2) Học kỹ năng mới, (3) Nhận tài trợ/vốn sinh kế nhỏ từ các tổ chức NGO để khởi nghiệp.
+
+2. TECHNOLOGY STACK (MICROSERVICES ARCHITECTURE)
+
+Frontend (Client): ReactJS + Tailwind CSS (Yêu cầu UI/UX: Accessibility cao, chữ lớn, độ tương phản cao, thao tác đơn giản dạng multi-step form cho người lớn tuổi).
+
+Core Backend (API Gateway & Business Logic): Node.js (Express/NestJS). Chịu trách nhiệm xử lý CRUD, Authentication (JWT), Authorization, và giao tiếp với Database.
+
+AI Microservice (Recommendation & Prediction): Python (FastAPI/Flask). Xử lý thuật toán Machine Learning (NLP, Cosine Similarity, Decision Trees) để gợi ý việc làm, dự đoán rủi ro mất việc. Không giao tiếp trực tiếp với Client, chỉ nhận request từ Node.js.
+
+Database: MongoDB (NoSQL). Sử dụng schema linh hoạt để lưu trữ "Hồ sơ hoàn cảnh" phi cấu trúc của người dùng.
+
+3. SYSTEM ACTORS (ROLES)
+Hệ thống sử dụng Role-Based Access Control (RBAC) với 5 roles:
+
+Worker (Người lao động >35t): End-user chính. Tạo hồ sơ hoàn cảnh, nhận gợi ý AI, ứng tuyển việc, xin học bổng, xin vốn sinh kế.
+
+Enterprise (Doanh nghiệp): Đăng tin tuyển dụng ưu tiên người lớn tuổi, tìm kiếm ứng viên, quản lý CV.
+
+TrainingCenter (Trung tâm dạy nghề): Đăng tải khóa học, quản lý học viên.
+
+NGO (Tổ chức phi chính phủ): Xét duyệt trực tiếp hồ sơ xin cấp vốn/học bổng, theo dõi báo cáo đánh giá tác động (Impact Tracking).
+
+Admin: Quản lý toàn bộ nền tảng, duyệt tài khoản đối tác (Enterprise, TrainingCenter, NGO), quản lý Master Data (ngành nghề, kỹ năng).
+
+4. CORE MODULES & FEATURES
+
+Module 1: Vulnerable Profile & Matching: Quản lý "Hồ sơ hoàn cảnh" (Step-by-step form gồm: Thông tin cơ bản, Kinh nghiệm cũ, Rào cản sức khỏe/gia đình, Nguyện vọng).
+
+Module 2: AI Engine:
+
+Job/Skill Recommendation: So khớp kỹ năng hiện có với yêu cầu công việc -> Gợi ý việc làm hoặc khóa học lấp đầy khoảng trống kỹ năng (Skill Gap).
+
+Risk Prediction: Dự đoán rủi ro thất nghiệp dựa trên ngành nghề và tuổi tác.
+
+Module 3: Training & Sponsorship: Kết nối khóa học nghề và học bổng.
+
+Module 4: Livelihood Support: Cung cấp mô hình khởi nghiệp vốn nhỏ (bán hàng online, nông nghiệp) và quy trình xin vốn vi mô (Micro-finance) từ NGO.
+
+Module 5: Opportunity Map: Tích hợp Location-based Map hiển thị việc làm, trung tâm dạy nghề xung quanh tọa độ của user.
+
+Module 6: Community: Forum chia sẻ kinh nghiệm, hệ thống Mentor/Mentee.
+
+Module 7: Impact Tracking: Dashboard tạo báo cáo thống kê (số người có việc, số vốn giải ngân) cho NGO.
+
+5. KEY DATA FLOW (EXAMPLE: JOB MATCHING)
+
+Worker nhập liệu trên ReactJS (Frontend).
+
+ReactJS gọi API lưu data vào MongoDB thông qua Node.js (Core Backend).
+
+Khi Worker yêu cầu gợi ý, Node.js fetch data từ MongoDB và gửi payload sang Python AI Service.
+
+Python chạy thuật toán Recommendation, trả về danh sách ID công việc phù hợp cho Node.js.
+
+Node.js map ID với chi tiết công việc trong MongoDB và trả JSON response về cho ReactJS hiển thị.
+
+6. AGENT INSTRUCTIONS
+Khi được yêu cầu viết code hoặc thiết kế hệ thống cho dự án này, AI Agent cần:
+
+Luôn bám sát Tech Stack đã định (React, Node, Python, Mongo).
+
+Thiết kế Schema linh hoạt, tối ưu cho truy vấn NoSQL.
+
+Phân tách rõ ràng trách nhiệm giữa Node.js (Business) và Python (AI).
+
+Chú ý đến yếu tố bảo mật và phân quyền (Middleware) cho 5 Roles khác nhau.

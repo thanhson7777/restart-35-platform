@@ -17,6 +17,7 @@ const isAuthorized = async (req, res, next) => {
 
   try {
     const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
+    req.user = accessTokenDecoded
     req.jwtDecoded = accessTokenDecoded
     // console.log('Auth passed, user:', accessTokenDecoded)
     next()
@@ -44,6 +45,7 @@ const isAuthorizedAdmin = async (req, res, next) => {
       next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
       return
     }
+    req.user = accessTokenDecoded
     req.jwtDecoded = accessTokenDecoded
     next()
   } catch (error) {

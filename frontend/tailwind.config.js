@@ -8,7 +8,14 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['Lora', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
+        sans: ['Inter', 'Roboto', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        'base': '16px',
+        'lg': '18px',
+        'xl': '20px',
+        '2xl': '24px',
+        '3xl': '30px',
       },
       colors: {
         border: "hsl(var(--border))",
@@ -56,6 +63,12 @@ export default {
         gray: {
           800: '#333333',
         },
+        success: '#16a34a',
+        warning: '#ca8a04',
+      },
+      spacing: {
+        'input-height': '48px',
+        'button-height': '52px',
       },
       borderRadius: {
         lg: "var(--radius)",
