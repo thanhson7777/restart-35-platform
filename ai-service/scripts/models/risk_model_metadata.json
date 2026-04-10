@@ -1,0 +1,33 @@
+{
+  "created_at": "2026-04-10T21:56:28.855653",
+  "n_samples": 100,
+  "n_features": 34,
+  "best_model": "xgboost",
+  "cv_results": {
+    "random_forest": {
+      "accuracy": 0.94,
+      "f1_macro": 0.7959470636889993,
+      "f1_weighted": 0.93112158808933,
+      "f1_per_class": {
+        "low": 0.9846153846153847,
+        "medium": 0.9032258064516129,
+        "high": 0.5
+      }
+    },
+    "xgboost": {
+      "accuracy": 1.0,
+      "f1_macro": 1.0,
+      "f1_weighted": 1.0,
+      "f1_per_class": {
+        "low": 1.0,
+        "medium": 1.0,
+        "high": 1.0
+      }
+    }
+  },
+  "label_distribution": {
+    "high": 6,
+    "low": 64,
+    "medium": 30
+  }
+}

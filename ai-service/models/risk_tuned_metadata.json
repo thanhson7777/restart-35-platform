@@ -1,0 +1,23 @@
+{
+  "model_type": "xgboost_tuned",
+  "best_params": {
+    "subsample": 0.75,
+    "reg_lambda": 0.5,
+    "reg_alpha": 0,
+    "n_estimators": 150,
+    "min_child_weight": 3,
+    "max_depth": 3,
+    "learning_rate": 0.05,
+    "gamma": 0,
+    "colsample_bytree": 0.9
+  },
+  "best_cv_score": 0.7084249084249084,
+  "label_classes": [
+    "high",
+    "low",
+    "medium"
+  ],
+  "n_features": 282,
+  "tuning_date": "2026-04-10T23:07:15.187285",
+  "tuning_strategy": "Anti-Overfitting (Aggressive Regularization)"
+}
