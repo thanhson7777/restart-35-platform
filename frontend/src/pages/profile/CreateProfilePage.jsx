@@ -5,8 +5,8 @@ const CreateProfilePage = () => {
   const navigate = useNavigate()
 
   const handleComplete = () => {
-    // Redirect to dashboard or profile view after completion
-    navigate('/')
+    // Redirect to dashboard sau khi hoàn thành profile (AI sẽ lazy load)
+    navigate('/dashboard')
   }
 
   return (

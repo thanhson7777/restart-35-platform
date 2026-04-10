@@ -63,8 +63,9 @@ export const completeProfile = createAsyncThunk(
   'profile/completeProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await completeWorkerProfileAPI()
-      return response.data
+      const body = await completeWorkerProfileAPI()
+      // Backend: { success, message, data: profile }
+      return body?.data ?? body
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message)
     }
@@ -233,9 +234,14 @@ const profileSlice = createSlice({
       })
       .addCase(completeProfile.fulfilled, (state, action) => {
         state.isCompleting = false
-        state.profile = action.payload
-        state.isCompleted = true
-        state.currentStep = 4
+        const profile = action.payload
+        state.profile = profile
+        state.isCompleted = profile?.isCompleted !== false
+        state.currentStep = profile?.currentStep ?? 4
+        if (profile?.basicInfo) state.formData.basicInfo = profile.basicInfo
+        if (profile?.employmentHistory) state.formData.employmentHistory = profile.employmentHistory
+        if (profile?.barriers) state.formData.barriers = profile.barriers
+        if (profile?.aspirations) state.formData.aspirations = profile.aspirations
       })
       .addCase(completeProfile.rejected, (state, action) => {
         state.isCompleting = false

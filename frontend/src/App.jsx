@@ -2,7 +2,7 @@ import './index.css'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { useSelector } from 'react-redux'
-import { CreateProfilePage, LoginPage, RegisterPage } from './pages'
+import { CreateProfilePage, LoginPage, RegisterPage, DashboardPage } from './pages'
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -32,6 +32,16 @@ function App() {
           element={
             <ProtectedRoute>
               <CreateProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Dashboard - Protected */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
             </ProtectedRoute>
           }
         />
