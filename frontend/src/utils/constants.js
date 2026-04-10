@@ -1,11 +1,12 @@
-let apiRoot = ''
+let backendUrl = ''
+let aiServiceUrl = ''
 
-// Vite uses import.meta.env instead of process.env
 if (import.meta.env.MODE === 'development' || import.meta.env.VITE_BUILD_MODE === 'dev') {
-  apiRoot = 'http://localhost:8017'
+  backendUrl = 'http://localhost:8017'
+  aiServiceUrl = 'http://localhost:8000'
 }
 
-
-export const API_ROOT = apiRoot
+export const API_ROOT = backendUrl
+export const AI_SERVICE_ROOT = aiServiceUrl
 export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEM_PER_PAGE = 10

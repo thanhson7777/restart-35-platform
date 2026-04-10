@@ -4,6 +4,7 @@ import { persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import userReducer from './user/userSlice'
 import profileReducer from './profile/profileSlice'
+import aiReducer from './ai/aiSlice'
 
 const rootPersistConfig = {
   key: 'root',
@@ -13,7 +14,8 @@ const rootPersistConfig = {
 
 const reducers = combineReducers({
   user: userReducer,
-  profile: profileReducer
+  profile: profileReducer,
+  ai: aiReducer
 })
 
 const persistedReducers = persistReducer(rootPersistConfig, reducers)

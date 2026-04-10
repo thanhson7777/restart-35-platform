@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import ProgressBar from '~/components/common/ProgressBar'
 import Button from '~/components/common/Button'
 import StepBasicInfo from './StepBasicInfo'
@@ -28,6 +29,7 @@ const AUTOSAVE_DELAY = 1000 // 1 second debounce
 
 const MultiStepForm = ({ onComplete }) => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const currentStep = useSelector(selectCurrentStep)
   const formData = useSelector(selectFormData)
   const isSaving = useSelector(selectIsSaving)
@@ -45,10 +47,15 @@ const MultiStepForm = ({ onComplete }) => {
   useEffect(() => {
     const init = async () => {
       try {
-        const result = await dispatch(fetchMyProfile()).unwrap()
+        // Thử lấy hồ sơ hiện có
+        const profile = await dispatch(fetchMyProfile()).unwrap()
+        // Nếu backend trả 404 nhưng thunk vẫn resolve null → chưa có hồ sơ → tạo mới
+        if (!profile) {
+          await dispatch(createProfile()).unwrap()
+        }
         setIsInitialized(true)
       } catch (error) {
-        // Profile doesn't exist, that's okay
+        console.error('Không thể khởi tạo hồ sơ:', error)
         setIsInitialized(true)
       }
     }
@@ -145,8 +152,12 @@ const MultiStepForm = ({ onComplete }) => {
       if (currentStep === TOTAL_STEPS) {
         // Complete profile
         await dispatch(completeProfile()).unwrap()
+
+        // Redirect to dashboard (Lazy load AI)
         if (onComplete) {
           onComplete()
+        } else {
+          navigate('/')
         }
       } else {
         // Save and move to next step
