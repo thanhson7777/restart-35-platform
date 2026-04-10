@@ -1,0 +1,13 @@
+{
+  "created_at": "2026-04-10T19:32:08.316854",
+  "n_samples": 100,
+  "n_features": 281,
+  "n_features_numerical": 22,
+  "n_features_onehot": 23,
+  "n_features_tfidf": 244,
+  "label_distribution": {
+    "low": 64,
+    "medium": 30,
+    "high": 6
+  }
+}
