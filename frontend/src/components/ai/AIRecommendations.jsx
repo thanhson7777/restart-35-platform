@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import {
   fetchJobRecommendations,
+  predictRisk,
   selectRecommendations,
   selectRecommendationsLoading,
   selectRecommendationsError,
@@ -73,22 +74,60 @@ const AIRecommendations = ({
 
     const skills = aspirations.skills || userSkills || []
     if (skills.length === 0) {
+      console.log('[AIRecommendations] No skills available, skipping AI calls')
       hasFetchedRef.current = true
       return
     }
 
+    // Kiểm tra dữ liệu trước khi gọi API
+    const age = formData?.basicInfo?.age || 45
+    const gender = formData?.basicInfo?.gender || 'other'
+    const experienceYears = computeExperienceYears(formData?.employmentHistory || [])
+
+    console.log('[AIRecommendations] Calling AI with:', {
+      age,
+      gender,
+      skills: skills.slice(0, 3), // Log first 3 skills
+      skillsCount: skills.length,
+      experienceYears,
+      hasBasicInfo: !!formData?.basicInfo
+    })
+
     hasFetchedRef.current = true
 
+    // Chỉ gửi các fields có giá trị (loại bỏ null/undefined)
+    const riskPayload = {
+      age,
+      gender,
+      skills,
+      experience_years: experienceYears
+    }
+
+    // Chỉ thêm optional fields nếu có giá trị
+    if (formData?.basicInfo?.education) riskPayload.education = formData.basicInfo.education
+    if (formData?.basicInfo?.employmentStatus) riskPayload.employment_status = formData.basicInfo.employmentStatus
+    if (formData?.basicInfo?.maritalStatus) riskPayload.marital_status = formData.basicInfo.maritalStatus
+    if (aspirations.targetProvince || formData?.basicInfo?.province) {
+      riskPayload.region = aspirations.targetProvince || formData.basicInfo.province
+    }
+    if (aspirations.targetJob) riskPayload.target_job = aspirations.targetJob
+
+    console.log('[AIRecommendations] Risk payload:', riskPayload)
+
+    // Gọi predictRisk để lấy đánh giá rủi ro thất nghiệp
+    dispatch(predictRisk(riskPayload))
+
+    // Gọi fetchJobRecommendations để lấy gợi ý việc làm
     dispatch(
       fetchJobRecommendations({
         skills,
-        experience: computeExperienceYears(formData?.employmentHistory || []),
+        experience: experienceYears,
         location: aspirations.targetProvince || formData?.basicInfo?.province || null,
         targetJob: aspirations.targetJob || null,
         limit
       })
     )
-  }, [dispatch, canUseAI, limit])
+  }, [dispatch, canUseAI, limit, aspirations, userSkills, formData])
 
   // Handle view more
   const handleViewMore = () => {

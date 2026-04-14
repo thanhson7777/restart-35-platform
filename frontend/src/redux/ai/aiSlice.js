@@ -370,11 +370,13 @@ const aiSlice = createSlice({
       .addCase(predictRisk.fulfilled, (state, action) => {
         state.riskPredictionLoading = false
         state.riskPrediction = action.payload
-        // Also update user risk level for UI display
-        if (action.payload?.risk_level) {
-          state.userRiskLevel = action.payload.risk_level
-          state.userRiskScore = action.payload.risk_score
-          state.userRiskMessage = action.payload.recommendation?.message || null
+        // Backend trả về { success, data: { risk_level, risk_score, ... } }
+        // Cần truy cập đúng cấu trúc
+        const resultData = action.payload?.data || action.payload
+        if (resultData?.risk_level) {
+          state.userRiskLevel = resultData.risk_level
+          state.userRiskScore = resultData.risk_score
+          state.userRiskMessage = resultData.recommendation?.message || null
         }
       })
       .addCase(predictRisk.rejected, (state, action) => {

@@ -1,0 +1,64 @@
+{
+  "homepage": {
+    "title": "TopCV - CV xịn việc làm chất - Tạo CV & Tìm việc miễn phí",
+    "url": "https://www.topcv.vn/"
+  },
+  "search": {
+    "title": "Attention Required! | Cloudflare",
+    "url": "https://www.topcv.vn/viec-lam-it"
+  },
+  "api_calls": [
+    {
+      "url": "https://static.topcv.vn/v4/css/components/search-job/keyword-autocomplete.min.c240adb0d523bc54Z.css",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.topcv.vn/v4/image/header/navigation/navigation-left/job-search/search-job.png",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.topcv.vn/v4/image/header/navigation/navigation-left/job-search/saved-jobs.png",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.topcv.vn/v4/image/header/navigation/navigation-left/job-search/applied-jobs.png",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.topcv.vn/v4/image/header/navigation/navigation-left/job-search/suitable-jobs.png",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.topcv.vn/v4/image/header/navigation/navigation-left/job-search/company.png",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.topcv.vn/v4/image/header/navigation/navigation-left/job-search/top-companies.png",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.topcv.vn/v4/image/header/navigation/navigation-left/career-guide/job-search-tip.png",
+      "method": "GET"
+    },
+    {
+      "url": "https://static.topcv.vn/v4/css/components/search-bar/location-multi-selection.min.45e37c35f726174aZ.css",
+      "method": "GET"
+    },
+    {
+      "url": "https://static.topcv.vn/v4/image/job-list/icon-flash.webp",
+      "method": "GET"
+    },
+    {
+      "url": "https://static.topcv.vn/v4/js/components/job/form-search-job.09206d43ea48fd37Z.js",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.topcv.vn/v3/js/jobs.js?v=3.0.7",
+      "method": "GET"
+    },
+    {
+      "url": "https://www.topcv.vn/job-family-category/get-all",
+      "method": "GET"
+    }
+  ]
+}

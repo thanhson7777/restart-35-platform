@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-04-14T00:49:30.783013",
+  "sources": {
+    "TopCV": {
+      "source": "TopCV",
+      "url": "https://topcv.vn/viec-lam",
+      "total_tags": 44,
+      "potential_selectors": [],
+      "job_card_candidates": [],
+      "common_classes": [],
+      "common_ids": [],
+      "suggestions": {},
+      "json_data_found": [],
+      "data_attributes": [],
+      "job_links": [],
+      "structure": {
+        "top_level_tags": {},
+        "div_count": 0,
+        "section_count": 0,
+        "ul_count": 0,
+        "li_count": 0
+      },
+      "field_patterns": {
+        "salary": [],
+        "location": [],
+        "company": [],
+        "title": [],
+        "skills": []
+      },
+      "suggested_selectors": {
+        "job_card": [],
+        "title": [],
+        "company": [],
+        "salary": [],
+        "location": [],
+        "job_type": [],
+        "experience": [],
+        "education": [],
+        "skills": [],
+        "job_link": []
+      }
+    }
+  }
+}
