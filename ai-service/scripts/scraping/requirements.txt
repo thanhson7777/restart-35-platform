@@ -1,0 +1,43 @@
+# Web Scraping Dependencies
+# ==========================
+# Dependencies cho scraping module
+
+# Core scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0  # Faster HTML parsing than built-in html.parser
+
+# Retry logic
+tenacity>=8.2.0
+
+# Fuzzy matching (deduplication)
+rapidfuzz>=3.5.0
+
+# Data manipulation
+pandas>=2.0.0
+
+# Optional: JavaScript rendering (for dynamic content)
+# playwright>=1.40.0
+# playwright install chromium
+
+# Browser automation & anti-detection
+curl_cffi>=0.6.0    # HTTP client that impersonates Chrome browser fingerprints
+# undetected-chromedriver>=3.5.0  # Selenium-based anti-detection (requires matching Chrome version)
+
+# Algolia Search API (VietnamWorks uses Algolia)
+algoliasearch>=4.20.0
+
+# Optional: Alternative to requests for better performance
+# httpx>=0.25.0  # Async HTTP client
+
+# Optional: Caching responses
+# diskcache>=5.6.0
+
+# Development/Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Code quality
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.7.0
