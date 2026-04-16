@@ -21,6 +21,8 @@ import os
 
 from services.job_recommender import JobRecommender
 from services.risk_predictor import RiskPredictorML
+from services.semantic_search import SemanticSearch
+from services.hybrid_recommender import HybridRecommender
 
 router = APIRouter(prefix="/api/v1/ai", tags=["AI"])
 
@@ -29,6 +31,8 @@ logger = logging.getLogger(__name__)
 # Global instances (lazy load)
 _recommender = None
 _risk_predictor = None
+_semantic_search = None
+_hybrid_recommender = None
 
 
 # =============================================================================
@@ -76,6 +80,18 @@ class RecommendJobsRequest(BaseModel):
     allow_remote: bool = Field(
         default=False,
         description="Cho phép làm việc từ xa"
+    )
+    use_semantic: bool = Field(
+        default=True,
+        description="Sử dụng semantic search (default: True, fallback TF-IDF nếu fail)"
+    )
+    user_id: Optional[str] = Field(
+        default=None,
+        description="User ID cho Collaborative Filtering (nếu có)"
+    )
+    use_cf: bool = Field(
+        default=True,
+        description="Sử dụng Collaborative Filtering (default: True)"
     )
 
 
@@ -191,10 +207,37 @@ class WorkerFeaturesRequest(BaseModel):
     )
 
 
+class FeatureImportanceItem(BaseModel):
+    """Feature importance item in response"""
+    feature: str
+    importance: Optional[float] = None
+    shap_value: Optional[float] = None
+    interpretation: Optional[str] = None
+
+
+class ModelInfo(BaseModel):
+    """Model info in response"""
+    model_type: str
+    threshold: float
+    strategy: str
+    shap_available: Optional[bool] = False
+
+
+class RiskPredictionData(BaseModel):
+    """Risk prediction data"""
+    risk_level: str
+    risk_score: float
+    probability: Dict[str, float]
+    confidence: float
+    top_features: Optional[List[FeatureImportanceItem]] = []
+    recommendation: Dict[str, Any]
+    model_info: ModelInfo
+
+
 class RiskPredictionResponse(BaseModel):
     """Response cho risk prediction"""
     success: bool
-    data: dict
+    data: RiskPredictionData
 
 
 # --- Worker Analysis Models ---
@@ -326,6 +369,31 @@ def get_risk_predictor() -> RiskPredictorML:
     return _risk_predictor
 
 
+def get_semantic_search() -> SemanticSearch:
+    """Lazy load SemanticSearch (lazy init on first use)"""
+    global _semantic_search
+    if _semantic_search is None:
+        _semantic_search = SemanticSearch()
+    return _semantic_search
+
+
+def get_hybrid_recommender() -> HybridRecommender:
+    """Lazy load HybridRecommender (TF-IDF + Semantic)"""
+    global _hybrid_recommender, _recommender, _semantic_search
+    
+    if _hybrid_recommender is None:
+        # Ensure base recommender is loaded
+        tfidf_recommender = get_recommender()
+        semantic_search = get_semantic_search()
+        
+        _hybrid_recommender = HybridRecommender(
+            tfidf_recommender=tfidf_recommender,
+            semantic_search=semantic_search
+        )
+    
+    return _hybrid_recommender
+
+
 def log_prediction(request_id: str, worker: Dict, prediction: Dict, request_time: float):
     """
     Log prediction ra file JSONL cho chương "Thử nghiệm hệ thống".
@@ -403,11 +471,18 @@ async def recommend_jobs(request: RecommendJobsRequest):
     """
     Gợi ý công việc phù hợp dựa trên profile của user.
 
-    Sử dụng thuật toán TF-IDF + Hybrid Scoring:
-    - Base Score: Cosine Similarity từ TF-IDF vectorization
-    - Hard Filter: Location matching
-    - Bonus Score: Experience match (+0.1)
-    - Weighted Scoring: Base 70% + Salary 15% + Job Type 15%
+    Sử dụng thuật toán Hybrid (TF-IDF + Semantic Search + Collaborative Filtering):
+    - TF-IDF: Keyword matching (25%)
+    - Semantic: Meaning matching (25%)
+    - Collaborative Filtering: User-based recommendations (30%)
+    - Soft Location Scoring
+    - Bonus Score: Experience match
+
+    Benefits:
+    - "Kế toán" matches "Thu ngân" (semantic)
+    - "Lái xe" matches "Tài xế" (semantic)
+    - "Users like you also liked..." (collaborative filtering)
+    - Exact keyword matches still prioritized (TF-IDF)
 
     Args:
         request: User profile data
@@ -416,9 +491,10 @@ async def recommend_jobs(request: RecommendJobsRequest):
         List of recommended jobs with scores
     """
     try:
-        recommender = get_recommender()
+        # Use hybrid recommender (TF-IDF + Semantic)
+        hybrid = get_hybrid_recommender()
 
-        result = recommender.recommend(
+        result = hybrid.recommend(
             skills=request.skills,
             experience=request.experience,
             location=request.location,
@@ -426,7 +502,10 @@ async def recommend_jobs(request: RecommendJobsRequest):
             target_salary=request.target_salary,
             preferred_job_type=request.preferred_job_type,
             limit=request.limit,
-            allow_remote=request.allow_remote
+            allow_remote=request.allow_remote,
+            use_semantic=request.use_semantic,
+            use_cf=request.use_cf,
+            user_id=request.user_id
         )
 
         return result
@@ -437,6 +516,7 @@ async def recommend_jobs(request: RecommendJobsRequest):
             detail=f"Data file not found: {str(e)}"
         )
     except Exception as e:
+        logger.error(f"Recommendation error: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Recommendation error: {str(e)}"
@@ -643,8 +723,9 @@ async def analyze_worker(
             job_type_filter_param = worker.preferred_job_type
             job_limit = worker.limit
 
-        # Get jobs
-        jobs_result = recommender.recommend(
+        # Get jobs (use hybrid recommender for semantic search)
+        hybrid = get_hybrid_recommender()
+        jobs_result = hybrid.recommend(
             skills=worker.skills,
             experience=worker.experience_years,
             location=None,  # Không filter theo location cho người rủi ro cao
@@ -652,7 +733,8 @@ async def analyze_worker(
             target_salary=worker.target_salary,
             preferred_job_type=job_type_filter_param,
             limit=job_limit,
-            allow_remote=True  # Cho phép remote để tăng options
+            allow_remote=True,  # Cho phép remote để tăng options
+            use_semantic=True
         )
 
         # Build response
@@ -772,4 +854,107 @@ async def get_model_info():
         raise HTTPException(
             status_code=500,
             detail=f"Error fetching model info: {str(e)}"
+        )
+
+
+# ============================================================================
+# SEMANTIC SEARCH ENDPOINTS
+# ============================================================================
+
+@router.get("/semantic-status", response_model=dict)
+async def get_semantic_status():
+    """
+    Kiểm tra trạng thái semantic search.
+
+    Returns:
+        Semantic search status và model info
+    """
+    try:
+        semantic = get_semantic_search()
+        hybrid = get_hybrid_recommender()
+
+        return {
+            "success": True,
+            "data": {
+                "semantic_search": {
+                    "available": semantic.is_available,
+                    "model_name": SemanticSearch.MODEL_NAME if semantic else None,
+                    "initialized": semantic._initialized if semantic else False,
+                    "error": semantic._init_error if semantic else None
+                },
+                "hybrid_mode": {
+                    "active": hybrid.is_hybrid_active if hybrid else False,
+                    "tfidf_weight": HybridRecommender.TFIDF_WEIGHT,
+                    "semantic_weight": HybridRecommender.SEMANTIC_WEIGHT
+                }
+            }
+        }
+
+    except ImportError as e:
+        return {
+            "success": True,
+            "data": {
+                "semantic_search": {
+                    "available": False,
+                    "error": f"sentence-transformers not installed: {str(e)}",
+                    "install_hint": "Run: pip install sentence-transformers"
+                },
+                "hybrid_mode": {
+                    "active": False
+                }
+            }
+        }
+    except Exception as e:
+        return {
+            "success": True,
+            "data": {
+                "semantic_search": {
+                    "available": False,
+                    "error": str(e)
+                },
+                "hybrid_mode": {
+                    "active": False
+                }
+            }
+        }
+
+
+@router.get("/jobs/{job_id}/similar", response_model=dict)
+async def get_similar_jobs(job_id: str, limit: int = Query(default=5, ge=1, le=20)):
+    """
+    Tìm jobs tương tự dựa trên semantic search.
+
+    Args:
+        job_id: Job ID
+        limit: Số lượng jobs tương tự
+
+    Returns:
+        List of similar jobs
+    """
+    try:
+        hybrid = get_hybrid_recommender()
+        
+        if not hybrid.semantic or not hybrid.semantic.is_available:
+            raise HTTPException(
+                status_code=503,
+                detail="Semantic search not available"
+            )
+
+        similar_jobs = hybrid.get_similar_jobs(job_id, limit=limit)
+
+        return {
+            "success": True,
+            "data": {
+                "job_id": job_id,
+                "similar_jobs": similar_jobs
+            }
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Similar jobs error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error finding similar jobs: {str(e)}"
         )

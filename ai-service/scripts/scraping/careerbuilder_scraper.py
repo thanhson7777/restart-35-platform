@@ -119,7 +119,7 @@ class CareerBuilderScraper(BaseScraper):
     # Scraping Methods
     # ============================================================
 
-    def scrape_all(self, pages: int = 3) -> List[Dict[str, Any]]:
+    def scrape_all(self, pages: int = 3, scrape_details: bool = False) -> List[Dict[str, Any]]:
         """
         Scrape all jobs from CareerViet.
 
@@ -147,6 +147,22 @@ class CareerBuilderScraper(BaseScraper):
 
             all_jobs.extend(jobs)
             self.stats['jobs_found'] = len(all_jobs)
+
+            # Optionally scrape job details
+            if scrape_details and all_jobs:
+                self.logger.info(f"Scraping details for {len(all_jobs)} jobs...")
+                for i, job in enumerate(all_jobs):
+                    if not job.get('job_url'):
+                        continue
+
+                    self.logger.info(f"Fetching detail {i+1}/{len(all_jobs)}")
+                    details = self.scrape_job_detail(job['job_url'])
+
+                    job['description'] = details.get('description', '')
+                    if details.get('skills'):
+                        job['skills'] = details['skills']
+
+                    self._rate_limit()
 
         except Exception as e:
             self.logger.error(f"CareerViet scrape error: {e}")
@@ -367,6 +383,7 @@ class CareerBuilderScraper(BaseScraper):
         self,
         pages: int = 3,
         keywords: str = '',
+        scrape_details: bool = False,
         **kwargs
     ) -> List[Dict[str, Any]]:
         """
@@ -375,6 +392,7 @@ class CareerBuilderScraper(BaseScraper):
         Args:
             pages: Number of pages
             keywords: Search keyword (optional)
+            scrape_details: If True, fetch description and skills from detail pages
             **kwargs: Additional arguments
 
         Returns:
@@ -382,4 +400,83 @@ class CareerBuilderScraper(BaseScraper):
         """
         if keywords:
             return self.scrape_by_keyword(keywords, pages=pages)
-        return self.scrape_all(pages=pages)
+        return self.scrape_all(pages=pages, scrape_details=scrape_details)
+
+    def scrape_job_detail(self, job_url: str) -> Dict[str, Any]:
+        """
+        Scrape chi tiết job từ detail URL.
+
+        Args:
+            job_url: URL của trang chi tiết job
+
+        Returns:
+            Dict chứa description và skills
+        """
+        html = None
+
+        # Try curl_cffi first (faster)
+        if hasattr(self, '_curl_session'):
+            try:
+                resp = self._curl_session.get(job_url, timeout=self.timeout)
+                if resp.status_code == 200:
+                    html = resp.text
+            except Exception as e:
+                self.logger.debug(f"curl_cffi failed for detail: {e}")
+
+        # Fallback to undetected_chromedriver if available
+        if not html and self._driver is not None:
+            try:
+                self._driver.get(job_url)
+                time.sleep(3)  # Wait for page to load
+                html = self._driver.page_source
+            except Exception as e:
+                self.logger.debug(f"UC driver failed for detail: {e}")
+
+        if not html:
+            return {'description': '', 'skills': ''}
+
+        soup = BeautifulSoup(html, 'html.parser')
+        description = ''
+        skills = []
+
+        # Description selectors for CareerViet
+        desc_selectors = [
+            'div[class*="description"]',
+            'div[class*="job-detail"]',
+            'div[class*="chi-tiet"]',
+            'section[class*="description"]',
+            'div.job-description',
+        ]
+
+        for selector in desc_selectors:
+            desc_el = soup.select_one(selector)
+            if desc_el:
+                text = desc_el.get_text(separator='\n', strip=True)
+                if len(text) > 100:
+                    description = text
+                    break
+
+        # Skill selectors for CareerViet
+        skill_selectors = [
+            'div[class*="skill"] span',
+            'div[class*="ky-nang"] span',
+            'div[class*="tag"] span',
+            'ul[class*="skill"] li',
+            'div.skills span',
+        ]
+
+        seen_skills = set()
+        for selector in skill_selectors:
+            skill_els = soup.select(selector)
+            for el in skill_els:
+                skill = el.get_text(strip=True)
+                if skill and len(skill) > 1 and len(skill) < 50:
+                    skill_lower = skill.lower()
+                    if skill_lower not in seen_skills:
+                        seen_skills.add(skill_lower)
+                        skills.append(skill.title())
+
+        return {
+            'description': description,
+            'skills': '|'.join(skills)
+        }

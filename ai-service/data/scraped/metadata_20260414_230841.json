@@ -1,0 +1,20 @@
+{
+  "scraped_at": "2026-04-14T23:08:41.839293",
+  "total_jobs": 347,
+  "stats": {
+    "start_time": "2026-04-14T22:31:30.526062",
+    "end_time": null,
+    "scrapers_run": 1,
+    "total_scraped": 228,
+    "total_transformed": 228,
+    "total_unique": 98,
+    "total_merged": 347,
+    "scraper_results": {
+      "topcv": 228
+    }
+  },
+  "sources": [
+    "topcv"
+  ],
+  "pages_per_source": 5
+}

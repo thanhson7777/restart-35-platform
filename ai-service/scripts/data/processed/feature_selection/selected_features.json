@@ -1,0 +1,429 @@
+{
+  "all_rankings": [
+    {
+      "feature": "age",
+      "count": 4,
+      "avg_rank": 3.0,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 1.0
+    },
+    {
+      "feature": "risk_score_proxy",
+      "count": 4,
+      "avg_rank": 5.0,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.6666666666666666
+    },
+    {
+      "feature": "barrier_health",
+      "count": 4,
+      "avg_rank": 5.0,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.6666666666666666
+    },
+    {
+      "feature": "age_squared",
+      "count": 4,
+      "avg_rank": 6.0,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.5714285714285714
+    },
+    {
+      "feature": "barrier_weighted",
+      "count": 4,
+      "avg_rank": 6.25,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.5517241379310345
+    },
+    {
+      "feature": "experience_years",
+      "count": 4,
+      "avg_rank": 7.0,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.5
+    },
+    {
+      "feature": "total_barriers",
+      "count": 4,
+      "avg_rank": 7.0,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.5
+    },
+    {
+      "feature": "age_exp_product",
+      "count": 4,
+      "avg_rank": 7.5,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.47058823529411764
+    },
+    {
+      "feature": "has_barriers",
+      "count": 3,
+      "avg_rank": 9.666666666666666,
+      "methods": "mutual_info, f_classif, tree_importance",
+      "combined_score": 0.28125
+    },
+    {
+      "feature": "target_salary",
+      "count": 4,
+      "avg_rank": 13.75,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.2711864406779661
+    },
+    {
+      "feature": "skill_density.1",
+      "count": 4,
+      "avg_rank": 15.25,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.24615384615384617
+    },
+    {
+      "feature": "skill_density",
+      "count": 4,
+      "avg_rank": 16.25,
+      "methods": "mutual_info, f_classif, rfe, tree_importance",
+      "combined_score": 0.2318840579710145
+    },
+    {
+      "feature": "is_male",
+      "count": 3,
+      "avg_rank": 15.0,
+      "methods": "mutual_info, f_classif, rfe",
+      "combined_score": 0.1875
+    },
+    {
+      "feature": "salary_per_exp",
+      "count": 2,
+      "avg_rank": 11.0,
+      "methods": "rfe, tree_importance",
+      "combined_score": 0.16666666666666666
+    },
+    {
+      "feature": "skill_đo",
+      "count": 3,
+      "avg_rank": 17.666666666666668,
+      "methods": "f_classif, rfe, tree_importance",
+      "combined_score": 0.1607142857142857
+    },
+    {
+      "feature": "skill_chan nuoi",
+      "count": 1,
+      "avg_rank": 6.0,
+      "methods": "rfe",
+      "combined_score": 0.14285714285714285
+    },
+    {
+      "feature": "barrier_family",
+      "count": 2,
+      "avg_rank": 13.5,
+      "methods": "mutual_info, f_classif",
+      "combined_score": 0.13793103448275862
+    },
+    {
+      "feature": "is_female",
+      "count": 3,
+      "avg_rank": 21.333333333333332,
+      "methods": "f_classif, rfe, tree_importance",
+      "combined_score": 0.13432835820895522
+    },
+    {
+      "feature": "skill_vu",
+      "count": 2,
+      "avg_rank": 14.0,
+      "methods": "f_classif, rfe",
+      "combined_score": 0.13333333333333333
+    },
+    {
+      "feature": "skill_lai xe",
+      "count": 2,
+      "avg_rank": 14.0,
+      "methods": "mutual_info, tree_importance",
+      "combined_score": 0.13333333333333333
+    },
+    {
+      "feature": "experience_age_ratio",
+      "count": 2,
+      "avg_rank": 15.0,
+      "methods": "rfe, tree_importance",
+      "combined_score": 0.125
+    },
+    {
+      "feature": "job_lái",
+      "count": 2,
+      "avg_rank": 15.5,
+      "methods": "f_classif, tree_importance",
+      "combined_score": 0.12121212121212122
+    },
+    {
+      "feature": "exp_ratio",
+      "count": 2,
+      "avg_rank": 16.0,
+      "methods": "rfe, tree_importance",
+      "combined_score": 0.11764705882352941
+    },
+    {
+      "feature": "skill_an",
+      "count": 2,
+      "avg_rank": 18.5,
+      "methods": "mutual_info, tree_importance",
+      "combined_score": 0.10256410256410256
+    },
+    {
+      "feature": "job_thợ",
+      "count": 1,
+      "avg_rank": 9.0,
+      "methods": "mutual_info",
+      "combined_score": 0.1
+    },
+    {
+      "feature": "skill_nuoi pha",
+      "count": 1,
+      "avg_rank": 10.0,
+      "methods": "f_classif",
+      "combined_score": 0.09090909090909091
+    },
+    {
+      "feature": "skills_count",
+      "count": 2,
+      "avg_rank": 21.5,
+      "methods": "mutual_info, rfe",
+      "combined_score": 0.08888888888888889
+    },
+    {
+      "feature": "skill_kho",
+      "count": 2,
+      "avg_rank": 22.0,
+      "methods": "f_classif, tree_importance",
+      "combined_score": 0.08695652173913043
+    },
+    {
+      "feature": "skill_bien",
+      "count": 1,
+      "avg_rank": 11.0,
+      "methods": "mutual_info",
+      "combined_score": 0.08333333333333333
+    },
+    {
+      "feature": "skill_vu ban",
+      "count": 2,
+      "avg_rank": 23.5,
+      "methods": "f_classif, tree_importance",
+      "combined_score": 0.08163265306122448
+    },
+    {
+      "feature": "skill_van hanh",
+      "count": 2,
+      "avg_rank": 24.0,
+      "methods": "mutual_info, f_classif",
+      "combined_score": 0.08
+    },
+    {
+      "feature": "barrier_techGap",
+      "count": 2,
+      "avg_rank": 24.5,
+      "methods": "mutual_info, f_classif",
+      "combined_score": 0.0784313725490196
+    },
+    {
+      "feature": "skill_lieu phuc",
+      "count": 1,
+      "avg_rank": 14.0,
+      "methods": "f_classif",
+      "combined_score": 0.06666666666666667
+    },
+    {
+      "feature": "skill_trang tri",
+      "count": 1,
+      "avg_rank": 16.0,
+      "methods": "mutual_info",
+      "combined_score": 0.058823529411764705
+    },
+    {
+      "feature": "job_xe",
+      "count": 1,
+      "avg_rank": 17.0,
+      "methods": "f_classif",
+      "combined_score": 0.05555555555555555
+    },
+    {
+      "feature": "skill_pccc",
+      "count": 1,
+      "avg_rank": 17.0,
+      "methods": "tree_importance",
+      "combined_score": 0.05555555555555555
+    },
+    {
+      "feature": "skill_nuoi che",
+      "count": 1,
+      "avg_rank": 18.0,
+      "methods": "mutual_info",
+      "combined_score": 0.05263157894736842
+    },
+    {
+      "feature": "skill_kho van",
+      "count": 1,
+      "avg_rank": 18.0,
+      "methods": "f_classif",
+      "combined_score": 0.05263157894736842
+    },
+    {
+      "feature": "skill_đong goi",
+      "count": 1,
+      "avg_rank": 18.0,
+      "methods": "tree_importance",
+      "combined_score": 0.05263157894736842
+    },
+    {
+      "feature": "skill_tiep",
+      "count": 1,
+      "avg_rank": 19.0,
+      "methods": "tree_importance",
+      "combined_score": 0.05
+    },
+    {
+      "feature": "skill_may moc",
+      "count": 1,
+      "avg_rank": 20.0,
+      "methods": "mutual_info",
+      "combined_score": 0.047619047619047616
+    },
+    {
+      "feature": "skill_thuc pham",
+      "count": 1,
+      "avg_rank": 20.0,
+      "methods": "tree_importance",
+      "combined_score": 0.047619047619047616
+    },
+    {
+      "feature": "skill_phuc vu",
+      "count": 1,
+      "avg_rank": 21.0,
+      "methods": "f_classif",
+      "combined_score": 0.045454545454545456
+    },
+    {
+      "feature": "job_nhân",
+      "count": 1,
+      "avg_rank": 21.0,
+      "methods": "tree_importance",
+      "combined_score": 0.045454545454545456
+    },
+    {
+      "feature": "skill_phuc",
+      "count": 1,
+      "avg_rank": 22.0,
+      "methods": "f_classif",
+      "combined_score": 0.043478260869565216
+    },
+    {
+      "feature": "skill_bao duong",
+      "count": 1,
+      "avg_rank": 23.0,
+      "methods": "mutual_info",
+      "combined_score": 0.041666666666666664
+    },
+    {
+      "feature": "job_việc",
+      "count": 1,
+      "avg_rank": 25.0,
+      "methods": "mutual_info",
+      "combined_score": 0.038461538461538464
+    },
+    {
+      "feature": "skill_rap pccc",
+      "count": 1,
+      "avg_rank": 26.0,
+      "methods": "mutual_info",
+      "combined_score": 0.037037037037037035
+    },
+    {
+      "feature": "skill_khach",
+      "count": 1,
+      "avg_rank": 26.0,
+      "methods": "tree_importance",
+      "combined_score": 0.037037037037037035
+    },
+    {
+      "feature": "skill_ke toan",
+      "count": 1,
+      "avg_rank": 28.0,
+      "methods": "mutual_info",
+      "combined_score": 0.034482758620689655
+    },
+    {
+      "feature": "barrier_other",
+      "count": 1,
+      "avg_rank": 28.0,
+      "methods": "f_classif",
+      "combined_score": 0.034482758620689655
+    },
+    {
+      "feature": "job_nông",
+      "count": 1,
+      "avg_rank": 28.0,
+      "methods": "tree_importance",
+      "combined_score": 0.034482758620689655
+    },
+    {
+      "feature": "job_lành",
+      "count": 1,
+      "avg_rank": 29.0,
+      "methods": "mutual_info",
+      "combined_score": 0.03333333333333333
+    },
+    {
+      "feature": "skill_may",
+      "count": 1,
+      "avg_rank": 30.0,
+      "methods": "mutual_info",
+      "combined_score": 0.03225806451612903
+    },
+    {
+      "feature": "skill_hanh may",
+      "count": 1,
+      "avg_rank": 30.0,
+      "methods": "f_classif",
+      "combined_score": 0.03225806451612903
+    },
+    {
+      "feature": "skill_ban",
+      "count": 1,
+      "avg_rank": 30.0,
+      "methods": "tree_importance",
+      "combined_score": 0.03225806451612903
+    }
+  ],
+  "final_features": [
+    "age",
+    "risk_score_proxy",
+    "barrier_health",
+    "age_squared",
+    "barrier_weighted",
+    "experience_years",
+    "total_barriers",
+    "age_exp_product",
+    "has_barriers",
+    "target_salary",
+    "skill_density.1",
+    "skill_density",
+    "is_male",
+    "salary_per_exp",
+    "skill_đo",
+    "skill_chan nuoi",
+    "barrier_family",
+    "is_female",
+    "skill_vu",
+    "skill_lai xe",
+    "experience_age_ratio",
+    "job_lái",
+    "exp_ratio",
+    "skill_an",
+    "job_thợ",
+    "skill_nuoi pha",
+    "skills_count",
+    "skill_kho",
+    "skill_bien",
+    "skill_vu ban"
+  ],
+  "method": "Combined (MI + F-test + RFE + Tree)"
+}

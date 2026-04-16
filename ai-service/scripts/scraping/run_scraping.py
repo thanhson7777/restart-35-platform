@@ -43,8 +43,9 @@ from vietnamworks_algolia_scraper import VietnamWorksAlgoliaScraper
 from careerbuilder_scraper import CareerBuilderScraper
 from topcv_scraper import TopCVScraper
 from enhanced_playwright_scraper import EnhancedPlaywrightScraper
-from government_data_scraper import Timviec365Scraper, MyWorkScraper, ViecLauScraper
+from government_data_scraper import Timviec365Scraper, ViecLauScraper
 from vieclam24h_scraper import Vieclam24hScraper
+from vieclamtot_scraper import VieclamtotScraper
 from data_transformer import DataTransformer
 from deduplicator import Deduplicator
 from constants import OUTPUT_COLUMNS
@@ -153,7 +154,7 @@ class ScrapingOrchestrator:
             'careerbuilder': lambda: CareerBuilderScraper(delay=2.5),
             'topcv': lambda: TopCVScraper(delay=3.5),
             'timviec365': lambda: Timviec365Scraper(delay=2.0),
-            'mywork': lambda: MyWorkScraper(delay=2.0),
+            'vieclamtot': lambda: VieclamtotScraper(delay=2.0),
             'vieclau': lambda: ViecLauScraper(delay=2.0),
         }
 
@@ -244,14 +245,39 @@ class ScrapingOrchestrator:
                 continue
 
             try:
-                jobs = scraper.scrape(pages=self.pages, scrape_details=self.scrape_details)
-                self.stats['scrapers_run'] += 1
-                self.stats['total_scraped'] += len(jobs)
-                self.stats['scraper_results'][source_name] = len(jobs)
+                # Check if this is VieclamtotScraper (needs browser reset between categories)
+                if source_name == 'vieclamtot' and hasattr(scraper, 'scrape_category'):
+                    # For Vieclamtot, scrape each category separately with browser reset
+                    import time
+                    for cat_key in scraper.CATEGORIES.keys():
+                        try:
+                            cat_jobs = scraper.scrape_category(cat_key, pages=self.pages)
+                            all_jobs.extend(cat_jobs)
+                            self.logger.info(f"  {cat_key}: {len(cat_jobs)} jobs")
+                        except Exception as e:
+                            self.logger.warning(f"  Error scraping {cat_key}: {e}")
+                        # Reset browser to avoid 403
+                        if hasattr(scraper, '_close_browser'):
+                            scraper._close_browser()
+                        time.sleep(2)  # Brief pause between categories
+                    self.stats['scrapers_run'] += 1
+                    self.stats['total_scraped'] += len(all_jobs)
+                    self.stats['scraper_results'][source_name] = len(all_jobs)
+                else:
+                    # Support both page parameter names
+                    if hasattr(scraper, 'scrape'):
+                        import inspect
+                        sig = inspect.signature(scraper.scrape)
+                        if 'pages_per_category' in sig.parameters:
+                            jobs = scraper.scrape(pages_per_category=self.pages, scrape_details=self.scrape_details)
+                        else:
+                            jobs = scraper.scrape(pages=self.pages, scrape_details=self.scrape_details)
+                    self.stats['scrapers_run'] += 1
+                    self.stats['total_scraped'] += len(jobs)
+                    self.stats['scraper_results'][source_name] = len(jobs)
+                    all_jobs.extend(jobs)
 
-                all_jobs.extend(jobs)
                 self.scrapers[source_name] = scraper
-
                 scraper.log_stats()
 
             except Exception as e:
@@ -526,7 +552,7 @@ def parse_args():
         '--source', '-s',
         choices=[
             'vieclam24h', 'vnw', 'vnw_api', 'vnw_algolia', 'cb', 'topcv',
-            'timviec365', 'mywork', 'vieclau', 'all'
+            'timviec365', 'vieclamtot', 'vieclau', 'all'
         ],
         default='vieclam24h',
         help='Source to scrape (default: vieclam24h). vnw_algolia = VietnamWorks via Algolia API'
@@ -579,7 +605,7 @@ def main():
         'cb': ['careerbuilder'],
         'topcv': ['topcv'],
         'timviec365': ['timviec365'],
-        'mywork': ['mywork'],
+        'vieclamtot': ['vieclamtot'],
         'vieclau': ['vieclau'],
         'all': ['vieclam24h', 'vietnamworks', 'careerbuilder', 'topcv'],
     }

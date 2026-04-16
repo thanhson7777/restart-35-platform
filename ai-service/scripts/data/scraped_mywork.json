@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "source": "MyWork",
+    "scraped_at": "2026-04-15T09:02:33.752082",
+    "count": 0,
+    "categories": [
+      "bao_ve",
+      "lai_xe",
+      "lao_dong",
+      "phuc_vu",
+      "co_khi",
+      "kinh_doanh"
+    ],
+    "stats": {
+      "requests_made": 6,
+      "requests_failed": 0,
+      "bytes_downloaded": 8137889,
+      "pages_scraped": 0,
+      "jobs_found": 0,
+      "rate_limit_hits": 0,
+      "blocked_attempts": 0
+    }
+  },
+  "jobs": []
+}

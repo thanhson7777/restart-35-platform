@@ -1,0 +1,9 @@
+{
+  "model_name": "risk",
+  "last_retrain": "2026-04-15T14:53:52.139030",
+  "retrain_success": false,
+  "improvement": 0.0,
+  "deployed": false,
+  "old_metrics": {},
+  "new_metrics": {}
+}

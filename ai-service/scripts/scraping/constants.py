@@ -307,3 +307,103 @@ OUTPUT_COLUMNS = [
     'job_url',
     'scraped_at',
 ]
+
+# Skill patterns for extraction from job descriptions
+# Organized by category for better matching
+SKILL_PATTERNS = {
+    # Programming Languages
+    'programming_languages': [
+        'Python', 'Java', 'JavaScript', 'TypeScript', 'C#', 'C++', 'C',
+        'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'PHP', 'Scala', 'R',
+        'Objective-C', 'Dart', 'Lua', 'Perl', 'Haskell', 'Erlang', 'Elixir',
+    ],
+    # Frameworks & Libraries
+    'frameworks': [
+        'React', 'ReactJS', 'React.js', 'Angular', 'Vue', 'VueJS', 'Vue.js',
+        'Next.js', 'NextJS', 'Nuxt', 'NestJS', 'Express', 'FastAPI', 'Django',
+        'Flask', 'Spring', 'Spring Boot', 'NodeJS', 'Node.js', 'Rails', 'Ruby on Rails',
+        'Laravel', 'CodeIgniter', 'CakePHP', 'Symfony', 'Flutter', 'React Native',
+        'Svelte', 'Gatsby', 'Remix',
+    ],
+    # Databases
+    'databases': [
+        'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Elasticsearch',
+        'Oracle', 'SQL Server', 'SQLite', 'MariaDB', 'DynamoDB', 'Cassandra',
+        'CouchDB', 'Firebase', 'Supabase', 'Neo4j', 'InfluxDB', 'TimescaleDB',
+    ],
+    # Cloud & DevOps
+    'cloud_devops': [
+        'AWS', 'Azure', 'GCP', 'Google Cloud', 'Docker', 'Kubernetes', 'K8s',
+        'Terraform', 'Ansible', 'Jenkins', 'GitLab CI', 'GitHub Actions',
+        'CircleCI', 'Travis CI', 'Prometheus', 'Grafana', 'ELK', 'ELK Stack',
+        'Linux', 'Unix', 'Bash', 'Shell Scripting', 'Nginx', 'Apache',
+    ],
+    # Big Data & ML
+    'bigdata_ml': [
+        'Spark', 'Hadoop', 'Kafka', 'Flink', 'Airflow', 'ETL',
+        'TensorFlow', 'PyTorch', 'Keras', 'Scikit-learn', 'Pandas', 'NumPy',
+        'Machine Learning', 'Deep Learning', 'NLP', 'Computer Vision',
+        'Tableau', 'Power BI', 'Looker', 'Qlik',
+    ],
+    # Tools & Software
+    'tools': [
+        'Git', 'JIRA', 'Confluence', 'Slack', 'Figma', 'Sketch', 'Adobe XD',
+        'Postman', 'Insomnia', 'Swagger', 'OpenAPI',
+    ],
+    # Soft Skills
+    'soft_skills': [
+        'Teamwork', 'Leadership', 'Communication', 'Problem Solving',
+        'Critical Thinking', 'Time Management', 'Agile', 'Scrum',
+    ],
+    # Languages
+    'languages': [
+        'English', 'Japanese', 'Korean', 'Chinese', 'Tiếng Anh', 'Tiếng Nhật',
+    ],
+    # Office & Business
+    'office_business': [
+        'Microsoft Office', 'MS Word', 'MS Excel', 'Excel', 'Word', 'PowerPoint',
+        'Google Docs', 'Google Sheets', 'SAP', 'ERP', 'CRM',
+    ],
+}
+
+# Flatten all skill patterns for regex matching
+ALL_SKILL_PATTERNS = []
+for category, skills in SKILL_PATTERNS.items():
+    ALL_SKILL_PATTERNS.extend(skills)
+
+# Words to exclude from skill extraction (UI text, locations, etc.)
+SKILL_EXCLUDE_WORDS = {
+    # UI elements - common patterns
+    'xem chi tiết', 'chi tiết', 'quyền lợi', 'yêu cầu', 'mô tả',
+    'việc làm', 'tại', 'cong viec', 'tim viec', 'dang ky', 'dang nhap',
+    # Locations (already in location field)
+    'hà nội', 'hồ chí minh', 'đà nẵng', 'hải phòng', 'cần thơ',
+    'bình dương', 'đồng nai', 'vũng tàu', 'bà rịa', 'hcm', 'hn',
+    # Experience/education patterns
+    'kinh nghiệm', 'năm', 'trở lên', 'cao đẳng', 'đại học', 'trung học',
+    'tốt nghiệp', 'chuyên viên', 'nhân viên',
+    # Company related
+    'công ty', 'cong ty', 'tnhh', 'cổ phần', 'ltd', 'corp', 'jsc',
+    # Job type
+    'toàn thời gian', 'bán thời gian', 'full-time', 'part-time',
+    'nghỉ thứ', 'thứ 7', 'chủ nhật',
+    # Numbers and dates
+    'năm', 'tháng', 'ngày', 'tuần',
+    # Other non-skill words
+    'phường', 'quận', 'xã', 'thị trấn', 'tỉnh', 'thành phố',
+    # Generic job-related terms
+    'việc làm it', 'công nghệ thông tin', 'it project management',
+    'product owner', 'product manager', 'product management',
+    'game design', 'game development', 'hoạt hình', 'nghệ thuật',
+    'tiếng nhật', 'jlpt', 'tiếng anh', 'tiếng hàn',
+    # Skills that are not actual skills
+    'thuyết trình', 'tìm kiếm khách hàng', 'xây dựng mối quan hệ',
+    'kỹ năng giao tiếp', 'kỹ năng bán hàng', 'kỹ năng đàm phán',
+    'kỹ năng làm việc', 'kỹ năng văn phòng', 'phát triển phần mềm',
+    'tư vấn kỹ thuật', 'làm việc nhóm', 'phân tích nghiệp vụ',
+    'quay phim', 'dựng phim', 'app store optimization',
+    'performance marketing', 'data analysis', 'user acquisition',
+    'phần mềm', 'game developer', 'ứng dụng', 'giải pháp',
+    # More UI text
+    'phản hồi', 'mong nhận', 'góp ý', 'cải thiện',
+}

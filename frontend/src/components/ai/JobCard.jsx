@@ -7,19 +7,22 @@
  * - Format salary và location
  */
 
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { trackClick, trackApply, debouncedTrackView } from '~/apis/interactionAPI'
 
 const JobCard = ({
   job,
   userSkills = [],
   onApply,
   showMatchDetails = true,
-  size = 'md'
+  size = 'md',
+  userId = null,
+  isApplied = false
 }) => {
   const navigate = useNavigate()
 
-  if (!job) return null
-
+  // Destructure job data early to avoid "Cannot access before initialization"
   const {
     id,
     title,
@@ -31,7 +34,65 @@ const JobCard = ({
     skills = [],
     score,
     match_details
-  } = job
+  } = job || {}
+
+  // Interaction tracking handlers
+  const handleCardClick = () => {
+    navigate(`/jobs/${id}`)
+    if (userId) {
+      trackClick(
+        userId,
+        id,
+        title,
+        company,
+        { page: 'AIRecommendations' },
+        { jobCategory: job.category, jobLocation: location, salaryMin: salary_min, salaryMax: salary_max, jobType: type }
+      )
+    }
+  }
+
+  const handleApply = (e) => {
+    e.stopPropagation()
+    if (onApply) onApply(job)
+    if (userId) {
+      trackApply(
+        userId,
+        id,
+        title,
+        company,
+        { jobCategory: job.category, jobLocation: location, salaryMin: salary_min, salaryMax: salary_max, jobType: type }
+      )
+    }
+  }
+
+  // Intersection Observer for view tracking
+  const cardRef = useRef(null)
+  useEffect(() => {
+    const card = cardRef.current
+    if (!card || !userId) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            debouncedTrackView(
+              userId,
+              id,
+              title,
+              company,
+              { jobCategory: job.category, jobLocation: location, salaryMin: salary_min, salaryMax: salary_max, jobType: type }
+            )
+          }
+        })
+      },
+      { threshold: 0.5 }
+    )
+
+    observer.observe(card)
+    return () => observer.disconnect()
+  }, [userId, id, title, company, location, salary_min, salary_max, type])
+
+  if (!job) return null
 
   // Calculate match badge
   const getMatchBadge = (score) => {
@@ -78,13 +139,14 @@ const JobCard = ({
     return skills.filter(skill => !matching.includes(skill))
   }
 
-  // Format salary
+  // Format salary - Display as "7 triệu/tháng" instead of "7.000.000 triệu"
   const formatSalary = (min, max) => {
     if (!min && !max) return 'Thương lượng'
 
     const format = (num) => {
       if (!num) return ''
-      return new Intl.NumberFormat('vi-VN').format(num) + ' triệu'
+      // Format with Vietnamese locale and add unit
+      return `${num.toLocaleString('vi-VN')} triệu/tháng`
     }
 
     if (min && max) {
@@ -114,13 +176,14 @@ const JobCard = ({
 
   return (
     <div
+      ref={cardRef}
       className={`
         bg-white rounded-xl shadow-sm border border-gray-100
         hover:shadow-md hover:border-blue-200
         transition-all duration-200 cursor-pointer
         ${sizeClasses[size]}
       `}
-      onClick={() => navigate(`/jobs/${id}`)}
+      onClick={handleCardClick}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
@@ -149,6 +212,18 @@ const JobCard = ({
           >
             <span>{matchBadge.icon}</span>
             <span>{matchBadge.label}</span>
+          </div>
+        )}
+
+        {/* Applied Badge */}
+        {isApplied && (
+          <div className="px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-500 whitespace-nowrap">
+            <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Đã ứng tuyển
           </div>
         )}
       </div>
@@ -206,9 +281,8 @@ const JobCard = ({
               <span
                 key={`match-${index}`}
                 className="
-                  px-2.5 py-1 text-xs font-medium rounded-full
+                  px-2.5 py-1 text-xs font-semibold rounded-full
                   bg-green-100 text-green-700 border border-green-200
-                  font-semibold
                 "
               >
                 {skill}
@@ -249,10 +323,7 @@ const JobCard = ({
 
         {/* Apply Button */}
         <button
-          onClick={(e) => {
-            e.stopPropagation()
-            if (onApply) onApply(job)
-          }}
+          onClick={handleApply}
           className="
             px-4 py-2 bg-blue-600 hover:bg-blue-700
             text-white text-sm font-medium rounded-lg

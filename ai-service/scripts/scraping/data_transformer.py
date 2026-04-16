@@ -41,8 +41,22 @@ from constants import (
     EDUCATION_LEVELS,
     TARGET_JOBS,
     SKILL_MAPPINGS,
-    LOCATION_ALIASES
+    LOCATION_ALIASES,
+    ALL_SKILL_PATTERNS,
+    SKILL_EXCLUDE_WORDS,
 )
+
+# Import skill extractor (for title-based extraction)
+try:
+    from skill_extractor import (
+        extract_skills_from_title,
+        extract_salary_from_text,
+        infer_salary_from_category,
+        enrich_job_data,
+    )
+    HAS_SKILL_EXTRACTOR = True
+except ImportError:
+    HAS_SKILL_EXTRACTOR = False
 
 
 class DataTransformer:
@@ -111,33 +125,101 @@ class DataTransformer:
             return None
         
         # Build transformed job
+        raw_skills = job.get('skills', '')
+        normalized_skills = self.normalize_skills(raw_skills)
+
+        # If skills empty but description exists, try to extract from description
+        description = job.get('description', '')
+        skills_source = 'original'
+        
+        if not normalized_skills and description:
+            extracted_skills = self.extract_skills_from_description(description)
+            if extracted_skills:
+                normalized_skills = extracted_skills
+                skills_source = 'description'
+                self.stats['skills_extracted_from_description'] += 1
+                self.logger.debug(f"Extracted skills from description: {extracted_skills[:50]}...")
+
+        # If still no skills, try to extract from title (using skill_extractor)
+        if not normalized_skills and HAS_SKILL_EXTRACTOR:
+            title = job.get('title', '')
+            if title:
+                title_skills, _ = extract_skills_from_title(title)
+                if title_skills:
+                    normalized_skills = '|'.join(title_skills)
+                    skills_source = 'title'
+                    self.stats['skills_extracted_from_title'] += 1
+                    self.logger.debug(f"Extracted skills from title: {normalized_skills[:50]}...")
+
+        # Extract title from raw job data for enrichment
+        raw_title = job.get('title', '')
+        raw_category = job.get('category', '')
+        raw_salary_min = self.parse_salary_value(job.get('salary_min', 0))
+        raw_salary_max = self.parse_salary_value(job.get('salary_max', 0))
+        raw_location = job.get('location', '')
+
+        # If salary is 0, try to extract from description or infer from category
+        salary_min = raw_salary_min
+        salary_max = raw_salary_max
+        salary_source = 'original'
+        
+        if salary_min == 0 and salary_max == 0 and description and HAS_SKILL_EXTRACTOR:
+            # Try to extract salary from description
+            extracted_min, extracted_max = extract_salary_from_text(description)
+            if extracted_min > 0:
+                salary_min = extracted_min
+                salary_max = extracted_max
+                salary_source = 'extracted'
+            else:
+                # Infer from category
+                inferred_min, inferred_max = infer_salary_from_category(
+                    raw_category, raw_location
+                )
+                salary_min = inferred_min
+                salary_max = inferred_max
+                salary_source = 'inferred'
+
+        # Determine final category (use raw category if valid, otherwise use skill-based category)
+        final_category = raw_category
+        if not final_category or final_category == 'other':
+            if HAS_SKILL_EXTRACTOR and raw_title:
+                _, skill_category = extract_skills_from_title(raw_title)
+                if skill_category != 'other':
+                    final_category = skill_category
+
         transformed = {
             'id': f"scraped_{source.lower()}_{index:05d}",
-            'title': self.clean_text(job.get('title', '')),
+            'title': self.clean_text(raw_title),
             'company': self.clean_text(job.get('company', 'Unknown')),
-            'skills': self.normalize_skills(job.get('skills', '')),
-            'location': self.normalize_location(job.get('location', '')),
-            'salary_min': self.parse_salary_value(job.get('salary_min', 0)),
-            'salary_max': self.parse_salary_value(job.get('salary_max', 0)),
+            'skills': normalized_skills,
+            'skills_source': skills_source,
+            'location': self.normalize_location(raw_location),
+            'salary_min': salary_min,
+            'salary_max': salary_max,
+            'salary_source': salary_source,
             'type': self.normalize_job_type(job.get('type', 'full-time')),
             'age_preference': self.normalize_age_preference(job.get('age_preference', 'any')),
             'experience_required': self.parse_experience_value(job.get('experience_required', 0)),
             'education_required': self.normalize_education(job.get('education_required', 'high')),
-            'description': self.clean_text(job.get('description', ''))[:1000],  # Limit length
+            'description': self.clean_text(description)[:3000],  # Limit length
             'source': source,
             'job_url': job.get('job_url', ''),
             'scraped_at': datetime.now().isoformat(),
         }
+
+        # Map job title to standard categories
+        transformed['category'] = self.map_job_category(transformed['title'])
         
+        # Override with skill-based category if available and original was 'other'
+        if final_category and final_category != 'other':
+            transformed['category'] = final_category
+
         # Ensure salary_min <= salary_max
         if transformed['salary_min'] > transformed['salary_max']:
             transformed['salary_min'], transformed['salary_max'] = (
                 transformed['salary_max'],
                 transformed['salary_min']
             )
-        
-        # Map job title to standard categories
-        transformed['category'] = self.map_job_category(transformed['title'])
         
         return transformed
     
@@ -178,16 +260,16 @@ class DataTransformer:
     def normalize_skills(self, skills: Any) -> str:
         """
         Normalize skills: split by |, clean, deduplicate
-        
+
         Args:
             skills: Skills string hoặc list
-            
+
         Returns:
             Pipe-separated skills string
         """
         if not skills:
             return ''
-        
+
         # Convert to list if string
         if isinstance(skills, str):
             # Split by various delimiters
@@ -196,30 +278,73 @@ class DataTransformer:
             skills_list = skills
         else:
             return ''
-        
+
         # Clean each skill
         cleaned_skills = []
         seen = set()
-        
+
         for skill in skills_list:
             skill = self.clean_text(skill).strip()
-            
+
             # Skip if empty or too short
             if len(skill) < 2 or len(skill) > 50:
                 continue
-            
+
             # Skip duplicates (case-insensitive)
             skill_lower = skill.lower()
             if skill_lower in seen:
                 continue
-            
+
             seen.add(skill_lower)
-            
+
             # Title case
             skill = skill.title()
             cleaned_skills.append(skill)
-        
+
         return '|'.join(cleaned_skills)
+
+    def extract_skills_from_description(self, text: str) -> str:
+        """
+        Extract skills from job description text using regex patterns.
+
+        Args:
+            text: Job description text
+
+        Returns:
+            Pipe-separated extracted skills
+        """
+        if not text or len(text) < 50:
+            return ''
+
+        found_skills = []
+        seen = set()
+        text_lower = text.lower()
+
+        for skill in ALL_SKILL_PATTERNS:
+            # Skip if skill word is in exclude list
+            if skill.lower() in SKILL_EXCLUDE_WORDS:
+                continue
+
+            # Create case-insensitive pattern with word boundaries
+            escaped_skill = re.escape(skill)
+            pattern = r'\b' + escaped_skill + r'\b'
+
+            if re.search(pattern, text, re.IGNORECASE):
+                skill_lower = skill.lower()
+                if skill_lower not in seen:
+                    seen.add(skill_lower)
+
+                    # Additional check: skip if the skill matches exclude words
+                    should_skip = False
+                    for excl in SKILL_EXCLUDE_WORDS:
+                        if excl in skill_lower:
+                            should_skip = True
+                            break
+
+                    if not should_skip:
+                        found_skills.append(skill.title())
+
+        return '|'.join(found_skills)
     
     def normalize_location(self, location: str) -> str:
         """
@@ -487,20 +612,28 @@ class DataTransformer:
         self.logger.info(f"  Transformed: {self.stats['transformed']}")
         self.logger.info(f"  Skipped: {self.stats['skipped']}")
         self.logger.info(f"  Errors: {self.stats['errors']}")
-        
+
         if self.stats['total_processed'] > 0:
             rate = self.stats['transformed'] / self.stats['total_processed'] * 100
             self.logger.info(f"  Success rate: {rate:.1f}%")
-        
+
+        if self.stats.get('skills_extracted_from_description', 0) > 0:
+            self.logger.info(f"  Skills extracted from descriptions: {self.stats['skills_extracted_from_description']}")
+
+        if self.stats.get('skills_extracted_from_title', 0) > 0:
+            self.logger.info(f"  Skills extracted from titles: {self.stats['skills_extracted_from_title']}")
+
         self.logger.info("=" * 50)
-        
+
         return self.stats.copy()
-    
+
     def reset_stats(self) -> None:
         """Reset statistics"""
         self.stats = {
             'total_processed': 0,
             'transformed': 0,
             'skipped': 0,
-            'errors': 0
+            'errors': 0,
+            'skills_extracted_from_description': 0,
+            'skills_extracted_from_title': 0,
         }

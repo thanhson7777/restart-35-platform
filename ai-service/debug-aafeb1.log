@@ -1,0 +1,2 @@
+{"shap_version": "0.51.0", "platform": "Windows-11-10.0.26200-SP0", "python_version": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]", "model_type": "XGBClassifier", "model_module": "xgboost.sklearn", "X_shape": [100, 258], "X_dtype": "float32", "has_nan": false, "has_inf": false, "n_samples": 100, "step": "before_tree_explainer"}
+{"step": "before_explainer_creation", "X_sample_shape": [100, 258], "X_sample_dtype": "float32", "X_sample_min": 0.0, "X_sample_max": 30484440.0, "X_sample_mean": 59458.44140625, "n_features": 258}

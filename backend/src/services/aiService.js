@@ -337,5 +337,3 @@ export const aiService = {
   getFeatureImportance,
   getModelInfo
 }
-
-export default aiService

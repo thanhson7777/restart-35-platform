@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import { env } from '~/config/enviroment'
 import ApiError from '~/utils/ApiError'
 import { jwtProvider } from '~/providers/jwtProvider'
-import { USER_ROLE } from '~/utils/constants'
+import { USER_ROLES } from '~/utils/constants'
 
 const isAuthorized = async (req, res, next) => {
   const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
@@ -41,7 +41,7 @@ const isAuthorizedAdmin = async (req, res, next) => {
   try {
     const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
 
-    if (!accessTokenDecoded || accessTokenDecoded.role !== USER_ROLE.ADMIN) {
+    if (!accessTokenDecoded || accessTokenDecoded.role !== USER_ROLES.ADMIN) {
       next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
       return
     }

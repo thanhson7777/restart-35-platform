@@ -19,6 +19,17 @@ from urllib.parse import urljoin
 
 from base_scraper import BaseScraper
 
+# Import skill extractor for skills inference
+try:
+    from skill_extractor import (
+        extract_skills_from_title,
+        infer_salary_from_category,
+        infer_experience_from_category,
+    )
+    HAS_SKILL_EXTRACTOR = True
+except ImportError:
+    HAS_SKILL_EXTRACTOR = False
+
 
 class Vieclam24hScraper(BaseScraper):
     """
@@ -260,19 +271,44 @@ class Vieclam24hScraper(BaseScraper):
             if '/part-time' in href or '/ban-thoi-gian' in href:
                 job_type = 'part-time'
 
+            # Infer skills, category, experience from title using skill_extractor
+            skills = ''
+            category = 'other'
+            experience_required = 0
+            final_salary_min = salary_min
+            final_salary_max = salary_max
+
+            if HAS_SKILL_EXTRACTOR:
+                # Extract skills from title
+                title_skills, inferred_category = extract_skills_from_title(title)
+                if title_skills:
+                    skills = '|'.join(title_skills)
+
+                # Use inferred category if available
+                if inferred_category != 'other':
+                    category = inferred_category
+
+                # Infer experience from category
+                experience_required = infer_experience_from_category(category)
+
+                # If salary is 0, infer from category
+                if final_salary_min == 0 and final_salary_max == 0:
+                    final_salary_min, final_salary_max = infer_salary_from_category(category, location)
+
             job = {
                 'source': 'Vieclam24h',
                 'title': title,
                 'company': '',  # Không có trong text
+                'skills': skills,
+                'category': category,
                 'location': location,
                 'salary_text': text,
-                'salary_min': salary_min,
-                'salary_max': salary_max,
+                'salary_min': final_salary_min,
+                'salary_max': final_salary_max,
                 'type': job_type,
-                'experience_required': 0,
+                'experience_required': experience_required,
                 'education_required': 'high',
                 'age_preference': 'any',
-                'skills': '',
                 'description': text,
                 'job_url': href,
                 'posted_date': '',

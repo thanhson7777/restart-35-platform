@@ -1,0 +1,105 @@
+{
+  "stratified": {
+    "scores": [
+      0.5987654320987654,
+      0.5987654320987654,
+      0.6410256410256411,
+      0.6410256410256411,
+      0.5299145299145299
+    ],
+    "mean": 0.6018993352326685,
+    "std": 0.040652651830861135,
+    "min": 0.5299145299145299,
+    "max": 0.6410256410256411
+  },
+  "time_series_split": {
+    "folds": [
+      {
+        "fold": 1,
+        "train_size": 20,
+        "test_size": 16,
+        "f1_macro": 0.5126050420168067,
+        "f1_weighted": 0.717436974789916,
+        "precision_macro": 0.5111111111111111,
+        "recall_macro": 0.5416666666666666,
+        "f1_per_class": {
+          "low": 0.0,
+          "medium": 0.8235294117647058,
+          "high": 0.7142857142857143
+        }
+      },
+      {
+        "fold": 2,
+        "train_size": 36,
+        "test_size": 16,
+        "f1_macro": 1.0,
+        "f1_weighted": 1.0,
+        "precision_macro": 1.0,
+        "recall_macro": 1.0,
+        "f1_per_class": {
+          "low": 0.0,
+          "medium": 1.0,
+          "high": 1.0
+        }
+      },
+      {
+        "fold": 3,
+        "train_size": 52,
+        "test_size": 16,
+        "f1_macro": 1.0,
+        "f1_weighted": 1.0,
+        "precision_macro": 1.0,
+        "recall_macro": 1.0,
+        "f1_per_class": {
+          "low": 0.0,
+          "medium": 1.0,
+          "high": 1.0
+        }
+      },
+      {
+        "fold": 4,
+        "train_size": 68,
+        "test_size": 16,
+        "f1_macro": 0.5422222222222222,
+        "f1_weighted": 0.845,
+        "precision_macro": 0.5299145299145299,
+        "recall_macro": 0.5555555555555555,
+        "f1_per_class": {
+          "low": 0.0,
+          "medium": 0.96,
+          "high": 0.6666666666666666
+        }
+      },
+      {
+        "fold": 5,
+        "train_size": 84,
+        "test_size": 16,
+        "f1_macro": 0.48412698412698413,
+        "f1_weighted": 0.6889880952380952,
+        "precision_macro": 0.43636363636363634,
+        "recall_macro": 0.5555555555555555,
+        "f1_per_class": {
+          "low": 0.0,
+          "medium": 0.9523809523809523,
+          "high": 0.5
+        }
+      }
+    ],
+    "summary": {
+      "n_folds": 5,
+      "f1_mean": 0.7077908496732026,
+      "f1_std": 0.2392941159857366,
+      "f1_min": 0.48412698412698413,
+      "f1_max": 1.0,
+      "total_train_samples": 260,
+      "total_test_samples": 80
+    }
+  },
+  "drift_detection": {
+    "first_half_mean_f1": 0.7563025210084033,
+    "second_half_mean_f1": 0.6754497354497354,
+    "drift_percentage": 10.690534979423871,
+    "drift_detected": "True",
+    "interpretation": "Moderate drift - recommend retraining soon"
+  }
+}

@@ -201,7 +201,6 @@ const updateStep = async (userId, step, stepData) => {
 
 const completeProfile = async (userId) => {
   try {
-    const objectId = new ObjectId(userId)
     const result = await GET_DB().collection(WORKER_PROFILE_COLLECTION_NAME).findOneAndUpdate(
       { userId: userId },
       {

@@ -1,0 +1,10 @@
+{
+  "created_at": "2026-04-16T00:21:20.952063",
+  "n_samples": 100,
+  "n_features": 281,
+  "stratified_baseline": 0.6018993352326685,
+  "time_series_mean": 0.7077908496732026,
+  "drift_detected": "True",
+  "drift_percentage": 10.690534979423871,
+  "recommendation": "RETRAIN_REQUIRED"
+}

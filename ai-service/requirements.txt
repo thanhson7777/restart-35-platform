@@ -4,3 +4,7 @@ python-dotenv>=1.0.0
 pandas>=2.2.0
 scikit-learn>=1.4.0
 numpy>=2.0.0
+
+# Semantic Search
+sentence-transformers>=2.2.0
+torch>=2.0.0

@@ -86,10 +86,13 @@ class RiskPredictorML:
         self.feature_names = None
         self.label_encoder = None
         self.skill_vocabulary = set()
+        self.shap_explainer = None
+        self._shap_available = False
 
         # Load model và artifacts
         self._load_model()
         self._load_feature_names()
+        self._init_shap()
 
     def _load_model(self) -> None:
         """Load trained model và artifacts."""
@@ -131,6 +134,20 @@ class RiskPredictorML:
 
         logger.info(f"Loaded model from {model_path}")
         logger.info(f"Optimal threshold: {self.OPTIMAL_THRESHOLD}")
+
+    def _init_shap(self) -> None:
+        """Initialize SHAP explainer if available."""
+        try:
+            import shap
+            self._shap_available = True
+            self.shap_explainer = shap.TreeExplainer(self.model)
+            logger.info("SHAP explainer initialized")
+        except ImportError:
+            logger.warning("SHAP not installed. Install with: pip install shap")
+            self._shap_available = False
+        except Exception as e:
+            logger.warning(f"Failed to initialize SHAP: {e}")
+            self._shap_available = False
 
     def _load_feature_names(self):
         """
@@ -376,17 +393,38 @@ class RiskPredictorML:
             # Get recommendation
             recommendation = self.RISK_RECOMMENDATIONS.get(risk_level, {})
 
+            # Get SHAP explanation
+            shap_explanation = self._get_shap_explanation(X_array)
+
+            # Build top features for response
+            top_features = []
+            if shap_explanation.get('available'):
+                top_features = shap_explanation.get('top_features', [])[:5]
+            else:
+                # Fallback to model feature importance
+                importance = self.get_feature_importance()[:5]
+                top_features = [
+                    {
+                        'feature': f['feature'],
+                        'importance': f['importance'],
+                        'interpretation': f"Feature importance: {f['importance']:.4f}"
+                    }
+                    for f in importance
+                ]
+
             result = {
                 'success': True,
                 'risk_level': risk_level,
                 'risk_score': risk_score,
                 'probability': prob_dict,
                 'confidence': float(max(proba)),
+                'top_features': top_features,
                 'recommendation': recommendation,
                 'model_info': {
                     'model_type': 'xgboost',
                     'threshold': self.OPTIMAL_THRESHOLD,
-                    'strategy': 'humanitarian_recall_focused'
+                    'strategy': 'humanitarian_recall_focused',
+                    'shap_available': shap_explanation.get('available', False)
                 }
             }
 
@@ -417,6 +455,64 @@ class RiskPredictorML:
             List of predictions
         """
         return [self.predict(worker) for worker in workers]
+
+    def _get_shap_explanation(self, X: np.ndarray) -> Dict:
+        """
+        Get SHAP explanation for predictions.
+
+        Args:
+            X: Feature array
+
+        Returns:
+            Dict with SHAP values and top features
+        """
+        if not self._shap_available or self.shap_explainer is None:
+            return {'available': False}
+
+        try:
+            shap_values = self.shap_explainer.shap_values(X)
+
+            # Handle multi-class output
+            if isinstance(shap_values, list):
+                # Average across classes for global importance
+                shap_arr = np.mean([np.abs(sv) for sv in shap_values], axis=0)
+            else:
+                shap_arr = np.abs(shap_values)
+
+            # Mean across samples
+            mean_shap = shap_arr.mean(axis=0) if len(shap_arr.shape) > 1 else shap_arr
+
+            # Create feature importance dict
+            feature_importance = []
+            for i, (name, importance) in enumerate(sorted(
+                zip(self.feature_names, mean_shap),
+                key=lambda x: abs(x[1]),
+                reverse=True
+            )[:10]):
+                feature_importance.append({
+                    'feature': name,
+                    'shap_value': float(importance),
+                    'interpretation': self._interpret_shap_value(name, importance)
+                })
+
+            return {
+                'available': True,
+                'top_features': feature_importance,
+                'model_output': 'shap'
+            }
+
+        except Exception as e:
+            logger.warning(f"SHAP explanation failed: {e}")
+            return {'available': False, 'error': str(e)}
+
+    def _interpret_shap_value(self, feature: str, value: float) -> str:
+        """Interpret a SHAP value for a feature."""
+        if abs(value) < 0.01:
+            return "Neutral impact"
+        elif value > 0:
+            return f"Increases risk (importance: {abs(value):.4f})"
+        else:
+            return f"Decreases risk (importance: {abs(value):.4f})"
 
     def get_feature_importance(self) -> List[Dict]:
         """

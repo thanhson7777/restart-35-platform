@@ -1,0 +1,27 @@
+{
+  "model_name": "cf",
+  "last_retrain": "2026-04-15T14:53:51.632796",
+  "retrain_success": true,
+  "improvement": 0.0,
+  "deployed": false,
+  "old_metrics": {
+    "total_interactions": 200,
+    "total_users": 20,
+    "total_jobs": 30,
+    "last_update": "2026-04-15T21:52:44.196107",
+    "is_available": true,
+    "init_error": null,
+    "user_similarity_cache_size": 0,
+    "item_similarity_cache_size": 0
+  },
+  "new_metrics": {
+    "total_interactions": 200,
+    "total_users": 20,
+    "total_jobs": 30,
+    "last_update": "2026-04-15T21:53:51.631964",
+    "is_available": true,
+    "init_error": null,
+    "user_similarity_cache_size": 0,
+    "item_similarity_cache_size": 0
+  }
+}

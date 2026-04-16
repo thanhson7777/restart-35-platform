@@ -1,0 +1,1327 @@
+{
+  "scores": [
+    {
+      "feature": "risk_score_proxy",
+      "mi_score": 0.8015729460235579,
+      "mi_score_normalized": 1.0
+    },
+    {
+      "feature": "age",
+      "mi_score": 0.21821395975402624,
+      "mi_score_normalized": 0.27223219151362554
+    },
+    {
+      "feature": "age_exp_product",
+      "mi_score": 0.19307635100845233,
+      "mi_score_normalized": 0.24087184075543625
+    },
+    {
+      "feature": "age_squared",
+      "mi_score": 0.19289395241023954,
+      "mi_score_normalized": 0.24064428991415895
+    },
+    {
+      "feature": "has_barriers",
+      "mi_score": 0.1904141304483269,
+      "mi_score_normalized": 0.23755059523020716
+    },
+    {
+      "feature": "barrier_weighted",
+      "mi_score": 0.18806945346704618,
+      "mi_score_normalized": 0.23462550027420573
+    },
+    {
+      "feature": "barrier_health",
+      "mi_score": 0.17477717694884287,
+      "mi_score_normalized": 0.21804275932200218
+    },
+    {
+      "feature": "experience_years",
+      "mi_score": 0.15595068825307146,
+      "mi_score_normalized": 0.19455582804623264
+    },
+    {
+      "feature": "job_thợ",
+      "mi_score": 0.14569380168563906,
+      "mi_score_normalized": 0.18175987900838805
+    },
+    {
+      "feature": "total_barriers",
+      "mi_score": 0.13847041341990396,
+      "mi_score_normalized": 0.17274836196359647
+    },
+    {
+      "feature": "skill_bien",
+      "mi_score": 0.12518497542867557,
+      "mi_score_normalized": 0.1561741523958525
+    },
+    {
+      "feature": "skill_lai xe",
+      "mi_score": 0.12390145082127924,
+      "mi_score_normalized": 0.15457289500092214
+    },
+    {
+      "feature": "skill_an",
+      "mi_score": 0.1132198150562902,
+      "mi_score_normalized": 0.14124705133569054
+    },
+    {
+      "feature": "is_male",
+      "mi_score": 0.1085939839186818,
+      "mi_score_normalized": 0.13547610913940486
+    },
+    {
+      "feature": "barrier_family",
+      "mi_score": 0.10600639759684749,
+      "mi_score_normalized": 0.13224797334132085
+    },
+    {
+      "feature": "skill_trang tri",
+      "mi_score": 0.09734361103455513,
+      "mi_score_normalized": 0.12144073913354636
+    },
+    {
+      "feature": "skill_density",
+      "mi_score": 0.08744270394381348,
+      "mi_score_normalized": 0.10908889125761934
+    },
+    {
+      "feature": "skill_nuoi che",
+      "mi_score": 0.08284449261972138,
+      "mi_score_normalized": 0.10335240607944197
+    },
+    {
+      "feature": "skill_van hanh",
+      "mi_score": 0.08268938013252858,
+      "mi_score_normalized": 0.10315889594669325
+    },
+    {
+      "feature": "skill_may moc",
+      "mi_score": 0.08213838407082452,
+      "mi_score_normalized": 0.10247150241072446
+    },
+    {
+      "feature": "skill_density.1",
+      "mi_score": 0.08136365353474218,
+      "mi_score_normalized": 0.1015049895812613
+    },
+    {
+      "feature": "barrier_techGap",
+      "mi_score": 0.07853485798578741,
+      "mi_score_normalized": 0.09797593391266889
+    },
+    {
+      "feature": "skill_bao duong",
+      "mi_score": 0.07769631132439891,
+      "mi_score_normalized": 0.09692980746148518
+    },
+    {
+      "feature": "skills_count",
+      "mi_score": 0.07741976645680526,
+      "mi_score_normalized": 0.09658480471536514
+    },
+    {
+      "feature": "job_việc",
+      "mi_score": 0.07680841456021059,
+      "mi_score_normalized": 0.09582211443293051
+    },
+    {
+      "feature": "skill_rap pccc",
+      "mi_score": 0.07582726724656319,
+      "mi_score_normalized": 0.0945980869523192
+    },
+    {
+      "feature": "target_salary",
+      "mi_score": 0.07408951524198737,
+      "mi_score_normalized": 0.09243015948770546
+    },
+    {
+      "feature": "skill_ke toan",
+      "mi_score": 0.07369006431427727,
+      "mi_score_normalized": 0.0919318256433664
+    },
+    {
+      "feature": "job_lành",
+      "mi_score": 0.07061367647117489,
+      "mi_score_normalized": 0.08809388692754057
+    },
+    {
+      "feature": "skill_may",
+      "mi_score": 0.06640768538272601,
+      "mi_score_normalized": 0.08284671496482157
+    },
+    {
+      "feature": "skill_sinh an",
+      "mi_score": 0.06615853705336461,
+      "mi_score_normalized": 0.08253589069037796
+    },
+    {
+      "feature": "job_hàng",
+      "mi_score": 0.0656520591653087,
+      "mi_score_normalized": 0.08190403567260517
+    },
+    {
+      "feature": "skill_pham pccc",
+      "mi_score": 0.06435115222532017,
+      "mi_score_normalized": 0.08028109299915034
+    },
+    {
+      "feature": "skill_gia may",
+      "mi_score": 0.06301554370140527,
+      "mi_score_normalized": 0.07861485846548677
+    },
+    {
+      "feature": "skill_đat su",
+      "mi_score": 0.06206775903525208,
+      "mi_score_normalized": 0.0774324524588283
+    },
+    {
+      "feature": "skill_rap lap",
+      "mi_score": 0.061313023105535436,
+      "mi_score_normalized": 0.07649088384244629
+    },
+    {
+      "feature": "skill_thoi gian",
+      "mi_score": 0.060240960538708865,
+      "mi_score_normalized": 0.07515343530186759
+    },
+    {
+      "feature": "skill_lieu phuc",
+      "mi_score": 0.059322304036234286,
+      "mi_score_normalized": 0.07400736805118024
+    },
+    {
+      "feature": "skill_pham",
+      "mi_score": 0.058405642038752426,
+      "mi_score_normalized": 0.07286378903940192
+    },
+    {
+      "feature": "job_nghề",
+      "mi_score": 0.05692395779335935,
+      "mi_score_normalized": 0.07101531816380237
+    },
+    {
+      "feature": "skill_nuoi pha",
+      "mi_score": 0.0566939299142164,
+      "mi_score_normalized": 0.07072834755147811
+    },
+    {
+      "feature": "skill_soc",
+      "mi_score": 0.05283095394318371,
+      "mi_score_normalized": 0.06590910310192909
+    },
+    {
+      "feature": "skill_tri mon",
+      "mi_score": 0.052798743264539594,
+      "mi_score_normalized": 0.06586891876336837
+    },
+    {
+      "feature": "skill_duong",
+      "mi_score": 0.052494680057093346,
+      "mi_score_normalized": 0.06548958559231433
+    },
+    {
+      "feature": "skill_sinh",
+      "mi_score": 0.05077816025050397,
+      "mi_score_normalized": 0.06334814629461262
+    },
+    {
+      "feature": "skill_nong nghiep",
+      "mi_score": 0.049888515151573554,
+      "mi_score_normalized": 0.062238272136129896
+    },
+    {
+      "feature": "skill_duong xe",
+      "mi_score": 0.0495666115801503,
+      "mi_score_normalized": 0.06183668227082798
+    },
+    {
+      "feature": "barrier_location",
+      "mi_score": 0.04950989108873549,
+      "mi_score_normalized": 0.061765920786553616
+    },
+    {
+      "feature": "skill_hang pccc",
+      "mi_score": 0.048047198707286354,
+      "mi_score_normalized": 0.05994114315564022
+    },
+    {
+      "feature": "is_female",
+      "mi_score": 0.04738687947181397,
+      "mi_score_normalized": 0.05911736381185361
+    },
+    {
+      "feature": "skill_bartender che",
+      "mi_score": 0.04722528249243019,
+      "mi_score_normalized": 0.058915763969711446
+    },
+    {
+      "feature": "skill_mon",
+      "mi_score": 0.04528292062392403,
+      "mi_score_normalized": 0.05649257606380491
+    },
+    {
+      "feature": "skill_rap",
+      "mi_score": 0.04450012098693379,
+      "mi_score_normalized": 0.05551599665094729
+    },
+    {
+      "feature": "skill_goi",
+      "mi_score": 0.044407988903287565,
+      "mi_score_normalized": 0.05540105753766599
+    },
+    {
+      "feature": "skill_luong",
+      "mi_score": 0.04420252786002754,
+      "mi_score_normalized": 0.055144735210073376
+    },
+    {
+      "feature": "skill_hanh",
+      "mi_score": 0.04224799113501643,
+      "mi_score_normalized": 0.05270635859730572
+    },
+    {
+      "feature": "skill_nuoc",
+      "mi_score": 0.0419018311736139,
+      "mi_score_normalized": 0.05227450774315732
+    },
+    {
+      "feature": "skill_pccc trong",
+      "mi_score": 0.0405895258617639,
+      "mi_score_normalized": 0.050637345064002436
+    },
+    {
+      "feature": "skill_xe xay",
+      "mi_score": 0.039974160424441685,
+      "mi_score_normalized": 0.0498696477004937
+    },
+    {
+      "feature": "skill_bao ve",
+      "mi_score": 0.039524325802968496,
+      "mi_score_normalized": 0.04930845782538037
+    },
+    {
+      "feature": "job_dân",
+      "mi_score": 0.037586499647028315,
+      "mi_score_normalized": 0.0468909284345079
+    },
+    {
+      "feature": "skill_kiem tra",
+      "mi_score": 0.03705779062472403,
+      "mi_score_normalized": 0.0462313390297917
+    },
+    {
+      "feature": "skill_lieu",
+      "mi_score": 0.03703524626772414,
+      "mi_score_normalized": 0.046203213882714665
+    },
+    {
+      "feature": "skill_nuoi lam",
+      "mi_score": 0.03657407495211684,
+      "mi_score_normalized": 0.045627880947770844
+    },
+    {
+      "feature": "skill_ve đoc",
+      "mi_score": 0.03654892698101975,
+      "mi_score_normalized": 0.04559650766949112
+    },
+    {
+      "feature": "job_xe",
+      "mi_score": 0.03642405666408144,
+      "mi_score_normalized": 0.045440726068380746
+    },
+    {
+      "feature": "job_dịh",
+      "mi_score": 0.03551537348983791,
+      "mi_score_normalized": 0.04430710101435251
+    },
+    {
+      "feature": "skill_ly thoi",
+      "mi_score": 0.032255389492932274,
+      "mi_score_normalized": 0.040240117450251744
+    },
+    {
+      "feature": "skill_xe",
+      "mi_score": 0.030879931652318948,
+      "mi_score_normalized": 0.03852416901731536
+    },
+    {
+      "feature": "skill_hanh may",
+      "mi_score": 0.030032873804760607,
+      "mi_score_normalized": 0.03746742446055303
+    },
+    {
+      "feature": "skill_rap may",
+      "mi_score": 0.02897472994506156,
+      "mi_score_normalized": 0.03614734016261323
+    },
+    {
+      "feature": "skill_sua",
+      "mi_score": 0.026184272428922073,
+      "mi_score_normalized": 0.032666112995475935
+    },
+    {
+      "feature": "skill_xe tron",
+      "mi_score": 0.025864707696212408,
+      "mi_score_normalized": 0.03226744094161613
+    },
+    {
+      "feature": "skill_moc",
+      "mi_score": 0.025366341764937017,
+      "mi_score_normalized": 0.031645705971957185
+    },
+    {
+      "feature": "skill_su dung",
+      "mi_score": 0.025287522811745955,
+      "mi_score_normalized": 0.03154737561589655
+    },
+    {
+      "feature": "skill_tron",
+      "mi_score": 0.025045740486826285,
+      "mi_score_normalized": 0.031245740778893753
+    },
+    {
+      "feature": "skill_nguoi",
+      "mi_score": 0.02486973864304587,
+      "mi_score_normalized": 0.03102617019002405
+    },
+    {
+      "feature": "job_sản",
+      "mi_score": 0.024233233619066263,
+      "mi_score_normalized": 0.030232100196597778
+    },
+    {
+      "feature": "skill_mac",
+      "mi_score": 0.024060879411420988,
+      "mi_score_normalized": 0.030017080205590983
+    },
+    {
+      "feature": "skill_đong goi",
+      "mi_score": 0.02377480418919231,
+      "mi_score_normalized": 0.029660187893234585
+    },
+    {
+      "feature": "skill_trong trot",
+      "mi_score": 0.023247758623444748,
+      "mi_score_normalized": 0.029002673728912885
+    },
+    {
+      "feature": "skill_trang",
+      "mi_score": 0.022896240656410605,
+      "mi_score_normalized": 0.028564138510405384
+    },
+    {
+      "feature": "skill_giat ui",
+      "mi_score": 0.02196085007301729,
+      "mi_score_normalized": 0.027397194705685426
+    },
+    {
+      "feature": "skill_che bien",
+      "mi_score": 0.021514085819059225,
+      "mi_score_normalized": 0.02683983525864524
+    },
+    {
+      "feature": "skill_nuoi tron",
+      "mi_score": 0.020429346260379733,
+      "mi_score_normalized": 0.025486571573710926
+    },
+    {
+      "feature": "skill_hang nong",
+      "mi_score": 0.02024345997788113,
+      "mi_score_normalized": 0.02525466968203563
+    },
+    {
+      "feature": "skill_su",
+      "mi_score": 0.02015348547636653,
+      "mi_score_normalized": 0.02514242225407421
+    },
+    {
+      "feature": "skill_đien",
+      "mi_score": 0.019876131101226324,
+      "mi_score_normalized": 0.02479640960916634
+    },
+    {
+      "feature": "skill_dung may",
+      "mi_score": 0.018890635221018304,
+      "mi_score_normalized": 0.02356695708697623
+    },
+    {
+      "feature": "skill_mon an",
+      "mi_score": 0.01860728342373852,
+      "mi_score_normalized": 0.023213462375502453
+    },
+    {
+      "feature": "skill_nhap",
+      "mi_score": 0.01846878408783037,
+      "mi_score_normalized": 0.023040677931372676
+    },
+    {
+      "feature": "skill_trot",
+      "mi_score": 0.018003017537073562,
+      "mi_score_normalized": 0.022459612224168632
+    },
+    {
+      "feature": "exp_ratio",
+      "mi_score": 0.01793132168299283,
+      "mi_score_normalized": 0.02237016826970834
+    },
+    {
+      "feature": "job_nông",
+      "mi_score": 0.017361433560826756,
+      "mi_score_normalized": 0.0216592059985973
+    },
+    {
+      "feature": "skill_nong",
+      "mi_score": 0.01694046552357631,
+      "mi_score_normalized": 0.021134028546764896
+    },
+    {
+      "feature": "job_bán",
+      "mi_score": 0.01691800894916451,
+      "mi_score_normalized": 0.02110601291260059
+    },
+    {
+      "feature": "skill_xay dung",
+      "mi_score": 0.015229496765259976,
+      "mi_score_normalized": 0.01899951444320875
+    },
+    {
+      "feature": "skill_dung",
+      "mi_score": 0.014508075443387725,
+      "mi_score_normalized": 0.018099507369054017
+    },
+    {
+      "feature": "experience_age_ratio",
+      "mi_score": 0.013501497121589434,
+      "mi_score_normalized": 0.016843753508108832
+    },
+    {
+      "feature": "skill_kiem ke",
+      "mi_score": 0.013209766706405723,
+      "mi_score_normalized": 0.016479806076211426
+    },
+    {
+      "feature": "skill_nguoi gia",
+      "mi_score": 0.013149172768637252,
+      "mi_score_normalized": 0.016404212285192073
+    },
+    {
+      "feature": "skill_trong",
+      "mi_score": 0.012569646545238733,
+      "mi_score_normalized": 0.015681226028890098
+    },
+    {
+      "feature": "skill_gia",
+      "mi_score": 0.012475597896586255,
+      "mi_score_normalized": 0.01556389591050345
+    },
+    {
+      "feature": "job_xây",
+      "mi_score": 0.010707556163475074,
+      "mi_score_normalized": 0.013358180583056234
+    },
+    {
+      "feature": "skill_sua nha",
+      "mi_score": 0.010485785689037908,
+      "mi_score_normalized": 0.013081511471982407
+    },
+    {
+      "feature": "skill_soc nguoi",
+      "mi_score": 0.010283528141954434,
+      "mi_score_normalized": 0.012829185656737728
+    },
+    {
+      "feature": "skill_xay",
+      "mi_score": 0.010156336693188273,
+      "mi_score_normalized": 0.012670508334359107
+    },
+    {
+      "feature": "skill_nuoi",
+      "mi_score": 0.010125487386770216,
+      "mi_score_normalized": 0.012632022371763819
+    },
+    {
+      "feature": "skill_ve",
+      "mi_score": 0.010055383828171616,
+      "mi_score_normalized": 0.012544564880906163
+    },
+    {
+      "feature": "skill_che",
+      "mi_score": 0.009542798116295659,
+      "mi_score_normalized": 0.01190509006527174
+    },
+    {
+      "feature": "skill_lap rap",
+      "mi_score": 0.008865857494860574,
+      "mi_score_normalized": 0.011060574759717515
+    },
+    {
+      "feature": "skill_ve cham",
+      "mi_score": 0.008504944149553939,
+      "mi_score_normalized": 0.01061031836434258
+    },
+    {
+      "feature": "skill_bien thuc",
+      "mi_score": 0.007559722983214057,
+      "mi_score_normalized": 0.009431110444428447
+    },
+    {
+      "feature": "skill_che thu",
+      "mi_score": 0.006771312885561542,
+      "mi_score_normalized": 0.008447531717671689
+    },
+    {
+      "feature": "skill_thuc pham",
+      "mi_score": 0.006767591292499819,
+      "mi_score_normalized": 0.00844288885505989
+    },
+    {
+      "feature": "skill_giao",
+      "mi_score": 0.005348552990257938,
+      "mi_score_normalized": 0.006672571743833213
+    },
+    {
+      "feature": "skill_pccc su",
+      "mi_score": 0.005306120874243092,
+      "mi_score_normalized": 0.006619635680777015
+    },
+    {
+      "feature": "skill_xe đong",
+      "mi_score": 0.005133322943599916,
+      "mi_score_normalized": 0.006404062124433339
+    },
+    {
+      "feature": "skill_vu",
+      "mi_score": 0.004460451497170892,
+      "mi_score_normalized": 0.005564623306335742
+    },
+    {
+      "feature": "skill_bao",
+      "mi_score": 0.003900681753690405,
+      "mi_score_normalized": 0.004866284189156959
+    },
+    {
+      "feature": "skill_kho",
+      "mi_score": 0.003798222708185861,
+      "mi_score_normalized": 0.004738461704612262
+    },
+    {
+      "feature": "skill_pha",
+      "mi_score": 0.003707946331648726,
+      "mi_score_normalized": 0.00462583767334352
+    },
+    {
+      "feature": "job_lái",
+      "mi_score": 0.0036564271544727855,
+      "mi_score_normalized": 0.004561565073536457
+    },
+    {
+      "feature": "skill_gian",
+      "mi_score": 0.003044250005647786,
+      "mi_score_normalized": 0.0037978452500794816
+    },
+    {
+      "feature": "skill_bartender chan",
+      "mi_score": 0.0030184805932111924,
+      "mi_score_normalized": 0.0037656966944621412
+    },
+    {
+      "feature": "skill_nhom thu",
+      "mi_score": 0.0029642981763084997,
+      "mi_score_normalized": 0.0036981015776714854
+    },
+    {
+      "feature": "skill_ban hang",
+      "mi_score": 0.0029351013219069966,
+      "mi_score_normalized": 0.003661677126788577
+    },
+    {
+      "feature": "skill_pccc sua",
+      "mi_score": 0.002784325132725529,
+      "mi_score_normalized": 0.00347357673002564
+    },
+    {
+      "feature": "skill_xe van",
+      "mi_score": 0.0021641422463318793,
+      "mi_score_normalized": 0.002699869371923982
+    },
+    {
+      "feature": "skill_son sua",
+      "mi_score": 0.00018400032938314936,
+      "mi_score_normalized": 0.00022954907634537564
+    },
+    {
+      "feature": "skill_pccc tron",
+      "mi_score": 9.151296508091988e-05,
+      "mi_score_normalized": 0.00011416673371387755
+    },
+    {
+      "feature": "skill_ban su",
+      "mi_score": 4.919081562948513e-05,
+      "mi_score_normalized": 6.136785912437648e-05
+    },
+    {
+      "feature": "skill_ke",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_khach",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_khach hang",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_giat",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nha",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_giao hang",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_ngan",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nau an",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_ngan van",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nghiep",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_ly",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_may mac",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_may nong",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nau",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_xuất",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_kho van",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_lai",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_kiem",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_lap",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_lap đat",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_lam",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_lam viec",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_vụ",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_nhân",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_pha",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_phục",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_toán",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_viên",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_vận",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_vệ",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "education_level",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "salary_per_exp",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_nghiệp",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_hang",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_giao tiep",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham giao",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham thu",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham lai",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_phuc vu",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_phuc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_quan",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_quan ly",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham xay",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham đong",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_dung đoc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_chan nuoi",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_che đo",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_chua",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_chat luong",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_chat",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nuoc đong",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nhom",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pccc van",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pha che",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pccc trang",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pccc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nuoi ke",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nuoi thu",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nong san",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nhom lap",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nhom lai",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_nhap lieu",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_tron vua",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_tri",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_tra chat",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_tra",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_toan",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_toan thuc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_tiep",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_thuc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_sua chua",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_thu ngan",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_thu",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_thoi",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_san",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_rap pha",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_soc khach",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_son",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham ve",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_cham soc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_chan",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_bartender pccc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_bartender giao",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_bartender lap",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_bartender",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_ve sinh",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_vua",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_vu ban",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_cham",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_bartender ban",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_van",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_ban đo",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_uong",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_ui",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_đat",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_xe đoc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_xe nau",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_xe trong",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_viec",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_viec nhom",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_đo",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_đat nau",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_đoc ban",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_đoc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_đong",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "is_married",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_an pha",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_đo uong",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_đat nhap",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_đien nuoc",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_an toan",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_ban",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "barrier_other",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_ban sua",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_chính",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_chế",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "skill_ban ve",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_bảo",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_dựng",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_công",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_giúp",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_hành",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_kế",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_kho",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_lao",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    },
+    {
+      "feature": "job_động",
+      "mi_score": 0.0,
+      "mi_score_normalized": 0.0
+    }
+  ],
+  "top_features": [
+    "risk_score_proxy",
+    "age",
+    "age_exp_product",
+    "age_squared",
+    "has_barriers",
+    "barrier_weighted",
+    "barrier_health",
+    "experience_years",
+    "job_thợ",
+    "total_barriers",
+    "skill_bien",
+    "skill_lai xe",
+    "skill_an",
+    "is_male",
+    "barrier_family",
+    "skill_trang tri",
+    "skill_density",
+    "skill_nuoi che",
+    "skill_van hanh",
+    "skill_may moc",
+    "skill_density.1",
+    "barrier_techGap",
+    "skill_bao duong",
+    "skills_count",
+    "job_việc",
+    "skill_rap pccc",
+    "target_salary",
+    "skill_ke toan",
+    "job_lành",
+    "skill_may"
+  ],
+  "method": "mutual_info_classif"
+}

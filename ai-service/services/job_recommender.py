@@ -2,7 +2,7 @@
 Job Recommender Service
 - TF-IDF Vectorization cho skills + title
 - Hybrid Scoring: Base Score (Cosine Similarity) + Bonus Score
-- Hard Filter: Location matching
+- Soft Distance Scoring: Location matching
 """
 
 import pandas as pd
@@ -14,6 +14,91 @@ from typing import List, Dict, Optional, Tuple
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+# ============================================================
+# Vietnam Regions - Map tỉnh/thành phố về region
+# ============================================================
+
+VIETNAM_REGIONS = {
+    # Major Cities
+    'Hồ Chí Minh': 'south_east',
+    'Hà Nội': 'north',
+    'Đà Nẵng': 'central',
+    'Cần Thơ': 'mekong',
+    'Hải Phòng': 'north',
+    # Southern Key Provinces (around HCM)
+    'Bình Dương': 'south_east',
+    'Đồng Nai': 'south_east',
+    'Bà Rịa Vũng Tàu': 'south_east',
+    'Long An': 'south_east',
+    'Tiền Giang': 'south_east',
+    'Bến Tre': 'south_east',
+    'Vĩnh Long': 'south_east',
+    'Trà Vinh': 'south_east',
+    'Sóc Trăng': 'mekong',
+    'Bạc Liêu': 'mekong',
+    'Cà Mau': 'mekong',
+    # Northern Key Provinces (around Hanoi)
+    'Hải Dương': 'north',
+    'Bắc Ninh': 'north',
+    'Vĩnh Phúc': 'north',
+    'Hưng Yên': 'north',
+    'Hà Nam': 'north',
+    'Nam Định': 'north',
+    'Thái Bình': 'north',
+    'Ninh Bình': 'north',
+    # Central Key Provinces
+    'Thừa Thiên Huế': 'central',
+    'Quảng Nam': 'central',
+    'Quảng Ngãi': 'central',
+    'Bình Định': 'central',
+    'Phú Yên': 'central',
+    'Khánh Hòa': 'central',
+    'Ninh Thuận': 'central',
+    'Bình Thuận': 'central',
+    # Mekong Delta
+    'An Giang': 'mekong',
+    'Đồng Tháp': 'mekong',
+    'Kiên Giang': 'mekong',
+    'Hậu Giang': 'mekong',
+    'Tiền Giang': 'south_east',
+    # Other provinces
+    'Bắc Giang': 'north',
+    'Bắc Kạn': 'north',
+    'Cao Bằng': 'north',
+    'Điện Biên': 'north',
+    'Hà Giang': 'north',
+    'Hòa Bình': 'north',
+    'Lai Châu': 'north',
+    'Lào Cai': 'north',
+    'Lạng Sơn': 'north',
+    'Phú Thọ': 'north',
+    'Sơn La': 'north',
+    'Tuyên Quang': 'north',
+    'Yên Bái': 'north',
+    'Lâm Đồng': 'central',
+    'Đắk Lắk': 'central',
+    'Đắk Nông': 'central',
+    'Gia Lai': 'central',
+    'Kon Tum': 'central',
+    'Quảng Bình': 'central',
+    'Quảng Ninh': 'north',
+    'Quảng Trị': 'central',
+    'Thanh Hóa': 'north',
+    'Nghệ An': 'central',
+    'Hà Tĩnh': 'central',
+    'Bình Phước': 'south_east',
+    'Tây Ninh': 'south_east',
+}
+
+# Nearby pairs - provinces that are very close (commutable)
+NEARBY_PAIRS = {
+    'Hồ Chí Minh': ['Bình Dương', 'Đồng Nai', 'Long An', 'Bà Rịa Vũng Tàu', 'Tây Ninh'],
+    'Hà Nội': ['Hải Phòng', 'Hải Dương', 'Bắc Ninh', 'Vĩnh Phúc', 'Hưng Yên'],
+    'Đà Nẵng': ['Thừa Thiên Huế', 'Quảng Nam', 'Quảng Ngãi'],
+    'Cần Thơ': ['An Giang', 'Đồng Tháp', 'Hậu Giang', 'Vĩnh Long'],
+}
 
 
 class JobRecommender:
@@ -59,9 +144,9 @@ class JobRecommender:
         # Tạo combined text: title + skills + location
         def create_combined_text(row):
             parts = [
-                row['title'],
-                row.get('location', ''),
-                ' '.join(row['skills_list'])
+                str(row['title']) if pd.notna(row['title']) else '',
+                str(row.get('location', '')) if pd.notna(row.get('location', '')) else '',
+                ' '.join(row['skills_list']) if isinstance(row['skills_list'], list) else ''
             ]
             return ' '.join(parts)
 
@@ -161,6 +246,112 @@ class JobRecommender:
 
         return 0.3
 
+    def _calculate_location_score(self, user_location: Optional[str],
+                                  job_location: str,
+                                  allow_remote: bool) -> float:
+        """
+        Tính location match score (Soft Distance Scoring)
+
+        Args:
+            user_location: Tỉnh/thành phố của user
+            job_location: Tỉnh/thành phố của job
+            allow_remote: Cho phép remote work
+
+        Returns:
+            Score từ 0.0 đến 1.0:
+            - 1.0 = Cùng tỉnh/thành
+            - 0.7-0.85 = Cùng miền hoặc nearby
+            - 0.5 = Không rõ location (neutral)
+            - 0.1 = Khác miền xa
+        """
+        # Remote job luôn được ưu tiên cao
+        if allow_remote:
+            return 1.0
+
+        # Neutral nếu thiếu location info
+        if not user_location or not job_location:
+            return 0.5
+
+        # Cùng tỉnh/thành - score cao nhất
+        if user_location == job_location:
+            return 1.0
+
+        # Kiểm tra nearby pairs (các tỉnh rất gần có thể đi lại được)
+        if user_location in NEARBY_PAIRS:
+            nearby_list = NEARBY_PAIRS[user_location]
+            if job_location in nearby_list:
+                return 0.85  # Rất gần - đi lại được
+
+        if job_location in NEARBY_PAIRS:
+            nearby_list = NEARBY_PAIRS[job_location]
+            if user_location in nearby_list:
+                return 0.85  # Rất gần - đi lại được
+
+        # Cùng region - score khá cao
+        user_region = VIETNAM_REGIONS.get(user_location, 'unknown')
+        job_region = VIETNAM_REGIONS.get(job_location, 'unknown')
+
+        if user_region != 'unknown' and user_region == job_region:
+            return 0.7  # Cùng miền
+
+        # Khác region nhưng là vùng lân cận
+        # South East <-> Mekong (Long An, Tiền Giang...)
+        # North <-> Central North
+        adjacent_regions = {
+            'south_east': ['mekong'],
+            'north': ['central'],
+            'central': ['north', 'south_east'],
+            'mekong': ['south_east'],
+        }
+
+        if user_region in adjacent_regions:
+            if job_region in adjacent_regions[user_region]:
+                return 0.4  # Vùng lân cận
+
+        # Khác miền xa - vẫn hiển thị nhưng score thấp
+        return 0.1
+
+    def _calculate_recency_score(self, scraped_at: str) -> float:
+        """
+        Tính recency score dựa trên scraped_at timestamp.
+        Jobs được scrape gần đây sẽ được điểm cao hơn.
+
+        Args:
+            scraped_at: Timestamp khi job được scrape (ISO format)
+
+        Returns:
+            Score từ 0.1 đến 1.0:
+            - 1.0 nếu scraped < 24h
+            - Giảm tuyến tính đến 0.5 trong 7 ngày
+            - Giảm tiếp đến 0.1 sau 30 ngày
+        """
+        from datetime import datetime
+
+        if not scraped_at:
+            return 0.5  # Neutral nếu không có timestamp
+
+        try:
+            scraped_time = datetime.fromisoformat(scraped_at)
+            now = datetime.now()
+            age_hours = (now - scraped_time).total_seconds() / 3600
+
+            # Tránh negative age (future timestamps)
+            if age_hours < 0:
+                age_hours = 0
+
+            # Decay curve:
+            # - 1.0 nếu scraped < 24h
+            # - Giảm tuyến tính đến 0.5 trong 7 ngày (144h)
+            # - Giảm tiếp đến 0.1 sau 30 ngày (504h)
+            if age_hours <= 24:
+                return 1.0
+            elif age_hours <= 168:  # 7 days
+                return max(0.5, 1.0 - (age_hours - 24) / 144)
+            else:
+                return max(0.1, 0.5 - (age_hours - 168) / 504)
+        except (ValueError, TypeError):
+            return 0.5  # Neutral nếu parse fails
+
     def recommend(self,
                   skills: List[str],
                   experience: int = 0,
@@ -210,7 +401,7 @@ class JobRecommender:
         # 3. Calculate Cosine Similarity
         similarities = cosine_similarity(user_vector, self.job_vectors)[0]
 
-        # 4. Prepare results với Hybrid Scoring
+        # 4. Prepare results với Hybrid Scoring + Soft Location
         results = []
 
         for idx, row in self.jobs_df.iterrows():
@@ -220,12 +411,19 @@ class JobRecommender:
             if base_score < 0.05:
                 continue
 
-            # --- HARD FILTER: Location ---
+            # --- SOFT FILTER: Location Scoring ---
             job_location = row.get('location', '')
 
-            if location and location != job_location and not allow_remote:
-                # Kiểm tra nearby locations (cùng miền)
-                # Tạm thời skip nếu khác location
+            # Tính location score thay vì hard filter
+            location_score = self._calculate_location_score(
+                location,
+                job_location,
+                allow_remote
+            )
+
+            # Chỉ skip nếu location score quá thấp (< 0.1)
+            # Điều này cho phép jobs ở nearby provinces được hiển thị
+            if location_score < 0.1:
                 continue
 
             # 5. Calculate Bonus Scores
@@ -245,13 +443,22 @@ class JobRecommender:
                 preferred_job_type
             )
 
+            # Tính recency score
+            recency_score = self._calculate_recency_score(row.get('scraped_at', ''))
+
             # 6. Final Score = Weighted Average
-            # Base: 70%, Salary: 15%, Job Type: 15%
+            # Soft location: thêm location_score vào scoring
+            # Base: 55%, Salary: 12%, Job Type: 8%, Location: 10%, Recency: 10%
+            location_bonus = location_score * 0.10  # 10% weight cho location
+            recency_bonus = recency_score * 0.10  # 10% weight cho recency
+
             final_score = (
-                base_score * 0.7 +
-                salary_score * 0.15 +
-                job_type_score * 0.15 +
-                experience_bonus
+                base_score * 0.55 +
+                salary_score * 0.12 +
+                job_type_score * 0.08 +
+                experience_bonus +
+                location_bonus +
+                recency_bonus
             )
 
             # Normalize final score về 0-1
@@ -269,9 +476,12 @@ class JobRecommender:
                 'salary_min': int(row['salary_min']),
                 'salary_max': int(row['salary_max']),
                 'location': job_location,
+                'location_score': round(location_score, 2),
                 'type': row.get('type', ''),
                 'experience_required': row.get('experience_required', 0),
-                'description': row.get('description', '')
+                'description': row.get('description', ''),
+                'scraped_at': row.get('scraped_at', ''),
+                'recency_score': round(recency_score, 2),
             }
 
             results.append(job_result)
@@ -288,6 +498,7 @@ class JobRecommender:
                 'total': len(results),
                 'filters_applied': {
                     'location': location,
+                    'location_scoring': 'soft_distance',
                     'skills_count': len(skills),
                     'target_job': target_job,
                     'experience_bonus_applied': any(r['score'] >= 0.1 for r in top_jobs)
@@ -349,3 +560,171 @@ class JobRecommender:
                 'type': row.get('type', '')
             })
         return jobs
+
+    # ============================================================
+    # Labor Job Detection & Filtering
+    # ============================================================
+
+    # Labor keywords for job detection
+    LABOR_JOB_KEYWORDS = [
+        'bao ve', 'kiem not', 'an ninh',
+        'lai xe', 'tai xe', 'xe tai', 'xe buyt',
+        'cong nhan', 'nha may', 'san xuat',
+        'tho xay', 'tho dien', 'tho son', 'xay dung',
+        'phuc vu', 'le tan', 'nha hang', 'khach san',
+        'lao dong', 'lao cong', 'giup viec',
+        'kho van', 'van chuyen', 'giao nhan',
+        'may mac', 'det', 'cat vai',
+        'han che tao', 'co khi',
+    ]
+
+    # Labor keywords for worker detection
+    LABOR_WORKER_KEYWORDS = [
+        'xay dung', 'co khi', 'lai xe', 'bao ve',
+        'nong nghiep', 'chan nuoi', 'tho',
+        'cong nhan', 'kho van', 'san xuat',
+        'phuc vu', 'lao dong pho thong',
+        'may mac', 'det',
+    ]
+
+    def is_labor_job(self, job: 'pd.Series') -> bool:
+        """
+        Detect if a job is a labor job.
+
+        Args:
+            job: Job row from dataframe
+
+        Returns:
+            True if labor job
+        """
+        title_lower = str(job.get('title', '')).lower()
+        skills_lower = str(job.get('skills', '')).lower()
+        category_lower = str(job.get('category', '')).lower()
+
+        for keyword in self.LABOR_JOB_KEYWORDS:
+            if keyword in title_lower or keyword in skills_lower or keyword in category_lower:
+                return True
+
+        return False
+
+    def is_labor_worker(self, skills: List[str]) -> bool:
+        """
+        Detect if worker is a labor worker based on skills.
+
+        Args:
+            skills: List of worker skills
+
+        Returns:
+            True if labor worker
+        """
+        if not skills:
+            return False
+
+        for skill in skills:
+            skill_lower = str(skill).lower()
+            for keyword in self.LABOR_WORKER_KEYWORDS:
+                if keyword in skill_lower:
+                    return True
+
+        return False
+
+    def filter_labor_jobs(
+        self,
+        jobs: List[Dict],
+        barriers: Optional[Dict[str, bool]] = None,
+        risk_level: Optional[str] = None,
+        age: Optional[int] = None
+    ) -> List[Dict]:
+        """
+        Filter labor jobs based on worker profile.
+
+        Args:
+            jobs: List of job dicts
+            barriers: Worker barriers (health, family, techGap, location)
+            risk_level: Worker risk level (high, medium, low)
+            age: Worker age
+
+        Returns:
+            Filtered list of jobs
+        """
+        if not jobs:
+            return []
+
+        filtered = []
+
+        for job in jobs:
+            # Check health issues - prefer lighter jobs
+            if barriers and barriers.get('health'):
+                job_type = job.get('type', '').lower()
+                # Skip heavy labor if health issues
+                if any(k in str(job.get('description', '')).lower() for k in ['nang', 'nguy hiem']):
+                    continue
+
+            # Check tech gap - prefer jobs without tech requirements
+            if barriers and barriers.get('techGap'):
+                tech_keywords = ['python', 'java', 'javascript', 'sql', 'programming']
+                job_skills = ' '.join(job.get('skills', [])).lower()
+                if any(k in job_skills for k in tech_keywords):
+                    # This is a tech job, downgrade but don't exclude
+                    pass
+
+            # Age suitability - prefer jobs matching age
+            if age:
+                age_pref = job.get('age_preference', 'any')
+                if age_pref != 'any':
+                    # Check if job's age preference matches worker age
+                    if '35' in str(age_pref) and age < 35:
+                        continue
+                    if '50' in str(age_pref) and age > 50:
+                        # Older worker may not want "young" jobs
+                        pass
+
+            filtered.append(job)
+
+        return filtered
+
+    def get_job_categories(self) -> Dict[str, int]:
+        """
+        Get job count by category.
+
+        Returns:
+            Dict of category -> count
+        """
+        if self.jobs_df is None:
+            return {}
+
+        return self.jobs_df['category'].value_counts().to_dict()
+
+    def get_labor_jobs_stats(self) -> Dict:
+        """
+        Get statistics about labor jobs in database.
+
+        Returns:
+            Dict with labor job stats
+        """
+        if self.jobs_df is None:
+            return {}
+
+        # Count labor vs non-labor
+        labor_count = sum(1 for _, row in self.jobs_df.iterrows() if self.is_labor_job(row))
+        total = len(self.jobs_df)
+
+        # Location distribution for labor jobs
+        labor_df = self.jobs_df[self.jobs_df['category'] == 'labor']
+        if labor_df.empty:
+            labor_df = self.jobs_df[self.jobs_df.apply(self.is_labor_job, axis=1)]
+
+        loc_stats = labor_df['location'].value_counts().head(10).to_dict() if not labor_df.empty else {}
+
+        # Salary range
+        salaries = labor_df['salary_min'] if not labor_df.empty else self.jobs_df['salary_min']
+        avg_salary = salaries.mean() if not salaries.empty else 0
+
+        return {
+            'total_jobs': total,
+            'labor_jobs': labor_count,
+            'non_labor_jobs': total - labor_count,
+            'labor_percentage': round(100 * labor_count / total, 1) if total > 0 else 0,
+            'top_locations': loc_stats,
+            'average_salary_min': int(avg_salary) if avg_salary else 0,
+        }

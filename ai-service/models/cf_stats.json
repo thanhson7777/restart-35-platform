@@ -1,0 +1,11 @@
+{
+  "total_users": 10,
+  "total_jobs": 15,
+  "total_interactions": 150,
+  "avg_interactions_per_user": 15.0,
+  "avg_jobs_per_user": 15.0,
+  "sparsity": 0.0,
+  "is_available": true,
+  "trained_at": "2026-04-15T21:43:20.887468",
+  "training_data_size": 150
+}
