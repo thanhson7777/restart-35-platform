@@ -33,5 +33,9 @@ export const env = {
 
   MOMO_PARTNER_CODE: process.env.MOMO_PARTNER_CODE,
   MOMO_ACCESS_KEY: process.env.MOMO_ACCESS_KEY,
-  MOMO_SECRET_KEY: process.env.MOMO_SECRET_KEY
+  MOMO_SECRET_KEY: process.env.MOMO_SECRET_KEY,
+
+  // AI Service Configuration
+  AI_SERVICE_HOST: process.env.AI_SERVICE_HOST || 'localhost',
+  AI_SERVICE_PORT: process.env.AI_SERVICE_PORT || '8000'
 }
