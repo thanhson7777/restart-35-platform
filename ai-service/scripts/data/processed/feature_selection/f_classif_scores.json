@@ -1,0 +1,1585 @@
+{
+  "scores": [
+    {
+      "feature": "risk_score_proxy",
+      "f_score": 163.3012700729927,
+      "p_value": 8.931803505512759e-32,
+      "f_score_normalized": 1.0
+    },
+    {
+      "feature": "barrier_weighted",
+      "f_score": 38.41425049845931,
+      "p_value": 5.158950208648726e-13,
+      "f_score_normalized": 0.23523546682330662
+    },
+    {
+      "feature": "total_barriers",
+      "f_score": 24.888816287227474,
+      "p_value": 1.8854933402226942e-09,
+      "f_score_normalized": 0.15241042691280127
+    },
+    {
+      "feature": "age_squared",
+      "f_score": 21.81678875414308,
+      "p_value": 1.5000696131314163e-08,
+      "f_score_normalized": 0.13359840217036506
+    },
+    {
+      "feature": "barrier_health",
+      "f_score": 21.66827262044654,
+      "p_value": 1.6620582223444786e-08,
+      "f_score_normalized": 0.132688941186809
+    },
+    {
+      "feature": "age_exp_product",
+      "f_score": 20.629427598016342,
+      "p_value": 3.4262631850277036e-08,
+      "f_score_normalized": 0.12632741673592227
+    },
+    {
+      "feature": "age",
+      "f_score": 18.897387439696974,
+      "p_value": 1.1729670474043783e-07,
+      "f_score_normalized": 0.11572100713760637
+    },
+    {
+      "feature": "experience_years",
+      "f_score": 14.251524680075464,
+      "p_value": 3.74711159167731e-06,
+      "f_score_normalized": 0.08727136459934016
+    },
+    {
+      "feature": "target_salary",
+      "f_score": 11.534240826155209,
+      "p_value": 3.207167955774891e-05,
+      "f_score_normalized": 0.07063166637344347
+    },
+    {
+      "feature": "skill_nuoi pha",
+      "f_score": 9.118,
+      "p_value": 0.0002351812144625486,
+      "f_score_normalized": 0.05583545061177062
+    },
+    {
+      "feature": "has_barriers",
+      "f_score": 7.7284552845528385,
+      "p_value": 0.0007684239941200003,
+      "f_score_normalized": 0.047326363604510605
+    },
+    {
+      "feature": "barrier_family",
+      "f_score": 6.00710659898477,
+      "p_value": 0.003471343307831609,
+      "f_score_normalized": 0.03678542485493041
+    },
+    {
+      "feature": "is_male",
+      "f_score": 4.869169960474308,
+      "p_value": 0.009658008349273965,
+      "f_score_normalized": 0.029817097921515722
+    },
+    {
+      "feature": "skill_lieu phuc",
+      "f_score": 4.748558375789735,
+      "p_value": 0.01077812915928753,
+      "f_score_normalized": 0.02907851465985057
+    },
+    {
+      "feature": "is_female",
+      "f_score": 4.6827586206896505,
+      "p_value": 0.011444256388650825,
+      "f_score_normalized": 0.028675579918003957
+    },
+    {
+      "feature": "job_lái",
+      "f_score": 3.263926670609107,
+      "p_value": 0.04247706262647668,
+      "f_score_normalized": 0.019987148104544387
+    },
+    {
+      "feature": "job_xe",
+      "f_score": 3.263926670609107,
+      "p_value": 0.04247706262647668,
+      "f_score_normalized": 0.019987148104544387
+    },
+    {
+      "feature": "skill_kho van",
+      "f_score": 2.7677435403016646,
+      "p_value": 0.06776890514084127,
+      "f_score_normalized": 0.016948695739258692
+    },
+    {
+      "feature": "skill_kho",
+      "f_score": 2.7677435403016646,
+      "p_value": 0.06776890514084127,
+      "f_score_normalized": 0.016948695739258692
+    },
+    {
+      "feature": "skill_vu ban",
+      "f_score": 2.663635396309715,
+      "p_value": 0.07479053598979925,
+      "f_score_normalized": 0.016311173790131077
+    },
+    {
+      "feature": "skill_phuc vu",
+      "f_score": 2.663635396309715,
+      "p_value": 0.07479053598979925,
+      "f_score_normalized": 0.016311173790131077
+    },
+    {
+      "feature": "skill_phuc",
+      "f_score": 2.663635396309715,
+      "p_value": 0.07479053598979925,
+      "f_score_normalized": 0.016311173790131077
+    },
+    {
+      "feature": "skill_vu",
+      "f_score": 2.663635396309715,
+      "p_value": 0.07479053598979925,
+      "f_score_normalized": 0.016311173790131077
+    },
+    {
+      "feature": "skill_đo",
+      "f_score": 2.648030541319737,
+      "p_value": 0.07590526564406452,
+      "f_score_normalized": 0.016215615102908355
+    },
+    {
+      "feature": "skill_density.1",
+      "f_score": 2.2710914726164835,
+      "p_value": 0.10866109459170005,
+      "f_score_normalized": 0.01390737176509005
+    },
+    {
+      "feature": "skill_density",
+      "f_score": 2.2710914726164835,
+      "p_value": 0.10866109459170005,
+      "f_score_normalized": 0.01390737176509005
+    },
+    {
+      "feature": "barrier_techGap",
+      "f_score": 1.8891775821344212,
+      "p_value": 0.15671722021163453,
+      "f_score_normalized": 0.011568664354478033
+    },
+    {
+      "feature": "barrier_other",
+      "f_score": 1.8351351351351353,
+      "p_value": 0.16508941759548665,
+      "f_score_normalized": 0.011237727265163725
+    },
+    {
+      "feature": "skill_van hanh",
+      "f_score": 1.7082601885686246,
+      "p_value": 0.18658574270431885,
+      "f_score_normalized": 0.010460789360701625
+    },
+    {
+      "feature": "skill_hanh may",
+      "f_score": 1.7082601885686246,
+      "p_value": 0.18658574270431885,
+      "f_score_normalized": 0.010460789360701625
+    },
+    {
+      "feature": "skill_may moc",
+      "f_score": 1.7082601885686246,
+      "p_value": 0.18658574270431885,
+      "f_score_normalized": 0.010460789360701625
+    },
+    {
+      "feature": "skill_moc",
+      "f_score": 1.7082601885686246,
+      "p_value": 0.18658574270431885,
+      "f_score_normalized": 0.010460789360701625
+    },
+    {
+      "feature": "skill_hanh",
+      "f_score": 1.7082601885686246,
+      "p_value": 0.18658574270431885,
+      "f_score_normalized": 0.010460789360701625
+    },
+    {
+      "feature": "skill_tiep",
+      "f_score": 1.6681307970572221,
+      "p_value": 0.1939635837762353,
+      "f_score_normalized": 0.010215050968749955
+    },
+    {
+      "feature": "skill_giao tiep",
+      "f_score": 1.6681307970572221,
+      "p_value": 0.1939635837762353,
+      "f_score_normalized": 0.010215050968749955
+    },
+    {
+      "feature": "skill_ve",
+      "f_score": 1.660710497564084,
+      "p_value": 0.19536010113948962,
+      "f_score_normalized": 0.010169611643692523
+    },
+    {
+      "feature": "skill_lai xe",
+      "f_score": 1.5103789135489718,
+      "p_value": 0.22597338222910143,
+      "f_score_normalized": 0.009249033475819629
+    },
+    {
+      "feature": "skill_lai",
+      "f_score": 1.5103789135489718,
+      "p_value": 0.22597338222910143,
+      "f_score_normalized": 0.009249033475819629
+    },
+    {
+      "feature": "skill_lap",
+      "f_score": 1.4901986636558173,
+      "p_value": 0.23044032707002104,
+      "f_score_normalized": 0.009125456666624366
+    },
+    {
+      "feature": "skill_bao",
+      "f_score": 1.4775407159761134,
+      "p_value": 0.23328808725581773,
+      "f_score_normalized": 0.009047943811555657
+    },
+    {
+      "feature": "skill_goi",
+      "f_score": 1.4675432483734316,
+      "p_value": 0.23556266885678626,
+      "f_score_normalized": 0.008986722808202695
+    },
+    {
+      "feature": "skill_đong",
+      "f_score": 1.4675432483734316,
+      "p_value": 0.23556266885678626,
+      "f_score_normalized": 0.008986722808202695
+    },
+    {
+      "feature": "skill_đong goi",
+      "f_score": 1.4675432483734316,
+      "p_value": 0.23556266885678626,
+      "f_score_normalized": 0.008986722808202695
+    },
+    {
+      "feature": "job_chế",
+      "f_score": 1.4103573192820686,
+      "p_value": 0.24901550333600775,
+      "f_score_normalized": 0.0086365361313581
+    },
+    {
+      "feature": "job_pha",
+      "f_score": 1.4103573192820686,
+      "p_value": 0.24901550333600775,
+      "f_score_normalized": 0.0086365361313581
+    },
+    {
+      "feature": "skill_che đo",
+      "f_score": 1.407080253279743,
+      "p_value": 0.24980977413489452,
+      "f_score_normalized": 0.008616468522570607
+    },
+    {
+      "feature": "skill_uong",
+      "f_score": 1.407080253279743,
+      "p_value": 0.24980977413489452,
+      "f_score_normalized": 0.008616468522570607
+    },
+    {
+      "feature": "skill_đo uong",
+      "f_score": 1.407080253279743,
+      "p_value": 0.24980977413489452,
+      "f_score_normalized": 0.008616468522570607
+    },
+    {
+      "feature": "job_hàng",
+      "f_score": 1.3596234309623436,
+      "p_value": 0.26160624473111305,
+      "f_score_normalized": 0.008325859500998472
+    },
+    {
+      "feature": "job_bán",
+      "f_score": 1.3596234309623436,
+      "p_value": 0.26160624473111305,
+      "f_score_normalized": 0.008325859500998472
+    },
+    {
+      "feature": "skill_thoi gian",
+      "f_score": 1.3412030167331133,
+      "p_value": 0.26633686271156376,
+      "f_score_normalized": 0.008213059311379636
+    },
+    {
+      "feature": "skill_gian",
+      "f_score": 1.3412030167331133,
+      "p_value": 0.26633686271156376,
+      "f_score_normalized": 0.008213059311379636
+    },
+    {
+      "feature": "skill_ly thoi",
+      "f_score": 1.3412030167331133,
+      "p_value": 0.26633686271156376,
+      "f_score_normalized": 0.008213059311379636
+    },
+    {
+      "feature": "skill_ly",
+      "f_score": 1.3412030167331133,
+      "p_value": 0.26633686271156376,
+      "f_score_normalized": 0.008213059311379636
+    },
+    {
+      "feature": "skill_thoi",
+      "f_score": 1.3412030167331133,
+      "p_value": 0.26633686271156376,
+      "f_score_normalized": 0.008213059311379636
+    },
+    {
+      "feature": "skill_quan",
+      "f_score": 1.3412030167331133,
+      "p_value": 0.26633686271156376,
+      "f_score_normalized": 0.008213059311379636
+    },
+    {
+      "feature": "skill_quan ly",
+      "f_score": 1.3412030167331133,
+      "p_value": 0.26633686271156376,
+      "f_score_normalized": 0.008213059311379636
+    },
+    {
+      "feature": "skill_nhap",
+      "f_score": 1.3008441211950592,
+      "p_value": 0.27700918786328244,
+      "f_score_normalized": 0.007965915516845678
+    },
+    {
+      "feature": "skill_nhap lieu",
+      "f_score": 1.3008441211950592,
+      "p_value": 0.27700918786328244,
+      "f_score_normalized": 0.007965915516845678
+    },
+    {
+      "feature": "skill_lieu",
+      "f_score": 1.3008441211950592,
+      "p_value": 0.27700918786328244,
+      "f_score_normalized": 0.007965915516845678
+    },
+    {
+      "feature": "skill_may",
+      "f_score": 1.2823298878096947,
+      "p_value": 0.2820500822250377,
+      "f_score_normalized": 0.007852540811449394
+    },
+    {
+      "feature": "skill_pccc",
+      "f_score": 1.2769421864169104,
+      "p_value": 0.28353451358006376,
+      "f_score_normalized": 0.00781954840795874
+    },
+    {
+      "feature": "skill_khach",
+      "f_score": 1.2737038072008067,
+      "p_value": 0.2844305933132625,
+      "f_score_normalized": 0.007799717703551749
+    },
+    {
+      "feature": "skill_khach hang",
+      "f_score": 1.2737038072008067,
+      "p_value": 0.2844305933132625,
+      "f_score_normalized": 0.007799717703551749
+    },
+    {
+      "feature": "skill_soc khach",
+      "f_score": 1.2737038072008067,
+      "p_value": 0.2844305933132625,
+      "f_score_normalized": 0.007799717703551749
+    },
+    {
+      "feature": "skill_bao ve",
+      "f_score": 1.2115515749469625,
+      "p_value": 0.30219994562567964,
+      "f_score_normalized": 0.00741911911894758
+    },
+    {
+      "feature": "job_phục",
+      "f_score": 1.1765498652291104,
+      "p_value": 0.312701655450071,
+      "f_score_normalized": 0.00720478086118506
+    },
+    {
+      "feature": "skill_ban sua",
+      "f_score": 1.1706896551724142,
+      "p_value": 0.31449598557965175,
+      "f_score_normalized": 0.007168894979500999
+    },
+    {
+      "feature": "skill_nhom lai",
+      "f_score": 1.1706896551724142,
+      "p_value": 0.31449598557965175,
+      "f_score_normalized": 0.007168894979500999
+    },
+    {
+      "feature": "skill_pham lai",
+      "f_score": 1.170689655172414,
+      "p_value": 0.31449598557965186,
+      "f_score_normalized": 0.007168894979500998
+    },
+    {
+      "feature": "skill_xe đoc",
+      "f_score": 1.170689655172414,
+      "p_value": 0.31449598557965186,
+      "f_score_normalized": 0.007168894979500998
+    },
+    {
+      "feature": "skill_xe đong",
+      "f_score": 1.170689655172414,
+      "p_value": 0.31449598557965186,
+      "f_score_normalized": 0.007168894979500998
+    },
+    {
+      "feature": "skill_pccc sua",
+      "f_score": 1.170689655172414,
+      "p_value": 0.31449598557965186,
+      "f_score_normalized": 0.007168894979500998
+    },
+    {
+      "feature": "skill_bartender giao",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_xe tron",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_rap pha",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_ban su",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_xe nau",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_pccc su",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_pham pccc",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_pham thu",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_nuoi tron",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_bartender che",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_bartender ban",
+      "f_score": 1.1706896551724137,
+      "p_value": 0.3144959855796519,
+      "f_score_normalized": 0.007168894979500996
+    },
+    {
+      "feature": "skill_ban đo",
+      "f_score": 1.1499627287907854,
+      "p_value": 0.32092708518090923,
+      "f_score_normalized": 0.007041970514232822
+    },
+    {
+      "feature": "skill_nong",
+      "f_score": 1.134820175606802,
+      "p_value": 0.3257102019354405,
+      "f_score_normalized": 0.006949242801966928
+    },
+    {
+      "feature": "skill_ke toan",
+      "f_score": 1.1328375802451034,
+      "p_value": 0.326341813619899,
+      "f_score_normalized": 0.006937102079725072
+    },
+    {
+      "feature": "barrier_location",
+      "f_score": 1.1324873096446684,
+      "p_value": 0.32645353207004596,
+      "f_score_normalized": 0.006934957144781955
+    },
+    {
+      "feature": "skill_toan",
+      "f_score": 1.0721916542145453,
+      "p_value": 0.34627847663293604,
+      "f_score_normalized": 0.006565727588862568
+    },
+    {
+      "feature": "job_lành",
+      "f_score": 1.0706061044409076,
+      "p_value": 0.346816068688477,
+      "f_score_normalized": 0.00655601823526765
+    },
+    {
+      "feature": "job_thợ",
+      "f_score": 1.0706061044409076,
+      "p_value": 0.346816068688477,
+      "f_score_normalized": 0.00655601823526765
+    },
+    {
+      "feature": "job_nghề",
+      "f_score": 1.0706061044409076,
+      "p_value": 0.346816068688477,
+      "f_score_normalized": 0.00655601823526765
+    },
+    {
+      "feature": "skill_xe",
+      "f_score": 0.9317717041801564,
+      "p_value": 0.39735141479205316,
+      "f_score_normalized": 0.005705844809190225
+    },
+    {
+      "feature": "skill_lap rap",
+      "f_score": 0.8747688407139428,
+      "p_value": 0.42022140045670575,
+      "f_score_normalized": 0.005356779162360078
+    },
+    {
+      "feature": "skill_rap",
+      "f_score": 0.8747688407139428,
+      "p_value": 0.42022140045670575,
+      "f_score_normalized": 0.005356779162360078
+    },
+    {
+      "feature": "skill_lap đat",
+      "f_score": 0.8471675628508549,
+      "p_value": 0.4317736814667449,
+      "f_score_normalized": 0.0051877585671696634
+    },
+    {
+      "feature": "skill_đat",
+      "f_score": 0.8471675628508549,
+      "p_value": 0.4317736814667449,
+      "f_score_normalized": 0.0051877585671696634
+    },
+    {
+      "feature": "exp_ratio",
+      "f_score": 0.8394902478862911,
+      "p_value": 0.4350442139300217,
+      "f_score_normalized": 0.005140745369041246
+    },
+    {
+      "feature": "experience_age_ratio",
+      "f_score": 0.8394902478862911,
+      "p_value": 0.4350442139300217,
+      "f_score_normalized": 0.005140745369041246
+    },
+    {
+      "feature": "job_nhân",
+      "f_score": 0.8339607044501027,
+      "p_value": 0.4374154510473386,
+      "f_score_normalized": 0.005106884374367311
+    },
+    {
+      "feature": "skill_trong",
+      "f_score": 0.8309341878873757,
+      "p_value": 0.4387188954809498,
+      "f_score_normalized": 0.005088351042927978
+    },
+    {
+      "feature": "skill_trot",
+      "f_score": 0.8309341878873757,
+      "p_value": 0.4387188954809498,
+      "f_score_normalized": 0.005088351042927978
+    },
+    {
+      "feature": "skill_trong trot",
+      "f_score": 0.8309341878873757,
+      "p_value": 0.4387188954809498,
+      "f_score_normalized": 0.005088351042927978
+    },
+    {
+      "feature": "is_married",
+      "f_score": 0.8302713987473833,
+      "p_value": 0.4390048707959083,
+      "f_score_normalized": 0.005084292353490374
+    },
+    {
+      "feature": "skill_may nong",
+      "f_score": 0.8062356888268799,
+      "p_value": 0.44950520578695463,
+      "f_score_normalized": 0.004937106052307537
+    },
+    {
+      "feature": "skill_dung may",
+      "f_score": 0.8062356888268799,
+      "p_value": 0.44950520578695463,
+      "f_score_normalized": 0.004937106052307537
+    },
+    {
+      "feature": "skill_nong nghiep",
+      "f_score": 0.8062356888268799,
+      "p_value": 0.44950520578695463,
+      "f_score_normalized": 0.004937106052307537
+    },
+    {
+      "feature": "skill_su",
+      "f_score": 0.8062356888268799,
+      "p_value": 0.44950520578695463,
+      "f_score_normalized": 0.004937106052307537
+    },
+    {
+      "feature": "skill_nghiep",
+      "f_score": 0.8062356888268799,
+      "p_value": 0.44950520578695463,
+      "f_score_normalized": 0.004937106052307537
+    },
+    {
+      "feature": "skill_su dung",
+      "f_score": 0.8062356888268799,
+      "p_value": 0.44950520578695463,
+      "f_score_normalized": 0.004937106052307537
+    },
+    {
+      "feature": "skill_chan nuoi",
+      "f_score": 0.734907901949879,
+      "p_value": 0.48220035239728154,
+      "f_score_normalized": 0.004500319572660938
+    },
+    {
+      "feature": "skill_chan",
+      "f_score": 0.734907901949879,
+      "p_value": 0.48220035239728154,
+      "f_score_normalized": 0.004500319572660938
+    },
+    {
+      "feature": "skill_nuoi",
+      "f_score": 0.734907901949879,
+      "p_value": 0.48220035239728154,
+      "f_score_normalized": 0.004500319572660938
+    },
+    {
+      "feature": "skill_ke",
+      "f_score": 0.7301401740486322,
+      "p_value": 0.4844704729293005,
+      "f_score_normalized": 0.004471123670515684
+    },
+    {
+      "feature": "job_động",
+      "f_score": 0.7293233082706765,
+      "p_value": 0.4848605110426877,
+      "f_score_normalized": 0.004466121469506527
+    },
+    {
+      "feature": "job_dựng",
+      "f_score": 0.7293233082706765,
+      "p_value": 0.4848605110426877,
+      "f_score_normalized": 0.004466121469506527
+    },
+    {
+      "feature": "job_xây",
+      "f_score": 0.7293233082706765,
+      "p_value": 0.4848605110426877,
+      "f_score_normalized": 0.004466121469506527
+    },
+    {
+      "feature": "job_lao",
+      "f_score": 0.7293233082706765,
+      "p_value": 0.4848605110426877,
+      "f_score_normalized": 0.004466121469506527
+    },
+    {
+      "feature": "skill_xay",
+      "f_score": 0.7069161260985188,
+      "p_value": 0.495685420567438,
+      "f_score_normalized": 0.004328907704040147
+    },
+    {
+      "feature": "skill_xay dung",
+      "f_score": 0.7069161260985188,
+      "p_value": 0.495685420567438,
+      "f_score_normalized": 0.004328907704040147
+    },
+    {
+      "feature": "skill_bien thuc",
+      "f_score": 0.7057821409946756,
+      "p_value": 0.49623976133578684,
+      "f_score_normalized": 0.004321963574926293
+    },
+    {
+      "feature": "skill_che bien",
+      "f_score": 0.7057821409946756,
+      "p_value": 0.49623976133578684,
+      "f_score_normalized": 0.004321963574926293
+    },
+    {
+      "feature": "skill_bien",
+      "f_score": 0.7057821409946756,
+      "p_value": 0.49623976133578684,
+      "f_score_normalized": 0.004321963574926293
+    },
+    {
+      "feature": "job_nghiệp",
+      "f_score": 0.7033726812816191,
+      "p_value": 0.49741971044969807,
+      "f_score_normalized": 0.004307208884335219
+    },
+    {
+      "feature": "job_dân",
+      "f_score": 0.7033726812816191,
+      "p_value": 0.49741971044969807,
+      "f_score_normalized": 0.004307208884335219
+    },
+    {
+      "feature": "job_nông",
+      "f_score": 0.7033726812816189,
+      "p_value": 0.4974197104496981,
+      "f_score_normalized": 0.004307208884335217
+    },
+    {
+      "feature": "skill_nau",
+      "f_score": 0.6873775523650875,
+      "p_value": 0.5053257121600847,
+      "f_score_normalized": 0.004209260295757909
+    },
+    {
+      "feature": "skill_nau an",
+      "f_score": 0.6873775523650875,
+      "p_value": 0.5053257121600847,
+      "f_score_normalized": 0.004209260295757909
+    },
+    {
+      "feature": "job_vụ",
+      "f_score": 0.6276650306666878,
+      "p_value": 0.5359908135337047,
+      "f_score_normalized": 0.003843601647348688
+    },
+    {
+      "feature": "skill_gia",
+      "f_score": 0.6228709141962355,
+      "p_value": 0.5385337231133965,
+      "f_score_normalized": 0.0038142441508129334
+    },
+    {
+      "feature": "skill_nguoi gia",
+      "f_score": 0.6228709141962355,
+      "p_value": 0.5385337231133965,
+      "f_score_normalized": 0.0038142441508129334
+    },
+    {
+      "feature": "skill_soc nguoi",
+      "f_score": 0.6228709141962355,
+      "p_value": 0.5385337231133965,
+      "f_score_normalized": 0.0038142441508129334
+    },
+    {
+      "feature": "skill_nguoi",
+      "f_score": 0.6228709141962355,
+      "p_value": 0.5385337231133965,
+      "f_score_normalized": 0.0038142441508129334
+    },
+    {
+      "feature": "skill_giao hang",
+      "f_score": 0.6167917179707546,
+      "p_value": 0.5417759844190653,
+      "f_score_normalized": 0.003777017274238344
+    },
+    {
+      "feature": "job_bảo",
+      "f_score": 0.5839173405211154,
+      "p_value": 0.5596575191875416,
+      "f_score_normalized": 0.0035757060570325936
+    },
+    {
+      "feature": "job_vệ",
+      "f_score": 0.5839173405211154,
+      "p_value": 0.5596575191875416,
+      "f_score_normalized": 0.0035757060570325936
+    },
+    {
+      "feature": "job_sản",
+      "f_score": 0.5839173405211144,
+      "p_value": 0.5596575191875421,
+      "f_score_normalized": 0.0035757060570325875
+    },
+    {
+      "feature": "job_công",
+      "f_score": 0.5839173405211144,
+      "p_value": 0.5596575191875421,
+      "f_score_normalized": 0.0035757060570325875
+    },
+    {
+      "feature": "job_xuất",
+      "f_score": 0.5839173405211144,
+      "p_value": 0.5596575191875421,
+      "f_score_normalized": 0.0035757060570325875
+    },
+    {
+      "feature": "skill_ve đoc",
+      "f_score": 0.5632058726885668,
+      "p_value": 0.5712314223105884,
+      "f_score_normalized": 0.0034488762545252954
+    },
+    {
+      "feature": "skill_an pha",
+      "f_score": 0.5626247071715396,
+      "p_value": 0.5715596876822984,
+      "f_score_normalized": 0.0034453173996751925
+    },
+    {
+      "feature": "skill_thuc",
+      "f_score": 0.5625728788661887,
+      "p_value": 0.5715889717171073,
+      "f_score_normalized": 0.00344500002121679
+    },
+    {
+      "feature": "skill_pham",
+      "f_score": 0.5625728788661887,
+      "p_value": 0.5715889717171073,
+      "f_score_normalized": 0.00344500002121679
+    },
+    {
+      "feature": "skill_thuc pham",
+      "f_score": 0.5625728788661887,
+      "p_value": 0.5715889717171073,
+      "f_score_normalized": 0.00344500002121679
+    },
+    {
+      "feature": "skill_ngan van",
+      "f_score": 0.5621159454070266,
+      "p_value": 0.5718472145823016,
+      "f_score_normalized": 0.0034422019201428805
+    },
+    {
+      "feature": "skill_gia may",
+      "f_score": 0.5611942733682792,
+      "p_value": 0.572368473896301,
+      "f_score_normalized": 0.0034365579221608965
+    },
+    {
+      "feature": "skill_che thu",
+      "f_score": 0.5577331394679126,
+      "p_value": 0.5743302808292404,
+      "f_score_normalized": 0.0034153631457894723
+    },
+    {
+      "feature": "skill_giao",
+      "f_score": 0.5558134459213054,
+      "p_value": 0.5754213406660716,
+      "f_score_normalized": 0.003403607612315978
+    },
+    {
+      "feature": "skill_dung đoc",
+      "f_score": 0.5553397978611336,
+      "p_value": 0.5756908642492043,
+      "f_score_normalized": 0.0034007071568574257
+    },
+    {
+      "feature": "skill_soc",
+      "f_score": 0.5480545388143074,
+      "p_value": 0.5798527212832795,
+      "f_score_normalized": 0.0033560947723758486
+    },
+    {
+      "feature": "skill_cham",
+      "f_score": 0.5480545388143074,
+      "p_value": 0.5798527212832795,
+      "f_score_normalized": 0.0033560947723758486
+    },
+    {
+      "feature": "skill_cham soc",
+      "f_score": 0.5480545388143074,
+      "p_value": 0.5798527212832795,
+      "f_score_normalized": 0.0033560947723758486
+    },
+    {
+      "feature": "skill_ve cham",
+      "f_score": 0.545501325281626,
+      "p_value": 0.5813185541381783,
+      "f_score_normalized": 0.0033404597835509594
+    },
+    {
+      "feature": "skills_count",
+      "f_score": 0.5324383145641021,
+      "p_value": 0.5888775883669275,
+      "f_score_normalized": 0.0032604664637703785
+    },
+    {
+      "feature": "skill_thu",
+      "f_score": 0.4517118962393872,
+      "p_value": 0.6378696517388038,
+      "f_score_normalized": 0.0027661260444421538
+    },
+    {
+      "feature": "skill_thu ngan",
+      "f_score": 0.4517118962393872,
+      "p_value": 0.6378696517388038,
+      "f_score_normalized": 0.0027661260444421538
+    },
+    {
+      "feature": "skill_ngan",
+      "f_score": 0.4517118962393872,
+      "p_value": 0.6378696517388038,
+      "f_score_normalized": 0.0027661260444421538
+    },
+    {
+      "feature": "job_việc",
+      "f_score": 0.4511627906976749,
+      "p_value": 0.638216773786822,
+      "f_score_normalized": 0.002762763513694739
+    },
+    {
+      "feature": "job_giúp",
+      "f_score": 0.4511627906976749,
+      "p_value": 0.638216773786822,
+      "f_score_normalized": 0.002762763513694739
+    },
+    {
+      "feature": "job_dịh",
+      "f_score": 0.4511627906976749,
+      "p_value": 0.638216773786822,
+      "f_score_normalized": 0.002762763513694739
+    },
+    {
+      "feature": "skill_tri",
+      "f_score": 0.44596846961751985,
+      "p_value": 0.641509964258872,
+      "f_score_normalized": 0.0027309553037657332
+    },
+    {
+      "feature": "skill_mon an",
+      "f_score": 0.44596846961751985,
+      "p_value": 0.641509964258872,
+      "f_score_normalized": 0.0027309553037657332
+    },
+    {
+      "feature": "skill_mon",
+      "f_score": 0.44596846961751985,
+      "p_value": 0.641509964258872,
+      "f_score_normalized": 0.0027309553037657332
+    },
+    {
+      "feature": "skill_tri mon",
+      "f_score": 0.44596846961751985,
+      "p_value": 0.641509964258872,
+      "f_score_normalized": 0.0027309553037657332
+    },
+    {
+      "feature": "skill_trang",
+      "f_score": 0.44596846961751985,
+      "p_value": 0.641509964258872,
+      "f_score_normalized": 0.0027309553037657332
+    },
+    {
+      "feature": "skill_trang tri",
+      "f_score": 0.44596846961751985,
+      "p_value": 0.641509964258872,
+      "f_score_normalized": 0.0027309553037657332
+    },
+    {
+      "feature": "salary_per_exp",
+      "f_score": 0.39992579685882707,
+      "p_value": 0.6714700048816761,
+      "f_score_normalized": 0.002449006040676031
+    },
+    {
+      "feature": "skill_ban",
+      "f_score": 0.3943192181167256,
+      "p_value": 0.6752144813420367,
+      "f_score_normalized": 0.0024146733086672996
+    },
+    {
+      "feature": "skill_sua nha",
+      "f_score": 0.3492810038423758,
+      "p_value": 0.7060781832342314,
+      "f_score_normalized": 0.0021388749988671464
+    },
+    {
+      "feature": "skill_son",
+      "f_score": 0.3492810038423758,
+      "p_value": 0.7060781832342314,
+      "f_score_normalized": 0.0021388749988671464
+    },
+    {
+      "feature": "skill_son sua",
+      "f_score": 0.3492810038423758,
+      "p_value": 0.7060781832342314,
+      "f_score_normalized": 0.0021388749988671464
+    },
+    {
+      "feature": "skill_nha",
+      "f_score": 0.3492810038423758,
+      "p_value": 0.7060781832342314,
+      "f_score_normalized": 0.0021388749988671464
+    },
+    {
+      "feature": "skill_hang",
+      "f_score": 0.3318294004281276,
+      "p_value": 0.7184211016117905,
+      "f_score_normalized": 0.002032007468648626
+    },
+    {
+      "feature": "skill_ve sinh",
+      "f_score": 0.31855160457444026,
+      "p_value": 0.7279593810885598,
+      "f_score_normalized": 0.001950698879635495
+    },
+    {
+      "feature": "skill_toan thuc",
+      "f_score": 0.31855160457444026,
+      "p_value": 0.7279593810885598,
+      "f_score_normalized": 0.001950698879635495
+    },
+    {
+      "feature": "skill_sinh an",
+      "f_score": 0.31855160457444026,
+      "p_value": 0.7279593810885598,
+      "f_score_normalized": 0.001950698879635495
+    },
+    {
+      "feature": "skill_sinh",
+      "f_score": 0.31855160457444026,
+      "p_value": 0.7279593810885598,
+      "f_score_normalized": 0.001950698879635495
+    },
+    {
+      "feature": "skill_an toan",
+      "f_score": 0.31855160457444026,
+      "p_value": 0.7279593810885598,
+      "f_score_normalized": 0.001950698879635495
+    },
+    {
+      "feature": "skill_đien",
+      "f_score": 0.3085315783705001,
+      "p_value": 0.7352428968586072,
+      "f_score_normalized": 0.0018893397352794138
+    },
+    {
+      "feature": "skill_đien nuoc",
+      "f_score": 0.3085315783705001,
+      "p_value": 0.7352428968586072,
+      "f_score_normalized": 0.0018893397352794138
+    },
+    {
+      "feature": "skill_nuoc",
+      "f_score": 0.3085315783705001,
+      "p_value": 0.7352428968586072,
+      "f_score_normalized": 0.0018893397352794138
+    },
+    {
+      "feature": "skill_pha",
+      "f_score": 0.2919047998361354,
+      "p_value": 0.7474933489838502,
+      "f_score_normalized": 0.0017875231448332227
+    },
+    {
+      "feature": "skill_pha che",
+      "f_score": 0.2919047998361354,
+      "p_value": 0.7474933489838502,
+      "f_score_normalized": 0.0017875231448332227
+    },
+    {
+      "feature": "job_kho",
+      "f_score": 0.28168095177177943,
+      "p_value": 0.7551294222941878,
+      "f_score_normalized": 0.0017249158665200409
+    },
+    {
+      "feature": "job_vận",
+      "f_score": 0.28168095177177943,
+      "p_value": 0.7551294222941878,
+      "f_score_normalized": 0.0017249158665200409
+    },
+    {
+      "feature": "job_hành",
+      "f_score": 0.28168095177177854,
+      "p_value": 0.7551294222941884,
+      "f_score_normalized": 0.0017249158665200355
+    },
+    {
+      "feature": "job_chính",
+      "f_score": 0.28168095177177854,
+      "p_value": 0.7551294222941884,
+      "f_score_normalized": 0.0017249158665200355
+    },
+    {
+      "feature": "job_kế",
+      "f_score": 0.28168095177177854,
+      "p_value": 0.7551294222941884,
+      "f_score_normalized": 0.0017249158665200355
+    },
+    {
+      "feature": "job_toán",
+      "f_score": 0.28168095177177854,
+      "p_value": 0.7551294222941884,
+      "f_score_normalized": 0.0017249158665200355
+    },
+    {
+      "feature": "skill_hang nong",
+      "f_score": 0.28084280751436397,
+      "p_value": 0.7557589427371624,
+      "f_score_normalized": 0.0017197833635270094
+    },
+    {
+      "feature": "skill_san",
+      "f_score": 0.28084280751436397,
+      "p_value": 0.7557589427371624,
+      "f_score_normalized": 0.0017197833635270094
+    },
+    {
+      "feature": "skill_nong san",
+      "f_score": 0.28084280751436397,
+      "p_value": 0.7557589427371624,
+      "f_score_normalized": 0.0017197833635270094
+    },
+    {
+      "feature": "skill_bartender pccc",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_rap lap",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_pham ve",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_pccc trong",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_pccc tron",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_pccc van",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_nhom lap",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_rap may",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_xe xay",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_đat su",
+      "f_score": 0.2771428571428572,
+      "p_value": 0.7585443402733187,
+      "f_score_normalized": 0.0016971261584124812
+    },
+    {
+      "feature": "skill_xe trong",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_đat nhap",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_xe van",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_nuoi thu",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_pham đong",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_nuoc đong",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_nhom thu",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_nuoi ke",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_nuoi che",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_pham xay",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_bartender chan",
+      "f_score": 0.27714285714285714,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124808
+    },
+    {
+      "feature": "skill_pccc trang",
+      "f_score": 0.2771428571428571,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124806
+    },
+    {
+      "feature": "skill_rap pccc",
+      "f_score": 0.2771428571428571,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124806
+    },
+    {
+      "feature": "skill_nuoi lam",
+      "f_score": 0.2771428571428571,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124806
+    },
+    {
+      "feature": "skill_bartender lap",
+      "f_score": 0.2771428571428571,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124806
+    },
+    {
+      "feature": "skill_đat nau",
+      "f_score": 0.2771428571428571,
+      "p_value": 0.7585443402733189,
+      "f_score_normalized": 0.0016971261584124806
+    },
+    {
+      "feature": "skill_mac",
+      "f_score": 0.2763567768152508,
+      "p_value": 0.7591374656672469,
+      "f_score_normalized": 0.0016923124767598214
+    },
+    {
+      "feature": "skill_may mac",
+      "f_score": 0.2763567768152508,
+      "p_value": 0.7591374656672469,
+      "f_score_normalized": 0.0016923124767598214
+    },
+    {
+      "feature": "education_level",
+      "f_score": 0.2580524027629356,
+      "p_value": 0.7730834172216292,
+      "f_score_normalized": 0.0015802228766964939
+    },
+    {
+      "feature": "job_viên",
+      "f_score": 0.24899042153171713,
+      "p_value": 0.7800841626959534,
+      "f_score_normalized": 0.0015247304654790678
+    },
+    {
+      "feature": "skill_duong xe",
+      "f_score": 0.2438046586502668,
+      "p_value": 0.7841194475065786,
+      "f_score_normalized": 0.0014929746629728632
+    },
+    {
+      "feature": "skill_bao duong",
+      "f_score": 0.2438046586502668,
+      "p_value": 0.7841194475065786,
+      "f_score_normalized": 0.0014929746629728632
+    },
+    {
+      "feature": "skill_duong",
+      "f_score": 0.2438046586502668,
+      "p_value": 0.7841194475065786,
+      "f_score_normalized": 0.0014929746629728632
+    },
+    {
+      "feature": "skill_hang pccc",
+      "f_score": 0.22269087026161244,
+      "p_value": 0.8007702675370555,
+      "f_score_normalized": 0.0013636811897548235
+    },
+    {
+      "feature": "skill_kiem",
+      "f_score": 0.22230929885923495,
+      "p_value": 0.8010744809879864,
+      "f_score_normalized": 0.0013613445796218653
+    },
+    {
+      "feature": "skill_chua",
+      "f_score": 0.21958906368953737,
+      "p_value": 0.8032466493903727,
+      "f_score_normalized": 0.0013446868085679005
+    },
+    {
+      "feature": "skill_sua chua",
+      "f_score": 0.21958906368953737,
+      "p_value": 0.8032466493903727,
+      "f_score_normalized": 0.0013446868085679005
+    },
+    {
+      "feature": "skill_ban ve",
+      "f_score": 0.2121331271894109,
+      "p_value": 0.8092312522853491,
+      "f_score_normalized": 0.0012990292549138855
+    },
+    {
+      "feature": "skill_ban hang",
+      "f_score": 0.21172946776523235,
+      "p_value": 0.8095565502966776,
+      "f_score_normalized": 0.0012965573854422144
+    },
+    {
+      "feature": "skill_pham giao",
+      "f_score": 0.2098220016366361,
+      "p_value": 0.8110955310646483,
+      "f_score_normalized": 0.0012848767284103148
+    },
+    {
+      "feature": "skill_tron vua",
+      "f_score": 0.19585331140247875,
+      "p_value": 0.822457126006728,
+      "f_score_normalized": 0.0011993373432731777
+    },
+    {
+      "feature": "skill_vua",
+      "f_score": 0.19585331140247875,
+      "p_value": 0.822457126006728,
+      "f_score_normalized": 0.0011993373432731777
+    },
+    {
+      "feature": "skill_tron",
+      "f_score": 0.19585331140247875,
+      "p_value": 0.822457126006728,
+      "f_score_normalized": 0.0011993373432731777
+    },
+    {
+      "feature": "skill_bartender",
+      "f_score": 0.16914454169634618,
+      "p_value": 0.8446353540019578,
+      "f_score_normalized": 0.0010357821566283083
+    },
+    {
+      "feature": "skill_kiem tra",
+      "f_score": 0.14364502152770162,
+      "p_value": 0.8663790881457939,
+      "f_score_normalized": 0.0008796319922281982
+    },
+    {
+      "feature": "skill_chat luong",
+      "f_score": 0.14364502152770162,
+      "p_value": 0.8663790881457939,
+      "f_score_normalized": 0.0008796319922281982
+    },
+    {
+      "feature": "skill_chat",
+      "f_score": 0.14364502152770162,
+      "p_value": 0.8663790881457939,
+      "f_score_normalized": 0.0008796319922281982
+    },
+    {
+      "feature": "skill_tra",
+      "f_score": 0.14364502152770162,
+      "p_value": 0.8663790881457939,
+      "f_score_normalized": 0.0008796319922281982
+    },
+    {
+      "feature": "skill_tra chat",
+      "f_score": 0.14364502152770162,
+      "p_value": 0.8663790881457939,
+      "f_score_normalized": 0.0008796319922281982
+    },
+    {
+      "feature": "skill_luong",
+      "f_score": 0.14364502152770162,
+      "p_value": 0.8663790881457939,
+      "f_score_normalized": 0.0008796319922281982
+    },
+    {
+      "feature": "skill_van",
+      "f_score": 0.13243552955170565,
+      "p_value": 0.8761175199408714,
+      "f_score_normalized": 0.0008109889745040523
+    },
+    {
+      "feature": "skill_viec",
+      "f_score": 0.12936193744066918,
+      "p_value": 0.8788072199011615,
+      "f_score_normalized": 0.0007921673688321392
+    },
+    {
+      "feature": "skill_viec nhom",
+      "f_score": 0.12936193744066918,
+      "p_value": 0.8788072199011615,
+      "f_score_normalized": 0.0007921673688321392
+    },
+    {
+      "feature": "skill_nhom",
+      "f_score": 0.12936193744066918,
+      "p_value": 0.8788072199011615,
+      "f_score_normalized": 0.0007921673688321392
+    },
+    {
+      "feature": "skill_lam",
+      "f_score": 0.12936193744066918,
+      "p_value": 0.8788072199011615,
+      "f_score_normalized": 0.0007921673688321392
+    },
+    {
+      "feature": "skill_lam viec",
+      "f_score": 0.12936193744066918,
+      "p_value": 0.8788072199011615,
+      "f_score_normalized": 0.0007921673688321392
+    },
+    {
+      "feature": "skill_kiem ke",
+      "f_score": 0.10199191789034973,
+      "p_value": 0.9031335620419114,
+      "f_score_normalized": 0.0006245629188600994
+    },
+    {
+      "feature": "skill_giat",
+      "f_score": 0.09615058003910709,
+      "p_value": 0.9084136910825445,
+      "f_score_normalized": 0.00058879260397748
+    },
+    {
+      "feature": "skill_giat ui",
+      "f_score": 0.09615058003910709,
+      "p_value": 0.9084136910825445,
+      "f_score_normalized": 0.00058879260397748
+    },
+    {
+      "feature": "skill_ui",
+      "f_score": 0.09615058003910709,
+      "p_value": 0.9084136910825445,
+      "f_score_normalized": 0.00058879260397748
+    },
+    {
+      "feature": "skill_an",
+      "f_score": 0.08110358146100576,
+      "p_value": 0.9221606362922488,
+      "f_score_normalized": 0.0004966500347777695
+    },
+    {
+      "feature": "skill_đoc ban",
+      "f_score": 0.07047755313435057,
+      "p_value": 0.9319963360128813,
+      "f_score_normalized": 0.0004315799448641666
+    },
+    {
+      "feature": "skill_đoc",
+      "f_score": 0.07047755313435057,
+      "p_value": 0.9319963360128813,
+      "f_score_normalized": 0.0004315799448641666
+    },
+    {
+      "feature": "skill_che",
+      "f_score": 0.06683157019683535,
+      "p_value": 0.9353957600321808,
+      "f_score_normalized": 0.00040925321748546626
+    },
+    {
+      "feature": "skill_sua",
+      "f_score": 0.032903948812135736,
+      "p_value": 0.9676422927205016,
+      "f_score_normalized": 0.00020149230191184836
+    },
+    {
+      "feature": "skill_dung",
+      "f_score": 0.02261076064482867,
+      "p_value": 0.9776480979934914,
+      "f_score_normalized": 0.00013846040900185327
+    }
+  ],
+  "top_features": [
+    "risk_score_proxy",
+    "barrier_weighted",
+    "total_barriers",
+    "age_squared",
+    "barrier_health",
+    "age_exp_product",
+    "age",
+    "experience_years",
+    "target_salary",
+    "skill_nuoi pha",
+    "has_barriers",
+    "barrier_family",
+    "is_male",
+    "skill_lieu phuc",
+    "is_female",
+    "job_lái",
+    "job_xe",
+    "skill_kho van",
+    "skill_kho",
+    "skill_vu ban",
+    "skill_phuc vu",
+    "skill_phuc",
+    "skill_vu",
+    "skill_đo",
+    "skill_density.1",
+    "skill_density",
+    "barrier_techGap",
+    "barrier_other",
+    "skill_van hanh",
+    "skill_hanh may"
+  ],
+  "method": "f_classif"
+}

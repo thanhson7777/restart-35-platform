@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-04-16T00:21:30.743072",
+  "monitoring_status": "ok",
+  "retrain_needed": false,
+  "retrain_priority": "low",
+  "retrain_reasons": [],
+  "predictions_analyzed": 0,
+  "thresholds": {
+    "drift_detection_threshold": 0.1,
+    "performance_drop_threshold": 0.1,
+    "min_predictions_for_analysis": 50,
+    "feature_drift_threshold": 0.05
+  }
+}

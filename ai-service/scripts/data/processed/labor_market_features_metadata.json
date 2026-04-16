@@ -1,0 +1,37 @@
+{
+  "created_at": "2026-04-15T23:17:09.248862",
+  "source_file": "D:\\LUAN_VAN\\restart-35-platform\\ai-service\\scripts\\ml\\..\\data\\processed\\workers_clean_test.csv",
+  "n_samples": 100,
+  "features_created": [
+    "regional_unemployment_rate",
+    "age_group_risk_factor",
+    "industry_demand_index",
+    "skills_demand_index",
+    "salary_market_benchmark",
+    "salary_vs_market_ratio",
+    "job_vacancy_rate",
+    "local_job_opportunity",
+    "labor_market_score",
+    "skills_market_match"
+  ],
+  "feature_descriptions": {
+    "regional_unemployment_rate": "Regional unemployment rate based on target province",
+    "age_group_risk_factor": "Unemployment risk factor based on age group",
+    "industry_demand_index": "Demand level of target industry (0-1)",
+    "skills_demand_index": "Average demand of worker skills (0-1)",
+    "salary_market_benchmark": "Regional median salary benchmark (VND)",
+    "salary_vs_market_ratio": "Worker target salary vs market benchmark",
+    "job_vacancy_rate": "Regional job vacancy rate (0-1)",
+    "local_job_opportunity": "Job opportunity score (vacancy - unemployment)",
+    "labor_market_score": "Combined labor market favorability (0-1)",
+    "skills_market_match": "Match between skills demand and industry demand"
+  },
+  "data_sources": {
+    "regional_unemployment_rate": "Vietnam GSO 2024",
+    "age_group_risk_factor": "Vietnam GSO / ILO estimates",
+    "industry_demand_index": "Job portal data analysis",
+    "skills_demand_index": "Job posting analysis",
+    "salary_market_benchmark": "Vietnam GSO wage survey",
+    "job_vacancy_rate": "Vietnam MOLISA reports"
+  }
+}

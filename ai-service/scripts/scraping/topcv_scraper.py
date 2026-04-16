@@ -25,6 +25,7 @@ from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 
 from base_scraper import BaseScraper, ScraperError
+from data_transformer import DataTransformer
 
 
 class TopCVScraper(BaseScraper):
@@ -65,6 +66,10 @@ class TopCVScraper(BaseScraper):
         self.logger = logging.getLogger(__name__)
         self._session_initialized = False
         self._csrf_token = ''
+        self._playwright_browser = None
+        self._playwright_page = None
+        self._use_playwright = False  # Set to True when curl_cffi fails
+        self._browser_version = 'chrome120'  # Use chrome120 to bypass Cloudflare
 
     def get_source_name(self) -> str:
         return 'TopCV'
@@ -90,8 +95,9 @@ class TopCVScraper(BaseScraper):
             return False
 
         try:
-            # Create session
-            self.session = curl_requests.Session(impersonate='chrome')
+            # Create session with specific browser version
+            browser_version = getattr(self, '_browser_version', 'chrome120')
+            self.session = curl_requests.Session(impersonate=browser_version)
 
             # Set headers
             self.session.headers.update({
@@ -122,12 +128,57 @@ class TopCVScraper(BaseScraper):
             return True
 
         except Exception as e:
-            self.logger.error(f"Session setup error: {e}")
+            self.logger.warning(f"curl_cffi session failed: {e}")
             return False
 
-    def _fetch_page(self, url: str) -> Optional[str]:
+    def _init_playwright(self) -> bool:
         """
-        Fetch a page with curl_cffi session.
+        Initialize Playwright for fallback when curl_cffi fails.
+
+        Returns:
+            True if Playwright is ready
+        """
+        if self._playwright_browser is not None:
+            return True
+
+        try:
+            from playwright.sync_api import sync_playwright
+
+            self._playwright = sync_playwright().start()
+            self._playwright_browser = self._playwright.chromium.launch(headless=True)
+            self._playwright_page = self._playwright_browser.new_page(
+                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            )
+            self._use_playwright = True
+            self.logger.info("TopCV: Using Playwright fallback")
+            return True
+
+        except ImportError:
+            self.logger.error("Playwright not installed. Run: pip install playwright && playwright install chromium")
+            return False
+        except Exception as e:
+            self.logger.error(f"Playwright init failed: {e}")
+            return False
+
+    def _cleanup_playwright(self):
+        """Cleanup Playwright resources."""
+        if self._playwright_browser:
+            try:
+                self._playwright_browser.close()
+            except Exception:
+                pass
+            self._playwright_browser = None
+
+        if self._playwright:
+            try:
+                self._playwright.stop()
+            except Exception:
+                pass
+            self._playwright = None
+
+    def _fetch_page_with_playwright(self, url: str) -> Optional[str]:
+        """
+        Fetch page using Playwright (fallback).
 
         Args:
             url: Page URL
@@ -135,9 +186,110 @@ class TopCVScraper(BaseScraper):
         Returns:
             HTML content or None
         """
+        if not self._init_playwright():
+            return None
+
+        try:
+            self._playwright_page.goto(url, timeout=30000, wait_until='networkidle')
+            self._playwright_page.wait_for_timeout(2000)  # Wait for JS
+
+            html = self._playwright_page.content()
+            self.stats['requests_made'] += 1
+            self.stats['bytes_downloaded'] += len(html.encode('utf-8'))
+            return html
+
+        except Exception as e:
+            self.logger.error(f"Playwright fetch error: {e}")
+            self.stats['requests_failed'] += 1
+            return None
+
+    def _scrape_via_playwright_pagination(self, pages: int = 5) -> List[Dict[str, Any]]:
+        """
+        Scrape multiple pages using Playwright by clicking pagination buttons.
+        
+        This works when TopCV uses JavaScript to load paginated content.
+
+        Args:
+            pages: Number of pages to scrape
+
+        Returns:
+            List of jobs
+        """
+        if not self._init_playwright():
+            self.logger.error("Failed to initialize Playwright")
+            return []
+
+        all_jobs = []
+        base_url = f'{self.BASE_URL}/viec-lam-it'
+
+        try:
+            self.logger.info(f"Starting Playwright pagination scraping for {pages} pages")
+            
+            # Go to first page
+            self._playwright_page.goto(base_url, timeout=30000, wait_until='networkidle')
+            self._playwright_page.wait_for_timeout(3000)  # Wait for JS
+            
+            # Get jobs from first page
+            for page_num in range(1, pages + 1):
+                self.logger.info(f"Playwright: scraping page {page_num}")
+                
+                # Parse jobs on current page
+                html = self._playwright_page.content()
+                soup = BeautifulSoup(html, 'html.parser')
+                job_items = soup.find_all(class_='job-item-search-result')
+                
+                self.logger.info(f"  Found {len(job_items)} jobs on page {page_num}")
+                
+                for item in job_items:
+                    job = self._parse_job_item(item, self.BASE_URL)
+                    if job:
+                        all_jobs.append(job)
+                        self.stats['jobs_found'] += 1
+                
+                # Click next page button if not last page
+                if page_num < pages:
+                    # Try to find and click next button
+                    next_button = self._playwright_page.query_selector('a.page-link:has-text("Tiếp")')
+                    if not next_button:
+                        next_button = self._playwright_page.query_selector('a[rel="next"]')
+                    if not next_button:
+                        next_button = self._playwright_page.query_selector('button[data-page="' + str(page_num + 1) + '"]')
+                    if not next_button:
+                        next_button = self._playwright_page.query_selector(f'a[href*="page={page_num + 1}"]')
+                    
+                    if next_button:
+                        next_button.click()
+                        self._playwright_page.wait_for_timeout(3000)  # Wait for new content
+                    else:
+                        self.logger.warning("  Could not find next page button")
+                        break
+            
+            self.logger.info(f"Playwright pagination complete: {len(all_jobs)} jobs")
+            
+        except Exception as e:
+            self.logger.error(f"Playwright pagination error: {e}")
+        
+        return all_jobs
+
+    def _fetch_page(self, url: str) -> Optional[str]:
+        """
+        Fetch a page with curl_cffi session, fallback to Playwright if needed.
+
+        Args:
+            url: Page URL
+
+        Returns:
+            HTML content or None
+        """
+        # If already using Playwright, use it directly
+        if self._use_playwright:
+            return self._fetch_page_with_playwright(url)
+
+        # Try curl_cffi first
         if not self._session_initialized:
             if not self._ensure_session():
-                return None
+                self.logger.warning("curl_cffi failed, trying Playwright...")
+                return self._fetch_page_with_playwright(url)
 
         try:
             response = self.session.get(url, timeout=self.timeout)
@@ -147,12 +299,14 @@ class TopCVScraper(BaseScraper):
                 return response.text
 
             self.logger.warning(f"Page fetch failed: status {response.status_code}")
-            return None
+
+            # Fallback to Playwright on error
+            return self._fetch_page_with_playwright(url)
 
         except Exception as e:
-            self.logger.error(f"Fetch error: {e}")
+            self.logger.warning(f"curl_cffi fetch error: {e}, trying Playwright...")
             self.stats['requests_failed'] += 1
-            return None
+            return self._fetch_page_with_playwright(url)
 
     # ============================================================
     # HTML Parsing
@@ -375,31 +529,29 @@ class TopCVScraper(BaseScraper):
         skills = []
 
         desc_selectors = [
-            'div[class*="description" i]',
-            'div[class*="mo-ta" i]',
-            'div[class*="job-detail" i]',
-            'div[class*="chi-tiet" i]',
+            'div.job-description',  # Main job description container
+            'div[class*="job-description"]',
+            'div.detail-data__description',
             'section[class*="description" i]',
             'div#job-description',
-            'div.job-description',
-            'div[class*="content" i] > div:first-child',
         ]
 
         for selector in desc_selectors:
             desc_el = soup.select_one(selector)
             if desc_el:
                 text = desc_el.get_text(separator='\n', strip=True)
-                if len(text) > 50:
+                if len(text) > 100:
                     description = text
                     break
 
-        if not description:
-            all_divs = soup.find_all('div')
-            for div in all_divs:
-                text = div.get_text(strip=True)
-                if len(text) > 200 and len(text) < 10000:
-                    description = text
-                    break
+        # Remove fallback - we have good selectors now
+        # if not description:
+        #     all_divs = soup.find_all('div')
+        #     for div in all_divs:
+        #         text = div.get_text(strip=True)
+        #         if len(text) > 200 and len(text) < 10000:
+        #             description = text
+        #             break
 
         skill_selectors = [
             'div[class*="skill" i] span',
@@ -422,10 +574,122 @@ class TopCVScraper(BaseScraper):
                         seen_skills.add(skill_lower)
                         skills.append(skill.title())
 
+        # If no skills found but description exists, extract from description
+        if not skills and description:
+            transformer = DataTransformer()
+            extracted = transformer.extract_skills_from_description(description)
+            if extracted:
+                skills = extracted.split('|')
+
         return {
             'description': description,
             'skills': '|'.join(skills)
         }
+
+    # ============================================================
+    # API-Based Scraping (Primary Method)
+    # ============================================================
+
+    def _scrape_via_api(self, pages: int = 5) -> List[Dict[str, Any]]:
+        """
+        Scrape jobs using TopCV API (more reliable than HTML parsing).
+        
+        TopCV uses a JavaScript-heavy SPA, so pagination via URL doesn't work.
+        This method uses the internal API endpoint.
+
+        Args:
+            pages: Number of pages to scrape
+
+        Returns:
+            List of jobs (empty - API is deprecated, use HTML pagination instead)
+        """
+        # TopCV API endpoints are deprecated (404). 
+        # Pagination is handled by HTML scraping with ?page=X parameter.
+        # Return empty to trigger HTML pagination fallback.
+        self.logger.info("API endpoints deprecated, using HTML pagination")
+        return []
+
+    def _parse_api_job(self, job_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Parse a job from API response.
+
+        Args:
+            job_data: Raw job data from API
+
+        Returns:
+            Parsed job dict
+        """
+        try:
+            # Extract URL
+            job_url = job_data.get('job_url', '') or job_data.get('url', '')
+            if not job_url:
+                # Try to construct from id
+                job_id = job_data.get('id', '')
+                if job_id:
+                    job_url = f'{self.BASE_URL}/viec-lam/{job_id}'
+
+            # Get title
+            title = job_data.get('title', '') or job_data.get('name', '')
+
+            # Get company
+            company = job_data.get('company_name', '') or job_data.get('company', {}).get('name', '')
+
+            # Get location
+            location = job_data.get('location', '') or job_data.get('province', '')
+            if isinstance(location, dict):
+                location = location.get('name', '')
+
+            # Get salary
+            salary_text = job_data.get('salary', '')
+            salary_min, salary_max = self._parse_salary(salary_text)
+
+            # Get experience
+            experience = job_data.get('experience', '')
+            if isinstance(experience, dict):
+                experience = experience.get('name', '')
+
+            # Get job type
+            job_type = job_data.get('type', '') or job_data.get('form_of_work', '')
+            if isinstance(job_type, dict):
+                job_type = job_type.get('name', '')
+
+            return {
+                'title': title,
+                'company': company,
+                'location': location,
+                'salary_min': salary_min,
+                'salary_max': salary_max,
+                'experience': experience,
+                'type': job_type,
+                'job_url': job_url,
+                'description': job_data.get('description', ''),
+                'skills': '',
+            }
+        except Exception as e:
+            self.logger.warning(f"Failed to parse API job: {e}")
+            return None
+
+    def _parse_salary(self, salary_text: str) -> tuple:
+        """Parse salary string to min/max values."""
+        if not salary_text or salary_text.lower() in ['thoa thuan', 'negotiable', '']:
+            return 0, 0
+
+        # Common patterns: "10 - 20 triệu", "10,000,000 - 20,000,000"
+        numbers = re.findall(r'[\d,]+', salary_text.replace('.', ','))
+        numbers = [int(n.replace(',', '')) for n in numbers if n]
+
+        # Determine if in millions (triệu) or absolute
+        is_million = any(x in salary_text.lower() for x in ['triệu', 'million', 'jt'])
+
+        if len(numbers) >= 2:
+            min_sal = numbers[0] * 1000000 if is_million else numbers[0]
+            max_sal = numbers[1] * 1000000 if is_million else numbers[1]
+            return min_sal, max_sal
+        elif len(numbers) == 1:
+            val = numbers[0] * 1000000 if is_million else numbers[0]
+            return val, val
+
+        return 0, 0
 
     # ============================================================
     # Main Scrape Methods
@@ -435,72 +699,47 @@ class TopCVScraper(BaseScraper):
         """
         Scrape all jobs from TopCV IT job listing page.
 
+        Uses HTML pagination with ?page=X parameter (API is deprecated).
+
         Args:
-            pages: Number of pages to scrape (note: pagination may require search form)
+            pages: Number of pages to scrape
             scrape_details: If True, fetch description and skills from detail pages
 
         Returns:
             List of jobs
         """
         all_jobs = []
+        base_url = f'{self.BASE_URL}/viec-lam-it'
 
-        # IT jobs page
-        url = f'{self.BASE_URL}/viec-lam-it'
-
-        self.logger.info(f"Scraping TopCV IT jobs from {url}")
-
-        # Ensure session
+        # Ensure session with chrome120
         if not self._ensure_session():
             self.logger.error("Failed to establish session with TopCV")
             return all_jobs
 
-        # Fetch first page
-        html = self._fetch_page(url)
-        if not html:
-            return all_jobs
+        self.logger.info(f"Scraping TopCV IT jobs from {base_url} ({pages} pages)")
 
-        # Parse jobs
-        soup = BeautifulSoup(html, 'html.parser')
-        job_items = soup.find_all(class_='job-item-search-result')
+        # Scrape each page
+        for page in range(1, pages + 1):
+            if page == 1:
+                page_url = base_url
+            else:
+                page_url = f'{base_url}?page={page}'
 
-        self.logger.info(f"Found {len(job_items)} job items on first page")
+            self.logger.info(f"Fetching page {page}/{pages}: {page_url}")
 
-        for item in job_items:
-            job = self._parse_job_item(item, self.BASE_URL)
-            if job:
-                all_jobs.append(job)
-                self.stats['jobs_found'] += 1
-
-        # Try to find more pages
-        total_pages = self._estimate_total_pages(soup)
-        actual_pages = min(pages, max(1, total_pages))
-
-        self.logger.info(f"Estimated total pages: {total_pages}, scraping {actual_pages}")
-
-        # For pagination, we need to navigate through pages
-        # Try URL pattern first
-        for page in range(2, actual_pages + 1):
-            self.logger.info(f"Scraping page {page}")
-
-            # Try URL with page param
-            page_url = f'{url}?page={page}'
             html = self._fetch_page(page_url)
-
             if not html:
-                self.logger.info(f"No content for page {page}, trying next URL pattern")
-                # Try different pagination pattern
-                page_url = f'{url}/page-{page}'
-                html = self._fetch_page(page_url)
-
-            if not html:
+                self.logger.warning(f"No content for page {page}")
                 break
 
             soup = BeautifulSoup(html, 'html.parser')
             job_items = soup.find_all(class_='job-item-search-result')
 
             if not job_items:
-                self.logger.info(f"No job items on page {page}, stopping")
+                self.logger.warning(f"No job items on page {page}, stopping")
                 break
+
+            self.logger.info(f"Found {len(job_items)} job items on page {page}")
 
             for item in job_items:
                 job = self._parse_job_item(item, self.BASE_URL)
@@ -509,6 +748,8 @@ class TopCVScraper(BaseScraper):
                     self.stats['jobs_found'] += 1
 
             self._rate_limit()
+
+        self.logger.info(f"TopCV scraping complete: {len(all_jobs)} jobs")
 
         # Optionally scrape job details
         if scrape_details and all_jobs:
@@ -524,11 +765,9 @@ class TopCVScraper(BaseScraper):
                 if details.get('skills'):
                     job['skills'] = details['skills']
 
-                # Rate limit between requests
                 import time
                 time.sleep(self.delay)
 
-        self.logger.info(f"TopCV scraping complete. Total: {len(all_jobs)} jobs")
         return all_jobs
 
     def scrape_by_keyword(self, keyword: str, pages: int = 5) -> List[Dict[str, Any]]:

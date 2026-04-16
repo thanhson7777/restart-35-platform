@@ -1,0 +1,1843 @@
+{
+  "scores": [
+    {
+      "feature": "risk_score_proxy",
+      "rf_importance": 0.14202304209079153,
+      "gb_importance": 1.0,
+      "combined_importance": 0.5710115210453958,
+      "importance_normalized": 1.0
+    },
+    {
+      "feature": "age",
+      "rf_importance": 0.05890748988192885,
+      "gb_importance": 0.0,
+      "combined_importance": 0.029453744940964425,
+      "importance_normalized": 0.051581699940206345
+    },
+    {
+      "feature": "barrier_weighted",
+      "rf_importance": 0.058564002624684044,
+      "gb_importance": 0.0,
+      "combined_importance": 0.029282001312342022,
+      "importance_normalized": 0.0512809290760599
+    },
+    {
+      "feature": "age_squared",
+      "rf_importance": 0.05634777571181886,
+      "gb_importance": 1.558184680360692e-17,
+      "combined_importance": 0.028173887855909435,
+      "importance_normalized": 0.04934031419248648
+    },
+    {
+      "feature": "barrier_health",
+      "rf_importance": 0.05040377946088315,
+      "gb_importance": 0.0,
+      "combined_importance": 0.025201889730441573,
+      "importance_normalized": 0.04413551881458099
+    },
+    {
+      "feature": "age_exp_product",
+      "rf_importance": 0.04514891937418966,
+      "gb_importance": 0.0,
+      "combined_importance": 0.02257445968709483,
+      "importance_normalized": 0.03953415798995787
+    },
+    {
+      "feature": "total_barriers",
+      "rf_importance": 0.04064084710628693,
+      "gb_importance": 1.064759531579806e-17,
+      "combined_importance": 0.020320423553143473,
+      "importance_normalized": 0.035586713760067876
+    },
+    {
+      "feature": "target_salary",
+      "rf_importance": 0.036550157053487305,
+      "gb_importance": 0.0,
+      "combined_importance": 0.018275078526743652,
+      "importance_normalized": 0.03200474570685724
+    },
+    {
+      "feature": "skill_density",
+      "rf_importance": 0.02965687566739433,
+      "gb_importance": 0.0,
+      "combined_importance": 0.014828437833697165,
+      "importance_normalized": 0.025968719171461856
+    },
+    {
+      "feature": "experience_years",
+      "rf_importance": 0.027617441827234232,
+      "gb_importance": 0.0,
+      "combined_importance": 0.013808720913617116,
+      "importance_normalized": 0.024182911210506582
+    },
+    {
+      "feature": "skill_density.1",
+      "rf_importance": 0.026223998121403098,
+      "gb_importance": 3.89546170090173e-18,
+      "combined_importance": 0.01311199906070155,
+      "importance_normalized": 0.02296275745311825
+    },
+    {
+      "feature": "salary_per_exp",
+      "rf_importance": 0.01702775441029654,
+      "gb_importance": 1.402366212324623e-17,
+      "combined_importance": 0.008513877205148276,
+      "importance_normalized": 0.014910167118101664
+    },
+    {
+      "feature": "has_barriers",
+      "rf_importance": 0.01012380624630669,
+      "gb_importance": 0.0,
+      "combined_importance": 0.005061903123153345,
+      "importance_normalized": 0.008864800335177336
+    },
+    {
+      "feature": "experience_age_ratio",
+      "rf_importance": 0.009871573306076664,
+      "gb_importance": 0.0,
+      "combined_importance": 0.004935786653038332,
+      "importance_normalized": 0.008643935316755077
+    },
+    {
+      "feature": "job_lái",
+      "rf_importance": 0.009358444858754447,
+      "gb_importance": 0.0,
+      "combined_importance": 0.004679222429377223,
+      "importance_normalized": 0.008194619997877805
+    },
+    {
+      "feature": "skill_lai xe",
+      "rf_importance": 0.008580218782549366,
+      "gb_importance": 0.0,
+      "combined_importance": 0.004290109391274683,
+      "importance_normalized": 0.007513174836508451
+    },
+    {
+      "feature": "skill_pccc",
+      "rf_importance": 0.008113300286886393,
+      "gb_importance": 0.0,
+      "combined_importance": 0.004056650143443197,
+      "importance_normalized": 0.007104322756949576
+    },
+    {
+      "feature": "skill_đong goi",
+      "rf_importance": 0.007808014212604264,
+      "gb_importance": 0.0,
+      "combined_importance": 0.003904007106302132,
+      "importance_normalized": 0.006837002341309609
+    },
+    {
+      "feature": "skill_tiep",
+      "rf_importance": 0.007714136056959669,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0038570680284798343,
+      "importance_normalized": 0.006754798959955127
+    },
+    {
+      "feature": "skill_thuc pham",
+      "rf_importance": 0.007263867464135026,
+      "gb_importance": 0.0,
+      "combined_importance": 0.003631933732067513,
+      "importance_normalized": 0.006360526185913457
+    },
+    {
+      "feature": "job_nhân",
+      "rf_importance": 0.0069928155217349386,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0034964077608674693,
+      "importance_normalized": 0.0061231825138419625
+    },
+    {
+      "feature": "skill_đo",
+      "rf_importance": 0.006774763201839249,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0033873816009196245,
+      "importance_normalized": 0.005932247382186052
+    },
+    {
+      "feature": "exp_ratio",
+      "rf_importance": 0.006621508739706124,
+      "gb_importance": 2.077579573814256e-17,
+      "combined_importance": 0.0033107543698530726,
+      "importance_normalized": 0.005798051786751717
+    },
+    {
+      "feature": "skill_an",
+      "rf_importance": 0.0064792693042427215,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0032396346521213607,
+      "importance_normalized": 0.005673501379079544
+    },
+    {
+      "feature": "skill_kho",
+      "rf_importance": 0.005873784255468822,
+      "gb_importance": 0.0,
+      "combined_importance": 0.002936892127734411,
+      "importance_normalized": 0.005143315011153561
+    },
+    {
+      "feature": "skill_khach",
+      "rf_importance": 0.00581134862529674,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00290567431264837,
+      "importance_normalized": 0.005088643933713847
+    },
+    {
+      "feature": "skill_vu ban",
+      "rf_importance": 0.00556177997040722,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00278088998520361,
+      "importance_normalized": 0.004870111867642207
+    },
+    {
+      "feature": "job_nông",
+      "rf_importance": 0.005215969157168971,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0026079845785844857,
+      "importance_normalized": 0.004567306407075365
+    },
+    {
+      "feature": "is_female",
+      "rf_importance": 0.00507591515661671,
+      "gb_importance": 0.0,
+      "combined_importance": 0.002537957578308355,
+      "importance_normalized": 0.004444669651606882
+    },
+    {
+      "feature": "skill_ban",
+      "rf_importance": 0.005006626759354255,
+      "gb_importance": 2.3372770205410377e-17,
+      "combined_importance": 0.002503313379677139,
+      "importance_normalized": 0.004383998023532215
+    },
+    {
+      "feature": "skill_thu ngan",
+      "rf_importance": 0.004743414847214747,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0023717074236073734,
+      "importance_normalized": 0.004153519388304638
+    },
+    {
+      "feature": "skill_thoi gian",
+      "rf_importance": 0.004611563263894274,
+      "gb_importance": 0.0,
+      "combined_importance": 0.002305781631947137,
+      "importance_normalized": 0.00403806498987229
+    },
+    {
+      "feature": "skill_dung may",
+      "rf_importance": 0.004577006357866847,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0022885031789334235,
+      "importance_normalized": 0.004007805612649777
+    },
+    {
+      "feature": "skill_nong nghiep",
+      "rf_importance": 0.004437789921849506,
+      "gb_importance": 0.0,
+      "combined_importance": 0.002218894960924753,
+      "importance_normalized": 0.003885902261415754
+    },
+    {
+      "feature": "skill_may nong",
+      "rf_importance": 0.0043801439161947585,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0021900719580973792,
+      "importance_normalized": 0.0038354251663571376
+    },
+    {
+      "feature": "skill_chan",
+      "rf_importance": 0.004360365869334406,
+      "gb_importance": 0.0,
+      "combined_importance": 0.002180182934667203,
+      "importance_normalized": 0.0038181067357025834
+    },
+    {
+      "feature": "skill_lai",
+      "rf_importance": 0.004284775342000824,
+      "gb_importance": 0.0,
+      "combined_importance": 0.002142387671000412,
+      "importance_normalized": 0.0037519167162830165
+    },
+    {
+      "feature": "skills_count",
+      "rf_importance": 0.004239796803080508,
+      "gb_importance": 0.0,
+      "combined_importance": 0.002119898401540254,
+      "importance_normalized": 0.003712531750076056
+    },
+    {
+      "feature": "skill_nghiep",
+      "rf_importance": 0.004085021317456592,
+      "gb_importance": 0.0,
+      "combined_importance": 0.002042510658728296,
+      "importance_normalized": 0.003577004287039447
+    },
+    {
+      "feature": "skill_ban đo",
+      "rf_importance": 0.0040774492920046266,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0020387246460023133,
+      "importance_normalized": 0.0035703739256781712
+    },
+    {
+      "feature": "job_xe",
+      "rf_importance": 0.0040107672339754555,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0020053836169877277,
+      "importance_normalized": 0.003511984510078385
+    },
+    {
+      "feature": "job_pha",
+      "rf_importance": 0.003897316567249724,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001948658283624862,
+      "importance_normalized": 0.003412642673228904
+    },
+    {
+      "feature": "skill_thu",
+      "rf_importance": 0.003874503052418056,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001937251526209028,
+      "importance_normalized": 0.0033926662682083
+    },
+    {
+      "feature": "skill_bien thuc",
+      "rf_importance": 0.003842264662759938,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001921132331379969,
+      "importance_normalized": 0.003364437074514365
+    },
+    {
+      "feature": "skill_chan nuoi",
+      "rf_importance": 0.0038039763825180608,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0019019881912590304,
+      "importance_normalized": 0.003330910360226902
+    },
+    {
+      "feature": "skill_vu",
+      "rf_importance": 0.0036985368476008793,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0018492684238004397,
+      "importance_normalized": 0.003238583383422524
+    },
+    {
+      "feature": "skill_phuc vu",
+      "rf_importance": 0.0036226408900256386,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0018113204450128193,
+      "importance_normalized": 0.003172125917348729
+    },
+    {
+      "feature": "skill_goi",
+      "rf_importance": 0.0035464819845674594,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0017732409922837297,
+      "importance_normalized": 0.0031054382038339925
+    },
+    {
+      "feature": "job_vụ",
+      "rf_importance": 0.0035255936863988107,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0017627968431994053,
+      "importance_normalized": 0.0030871475937510233
+    },
+    {
+      "feature": "skill_thoi",
+      "rf_importance": 0.003525179420046892,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001762589710023446,
+      "importance_normalized": 0.0030867848459459
+    },
+    {
+      "feature": "skill_nau",
+      "rf_importance": 0.003524035794945852,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001762017897472926,
+      "importance_normalized": 0.0030857834431204842
+    },
+    {
+      "feature": "skill_nau an",
+      "rf_importance": 0.0034900454568308,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0017450227284154,
+      "importance_normalized": 0.0030560201749005858
+    },
+    {
+      "feature": "skill_nhap",
+      "rf_importance": 0.0034131277698827454,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0017065638849413727,
+      "importance_normalized": 0.0029886680426640636
+    },
+    {
+      "feature": "skill_su",
+      "rf_importance": 0.003393410277332304,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001696705138666152,
+      "importance_normalized": 0.0029714026357294163
+    },
+    {
+      "feature": "skill_van",
+      "rf_importance": 0.0033853965904693823,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0016926982952346912,
+      "importance_normalized": 0.0029643855383788666
+    },
+    {
+      "feature": "skill_kho van",
+      "rf_importance": 0.003368063997354238,
+      "gb_importance": 7.531225955076676e-18,
+      "combined_importance": 0.0016840319986771227,
+      "importance_normalized": 0.0029492084425792892
+    },
+    {
+      "feature": "is_male",
+      "rf_importance": 0.003289751919971612,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001644875959985806,
+      "importance_normalized": 0.0028806353275926937
+    },
+    {
+      "feature": "skill_đong",
+      "rf_importance": 0.0031549294742593053,
+      "gb_importance": 1.3244569783065882e-17,
+      "combined_importance": 0.0015774647371296594,
+      "importance_normalized": 0.002762579525964153
+    },
+    {
+      "feature": "barrier_family",
+      "rf_importance": 0.00312726691892528,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00156363345946264,
+      "importance_normalized": 0.0027383571116042864
+    },
+    {
+      "feature": "skill_che đo",
+      "rf_importance": 0.0031215384623888075,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0015607692311944037,
+      "importance_normalized": 0.0027333410512225403
+    },
+    {
+      "feature": "skill_pha",
+      "rf_importance": 0.0031032260848421144,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0015516130424210572,
+      "importance_normalized": 0.0027173060178897913
+    },
+    {
+      "feature": "education_level",
+      "rf_importance": 0.002947697498740025,
+      "gb_importance": -2.856671913994602e-17,
+      "combined_importance": 0.0014738487493699982,
+      "importance_normalized": 0.002581119110647202
+    },
+    {
+      "feature": "job_phục",
+      "rf_importance": 0.002895148388727409,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0014475741943637045,
+      "importance_normalized": 0.002535105056573143
+    },
+    {
+      "feature": "skill_su dung",
+      "rf_importance": 0.002874612568665393,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0014373062843326965,
+      "importance_normalized": 0.0025171230900933603
+    },
+    {
+      "feature": "skill_đo uong",
+      "rf_importance": 0.002815000318014315,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0014075001590071576,
+      "importance_normalized": 0.002464924274085287
+    },
+    {
+      "feature": "job_viên",
+      "rf_importance": 0.002764732782194418,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001382366391097209,
+      "importance_normalized": 0.0024209080555264487
+    },
+    {
+      "feature": "skill_soc khach",
+      "rf_importance": 0.002709015827581154,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001354507913790577,
+      "importance_normalized": 0.0023721201129370782
+    },
+    {
+      "feature": "skill_che",
+      "rf_importance": 0.002696736800617585,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0013483684003087926,
+      "importance_normalized": 0.002361368117127004
+    },
+    {
+      "feature": "barrier_techGap",
+      "rf_importance": 0.0026919935723707365,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0013459967861853682,
+      "importance_normalized": 0.002357214761133271
+    },
+    {
+      "feature": "skill_bartender",
+      "rf_importance": 0.0026747048619462466,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0013373524309731233,
+      "importance_normalized": 0.002342076090732332
+    },
+    {
+      "feature": "skill_xe đoc",
+      "rf_importance": 0.0026418237159345575,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0013209118579672787,
+      "importance_normalized": 0.002313284074459621
+    },
+    {
+      "feature": "skill_khach hang",
+      "rf_importance": 0.0026142305360668094,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0013071152680334047,
+      "importance_normalized": 0.002289122407968872
+    },
+    {
+      "feature": "skill_giao hang",
+      "rf_importance": 0.0025866585986308575,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0012933292993154287,
+      "importance_normalized": 0.0022649793421814484
+    },
+    {
+      "feature": "skill_pham thu",
+      "rf_importance": 0.002445792614903993,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0012228963074519966,
+      "importance_normalized": 0.0021416315825171866
+    },
+    {
+      "feature": "skill_mon an",
+      "rf_importance": 0.002331282561066959,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0011656412805334795,
+      "importance_normalized": 0.0020413621049176875
+    },
+    {
+      "feature": "skill_xe tron",
+      "rf_importance": 0.0022603142790710183,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0011301571395355091,
+      "importance_normalized": 0.0019792195041291663
+    },
+    {
+      "feature": "skill_phuc",
+      "rf_importance": 0.0022570287026144444,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0011285143513072222,
+      "importance_normalized": 0.00197634252500048
+    },
+    {
+      "feature": "skill_dung",
+      "rf_importance": 0.002254730276045007,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0011273651380225035,
+      "importance_normalized": 0.0019743299328856753
+    },
+    {
+      "feature": "skill_pha che",
+      "rf_importance": 0.0022412525084786468,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0011206262542393234,
+      "importance_normalized": 0.0019625282729632226
+    },
+    {
+      "feature": "skill_lieu",
+      "rf_importance": 0.002234985345266454,
+      "gb_importance": 0.0,
+      "combined_importance": 0.001117492672633227,
+      "importance_normalized": 0.0019570404999663493
+    },
+    {
+      "feature": "skill_quan ly",
+      "rf_importance": 0.0022017000685746312,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0011008500342873156,
+      "importance_normalized": 0.0019278946110787795
+    },
+    {
+      "feature": "job_dịh",
+      "rf_importance": 0.0021982134619332886,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0010991067309666443,
+      "importance_normalized": 0.0019248416020650914
+    },
+    {
+      "feature": "skill_viec",
+      "rf_importance": 0.002103815771937633,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0010519078859688165,
+      "importance_normalized": 0.0018421832961321093
+    },
+    {
+      "feature": "skill_sua",
+      "rf_importance": 0.0021025387836252274,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0010512693918126137,
+      "importance_normalized": 0.001841065115267678
+    },
+    {
+      "feature": "skill_trang",
+      "rf_importance": 0.002100847787378927,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0010504238936894636,
+      "importance_normalized": 0.0018395844128790428
+    },
+    {
+      "feature": "skill_chua",
+      "rf_importance": 0.0020980238978474774,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0010490119489237387,
+      "importance_normalized": 0.001837111704862329
+    },
+    {
+      "feature": "skill_giao tiep",
+      "rf_importance": 0.002034367940588517,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0010171839702942584,
+      "importance_normalized": 0.0017813720613412836
+    },
+    {
+      "feature": "skill_ban sua",
+      "rf_importance": 0.001987369021682749,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0009936845108413745,
+      "importance_normalized": 0.0017402179714730765
+    },
+    {
+      "feature": "skill_cham soc",
+      "rf_importance": 0.001959746888891832,
+      "gb_importance": 0.0,
+      "combined_importance": 0.000979873444445916,
+      "importance_normalized": 0.0017160309526714707
+    },
+    {
+      "feature": "job_chế",
+      "rf_importance": 0.001951464679956452,
+      "gb_importance": 0.0,
+      "combined_importance": 0.000975732339978226,
+      "importance_normalized": 0.001708778726901825
+    },
+    {
+      "feature": "skill_nuoi",
+      "rf_importance": 0.0019431042848726463,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0009715521424363231,
+      "importance_normalized": 0.0017014580382855079
+    },
+    {
+      "feature": "job_bán",
+      "rf_importance": 0.0019288483207625428,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0009644241603812714,
+      "importance_normalized": 0.0016889749590614637
+    },
+    {
+      "feature": "skill_hanh",
+      "rf_importance": 0.0018953492271626554,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0009476746135813277,
+      "importance_normalized": 0.0016596418437343351
+    },
+    {
+      "feature": "skill_lam",
+      "rf_importance": 0.0018715416944894154,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0009357708472447077,
+      "importance_normalized": 0.001638795037850582
+    },
+    {
+      "feature": "skill_nuoi tron",
+      "rf_importance": 0.0018186520424756502,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0009093260212378251,
+      "importance_normalized": 0.0015924827918936738
+    },
+    {
+      "feature": "job_dân",
+      "rf_importance": 0.001816801669439909,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0009084008347199545,
+      "importance_normalized": 0.0015908625329605847
+    },
+    {
+      "feature": "skill_lieu phuc",
+      "rf_importance": 0.0017567410181208664,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0008783705090604332,
+      "importance_normalized": 0.0015382710798064654
+    },
+    {
+      "feature": "skill_nhap lieu",
+      "rf_importance": 0.001740523883899828,
+      "gb_importance": 0.0,
+      "combined_importance": 0.000870261941949914,
+      "importance_normalized": 0.0015240707234009166
+    },
+    {
+      "feature": "job_bảo",
+      "rf_importance": 0.0017215453884304637,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0008607726942152318,
+      "importance_normalized": 0.0015074524111866386
+    },
+    {
+      "feature": "skill_may",
+      "rf_importance": 0.0017189447527711755,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0008594723763855877,
+      "importance_normalized": 0.0015051751929839943
+    },
+    {
+      "feature": "skill_toan",
+      "rf_importance": 0.001594680523173774,
+      "gb_importance": 0.0,
+      "combined_importance": 0.000797340261586887,
+      "importance_normalized": 0.0013963645779460517
+    },
+    {
+      "feature": "skill_may mac",
+      "rf_importance": 0.001574878068742883,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0007874390343714415,
+      "importance_normalized": 0.0013790247750690124
+    },
+    {
+      "feature": "job_thợ",
+      "rf_importance": 0.001526402817751525,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0007632014088757625,
+      "importance_normalized": 0.0013365779511392512
+    },
+    {
+      "feature": "skill_xay dung",
+      "rf_importance": 0.0015259106229602334,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0007629553114801167,
+      "importance_normalized": 0.0013361469661475733
+    },
+    {
+      "feature": "skill_nhom lai",
+      "rf_importance": 0.0015147930503699788,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0007573965251849894,
+      "importance_normalized": 0.0013264119851703936
+    },
+    {
+      "feature": "skill_cham",
+      "rf_importance": 0.0015106683568811173,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0007553341784405586,
+      "importance_normalized": 0.001322800242379889
+    },
+    {
+      "feature": "skill_lap rap",
+      "rf_importance": 0.001450309956308763,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0007251549781543815,
+      "importance_normalized": 0.0012699480683450715
+    },
+    {
+      "feature": "skill_pham pccc",
+      "rf_importance": 0.0014184965538846484,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0007092482769423242,
+      "importance_normalized": 0.0012420910100795297
+    },
+    {
+      "feature": "skill_ly thoi",
+      "rf_importance": 0.0014037275556897642,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0007018637778448821,
+      "importance_normalized": 0.0012291586981641365
+    },
+    {
+      "feature": "barrier_location",
+      "rf_importance": 0.0013929996723214691,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006964998361607346,
+      "importance_normalized": 0.001219764944296741
+    },
+    {
+      "feature": "skill_nuoc",
+      "rf_importance": 0.0013672285597736869,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006836142798868434,
+      "importance_normalized": 0.0011971987511483076
+    },
+    {
+      "feature": "skill_tron",
+      "rf_importance": 0.0013620681814035304,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006810340907017652,
+      "importance_normalized": 0.0011926801222065405
+    },
+    {
+      "feature": "barrier_other",
+      "rf_importance": 0.0013563752660532378,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006781876330266189,
+      "importance_normalized": 0.0011876951830761791
+    },
+    {
+      "feature": "skill_bartender giao",
+      "rf_importance": 0.0013468885660480611,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006734442830240306,
+      "importance_normalized": 0.0011793882578605473
+    },
+    {
+      "feature": "skill_thuc",
+      "rf_importance": 0.0013285037866826988,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006642518933413494,
+      "importance_normalized": 0.0011632898266662837
+    },
+    {
+      "feature": "skill_hanh may",
+      "rf_importance": 0.0012937789897814,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006468894948907,
+      "importance_normalized": 0.0011328834376343028
+    },
+    {
+      "feature": "job_xuất",
+      "rf_importance": 0.0012547588801045397,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006273794400522699,
+      "importance_normalized": 0.001098715904897465
+    },
+    {
+      "feature": "skill_quan",
+      "rf_importance": 0.0012291948997398582,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006145974498699291,
+      "importance_normalized": 0.0010763310847822075
+    },
+    {
+      "feature": "skill_giao",
+      "rf_importance": 0.001227650711526901,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006138253557634505,
+      "importance_normalized": 0.001074978933244065
+    },
+    {
+      "feature": "skill_tron vua",
+      "rf_importance": 0.001214088124333183,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0006070440621665915,
+      "importance_normalized": 0.0010631030019415861
+    },
+    {
+      "feature": "job_chính",
+      "rf_importance": 0.0011989954841424004,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005994977420712002,
+      "importance_normalized": 0.0010498872964483318
+    },
+    {
+      "feature": "skill_lam viec",
+      "rf_importance": 0.0011760578367783795,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005880289183891898,
+      "importance_normalized": 0.001029802196131943
+    },
+    {
+      "feature": "skill_vua",
+      "rf_importance": 0.0011617029305773293,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005808514652886647,
+      "importance_normalized": 0.0010172324793469212
+    },
+    {
+      "feature": "skill_pccc sua",
+      "rf_importance": 0.0011438177545936266,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005719088772968133,
+      "importance_normalized": 0.0010015715203955512
+    },
+    {
+      "feature": "skill_sua chua",
+      "rf_importance": 0.0011422990144177134,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005711495072088567,
+      "importance_normalized": 0.001000241652153022
+    },
+    {
+      "feature": "skill_may moc",
+      "rf_importance": 0.0011364675107916782,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005682337553958391,
+      "importance_normalized": 0.0009951353597131085
+    },
+    {
+      "feature": "skill_ngan",
+      "rf_importance": 0.0011156360301829407,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005578180150914704,
+      "importance_normalized": 0.0009768945013057338
+    },
+    {
+      "feature": "skill_kiem ke",
+      "rf_importance": 0.0010998520489137894,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005499260244568947,
+      "importance_normalized": 0.0009630734305502309
+    },
+    {
+      "feature": "skill_pham đong",
+      "rf_importance": 0.0010512500920357964,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005256250460178982,
+      "importance_normalized": 0.0009205156579951225
+    },
+    {
+      "feature": "skill_che bien",
+      "rf_importance": 0.0010443636996584063,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005221818498292031,
+      "importance_normalized": 0.000914485663744934
+    },
+    {
+      "feature": "job_giúp",
+      "rf_importance": 0.0010305427311528429,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005152713655764214,
+      "importance_normalized": 0.0009023834836696001
+    },
+    {
+      "feature": "job_hành",
+      "rf_importance": 0.001027218263748041,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005136091318740205,
+      "importance_normalized": 0.0008994724501069888
+    },
+    {
+      "feature": "skill_nuoi pha",
+      "rf_importance": 0.001014177080692999,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005070885403464995,
+      "importance_normalized": 0.0008880530806421078
+    },
+    {
+      "feature": "job_toán",
+      "rf_importance": 0.0010070160265132735,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0005035080132566367,
+      "importance_normalized": 0.000881782581785434
+    },
+    {
+      "feature": "skill_lap",
+      "rf_importance": 0.000996149851347839,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0004980749256739195,
+      "importance_normalized": 0.0008722677342167362
+    },
+    {
+      "feature": "skill_đoc ban",
+      "rf_importance": 0.000994706950628422,
+      "gb_importance": 0.0,
+      "combined_importance": 0.000497353475314211,
+      "importance_normalized": 0.0008710042739657281
+    },
+    {
+      "feature": "skill_nhom",
+      "rf_importance": 0.0009306067437712653,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00046530337188563267,
+      "importance_normalized": 0.0008148756281375289
+    },
+    {
+      "feature": "skill_ve cham",
+      "rf_importance": 0.0008600786712924391,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00043003933564621954,
+      "importance_normalized": 0.0007531184920033008
+    },
+    {
+      "feature": "job_công",
+      "rf_importance": 0.0008578714414551524,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0004289357207275762,
+      "importance_normalized": 0.0007511857553106631
+    },
+    {
+      "feature": "skill_xe",
+      "rf_importance": 0.0008528378469768732,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0004264189234884366,
+      "importance_normalized": 0.0007467781432986814
+    },
+    {
+      "feature": "job_sản",
+      "rf_importance": 0.0008435173683681271,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00042175868418406357,
+      "importance_normalized": 0.0007386167680328353
+    },
+    {
+      "feature": "skill_pham",
+      "rf_importance": 0.0008364742905316932,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0004182371452658466,
+      "importance_normalized": 0.000732449573872252
+    },
+    {
+      "feature": "skill_đoc",
+      "rf_importance": 0.0008271380398967255,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00041356901994836276,
+      "importance_normalized": 0.0007242743880039572
+    },
+    {
+      "feature": "is_married",
+      "rf_importance": 0.0008232343738403987,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00041161718692019934,
+      "importance_normalized": 0.0007208561854699872
+    },
+    {
+      "feature": "skill_đat",
+      "rf_importance": 0.000814503517752312,
+      "gb_importance": 0.0,
+      "combined_importance": 0.000407251758876156,
+      "importance_normalized": 0.0007132111067226247
+    },
+    {
+      "feature": "skill_tri mon",
+      "rf_importance": 0.0008114974542674113,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00040574872713370567,
+      "importance_normalized": 0.0007105788800738547
+    },
+    {
+      "feature": "skill_hang nong",
+      "rf_importance": 0.0007675007097009388,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0003837503548504694,
+      "importance_normalized": 0.0006720536113665577
+    },
+    {
+      "feature": "skill_hang",
+      "rf_importance": 0.0007611289876786515,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0003805644938393257,
+      "importance_normalized": 0.0006664742825899491
+    },
+    {
+      "feature": "skill_ve",
+      "rf_importance": 0.0007259043106437067,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00036295215532185335,
+      "importance_normalized": 0.0006356301789802214
+    },
+    {
+      "feature": "skill_luong",
+      "rf_importance": 0.0007056572629051655,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00035282863145258273,
+      "importance_normalized": 0.0006179010728306
+    },
+    {
+      "feature": "skill_nong san",
+      "rf_importance": 0.0007052732653141445,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00035263663265707227,
+      "importance_normalized": 0.000617564829535265
+    },
+    {
+      "feature": "skill_bao",
+      "rf_importance": 0.0007043540006571948,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0003521770003285974,
+      "importance_normalized": 0.0006167598854815385
+    },
+    {
+      "feature": "skill_soc",
+      "rf_importance": 0.0006940274098553885,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00034701370492769425,
+      "importance_normalized": 0.0006077175190657956
+    },
+    {
+      "feature": "skill_lap đat",
+      "rf_importance": 0.0006773884717513959,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00033869423587569794,
+      "importance_normalized": 0.0005931478146984211
+    },
+    {
+      "feature": "skill_nong",
+      "rf_importance": 0.000671043527597438,
+      "gb_importance": 0.0,
+      "combined_importance": 0.000335521763798719,
+      "importance_normalized": 0.000587591933669662
+    },
+    {
+      "feature": "skill_tra",
+      "rf_importance": 0.0006511447461150455,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00032557237305752275,
+      "importance_normalized": 0.0005701677830623658
+    },
+    {
+      "feature": "skill_ve sinh",
+      "rf_importance": 0.0006422196915088972,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0003211098457544486,
+      "importance_normalized": 0.0005623526565043163
+    },
+    {
+      "feature": "skill_an toan",
+      "rf_importance": 0.0006110582555829617,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00030552912779148087,
+      "importance_normalized": 0.0005350664855800539
+    },
+    {
+      "feature": "skill_gian",
+      "rf_importance": 0.0006023665960476522,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0003011832980238261,
+      "importance_normalized": 0.0005274557288659013
+    },
+    {
+      "feature": "skill_ban hang",
+      "rf_importance": 0.0005873502166307125,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0002936751083153563,
+      "importance_normalized": 0.0005143068002860995
+    },
+    {
+      "feature": "skill_đat nau",
+      "rf_importance": 0.0005769735116706003,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0002884867558353001,
+      "importance_normalized": 0.0005052205519551422
+    },
+    {
+      "feature": "skill_sua nha",
+      "rf_importance": 0.0005668105976189066,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0002834052988094533,
+      "importance_normalized": 0.0004963215072974375
+    },
+    {
+      "feature": "skill_rap",
+      "rf_importance": 0.0005618325845024474,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0002809162922512237,
+      "importance_normalized": 0.0004919625644976972
+    },
+    {
+      "feature": "skill_an pha",
+      "rf_importance": 0.0005543601152485499,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00027718005762427495,
+      "importance_normalized": 0.00048541937843359025
+    },
+    {
+      "feature": "skill_nha",
+      "rf_importance": 0.0005472264704196801,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0002736132352098401,
+      "importance_normalized": 0.00047917288027554114
+    },
+    {
+      "feature": "skill_van hanh",
+      "rf_importance": 0.0005207664290522203,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00026038321452611014,
+      "importance_normalized": 0.0004560034341328281
+    },
+    {
+      "feature": "job_dựng",
+      "rf_importance": 0.0005137779524685206,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0002568889762342603,
+      "importance_normalized": 0.00044988405096267305
+    },
+    {
+      "feature": "job_động",
+      "rf_importance": 0.0005117405672925927,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00025587028364629634,
+      "importance_normalized": 0.0004481000368921707
+    },
+    {
+      "feature": "skill_xay",
+      "rf_importance": 0.0005041553639838585,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00025207768199192926,
+      "importance_normalized": 0.0004414581364845858
+    },
+    {
+      "feature": "skill_trong",
+      "rf_importance": 0.0004781787782277069,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00023908938911385344,
+      "importance_normalized": 0.0004187120229660755
+    },
+    {
+      "feature": "skill_rap pccc",
+      "rf_importance": 0.00047155466817239123,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00023577733408619561,
+      "importance_normalized": 0.00041291169336573014
+    },
+    {
+      "feature": "skill_ban su",
+      "rf_importance": 0.00046570021497090354,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00023285010748545177,
+      "importance_normalized": 0.00040778530538079994
+    },
+    {
+      "feature": "skill_đat nhap",
+      "rf_importance": 0.0004648373300607139,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00023241866503035695,
+      "importance_normalized": 0.00040702972963636494
+    },
+    {
+      "feature": "skill_moc",
+      "rf_importance": 0.0004518595759471675,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00022592978797358375,
+      "importance_normalized": 0.00039566590103113204
+    },
+    {
+      "feature": "skill_pccc su",
+      "rf_importance": 0.00043926876910278285,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00021963438455139143,
+      "importance_normalized": 0.0003846408985746723
+    },
+    {
+      "feature": "skill_bartender pccc",
+      "rf_importance": 0.00041953586902193765,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00020976793451096882,
+      "importance_normalized": 0.0003673620002043569
+    },
+    {
+      "feature": "skill_bien",
+      "rf_importance": 0.0004061860633048501,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00020309303165242504,
+      "importance_normalized": 0.0003556723886772138
+    },
+    {
+      "feature": "skill_giat ui",
+      "rf_importance": 0.0003938814793503352,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0001969407396751676,
+      "importance_normalized": 0.000344898014167232
+    },
+    {
+      "feature": "skill_bartender lap",
+      "rf_importance": 0.00037634320310489977,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00018817160155244989,
+      "importance_normalized": 0.0003295408141817337
+    },
+    {
+      "feature": "skill_ke",
+      "rf_importance": 0.0003687052961018697,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00018435264805093484,
+      "importance_normalized": 0.0003228527643600359
+    },
+    {
+      "feature": "skill_xe nau",
+      "rf_importance": 0.00036496350364963523,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00018248175182481762,
+      "importance_normalized": 0.00031957630467899126
+    },
+    {
+      "feature": "job_nghiệp",
+      "rf_importance": 0.00035187496164153735,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00017593748082076868,
+      "importance_normalized": 0.000308115465864272
+    },
+    {
+      "feature": "job_lành",
+      "rf_importance": 0.0003264316358888267,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00016321581794441335,
+      "importance_normalized": 0.00028583629564181347
+    },
+    {
+      "feature": "job_nghề",
+      "rf_importance": 0.00032051252860705685,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00016025626430352842,
+      "importance_normalized": 0.00028065329401784166
+    },
+    {
+      "feature": "job_hàng",
+      "rf_importance": 0.0003128258602711159,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00015641293013555794,
+      "importance_normalized": 0.00027392254686770673
+    },
+    {
+      "feature": "job_việc",
+      "rf_importance": 0.0003072021845488679,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00015360109227443395,
+      "importance_normalized": 0.0002689982366611874
+    },
+    {
+      "feature": "skill_trot",
+      "rf_importance": 0.0003021831255202273,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00015109156276011366,
+      "importance_normalized": 0.0002646033524568794
+    },
+    {
+      "feature": "skill_tri",
+      "rf_importance": 0.0002994524298425736,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0001497262149212868,
+      "importance_normalized": 0.00026221224862008253
+    },
+    {
+      "feature": "job_xây",
+      "rf_importance": 0.00028301538125702976,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00014150769062851488,
+      "importance_normalized": 0.00024781932660385836
+    },
+    {
+      "feature": "job_vận",
+      "rf_importance": 0.00027829639092044866,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00013914819546022433,
+      "importance_normalized": 0.00024368719427144791
+    },
+    {
+      "feature": "skill_hang pccc",
+      "rf_importance": 0.000265737569387032,
+      "gb_importance": 0.0,
+      "combined_importance": 0.000132868784693516,
+      "importance_normalized": 0.000232690199403092
+    },
+    {
+      "feature": "skill_ui",
+      "rf_importance": 0.0002536735690931639,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00012683678454658196,
+      "importance_normalized": 0.00022212648934713587
+    },
+    {
+      "feature": "job_kế",
+      "rf_importance": 0.00021409578604681239,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00010704789302340619,
+      "importance_normalized": 0.0001874706360169847
+    },
+    {
+      "feature": "skill_sinh an",
+      "rf_importance": 0.00021352058065564127,
+      "gb_importance": 0.0,
+      "combined_importance": 0.00010676029032782064,
+      "importance_normalized": 0.00018696696370042792
+    },
+    {
+      "feature": "skill_xe đong",
+      "rf_importance": 0.00013785708815194927,
+      "gb_importance": 0.0,
+      "combined_importance": 6.892854407597464e-05,
+      "importance_normalized": 0.00012071305312681208
+    },
+    {
+      "feature": "skill_đien",
+      "rf_importance": 0.00010180661367584734,
+      "gb_importance": 0.0,
+      "combined_importance": 5.090330683792367e-05,
+      "importance_normalized": 8.914584900972047e-05
+    },
+    {
+      "feature": "skill_pccc tron",
+      "rf_importance": 4.500540064807784e-05,
+      "gb_importance": 0.0,
+      "combined_importance": 2.250270032403892e-05,
+      "importance_normalized": 3.9408487385405905e-05
+    },
+    {
+      "feature": "job_vệ",
+      "rf_importance": 3.959630772349784e-05,
+      "gb_importance": 0.0,
+      "combined_importance": 1.979815386174892e-05,
+      "importance_normalized": 3.467207426130891e-05
+    },
+    {
+      "feature": "skill_đien nuoc",
+      "rf_importance": 1.85894337658473e-05,
+      "gb_importance": 0.0,
+      "combined_importance": 9.29471688292365e-06,
+      "importance_normalized": 1.6277634584162297e-05
+    },
+    {
+      "feature": "skill_sinh",
+      "rf_importance": 4.74074020563073e-06,
+      "gb_importance": 0.0,
+      "combined_importance": 2.370370102815365e-06,
+      "importance_normalized": 4.1511773676225336e-06
+    },
+    {
+      "feature": "skill_toan thuc",
+      "rf_importance": 4.602435082652201e-06,
+      "gb_importance": 0.0,
+      "combined_importance": 2.3012175413261006e-06,
+      "importance_normalized": 4.030071997694688e-06
+    },
+    {
+      "feature": "skill_gia",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_gia may",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_nguoi",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_nguoi gia",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_mon",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_mac",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_ly",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_kiem",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_kiem tra",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_giat",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_ke toan",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_duong xe",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_duong",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_dung đoc",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_chat",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_chat luong",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_che thu",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_ngan van",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_pccc van",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_pccc trang",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_nuoi lam",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_nuoc đong",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_nhom thu",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_nhom lap",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_nuoi ke",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_son sua",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_son",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_bartender che",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_soc nguoi",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_bao duong",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_bao ve",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_bartender ban",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_bartender chan",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_san",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_rap pha",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_rap may",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_rap lap",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham giao",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham lai",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham xay",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_pham ve",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_nuoi thu",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_pccc trong",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_nuoi che",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_xe xay",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_viec nhom",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_trang tri",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_trong trot",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_uong",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_tra chat",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_xe van",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_xe trong",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_ve đoc",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_ban ve",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "skill_đat su",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "job_kho",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    },
+    {
+      "feature": "job_lao",
+      "rf_importance": 0.0,
+      "gb_importance": 0.0,
+      "combined_importance": 0.0,
+      "importance_normalized": 0.0
+    }
+  ],
+  "top_features": [
+    "risk_score_proxy",
+    "age",
+    "barrier_weighted",
+    "age_squared",
+    "barrier_health",
+    "age_exp_product",
+    "total_barriers",
+    "target_salary",
+    "skill_density",
+    "experience_years",
+    "skill_density.1",
+    "salary_per_exp",
+    "has_barriers",
+    "experience_age_ratio",
+    "job_lái",
+    "skill_lai xe",
+    "skill_pccc",
+    "skill_đong goi",
+    "skill_tiep",
+    "skill_thuc pham",
+    "job_nhân",
+    "skill_đo",
+    "exp_ratio",
+    "skill_an",
+    "skill_kho",
+    "skill_khach",
+    "skill_vu ban",
+    "job_nông",
+    "is_female",
+    "skill_ban"
+  ],
+  "method": "RF+GB combined importance"
+}

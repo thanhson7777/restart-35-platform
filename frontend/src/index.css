@@ -133,3 +133,10 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

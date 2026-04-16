@@ -219,5 +219,3 @@ export const aiController = {
   getFeatureImportance,
   getModelInfo
 }
-
-export default aiController

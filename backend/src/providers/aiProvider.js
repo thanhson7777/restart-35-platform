@@ -208,4 +208,3 @@ class AIProvider {
 
 // Export singleton instance
 export const aiProvider = new AIProvider()
-export default aiProvider

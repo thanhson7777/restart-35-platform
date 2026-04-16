@@ -1,0 +1,1318 @@
+{
+  "scores": [
+    {
+      "feature": "age",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "experience_years",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "barrier_health",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "skill_density.1",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "skill_vu",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "skill_chan nuoi",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "skill_đo",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "total_barriers",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "exp_ratio",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "salary_per_exp",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "target_salary",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "age_squared",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "skill_density",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "barrier_weighted",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "age_exp_product",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "experience_age_ratio",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "risk_score_proxy",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "is_male",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "skills_count",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "is_female",
+      "ranking": 1,
+      "selected": true
+    },
+    {
+      "feature": "education_level",
+      "ranking": 2,
+      "selected": false
+    },
+    {
+      "feature": "skill_nghiep",
+      "ranking": 2,
+      "selected": false
+    },
+    {
+      "feature": "skill_phuc vu",
+      "ranking": 2,
+      "selected": false
+    },
+    {
+      "feature": "skill_nau an",
+      "ranking": 3,
+      "selected": false
+    },
+    {
+      "feature": "skill_vu ban",
+      "ranking": 3,
+      "selected": false
+    },
+    {
+      "feature": "skill_khach hang",
+      "ranking": 3,
+      "selected": false
+    },
+    {
+      "feature": "skill_ban",
+      "ranking": 3,
+      "selected": false
+    },
+    {
+      "feature": "job_xe",
+      "ranking": 3,
+      "selected": false
+    },
+    {
+      "feature": "job_nhân",
+      "ranking": 4,
+      "selected": false
+    },
+    {
+      "feature": "has_barriers",
+      "ranking": 4,
+      "selected": false
+    },
+    {
+      "feature": "job_phục",
+      "ranking": 4,
+      "selected": false
+    },
+    {
+      "feature": "skill_chua",
+      "ranking": 4,
+      "selected": false
+    },
+    {
+      "feature": "skill_lai xe",
+      "ranking": 4,
+      "selected": false
+    },
+    {
+      "feature": "skill_an",
+      "ranking": 5,
+      "selected": false
+    },
+    {
+      "feature": "job_viên",
+      "ranking": 5,
+      "selected": false
+    },
+    {
+      "feature": "skill_pccc",
+      "ranking": 5,
+      "selected": false
+    },
+    {
+      "feature": "skill_goi",
+      "ranking": 5,
+      "selected": false
+    },
+    {
+      "feature": "skill_thuc pham",
+      "ranking": 5,
+      "selected": false
+    },
+    {
+      "feature": "skill_phuc",
+      "ranking": 6,
+      "selected": false
+    },
+    {
+      "feature": "skill_cham soc",
+      "ranking": 6,
+      "selected": false
+    },
+    {
+      "feature": "barrier_location",
+      "ranking": 6,
+      "selected": false
+    },
+    {
+      "feature": "skill_ve",
+      "ranking": 6,
+      "selected": false
+    },
+    {
+      "feature": "skill_kho van",
+      "ranking": 6,
+      "selected": false
+    },
+    {
+      "feature": "skill_lieu",
+      "ranking": 7,
+      "selected": false
+    },
+    {
+      "feature": "skill_xay",
+      "ranking": 7,
+      "selected": false
+    },
+    {
+      "feature": "skill_van",
+      "ranking": 7,
+      "selected": false
+    },
+    {
+      "feature": "skill_bien thuc",
+      "ranking": 7,
+      "selected": false
+    },
+    {
+      "feature": "skill_may nong",
+      "ranking": 7,
+      "selected": false
+    },
+    {
+      "feature": "skill_đo uong",
+      "ranking": 8,
+      "selected": false
+    },
+    {
+      "feature": "skill_viec",
+      "ranking": 8,
+      "selected": false
+    },
+    {
+      "feature": "skill_thuc",
+      "ranking": 8,
+      "selected": false
+    },
+    {
+      "feature": "skill_sua chua",
+      "ranking": 8,
+      "selected": false
+    },
+    {
+      "feature": "skill_pham",
+      "ranking": 8,
+      "selected": false
+    },
+    {
+      "feature": "skill_nuoi",
+      "ranking": 9,
+      "selected": false
+    },
+    {
+      "feature": "skill_nong",
+      "ranking": 9,
+      "selected": false
+    },
+    {
+      "feature": "skill_soc",
+      "ranking": 9,
+      "selected": false
+    },
+    {
+      "feature": "skill_chan",
+      "ranking": 9,
+      "selected": false
+    },
+    {
+      "feature": "skill_uong",
+      "ranking": 9,
+      "selected": false
+    },
+    {
+      "feature": "skill_lieu phuc",
+      "ranking": 10,
+      "selected": false
+    },
+    {
+      "feature": "job_xuất",
+      "ranking": 10,
+      "selected": false
+    },
+    {
+      "feature": "job_vụ",
+      "ranking": 10,
+      "selected": false
+    },
+    {
+      "feature": "skill_bien",
+      "ranking": 10,
+      "selected": false
+    },
+    {
+      "feature": "skill_đong",
+      "ranking": 10,
+      "selected": false
+    },
+    {
+      "feature": "job_lái",
+      "ranking": 11,
+      "selected": false
+    },
+    {
+      "feature": "skill_nong nghiep",
+      "ranking": 11,
+      "selected": false
+    },
+    {
+      "feature": "skill_nau",
+      "ranking": 11,
+      "selected": false
+    },
+    {
+      "feature": "skill_đong goi",
+      "ranking": 11,
+      "selected": false
+    },
+    {
+      "feature": "skill_che",
+      "ranking": 11,
+      "selected": false
+    },
+    {
+      "feature": "skill_che đo",
+      "ranking": 12,
+      "selected": false
+    },
+    {
+      "feature": "skill_hang",
+      "ranking": 12,
+      "selected": false
+    },
+    {
+      "feature": "skill_tiep",
+      "ranking": 12,
+      "selected": false
+    },
+    {
+      "feature": "skill_ban đo",
+      "ranking": 12,
+      "selected": false
+    },
+    {
+      "feature": "skill_van hanh",
+      "ranking": 12,
+      "selected": false
+    },
+    {
+      "feature": "skill_su dung",
+      "ranking": 13,
+      "selected": false
+    },
+    {
+      "feature": "job_nông",
+      "ranking": 13,
+      "selected": false
+    },
+    {
+      "feature": "skill_pha",
+      "ranking": 13,
+      "selected": false
+    },
+    {
+      "feature": "skill_đoc ban",
+      "ranking": 13,
+      "selected": false
+    },
+    {
+      "feature": "skill_giao",
+      "ranking": 13,
+      "selected": false
+    },
+    {
+      "feature": "job_việc",
+      "ranking": 14,
+      "selected": false
+    },
+    {
+      "feature": "job_toán",
+      "ranking": 14,
+      "selected": false
+    },
+    {
+      "feature": "skill_tron vua",
+      "ranking": 14,
+      "selected": false
+    },
+    {
+      "feature": "skill_thu ngan",
+      "ranking": 14,
+      "selected": false
+    },
+    {
+      "feature": "skill_nhap lieu",
+      "ranking": 14,
+      "selected": false
+    },
+    {
+      "feature": "skill_kho",
+      "ranking": 15,
+      "selected": false
+    },
+    {
+      "feature": "skill_vua",
+      "ranking": 15,
+      "selected": false
+    },
+    {
+      "feature": "job_bán",
+      "ranking": 15,
+      "selected": false
+    },
+    {
+      "feature": "barrier_techGap",
+      "ranking": 15,
+      "selected": false
+    },
+    {
+      "feature": "skill_pha che",
+      "ranking": 15,
+      "selected": false
+    },
+    {
+      "feature": "skill_lai",
+      "ranking": 16,
+      "selected": false
+    },
+    {
+      "feature": "job_thợ",
+      "ranking": 16,
+      "selected": false
+    },
+    {
+      "feature": "job_sản",
+      "ranking": 16,
+      "selected": false
+    },
+    {
+      "feature": "skill_viec nhom",
+      "ranking": 16,
+      "selected": false
+    },
+    {
+      "feature": "skill_quan",
+      "ranking": 16,
+      "selected": false
+    },
+    {
+      "feature": "skill_dung",
+      "ranking": 17,
+      "selected": false
+    },
+    {
+      "feature": "barrier_family",
+      "ranking": 17,
+      "selected": false
+    },
+    {
+      "feature": "job_lành",
+      "ranking": 17,
+      "selected": false
+    },
+    {
+      "feature": "job_giúp",
+      "ranking": 17,
+      "selected": false
+    },
+    {
+      "feature": "skill_nuoi pha",
+      "ranking": 17,
+      "selected": false
+    },
+    {
+      "feature": "skill_sua",
+      "ranking": 18,
+      "selected": false
+    },
+    {
+      "feature": "skill_đoc",
+      "ranking": 18,
+      "selected": false
+    },
+    {
+      "feature": "skill_sinh an",
+      "ranking": 18,
+      "selected": false
+    },
+    {
+      "feature": "skill_may",
+      "ranking": 18,
+      "selected": false
+    },
+    {
+      "feature": "is_married",
+      "ranking": 18,
+      "selected": false
+    },
+    {
+      "feature": "skill_khach",
+      "ranking": 19,
+      "selected": false
+    },
+    {
+      "feature": "job_pha",
+      "ranking": 19,
+      "selected": false
+    },
+    {
+      "feature": "barrier_other",
+      "ranking": 19,
+      "selected": false
+    },
+    {
+      "feature": "skill_su",
+      "ranking": 19,
+      "selected": false
+    },
+    {
+      "feature": "skill_may moc",
+      "ranking": 19,
+      "selected": false
+    },
+    {
+      "feature": "job_chế",
+      "ranking": 20,
+      "selected": false
+    },
+    {
+      "feature": "skill_xe",
+      "ranking": 20,
+      "selected": false
+    },
+    {
+      "feature": "job_công",
+      "ranking": 20,
+      "selected": false
+    },
+    {
+      "feature": "job_nghề",
+      "ranking": 20,
+      "selected": false
+    },
+    {
+      "feature": "skill_giao tiep",
+      "ranking": 20,
+      "selected": false
+    },
+    {
+      "feature": "job_xây",
+      "ranking": 21,
+      "selected": false
+    },
+    {
+      "feature": "job_vận",
+      "ranking": 21,
+      "selected": false
+    },
+    {
+      "feature": "job_bảo",
+      "ranking": 21,
+      "selected": false
+    },
+    {
+      "feature": "job_kế",
+      "ranking": 21,
+      "selected": false
+    },
+    {
+      "feature": "job_hành",
+      "ranking": 21,
+      "selected": false
+    },
+    {
+      "feature": "skill_đien",
+      "ranking": 22,
+      "selected": false
+    },
+    {
+      "feature": "skill_tron",
+      "ranking": 22,
+      "selected": false
+    },
+    {
+      "feature": "job_vệ",
+      "ranking": 22,
+      "selected": false
+    },
+    {
+      "feature": "skill_lap",
+      "ranking": 22,
+      "selected": false
+    },
+    {
+      "feature": "job_dịh",
+      "ranking": 22,
+      "selected": false
+    },
+    {
+      "feature": "skill_ui",
+      "ranking": 23,
+      "selected": false
+    },
+    {
+      "feature": "skill_sinh",
+      "ranking": 23,
+      "selected": false
+    },
+    {
+      "feature": "job_chính",
+      "ranking": 23,
+      "selected": false
+    },
+    {
+      "feature": "job_động",
+      "ranking": 23,
+      "selected": false
+    },
+    {
+      "feature": "skill_trang",
+      "ranking": 23,
+      "selected": false
+    },
+    {
+      "feature": "skill_xay dung",
+      "ranking": 24,
+      "selected": false
+    },
+    {
+      "feature": "skill_son sua",
+      "ranking": 24,
+      "selected": false
+    },
+    {
+      "feature": "skill_tri mon",
+      "ranking": 24,
+      "selected": false
+    },
+    {
+      "feature": "skill_soc khach",
+      "ranking": 24,
+      "selected": false
+    },
+    {
+      "feature": "job_hàng",
+      "ranking": 24,
+      "selected": false
+    },
+    {
+      "feature": "skill_rap pha",
+      "ranking": 25,
+      "selected": false
+    },
+    {
+      "feature": "skill_thoi gian",
+      "ranking": 25,
+      "selected": false
+    },
+    {
+      "feature": "skill_tri",
+      "ranking": 25,
+      "selected": false
+    },
+    {
+      "feature": "skill_pccc su",
+      "ranking": 25,
+      "selected": false
+    },
+    {
+      "feature": "skill_xe tron",
+      "ranking": 25,
+      "selected": false
+    },
+    {
+      "feature": "skill_xe đoc",
+      "ranking": 26,
+      "selected": false
+    },
+    {
+      "feature": "job_nghiệp",
+      "ranking": 26,
+      "selected": false
+    },
+    {
+      "feature": "skill_pccc van",
+      "ranking": 26,
+      "selected": false
+    },
+    {
+      "feature": "skill_xe trong",
+      "ranking": 26,
+      "selected": false
+    },
+    {
+      "feature": "skill_đien nuoc",
+      "ranking": 26,
+      "selected": false
+    },
+    {
+      "feature": "skill_nuoi tron",
+      "ranking": 27,
+      "selected": false
+    },
+    {
+      "feature": "skill_xe nau",
+      "ranking": 27,
+      "selected": false
+    },
+    {
+      "feature": "job_dựng",
+      "ranking": 27,
+      "selected": false
+    },
+    {
+      "feature": "job_dân",
+      "ranking": 27,
+      "selected": false
+    },
+    {
+      "feature": "skill_pccc sua",
+      "ranking": 27,
+      "selected": false
+    },
+    {
+      "feature": "skill_thu",
+      "ranking": 28,
+      "selected": false
+    },
+    {
+      "feature": "skill_san",
+      "ranking": 28,
+      "selected": false
+    },
+    {
+      "feature": "skill_nong san",
+      "ranking": 28,
+      "selected": false
+    },
+    {
+      "feature": "skill_nhom",
+      "ranking": 28,
+      "selected": false
+    },
+    {
+      "feature": "skill_che bien",
+      "ranking": 28,
+      "selected": false
+    },
+    {
+      "feature": "skill_nuoc đong",
+      "ranking": 29,
+      "selected": false
+    },
+    {
+      "feature": "skill_pham ve",
+      "ranking": 29,
+      "selected": false
+    },
+    {
+      "feature": "skill_sua nha",
+      "ranking": 29,
+      "selected": false
+    },
+    {
+      "feature": "skill_nhap",
+      "ranking": 29,
+      "selected": false
+    },
+    {
+      "feature": "skill_cham",
+      "ranking": 29,
+      "selected": false
+    },
+    {
+      "feature": "skill_xe đong",
+      "ranking": 30,
+      "selected": false
+    },
+    {
+      "feature": "skill_nuoc",
+      "ranking": 30,
+      "selected": false
+    },
+    {
+      "feature": "skill_đat nhap",
+      "ranking": 30,
+      "selected": false
+    },
+    {
+      "feature": "skill_ve sinh",
+      "ranking": 30,
+      "selected": false
+    },
+    {
+      "feature": "skill_đat nau",
+      "ranking": 30,
+      "selected": false
+    },
+    {
+      "feature": "skill_đat",
+      "ranking": 31,
+      "selected": false
+    },
+    {
+      "feature": "skill_nhom thu",
+      "ranking": 31,
+      "selected": false
+    },
+    {
+      "feature": "skill_nhom lap",
+      "ranking": 31,
+      "selected": false
+    },
+    {
+      "feature": "skill_ly thoi",
+      "ranking": 31,
+      "selected": false
+    },
+    {
+      "feature": "skill_trong trot",
+      "ranking": 31,
+      "selected": false
+    },
+    {
+      "feature": "skill_xe van",
+      "ranking": 32,
+      "selected": false
+    },
+    {
+      "feature": "skill_ngan",
+      "ranking": 32,
+      "selected": false
+    },
+    {
+      "feature": "skill_moc",
+      "ranking": 32,
+      "selected": false
+    },
+    {
+      "feature": "skill_soc nguoi",
+      "ranking": 32,
+      "selected": false
+    },
+    {
+      "feature": "skill_nhom lai",
+      "ranking": 32,
+      "selected": false
+    },
+    {
+      "feature": "skill_tra",
+      "ranking": 33,
+      "selected": false
+    },
+    {
+      "feature": "skill_toan",
+      "ranking": 33,
+      "selected": false
+    },
+    {
+      "feature": "skill_quan ly",
+      "ranking": 33,
+      "selected": false
+    },
+    {
+      "feature": "skill_ve đoc",
+      "ranking": 33,
+      "selected": false
+    },
+    {
+      "feature": "skill_rap may",
+      "ranking": 33,
+      "selected": false
+    },
+    {
+      "feature": "skill_toan thuc",
+      "ranking": 34,
+      "selected": false
+    },
+    {
+      "feature": "skill_thoi",
+      "ranking": 34,
+      "selected": false
+    },
+    {
+      "feature": "skill_ve cham",
+      "ranking": 34,
+      "selected": false
+    },
+    {
+      "feature": "skill_nguoi",
+      "ranking": 34,
+      "selected": false
+    },
+    {
+      "feature": "skill_nha",
+      "ranking": 34,
+      "selected": false
+    },
+    {
+      "feature": "skill_trot",
+      "ranking": 35,
+      "selected": false
+    },
+    {
+      "feature": "skill_son",
+      "ranking": 35,
+      "selected": false
+    },
+    {
+      "feature": "skill_tra chat",
+      "ranking": 35,
+      "selected": false
+    },
+    {
+      "feature": "skill_trang tri",
+      "ranking": 35,
+      "selected": false
+    },
+    {
+      "feature": "skill_trong",
+      "ranking": 35,
+      "selected": false
+    },
+    {
+      "feature": "skill_nguoi gia",
+      "ranking": 36,
+      "selected": false
+    },
+    {
+      "feature": "skill_rap",
+      "ranking": 36,
+      "selected": false
+    },
+    {
+      "feature": "skill_dung may",
+      "ranking": 36,
+      "selected": false
+    },
+    {
+      "feature": "skill_pccc trong",
+      "ranking": 36,
+      "selected": false
+    },
+    {
+      "feature": "skill_pccc trang",
+      "ranking": 36,
+      "selected": false
+    },
+    {
+      "feature": "skill_ngan van",
+      "ranking": 37,
+      "selected": false
+    },
+    {
+      "feature": "skill_pham xay",
+      "ranking": 37,
+      "selected": false
+    },
+    {
+      "feature": "skill_mon an",
+      "ranking": 37,
+      "selected": false
+    },
+    {
+      "feature": "skill_may mac",
+      "ranking": 37,
+      "selected": false
+    },
+    {
+      "feature": "skill_bartender giao",
+      "ranking": 37,
+      "selected": false
+    },
+    {
+      "feature": "skill_rap pccc",
+      "ranking": 38,
+      "selected": false
+    },
+    {
+      "feature": "skill_nuoi ke",
+      "ranking": 38,
+      "selected": false
+    },
+    {
+      "feature": "skill_ban su",
+      "ranking": 38,
+      "selected": false
+    },
+    {
+      "feature": "skill_rap lap",
+      "ranking": 38,
+      "selected": false
+    },
+    {
+      "feature": "skill_pham thu",
+      "ranking": 38,
+      "selected": false
+    },
+    {
+      "feature": "skill_pccc tron",
+      "ranking": 39,
+      "selected": false
+    },
+    {
+      "feature": "skill_lap rap",
+      "ranking": 39,
+      "selected": false
+    },
+    {
+      "feature": "skill_nuoi lam",
+      "ranking": 39,
+      "selected": false
+    },
+    {
+      "feature": "skill_bartender",
+      "ranking": 39,
+      "selected": false
+    },
+    {
+      "feature": "skill_mon",
+      "ranking": 39,
+      "selected": false
+    },
+    {
+      "feature": "skill_pham pccc",
+      "ranking": 40,
+      "selected": false
+    },
+    {
+      "feature": "skill_bao ve",
+      "ranking": 40,
+      "selected": false
+    },
+    {
+      "feature": "skill_lap đat",
+      "ranking": 40,
+      "selected": false
+    },
+    {
+      "feature": "skill_pham đong",
+      "ranking": 40,
+      "selected": false
+    },
+    {
+      "feature": "skill_pham lai",
+      "ranking": 40,
+      "selected": false
+    },
+    {
+      "feature": "skill_mac",
+      "ranking": 41,
+      "selected": false
+    },
+    {
+      "feature": "skill_nuoi che",
+      "ranking": 41,
+      "selected": false
+    },
+    {
+      "feature": "skill_bartender che",
+      "ranking": 41,
+      "selected": false
+    },
+    {
+      "feature": "skill_chat luong",
+      "ranking": 41,
+      "selected": false
+    },
+    {
+      "feature": "skill_ly",
+      "ranking": 41,
+      "selected": false
+    },
+    {
+      "feature": "skill_luong",
+      "ranking": 42,
+      "selected": false
+    },
+    {
+      "feature": "skill_pham giao",
+      "ranking": 42,
+      "selected": false
+    },
+    {
+      "feature": "skill_hanh may",
+      "ranking": 42,
+      "selected": false
+    },
+    {
+      "feature": "skill_ban hang",
+      "ranking": 42,
+      "selected": false
+    },
+    {
+      "feature": "skill_giao hang",
+      "ranking": 42,
+      "selected": false
+    },
+    {
+      "feature": "skill_lam",
+      "ranking": 43,
+      "selected": false
+    },
+    {
+      "feature": "skill_lam viec",
+      "ranking": 43,
+      "selected": false
+    },
+    {
+      "feature": "skill_kiem tra",
+      "ranking": 43,
+      "selected": false
+    },
+    {
+      "feature": "skill_ban sua",
+      "ranking": 43,
+      "selected": false
+    },
+    {
+      "feature": "skill_nuoi thu",
+      "ranking": 43,
+      "selected": false
+    },
+    {
+      "feature": "skill_hanh",
+      "ranking": 44,
+      "selected": false
+    },
+    {
+      "feature": "skill_an toan",
+      "ranking": 44,
+      "selected": false
+    },
+    {
+      "feature": "skill_hang pccc",
+      "ranking": 44,
+      "selected": false
+    },
+    {
+      "feature": "skill_kiem",
+      "ranking": 44,
+      "selected": false
+    },
+    {
+      "feature": "skill_kiem ke",
+      "ranking": 44,
+      "selected": false
+    },
+    {
+      "feature": "skill_bao duong",
+      "ranking": 45,
+      "selected": false
+    },
+    {
+      "feature": "skill_ke toan",
+      "ranking": 45,
+      "selected": false
+    },
+    {
+      "feature": "skill_gian",
+      "ranking": 45,
+      "selected": false
+    },
+    {
+      "feature": "skill_che thu",
+      "ranking": 45,
+      "selected": false
+    },
+    {
+      "feature": "skill_ke",
+      "ranking": 45,
+      "selected": false
+    },
+    {
+      "feature": "skill_chat",
+      "ranking": 46,
+      "selected": false
+    },
+    {
+      "feature": "skill_giat ui",
+      "ranking": 46,
+      "selected": false
+    },
+    {
+      "feature": "skill_hang nong",
+      "ranking": 46,
+      "selected": false
+    },
+    {
+      "feature": "skill_bao",
+      "ranking": 46,
+      "selected": false
+    },
+    {
+      "feature": "skill_gia may",
+      "ranking": 46,
+      "selected": false
+    },
+    {
+      "feature": "skill_giat",
+      "ranking": 47,
+      "selected": false
+    },
+    {
+      "feature": "skill_duong xe",
+      "ranking": 47,
+      "selected": false
+    },
+    {
+      "feature": "skill_gia",
+      "ranking": 47,
+      "selected": false
+    },
+    {
+      "feature": "skill_dung đoc",
+      "ranking": 47,
+      "selected": false
+    },
+    {
+      "feature": "skill_duong",
+      "ranking": 47,
+      "selected": false
+    },
+    {
+      "feature": "skill_bartender pccc",
+      "ranking": 48,
+      "selected": false
+    },
+    {
+      "feature": "skill_bartender lap",
+      "ranking": 48,
+      "selected": false
+    },
+    {
+      "feature": "skill_an pha",
+      "ranking": 48,
+      "selected": false
+    },
+    {
+      "feature": "skill_bartender ban",
+      "ranking": 48,
+      "selected": false
+    },
+    {
+      "feature": "skill_bartender chan",
+      "ranking": 48,
+      "selected": false
+    },
+    {
+      "feature": "skill_đat su",
+      "ranking": 49,
+      "selected": false
+    },
+    {
+      "feature": "skill_xe xay",
+      "ranking": 49,
+      "selected": false
+    },
+    {
+      "feature": "job_lao",
+      "ranking": 49,
+      "selected": false
+    },
+    {
+      "feature": "job_kho",
+      "ranking": 49,
+      "selected": false
+    },
+    {
+      "feature": "skill_ban ve",
+      "ranking": 49,
+      "selected": false
+    }
+  ],
+  "top_features": [
+    "age",
+    "experience_years",
+    "barrier_health",
+    "skill_density.1",
+    "skill_vu",
+    "skill_chan nuoi",
+    "skill_đo",
+    "total_barriers",
+    "exp_ratio",
+    "salary_per_exp",
+    "target_salary",
+    "age_squared",
+    "skill_density",
+    "barrier_weighted",
+    "age_exp_product",
+    "experience_age_ratio",
+    "risk_score_proxy",
+    "is_male",
+    "skills_count",
+    "is_female"
+  ],
+  "method": "RFE with RandomForest",
+  "n_selected": 20
+}

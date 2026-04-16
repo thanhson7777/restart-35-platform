@@ -128,7 +128,8 @@ const updateUserStatus = async (userId, dataToUpdate) => {
 
 const countTotalUsers = async () => {
   try {
-    return await GET_DB().collection(USER_COLLECTION_NAME).countDocuments({ role: 'customer' })
+    // Count all users except admin role
+    return await GET_DB().collection(USER_COLLECTION_NAME).countDocuments({ role: { $ne: 'admin' } })
   } catch (error) { throw error }
 }
 

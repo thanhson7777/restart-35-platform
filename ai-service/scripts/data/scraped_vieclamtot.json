@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "source": "Vieclamtot",
+    "scraped_at": "2026-04-15T08:58:03.197127",
+    "count": 0,
+    "categories": [
+      "cong_nhan",
+      "tai_xe",
+      "phuc_vu",
+      "lao_dong",
+      "bao_ve",
+      "kinh_doanh"
+    ],
+    "stats": {
+      "requests_made": 0,
+      "requests_failed": 0,
+      "bytes_downloaded": 0,
+      "pages_scraped": 0,
+      "jobs_found": 0,
+      "rate_limit_hits": 0,
+      "blocked_attempts": 0
+    }
+  },
+  "jobs": []
+}

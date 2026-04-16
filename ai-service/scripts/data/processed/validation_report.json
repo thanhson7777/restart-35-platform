@@ -1,0 +1,111 @@
+{
+  "timestamp": "2026-04-16T00:24:00.608295",
+  "file": "D:\\LUAN_VAN\\restart-35-platform\\ai-service\\scripts\\data\\processed\\workers_clean_test.csv",
+  "summary": {
+    "total_rows": 100,
+    "total_columns": 37,
+    "issues_count": {
+      "errors": 0,
+      "warnings": 6,
+      "infos": 0
+    },
+    "status": "PASS_WITH_WARNINGS"
+  },
+  "checks": {
+    "missing_values": {
+      "total_missing": 0,
+      "columns_with_missing": {}
+    },
+    "outliers": {
+      "columns_with_outliers": {
+        "total_barriers": {
+          "count": 6,
+          "percentage": 6.0,
+          "lower_bound": -1.5,
+          "upper_bound": 2.5,
+          "min": 0.0,
+          "max": 3.0,
+          "severity": "warning"
+        },
+        "barrier_health": {
+          "count": 19,
+          "percentage": 19.0,
+          "lower_bound": 0.0,
+          "upper_bound": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "severity": "warning"
+        },
+        "barrier_family": {
+          "count": 18,
+          "percentage": 18.0,
+          "lower_bound": 0.0,
+          "upper_bound": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "severity": "warning"
+        },
+        "barrier_location": {
+          "count": 16,
+          "percentage": 16.0,
+          "lower_bound": 0.0,
+          "upper_bound": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "severity": "warning"
+        },
+        "barrier_other": {
+          "count": 14,
+          "percentage": 14.0,
+          "lower_bound": 0.0,
+          "upper_bound": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "severity": "warning"
+        }
+      }
+    },
+    "range_validity": {
+      "invalid_values": {}
+    },
+    "class_distribution": {
+      "distribution": {
+        "low": {
+          "count": 64,
+          "percentage": 64.0
+        },
+        "medium": {
+          "count": 30,
+          "percentage": 30.0
+        },
+        "high": {
+          "count": 6,
+          "percentage": 6.0
+        }
+      },
+      "imbalance_detected": true,
+      "imbalance_ratio": 10.67
+    },
+    "duplicates": {
+      "total_duplicates": 0,
+      "duplicate_ids": 0
+    },
+    "data_consistency": {
+      "inconsistencies": []
+    },
+    "correlations": {
+      "high_correlations": [
+        {
+          "feature_pair": "age - experience_years",
+          "correlation": 0.812,
+          "severity": "info"
+        },
+        {
+          "feature_pair": "experience_years - target_salary",
+          "correlation": 0.895,
+          "severity": "info"
+        }
+      ]
+    }
+  }
+}
