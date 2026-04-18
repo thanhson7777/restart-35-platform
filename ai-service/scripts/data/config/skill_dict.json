@@ -1,0 +1,143 @@
+{
+    "skill_aliases": {
+        "js": "javascript",
+        "ts": "typescript",
+        "py": "python",
+        "react.js": "react",
+        "reactjs": "react",
+        "vue.js": "vue",
+        "vuejs": "vue",
+        "node.js": "nodejs",
+        "nodejs": "nodejs",
+        "node": "nodejs",
+        "angular.js": "angular",
+        "angularjs": "angular",
+        "ng": "angular",
+        "c#": "csharp",
+        "c++": "cpp",
+        "php": "php",
+        "laravel": "laravel",
+        "django": "django",
+        "flask": "flask",
+        "spring": "spring",
+        "spring boot": "spring boot",
+        "springboot": "spring boot",
+        "mysql": "mysql",
+        "postgres": "postgresql",
+        "postgre": "postgresql",
+        "mongodb": "mongodb",
+        "mongo": "mongodb",
+        "redis": "redis",
+        "docker": "docker",
+        "k8s": "kubernetes",
+        "kubernetes": "kubernetes",
+        "aws": "amazon web services",
+        "azure": "microsoft azure",
+        "gcp": "google cloud platform",
+        "figma": "figma",
+        "photoshop": "adobe photoshop",
+        "illustrator": "adobe illustrator",
+        "excel": "microsoft excel",
+        "word": "microsoft word",
+        "ppt": "powerpoint",
+        "powerpoint": "powerpoint",
+        "ml": "machine learning",
+        "ai": "artificial intelligence",
+        "nlp": "natural language processing",
+        "cv": "computer vision",
+        "devops": "devops",
+        "ci/cd": "ci/cd",
+        "git": "git",
+        "github": "github",
+        "gitlab": "gitlab",
+        "rest api": "rest api",
+        "rest": "rest api",
+        "api": "rest api",
+        "graphql": "graphql",
+        "sql": "sql",
+        "html": "html",
+        "css": "css",
+        "sass": "sass",
+        "scss": "sass",
+        "linux": "linux",
+        "ubuntu": "ubuntu",
+        "windows": "windows server",
+        "photoshop": "adobe photoshop",
+        "premiere": "adobe premiere",
+        "seo": "seo",
+        "ga": "google analytics",
+        "fb ads": "facebook ads",
+        "facebook ads": "facebook ads",
+        "tiktok ads": "tiktok ads",
+        "google ads": "google ads",
+        "ads": "advertising",
+        "marketing": "digital marketing",
+        "content": "content marketing",
+        "copywriting": "copywriting",
+        "sale": "sales",
+        "sales": "sales",
+        "hr": "human resources",
+        "accounting": "accounting",
+        "finance": "finance",
+        "banking": "banking",
+        "insurance": "insurance",
+        "retail": "retail",
+        "fmcg": "fmcg",
+        "manufacturing": "manufacturing",
+        "logistics": "logistics",
+        "supply chain": "supply chain",
+        "warehouse": "warehouse",
+        "qc": "quality control",
+        "qa": "quality assurance",
+        "testing": "software testing",
+        "automation": "automation",
+        "pm": "project management",
+        "product": "product management",
+        "ux": "user experience",
+        "ui": "user interface",
+        "design": "design",
+        "graphic": "graphic design",
+        "video": "video editing"
+    },
+    "skill_categories": {
+        "programming_languages": [
+            "python", "javascript", "typescript", "java", "csharp", "cpp", "c", "ruby", "go", "rust", "php", "swift", "kotlin", "scala", "r"
+        ],
+        "frontend": [
+            "react", "vue", "angular", "html", "css", "sass", "javascript", "typescript", "nextjs", "nuxt", "svelte"
+        ],
+        "backend": [
+            "nodejs", "django", "flask", "spring boot", "express", "fastapi", "laravel", "rails", "asp.net"
+        ],
+        "database": [
+            "mysql", "postgresql", "mongodb", "redis", "elasticsearch", "sqlite", "mariadb", "oracle", "sql server"
+        ],
+        "devops": [
+            "docker", "kubernetes", "jenkins", "github actions", "gitlab ci", "terraform", "ansible", "linux", "aws", "azure", "gcp"
+        ],
+        "data_science": [
+            "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "numpy", "scikit-learn", "statistics", "data analysis"
+        ],
+        "mobile": [
+            "react native", "flutter", "swift", "kotlin", "android", "ios", "xamarin"
+        ],
+        "soft_skills": [
+            "communication", "teamwork", "problem solving", "leadership", "time management", "critical thinking"
+        ],
+        "business": [
+            "sales", "marketing", "finance", "accounting", "hr", "project management", "business analysis"
+        ],
+        "design": [
+            "figma", "adobe photoshop", "adobe illustrator", "graphic design", "ui design", "ux design", "video editing"
+        ]
+    },
+    "exclude_words": [
+        "năm", "years", "year", "yr", "kinh nghiệm", "experience", "trình", "level", "tốt nghiệp", "graduate",
+        "tuổi", "age", "tháng", "month", "lương", "salary", "địa điểm", "location", "thời gian", "time",
+        "công ty", "company", "doanh nghiệp", "enterprise", "văn phòng", "office", "tại", "at", "ở", "in",
+        "hoặc", "or", "và", "and", "hoặc", "either", "có", "have", "không", "without", "cần", "need",
+        "yêu cầu", "requirement", "phúc lợi", "benefit", "bonus", "insurance", " allowance"
+    ],
+    "min_skill_length": 2,
+    "max_skill_length": 50
+}

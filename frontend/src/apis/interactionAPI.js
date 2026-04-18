@@ -3,7 +3,7 @@
  * Phục vụ ML system - theo dõi hành vi người dùng
  *
  * Frontend gọi Backend Node.js -> Backend ghi vào MongoDB (user_interactions collection)
- * Dữ liệu này sau đó được dùng cho Collaborative Filtering
+ * Dữ liệu này sau đó được dùng cho Collaborative Filtering & ML Training
  */
 
 import { authorizeAxiosInstance, publicAxiosInstance } from '~/utils/authorizeAxios'
@@ -11,6 +11,10 @@ import { API_ROOT } from '~/utils/constants'
 
 // Base URL cho Interaction endpoints
 const INTERACTION_BASE_URL = `${API_ROOT}/v1/interactions`
+
+// ============================================================
+// CONSTANTS
+// ============================================================
 
 /**
  * Action types cho interaction tracking
@@ -26,6 +30,30 @@ export const INTERACTION_ACTIONS = {
 }
 
 /**
+ * Recommendation methods (how job was recommended)
+ */
+export const RECOMMENDATION_METHODS = {
+  CF: 'cf',             // Collaborative Filtering
+  CONTENT: 'content',   // Content-based
+  SEMANTIC: 'semantic', // Semantic search
+  HYBRID: 'hybrid'     // Hybrid approach
+}
+
+/**
+ * Time of day categories
+ */
+export const TIME_OF_DAY = {
+  MORNING: 'morning',     // 5:00 - 11:59
+  AFTERNOON: 'afternoon', // 12:00 - 17:59
+  EVENING: 'evening',    // 18:00 - 21:59
+  NIGHT: 'night'         // 22:00 - 4:59
+}
+
+// ============================================================
+// CORE API FUNCTIONS
+// ============================================================
+
+/**
  * Ghi nhận một interaction từ user
  *
  * @param {Object} params - Interaction data
@@ -35,9 +63,17 @@ export const INTERACTION_ACTIONS = {
  * @param {string} [params.jobTitle] - Job title để lưu trữ
  * @param {string} [params.companyName] - Company name để lưu trữ
  * @param {Object} [params.context] - Context data (page, position, sessionId)
- * @param {number} [params.viewDuration] - Thời gian view (ms)
+ * @param {number} [params.viewDuration] - Thời gian view (seconds)
+ * @param {number} [params.scrollDepth] - Scroll depth (0-1)
+ * @param {boolean} [params.returnVisit] - User đã xem job này trước đó
+ * @param {string} [params.timeOfDay] - morning/afternoon/evening/night
+ * @param {string} [params.dayOfWeek] - monday-sunday
+ * @param {number} [params.sessionDuration] - Thời gian trong session (seconds)
+ * @param {number} [params.recommendationPosition] - Vị trí trong danh sách (1-50)
+ * @param {string} [params.recommendationMethod] - cf/content/semantic/hybrid
+ * @param {string} [params.experimentVariant] - A/B test variant
+ * @param {Object} [params.device] - Device info (platform, browser, mobile)
  * @param {Object} [params.metadata] - Job metadata (category, location, salary)
- * @param {Object} [params.device] - Device info (platform, browser)
  * @returns {Promise<Object>} - Created interaction
  */
 export const trackInteractionAPI = async ({
@@ -48,8 +84,19 @@ export const trackInteractionAPI = async ({
   action,
   context = {},
   viewDuration = 0,
-  metadata = {},
-  device = {}
+  scrollDepth = 0,
+  returnVisit = false,
+  hoverDuration = 0,
+  searchRefine = false,
+  timeOfDay = 'morning',
+  dayOfWeek = 'monday',
+  sessionDuration = 0,
+  previousInteractionsCount = 0,
+  recommendationPosition = 1,
+  recommendationMethod = 'content',
+  experimentVariant = null,
+  device = {},
+  metadata = {}
 }) => {
   if (!userId || !jobId || !action) {
     throw new Error('userId, jobId, và action là bắt buộc')
@@ -63,8 +110,19 @@ export const trackInteractionAPI = async ({
     action,
     context,
     viewDuration,
-    metadata,
-    device
+    scrollDepth,
+    returnVisit,
+    hoverDuration,
+    searchRefine,
+    timeOfDay,
+    dayOfWeek,
+    sessionDuration,
+    previousInteractionsCount,
+    recommendationPosition,
+    recommendationMethod,
+    experimentVariant,
+    device,
+    metadata
   }
 
   const response = await authorizeAxiosInstance.post(

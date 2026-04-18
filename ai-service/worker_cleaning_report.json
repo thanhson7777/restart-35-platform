@@ -1,0 +1,50 @@
+{
+  "started_at": "2026-04-19T00:30:25.002082",
+  "completed_at": "2026-04-19T00:30:25.003352",
+  "total_input": 0,
+  "total_output": 0,
+  "stages_completed": [
+    "age_validation",
+    "education_mapping",
+    "skills_normalization",
+    "barrier_calculation",
+    "region_mapping",
+    "validation"
+  ],
+  "stage_age_validation": {
+    "fixed": 0
+  },
+  "stage_education_mapping": {
+    "mapped": 0
+  },
+  "stage_skills_normalization": {
+    "normalized": 0
+  },
+  "stage_barrier_calculation": {
+    "calculated": 0
+  },
+  "stage_region_mapping": {
+    "mapped": 0
+  },
+  "stage_validation": {
+    "valid": 0,
+    "invalid_removed": 0
+  },
+  "invalid_removed": 0,
+  "age_fixed": 0,
+  "skills_normalized": 0,
+  "barriers_calculated": 0,
+  "education_mapped": 0,
+  "region_mapped": 0,
+  "age_distribution": {},
+  "education_distribution": {},
+  "region_distribution": {},
+  "employment_distribution": {},
+  "barrier_distribution": {
+    "low": 0,
+    "medium": 0,
+    "high": 0
+  },
+  "errors": [],
+  "warnings": []
+}

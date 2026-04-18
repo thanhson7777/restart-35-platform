@@ -297,6 +297,8 @@ const AIRecommendations = ({
               onApply={handleApply}
               size="md"
               userId={userId}
+              position={index + 1}     // Vị trí trong danh sách (ML feature)
+              method="hybrid"           // AI hybrid recommendation (ML feature)
             />
           ))}
         </div>

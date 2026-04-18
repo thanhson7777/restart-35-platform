@@ -12,6 +12,33 @@ export const INTERACTION_TYPES = {
   SAVE: 'save'
 }
 
+// ============ RECOMMENDATION METHODS ============
+export const RECOMMENDATION_METHODS = {
+  CF: 'cf',           // Collaborative Filtering
+  CONTENT: 'content', // Content-based
+  SEMANTIC: 'semantic', // Semantic search
+  HYBRID: 'hybrid'   // Hybrid approach
+}
+
+// ============ TIME OF DAY ============
+export const TIME_OF_DAY = {
+  MORNING: 'morning',     // 5:00 - 11:59
+  AFTERNOON: 'afternoon', // 12:00 - 17:59
+  EVENING: 'evening',    // 18:00 - 21:59
+  NIGHT: 'night'         // 22:00 - 4:59
+}
+
+// ============ DAY OF WEEK ============
+export const DAY_OF_WEEK = {
+  MONDAY: 'monday',
+  TUESDAY: 'tuesday',
+  WEDNESDAY: 'wednesday',
+  THURSDAY: 'thursday',
+  FRIDAY: 'friday',
+  SATURDAY: 'saturday',
+  SUNDAY: 'sunday'
+}
+
 // ============ ACTION WEIGHTS (for implicit feedback) ============
 export const INTERACTION_WEIGHTS = {
   [INTERACTION_TYPES.APPLY]: 5.0,     // Strongest signal
@@ -23,6 +50,98 @@ export const INTERACTION_WEIGHTS = {
 }
 
 const INTERACTION_COLLECTION_NAME = 'user_interactions'
+
+// ============ IMPLICIT FEEDBACK SCORING ============
+
+/**
+ * Tính implicit feedback score từ interaction data
+ * Dùng để train ML models
+ * 
+ * Signal weights:
+ * - apply: 5.0 (strongest positive)
+ * - bookmark: 4.0
+ * - click: 2.0
+ * - view: 1.0
+ * - skip: 0.0
+ * 
+ * Engagement modifiers:
+ * - viewDuration > 30s: +0.5
+ * - scrollDepth > 0.8: +0.3
+ * - returnVisit: -0.2 (already seen, less valuable)
+ * - high position (1-3): +0.1
+ */
+export const calculateImplicitFeedbackScore = (interaction) => {
+  const baseScore = INTERACTION_WEIGHTS[interaction.action] || 0
+  
+  let modifier = 0
+  
+  // View duration modifier (more engagement = higher score)
+  if (interaction.viewDuration > 60) {
+    modifier += 0.5  // Very engaged
+  } else if (interaction.viewDuration > 30) {
+    modifier += 0.3  // Moderately engaged
+  } else if (interaction.viewDuration > 10) {
+    modifier += 0.1  // Light engagement
+  }
+  
+  // Scroll depth modifier
+  if (interaction.scrollDepth > 0.8) {
+    modifier += 0.3  // Read most of job details
+  } else if (interaction.scrollDepth > 0.5) {
+    modifier += 0.1  // Partial read
+  }
+  
+  // Return visit penalty (already seen = less valuable signal)
+  if (interaction.returnVisit) {
+    modifier -= 0.2
+  }
+  
+  // Position modifier (top positions slightly more valuable)
+  const position = interaction.recommendationPosition || interaction.context?.position || 10
+  if (position <= 3) {
+    modifier += 0.1
+  }
+  
+  return Math.max(0, Math.min(5, baseScore + modifier))
+}
+
+/**
+ * Tính engagement level từ interaction
+ * Dùng để phân loại user engagement
+ */
+export const getEngagementLevel = (interaction) => {
+  const score = calculateImplicitFeedbackScore(interaction)
+  
+  if (score >= 4) return 'high'
+  if (score >= 2) return 'medium'
+  return 'low'
+}
+
+/**
+ * Xác định user intent từ interaction sequence
+ */
+export const inferUserIntent = (interactionSequence) => {
+  if (!interactionSequence || interactionSequence.length === 0) {
+    return 'unknown'
+  }
+  
+  const lastAction = interactionSequence[interactionSequence.length - 1].action
+  
+  switch (lastAction) {
+    case 'apply':
+      return 'ready_to_apply'
+    case 'click':
+      return 'researching'
+    case 'bookmark':
+      return 'comparing'
+    case 'skip':
+      return 'not_interested'
+    case 'view':
+      return 'browsing'
+    default:
+      return 'unknown'
+  }
+}
 const INTERACTION_COLLECTION_SCHEMA = Joi.object({
   userId: Joi.string().required(),
   jobId: Joi.string().required(),
@@ -39,10 +158,64 @@ const INTERACTION_COLLECTION_SCHEMA = Joi.object({
     referrer: Joi.string().allow('', null)
   }).default({}),
 
-  // Duration tracking (for view time)
+  // Duration tracking (for view time) - in seconds
   viewDuration: Joi.number().integer().min(0).default(0),
 
-  // Metadata
+  // === IMPLICIT FEEDBACK SIGNALS (ML Features) ===
+  
+  // Scroll depth: 0-1 (how far user scrolled)
+  scrollDepth: Joi.number().min(0).max(1).default(0),
+  
+  // Hover duration: seconds user hovered on job card
+  hoverDuration: Joi.number().integer().min(0).default(0),
+  
+  // Return visit: user viewed this job before
+  returnVisit: Joi.boolean().default(false),
+  
+  // Search refine: user changed search after seeing this job
+  searchRefine: Joi.boolean().default(false),
+
+  // === ENHANCED CONTEXT (ML Features) ===
+  
+  // Time context
+  timeOfDay: Joi.string().valid(
+    TIME_OF_DAY.MORNING,
+    TIME_OF_DAY.AFTERNOON,
+    TIME_OF_DAY.EVENING,
+    TIME_OF_DAY.NIGHT
+  ).default('morning'),
+  
+  dayOfWeek: Joi.string().valid(
+    DAY_OF_WEEK.MONDAY,
+    DAY_OF_WEEK.TUESDAY,
+    DAY_OF_WEEK.WEDNESDAY,
+    DAY_OF_WEEK.THURSDAY,
+    DAY_OF_WEEK.FRIDAY,
+    DAY_OF_WEEK.SATURDAY,
+    DAY_OF_WEEK.SUNDAY
+  ).default('monday'),
+  
+  // Session context
+  sessionDuration: Joi.number().integer().min(0).default(0),
+  previousInteractionsCount: Joi.number().integer().min(0).default(0),
+
+  // === FEATURE FLAGS (A/B Testing & Experimentation) ===
+  
+  // Position in recommendation list (1-50)
+  recommendationPosition: Joi.number().integer().min(1).max(50).default(1),
+  
+  // How this job was recommended
+  recommendationMethod: Joi.string().valid(
+    RECOMMENDATION_METHODS.CF,
+    RECOMMENDATION_METHODS.CONTENT,
+    RECOMMENDATION_METHODS.SEMANTIC,
+    RECOMMENDATION_METHODS.HYBRID
+  ).default(RECOMMENDATION_METHODS.CONTENT),
+  
+  // A/B test variant identifier
+  experimentVariant: Joi.string().allow('', null).default(null),
+
+  // === METADATA ===
   metadata: Joi.object({
     jobCategory: Joi.string().allow('', null),
     jobLocation: Joi.string().allow('', null),
@@ -51,11 +224,19 @@ const INTERACTION_COLLECTION_SCHEMA = Joi.object({
     jobType: Joi.string().allow('', null)
   }).default({}),
 
-  // Device info
+  // === DEVICE INFO ===
   device: Joi.object({
     platform: Joi.string().allow('', null),
-    browser: Joi.string().allow('', null)
+    browser: Joi.string().allow('', null),
+    mobile: Joi.boolean().default(false)
   }).default({}),
+
+  // === OUTCOME TRACKING (nullable - fill later) ===
+  // These fields are filled when outcome is known
+  appliedAt: Joi.date().timestamp('javascript').allow(null).default(null),
+  interviewedAt: Joi.date().timestamp('javascript').allow(null).default(null),
+  hiredAt: Joi.date().timestamp('javascript').allow(null).default(null),
+  rejectedAt: Joi.date().timestamp('javascript').allow(null).default(null),
 
   // Timestamps
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
@@ -550,7 +731,16 @@ export const interactionModel = {
   INTERACTION_COLLECTION_NAME,
   INTERACTION_TYPES,
   INTERACTION_WEIGHTS,
+  RECOMMENDATION_METHODS,
+  TIME_OF_DAY,
+  DAY_OF_WEEK,
 
+  // Helper functions
+  calculateImplicitFeedbackScore,
+  getEngagementLevel,
+  inferUserIntent,
+
+  // CRUD operations
   createNew,
   createMany,
   findByUserId,
