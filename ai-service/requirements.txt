@@ -8,3 +8,7 @@ numpy>=2.0.0
 # Semantic Search
 sentence-transformers>=2.2.0
 torch>=2.0.0
+
+# LLM APIs (Job Enrichment - FREE)
+google-genai>=0.8.0
+groq>=0.4.0

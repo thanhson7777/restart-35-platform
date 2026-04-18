@@ -5,11 +5,12 @@
  * - Hiển thị score matching (badge: "Rất phù hợp" / "Phù hợp")
  * - Highlight skills trùng khớp với user profile
  * - Format salary và location
+ * - ML Interaction Tracking (view, click, apply với implicit feedback)
  */
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { trackClick, trackApply, debouncedTrackView } from '~/apis/interactionAPI'
+import { interactionTracker } from '~/utils/interactionTracker'
 
 const JobCard = ({
   job,
@@ -18,7 +19,9 @@ const JobCard = ({
   showMatchDetails = true,
   size = 'md',
   userId = null,
-  isApplied = false
+  isApplied = false,
+  position = 1,           // Vị trí trong danh sách (ML feature)
+  method = 'content'      // Phương pháp gợi ý: content/semantic/cf/hybrid (ML feature)
 }) => {
   const navigate = useNavigate()
 
@@ -33,55 +36,80 @@ const JobCard = ({
     type,
     skills = [],
     score,
-    match_details
+    match_details,
+    category
   } = job || {}
 
-  // Interaction tracking handlers
-  const handleCardClick = () => {
+  // Ref để track đã view chưa (tránh track nhiều lần)
+  const hasTrackedView = useRef(false)
+
+  // ============================================================
+  // INTERACTION TRACKING - ML DATA COLLECTION
+  // ============================================================
+
+  // Track click - gọi khi user click vào card
+  const handleCardClick = useCallback(() => {
     navigate(`/jobs/${id}`)
-    if (userId) {
-      trackClick(
-        userId,
-        id,
-        title,
-        company,
-        { page: 'AIRecommendations' },
-        { jobCategory: job.category, jobLocation: location, salaryMin: salary_min, salaryMax: salary_max, jobType: type }
-      )
-    }
-  }
 
-  const handleApply = (e) => {
+    if (userId && id) {
+      interactionTracker.trackClick(userId, id, {
+        jobTitle: title,
+        companyName: company,
+        position,
+        method,
+        jobCategory: category,
+        jobLocation: location,
+        salaryMin: salary_min,
+        salaryMax: salary_max,
+        jobType: type
+      })
+    }
+  }, [userId, id, title, company, position, method, category, location, salary_min, salary_max, type, navigate])
+
+  // Track apply - gọi khi user click nút ứng tuyển
+  const handleApply = useCallback((e) => {
     e.stopPropagation()
-    if (onApply) onApply(job)
-    if (userId) {
-      trackApply(
-        userId,
-        id,
-        title,
-        company,
-        { jobCategory: job.category, jobLocation: location, salaryMin: salary_min, salaryMax: salary_max, jobType: type }
-      )
-    }
-  }
 
-  // Intersection Observer for view tracking
+    if (onApply) onApply(job)
+
+    if (userId && id) {
+      interactionTracker.trackApply(userId, id, {
+        jobTitle: title,
+        companyName: company,
+        position,
+        method,
+        jobCategory: category,
+        jobLocation: location,
+        salaryMin: salary_min,
+        salaryMax: salary_max,
+        jobType: type
+      })
+    }
+  }, [userId, id, title, company, position, method, job, onApply, category, location, salary_min, salary_max, type])
+
+  // Intersection Observer cho view tracking - gọi khi card xuất hiện trong viewport
   const cardRef = useRef(null)
+
   useEffect(() => {
     const card = cardRef.current
-    if (!card || !userId) return
+    if (!card || !userId || !id || hasTrackedView.current) return
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            debouncedTrackView(
-              userId,
-              id,
-              title,
-              company,
-              { jobCategory: job.category, jobLocation: location, salaryMin: salary_min, salaryMax: salary_max, jobType: type }
-            )
+          // Chỉ track khi card xuất hiện ít nhất 50% trong viewport
+          if (entry.isIntersecting && !hasTrackedView.current) {
+            hasTrackedView.current = true
+
+            // Debounced view tracking (2s) - tránh spam khi user scroll nhanh
+            interactionTracker.debouncedTrackView(userId, id, {
+              jobTitle: title,
+              companyName: company,
+              position,
+              method,
+              jobCategory: category,
+              jobLocation: location
+            }, 2000)
           }
         })
       },
@@ -89,8 +117,11 @@ const JobCard = ({
     )
 
     observer.observe(card)
-    return () => observer.disconnect()
-  }, [userId, id, title, company, location, salary_min, salary_max, type])
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [userId, id, title, company, position, method, category, location])
 
   if (!job) return null
 

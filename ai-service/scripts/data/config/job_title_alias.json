@@ -1,0 +1,105 @@
+{
+    "title_mappings": {
+        "nv": "nhân viên",
+        "nhanvien": "nhân viên",
+        "staff": "nhân viên",
+        "employee": "nhân viên",
+        "cv": "chuyên viên",
+        "chuyenvien": "chuyên viên",
+        "specialist": "chuyên viên",
+        "am": "account manager",
+        "account manager": "quản lý tài khoản",
+        "bm": "business manager",
+        "business manager": "quản lý kinh doanh",
+        "pm": "quản lý dự án",
+        "project manager": "quản lý dự án",
+        "tl": "team lead",
+        "team lead": "trưởng nhóm",
+        "supervisor": "giám sát",
+        "giam sat": "giám sát",
+        "quan ly": "quản lý",
+        "manager": "quản lý",
+        "director": "giám đốc",
+        "giam doc": "giám đốc",
+        "ceo": "giám đốc điều hành",
+        "cto": "giám đốc công nghệ",
+        "cfo": "giám đốc tài chính",
+        "coo": "giám đốc vận hành",
+        "intern": "thực tập sinh",
+        "fresher": "mới ra trường",
+        "junior": "nhân viên junior",
+        "senior": "nhân viên senior",
+        "leader": "trưởng nhóm",
+        "head": "trưởng phòng",
+        "truong phong": "trưởng phòng",
+        "pho phong": "phó phòng",
+        "vice head": "phó phòng"
+    },
+    "experience_levels": {
+        "intern": 0,
+        "fresher": 0,
+        "mới ra trường": 0,
+        "junior": 1,
+        "nhân viên": 2,
+        "nhân viên junior": 1,
+        "nhân viên senior": 5,
+        "senior": 5,
+        "chuyên viên": 3,
+        "trưởng nhóm": 5,
+        "team lead": 5,
+        "giám sát": 7,
+        "quản lý": 7,
+        "manager": 7,
+        "phó phòng": 8,
+        "trưởng phòng": 10,
+        "head": 10,
+        "giám đốc": 15,
+        "director": 15
+    },
+    "job_categories": {
+        "it": {
+            "keywords": ["it", "cntt", "công nghệ thông tin", "software", "hardware", "network", "mạng", "dev", "developer", "programmer", "lập trình", "data", "ai", "machine learning"],
+            "titles": ["backend developer", "frontend developer", "fullstack developer", "mobile developer", "devops engineer", "data scientist", "data engineer", "qa engineer", "tester", "system admin"]
+        },
+        "business": {
+            "keywords": ["kinh doanh", "business", "sale", "sales", "marketing", "communication", "truyền thông", "advertising", "quảng cáo", "content", "branding"],
+            "titles": ["nhân viên kinh doanh", "chuyên viên marketing", "content creator", "social media", "pr", "digital marketing", "seo", "brand manager"]
+        },
+        "finance": {
+            "keywords": ["tài chính", "finance", "accounting", "kế toán", "banking", "ngân hàng", "insurance", "bảo hiểm", "investment", "đầu tư", "audit", "kiểm toán"],
+            "titles": ["kế toán", "tài chính", "kiểm toán", "ngân hàng", "bảo hiểm", "investment banker", "financial analyst", "auditor"]
+        },
+        "hr": {
+            "keywords": ["nhân sự", "hr", "human resources", "tuyển dụng", "recruitment", "đào tạo", "training", "hành chính", "admin", "administrative"],
+            "titles": ["nhân viên nhân sự", "hr executive", "recruiter", "training manager", "admin", "hành chính"]
+        },
+        "operation": {
+            "keywords": ["vận hành", "operation", "logistics", "logistic", "kho vận", "warehouse", "supply chain", "chuỗi cung ứng", "qc", "qa", "chất lượng", "quality"],
+            "titles": ["nhân viên kho", "logistics", "qc", "qa", "supply chain", "operation manager"]
+        },
+        "design": {
+            "keywords": ["design", "thiết kế", "graphic", "đồ họa", "ui", "ux", "video", "animation", "hoạt hình", "photography", "nhiếp ảnh"],
+            "titles": ["graphic designer", "ui designer", "ux designer", "video editor", "motion designer", "photographer"]
+        },
+        "production": {
+            "keywords": ["sản xuất", "production", "manufacturing", "gmp", "quality control", "may", "cắt", "gia công", "factory", "nhà máy"],
+            "titles": ["công nhân", "supervisor", "qc", "qa", "production manager", "quality manager"]
+        },
+        "customer_service": {
+            "keywords": ["customer service", "chăm sóc khách hàng", "support", "hỗ trợ", "receptionist", "lễ tân", "telesale", "tổng đài", "call center"],
+            "titles": ["nhân viên chăm sóc khách hàng", "telesale", "receptionist", "lễ tân", "call center", "support"]
+        },
+        "education": {
+            "keywords": ["giáo dục", "education", "đào tạo", "training", "teacher", "giáo viên", "tutor", "gia sư", "academic", "học vụ"],
+            "titles": ["giáo viên", "tutor", "gia sư", "academic staff", "education manager", "training coordinator"]
+        },
+        "healthcare": {
+            "keywords": ["y tế", "healthcare", "medical", "bệnh viện", "hospital", "pharmacy", "dược", "nurse", "y tá", "doctor", "bác sĩ"],
+            "titles": ["bác sĩ", "y tá", "dược sĩ", "pharmacy", "medical staff", "hospital admin"]
+        },
+        "construction": {
+            "keywords": ["xây dựng", "construction", "building", "kiến trúc", "architecture", "engineer", "kỹ sư", "civil", "cơ điện", "mechanical", "electrical"],
+            "titles": ["kỹ sư xây dựng", "kỹ sư cơ điện", "kỹ sư civil", "architecture", "project engineer", "site manager"]
+        }
+    }
+}

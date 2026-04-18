@@ -1,0 +1,311 @@
+{
+    "cities": {
+        "hồ chí minh": {
+            "aliases": ["ho chi minh", "tp.hcm", "tp hcm", "hcm", "saigon", "saïgon", "sài gòn", "sai gon", "hochiminh", "hcm city"],
+            "region": "south_east",
+            "region_name": "Đông Nam Bộ"
+        },
+        "hà nội": {
+            "aliases": ["ha noi", "hanoi", "hn", "tp.hn", "tp hn", "thủ đô", "thu do", "capital"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "đà nẵng": {
+            "aliases": ["da nang", "danang", "đắk lắk", "dak lak"],
+            "region": "central",
+            "region_name": "Duyên hải Nam Trung Bộ"
+        },
+        "bình dương": {
+            "aliases": ["binh duong", "bình định", "binh dinh", "bd"],
+            "region": "south_east",
+            "region_name": "Đông Nam Bộ"
+        },
+        "đồng nai": {
+            "aliases": ["dong nai", "dn"],
+            "region": "south_east",
+            "region_name": "Đông Nam Bộ"
+        },
+        "bắc ninh": {
+            "aliases": ["bac ninh", "bn"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "hải phòng": {
+            "aliases": ["hai phong", "hp"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "hải dương": {
+            "aliases": ["hai duong"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "long an": {
+            "aliases": ["long an", "la"],
+            "region": "south_east",
+            "region_name": "Đông Nam Bộ"
+        },
+        "vũng tàu": {
+            "aliases": ["vung tau", "vung tàu", "bà rịa", "ba ria"],
+            "region": "south_east",
+            "region_name": "Đông Nam Bộ"
+        },
+        "cần thơ": {
+            "aliases": ["can tho", "cantho", "ct"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "kiên giang": {
+            "aliases": ["kien giang", "rạch giá"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "an giang": {
+            "aliases": ["an giang", "châu đốc"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "tiền giang": {
+            "aliases": ["tien giang", "mỹ tho"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "đồng tháp": {
+            "aliases": ["dong thap", "cao lãnh"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "vĩnh long": {
+            "aliases": ["vinh long", "vl"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "bến tre": {
+            "aliases": ["ben tre", "bentre"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "trà vinh": {
+            "aliases": ["tra vinh", "travinh"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "sóc trăng": {
+            "aliases": ["soc trang", "soctrang"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "bạc liêu": {
+            "aliases": ["bac lieu", "baclieu"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "cà mau": {
+            "aliases": ["ca mau", "camau"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "hậu giang": {
+            "aliases": ["hau giang", "haugiang"],
+            "region": "mekong",
+            "region_name": "Đồng Bằng Sông Cửu Long"
+        },
+        "nam định": {
+            "aliases": ["nam dinh", "namdinh"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "thái bình": {
+            "aliases": ["thai binh", "thaibinh", "tb"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "ninh bình": {
+            "aliases": ["ninh binh", "ninhbinh"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "thanh hóa": {
+            "aliases": ["thanh hoa", "thanhhoa"],
+            "region": "north",
+            "region_name": "Bắc Trung Bộ"
+        },
+        "nghệ an": {
+            "aliases": ["nghe an", "nghean", "vinh"],
+            "region": "north",
+            "region_name": "Bắc Trung Bộ"
+        },
+        "hà tĩnh": {
+            "aliases": ["ha tinh", "hatinh"],
+            "region": "north",
+            "region_name": "Bắc Trung Bộ"
+        },
+        "quảng bình": {
+            "aliases": ["quang binh", "quangbinh"],
+            "region": "central",
+            "region_name": "Bắc Trung Bộ"
+        },
+        "quảng trị": {
+            "aliases": ["quang tri", "quangtri"],
+            "region": "central",
+            "region_name": "Bắc Trung Bộ"
+        },
+        "thừa thiên huế": {
+            "aliases": ["thua thien hue", "hue", "huế"],
+            "region": "central",
+            "region_name": "Bắc Trung Bộ"
+        },
+        "quảng nam": {
+            "aliases": ["quang nam", "quangnam"],
+            "region": "central",
+            "region_name": "Duyên hải Nam Trung Bộ"
+        },
+        "quảng ngãi": {
+            "aliases": ["quang ngai", "quangngai"],
+            "region": "central",
+            "region_name": "Duyên hải Nam Trung Bộ"
+        },
+        "bình định": {
+            "aliases": ["binh dinh", "quy nhơn"],
+            "region": "central",
+            "region_name": "Duyên hải Nam Trung Bộ"
+        },
+        "phú yên": {
+            "aliases": ["phu yen", "phuyen"],
+            "region": "central",
+            "region_name": "Duyên hải Nam Trung Bộ"
+        },
+        "khánh hòa": {
+            "aliases": ["khanh hoa", "khanhhoa", "nha trang"],
+            "region": "central",
+            "region_name": "Duyên hải Nam Trung Bộ"
+        },
+        "ninh thuận": {
+            "aliases": ["ninh thuan", "ninhtthuan"],
+            "region": "central",
+            "region_name": "Duyên hải Nam Trung Bộ"
+        },
+        "bình thuận": {
+            "aliases": ["binh thuan", "binhthuan", "phan thiet"],
+            "region": "central",
+            "region_name": "Duyên hải Nam Trung Bộ"
+        },
+        "tây ninh": {
+            "aliases": ["tay ninh", "taynin"],
+            "region": "south_east",
+            "region_name": "Đông Nam Bộ"
+        },
+        "bình phước": {
+            "aliases": ["binh phuoc", "binhphuoc"],
+            "region": "south_east",
+            "region_name": "Đông Nam Bộ"
+        },
+        "lâm đồng": {
+            "aliases": ["lam dong", "lamdong", "đà lạt", "da lat"],
+            "region": "central_highlands",
+            "region_name": "Tây Nguyên"
+        },
+        "đắk lắk": {
+            "aliases": ["dak lak", "daklak", "buon ma thuot"],
+            "region": "central_highlands",
+            "region_name": "Tây Nguyên"
+        },
+        "đắk nông": {
+            "aliases": ["dak nong", "daknon"],
+            "region": "central_highlands",
+            "region_name": "Tây Nguyên"
+        },
+        "gia lai": {
+            "aliases": ["gia lai", "gialai", "pleiku"],
+            "region": "central_highlands",
+            "region_name": "Tây Nguyên"
+        },
+        "kon tum": {
+            "aliases": ["kon tum", "kontum"],
+            "region": "central_highlands",
+            "region_name": "Tây Nguyên"
+        },
+        "hưng yên": {
+            "aliases": ["hung yen", "hungyen"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "hà nam": {
+            "aliases": ["ha nam", "hanam"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "phú thọ": {
+            "aliases": ["phu tho", "phuthọ"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "vĩnh phúc": {
+            "aliases": ["vinh phuc", "vinhphuc"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "bắc giang": {
+            "aliases": ["bac giang", "bacgiang"],
+            "region": "north",
+            "region_name": "Đồng Bằng Sông Hồng"
+        },
+        "lạng sơn": {
+            "aliases": ["lang son", "langson"],
+            "region": "north",
+            "region_name": "Đông Bắc Bộ"
+        },
+        "quảng ninh": {
+            "aliases": ["quang ninh", "quangninh", "hạ long", "ha long"],
+            "region": "north",
+            "region_name": "Đông Bắc Bộ"
+        },
+        "thái nguyên": {
+            "aliases": ["thai nguyen", "thainguyen"],
+            "region": "north",
+            "region_name": "Đông Bắc Bộ"
+        },
+        "lào cai": {
+            "aliases": ["lao cai", "laocai", "sa pa"],
+            "region": "north",
+            "region_name": "Tây Bắc Bộ"
+        },
+        "yên bái": {
+            "aliases": ["yen bai", "yenbai"],
+            "region": "north",
+            "region_name": "Tây Bắc Bộ"
+        },
+        "hòa bình": {
+            "aliases": ["hoa binh", "hoabinh"],
+            "region": "north",
+            "region_name": "Tây Bắc Bộ"
+        }
+    },
+    "regions": {
+        "north": {
+            "name": "Miền Bắc",
+            "cities": ["hà nội", "hải phòng", "hải dương", "bắc ninh", "nam định", "thái bình", "ninh bình", "thanh hóa", "nghệ an", "hà tĩnh", "hưng yên", "hà nam", "phú thọ", "vĩnh phúc", "bắc giang", "lạng sơn", "quảng ninh", "thái nguyên", "lào cai", "yên bái", "hòa bình"]
+        },
+        "central": {
+            "name": "Miền Trung",
+            "cities": ["đà nẵng", "quảng bình", "quảng trị", "thừa thiên huế", "quảng nam", "quảng ngãi", "bình định", "phú yên", "khánh hòa", "ninh thuận", "bình thuận"]
+        },
+        "south_east": {
+            "name": "Đông Nam Bộ",
+            "cities": ["hồ chí minh", "bình dương", "đồng nai", "long an", "vũng tàu", "tây ninh", "bình phước"]
+        },
+        "mekong": {
+            "name": "Đồng Bằng Sông Cửu Long",
+            "cities": ["cần thơ", "kiên giang", "an giang", "tiền giang", "đồng tháp", "vĩnh long", "bến tre", "trà vinh", "sóc trăng", "bạc liêu", "cà mau", "hậu giang"]
+        },
+        "central_highlands": {
+            "name": "Tây Nguyên",
+            "cities": ["lâm đồng", "đắk lắk", "đắk nông", "gia lai", "kon tum"]
+        }
+    },
+    "nearby_pairs": {
+        "hồ chí minh": ["bình dương", "đồng nai", "long an", "tây ninh", "bình phước"],
+        "hà nội": ["hải phòng", "hải dương", "bắc ninh", "hưng yên", "vĩnh phúc"],
+        "đà nẵng": ["quảng nam", "quảng ngãi", "thừa thiên huế"]
+    }
+}
