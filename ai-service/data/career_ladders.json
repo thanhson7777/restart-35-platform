@@ -1,0 +1,711 @@
+{
+  "metadata": {
+    "source": "labor_jobs_verified.json",
+    "total_jobs": 858,
+    "generated_at": "2026-04-17T01:53:44.586654",
+    "categories": [
+      "ban_hang",
+      "hanh_chinh",
+      "nhan_su",
+      "co_khi",
+      "lai_xe",
+      "tu_van",
+      "bao_ve",
+      "phuc_vu"
+    ]
+  },
+  "career_ladders": {
+    "bao_ve": {
+      "title": "Bảo Vệ & An Ninh",
+      "levels": [
+        {
+          "title": "Nhân Viên Bảo Vệ",
+          "level": 1,
+          "experience_min": 0,
+          "experience_max": 0,
+          "salary_min": 8500000,
+          "salary_max": 11050000,
+          "typical_years_to_reach": 0
+        },
+        {
+          "title": "Bảo Vệ Khu Vực",
+          "level": 2,
+          "experience_min": 1,
+          "experience_max": 2,
+          "salary_min": 9350000,
+          "salary_max": 12155000,
+          "typical_years_to_reach": 2
+        },
+        {
+          "title": "Trưởng Nhóm Bảo Vệ",
+          "level": 3,
+          "experience_min": 2,
+          "experience_max": 3,
+          "salary_min": 11050000,
+          "salary_max": 14365000,
+          "typical_years_to_reach": 3
+        },
+        {
+          "title": "Giám Sát Bảo Vệ",
+          "level": 4,
+          "experience_min": 3,
+          "experience_max": 5,
+          "salary_min": 12750000,
+          "salary_max": 16575000,
+          "typical_years_to_reach": 5
+        },
+        {
+          "title": "Quản Lý An Ninh",
+          "level": 5,
+          "experience_min": 5,
+          "experience_max": 8,
+          "salary_min": 15300000,
+          "salary_max": 19890000,
+          "typical_years_to_reach": 8
+        }
+      ],
+      "management_threshold": 3
+    },
+    "lai_xe": {
+      "title": "Lái Xe & Vận Tải",
+      "levels": [
+        {
+          "title": "Tài Xế",
+          "level": 1,
+          "experience_min": 0,
+          "experience_max": 0,
+          "salary_min": 14000000,
+          "salary_max": 18200000,
+          "typical_years_to_reach": 0
+        },
+        {
+          "title": "Lái Xe Kinh Nghiệm",
+          "level": 2,
+          "experience_min": 2,
+          "experience_max": 4,
+          "salary_min": 16800000,
+          "salary_max": 21840000,
+          "typical_years_to_reach": 4
+        },
+        {
+          "title": "Lái Xe Đặc Biệt",
+          "level": 3,
+          "experience_min": 4,
+          "experience_max": 6,
+          "salary_min": 19600000,
+          "salary_max": 25480000,
+          "typical_years_to_reach": 6
+        },
+        {
+          "title": "Giám Sát Vận Tải",
+          "level": 4,
+          "experience_min": 5,
+          "experience_max": 8,
+          "salary_min": 22400000,
+          "salary_max": 29120000,
+          "typical_years_to_reach": 8
+        },
+        {
+          "title": "Quản Lý Vận Tải",
+          "level": 5,
+          "experience_min": 8,
+          "experience_max": 10,
+          "salary_min": 28000000,
+          "salary_max": 36400000,
+          "typical_years_to_reach": 10
+        }
+      ],
+      "management_threshold": 5
+    },
+    "co_khi": {
+      "title": "Cơ Khí & Sản Xuất",
+      "levels": [
+        {
+          "title": "Công Nhân",
+          "level": 1,
+          "experience_min": 0,
+          "experience_max": 1,
+          "salary_min": 15000000,
+          "salary_max": 19500000,
+          "typical_years_to_reach": 1
+        },
+        {
+          "title": "Thợ Bậc",
+          "level": 2,
+          "experience_min": 1,
+          "experience_max": 3,
+          "salary_min": 18000000,
+          "salary_max": 23400000,
+          "typical_years_to_reach": 3
+        },
+        {
+          "title": "Thợ Lành Nghề",
+          "level": 3,
+          "experience_min": 3,
+          "experience_max": 5,
+          "salary_min": 21000000,
+          "salary_max": 27300000,
+          "typical_years_to_reach": 5
+        },
+        {
+          "title": "Kỹ Sư",
+          "level": 4,
+          "experience_min": 3,
+          "experience_max": 6,
+          "salary_min": 24000000,
+          "salary_max": 31200000,
+          "typical_years_to_reach": 6
+        },
+        {
+          "title": "Quản Lý Sản Xuất",
+          "level": 5,
+          "experience_min": 5,
+          "experience_max": 8,
+          "salary_min": 27000000,
+          "salary_max": 35100000,
+          "typical_years_to_reach": 8
+        },
+        {
+          "title": "Giám Đốc Sản Xuất",
+          "level": 6,
+          "experience_min": 8,
+          "experience_max": 12,
+          "salary_min": 33000000,
+          "salary_max": 42900000,
+          "typical_years_to_reach": 12
+        }
+      ],
+      "management_threshold": 3
+    },
+    "ban_hang": {
+      "title": "Bán Hàng & Kinh Doanh",
+      "levels": [
+        {
+          "title": "Nhân Viên Bán Hàng",
+          "level": 1,
+          "experience_min": 0,
+          "experience_max": 1,
+          "salary_min": 10000000,
+          "salary_max": 13000000,
+          "typical_years_to_reach": 1
+        },
+        {
+          "title": "Nhân Viên Bán Hàng Cao Cấp",
+          "level": 2,
+          "experience_min": 1,
+          "experience_max": 3,
+          "salary_min": 12000000,
+          "salary_max": 15600000,
+          "typical_years_to_reach": 3
+        },
+        {
+          "title": "Trưởng Nhóm Bán Hàng",
+          "level": 3,
+          "experience_min": 2,
+          "experience_max": 4,
+          "salary_min": 14000000,
+          "salary_max": 18200000,
+          "typical_years_to_reach": 4
+        },
+        {
+          "title": "Trưởng Phòng Kinh Doanh",
+          "level": 4,
+          "experience_min": 4,
+          "experience_max": 6,
+          "salary_min": 17000000,
+          "salary_max": 22100000,
+          "typical_years_to_reach": 6
+        },
+        {
+          "title": "Giám Đốc Kinh Doanh",
+          "level": 5,
+          "experience_min": 6,
+          "experience_max": 10,
+          "salary_min": 22000000,
+          "salary_max": 28600000,
+          "typical_years_to_reach": 10
+        }
+      ],
+      "management_threshold": 4
+    },
+    "phuc_vu": {
+      "title": "Phục Vụ & Nhà Hàng",
+      "levels": [
+        {
+          "title": "Nhân Viên Phục Vụ",
+          "level": 1,
+          "experience_min": 0,
+          "experience_max": 0,
+          "salary_min": 10000000,
+          "salary_max": 13000000,
+          "typical_years_to_reach": 0
+        },
+        {
+          "title": "Phục Vụ Cao Cấp",
+          "level": 2,
+          "experience_min": 1,
+          "experience_max": 2,
+          "salary_min": 12000000,
+          "salary_max": 15600000,
+          "typical_years_to_reach": 2
+        },
+        {
+          "title": "Đội Trưởng",
+          "level": 3,
+          "experience_min": 2,
+          "experience_max": 4,
+          "salary_min": 14000000,
+          "salary_max": 18200000,
+          "typical_years_to_reach": 4
+        },
+        {
+          "title": "Quản Lý Nhà Hàng",
+          "level": 4,
+          "experience_min": 4,
+          "experience_max": 6,
+          "salary_min": 17000000,
+          "salary_max": 22100000,
+          "typical_years_to_reach": 6
+        },
+        {
+          "title": "Giám Đốc Nhà Hàng",
+          "level": 5,
+          "experience_min": 6,
+          "experience_max": 10,
+          "salary_min": 22000000,
+          "salary_max": 28600000,
+          "typical_years_to_reach": 10
+        }
+      ],
+      "management_threshold": 4
+    },
+    "hanh_chinh": {
+      "title": "Hành Chính",
+      "levels": [
+        {
+          "title": "Nhân Viên Hành Chính",
+          "level": 1,
+          "experience_min": 0,
+          "experience_max": 1,
+          "salary_min": 12000000,
+          "salary_max": 15600000,
+          "typical_years_to_reach": 1
+        },
+        {
+          "title": "Chuyên Viên Hành Chính",
+          "level": 2,
+          "experience_min": 1,
+          "experience_max": 3,
+          "salary_min": 14400000,
+          "salary_max": 18720000,
+          "typical_years_to_reach": 3
+        },
+        {
+          "title": "Trưởng Phòng Hành Chính",
+          "level": 3,
+          "experience_min": 3,
+          "experience_max": 5,
+          "salary_min": 18000000,
+          "salary_max": 23400000,
+          "typical_years_to_reach": 5
+        },
+        {
+          "title": "Trưởng Phòng HC-NS",
+          "level": 4,
+          "experience_min": 4,
+          "experience_max": 7,
+          "salary_min": 21600000,
+          "salary_max": 28080000,
+          "typical_years_to_reach": 7
+        },
+        {
+          "title": "Giám Đốc Hành Chính",
+          "level": 5,
+          "experience_min": 7,
+          "experience_max": 12,
+          "salary_min": 27599999,
+          "salary_max": 35880000,
+          "typical_years_to_reach": 12
+        }
+      ],
+      "management_threshold": 4
+    },
+    "nhan_su": {
+      "title": "Nhân Sự & HR",
+      "levels": [
+        {
+          "title": "Nhân Viên Tuyển Dụng",
+          "level": 1,
+          "experience_min": 0,
+          "experience_max": 1,
+          "salary_min": 12000000,
+          "salary_max": 15600000,
+          "typical_years_to_reach": 1
+        },
+        {
+          "title": "Chuyên Viên Nhân Sự",
+          "level": 2,
+          "experience_min": 2,
+          "experience_max": 4,
+          "salary_min": 15600000,
+          "salary_max": 20280000,
+          "typical_years_to_reach": 4
+        },
+        {
+          "title": "Trưởng Phòng Nhân Sự",
+          "level": 3,
+          "experience_min": 4,
+          "experience_max": 6,
+          "salary_min": 19200000,
+          "salary_max": 24960000,
+          "typical_years_to_reach": 6
+        },
+        {
+          "title": "HR Manager",
+          "level": 4,
+          "experience_min": 5,
+          "experience_max": 8,
+          "salary_min": 24000000,
+          "salary_max": 31200000,
+          "typical_years_to_reach": 8
+        },
+        {
+          "title": "HR Director",
+          "level": 5,
+          "experience_min": 8,
+          "experience_max": 15,
+          "salary_min": 30000000,
+          "salary_max": 39000000,
+          "typical_years_to_reach": 15
+        }
+      ],
+      "management_threshold": 5
+    },
+    "tu_van": {
+      "title": "Tư Vấn",
+      "levels": [
+        {
+          "title": "Tư Vấn Viên",
+          "level": 1,
+          "experience_min": 0,
+          "experience_max": 1,
+          "salary_min": 13000000,
+          "salary_max": 16900000,
+          "typical_years_to_reach": 1
+        },
+        {
+          "title": "Tư Vấn Chính",
+          "level": 2,
+          "experience_min": 1,
+          "experience_max": 3,
+          "salary_min": 16900000,
+          "salary_max": 21970000,
+          "typical_years_to_reach": 3
+        },
+        {
+          "title": "Tư Vấn Cấp Cao",
+          "level": 3,
+          "experience_min": 3,
+          "experience_max": 5,
+          "salary_min": 20800000,
+          "salary_max": 27040000,
+          "typical_years_to_reach": 5
+        },
+        {
+          "title": "Trưởng Nhóm Tư Vấn",
+          "level": 4,
+          "experience_min": 4,
+          "experience_max": 7,
+          "salary_min": 24700000,
+          "salary_max": 32110000,
+          "typical_years_to_reach": 7
+        },
+        {
+          "title": "Giám Đốc Tư Vấn",
+          "level": 5,
+          "experience_min": 7,
+          "experience_max": 12,
+          "salary_min": 31200000,
+          "salary_max": 40560000,
+          "typical_years_to_reach": 12
+        }
+      ],
+      "management_threshold": 4
+    }
+  },
+  "salary_benchmarks": {
+    "bao_ve": {
+      "min": 4000000,
+      "max": 25000000,
+      "avg": 9311607.142857144,
+      "median_min": 8500000,
+      "median_max": 9500000,
+      "job_count": 56
+    },
+    "lai_xe": {
+      "min": 7000000,
+      "max": 100000000,
+      "avg": 16772839.49382716,
+      "median_min": 14000000,
+      "median_max": 15000000,
+      "job_count": 81
+    },
+    "ban_hang": {
+      "min": 1200000,
+      "max": 60000000,
+      "avg": 15700000.0,
+      "median_min": 10000000,
+      "median_max": 15000000,
+      "job_count": 86
+    },
+    "phuc_vu": {
+      "min": 2700000,
+      "max": 45000000,
+      "avg": 11467647.05882353,
+      "median_min": 10000000,
+      "median_max": 10000000,
+      "job_count": 17
+    },
+    "co_khi": {
+      "min": 7000000,
+      "max": 50000000,
+      "avg": 17200581.395348836,
+      "median_min": 15000000,
+      "median_max": 15000000,
+      "job_count": 86
+    },
+    "hanh_chinh": {
+      "min": 2000000,
+      "max": 45000000,
+      "avg": 13180952.38095238,
+      "median_min": 12000000,
+      "median_max": 12000000,
+      "job_count": 84
+    },
+    "nhan_su": {
+      "min": 1400000,
+      "max": 45000000,
+      "avg": 12683516.483516483,
+      "median_min": 12000000,
+      "median_max": 12000000,
+      "job_count": 91
+    },
+    "tu_van": {
+      "min": 2000000,
+      "max": 60000000,
+      "avg": 16003636.363636363,
+      "median_min": 13000000,
+      "median_max": 15000000,
+      "job_count": 110
+    }
+  },
+  "skills_taxonomy": {
+    "bao_ve": [
+      "An Ninh",
+      "Bảo Vệ",
+      "Bằng Lái",
+      "Chăm Sóc",
+      "Giao Tiếp",
+      "Lái Xe",
+      "Phục Vụ",
+      "Tiếng Anh"
+    ],
+    "lai_xe": [
+      "Bảo Vệ",
+      "Bằng Lái",
+      "Chăm Sóc",
+      "Excel",
+      "Giao Tiếp",
+      "Lái Xe",
+      "Phục Vụ",
+      "Tiếng Anh",
+      "Word"
+    ],
+    "ban_hang": [
+      "Bằng Lái",
+      "Chăm Sóc",
+      "English",
+      "Excel",
+      "Giao Tiếp",
+      "Internet",
+      "Lái Xe",
+      "Phục Vụ",
+      "Powerpoint",
+      "Tiếng Anh",
+      "Word"
+    ],
+    "phuc_vu": [
+      "Bảo Vệ",
+      "Chăm Sóc",
+      "Excel",
+      "Giao Tiếp",
+      "Phục Vụ",
+      "Tiếng Anh"
+    ],
+    "co_khi": [
+      "Bảo Vệ",
+      "Bằng Lái",
+      "Chăm Sóc",
+      "Excel",
+      "Giao Tiếp",
+      "Internet",
+      "Lái Xe",
+      "Phục Vụ",
+      "Powerpoint",
+      "Tiếng Anh",
+      "Word"
+    ],
+    "hanh_chinh": [
+      "An Ninh",
+      "Bảo Vệ",
+      "Bằng Lái",
+      "Chăm Sóc",
+      "English",
+      "Excel",
+      "Giao Tiếp",
+      "Internet",
+      "Lái Xe",
+      "Photoshop",
+      "Phục Vụ",
+      "Powerpoint",
+      "Tiếng Anh",
+      "Word"
+    ],
+    "nhan_su": [
+      "Bằng Lái",
+      "Chăm Sóc",
+      "Excel",
+      "Giao Tiếp",
+      "Lái Xe",
+      "Phục Vụ",
+      "Powerpoint",
+      "Tiếng Anh",
+      "Word"
+    ],
+    "tu_van": [
+      "Bằng Lái",
+      "Chăm Sóc",
+      "Excel",
+      "Giao Tiếp",
+      "Internet",
+      "Lái Xe",
+      "Phục Vụ",
+      "Powerpoint",
+      "Tiếng Anh",
+      "Word"
+    ]
+  },
+  "experience_mapping": {
+    "entry": {
+      "range": [
+        0,
+        1
+      ],
+      "description": "Mới vào nghề, cần đào tạo",
+      "typical_roles": [
+        "Nhân viên",
+        "Công nhân",
+        "Thực tập sinh"
+      ]
+    },
+    "junior": {
+      "range": [
+        1,
+        3
+      ],
+      "description": "Có kinh nghiệm cơ bản",
+      "typical_roles": [
+        "Nhân viên chính thức",
+        "Thợ bậc",
+        "Kỹ thuật viên"
+      ]
+    },
+    "mid": {
+      "range": [
+        3,
+        5
+      ],
+      "description": "Kinh nghiệm vững, có thể lead",
+      "typical_roles": [
+        "Trưởng nhóm",
+        "Chuyên viên",
+        "Thợ lành nghề"
+      ]
+    },
+    "senior": {
+      "range": [
+        5,
+        8
+      ],
+      "description": "Chuyên gia, quản lý cấp trung",
+      "typical_roles": [
+        "Quản lý",
+        "Giám sát",
+        "Senior"
+      ]
+    },
+    "expert": {
+      "range": [
+        8,
+        15
+      ],
+      "description": "Cấp cao, chiến lược",
+      "typical_roles": [
+        "Giám đốc",
+        "C-level",
+        "Chuyên gia cao cấp"
+      ]
+    }
+  },
+  "age_profiles": {
+    "young_18_30": {
+      "age_range": [
+        18,
+        30
+      ],
+      "suitable_categories": [
+        "ban_hang",
+        "phuc_vu",
+        "nhan_su"
+      ],
+      "description": "Ưu tiên người trẻ, năng động"
+    },
+    "prime_25_40": {
+      "age_range": [
+        25,
+        40
+      ],
+      "suitable_categories": [
+        "co_khi",
+        "hanh_chinh",
+        "tu_van",
+        "lai_xe"
+      ],
+      "description": "Độ tuổi vàng, kinh nghiệm tốt"
+    },
+    "experienced_35_50": {
+      "age_range": [
+        35,
+        50
+      ],
+      "suitable_categories": [
+        "co_khi",
+        "nhan_su",
+        "hanh_chinh"
+      ],
+      "description": "Kinh nghiệm dồi dào, ổn định"
+    },
+    "any": {
+      "age_range": [
+        18,
+        55
+      ],
+      "suitable_categories": [
+        "bao_ve",
+        "lai_xe",
+        "co_khi"
+      ],
+      "description": "Không giới hạn độ tuổi"
+    }
+  }
+}
