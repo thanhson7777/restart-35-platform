@@ -1,0 +1,11 @@
+{
+  "num_jobs": 100,
+  "embedding_dim": 384,
+  "model": "paraphrase-multilingual-MiniLM-L12-v2",
+  "norm_type": "L2 normalized",
+  "memory_mb": 0.15,
+  "dtype": "float32",
+  "min_value": -0.204936221241951,
+  "max_value": 0.23071503639221191,
+  "mean_norm": 1.0
+}
