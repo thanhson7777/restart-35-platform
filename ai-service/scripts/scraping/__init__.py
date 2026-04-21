@@ -6,9 +6,11 @@ Module này chứa các scrapers cho các trang tuyển dụng Việt Nam:
 - VietnamWorks
 - CareerBuilder
 - TopCV
+- TimViec365
+- ITviec
 
 Author: Restart-35 Platform
-Last Updated: 2026-04-13
+Last Updated: 2026-04-19
 """
 
 from .base_scraper import (
@@ -19,7 +21,7 @@ from .base_scraper import (
     USER_AGENTS
 )
 
-__version__ = '1.0.0'
+__version__ = '2.0.0'
 __all__ = [
     'BaseScraper',
     'ScraperError',

@@ -43,6 +43,9 @@ from vietnamworks_algolia_scraper import VietnamWorksAlgoliaScraper
 from careerbuilder_scraper import CareerBuilderScraper
 from topcv_scraper import TopCVScraper
 from enhanced_playwright_scraper import EnhancedPlaywrightScraper
+from mywork_scraper import MyWorkScraper
+from itviec_scraper import ITviecScraper
+from itviec_playwright_scraper import ITviecPlaywrightScraper
 from government_data_scraper import Timviec365Scraper, ViecLauScraper
 from vieclam24h_scraper import Vieclam24hScraper
 from vieclamtot_scraper import VieclamtotScraper
@@ -147,6 +150,8 @@ class ScrapingOrchestrator:
     def _get_scraper(self, source_name: str):
         """Get scraper instance by name"""
         scraper_map = {
+            'mywork': lambda: MyWorkScraper(delay=2.0),
+            'itviec': lambda: ITviecPlaywrightScraper(delay=2.0),
             'vieclam24h': lambda: Vieclam24hScraper(delay=3.0),
             'vietnamworks': lambda: VietnamWorksScraper(delay=3.0),
             'vietnamworks_api': lambda: VietnamWorksAPIScraper(delay=2.0),
@@ -551,11 +556,11 @@ def parse_args():
     parser.add_argument(
         '--source', '-s',
         choices=[
-            'vieclam24h', 'vnw', 'vnw_api', 'vnw_algolia', 'cb', 'topcv',
+            'mywork', 'itviec', 'vieclam24h', 'vnw', 'vnw_api', 'vnw_algolia', 'cb', 'topcv',
             'timviec365', 'vieclamtot', 'vieclau', 'all'
         ],
-        default='vieclam24h',
-        help='Source to scrape (default: vieclam24h). vnw_algolia = VietnamWorks via Algolia API'
+        default='mywork',
+        help='Source to scrape (default: mywork). vnw_algolia = VietnamWorks via Algolia API'
     )
 
     parser.add_argument(
@@ -598,6 +603,8 @@ def main():
 
     # Determine sources
     source_mapping = {
+        'mywork': ['mywork'],
+        'itviec': ['itviec'],
         'vieclam24h': ['vieclam24h'],
         'vnw': ['vietnamworks'],
         'vnw_api': ['vietnamworks_api'],
@@ -607,7 +614,7 @@ def main():
         'timviec365': ['timviec365'],
         'vieclamtot': ['vieclamtot'],
         'vieclau': ['vieclau'],
-        'all': ['vieclam24h', 'vietnamworks', 'careerbuilder', 'topcv'],
+        'all': ['mywork', 'vieclam24h', 'topcv', 'vietnamworks_algolia'],
     }
 
     sources = source_mapping.get(args.source, ['vieclam24h'])

@@ -1,0 +1,20 @@
+{
+  "scraped_at": "2026-04-21T20:13:52.799269",
+  "total_jobs": 1596,
+  "stats": {
+    "start_time": "2026-04-21T20:13:32.046103",
+    "end_time": null,
+    "scrapers_run": 1,
+    "total_scraped": 50,
+    "total_transformed": 50,
+    "total_unique": 44,
+    "total_merged": 1596,
+    "scraper_results": {
+      "vietnamworks_algolia": 50
+    }
+  },
+  "sources": [
+    "vietnamworks_algolia"
+  ],
+  "pages_per_source": 5
+}
