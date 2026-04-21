@@ -74,7 +74,11 @@ class DataTransformer:
             'total_processed': 0,
             'transformed': 0,
             'skipped': 0,
-            'errors': 0
+            'errors': 0,
+            'skills_extracted_from_description': 0,
+            'skills_extracted_from_title': 0,
+            'salary_extracted': 0,
+            'salary_inferred': 0,
         }
     
     def transform(self, jobs: List[Dict], source: str = 'Unknown') -> List[Dict]:
@@ -170,6 +174,7 @@ class DataTransformer:
                 salary_min = extracted_min
                 salary_max = extracted_max
                 salary_source = 'extracted'
+                self.stats['salary_extracted'] += 1
             else:
                 # Infer from category
                 inferred_min, inferred_max = infer_salary_from_category(
@@ -178,6 +183,7 @@ class DataTransformer:
                 salary_min = inferred_min
                 salary_max = inferred_max
                 salary_source = 'inferred'
+                self.stats['salary_inferred'] += 1
 
         # Determine final category (use raw category if valid, otherwise use skill-based category)
         final_category = raw_category

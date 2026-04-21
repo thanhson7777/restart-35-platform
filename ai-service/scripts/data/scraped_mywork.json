@@ -1,7 +1,7 @@
 {
   "metadata": {
     "source": "MyWork",
-    "scraped_at": "2026-04-15T09:02:33.752082",
+    "scraped_at": "2026-04-21T19:54:24.463302",
     "count": 0,
     "categories": [
       "bao_ve",
@@ -14,7 +14,7 @@
     "stats": {
       "requests_made": 6,
       "requests_failed": 0,
-      "bytes_downloaded": 8137889,
+      "bytes_downloaded": 9042967,
       "pages_scraped": 0,
       "jobs_found": 0,
       "rate_limit_hits": 0,
