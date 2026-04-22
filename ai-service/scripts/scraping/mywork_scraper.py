@@ -9,7 +9,7 @@ Quality: Manual verify
 Website: https://mywork.com.vn
 
 Author: Restart-35 Platform
-Last Updated: 2026-04-15
+Last Updated: 2026-04-23 (Fixed: parse __NEXT_DATA__ JSON)
 """
 
 import re
@@ -19,6 +19,7 @@ import logging
 from typing import List, Dict, Optional, Any
 from pathlib import Path
 from datetime import datetime
+from urllib.parse import urljoin
 
 from playwright.sync_api import sync_playwright
 
@@ -29,66 +30,99 @@ class MyWorkScraper(BaseScraper):
     """
     Scraper cho MyWork (MyWork.com.vn / Vieclam24h).
 
-    Trang nay la SPA (JavaScript rendered), can su dung Playwright.
+    Trang nay la SPA (JavaScript rendered), su dung Playwright.
+    Jobs duoc luu trong __NEXT_DATA__ JSON, khong phai HTML.
 
-    CSS selectors (verified):
-    - Job card: .job-item
-    - Title: .title a
-    - Company: .company-name
-    - Salary: .salary
-    - Location: .address
-    - Pagination: .pagination a
+    Author: Restart-35 Platform
     """
 
     BASE_URL = 'https://mywork.com.vn'
+    API_BASE = 'https://apiv2.vieclam24h.vn'
 
-    # Labor categories
+    # Labor categories (MyWork URLs -> occupation IDs)
     CATEGORIES = {
         'bao_ve': {
             'url': '/viec-lam-an-ninh-bao-ve-o2.html',
             'name': 'An ninh - Bao ve',
+            'occupation_id': 2,
             'description': 'Cong viec bao ve, kiem not, an ninh'
         },
         'lai_xe': {
             'url': '/viec-lam-van-tai-lai-xe-o18.html',
             'name': 'Lai xe - Van tai',
+            'occupation_id': 18,
             'description': 'Lai xe tai, lai xe buyt, tai xe'
         },
         'lao_dong': {
             'url': '/viec-lam-lao-dong-pho-thong-o31.html',
             'name': 'Lao dong pho thong',
+            'occupation_id': 31,
             'description': 'Lao dong, pho thong, giao hang'
         },
         'phuc_vu': {
             'url': '/viec-lam-nha-hang-khach-san-o3.html',
             'name': 'Nha hang - Khach san',
+            'occupation_id': 3,
             'description': 'Phuc vu, le tan, khach san, nha hang'
         },
         'co_khi': {
             'url': '/viec-lam-co-khi-ky-thuat-o11.html',
             'name': 'Co khi - Ky thuat',
+            'occupation_id': 11,
             'description': 'Co khi, ky thuat, may mac'
         },
         'kinh_doanh': {
             'url': '/viec-lam-kinh-doanh-ban-hang-o1.html',
             'name': 'Kinh doanh - Ban hang',
+            'occupation_id': 1,
             'description': 'Kinh doanh, ban hang, tu van'
         },
     }
 
-    # CSS Selectors
-    SELECTORS = {
-        'job_card': '.job-item',
-        'title': '.title a',
-        'company': '.company-name',
-        'salary': '.salary',
-        'location': '.address',
-        'job_url': '.title a',
-        'pagination': '.pagination',
-        'page_link': '.pagination a',
-        'tags': '.tag',
-        'posted_date': '.time',
-        'logo': '.logo img',
+    # Province ID mapping
+    PROVINCE_MAP = {
+        1: 'Hà Nội', 2: 'Hồ Chí Minh', 3: 'Hải Phòng', 4: 'Đà Nẵng',
+        5: 'Cần Thơ', 6: 'An Giang', 7: 'Bà Rịa Vũng Tàu', 8: 'Bắc Cạn',
+        9: 'Bắc Giang', 10: 'Bắc Ninh', 11: 'Bến Tre', 12: 'Bình Định',
+        13: 'Bình Dương', 14: 'Bình Phước', 15: 'Bình Thuận', 16: 'Cà Mau',
+        17: 'Cao Bằng', 18: 'Đắk Lắk', 19: 'Đắk Nông', 20: 'Điện Biên',
+        21: 'Đồng Nai', 22: 'Đồng Tháp', 23: 'Gia Lai', 24: 'Hà Giang',
+        25: 'Hà Nam', 26: 'Hà Tĩnh', 27: 'Hải Dương', 28: 'Hậu Giang',
+        29: 'Hòa Bình', 30: 'Hưng Yên', 31: 'Khánh Hòa', 32: 'Kiên Giang',
+        33: 'Kon Tum', 34: 'Lai Châu', 35: 'Lâm Đồng', 36: 'Lạng Sơn',
+        37: 'Lào Cai', 38: 'Long An', 39: 'Nam Định', 40: 'Nghệ An',
+        41: 'Ninh Bình', 42: 'Ninh Thuận', 43: 'Phú Thọ', 44: 'Phú Yên',
+        45: 'Quảng Bình', 46: 'Quảng Nam', 47: 'Quảng Ngãi', 48: 'Quảng Ninh',
+        49: 'Quảng Trị', 50: 'Sóc Trăng', 51: 'Sơn La', 52: 'Tây Ninh',
+        53: 'Thái Bình', 54: 'Thanh Hóa', 55: 'Thừa Thiên Huế', 56: 'Tiền Giang',
+        57: 'Trà Vinh', 58: 'Tuyên Quang', 59: 'Vĩnh Long', 60: 'Vĩnh Phúc',
+        61: 'Yên Bái', 122: 'TP HCM', 119: 'Hà Nội'
+    }
+
+    # Salary range mapping (from API)
+    SALARY_RANGE_MAP = {
+        1: (0, 3_000_000),
+        2: (3_000_000, 5_000_000),
+        3: (5_000_000, 7_000_000),
+        4: (7_000_000, 10_000_000),
+        5: (10_000_000, 15_000_000),
+        6: (15_000_000, 20_000_000),
+        7: (20_000_000, 25_000_000),
+        8: (25_000_000, 30_000_000),
+        9: (30_000_000, 40_000_000),
+        10: (40_000_000, 50_000_000),
+        11: (50_000_000, 70_000_000),
+        12: (70_000_000, 100_000_000),
+        13: (100_000_000, 150_000_000),
+        14: (150_000_000, 200_000_000),
+        15: (200_000_000, 300_000_000),
+        16: (300_000_000, 500_000_000),
+        17: (500_000_000, 1000_000_000),
+        18: (1000_000_000, 2000_000_000),
+        19: (2000_000_000, 5000_000_000),
+        20: (5000_000_000, 100_000_000_000),
+        21: (10_000_000, 15_000_000),
+        22: (20_000_000, 25_000_000),
     }
 
     def __init__(
@@ -118,6 +152,7 @@ class MyWorkScraper(BaseScraper):
         self._playwright = None
         self._browser = None
         self._page = None
+        self._context = None
 
     def get_source_name(self) -> str:
         return 'MyWork'
@@ -130,9 +165,11 @@ class MyWorkScraper(BaseScraper):
         try:
             self._playwright = sync_playwright().start()
             self._browser = self._playwright.chromium.launch(headless=self.headless)
-            self._page = self._browser.new_page(
+            self._context = self._browser.new_context(
+                viewport={'width': 1920, 'height': 1080},
                 user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             )
+            self._page = self._context.new_page()
             self.logger.info("Playwright browser initialized")
             return True
         except Exception as e:
@@ -141,6 +178,12 @@ class MyWorkScraper(BaseScraper):
 
     def _close_browser(self):
         """Dong browser."""
+        if self._context:
+            try:
+                self._context.close()
+            except Exception:
+                pass
+            self._context = None
         if self._browser:
             try:
                 self._browser.close()
@@ -167,14 +210,14 @@ class MyWorkScraper(BaseScraper):
             response = self._page.goto(
                 full_url,
                 timeout=self.timeout * 1000,
-                wait_until='domcontentloaded'
+                wait_until='networkidle'
             )
 
             if response and response.status >= 400:
                 self.logger.warning(f"HTTP {response.status} for {full_url}")
                 return None
 
-            # Wait for JavaScript to render
+            # Wait for JavaScript to render and API calls to complete
             self._page.wait_for_timeout(5000)
 
             html = self._page.content()
@@ -187,6 +230,203 @@ class MyWorkScraper(BaseScraper):
             self.logger.error(f"Error fetching {full_url}: {e}")
             self.stats['requests_failed'] += 1
             return None
+
+    def _extract_next_data(self, html: str) -> Optional[Dict]:
+        """
+        Extract __NEXT_DATA__ JSON from page HTML.
+
+        Args:
+            html: Page HTML content
+
+        Returns:
+            Parsed JSON data or None
+        """
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html, 'html.parser')
+
+        next_data = soup.find('script', id='__NEXT_DATA__')
+        if not next_data or not next_data.string:
+            self.logger.warning("No __NEXT_DATA__ found in page")
+            return None
+
+        try:
+            data = json.loads(next_data.string)
+            return data
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Failed to parse __NEXT_DATA__: {e}")
+            return None
+
+    def _get_jobs_from_next_data(self, data: Dict, category_key: str) -> List[Dict]:
+        """
+        Extract jobs from __NEXT_DATA__ structure.
+
+        Jobs are stored in initialState.api.jobsPremiumVl24hAttractive.data
+
+        Args:
+            data: Parsed __NEXT_DATA__
+            category_key: Category key for labeling jobs
+
+        Returns:
+            List of job dictionaries
+        """
+        jobs = []
+
+        try:
+            props = data.get('props', {})
+            initial_state = props.get('initialState', {})
+            api = initial_state.get('api', {})
+
+            # Try multiple API keys that might contain job listings
+            api_keys = ['jobsPremiumVl24hAttractive', 'jobsPremiumVl24h']
+
+            for api_key in api_keys:
+                if api_key in api:
+                    api_data = api[api_key]
+                    if isinstance(api_data, dict):
+                        jobs_list = api_data.get('data', [])
+                        if isinstance(jobs_list, list) and len(jobs_list) > 0:
+                            self.logger.debug(f"Found {len(jobs_list)} jobs in {api_key}")
+                            for job_data in jobs_list:
+                                job = self._parse_job_from_api(job_data, category_key)
+                                if job:
+                                    jobs.append(job)
+
+        except Exception as e:
+            self.logger.error(f"Error extracting jobs from __NEXT_DATA__: {e}")
+
+        return jobs
+
+    def _parse_job_from_api(self, job_data: Dict, category_key: str) -> Optional[Dict]:
+        """
+        Parse job data from API JSON.
+
+        Args:
+            job_data: Job data dictionary from API
+            category_key: Category key
+
+        Returns:
+            Parsed job dictionary or None
+        """
+        try:
+            job_id = job_data.get('id')
+            if not job_id:
+                return None
+
+            title = job_data.get('title', '')
+            if not title:
+                return None
+
+            # Build job URL
+            title_slug = job_data.get('title_slug', '')
+            if title_slug:
+                job_url = f"{self.BASE_URL}/viec-lam-{title_slug}-job-{job_id}.html"
+            else:
+                job_url = f"{self.BASE_URL}/viec-lam-{title.lower().replace(' ', '-')}-job-{job_id}.html"
+
+            # Get employer info
+            employer_info = job_data.get('employer_info', {}) or {}
+            company = employer_info.get('name', '')
+
+            # Parse salary
+            salary_min = job_data.get('salary_min', 0) or 0
+            salary_max = job_data.get('salary_max', 0) or 0
+
+            # If salary_min/max are 0, try to infer from salary_range
+            if salary_min == 0 and salary_max == 0:
+                salary_range = job_data.get('salary_range', 0)
+                if salary_range and salary_range in self.SALARY_RANGE_MAP:
+                    salary_min, salary_max = self.SALARY_RANGE_MAP[salary_range]
+
+            # Get location from province_ids
+            province_ids = job_data.get('province_ids', [])
+            locations = []
+            for prov_id in province_ids:
+                if prov_id in self.PROVINCE_MAP:
+                    locations.append(self.PROVINCE_MAP[prov_id])
+            location = ', '.join(locations) if locations else ''
+
+            # Get experience requirement
+            experience_range = job_data.get('experience_range', 0)
+            experience_map = {
+                0: 0,  # Không yêu cầu
+                1: 1, 2: 2, 3: 3, 4: 4, 5: 5,
+                6: 5, 7: 5, 8: 5, 9: 5, 10: 5  # 5+ năm
+            }
+            experience = experience_map.get(experience_range, 0)
+
+            # Parse posted date
+            created_at = job_data.get('created_at')
+            posted_date = ''
+            if created_at:
+                try:
+                    dt = datetime.fromtimestamp(created_at)
+                    posted_date = dt.strftime('%Y-%m-%d')
+                except:
+                    pass
+
+            # Determine job type (heuristic)
+            job_type = 'full-time'
+            urgent_status = job_data.get('urgent_status', 0)
+            if urgent_status == 1:
+                job_type = 'full-time'  # Urgent jobs are usually full-time
+
+            # Extract skills from title
+            skills = self._extract_skills_from_title(title)
+
+            job = {
+                'source': 'MyWork',
+                'category': category_key,
+                'title': title,
+                'company': company,
+                'location': location,
+                'salary_text': f"{salary_min:,} - {salary_max:,} VND" if salary_min or salary_max else 'Thỏa thuận',
+                'salary_min': int(salary_min),
+                'salary_max': int(salary_max),
+                'type': job_type,
+                'age_preference': 'any',
+                'experience_required': experience,
+                'education_required': '',
+                'skills': skills,
+                'description': title,  # Use title as brief description
+                'job_url': job_url,
+                'posted_date': posted_date,
+                'scraped_at': datetime.now().isoformat(),
+            }
+
+            self.stats['jobs_found'] += 1
+            return job
+
+        except Exception as e:
+            self.logger.warning(f"Error parsing job from API: {e}")
+            return None
+
+    def _extract_skills_from_title(self, title: str) -> str:
+        """Extract skills from job title."""
+        skills = []
+        title_lower = title.lower()
+
+        skill_keywords = {
+            'excel': 'Excel', 'word': 'Word', 'powerpoint': 'PowerPoint',
+            'photoshop': 'Photoshop', 'illustrator': 'Illustrator',
+            'tiếng anh': 'Tiếng Anh', 'english': 'English',
+            'giao tiếp': 'Giao Tiếp', 'chăm sóc': 'Chăm Sóc',
+            'phục vụ': 'Phục Vụ', 'an ninh': 'An Ninh', 'bảo vệ': 'Bảo Vệ',
+            'lái xe': 'Lái Xe', 'bằng lái': 'Bằng Lái',
+            'windows': 'Windows', 'internet': 'Internet',
+            'cook': 'Cook', 'bếp': 'Bếp', 'đầu bếp': 'Đầu Bếp',
+            'kế toán': 'Kế Toán', 'tài chính': 'Tài Chính',
+            'nhân sự': 'Nhân Sự', 'hành chính': 'Hành Chính',
+            'kỹ thuật': 'Kỹ Thuật', 'cơ khí': 'Cơ Khí',
+            'điện': 'Điện', 'điện tử': 'Điện Tử',
+            'bán hàng': 'Bán Hàng', 'kinh doanh': 'Kinh Doanh',
+            'marketing': 'Marketing', 'seo': 'SEO',
+        }
+
+        for keyword, skill in skill_keywords.items():
+            if keyword in title_lower:
+                skills.append(skill)
+
+        return '|'.join(skills)
 
     def _parse_salary(self, salary_text: str) -> tuple:
         """
@@ -247,177 +487,43 @@ class MyWorkScraper(BaseScraper):
 
         return 0, 0
 
-    def _parse_job_type(self, text: str) -> str:
-        """Map job type text sang chuan."""
-        text_lower = text.lower()
-
-        if any(w in text_lower for w in ['ban', 'part-time', 'part time', 'bán thời gian']):
-            return 'part-time'
-        if any(w in text_lower for w in ['tam', 'hop dong', 'contract', 'thời vụ', 'mùa vụ']):
-            return 'temporary'
-        if any(w in text_lower for w in ['tu do', 'freelance', 'remote', 'từ xa']):
-            return 'freelance'
-
-        return 'full-time'
-
-    def _parse_location(self, item) -> str:
-        """Trich xuat dia diem tu job card."""
-        location_elem = item.select_one(self.SELECTORS['location'])
-        if location_elem:
-            text = location_elem.get_text(strip=True)
-            return text
-
-        # Thu kho tim trong tat ca text
-        all_text = item.get_text(strip=True).lower()
-
-        provinces = [
-            'hà nội', 'hồ chí minh', 'tp.hcm', 'tp hcm', 'đà nẵng',
-            'hải phòng', 'cần thơ', 'bình dương', 'đồng nai',
-            'hải phòng', 'quảng nam', 'thanh hóa', 'nghệ an',
-            'hà tĩnh', 'bắc ninh', 'vĩnh phúc', 'nam định',
-            'an giang', 'cà mau', 'bến tre', 'bạc liêu',
-            'vũng tàu', 'bình định', 'khánh hòa', 'phú yên',
-            'ninh bình', 'thái bình', 'hưng yên', 'hà nam',
-            'quảng ninh', 'hà giang', 'cao bằng', 'bắc kạn',
-            'tuyên quang', 'lào cai', 'yên bái', 'điện biên',
-            'lai châu', 'sơn la', 'hòa bình', 'thái nguyên',
-            'lạng sơn', 'thái nguyên', 'phú thọ', 'vĩnh phúc',
-            'bắc giang', 'bắc ninh', 'hải dương', 'hưng yên',
-        ]
-
-        for prov in provinces:
-            if prov in all_text:
-                return prov.title()
-
-        return ''
-
-    def _extract_age_requirement(self, item) -> str:
-        """Trich xuat yeu cau tuoi neu co."""
-        all_text = item.get_text(strip=True).lower()
-
-        age_patterns = [
-            r'tuoi[:\s]*(\d+)\s*[-–]\s*(\d+)',
-            r'(\d+)\s*[-–]\s*(\d+)\s*tuoi',
-            r'do tuoi[:\s]*(\d+)',
-        ]
-
-        for pattern in age_patterns:
-            match = re.search(pattern, all_text)
-            if match:
-                if len(match.groups()) >= 2:
-                    return f"{match.group(1)}-{match.group(2)}"
-                else:
-                    return f"<{match.group(1)}"
-
-        return 'any'
-
-    def _parse_job_card(self, item, category: str) -> Optional[Dict[str, Any]]:
-        """
-        Parse mot job card thanh dict.
-        """
-        try:
-            # Lay title
-            title_elem = item.select_one(self.SELECTORS['title'])
-            if not title_elem:
-                return None
-
-            title = title_elem.get_text(strip=True)
-            if not title:
-                return None
-
-            # Lay URL
-            href = title_elem.get('href', '')
-            if href and not href.startswith('http'):
-                href = self.BASE_URL + href
-
-            # Lay company
-            company_elem = item.select_one(self.SELECTORS['company'])
-            company = company_elem.get_text(strip=True) if company_elem else ''
-
-            # Lay salary
-            salary_elem = item.select_one(self.SELECTORS['salary'])
-            salary_text = salary_elem.get_text(strip=True) if salary_elem else ''
-            salary_min, salary_max = self._parse_salary(salary_text)
-
-            # Lay location
-            location = self._parse_location(item)
-
-            # Lay age requirement
-            age_pref = self._extract_age_requirement(item)
-
-            # Lay posted date
-            posted_elem = item.select_one(self.SELECTORS['posted_date'])
-            posted_date = posted_elem.get_text(strip=True) if posted_elem else ''
-
-            # Lay tags
-            tags_elems = item.select(self.SELECTORS['tags'])
-            tags = [t.get_text(strip=True) for t in tags_elems]
-
-            # Lay all text de extract skills
-            all_text = item.get_text(strip=True)
-            all_text_lower = all_text.lower()
-
-            # Tim job type
-            job_type = self._parse_job_type(all_text)
-
-            # Tim experience requirement
-            exp_match = re.search(r'(\d+)\s*(?:năm|year)', all_text_lower)
-            experience = int(exp_match.group(1)) if exp_match else 0
-
-            # Trich xuat skills
-            skills = []
-            skill_keywords = [
-                'excel', 'word', 'powerpoint', 'photoshop',
-                'tiếng anh', 'english', 'giao tiếp',
-                'chăm sóc', 'phục vụ', 'an ninh', 'bảo vệ',
-                'lái xe', 'bằng lái', 'windows', 'internet',
-            ]
-
-            for skill in skill_keywords:
-                if skill in all_text_lower:
-                    skills.append(skill.title())
-
-            job = {
-                'source': 'MyWork',
-                'category': category,
-                'title': title,
-                'company': company,
-                'location': location,
-                'salary_text': salary_text,
-                'salary_min': salary_min,
-                'salary_max': salary_max,
-                'type': job_type,
-                'age_preference': age_pref,
-                'experience_required': experience,
-                'education_required': '',
-                'skills': '|'.join(skills),
-                'description': all_text[:500] if all_text else '',
-                'job_url': href,
-                'posted_date': posted_date,
-                'scraped_at': datetime.now().isoformat(),
-            }
-
-            self.stats['jobs_found'] += 1
-            return job
-
-        except Exception as e:
-            self.logger.warning(f"Error parsing job card: {e}")
-            return None
-
     def _get_total_pages(self, html: str) -> int:
         """Lay tong so trang tu HTML."""
         from bs4 import BeautifulSoup
         soup = BeautifulSoup(html, 'html.parser')
 
-        page_links = soup.select(self.SELECTORS['page_link'])
-        max_page = 1
+        # Try to find pagination info in __NEXT_DATA__
+        data = self._extract_next_data(html)
+        if data:
+            try:
+                props = data.get('props', {})
+                initial_state = props.get('initialState', {})
+                api = initial_state.get('api', {})
+                
+                # Check for pagination metadata
+                for api_key in ['jobsPremiumVl24h', 'jobsPremiumVl24hAttractive']:
+                    if api_key in api:
+                        api_data = api[api_key]
+                        if isinstance(api_data, dict):
+                            meta = api_data.get('metadata', {})
+                            total = meta.get('total', 0)
+                            page_size = meta.get('page_size', 20)
+                            if total > 0 and page_size > 0:
+                                return (total + page_size - 1) // page_size
+            except:
+                pass
 
-        for link in page_links:
-            text = link.get_text(strip=True)
-            if text.isdigit():
-                max_page = max(max_page, int(text))
-
-        return max_page
+        # Fallback: try to find pagination in HTML
+        try:
+            page_links = soup.select('a[href*="page="]')
+            max_page = 1
+            for link in page_links:
+                text = link.get_text(strip=True)
+                if text.isdigit():
+                    max_page = max(max_page, int(text))
+            return max_page
+        except:
+            return 1
 
     def scrape_category(
         self,
@@ -443,51 +549,53 @@ class MyWorkScraper(BaseScraper):
 
         all_jobs = []
         base_url = self.BASE_URL + category['url']
+        seen_urls = set()
 
         self.logger.info(f"Scraping category: {category['name']}")
 
-        # Lay HTML trang dau tien de dem so trang
-        html = self._fetch_page(base_url)
-        if not html:
-            self.logger.error(f"Failed to fetch category page: {category['name']}")
-            return []
-
-        total_pages = self._get_total_pages(html)
-        actual_pages = min(pages, total_pages)
-
-        self.logger.info(f"  Total pages: {total_pages}, scraping: {actual_pages}")
-
-        # Parse trang dau tien
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(html, 'html.parser')
-        items = soup.select(self.SELECTORS['job_card'])
-
-        for item in items:
-            job = self._parse_job_card(item, category_key)
-            if job:
-                all_jobs.append(job)
-
-        # Scrape cac trang tiep theo
-        for page in range(2, actual_pages + 1):
-            url = f"{base_url}?page={page}"
-            self.logger.debug(f"  Scraping page {page}/{actual_pages}")
-
+        # Scrape multiple pages
+        actual_pages = min(pages, 10)  # Limit to 10 pages max
+        
+        for page_num in range(1, actual_pages + 1):
+            if page_num == 1:
+                url = base_url
+            else:
+                url = f"{base_url}?page={page_num}"
+            
+            self.logger.debug(f"  Scraping page {page_num}/{actual_pages}")
+            
+            # Lay HTML trang
             html = self._fetch_page(url)
             if not html:
+                self.logger.warning(f"  Failed to fetch page {page_num}")
                 continue
 
-            soup = BeautifulSoup(html, 'html.parser')
-            items = soup.select(self.SELECTORS['job_card'])
+            # Extract __NEXT_DATA__ and parse jobs
+            data = self._extract_next_data(html)
+            if data:
+                page_jobs = self._get_jobs_from_next_data(data, category_key)
+                
+                # Deduplicate within this page
+                for job in page_jobs:
+                    job_url = job.get('job_url', '')
+                    if job_url and job_url not in seen_urls:
+                        seen_urls.add(job_url)
+                        all_jobs.append(job)
+                
+                self.logger.debug(f"  Page {page_num}: {len(page_jobs)} jobs, running total: {len(all_jobs)}")
+                
+                # If we got fewer jobs than expected, stop pagination
+                if len(page_jobs) < 10:
+                    self.logger.info(f"  Reached end of results at page {page_num}")
+                    break
+            else:
+                self.logger.warning(f"  No __NEXT_DATA__ found on page {page_num}")
 
-            for item in items:
-                job = self._parse_job_card(item, category_key)
-                if job:
-                    all_jobs.append(job)
+            # Rate limiting between pages
+            if page_num < actual_pages:
+                time.sleep(self.delay)
 
-            # Rate limiting
-            time.sleep(self.delay)
-
-        self.logger.info(f"  Category {category['name']}: {len(all_jobs)} jobs")
+        self.logger.info(f"  Category {category['name']}: {len(all_jobs)} unique jobs")
         return all_jobs
 
     def scrape_all(self, pages_per_category: int = 5) -> List[Dict[str, Any]]:
@@ -498,16 +606,25 @@ class MyWorkScraper(BaseScraper):
             pages_per_category: So trang toi da cho moi category
 
         Returns:
-            List tat ca jobs
+            List tat ca jobs (da duoc deduplicate)
         """
         all_jobs = []
+        seen_urls = set()
 
         for category_key in self.CATEGORIES:
             jobs = self.scrape_category(category_key, pages=pages_per_category)
-            all_jobs.extend(jobs)
+            
+            # Deduplicate by job URL
+            for job in jobs:
+                job_url = job.get('job_url', '')
+                if job_url and job_url not in seen_urls:
+                    seen_urls.add(job_url)
+                    all_jobs.append(job)
+            
             time.sleep(self.delay)
 
-        self.logger.info(f"Total jobs scraped: {len(all_jobs)}")
+        self.logger.info(f"Total jobs scraped (before dedup): {sum(len(self.scrape_category(cat, pages=1)) for cat in self.CATEGORIES) if False else len(all_jobs) + len(seen_urls)}")
+        self.logger.info(f"Total unique jobs (after dedup): {len(all_jobs)}")
         return all_jobs
 
     def scrape(
@@ -525,14 +642,19 @@ class MyWorkScraper(BaseScraper):
             **kwargs: Cac argument khac
 
         Returns:
-            List cac jobs
+            List cac jobs (da duoc deduplicate)
         """
         if categories:
             all_jobs = []
+            seen_urls = set()
             for cat in categories:
                 if cat in self.CATEGORIES:
                     jobs = self.scrape_category(cat, pages=pages_per_category)
-                    all_jobs.extend(jobs)
+                    for job in jobs:
+                        job_url = job.get('job_url', '')
+                        if job_url and job_url not in seen_urls:
+                            seen_urls.add(job_url)
+                            all_jobs.append(job)
                     time.sleep(self.delay)
             return all_jobs
         else:
