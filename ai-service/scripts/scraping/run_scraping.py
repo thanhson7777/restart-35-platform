@@ -44,11 +44,14 @@ from careerbuilder_scraper import CareerBuilderScraper
 from topcv_scraper import TopCVScraper
 from enhanced_playwright_scraper import EnhancedPlaywrightScraper
 from mywork_scraper import MyWorkScraper
-from itviec_scraper import ITviecScraper
 from itviec_playwright_scraper import ITviecPlaywrightScraper
 from government_data_scraper import Timviec365Scraper, ViecLauScraper
 from vieclam24h_scraper import Vieclam24hScraper
 from vieclamtot_scraper import VieclamtotScraper
+from viecoi_scraper import ViecOiScraper
+from viecoi_selenium_scraper import ViecOiSeleniumScraper
+from vietjobs_scraper import VietJobsScraper
+from jobstreet_scraper import JobStreetScraper
 from data_transformer import DataTransformer
 from deduplicator import Deduplicator
 from constants import OUTPUT_COLUMNS
@@ -161,6 +164,11 @@ class ScrapingOrchestrator:
             'timviec365': lambda: Timviec365Scraper(delay=2.0),
             'vieclamtot': lambda: VieclamtotScraper(delay=2.0),
             'vieclau': lambda: ViecLauScraper(delay=2.0),
+            # Selenium scrapers (bypass Cloudflare)
+            'viecoi': lambda: ViecOiSeleniumScraper(delay=3.0),
+            # Playwright scrapers
+            'vietjobs': lambda: VietJobsScraper(delay=2.5),
+            'jobstreet': lambda: JobStreetScraper(delay=3.0),
         }
 
         if source_name in scraper_map:
@@ -224,8 +232,11 @@ class ScrapingOrchestrator:
             self.stats['end_time'] = datetime.now()
             # Cleanup playwright instances
             for scraper in self.scrapers.values():
-                if hasattr(scraper, '_cleanup_playwright'):
-                    scraper._cleanup_playwright()
+                if hasattr(scraper, 'stop'):
+                    try:
+                        scraper.stop()
+                    except Exception as e:
+                        self.logger.warning(f"Error stopping scraper {type(scraper).__name__}: {e}")
 
     def _scrape_all(self) -> List[Dict[str, Any]]:
         """
@@ -248,6 +259,23 @@ class ScrapingOrchestrator:
             if scraper is None:
                 self.logger.warning(f"Unknown scraper: {source_name}")
                 continue
+
+            # Handle Playwright scrapers specially
+            is_playwright = source_name in ['jobstreet', 'vietjobs', 'vieclam24h']
+            is_selenium = source_name == 'viecoi'  # Use Selenium for ViecOi
+
+            if is_playwright:
+                try:
+                    scraper.start()
+                except Exception as e:
+                    self.logger.error(f"Failed to start Playwright for {source_name}: {e}")
+                    continue
+            elif is_selenium:
+                try:
+                    scraper.start()
+                except Exception as e:
+                    self.logger.error(f"Failed to start Selenium for {source_name}: {e}")
+                    continue
 
             try:
                 # Check if this is VieclamtotScraper (needs browser reset between categories)
@@ -288,6 +316,20 @@ class ScrapingOrchestrator:
             except Exception as e:
                 self.logger.error(f"Error running {source_name} scraper: {e}")
                 self.stats['scraper_results'][source_name] = 0
+
+            finally:
+                # Cleanup Playwright
+                if is_playwright and hasattr(scraper, 'stop'):
+                    try:
+                        scraper.stop()
+                    except Exception as e:
+                        self.logger.warning(f"Error stopping Playwright for {source_name}: {e}")
+                # Cleanup Selenium
+                elif is_selenium and hasattr(scraper, 'stop'):
+                    try:
+                        scraper.stop()
+                    except Exception as e:
+                        self.logger.warning(f"Error stopping Selenium for {source_name}: {e}")
 
         self.logger.info(f"\nTotal raw jobs scraped: {len(all_jobs)}")
 
@@ -557,7 +599,9 @@ def parse_args():
         '--source', '-s',
         choices=[
             'mywork', 'itviec', 'vieclam24h', 'vnw', 'vnw_api', 'vnw_algolia', 'cb', 'topcv',
-            'timviec365', 'vieclamtot', 'vieclau', 'all'
+            'timviec365', 'vieclamtot', 'vieclau',
+            'viecoi', 'vietjobs', 'jobstreet',  # NEW
+            'all'
         ],
         default='mywork',
         help='Source to scrape (default: mywork). vnw_algolia = VietnamWorks via Algolia API'
@@ -614,7 +658,12 @@ def main():
         'timviec365': ['timviec365'],
         'vieclamtot': ['vieclamtot'],
         'vieclau': ['vieclau'],
-        'all': ['mywork', 'vieclam24h', 'topcv', 'vietnamworks_algolia'],
+        # NEW SOURCES
+        'viecoi': ['viecoi'],
+        'vietjobs': ['vietjobs'],
+        'jobstreet': ['jobstreet'],
+        # ALL sources
+        'all': ['mywork', 'vieclam24h', 'topcv', 'vietnamworks_algolia', 'viecoi', 'vietjobs', 'jobstreet'],
     }
 
     sources = source_mapping.get(args.source, ['vieclam24h'])

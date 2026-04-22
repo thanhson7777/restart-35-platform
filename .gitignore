@@ -1,1 +1,55 @@
-/RULE.md
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Scraping data (large, auto-generated)
+*.log
+scraping_*.log
+*.html  # debug HTML files
+
+# Backups
+*_backup_*.csv
+*_backup_*.json
+
+# Scraped output (keep sample, ignore large)
+# ai-service/data/scraped_mywork.json
+# ai-service/data/jobs.csv
+scraped/
+metadata_*.json
+
+# Cache
+*.pyc
+*.pyo
+*.cache
+
+# Cron scripts (Windows-specific)
+*_cron.bat
+scraping_cron.bat
+
+# Test outputs
+*_test.json
+*_test.csv
+debug_*.html

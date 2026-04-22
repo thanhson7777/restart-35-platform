@@ -275,6 +275,25 @@ SOURCES = {
         'url': 'https://topcv.vn',
         'base_url': 'https://topcv.vn',
     },
+    # NEW SOURCES
+    'viecoi': {
+        'name': 'ViecOi',
+        'url': 'https://viecoi.vn',
+        'base_url': 'https://viecoi.vn',
+        'description': 'ViecOi.vn - Tim viec lam theo nghe',
+    },
+    'vietjobs': {
+        'name': 'VietJobs',
+        'url': 'https://vietjobs.vn',
+        'base_url': 'https://vietjobs.vn',
+        'description': 'VietJobs.vn - Tim viec lam thuc day su nghiep',
+    },
+    'jobstreet': {
+        'name': 'JobStreet',
+        'url': 'https://www.jobstreet.vn',
+        'base_url': 'https://www.jobstreet.vn',
+        'description': 'JobStreet.vn - Trang tuyen dung hang dau Dong Nam A',
+    },
 }
 
 # Default values
