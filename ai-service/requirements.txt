@@ -12,3 +12,7 @@ torch>=2.0.0
 # LLM APIs (Job Enrichment - FREE)
 google-genai>=0.8.0
 groq>=0.4.0
+
+# Text Processing
+unidecode>=1.3.0
+rank-bm25>=0.2.2
