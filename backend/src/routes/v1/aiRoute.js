@@ -6,10 +6,15 @@
  * - POST /recommend-jobs      - Gợi ý việc làm dựa trên skills
  * - GET  /jobs                - Lấy danh sách jobs
  * - GET  /jobs/:id            - Lấy chi tiết một job
+ * - GET  /jobs/:id/similar    - Tìm jobs tương tự
  * - POST /predict-risk        - Dự đoán rủi ro thất nghiệp
  * - POST /analyze-worker      - Phân tích tổng hợp người lao động
  * - GET  /feature-importance  - Lấy feature importance
  * - GET  /model-info          - Lấy thông tin model
+ * - GET  /semantic-status     - Kiểm tra trạng thái semantic search
+ * - POST /career-path        - Khám phá lộ trình sự nghiệp
+ * - GET  /career-path/urgency - Mức độ khẩn cấp chuyển đổi nghề
+ * - GET  /career-path/industries - Danh sách ngành nghề hỗ trợ
  */
 
 import express from 'express'
@@ -49,6 +54,15 @@ Router.get('/jobs', aiController.getAllJobs)
 Router.get('/jobs/:id', aiController.getJobById)
 
 /**
+ * @route   GET /v1/ai/jobs/:id/similar
+ * @desc    Tìm jobs tương tự dựa trên semantic search
+ * @access  Public
+ * @param   id - Job ID
+ * @query   limit - Số lượng kết quả (default: 5)
+ */
+Router.get('/jobs/:id/similar', aiController.getSimilarJobs)
+
+/**
  * @route   POST /v1/ai/predict-risk
  * @desc    Dự đoán rủi ro thất nghiệp của người lao động
  * @access  Private (requires auth)
@@ -77,5 +91,39 @@ Router.get('/feature-importance', aiController.getFeatureImportance)
  * @access  Public
  */
 Router.get('/model-info', aiController.getModelInfo)
+
+/**
+ * @route   GET /v1/ai/semantic-status
+ * @desc    Kiểm tra trạng thái semantic search
+ * @access  Public
+ */
+Router.get('/semantic-status', aiController.getSemanticStatus)
+
+// ============================================================================
+// CAREER PATH ROUTES
+// ============================================================================
+
+/**
+ * @route   POST /v1/ai/career-path
+ * @desc    Khám phá lộ trình sự nghiệp
+ * @access  Private (requires auth)
+ * @body    { age, currentRole, currentIndustry, experiences, ... }
+ */
+Router.post('/career-path', aiController.discoverCareerPath)
+
+/**
+ * @route   GET /v1/ai/career-path/urgency
+ * @desc    Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi
+ * @access  Public
+ * @query   age - Tuổi người dùng
+ */
+Router.get('/career-path/urgency', aiController.getAgeUrgency)
+
+/**
+ * @route   GET /v1/ai/career-path/industries
+ * @desc    Lấy danh sách các ngành nghề được hỗ trợ
+ * @access  Public
+ */
+Router.get('/career-path/industries', aiController.getCareerIndustries)
 
 export const aiRoute = Router

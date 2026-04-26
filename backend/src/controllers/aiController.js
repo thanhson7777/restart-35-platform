@@ -208,6 +208,136 @@ const getModelInfo = async (req, res, next) => {
   }
 }
 
+// ============================================================================
+// CAREER PATH CONTROLLERS
+// ============================================================================
+
+/**
+ * Khám phá lộ trình sự nghiệp
+ * POST /v1/ai/career-path
+ */
+const discoverCareerPath = async (req, res, next) => {
+  try {
+    const {
+      age,
+      currentRole,
+      currentIndustry,
+      experiences,
+      targetSalary,
+      workPreference,
+      includeAgeTransition,
+      includeManagementTrack
+    } = req.body
+
+    const result = await aiService.discoverCareerPath({
+      age,
+      currentRole,
+      currentIndustry,
+      experiences,
+      targetSalary,
+      workPreference,
+      includeAgeTransition,
+      includeManagementTrack
+    })
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Khám phá lộ trình sự nghiệp thành công',
+      data: result.data
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi
+ * GET /v1/ai/career-path/urgency
+ */
+const getAgeUrgency = async (req, res, next) => {
+  try {
+    const { age } = req.query
+
+    if (!age) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Tham số age là bắt buộc'
+      })
+    }
+
+    const result = await aiService.getAgeUrgency(parseInt(age))
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy mức độ khẩn cấp thành công',
+      data: result.data
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Lấy danh sách các ngành nghề được hỗ trợ
+ * GET /v1/ai/career-path/industries
+ */
+const getCareerIndustries = async (req, res, next) => {
+  try {
+    const result = await aiService.getCareerIndustries()
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách ngành nghề thành công',
+      data: result.data
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// ============================================================================
+// SEMANTIC SEARCH CONTROLLERS
+// ============================================================================
+
+/**
+ * Kiểm tra trạng thái semantic search
+ * GET /v1/ai/semantic-status
+ */
+const getSemanticStatus = async (req, res, next) => {
+  try {
+    const result = await aiService.getSemanticStatus()
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy trạng thái semantic search thành công',
+      data: result.data
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Tìm jobs tương tự dựa trên semantic search
+ * GET /v1/ai/jobs/:id/similar
+ */
+const getSimilarJobs = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const { limit } = req.query
+
+    const result = await aiService.getSimilarJobs(id, parseInt(limit) || 5)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Tìm jobs tương tự thành công',
+      data: result.data
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 // Export controller functions
 export const aiController = {
   recommendJobs,
@@ -217,5 +347,10 @@ export const aiController = {
   analyzeWorker,
   healthCheck,
   getFeatureImportance,
-  getModelInfo
+  getModelInfo,
+  discoverCareerPath,
+  getAgeUrgency,
+  getCareerIndustries,
+  getSemanticStatus,
+  getSimilarJobs
 }

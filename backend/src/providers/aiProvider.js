@@ -204,6 +204,131 @@ class AIProvider {
       throw error
     }
   }
+
+  // ============================================================================
+  // CAREER PATH ENDPOINTS
+  // ============================================================================
+
+  /**
+   * Khám phá lộ trình sự nghiệp
+   * POST /api/v1/ai/career-path
+   *
+   * @param {Object} params - Profile parameters
+   * @param {number} params.age - Tuổi người dùng
+   * @param {string} [params.currentRole] - Vai trò hiện tại
+   * @param {string} [params.currentIndustry] - Ngành hiện tại
+   * @param {Array} params.experiences - Danh sách kinh nghiệm làm việc
+   * @param {number} [params.targetSalary] - Mức lương mục tiêu
+   * @param {string} [params.workPreference] - Ưu tiên làm việc (remote, hybrid, onsite)
+   * @param {boolean} [params.includeAgeTransition] - Bao gồm chuyển đổi theo tuổi
+   * @param {boolean} [params.includeManagementTrack] - Bao gồm lộ trình quản lý
+   * @returns {Promise<Object>} Kết quả khám phá lộ trình nghề nghiệp
+   */
+  async discoverCareerPath({
+    age,
+    currentRole = null,
+    currentIndustry = null,
+    experiences = [],
+    targetSalary = null,
+    workPreference = null,
+    includeAgeTransition = true,
+    includeManagementTrack = true
+  }) {
+    try {
+      const payload = {
+        age,
+        experiences
+      }
+
+      if (currentRole) payload.current_role = currentRole
+      if (currentIndustry) payload.current_industry = currentIndustry
+      if (targetSalary) payload.target_salary = targetSalary
+      if (workPreference) payload.work_preference = workPreference
+      payload.include_age_transition = includeAgeTransition
+      payload.include_management_track = includeManagementTrack
+
+      const response = await aiApiClient.post('/api/v1/ai/career-path', payload)
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] discoverCareerPath failed:', error.message)
+      throw error
+    }
+  }
+
+  /**
+   * Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi
+   * GET /api/v1/ai/career-path/urgency
+   *
+   * @param {number} age - Tuổi người dùng
+   * @returns {Promise<Object>} Thông tin mức độ khẩn cấp
+   */
+  async getAgeUrgency(age) {
+    try {
+      const response = await aiApiClient.get('/api/v1/ai/career-path/urgency', {
+        params: { age }
+      })
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] getAgeUrgency failed:', error.message)
+      throw error
+    }
+  }
+
+  /**
+   * Lấy danh sách các ngành nghề được hỗ trợ
+   * GET /api/v1/ai/career-path/industries
+   *
+   * @returns {Promise<Object>} Danh sách ngành nghề
+   */
+  async getCareerIndustries() {
+    try {
+      const response = await aiApiClient.get('/api/v1/ai/career-path/industries')
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] getCareerIndustries failed:', error.message)
+      throw error
+    }
+  }
+
+  // ============================================================================
+  // SEMANTIC SEARCH ENDPOINTS
+  // ============================================================================
+
+  /**
+   * Kiểm tra trạng thái semantic search
+   * GET /api/v1/ai/semantic-status
+   *
+   * @returns {Promise<Object>} Trạng thái semantic search
+   */
+  async getSemanticStatus() {
+    try {
+      const response = await aiApiClient.get('/api/v1/ai/semantic-status')
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] getSemanticStatus failed:', error.message)
+      throw error
+    }
+  }
+
+  /**
+   * Tìm jobs tương tự dựa trên semantic search
+   * GET /api/v1/ai/jobs/{jobId}/similar
+   *
+   * @param {string} jobId - Job ID
+   * @param {number} limit - Số lượng kết quả (default: 5)
+   * @returns {Promise<Object>} Danh sách jobs tương tự
+   */
+  async getSimilarJobs(jobId, limit = 5) {
+    try {
+      const response = await aiApiClient.get(`/api/v1/ai/jobs/${jobId}/similar`, {
+        params: { limit }
+      })
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] getSimilarJobs failed:', error.message)
+      throw error
+    }
+  }
 }
 
 // Export singleton instance
