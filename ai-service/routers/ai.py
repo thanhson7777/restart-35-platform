@@ -370,10 +370,12 @@ def get_risk_predictor() -> RiskPredictorML:
 
 
 def get_semantic_search() -> SemanticSearch:
-    """Lazy load SemanticSearch (lazy init on first use)"""
+    """Get SemanticSearch instance - uses pre-loaded model from startup if available"""
     global _semantic_search
     if _semantic_search is None:
         _semantic_search = SemanticSearch()
+        # Try to initialize with pre-loaded model from startup
+        _semantic_search._lazy_init()
     return _semantic_search
 
 

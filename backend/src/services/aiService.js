@@ -326,6 +326,207 @@ const getModelInfo = async () => {
   }
 }
 
+// ============================================================================
+// CAREER PATH SERVICES
+// ============================================================================
+
+/**
+ * Khám phá lộ trình sự nghiệp
+ *
+ * @param {Object} params - Profile parameters
+ * @returns {Promise<Object>} Kết quả khám phá lộ trình nghề nghiệp
+ */
+const discoverCareerPath = async ({
+  age,
+  currentRole = null,
+  currentIndustry = null,
+  experiences = [],
+  targetSalary = null,
+  workPreference = null,
+  includeAgeTransition = true,
+  includeManagementTrack = true
+}) => {
+  try {
+    if (!age) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Tuổi là bắt buộc')
+    }
+
+    const result = await aiProvider.discoverCareerPath({
+      age,
+      currentRole,
+      currentIndustry,
+      experiences,
+      targetSalary,
+      workPreference,
+      includeAgeTransition,
+      includeManagementTrack
+    })
+
+    return result
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] discoverCareerPath error:', error)
+
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể khám phá lộ trình sự nghiệp'
+    )
+  }
+}
+
+/**
+ * Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi
+ *
+ * @param {number} age - Tuổi người dùng
+ * @returns {Promise<Object>} Thông tin mức độ khẩn cấp
+ */
+const getAgeUrgency = async (age) => {
+  try {
+    if (!age) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Tuổi là bắt buộc')
+    }
+
+    const result = await aiProvider.getAgeUrgency(age)
+    return result
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] getAgeUrgency error:', error)
+
+    if (error.code === 'ECONNREFUSED') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể lấy thông tin mức độ khẩn cấp'
+    )
+  }
+}
+
+/**
+ * Lấy danh sách các ngành nghề được hỗ trợ
+ *
+ * @returns {Promise<Object>} Danh sách ngành nghề
+ */
+const getCareerIndustries = async () => {
+  try {
+    const result = await aiProvider.getCareerIndustries()
+    return result
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] getCareerIndustries error:', error)
+
+    if (error.code === 'ECONNREFUSED') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể lấy danh sách ngành nghề'
+    )
+  }
+}
+
+// ============================================================================
+// SEMANTIC SEARCH SERVICES
+// ============================================================================
+
+/**
+ * Kiểm tra trạng thái semantic search
+ *
+ * @returns {Promise<Object>} Trạng thái semantic search
+ */
+const getSemanticStatus = async () => {
+  try {
+    const result = await aiProvider.getSemanticStatus()
+    return result
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] getSemanticStatus error:', error)
+
+    if (error.code === 'ECONNREFUSED') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể lấy trạng thái semantic search'
+    )
+  }
+}
+
+/**
+ * Tìm jobs tương tự dựa trên semantic search
+ *
+ * @param {string} jobId - Job ID
+ * @param {number} limit - Số lượng kết quả
+ * @returns {Promise<Object>} Danh sách jobs tương tự
+ */
+const getSimilarJobs = async (jobId, limit = 5) => {
+  try {
+    if (!jobId) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Job ID là bắt buộc')
+    }
+
+    const cappedLimit = Math.min(20, Math.max(1, limit || 5))
+    const result = await aiProvider.getSimilarJobs(jobId, cappedLimit)
+    return result
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] getSimilarJobs error:', error)
+
+    if (error.code === 'ECONNREFUSED') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng'
+      )
+    }
+
+    if (error.response?.status === 503) {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'Semantic search hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể tìm jobs tương tự'
+    )
+  }
+}
+
 // Export các functions
 export const aiService = {
   getRecommendedJobs,
@@ -335,5 +536,10 @@ export const aiService = {
   analyzeWorker,
   healthCheck,
   getFeatureImportance,
-  getModelInfo
+  getModelInfo,
+  discoverCareerPath,
+  getAgeUrgency,
+  getCareerIndustries,
+  getSemanticStatus,
+  getSimilarJobs
 }

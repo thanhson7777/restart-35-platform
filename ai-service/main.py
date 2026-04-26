@@ -111,9 +111,11 @@ async def log_requests(request: Request, call_next):
 # =============================================================================
 
 from routers.ai import router as ai_router
+from routers.career_path import router as career_path_router
 
 # Register routers
 app.include_router(ai_router)
+app.include_router(career_path_router)
 
 
 # =============================================================================
@@ -183,6 +185,31 @@ async def startup_event():
         logger.info(f"✅ Jobs data found: {jobs_file}")
     else:
         logger.warning(f"⚠️  Jobs data not found: {jobs_file}")
+
+    # Pre-load Semantic Search model
+    logger.info("🔄 Pre-loading Semantic Search model...")
+    try:
+        from services.semantic_search import SemanticSearch
+        import routers.ai as ai_router_module
+        
+        # Create and initialize the semantic search instance
+        semantic = SemanticSearch()
+        if semantic._lazy_init():
+            logger.info("✅ Semantic Search model loaded successfully")
+            # Store in the global variable used by ai.py endpoints
+            ai_router_module._semantic_search = semantic
+        else:
+            logger.warning(f"⚠️  Semantic Search init failed: {semantic._init_error}")
+    except Exception as e:
+        logger.warning(f"⚠️  Semantic Search not available: {e}")
+
+    # Pre-load job embeddings if available
+    embeddings_file = data_dir / "jobs_embeddings.npy"
+    if embeddings_file.exists():
+        logger.info(f"✅ Job embeddings found: {embeddings_file}")
+    else:
+        logger.info(f"ℹ️  Job embeddings not found: {embeddings_file}")
+        logger.info("   Semantic search will use TF-IDF fallback")
 
     # Log prediction logs
     prediction_log = logs_dir / "predictions.jsonl"
