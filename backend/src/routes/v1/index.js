@@ -3,6 +3,8 @@ import { userRoute } from './userRoute'
 import { workerProfileRoute } from './workerProfileRoute'
 import { aiRoute } from './aiRoute'
 import { interactionRoute } from './interactionRoute'
+import { outcomeRoute } from './outcomeRoute'
+import { dashboardRoute } from './dashboardRoute'
 
 const Router = express.Router()
 
@@ -13,7 +15,9 @@ Router.get('/', (req, res) => {
       users: '/v1/users',
       workerProfiles: '/v1/worker-profiles',
       ai: '/v1/ai',
-      interactions: '/v1/interactions'
+      interactions: '/v1/interactions',
+      outcomes: '/v1/outcomes',
+      dashboard: '/v1/dashboard'
     }
   })
 })
@@ -22,5 +26,7 @@ Router.use('/users', userRoute)
 Router.use('/worker-profiles', workerProfileRoute)
 Router.use('/ai', aiRoute)
 Router.use('/interactions', interactionRoute)
+Router.use('/outcomes', outcomeRoute)
+Router.use('/dashboard', dashboardRoute)
 
 export const APIS_V1 = Router
