@@ -5,11 +5,40 @@ import { HeroSection, CoreProblemsSection, StatsBar, SolutionsSection, LandingLa
 import { StatsCard, CourseProgressCard, JobCard, ActivityItem, SkillBadge, QuickAction } from '@/components/dashboard';
 import { CourseCard } from '@/components/course';
 import { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
+import AuthPage from '@/pages/AuthPage';
 
 function App() {
   return (
     <BrowserRouter basename='/'>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'hsl(var(--background))',
+            color: 'hsl(var(--foreground))',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '0.75rem',
+            fontSize: '0.875rem',
+          },
+          success: {
+            iconTheme: {
+              primary: 'hsl(var(--success))',
+              secondary: 'white',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: 'hsl(var(--destructive))',
+              secondary: 'white',
+            },
+          },
+        }}
+      />
       <Routes>
+        {/* Auth Page */}
+        <Route path="/auth" element={<AuthPage />} />
         {/* Landing Page */}
         <Route path="/" element={
           <LandingLayout>

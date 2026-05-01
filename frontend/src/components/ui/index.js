@@ -1,6 +1,7 @@
 export { Button } from './Button';
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './Card';
 export { Input, Label, Textarea } from './Input';
+export { PasswordInput } from './PasswordInput';
 export { Badge } from './Badge';
 export { Avatar } from './Avatar';
 export { Progress } from './Progress';
