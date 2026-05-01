@@ -5,17 +5,21 @@ import storage from 'redux-persist/lib/storage'
 import userReducer from './user/userSlice'
 import profileReducer from './profile/profileSlice'
 import aiReducer from './ai/aiSlice'
+import jobReducer from './job/jobSlice'
+import outcomeReducer from './outcome/outcomeSlice'
 
 const rootPersistConfig = {
   key: 'root',
   storage: storage,
-  whitelist: ['user']
+  whitelist: []
 }
 
 const reducers = combineReducers({
   user: userReducer,
   profile: profileReducer,
-  ai: aiReducer
+  ai: aiReducer,
+  job: jobReducer,
+  outcome: outcomeReducer
 })
 
 const persistedReducers = persistReducer(rootPersistConfig, reducers)

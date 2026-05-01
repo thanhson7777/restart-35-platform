@@ -1,31 +1,6 @@
-import { publicAxiosInstance, authorizeAxiosInstance } from '~/utils/authorizeAxios'
+import { authorizeAxiosInstance, publicAxiosInstance } from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
-
-export const registerUserAPI = async (data) => {
-  const response = await publicAxiosInstance.post(`${API_ROOT}/v1/users/register`, data)
-  return response.data
-}
-
-export const verifyUserAPI = async (data) => {
-  const response = await publicAxiosInstance.put(`${API_ROOT}/v1/users/verify`, data)
-  return response.data
-}
-
-export const refreshTokenAPI = async () => {
-  const response = await publicAxiosInstance.get(`${API_ROOT}/v1/users/refresh_token`)
-  return response.data
-}
-
-export const loginUserAPI = async (data) => {
-  const response = await publicAxiosInstance.post(`${API_ROOT}/v1/users/login`, data)
-  return response.data
-}
-
-export const logoutUserAPI = async () => {
-  const response = await publicAxiosInstance.delete(`${API_ROOT}/v1/users/logout`)
-  return response.data
-}
 
 export const getDashboardAPI = async () => {
   const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/dashboard`)
