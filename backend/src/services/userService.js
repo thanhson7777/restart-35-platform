@@ -225,6 +225,14 @@ const updateUserStatus = async (userId, updateData) => {
   } catch (error) { throw error }
 }
 
+const getMe = async (userId) => {
+  try {
+    const user = await userModel.findOneById(userId)
+    if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản không tồn tại!')
+    return pickUser(user)
+  } catch (error) { throw error }
+}
+
 const changePassword = async (userId, reqBody) => {
   try {
     const { currentPassword, newPassword } = reqBody
@@ -259,5 +267,6 @@ export const userService = {
   update,
   getAdminUsers,
   updateUserStatus,
-  changePassword
+  changePassword,
+  getMe
 }

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import AuthPage from '@/pages/AuthPage';
 import WorkerProfilePage from '@/pages/WorkerProfilePage';
+import JobsPage from '@/pages/JobsPage';
 import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
 
 function App() {
@@ -54,6 +55,8 @@ function App() {
         <Route path="/auth" element={<AuthPage />} />
         {/* Worker Profile Page */}
         <Route path="/worker-profile" element={<WorkerProfilePage />} />
+        {/* Jobs Page */}
+        <Route path="/jobs" element={<JobsPage />} />
         {/* Landing Page */}
         <Route path="/" element={
           <LandingLayout>

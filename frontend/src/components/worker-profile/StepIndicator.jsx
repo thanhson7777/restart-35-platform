@@ -8,7 +8,7 @@ const CheckIcon = () => (
   </svg>
 )
 
-function StepIndicator({ currentStep = 1, totalSteps = 4 }) {
+function StepIndicator({ currentStep = 1, totalSteps = 4, isProfileCompleted = false }) {
   const steps = Array.from({ length: totalSteps }, (_, i) => i + 1)
 
   return (
@@ -17,6 +17,16 @@ function StepIndicator({ currentStep = 1, totalSteps = 4 }) {
       <div className="hidden max-w-md mx-auto sm:block">
         {/* Desktop horizontal */}
         <div className="flex items-center justify-between relative">
+          {/* Completed badge */}
+          {isProfileCompleted && (
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+              </svg>
+              Đã hoàn thành
+            </div>
+          )}
+
           {/* Connecting line bg */}
           <div className="absolute top-4 left-0 right-0 h-0.5 bg-border -z-0 mx-8" />
 

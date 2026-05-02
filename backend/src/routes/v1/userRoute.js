@@ -27,6 +27,12 @@ Router.route('/login')
 Router.route('/logout')
   .delete(userController.logout)
 
+Router.route('/me')
+  .get(
+    authMiddleware.isAuthorized,
+    userController.getMe
+  )
+
 Router.route('/refresh_token')
   .put(userController.refreshToken)
 

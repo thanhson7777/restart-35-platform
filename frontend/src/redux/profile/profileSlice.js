@@ -13,7 +13,9 @@ export const fetchMyProfile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getMyWorkerProfileAPI()
-      return response.data
+      // Backend returns { success, message, data }
+      // We need to return the data part
+      return response.data?.data || response.data
     } catch (error) {
       if (error.response?.data?.message === 'Hồ sơ không tồn tại!') {
         return null

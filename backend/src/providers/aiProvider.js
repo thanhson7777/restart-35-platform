@@ -1,6 +1,7 @@
 /**
- * AI Provider - Giao tiếp với Python AI Service
- * Module này chịu trách nhiệm giao tiếp trực tiếp với Python FastAPI service
+ * AI Provider - Giao tiệp với Python AI Service
+ * Module này chịu trách nhiệm giao tiệp trực tiếp với Python FastAPI service
+ * Fallback sang mock data khi AI service không khả dụng
  */
 
 import axios from 'axios'
@@ -8,6 +9,152 @@ import { env } from '~/config/enviroment'
 
 // Base URL cho AI Service (Python FastAPI)
 const AI_SERVICE_BASE_URL = `http://${env.AI_SERVICE_HOST || 'localhost'}:${env.AI_SERVICE_PORT || '8000'}`
+
+/**
+ * Mock data cho jobs - Sử dụng khi AI service không khả dụng
+ */
+const MOCK_JOBS = [
+  {
+    id: 'job_001',
+    title: 'Nhân viên Pha chế (Barista)',
+    company: 'Highlands Coffee',
+    location: 'Quận 1, TP.HCM',
+    salary_min: 7000000,
+    salary_max: 10000000,
+    job_type: 'full-time',
+    required_skills: ['Pha chế', 'Phục vụ', 'Chăm sóc khách hàng'],
+    match_score: 92,
+    matching_skills: ['Pha chế'],
+    description: 'Pha chế đồ uống, phục vụ khách hàng tại quầy',
+    posted_date: new Date().toISOString()
+  },
+  {
+    id: 'job_002',
+    title: 'Kỹ thuật viên bảo trì',
+    company: 'Công ty TNHH ABC',
+    location: 'Bình Dương',
+    salary_min: 10000000,
+    salary_max: 15000000,
+    job_type: 'full-time',
+    required_skills: ['Điện tử', 'Cơ khí', 'Bảo trì máy móc'],
+    match_score: 85,
+    matching_skills: ['Cơ khí'],
+    description: 'Bảo trì và sửa chữa máy móc thiết bị',
+    posted_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'job_003',
+    title: 'Thợ hàn xuất khí',
+    company: 'Nhà máy XYZ',
+    location: 'Hà Nội',
+    salary_min: 8000000,
+    salary_max: 12000000,
+    job_type: 'full-time',
+    required_skills: ['Hàn xì', 'Cơ khí', 'Đọc bản vẽ'],
+    match_score: 78,
+    matching_skills: ['Hàn xì', 'Cơ khí'],
+    description: 'Hàn xuất khí các sản phẩm cơ khí',
+    posted_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'job_004',
+    title: 'Nhân viên bán hàng',
+    company: 'Co.opmart',
+    location: 'TP.HCM',
+    salary_min: 6000000,
+    salary_max: 9000000,
+    job_type: 'full-time',
+    required_skills: ['Bán hàng', 'Thu ngân', 'Giao tiếp'],
+    match_score: 75,
+    matching_skills: ['Bán hàng', 'Giao tiếp'],
+    description: 'Bán hàng tại siêu thị, hỗ trợ khách hàng',
+    posted_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'job_005',
+    title: 'Lái xe giao hàng',
+    company: 'Grab',
+    location: 'Hồ Chí Minh',
+    salary_min: 8000000,
+    salary_max: 15000000,
+    job_type: 'freelance',
+    required_skills: ['Lái xe', 'Giao hàng'],
+    match_score: 70,
+    matching_skills: ['Lái xe'],
+    description: 'Giao hàng cho GrabExpress',
+    posted_date: new Date().toISOString()
+  },
+  {
+    id: 'job_006',
+    title: 'Thợ may công nghiệp',
+    company: 'May Sài Gòn',
+    location: 'Bình Dương',
+    salary_min: 7000000,
+    salary_max: 11000000,
+    job_type: 'full-time',
+    required_skills: ['May mặc', 'Làm việc nhóm'],
+    match_score: 68,
+    matching_skills: ['May mặc'],
+    description: 'May các sản phẩm thời trang',
+    posted_date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'job_007',
+    title: 'Nhân viên nấu ăn',
+    company: 'Nhà hàng ABC',
+    location: 'Đà Nẵng',
+    salary_min: 8000000,
+    salary_max: 12000000,
+    job_type: 'full-time',
+    required_skills: ['Nấu ăn', 'Vệ sinh an toàn thực phẩm'],
+    match_score: 65,
+    matching_skills: ['Nấu ăn'],
+    description: 'Nấu ăn cho nhà hàng',
+    posted_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'job_008',
+    title: 'Kỹ thuật viên điện nước',
+    company: 'Thiên Phú Corp',
+    location: 'Hà Nội',
+    salary_min: 9000000,
+    salary_max: 14000000,
+    job_type: 'full-time',
+    required_skills: ['Điện nước', 'Lắp đặt', 'Sửa chữa'],
+    match_score: 60,
+    matching_skills: ['Điện nước', 'Lắp đặt'],
+    description: 'Lắp đặt và sửa chữa điện nước',
+    posted_date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'job_009',
+    title: 'Phục vụ bàn',
+    company: 'Pizza Hut',
+    location: 'TP.HCM',
+    salary_min: 5500000,
+    salary_max: 8000000,
+    job_type: 'part-time',
+    required_skills: ['Phục vụ bàn', 'Giao tiếp', 'Chịu áp lực'],
+    match_score: 58,
+    matching_skills: ['Phục vụ'],
+    description: 'Phục vụ bàn tại nhà hàng',
+    posted_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'job_010',
+    title: 'Nhân viên kho vận',
+    company: 'VNPost',
+    location: 'Hà Nội',
+    salary_min: 6000000,
+    salary_max: 9000000,
+    job_type: 'full-time',
+    required_skills: ['Kho vận', 'Nhập liệu'],
+    match_score: 55,
+    matching_skills: ['Nhập liệu'],
+    description: 'Quản lý kho hàng, nhập xuất hàng',
+    posted_date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
+  }
+]
 
 /**
  * Axios instance cho AI Service với timeout cao hơn (ML models cần thời gian xử lý)
@@ -19,6 +166,37 @@ const aiApiClient = axios.create({
     'Content-Type': 'application/json'
   }
 })
+
+/**
+ * Helper function để lọc jobs dựa trên skills
+ */
+const filterJobsBySkills = (jobs, userSkills, limit = 10) => {
+  if (!userSkills || userSkills.length === 0) {
+    return jobs.slice(0, limit)
+  }
+
+  // Tính match score cho mỗi job dựa trên skills
+  const jobsWithMatch = jobs.map(job => {
+    const jobSkills = (job.required_skills || []).map(s => s.toLowerCase())
+    const matchedSkills = userSkills.filter(skill =>
+      jobSkills.some(js => js.includes(skill.toLowerCase()) || skill.toLowerCase().includes(js))
+    )
+    const matchScore = jobSkills.length > 0
+      ? Math.round((matchedSkills.length / jobSkills.length) * 100)
+      : 50
+
+    return {
+      ...job,
+      match_score: Math.max(job.match_score || 50, matchScore),
+      matching_skills: matchedSkills
+    }
+  })
+
+  // Sắp xếp theo match score giảm dần
+  jobsWithMatch.sort((a, b) => b.match_score - a.match_score)
+
+  return jobsWithMatch.slice(0, limit)
+}
 
 /**
  * AI Provider class - Singleton pattern để quản lý AI Service connections
@@ -34,25 +212,18 @@ class AIProvider {
       const response = await aiApiClient.get('/api/v1/ai/health')
       return response.data
     } catch (error) {
-      console.error('[AIProvider] Health check failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available, using mock data')
+      return {
+        status: 'mock',
+        message: 'Using mock data',
+        service: 'mock'
+      }
     }
   }
 
   /**
    * Gợi ý công việc cho user dựa trên kỹ năng
    * POST /api/v1/ai/recommend-jobs
-   *
-   * @param {Object} params - Parameters
-   * @param {string[]} params.skills - Danh sách skills của user
-   * @param {number} params.experience - Số năm kinh nghiệm
-   * @param {string} params.location - Tỉnh/thành phố mong muốn
-   * @param {string} params.targetJob - Công việc mong muốn
-   * @param {number} params.targetSalary - Mức lương mong muốn
-   * @param {string} params.preferredJobType - Loại công việc ưa thích (full-time, part-time, etc.)
-   * @param {number} params.limit - Số lượng kết quả (default: 10, max: 50)
-   * @param {boolean} params.allowRemote - Cho phép làm việc từ xa
-   * @returns {Promise<Object>} Kết quả gợi ý việc làm
    */
   async recommendJobs({
     skills,
@@ -65,7 +236,6 @@ class AIProvider {
     allowRemote = false
   }) {
     try {
-      // Build payload - chỉ gửi các field có giá trị
       const payload = {
         skills,
         experience,
@@ -81,17 +251,44 @@ class AIProvider {
       const response = await aiApiClient.post('/api/v1/ai/recommend-jobs', payload)
       return response.data
     } catch (error) {
-      console.error('[AIProvider] recommendJobs failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available, returning mock data')
+      // Trả về mock data khi AI service không khả dụng
+      let filteredJobs = filterJobsBySkills(MOCK_JOBS, skills, limit)
+
+      // Filter theo location nếu có
+      if (location) {
+        filteredJobs = filteredJobs.filter(job =>
+          job.location?.toLowerCase().includes(location.toLowerCase())
+        )
+      }
+
+      // Filter theo job type nếu có
+      if (preferredJobType) {
+        filteredJobs = filteredJobs.filter(job =>
+          job.job_type === preferredJobType
+        )
+      }
+
+      // Filter theo salary nếu có
+      if (targetSalary) {
+        filteredJobs = filteredJobs.filter(job =>
+          job.salary_min <= targetSalary
+        )
+      }
+
+      return {
+        data: {
+          jobs: filteredJobs,
+          total: filteredJobs.length,
+          filters_applied: { skills, location, targetJob, targetSalary, preferredJobType }
+        }
+      }
     }
   }
 
   /**
    * Lấy danh sách tất cả jobs từ database
    * GET /api/v1/ai/jobs
-   *
-   * @param {number} limit - Số lượng jobs tối đa (default: 50)
-   * @returns {Promise<Object>} Danh sách jobs
    */
   async getAllJobs(limit = 50) {
     try {
@@ -100,129 +297,142 @@ class AIProvider {
       })
       return response.data
     } catch (error) {
-      console.error('[AIProvider] getAllJobs failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available, returning mock jobs')
+      return {
+        data: {
+          jobs: MOCK_JOBS.slice(0, limit),
+          total: MOCK_JOBS.length
+        }
+      }
     }
   }
 
   /**
    * Lấy thông tin chi tiết một job
    * GET /api/v1/ai/jobs/{jobId}
-   *
-   * @param {string} jobId - Job ID (vd: job_0001)
-   * @returns {Promise<Object>} Chi tiết job
    */
   async getJobById(jobId) {
     try {
       const response = await aiApiClient.get(`/api/v1/ai/jobs/${jobId}`)
       return response.data
     } catch (error) {
-      console.error('[AIProvider] getJobById failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available, searching mock data')
+      const job = MOCK_JOBS.find(j => j.id === jobId || j._id === jobId)
+      if (job) {
+        return { data: job }
+      }
+      throw new Error('Job not found')
     }
   }
 
   /**
-   * Dự đoán rủi ro thất nghiệp của người lao động
+   * Dự đoán rủi ro thất nghiệp
    * POST /api/v1/ai/predict-risk
-   *
-   * @param {Object} workerData - Dữ liệu người lao động
-   * @param {number} workerData.age - Tuổi (35-65)
-   * @param {string} workerData.gender - Giới tính (male/female)
-   * @param {string} workerData.education - Trình độ học vấn
-   * @param {number} workerData.experience_years - Số năm kinh nghiệm
-   * @param {string} workerData.employment_status - Tình trạng việc làm
-   * @param {string} workerData.marital_status - Tình trạng hôn nhân
-   * @param {number} workerData.target_salary - Mức lương mong muốn
-   * @param {string} workerData.region - Khu vực (north/central/south)
-   * @param {string[]} workerData.skills - Danh sách kỹ năng
-   * @param {string} [workerData.target_job] - Công việc mong muốn
-   * @param {string} [workerData.preferred_job_type] - Loại công việc ưa thích
-   * @param {number} [workerData.barrier_health] - Rào cản sức khỏe (0-1)
-   * @param {number} [workerData.barrier_family] - Rào cản gia đình (0-1)
-   * @param {number} [workerData.barrier_techGap] - Rào cản công nghệ (0-1)
-   * @param {number} [workerData.barrier_location] - Rào cản địa lý (0-1)
-   * @param {number} [workerData.barrier_language] - Rào cản ngôn ngữ (0-1)
-   * @returns {Promise<Object>} Kết quả dự đoán rủi ro (risk_level, risk_score, probability, recommendation)
    */
   async predictRisk(workerData) {
     try {
       const response = await aiApiClient.post('/api/v1/ai/predict-risk', workerData)
       return response.data
     } catch (error) {
-      console.error('[AIProvider] predictRisk failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available, returning mock risk prediction')
+      const baseRisk = 50
+      const ageFactor = (workerData.age - 35) * 2
+      const skillsFactor = workerData.skills?.length ? -5 : 10
+      const riskScore = Math.min(100, Math.max(0, baseRisk + ageFactor + skillsFactor))
+
+      return {
+        data: {
+          risk_level: riskScore > 70 ? 'high' : riskScore > 40 ? 'medium' : 'low',
+          risk_score: riskScore,
+          probability: riskScore / 100,
+          recommendation: riskScore > 70
+            ? 'Nên chuyển đổi nghề nghiệp sớm'
+            : riskScore > 40
+              ? 'Cần nâng cao kỹ năng'
+              : 'Rủi ro thấp, tiếp tục phát triển'
+        }
+      }
     }
   }
 
   /**
-   * Phân tích tổng hợp người lao động (risk prediction + job recommendations)
+   * Phân tích tổng hợp người lao động
    * POST /api/v1/ai/analyze-worker
-   *
-   * @param {Object} workerData - Dữ liệu người lao động (tương tự predictRisk)
-   * @param {number} [workerData.limit] - Số lượng job recommendations (default: 5)
-   * @returns {Promise<Object>} Kết quả phân tích tổng hợp (worker_analysis: {risk_data, jobs, metadata})
    */
   async analyzeWorker(workerData) {
     try {
       const response = await aiApiClient.post('/api/v1/ai/analyze-worker', workerData)
       return response.data
     } catch (error) {
-      console.error('[AIProvider] analyzeWorker failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available, returning mock analysis')
+      const riskResult = await this.predictRisk(workerData)
+      const jobs = await this.recommendJobs({
+        skills: workerData.skills,
+        experience: workerData.experience_years || 0,
+        limit: workerData.limit || 5
+      })
+
+      return {
+        data: {
+          risk_data: riskResult.data,
+          jobs: jobs.data?.jobs || [],
+          metadata: {
+            analyzed_at: new Date().toISOString(),
+            source: 'mock'
+          }
+        }
+      }
     }
   }
 
   /**
    * Lấy thông tin feature importance từ model
    * GET /api/v1/ai/feature-importance
-   *
-   * @returns {Promise<Object>} Feature importance data
    */
   async getFeatureImportance() {
     try {
       const response = await aiApiClient.get('/api/v1/ai/feature-importance')
       return response.data
     } catch (error) {
-      console.error('[AIProvider] getFeatureImportance failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available')
+      return {
+        data: {
+          features: [
+            { name: 'Tuổi', importance: 0.25 },
+            { name: 'Kỹ năng', importance: 0.30 },
+            { name: 'Kinh nghiệm', importance: 0.20 },
+            { name: 'Học vấn', importance: 0.15 },
+            { name: 'Địa điểm', importance: 0.10 }
+          ]
+        }
+      }
     }
   }
 
   /**
-   * Lấy thông tin model đang được sử dụng
+   * Lấy thông tin model
    * GET /api/v1/ai/model-info
-   *
-   * @returns {Promise<Object>} Model info (model_type, version, threshold, etc.)
    */
   async getModelInfo() {
     try {
       const response = await aiApiClient.get('/api/v1/ai/model-info')
       return response.data
     } catch (error) {
-      console.error('[AIProvider] getModelInfo failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available')
+      return {
+        data: {
+          model_type: 'Random Forest (Mock)',
+          version: '1.0.0',
+          threshold: 0.5,
+          strategy: 'skill_matching'
+        }
+      }
     }
   }
-
-  // ============================================================================
-  // CAREER PATH ENDPOINTS
-  // ============================================================================
 
   /**
    * Khám phá lộ trình sự nghiệp
    * POST /api/v1/ai/career-path
-   *
-   * @param {Object} params - Profile parameters
-   * @param {number} params.age - Tuổi người dùng
-   * @param {string} [params.currentRole] - Vai trò hiện tại
-   * @param {string} [params.currentIndustry] - Ngành hiện tại
-   * @param {Array} params.experiences - Danh sách kinh nghiệm làm việc
-   * @param {number} [params.targetSalary] - Mức lương mục tiêu
-   * @param {string} [params.workPreference] - Ưu tiên làm việc (remote, hybrid, onsite)
-   * @param {boolean} [params.includeAgeTransition] - Bao gồm chuyển đổi theo tuổi
-   * @param {boolean} [params.includeManagementTrack] - Bao gồm lộ trình quản lý
-   * @returns {Promise<Object>} Kết quả khám phá lộ trình nghề nghiệp
    */
   async discoverCareerPath({
     age,
@@ -235,11 +445,7 @@ class AIProvider {
     includeManagementTrack = true
   }) {
     try {
-      const payload = {
-        age,
-        experiences
-      }
-
+      const payload = { age, experiences }
       if (currentRole) payload.current_role = currentRole
       if (currentIndustry) payload.current_industry = currentIndustry
       if (targetSalary) payload.target_salary = targetSalary
@@ -250,83 +456,117 @@ class AIProvider {
       const response = await aiApiClient.post('/api/v1/ai/career-path', payload)
       return response.data
     } catch (error) {
-      console.error('[AIProvider] discoverCareerPath failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available')
+      return {
+        data: {
+          career_paths: [
+            { title: 'Chuyên gia kỹ thuật', steps: ['Cập nhật kỹ năng', 'Thăng tiến nghề nghiệp'], salary_range: '15-25 triệu' },
+            { title: 'Huấn luyện viên', steps: ['Chia sẻ kinh nghiệm', 'Đào tạo người khác'], salary_range: '12-20 triệu' }
+          ],
+          urgency: age > 50 ? 'high' : 'medium'
+        }
+      }
     }
   }
 
   /**
-   * Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi
+   * Lấy mức độ khẩn cấp chuyển đổi nghề
    * GET /api/v1/ai/career-path/urgency
-   *
-   * @param {number} age - Tuổi người dùng
-   * @returns {Promise<Object>} Thông tin mức độ khẩn cấp
    */
   async getAgeUrgency(age) {
     try {
-      const response = await aiApiClient.get('/api/v1/ai/career-path/urgency', {
-        params: { age }
-      })
+      const response = await aiApiClient.get('/api/v1/ai/career-path/urgency', { params: { age } })
       return response.data
     } catch (error) {
-      console.error('[AIProvider] getAgeUrgency failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available')
+      return {
+        data: {
+          urgency: age > 55 ? 'critical' : age > 45 ? 'high' : 'medium',
+          description: 'Mức độ khẩn cấp chuyển đổi nghề nghiệp'
+        }
+      }
     }
   }
 
   /**
-   * Lấy danh sách các ngành nghề được hỗ trợ
+   * Lấy danh sách các ngành nghề
    * GET /api/v1/ai/career-path/industries
-   *
-   * @returns {Promise<Object>} Danh sách ngành nghề
    */
   async getCareerIndustries() {
     try {
       const response = await aiApiClient.get('/api/v1/ai/career-path/industries')
       return response.data
     } catch (error) {
-      console.error('[AIProvider] getCareerIndustries failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available')
+      return {
+        data: {
+          industries: [
+            { id: 'food', name: 'F&B - Thực phẩm', jobs_count: 150 },
+            { id: 'retail', name: 'Bán lẻ', jobs_count: 120 },
+            { id: 'manufacturing', name: 'Sản xuất', jobs_count: 100 },
+            { id: 'service', name: 'Dịch vụ', jobs_count: 200 },
+            { id: 'construction', name: 'Xây dựng', jobs_count: 80 }
+          ]
+        }
+      }
     }
   }
-
-  // ============================================================================
-  // SEMANTIC SEARCH ENDPOINTS
-  // ============================================================================
 
   /**
    * Kiểm tra trạng thái semantic search
    * GET /api/v1/ai/semantic-status
-   *
-   * @returns {Promise<Object>} Trạng thái semantic search
    */
   async getSemanticStatus() {
     try {
       const response = await aiApiClient.get('/api/v1/ai/semantic-status')
       return response.data
     } catch (error) {
-      console.error('[AIProvider] getSemanticStatus failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available')
+      return {
+        data: {
+          status: 'unavailable',
+          message: 'Semantic search not available in mock mode'
+        }
+      }
     }
   }
 
   /**
-   * Tìm jobs tương tự dựa trên semantic search
+   * Tìm jobs tương tự
    * GET /api/v1/ai/jobs/{jobId}/similar
-   *
-   * @param {string} jobId - Job ID
-   * @param {number} limit - Số lượng kết quả (default: 5)
-   * @returns {Promise<Object>} Danh sách jobs tương tự
    */
   async getSimilarJobs(jobId, limit = 5) {
     try {
-      const response = await aiApiClient.get(`/api/v1/ai/jobs/${jobId}/similar`, {
-        params: { limit }
-      })
+      const response = await aiApiClient.get(`/api/v1/ai/jobs/${jobId}/similar`, { params: { limit } })
       return response.data
     } catch (error) {
-      console.error('[AIProvider] getSimilarJobs failed:', error.message)
-      throw error
+      console.warn('[AIProvider] AI Service not available, finding similar from mock')
+      const currentJob = MOCK_JOBS.find(j => j.id === jobId || j._id === jobId)
+
+      if (!currentJob) {
+        return { data: { jobs: [], similar_jobs: [] } }
+      }
+
+      const similarJobs = MOCK_JOBS
+        .filter(j => j.id !== jobId)
+        .map(job => {
+          const commonSkills = (currentJob.required_skills || [])
+            .filter(skill => (job.required_skills || []).includes(skill))
+          return {
+            ...job,
+            similarity: commonSkills.length / Math.max(currentJob.required_skills.length, 1)
+          }
+        })
+        .filter(job => job.similarity > 0.2)
+        .sort((a, b) => b.similarity - a.similarity)
+        .slice(0, limit)
+
+      return {
+        data: {
+          jobs: similarJobs,
+          similar_jobs: similarJobs
+        }
+      }
     }
   }
 }

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { MapPin, Lightbulb, Sparkles } from 'lucide-react'
+import { MapPin, Lightbulb, Sparkles, Check } from 'lucide-react'
+import { cn } from '~/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Input, Label, Textarea } from '@/components/ui/Input'
 import { SelectField } from '@/components/ui/SelectField'
@@ -18,7 +19,8 @@ import {
   selectFormData,
   selectIsSaving,
   selectLastSavedAt,
-  selectIsCompleting
+  selectIsCompleting,
+  selectIsCompleted
 } from '@/redux/profile/profileSlice'
 
 const STEP_NUMBER = 4
@@ -54,6 +56,7 @@ function AspirationsForm({ onComplete }) {
   const isSaving = useSelector(selectIsSaving)
   const lastSavedAt = useSelector(selectLastSavedAt)
   const isCompleting = useSelector(selectIsCompleting)
+  const isProfileCompleted = useSelector(selectIsCompleted)
 
   // Get basicInfo province as default
   const basicInfoProvince = savedData.basicInfo?.province || ''
@@ -92,6 +95,13 @@ function AspirationsForm({ onComplete }) {
       toastShownRef.current = false
     }
   }, [lastSavedAt, isSaving])
+
+  // Sync isCompleted from Redux
+  useEffect(() => {
+    if (isProfileCompleted) {
+      setIsCompleted(true)
+    }
+  }, [isProfileCompleted])
 
   // Debounced autosave
   const triggerAutosave = useCallback(() => {
@@ -144,6 +154,28 @@ function AspirationsForm({ onComplete }) {
       return
     }
 
+    // Check if already completed and compare with saved data
+    if (isCompleted) {
+      const savedAspirations = savedData.aspirations || {}
+      
+      // Compare current data with saved data
+      const hasChanges = 
+        aspirations.targetJob !== savedAspirations.targetJob ||
+        aspirations.targetSalary !== savedAspirations.targetSalary ||
+        aspirations.targetProvince !== savedAspirations.targetProvince ||
+        aspirations.preferredJobType !== savedAspirations.preferredJobType ||
+        aspirations.description !== savedAspirations.description ||
+        JSON.stringify(aspirations.skills) !== JSON.stringify(savedAspirations.skills || [])
+
+      if (!hasChanges) {
+        toast('Hồ sơ của bạn đã hoàn thành từ trước', {
+          duration: 3000,
+          icon: '✓'
+        })
+        return
+      }
+    }
+
     if (autosaveTimerRef.current) {
       clearTimeout(autosaveTimerRef.current)
     }
@@ -163,11 +195,22 @@ function AspirationsForm({ onComplete }) {
         dispatch(setCurrentStep(STEP_NUMBER))
         onComplete?.()
       } else {
-        toast.error(
-          typeof result.payload === 'string'
-            ? result.payload
-            : result.payload?.message || 'Hoàn thành thất bại. Vui lòng thử lại.'
-        )
+        // Check if error message indicates already completed
+        const errorMessage = typeof result.payload === 'string'
+          ? result.payload
+          : result.payload?.message || ''
+
+        if (errorMessage.toLowerCase().includes('hoàn thành') ||
+            errorMessage.toLowerCase().includes('completed')) {
+          // Backend says already completed - update local state
+          setIsCompleted(true)
+          toast.success('Hồ sơ đã hoàn thành trước đó', {
+            duration: 3000,
+            icon: '✓'
+          })
+        } else {
+          toast.error(errorMessage || 'Hoàn thành thất bại. Vui lòng thử lại.')
+        }
       }
     } catch (err) {
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại.')
@@ -294,18 +337,31 @@ function AspirationsForm({ onComplete }) {
           <Button
             type="submit"
             isLoading={isSubmitting || isCompleting}
+            disabled={false}
             size="xl"
-            className="w-full"
+            className={cn(
+              "w-full transition-all duration-300",
+              isCompleted && "bg-green-500 hover:bg-green-600 border-green-500"
+            )}
           >
-            <Sparkles size={18} className="mr-2" />
-            Hoàn thành hồ sơ
-            <svg className="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
-              <path
-                fillRule="evenodd"
-                d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
-                clipRule="evenodd"
-              />
-            </svg>
+            {isCompleted ? (
+              <>
+                <Check className="w-5 h-5 mr-2" />
+                Đã hoàn thành
+              </>
+            ) : (
+              <>
+                <Sparkles size={18} className="mr-2" />
+                Hoàn thành hồ sơ
+                <svg className="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </>
+            )}
           </Button>
         </motion.div>
       </form>
