@@ -28,7 +28,7 @@ Router.route('/logout')
   .delete(userController.logout)
 
 Router.route('/refresh_token')
-  .get(userController.refreshToken)
+  .put(userController.refreshToken)
 
 Router.route('/update')
   .put(

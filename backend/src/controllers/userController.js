@@ -68,7 +68,9 @@ const logout = async (req, res, next) => {
 
 const refreshToken = async (req, res, next) => {
   try {
-    const result = await userService.verifyToken(req.cookies?.refreshToken)
+    // Frontend sends refresh token via Authorization: Bearer <token> header
+    const clientRefreshToken = req.headers.authorization?.split(' ')[1]
+    const result = await userService.verifyToken(clientRefreshToken)
     res.cookie('accessToken', result.accessToken, {
       httpOnly: true,
       secure: true,

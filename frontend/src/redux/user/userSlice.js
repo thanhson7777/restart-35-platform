@@ -17,7 +17,8 @@ export const loginUserAPI = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await loginAPI(credentials)
-      const { user, accessToken, refreshToken } = response.data || {}
+      // Backend trả về user data ở root level, không phải trong key "user"
+      const { accessToken, refreshToken, ...user } = response.data || {}
 
       if (accessToken) {
         localStorage.setItem('accessToken', accessToken)
@@ -57,6 +58,18 @@ export const logoutUser = createAsyncThunk(
     } finally {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('refreshToken')
+    }
+  }
+)
+
+export const fetchCurrentUser = createAsyncThunk(
+  'user/fetchCurrentUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/users/me`)
+      return response.data.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Không thể lấy thông tin user')
     }
   }
 )
@@ -147,6 +160,18 @@ export const userSlice = createSlice({
     builder.addCase(updateUserAPI.rejected, (state, action) => {
       state.isLoading = false
       state.error = action.payload
+    })
+
+    // Fetch current user
+    builder.addCase(fetchCurrentUser.fulfilled, (state, action) => {
+      state.currentUser = action.payload
+      state.isAuthenticated = true
+    })
+    builder.addCase(fetchCurrentUser.rejected, (state) => {
+      state.currentUser = null
+      state.isAuthenticated = false
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
     })
   }
 })

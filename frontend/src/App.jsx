@@ -4,11 +4,24 @@ import { Footer } from '@/components/layout';
 import { HeroSection, CoreProblemsSection, StatsBar, SolutionsSection, LandingLayout, Navbar, Features, CourseCategories, PopularCourses, CTASection } from '@/components/landing';
 import { StatsCard, CourseProgressCard, JobCard, ActivityItem, SkillBadge, QuickAction } from '@/components/dashboard';
 import { CourseCard } from '@/components/course';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import AuthPage from '@/pages/AuthPage';
+import WorkerProfilePage from '@/pages/WorkerProfilePage';
+import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
 
 function App() {
+  const dispatch = useDispatch();
+  const currentUser = useSelector(selectCurrentUser);
+
+  // Fetch user data on app load if token exists
+  useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken && !currentUser) {
+      dispatch(fetchCurrentUser());
+    }
+  }, [dispatch, currentUser]);
   return (
     <BrowserRouter basename='/'>
       <Toaster
@@ -39,6 +52,8 @@ function App() {
       <Routes>
         {/* Auth Page */}
         <Route path="/auth" element={<AuthPage />} />
+        {/* Worker Profile Page */}
+        <Route path="/worker-profile" element={<WorkerProfilePage />} />
         {/* Landing Page */}
         <Route path="/" element={
           <LandingLayout>

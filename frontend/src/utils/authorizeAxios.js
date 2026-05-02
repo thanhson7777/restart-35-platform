@@ -21,6 +21,52 @@ export const injectStore = (store) => {
   injectedStore = store
 }
 
+// ─── Token refresh queue ─────────────────────────────────────────────────────
+// Prevents race condition: multiple 401/410 responses trigger multiple concurrent
+// refresh calls. All requests that get a 401 while a refresh is in-flight are
+// queued and replayed after the single refresh succeeds (or rejected if it fails).
+
+let isRefreshing = false
+let failedQueue = [] /** @type {{resolve: Function, reject: Function}[]} */
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error)
+    } else {
+      prom.resolve(token)
+    }
+  })
+  failedQueue = []
+}
+
+const refreshAccessToken = async () => {
+  const refreshToken = localStorage.getItem('refreshToken')
+  if (!refreshToken) {
+    throw new Error('No refresh token')
+  }
+
+  const response = await publicAxiosInstance.put(
+    `${API_ROOT}/v1/users/refresh_token`,
+    {},
+    { headers: { Authorization: `Bearer ${refreshToken}` } }
+  )
+
+  const { accessToken, refreshToken: newRefreshToken } =
+    response.data?.data ?? response.data ?? {}
+
+  if (!accessToken) {
+    throw new Error('Token refresh failed')
+  }
+
+  localStorage.setItem('accessToken', accessToken)
+  if (newRefreshToken) {
+    localStorage.setItem('refreshToken', newRefreshToken)
+  }
+
+  return accessToken
+}
+
 publicAxiosInstance.interceptors.request.use(
   (config) => config,
   (error) => Promise.reject(error)
@@ -47,34 +93,27 @@ authorizeAxiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
+    // Not a 401/410, or already retried → propagate normally
+    if (![401, 410].includes(error.response?.status) || originalRequest._retry) {
+      return Promise.reject(error)
+    }
+
+    originalRequest._retry = true
+
+    if (!isRefreshing) {
+      isRefreshing = true
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken')
-        if (!refreshToken) {
-          throw new Error('No refresh token')
-        }
+        const newToken = await refreshAccessToken()
+        processQueue(null, newToken)
 
-        const response = await publicAxiosInstance.put(
-          `${API_ROOT}/v1/users/refresh_token`,
-          {},
-          { headers: { Authorization: `Bearer ${refreshToken}` } }
-        )
-
-        const { accessToken, refreshToken: newRefreshToken } = response.data.data || response.data
-
-        if (accessToken) {
-          localStorage.setItem('accessToken', accessToken)
-          if (newRefreshToken) {
-            localStorage.setItem('refreshToken', newRefreshToken)
-          }
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`
-          return authorizeAxiosInstance(originalRequest)
-        }
-
-        throw new Error('Token refresh failed')
+        // Replay the failed request with the fresh token
+        originalRequest.headers.Authorization = `Bearer ${newToken}`
+        return authorizeAxiosInstance(originalRequest)
       } catch (refreshError) {
+        processQueue(refreshError, null)
+
+        // Clear tokens and force logout
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
 
@@ -83,10 +122,23 @@ authorizeAxiosInstance.interceptors.response.use(
         }
 
         return Promise.reject(refreshError)
+      } finally {
+        isRefreshing = false
       }
     }
 
-    return Promise.reject(error)
+    // Refresh already in-flight — queue this request
+    return new Promise((resolve, reject) => {
+      failedQueue.push({
+        resolve: (token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`
+          resolve(authorizeAxiosInstance(originalRequest))
+        },
+        reject: (err) => {
+          reject(err)
+        }
+      })
+    })
   }
 )
 
