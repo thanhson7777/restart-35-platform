@@ -160,7 +160,7 @@ function WorkerProfilePage() {
           </motion.div>
 
           {/* Step Indicator */}
-          <StepIndicator currentStep={activeStep} />
+          <StepIndicator currentStep={activeStep} isProfileCompleted={isCompleted} />
 
           {/* Form Card */}
           <motion.div

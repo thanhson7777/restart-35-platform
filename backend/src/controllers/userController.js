@@ -133,6 +133,21 @@ const updateUserStatus = async (req, res, next) => {
   }
 }
 
+const getMe = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const user = await userService.getMe(userId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thông tin người dùng thành công',
+      data: user
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 const changePassword = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
@@ -157,5 +172,6 @@ export const userController = {
   update,
   getUsers,
   updateUserStatus,
-  changePassword
+  changePassword,
+  getMe
 }

@@ -54,7 +54,10 @@ const getRecommendedJobs = async ({
       allowRemote
     })
 
-    return result
+    // Handle both direct response and wrapped response
+    return {
+      data: result.data || result
+    }
   } catch (error) {
     // Nếu là ApiError thì throw lại
     if (error.isApiError) {
@@ -82,14 +85,107 @@ const getRecommendedJobs = async ({
 /**
  * Lấy danh sách tất cả jobs từ AI Service
  *
- * @param {number} limit - Số lượng jobs tối đa
+ * @param {Object} params - Parameters
+ * @param {number} params.limit - Số lượng jobs tối đa
+ * @param {string} [params.location] - Tỉnh/TP mong muốn
+ * @param {string} [params.jobType] - Loại công việc
+ * @param {number} [params.salaryMin] - Mức lương tối thiểu
+ * @param {number} [params.salaryMax] - Mức lương tối đa
+ * @param {number} [params.postedWithin] - Jobs đăng trong N ngày
+ * @param {string[]} [params.skills] - Lọc theo kỹ năng
+ * @param {number} [params.matchMin] - Match score tối thiểu
  * @returns {Promise<Object>} Danh sách jobs
  */
-const getAllJobs = async (limit = 50) => {
+const getAllJobs = async ({
+  limit = 50,
+  location,
+  jobType,
+  salaryMin,
+  salaryMax,
+  postedWithin,
+  skills,
+  matchMin
+}) => {
   try {
     const cappedLimit = Math.min(100, Math.max(1, limit || 50))
     const result = await aiProvider.getAllJobs(cappedLimit)
-    return result
+
+    // Handle both direct response and wrapped response
+    let jobs = result.data?.jobs || result.jobs || []
+
+    // Apply client-side filters
+    if (location) {
+      jobs = jobs.filter(job =>
+        job.location?.toLowerCase().includes(location.toLowerCase()) ||
+        job.province?.toLowerCase().includes(location.toLowerCase())
+      )
+    }
+
+    if (jobType) {
+      jobs = jobs.filter(job =>
+        job.job_type?.toLowerCase() === jobType.toLowerCase() ||
+        job.jobType?.toLowerCase() === jobType.toLowerCase()
+      )
+    }
+
+    if (salaryMin) {
+      jobs = jobs.filter(job => {
+        const jobSalary = job.salary_min || job.salaryMin || 0
+        return jobSalary >= salaryMin
+      })
+    }
+
+    if (salaryMax) {
+      jobs = jobs.filter(job => {
+        const jobSalary = job.salary_max || job.salaryMax || Infinity
+        return jobSalary <= salaryMax
+      })
+    }
+
+    if (postedWithin) {
+      const cutoffDate = new Date()
+      cutoffDate.setDate(cutoffDate.getDate() - postedWithin)
+      jobs = jobs.filter(job => {
+        const postedDate = new Date(job.posted_date || job.postedDate || job.created_at)
+        return postedDate >= cutoffDate
+      })
+    }
+
+    if (skills && skills.length > 0) {
+      jobs = jobs.filter(job => {
+        const jobSkills = job.required_skills || job.requiredSkills || job.skills || []
+        const hasMatchingSkill = skills.some(skill =>
+          jobSkills.some(jobSkill =>
+            jobSkill.toLowerCase().includes(skill.toLowerCase()) ||
+            skill.toLowerCase().includes(jobSkill.toLowerCase())
+          )
+        )
+        return hasMatchingSkill
+      })
+    }
+
+    if (matchMin) {
+      jobs = jobs.filter(job => {
+        const matchScore = job.match_score || job.matchScore || 0
+        return matchScore >= matchMin
+      })
+    }
+
+    return {
+      data: {
+        jobs,
+        total: jobs.length,
+        filters_applied: {
+          location,
+          jobType,
+          salaryMin,
+          salaryMax,
+          postedWithin,
+          skills,
+          matchMin
+        }
+      }
+    }
   } catch (error) {
     console.error('[AIService] getAllJobs error:', error)
 

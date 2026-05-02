@@ -58,12 +58,39 @@ const recommendJobs = async (req, res, next) => {
  * Lấy danh sách tất cả jobs
  * GET /v1/ai/jobs
  *
- * @param {Object} req.query.limit - Số lượng jobs tối đa (default: 50)
+ * @param {Object} req.query - Query parameters
+ * @param {number} req.query.limit - Số lượng jobs tối đa (default: 50)
+ * @param {string} req.query.location - Tỉnh/TP mong muốn
+ * @param {string} req.query.jobType - Loại công việc
+ * @param {number} req.query.salaryMin - Mức lương tối thiểu
+ * @param {number} req.query.salaryMax - Mức lương tối đa
+ * @param {number} req.query.postedWithin - Jobs đăng trong N ngày
+ * @param {string} req.query.skills - Lọc theo kỹ năng (comma-separated)
+ * @param {number} req.query.matchMin - Match score tối thiểu
  */
 const getAllJobs = async (req, res, next) => {
   try {
-    const { limit } = req.query
-    const result = await aiService.getAllJobs(parseInt(limit) || 50)
+    const {
+      limit,
+      location,
+      jobType,
+      salaryMin,
+      salaryMax,
+      postedWithin,
+      skills,
+      matchMin
+    } = req.query
+
+    const result = await aiService.getAllJobs({
+      limit: parseInt(limit) || 50,
+      location,
+      jobType,
+      salaryMin: salaryMin ? parseInt(salaryMin) : undefined,
+      salaryMax: salaryMax ? parseInt(salaryMax) : undefined,
+      postedWithin: postedWithin ? parseInt(postedWithin) : undefined,
+      skills: skills ? skills.split(',') : undefined,
+      matchMin: matchMin ? parseInt(matchMin) : undefined
+    })
 
     res.status(StatusCodes.OK).json({
       success: true,

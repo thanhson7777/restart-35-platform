@@ -42,6 +42,13 @@ Router.post('/recommend-jobs', aiController.recommendJobs)
  * @desc    Lấy danh sách tất cả jobs
  * @access  Public
  * @query   limit - Số lượng jobs tối đa (default: 50)
+ * @query   location - Tỉnh/TP mong muốn
+ * @query   jobType - Loại công việc (full-time, part-time, temporary, freelance)
+ * @query   salaryMin - Mức lương tối thiểu (VND)
+ * @query   salaryMax - Mức lương tối đa (VND)
+ * @query   postedWithin - Jobs đăng trong N ngày (1, 3, 7, 30)
+ * @query   skills - Lọc theo kỹ năng (comma-separated)
+ * @query   matchMin - Match score tối thiểu (0-100)
  */
 Router.get('/jobs', aiController.getAllJobs)
 
