@@ -173,7 +173,7 @@ function RegisterForm({ onSwitchTab }) {
       })
       setTimeout(() => onSwitchTab(), 2500)
     } else {
-      toast.error(result.payload || 'Đăng ký thất bại.')
+      toast.error(typeof result.payload === 'string' ? result.payload : result.payload?.message || 'Đăng ký thất bại.')
     }
   }
 

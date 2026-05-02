@@ -268,6 +268,7 @@ export const selectFormData = (state) => state.profile.formData
 export const selectIsSaving = (state) => state.profile.isSaving
 export const selectLastSavedAt = (state) => state.profile.lastSavedAt
 export const selectIsLoading = (state) => state.profile.isLoading
+export const selectIsCompleting = (state) => state.profile.isCompleting
 export const selectErrors = (state) => state.profile.errors
 
 export default profileSlice.reducer

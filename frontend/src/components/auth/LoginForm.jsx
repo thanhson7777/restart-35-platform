@@ -75,7 +75,7 @@ function LoginForm({ onSwitchTab }) {
       toast.success('Đăng nhập thành công!')
       navigate('/')
     } else {
-      toast.error(result.payload || 'Đăng nhập thất bại.')
+      toast.error(typeof result.payload === 'string' ? result.payload : result.payload?.message || 'Đăng nhập thất bại.')
     }
   }
 
