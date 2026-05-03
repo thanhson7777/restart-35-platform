@@ -53,3 +53,12 @@ scraping_cron.bat
 *_test.json
 *_test.csv
 debug_*.html
+
+# Cursor settings
+.cursor/
+
+# Docs folder
+docs/
+
+# HTML files in ai-service
+ai-service/**/*.html
