@@ -5,6 +5,7 @@ import { Button } from '@/components/ui'
 import { Card, CardContent } from '@/components/ui'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { JobCard } from '@/components/jobs'
+import MainLayout from '@/components/layout/MainLayout'
 import {
   fetchRecommendedJobs,
   fetchAllJobs,
@@ -24,6 +25,7 @@ import {
   selectIsCompleted,
   fetchMyProfile
 } from '@/redux/profile/profileSlice'
+import { selectCurrentUser } from '@/redux/user/userSlice'
 import toast from 'react-hot-toast'
 
 // Icons
@@ -110,6 +112,7 @@ const JobsPage = () => {
   const profile = useSelector(selectProfile)
   const formData = useSelector(selectFormData)
   const isProfileCompleted = useSelector(selectIsCompleted)
+  const currentUser = useSelector(selectCurrentUser)
   const recommendedJobs = useSelector(selectRecommendedJobs)
   const allJobs = useSelector(selectAllJobs)
   const savedJobs = useSelector(selectSavedJobs)
@@ -266,7 +269,7 @@ const JobsPage = () => {
   const isLoading = activeTab === 'recommended' ? recommendedLoading : jobsLoading
 
   return (
-    <div className="min-h-screen bg-background">
+    <MainLayout>
       {/* Header */}
       <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-b border-border">
         <div className="container mx-auto px-4 py-8">
@@ -281,7 +284,7 @@ const JobsPage = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              {!isProfileCompleted && (
+              {currentUser && (
                 <Button
                   variant="outline"
                   onClick={() => navigate('/worker-profile')}
@@ -482,7 +485,7 @@ const JobsPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </MainLayout>
   )
 }
 
