@@ -5,6 +5,7 @@ import { Button } from '@/components/ui'
 import { Card, CardContent } from '@/components/ui'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { JobCard } from '@/components/jobs'
+import CareerRecommendations from '@/components/worker-profile/CareerRecommendations'
 import MainLayout from '@/components/layout/MainLayout'
 import {
   fetchRecommendedJobs,
@@ -25,6 +26,11 @@ import {
   selectIsCompleted,
   fetchMyProfile
 } from '@/redux/profile/profileSlice'
+import {
+  selectCareerPath,
+  selectCareerPathLoading,
+  fetchCareerPath
+} from '@/redux/ai/aiSlice'
 import { selectCurrentUser } from '@/redux/user/userSlice'
 import toast from 'react-hot-toast'
 
@@ -63,6 +69,13 @@ const BookmarkIcon = ({ className }) => (
   </svg>
 )
 
+const TrendingUpIcon = ({ className }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+    <polyline points="17 6 23 6 23 12" />
+  </svg>
+)
+
 const UserIcon = ({ className }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -86,6 +99,7 @@ const ChevronLeftIcon = ({ className }) => (
 // Tab options
 const TABS = [
   { id: 'recommended', label: 'Gợi ý cho bạn', icon: SparklesIcon },
+  { id: 'career', label: 'Lộ trình nghề nghiệp', icon: TrendingUpIcon },
   { id: 'all', label: 'Tất cả việc làm', icon: BriefcaseIcon },
   { id: 'saved', label: 'Đã lưu', icon: BookmarkIcon }
 ]
@@ -121,10 +135,13 @@ const JobsPage = () => {
   const jobsLoading = useSelector(selectJobsLoading)
   const error = useSelector(selectJobsError)
   const filters = useSelector(selectJobFilters)
+  const careerPath = useSelector(selectCareerPath)
+  const careerPathLoading = useSelector(selectCareerPathLoading)
 
   // Refs to prevent infinite loops
   const hasFetchedRecommended = useRef(false)
   const hasFetchedAll = useRef(false)
+  const hasFetchedCareer = useRef(false)
 
   // Check if profile has required data for recommendations
   const hasProfileForRecommendations = useMemo(() => {
@@ -178,6 +195,27 @@ const JobsPage = () => {
           ...filters
         }))
       }
+    } else if (activeTab === 'career' && isProfileCompleted && !careerPathLoading) {
+      if (!hasFetchedCareer.current && formData.basicInfo?.age) {
+        hasFetchedCareer.current = true
+        const experiences = (formData.employmentHistory || [])
+          .filter(job => job.companyName || job.position)
+          .map(job => ({
+            industry: formData.basicInfo.industry || 'general',
+            role: job.position || 'Nhan vien',
+            years: job.duration || 1,
+            skills: []
+          }))
+
+        dispatch(fetchCareerPath({
+          age: formData.basicInfo.age,
+          current_role: formData.employmentHistory?.[0]?.position,
+          current_industry: formData.basicInfo.industry,
+          experiences: experiences,
+          include_age_transition: true,
+          include_management_track: true
+        }))
+      }
     }
     // saved tab doesn't need fetching - uses local state
   }, [
@@ -188,17 +226,22 @@ const JobsPage = () => {
     formData?.aspirations?.targetSalary,
     formData?.aspirations?.preferredJobType,
     formData?.basicInfo?.province,
+    formData?.basicInfo?.age,
+    formData?.basicInfo?.industry,
+    formData?.employmentHistory,
     totalExperience,
     filters,
     recommendedLoading,
     jobsLoading,
+    careerPathLoading,
+    isProfileCompleted,
     dispatch
   ])
 
   // Handle refresh
   const handleRefresh = () => {
     if (activeTab === 'recommended') {
-      hasFetchedRecommended.current = false // Reset to allow refetch
+      hasFetchedRecommended.current = false
       dispatch(fetchRecommendedJobs({
         skills: formData.aspirations.skills,
         experience: totalExperience,
@@ -208,11 +251,30 @@ const JobsPage = () => {
         preferredJobType: formData.aspirations?.preferredJobType,
         limit: 20
       }))
-    } else {
-      hasFetchedAll.current = false // Reset to allow refetch
+    } else if (activeTab === 'all') {
+      hasFetchedAll.current = false
       dispatch(fetchAllJobs({
         limit: 50,
         ...filters
+      }))
+    } else if (activeTab === 'career') {
+      hasFetchedCareer.current = false
+      const experiences = (formData.employmentHistory || [])
+        .filter(job => job.companyName || job.position)
+        .map(job => ({
+          industry: formData.basicInfo.industry || 'general',
+          role: job.position || 'Nhan vien',
+          years: job.duration || 1,
+          skills: []
+        }))
+
+      dispatch(fetchCareerPath({
+        age: formData.basicInfo.age,
+        current_role: formData.employmentHistory?.[0]?.position,
+        current_industry: formData.basicInfo.industry,
+        experiences: experiences,
+        include_age_transition: true,
+        include_management_track: true
       }))
     }
     toast.success('Đã làm mới danh sách việc làm')
@@ -328,6 +390,32 @@ const JobsPage = () => {
                   className="shrink-0"
                 >
                   Cập nhật hồ sơ
+                  <ArrowRightIcon className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Career Path Banner - Profile Not Completed */}
+        {activeTab === 'career' && !isProfileCompleted && (
+          <Card className="mb-6 border-warning/50 bg-warning/5">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircleIcon className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Vui lòng hoàn thiện hồ sơ người lao động để xem lộ trình nghề nghiệp phù hợp.
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/worker-profile')}
+                  className="shrink-0"
+                >
+                  Hoàn thiện hồ sơ
                   <ArrowRightIcon className="w-4 h-4 ml-1" />
                 </Button>
               </div>
@@ -459,6 +547,8 @@ const JobsPage = () => {
                   )}
                 </CardContent>
               </Card>
+            ) : activeTab === 'career' && isProfileCompleted ? (
+              <CareerRecommendations />
             ) : (
               <div className="space-y-4">
                 {currentJobs.map((job) => (

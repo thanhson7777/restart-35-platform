@@ -352,6 +352,71 @@ class JobRecommender:
         except (ValueError, TypeError):
             return 0.5  # Neutral nếu parse fails
 
+    def _semantic_fallback(self, skills: List[str], target_job: Optional[str],
+                           limit: int) -> List[Dict]:
+        """
+        Tìm jobs liên quan bằng keyword matching khi TF-IDF không tìm được kết quả.
+
+        Args:
+            skills: Danh sách skills của user
+            target_job: Công việc mong muốn
+            limit: Số lượng jobs tối đa
+
+        Returns:
+            List of jobs được tìm thấy
+        """
+        if not skills and not target_job:
+            return []
+
+        # Tạo keyword query từ skills và target_job
+        query_parts = []
+        if target_job:
+            query_parts.append(target_job.lower())
+        if skills:
+            query_parts.extend([s.lower() for s in skills])
+
+        query_keywords = set(query_parts)
+        results = []
+
+        for _, row in self.jobs_df.iterrows():
+            # Kiểm tra title và skills có chứa keywords không
+            title_lower = str(row.get('title', '')).lower()
+            skills_lower = ' '.join(row.get('skills_list', [])).lower()
+
+            matched = False
+            match_score = 0
+
+            for keyword in query_keywords:
+                if keyword in title_lower:
+                    matched = True
+                    match_score += 2  # Title match weighted higher
+                if keyword in skills_lower:
+                    matched = True
+                    match_score += 1
+
+            if matched:
+                # Tính score dựa trên match
+                job_result = {
+                    'id': row['id'],
+                    'title': row['title'],
+                    'company': row['company'],
+                    'score': min(1.0, match_score / 10),  # Normalize
+                    'skills': row['skills_list'],
+                    'skills_match': sum(1 for k in query_keywords if k in skills_lower),
+                    'salary_range': f"{int(row['salary_min']/1000000)}-{int(row['salary_max']/1000000)} triệu",
+                    'salary_min': int(row['salary_min']),
+                    'salary_max': int(row['salary_max']),
+                    'location': row.get('location', ''),
+                    'type': row.get('type', ''),
+                    'description': row.get('description', ''),
+                    'match_type': 'semantic_fallback'  # Mark as fallback result
+                }
+                results.append(job_result)
+
+        # Sort by score
+        results.sort(key=lambda x: x['score'], reverse=True)
+        return results[:limit]
+
     def recommend(self,
                   skills: List[str],
                   experience: int = 0,
@@ -407,8 +472,17 @@ class JobRecommender:
         for idx, row in self.jobs_df.iterrows():
             base_score = similarities[idx]
 
-            # Skip nếu base_score quá thấp (dưới 0.05)
-            if base_score < 0.05:
+            # Calculate skills match first (used in multiple places) - case insensitive
+            skills_lower = set(str(s).lower() for s in skills)
+            row_skills_lower = set(str(s).lower() for s in row['skills_list'])
+            skills_match = len(skills_lower & row_skills_lower)
+            has_skill_match = skills_match > 0
+
+            # Check target_job match
+            has_job_match = target_job and target_job.lower() in str(row.get('title', '')).lower()
+
+            # Skip nếu base_score quá thấp VÀ không có skill/job match
+            if base_score < 0.05 and not has_skill_match and not has_job_match:
                 continue
 
             # --- SOFT FILTER: Location Scoring ---
@@ -446,15 +520,18 @@ class JobRecommender:
             # Tính recency score
             recency_score = self._calculate_recency_score(row.get('scraped_at', ''))
 
+            # Skills Match Bonus - cải thiện relevance cho skill-based matching
+            skills_bonus = min(0.15, skills_match * 0.05)  # Max 15% bonus
+
             # 6. Final Score = Weighted Average
-            # Soft location: thêm location_score vào scoring
-            # Base: 55%, Salary: 12%, Job Type: 8%, Location: 10%, Recency: 10%
+            # Base: 50%, Skills: variable, Salary: 10%, Job Type: 8%, Location: 10%, Recency: 10%
             location_bonus = location_score * 0.10  # 10% weight cho location
             recency_bonus = recency_score * 0.10  # 10% weight cho recency
 
             final_score = (
-                base_score * 0.55 +
-                salary_score * 0.12 +
+                base_score * 0.50 +
+                skills_bonus +
+                salary_score * 0.10 +
                 job_type_score * 0.08 +
                 experience_bonus +
                 location_bonus +
@@ -471,7 +548,7 @@ class JobRecommender:
                 'company': row['company'],
                 'score': round(final_score, 3),
                 'skills': row['skills_list'],
-                'skills_match': len(set(skills) & set(row['skills_list'])),
+                'skills_match': skills_match,
                 'salary_range': f"{int(row['salary_min']/1000000)}-{int(row['salary_max']/1000000)} triệu",
                 'salary_min': int(row['salary_min']),
                 'salary_max': int(row['salary_max']),
@@ -490,7 +567,14 @@ class JobRecommender:
         results.sort(key=lambda x: x['score'], reverse=True)
         top_jobs = results[:limit]
 
-        # 9. Build response
+        # 9. Semantic Fallback: Nếu không có kết quả, thử tìm related jobs
+        if len(top_jobs) == 0 and (skills or target_job):
+            fallback_jobs = self._semantic_fallback(skills, target_job, limit)
+            if fallback_jobs:
+                top_jobs = fallback_jobs
+                results = fallback_jobs
+
+        # 10. Build response
         response = {
             'success': True,
             'data': {

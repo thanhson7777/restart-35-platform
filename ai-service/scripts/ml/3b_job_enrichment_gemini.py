@@ -48,6 +48,27 @@ logger = logging.getLogger(__name__)
 
 
 # ============================================================================
+# FEATURE FLAG CHECK
+# ============================================================================
+
+def _check_feature_flag():
+    """Check if job enrichment with Gemini is enabled."""
+    enabled = os.getenv('ENABLE_GEMINI_FOR_JOB_EXPLANATIONS', 'false').lower() == 'true'
+    if not enabled:
+        logger.warning("=" * 60)
+        logger.warning("Job enrichment Gemini is DISABLED by feature flag")
+        logger.warning("Set ENABLE_GEMINI_FOR_JOB_EXPLANATIONS=true in .env to enable")
+        logger.warning("=" * 60)
+        return False
+    return True
+
+
+if not _check_feature_flag():
+    logger.info("Exiting script. No changes made.")
+    sys.exit(0)
+
+
+# ============================================================================
 # GEMINI CLIENT (Inline)
 # ============================================================================
 

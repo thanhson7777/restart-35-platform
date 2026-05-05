@@ -169,3 +169,165 @@ export const getModelInfoAPI = async () => {
   const response = await authorizeAxiosInstance.get(`${AI_BASE_URL}/model-info`)
   return response.data
 }
+
+/**
+ * Khám phá lộ trình sự nghiệp cho người lao động
+ * POST /v1/ai/career-path
+ *
+ * @param {Object} profileData - Dữ liệu hồ sơ người lao động
+ * @param {number} profileData.age - Tuổi (bắt buộc)
+ * @param {string} [profileData.current_role] - Vị trí hiện tại
+ * @param {string} [profileData.current_industry] - Ngành hiện tại
+ * @param {Array<{industry: string, role: string, years: number, skills: string[]}>} [profileData.experiences] - Danh sách kinh nghiệm làm việc
+ * @param {number} [profileData.target_salary] - Mức lương mong muốn (VND)
+ * @param {string} [profileData.work_preference] - Sở thích công việc: remote, hybrid, onsite
+ * @param {boolean} [profileData.include_age_transition] - Bao gồm chuyển đổi theo tuổi (default: true)
+ * @param {boolean} [profileData.include_management_track] - Bao gồm thang quản lý (default: true)
+ * @returns {Promise<Object>} - Kết quả career paths { success, data: { user_profile, management_track, age_transition, skill_upgrades, ... } }
+ */
+export const discoverCareerPathAPI = async (profileData) => {
+  // Validate required fields
+  if (!profileData.age) {
+    throw new Error('Tuổi là bắt buộc để khám phá lộ trình sự nghiệp')
+  }
+
+  const payload = {
+    age: profileData.age,
+    experiences: profileData.experiences || [],
+    include_age_transition: profileData.include_age_transition !== false,
+    include_management_track: profileData.include_management_track !== false
+  }
+
+  // Thêm các optional fields nếu có giá trị
+  if (profileData.current_role) payload.current_role = profileData.current_role
+  if (profileData.current_industry) payload.current_industry = profileData.current_industry
+  if (profileData.target_salary) payload.target_salary = profileData.target_salary
+  if (profileData.work_preference) payload.work_preference = profileData.work_preference
+
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/career-path`,
+    payload
+  )
+  return response.data
+}
+
+/**
+ * Lấy thông tin mức độ khẩn cấp chuyển đổi nghề theo tuổi
+ * GET /v1/ai/career-path/urgency
+ *
+ * @param {number} age - Tuổi của người lao động (18-70)
+ * @returns {Promise<Object>} - Thông tin urgency { success, data: { age, urgency, description, recommendations } }
+ */
+export const getCareerPathUrgencyAPI = async (age) => {
+  if (!age || age < 18 || age > 70) {
+    throw new Error('Tuổi phải từ 18 đến 70')
+  }
+  const response = await authorizeAxiosInstance.get(`${AI_BASE_URL}/career-path/urgency?age=${age}`)
+  return response.data
+}
+
+/**
+ * Lấy danh sách các ngành nghề được hỗ trợ
+ * GET /v1/ai/career-path/industries
+ *
+ * @returns {Promise<Object>} - Danh sách ngành { success, data: { industries: [{id, name, levels_count, ...}] } }
+ */
+export const getCareerPathIndustriesAPI = async () => {
+  const response = await authorizeAxiosInstance.get(`${AI_BASE_URL}/career-path/industries`)
+  return response.data
+}
+
+/**
+ * =============================================================================
+ * CAREER TRANSITION APIs (35+)
+ * =============================================================================
+ */
+
+/**
+ * Lấy gợi ý chuyển đổi nghề nghiệp cho lao động 35+
+ * POST /v1/ai/career-transitions
+ *
+ * @param {Object} profileData - Dữ liệu hồ sơ người lao động
+ * @param {number} profileData.age - Tuổi (bắt buộc)
+ * @param {string} profileData.current_role - Vị trí hiện tại
+ * @param {string} profileData.current_industry - Ngành hiện tại (e.g., ban_hang, co_khi)
+ * @param {number} profileData.experience_years - Số năm kinh nghiệm
+ * @param {string[]} profileData.skills - Danh sách kỹ năng
+ * @param {number} [profileData.target_salary] - Mức lương mong muốn (VND)
+ * @param {string[]} [profileData.barriers] - Các rào cản
+ * @param {string[]} [profileData.transition_types] - Loại chuyển đổi: management, cross_industry, universal
+ * @param {number} [profileData.limit] - Số lượng kết quả (default: 10)
+ * @returns {Promise<Object>} - Kết quả transitions
+ */
+export const getCareerTransitionsAPI = async (profileData) => {
+  if (!profileData.age) {
+    throw new Error('Tuổi là bắt buộc để khám phá chuyển đổi nghề')
+  }
+  if (!profileData.current_role) {
+    throw new Error('Vị trí hiện tại là bắt buộc')
+  }
+  if (!profileData.current_industry) {
+    throw new Error('Ngành hiện tại là bắt buộc')
+  }
+
+  const payload = {
+    age: profileData.age,
+    current_role: profileData.current_role,
+    current_industry: profileData.current_industry,
+    experience_years: profileData.experience_years || 0,
+    skills: profileData.skills || [],
+    transition_types: profileData.transition_types || ['management', 'cross_industry', 'universal'],
+    limit: profileData.limit || 10
+  }
+
+  // Optional fields
+  if (profileData.target_salary) payload.target_salary = profileData.target_salary
+  if (profileData.barriers && profileData.barriers.length > 0) payload.barriers = profileData.barriers
+
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/career-transitions`,
+    payload
+  )
+  return response.data
+}
+
+/**
+ * Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi (35+)
+ * GET /v1/ai/career-transitions/urgency
+ *
+ * @param {number} age - Tuổi của người lao động (18-70)
+ * @returns {Promise<Object>} - Thông tin urgency
+ */
+export const getTransitionsUrgencyAPI = async (age) => {
+  if (!age || age < 18 || age > 70) {
+    throw new Error('Tuổi phải từ 18 đến 70')
+  }
+  const response = await authorizeAxiosInstance.get(`${AI_BASE_URL}/career-transitions/urgency?age=${age}`)
+  return response.data
+}
+
+/**
+ * Lấy danh sách ngành nghề được hỗ trợ cho chuyển đổi
+ * GET /v1/ai/career-transitions/industries
+ *
+ * @returns {Promise<Object>} - Danh sách ngành { industries, total, recommended_for_35_plus }
+ */
+export const getTransitionsIndustriesAPI = async () => {
+  const response = await authorizeAxiosInstance.get(`${AI_BASE_URL}/career-transitions/industries`)
+  return response.data
+}
+
+/**
+ * Lấy skill gaps cho một ngành cụ thể
+ * GET /v1/ai/career-transitions/skills
+ *
+ * @param {string} industry - Ngành cần xem skill gaps (e.g., co_khi, ban_hang)
+ * @returns {Promise<Object>} - Skill gaps { industry, recommended_skills }
+ */
+export const getTransitionsSkillsAPI = async (industry) => {
+  if (!industry) {
+    throw new Error('Ngành là bắt buộc')
+  }
+  const response = await authorizeAxiosInstance.get(`${AI_BASE_URL}/career-transitions/skills?industry=${industry}`)
+  return response.data
+}

@@ -112,10 +112,12 @@ async def log_requests(request: Request, call_next):
 
 from routers.ai import router as ai_router
 from routers.career_path import router as career_path_router
+from routers.career_transition import router as career_transition_router
 
 # Register routers
 app.include_router(ai_router)
 app.include_router(career_path_router)
+app.include_router(career_transition_router)
 
 
 # =============================================================================
@@ -225,7 +227,9 @@ async def startup_event():
     logger.info("   • POST /api/v1/ai/recommend-jobs - Job recommendation")
     logger.info("   • POST /api/v1/ai/predict-risk   - Risk prediction")
     logger.info("   • POST /api/v1/ai/analyze-worker - Worker analysis")
-    logger.info("   • GET  /api/v1/ai/model-info - Model information")
+    logger.info("   • POST /api/v1/ai/career-transitions - Career transitions (35+)")
+    logger.info("   • GET  /api/v1/ai/career-transitions/urgency - Urgency by age")
+    logger.info("   • GET  /api/v1/ai/career-transitions/industries - Supported industries")
     logger.info("")
     logger.info(f"📚 API Docs: http://localhost:8000/docs")
     logger.info("=" * 60)

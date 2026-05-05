@@ -11,7 +11,14 @@ import {
   predictRiskAPI,
   analyzeWorkerAPI,
   healthCheckAIAPI,
-  getModelInfoAPI
+  getModelInfoAPI,
+  discoverCareerPathAPI,
+  getCareerPathUrgencyAPI,
+  getCareerPathIndustriesAPI,
+  getCareerTransitionsAPI,
+  getTransitionsUrgencyAPI,
+  getTransitionsIndustriesAPI,
+  getTransitionsSkillsAPI
 } from '~/apis/aiAPI'
 
 /**
@@ -157,6 +164,121 @@ export const fetchModelInfo = createAsyncThunk(
 )
 
 /**
+ * Khám phá lộ trình sự nghiệp
+ * POST /v1/ai/career-path
+ */
+export const fetchCareerPath = createAsyncThunk(
+  'ai/fetchCareerPath',
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const response = await discoverCareerPathAPI(profileData)
+      // Backend response: { success, data: { user_profile, management_track, age_transition, skill_upgrades, ... } }
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể khám phá lộ trình sự nghiệp'
+      )
+    }
+  }
+)
+
+/**
+ * Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi
+ * GET /v1/ai/career-path/urgency
+ */
+export const fetchCareerPathUrgency = createAsyncThunk(
+  'ai/fetchCareerPathUrgency',
+  async (age, { rejectWithValue }) => {
+    try {
+      const response = await getCareerPathUrgencyAPI(age)
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể lấy mức độ khẩn cấp'
+      )
+    }
+  }
+)
+
+/**
+ * Lấy danh sách ngành nghề được hỗ trợ
+ * GET /v1/ai/career-path/industries
+ */
+export const fetchCareerPathIndustries = createAsyncThunk(
+  'ai/fetchCareerPathIndustries',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getCareerPathIndustriesAPI()
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể lấy danh sách ngành nghề'
+      )
+    }
+  }
+)
+
+/**
+ * =============================================================================
+ * CAREER TRANSITION APIs (35+) Thunks
+ * =============================================================================
+ */
+
+/**
+ * Lấy gợi ý chuyển đổi nghề cho lao động 35+
+ * POST /v1/ai/career-transitions
+ */
+export const fetchCareerTransitions = createAsyncThunk(
+  'ai/fetchCareerTransitions',
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const response = await getCareerTransitionsAPI(profileData)
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể lấy gợi ý chuyển đổi nghề'
+      )
+    }
+  }
+)
+
+/**
+ * Lấy mức độ khẩn cấp chuyển đổi nghề
+ * GET /v1/ai/career-transitions/urgency
+ */
+export const fetchTransitionsUrgency = createAsyncThunk(
+  'ai/fetchTransitionsUrgency',
+  async (age, { rejectWithValue }) => {
+    try {
+      const response = await getTransitionsUrgencyAPI(age)
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể lấy mức độ khẩn cấp'
+      )
+    }
+  }
+)
+
+/**
+ * Lấy danh sách ngành cho chuyển đổi
+ * GET /v1/ai/career-transitions/industries
+ */
+export const fetchTransitionsIndustries = createAsyncThunk(
+  'ai/fetchTransitionsIndustries',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getTransitionsIndustriesAPI()
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể lấy ngành nghề'
+      )
+    }
+  }
+)
+
+/**
  * Risk Level Constants
  */
 export const RISK_LEVELS = {
@@ -237,7 +359,21 @@ const initialState = {
   // User risk assessment (calculated from profile)
   userRiskLevel: null,
   userRiskScore: null,
-  userRiskMessage: null
+  userRiskMessage: null,
+
+  // Career Path Discovery
+  careerPath: null,              // { user_profile, management_track, age_transition, skill_upgrades, ... }
+  careerPathLoading: false,
+  careerPathError: null,
+  careerPathUrgency: null,       // { age, urgency, description, recommendations }
+  careerPathIndustries: [],       // [{id, name, levels_count, ...}]
+
+  // Career Transitions (35+)
+  careerTransitions: [],          // Array of transition recommendations
+  careerTransitionsLoading: false,
+  careerTransitionsError: null,
+  careerTransitionsUrgency: null,  // Urgency info for current age
+  careerTransitionsIndustries: []   // Supported industries
 }
 
 /**
@@ -292,6 +428,14 @@ const aiSlice = createSlice({
     clearWorkerAnalysis: (state) => {
       state.workerAnalysis = null
       state.workerAnalysisError = null
+    },
+
+    /**
+     * Clear career path
+     */
+    clearCareerPath: (state) => {
+      state.careerPath = null
+      state.careerPathError = null
     },
 
     /**
@@ -429,7 +573,95 @@ const aiSlice = createSlice({
       .addCase(fetchModelInfo.fulfilled, (state, action) => {
         state.modelInfo = action.payload
       })
-  }
+
+    /**
+     * fetchCareerPath
+     */
+    builder
+      .addCase(fetchCareerPath.pending, (state) => {
+        state.careerPathLoading = true
+        state.careerPathError = null
+      })
+      .addCase(fetchCareerPath.fulfilled, (state, action) => {
+        state.careerPathLoading = false
+        state.careerPath = action.payload
+      })
+      .addCase(fetchCareerPath.rejected, (state, action) => {
+        state.careerPathLoading = false
+        state.careerPathError = action.payload
+      })
+
+    /**
+     * fetchCareerPathUrgency
+     */
+    builder
+      .addCase(fetchCareerPathUrgency.fulfilled, (state, action) => {
+        state.careerPathUrgency = action.payload
+      })
+
+    /**
+     * fetchCareerPathIndustries
+     */
+    builder
+      .addCase(fetchCareerPathIndustries.fulfilled, (state, action) => {
+        const data = action.payload
+        state.careerPathIndustries = data?.industries ?? data ?? []
+      })
+
+    /**
+     * =============================================================================
+     * CAREER TRANSITIONS (35+) Reducers
+     * =============================================================================
+     */
+
+    /**
+     * fetchCareerTransitions
+     */
+    builder
+      .addCase(fetchCareerTransitions.pending, (state) => {
+        state.careerTransitionsLoading = true
+        state.careerTransitionsError = null
+      })
+      .addCase(fetchCareerTransitions.fulfilled, (state, action) => {
+        state.careerTransitionsLoading = false
+        const data = action.payload
+        if (data?.transitions) {
+          state.careerTransitions = data.transitions
+        }
+        if (data?.urgency) {
+          state.careerTransitionsUrgency = data.urgency
+        }
+        if (data?.industry_coverage) {
+          state.careerTransitionsIndustries = data.industry_coverage
+        }
+      })
+      .addCase(fetchCareerTransitions.rejected, (state, action) => {
+        state.careerTransitionsLoading = false
+        state.careerTransitionsError = action.payload
+      })
+
+    /**
+     * fetchTransitionsUrgency
+     */
+    builder
+      .addCase(fetchTransitionsUrgency.fulfilled, (state, action) => {
+        state.careerTransitionsUrgency = action.payload
+      })
+
+    /**
+     * fetchTransitionsIndustries
+     */
+    builder
+      .addCase(fetchTransitionsIndustries.fulfilled, (state, action) => {
+        const data = action.payload
+        if (data?.industries) {
+          state.careerTransitionsIndustries = Object.entries(data.industries).map(([key, name]) => ({
+            key,
+            name
+          }))
+        }
+      })
+}
 })
 
 /**
@@ -441,6 +673,7 @@ export const {
   clearSelectedJob,
   clearRiskPrediction,
   clearWorkerAnalysis,
+  clearCareerPath,
   resetAIState
 } = aiSlice.actions
 
@@ -484,5 +717,24 @@ export const selectModelInfo = (state) => state.ai.modelInfo
 export const selectUserRiskLevel = (state) => state.ai.userRiskLevel
 export const selectUserRiskScore = (state) => state.ai.userRiskScore
 export const selectUserRiskMessage = (state) => state.ai.userRiskMessage
+
+// Career Path selectors
+export const selectCareerPath = (state) => state.ai.careerPath
+export const selectCareerPathLoading = (state) => state.ai.careerPathLoading
+export const selectCareerPathError = (state) => state.ai.careerPathError
+export const selectCareerPathUrgency = (state) => state.ai.careerPathUrgency
+export const selectCareerPathIndustries = (state) => state.ai.careerPathIndustries
+
+// Career Path convenience selectors
+export const selectManagementTrack = (state) => state.ai.careerPath?.management_track ?? []
+export const selectAgeTransition = (state) => state.ai.careerPath?.age_transition ?? []
+export const selectSkillUpgrades = (state) => state.ai.careerPath?.skill_upgrades ?? []
+
+// Career Transitions selectors (35+)
+export const selectCareerTransitions = (state) => state.ai.careerTransitions
+export const selectCareerTransitionsLoading = (state) => state.ai.careerTransitionsLoading
+export const selectCareerTransitionsError = (state) => state.ai.careerTransitionsError
+export const selectCareerTransitionsUrgency = (state) => state.ai.careerTransitionsUrgency
+export const selectCareerTransitionsIndustries = (state) => state.ai.careerTransitionsIndustries
 
 export default aiSlice.reducer
