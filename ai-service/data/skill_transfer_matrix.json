@@ -1,0 +1,279 @@
+{
+  "metadata": {
+    "description": "Skill transfer matrix for career transitions",
+    "version": "1.0",
+    "industries": [
+      "bao_ve", "lai_xe", "co_khi", "ban_hang",
+      "phuc_vu", "hanh_chinh", "nhan_su", "tu_van"
+    ]
+  },
+  "skill_categories": {
+    "leadership": {
+      "description": "Ky nang lanh dao va quan ly",
+      "transfer_score": 0.9,
+      "transfers_to": [
+        "management", "consulting", "training", "coaching",
+        "production_manager", "hr_manager", "operations"
+      ],
+      "learning_time_months": 3,
+      "common_sources": ["co_khi", "ban_hang", "tu_van", "nhan_su"]
+    },
+    "communication": {
+      "description": "Ky nang giao tiep va thuyet trinh",
+      "transfer_score": 0.95,
+      "transfers_to": [
+        "training", "sales", "consulting", "coaching",
+        "customer_service", "hr", "teaching"
+      ],
+      "learning_time_months": 2,
+      "common_sources": ["ban_hang", "tu_van", "phuc_vu", "nhan_su"]
+    },
+    "problem_solving": {
+      "description": "Ky nang giai quyet van de",
+      "transfer_score": 0.85,
+      "transfers_to": [
+        "consulting", "management", "quality", "process_improvement",
+        "troubleshooting"
+      ],
+      "learning_time_months": 2,
+      "common_sources": ["co_khi", "tu_van", "hanh_chinh"]
+    },
+    "technical_skills": {
+      "description": "Ky nang ky thuat chuyen nganh",
+      "transfer_score": 0.8,
+      "transfers_to": [
+        "training", "consulting", "technical_sales", "teaching",
+        "quality_control"
+      ],
+      "learning_time_months": 6,
+      "common_sources": ["co_khi", "lai_xe", "hanh_chinh"]
+    },
+    "customer_service": {
+      "description": "Ky nang phuc vu khach hang",
+      "transfer_score": 0.9,
+      "transfers_to": [
+        "sales", "training", "consulting", "hospitality",
+        "customer_success", "account_management"
+      ],
+      "learning_time_months": 1,
+      "common_sources": ["phuc_vu", "ban_hang", "lai_xe"]
+    },
+    "operations": {
+      "description": "Ky nang van hanh san xuat",
+      "transfer_score": 0.85,
+      "transfers_to": [
+        "logistics", "production", "quality", "management",
+        "supply_chain", "operations_manager"
+      ],
+      "learning_time_months": 3,
+      "common_sources": ["co_khi", "lai_xe", "phuc_vu"]
+    },
+    "safety_awareness": {
+      "description": "Nhan thuc ve an toan lao dong",
+      "transfer_score": 0.8,
+      "transfers_to": [
+        "safety_management", "quality", "compliance",
+        "environmental", "risk_management"
+      ],
+      "learning_time_months": 3,
+      "common_sources": ["bao_ve", "co_khi", "lai_xe"]
+    },
+    "administrative": {
+      "description": "Ky nang hanh chinh, van phong",
+      "transfer_score": 0.85,
+      "transfers_to": [
+        "office_management", "hr", "procurement",
+        "compliance", "executive_assistant"
+      ],
+      "learning_time_months": 2,
+      "common_sources": ["hanh_chinh", "nhan_su", "tu_van"]
+    },
+    "sales_skills": {
+      "description": "Ky nang ban hang, marketing",
+      "transfer_score": 0.9,
+      "transfers_to": [
+        "business_development", "marketing", "customer_acquisition",
+        "account_management", "training"
+      ],
+      "learning_time_months": 2,
+      "common_sources": ["ban_hang", "tu_van", "phuc_vu"]
+    },
+    "teaching": {
+      "description": "Ky nang giang day, huong dan",
+      "transfer_score": 0.95,
+      "transfers_to": [
+        "training", "coaching", "consulting", "education",
+        "mentoring"
+      ],
+      "learning_time_months": 1,
+      "common_sources": ["tu_van", "nhan_su", "hanh_chinh"]
+    },
+    "financial": {
+      "description": "Ky nang tai chinh, ke toan",
+      "transfer_score": 0.85,
+      "transfers_to": [
+        "financial_advisory", "accounting", "controller",
+        "business_analysis", "consulting"
+      ],
+      "learning_time_months": 6,
+      "common_sources": ["hanh_chinh", "tu_van", "nhan_su"]
+    },
+    "digital": {
+      "description": "Ky nang so, cong nghe",
+      "transfer_score": 0.75,
+      "transfers_to": [
+        "digital_marketing", "data_analysis", "it_support",
+        "automation", "e-commerce"
+      ],
+      "learning_time_months": 4,
+      "common_sources": ["hanh_chinh", "co_khi", "tu_van"]
+    }
+  },
+  "industry_skill_matches": {
+    "bao_ve": {
+      "name": "Bao Ve & An Ninh",
+      "transferable_from": ["lai_xe", "co_khi", "phuc_vu"],
+      "common_skills": ["safety", "operations", "vigilance", "access_control"],
+      "recommended_transitions": ["security_consultant", "facility_manager", "safety_officer"]
+    },
+    "lai_xe": {
+      "name": "Lai Xe & Van Tai",
+      "transferable_from": ["bao_ve", "co_khi", "phuc_vu"],
+      "common_skills": ["time_management", "route_planning", "vehicle_maintenance"],
+      "recommended_transitions": ["fleet_manager", "logistics_coordinator", "driver_trainer"]
+    },
+    "co_khi": {
+      "name": "Co Khi & San Xuat",
+      "transferable_from": ["lai_xe", "bao_ve", "hanh_chinh"],
+      "common_skills": ["technical", "operations", "quality", "safety"],
+      "recommended_transitions": ["production_manager", "quality_manager", "maintenance_supervisor", "lean_consultant"]
+    },
+    "ban_hang": {
+      "name": "Ban Hang & Kinh Doanh",
+      "transferable_from": ["phuc_vu", "tu_van", "nhan_su"],
+      "common_skills": ["communication", "negotiation", "customer_relations"],
+      "recommended_transitions": ["sales_trainer", "key_account_manager", "business_development_manager"]
+    },
+    "phuc_vu": {
+      "name": "Phuc Vu & Nha Hang",
+      "transferable_from": ["ban_hang", "lai_xe", "hanh_chinh"],
+      "common_skills": ["customer_service", "time_management", "hospitality"],
+      "recommended_transitions": ["restaurant_consultant", "catering_manager", "hospitality_manager"]
+    },
+    "hanh_chinh": {
+      "name": "Hanh Chinh",
+      "transferable_from": ["nhan_su", "tu_van", "co_khi"],
+      "common_skills": ["organization", "documentation", "process_management"],
+      "recommended_transitions": ["compliance_officer", "office_manager", "procurement_specialist"]
+    },
+    "nhan_su": {
+      "name": "Nhan Su & HR",
+      "transferable_from": ["hanh_chinh", "tu_van", "ban_hang"],
+      "common_skills": ["people_skills", "communication", "administration"],
+      "recommended_transitions": ["hr_consultant", "training_manager", "recruitment_specialist"]
+    },
+    "tu_van": {
+      "name": "Tu Van",
+      "transferable_from": ["nhan_su", "ban_hang", "co_khi"],
+      "common_skills": ["communication", "problem_solving", "industry_knowledge"],
+      "recommended_transitions": ["management_consultant", "career_coach", "business_coach", "financial_advisor"]
+    }
+  },
+  "transition_templates": {
+    "from_co_khi": {
+      "to_quality_manager": {
+        "skill_match_score": 0.85,
+        "skill_gaps": ["ISO Standards", "Six Sigma", "Quality Tools"],
+        "timeline_months": [6, 12],
+        "salary_impact_percent": [20, 50]
+      },
+      "to_production_manager": {
+        "skill_match_score": 0.8,
+        "skill_gaps": ["Leadership", "Lean Manufacturing", "OEE"],
+        "timeline_months": [3, 6],
+        "salary_impact_percent": [15, 40]
+      },
+      "to_consultant": {
+        "skill_match_score": 0.75,
+        "skill_gaps": ["Consulting Framework", "Personal Branding"],
+        "timeline_months": [6, 12],
+        "salary_impact_percent": [30, 100]
+      }
+    },
+    "from_ban_hang": {
+      "to_sales_trainer": {
+        "skill_match_score": 0.9,
+        "skill_gaps": ["Training Design", "Adult Learning"],
+        "timeline_months": [2, 4],
+        "salary_impact_percent": [10, 30]
+      },
+      "to_consultant": {
+        "skill_match_score": 0.8,
+        "skill_gaps": ["Industry Expertise", "Methodology"],
+        "timeline_months": [6, 12],
+        "salary_impact_percent": [40, 80]
+      },
+      "to_coach": {
+        "skill_match_score": 0.85,
+        "skill_gaps": ["Coaching Certification", "Psychology"],
+        "timeline_months": [2, 4],
+        "salary_impact_percent": [0, 50]
+      }
+    },
+    "from_hanh_chinh": {
+      "to_compliance_officer": {
+        "skill_match_score": 0.85,
+        "skill_gaps": ["Legal Knowledge", "Audit"],
+        "timeline_months": [3, 6],
+        "salary_impact_percent": [20, 40]
+      },
+      "to_office_manager": {
+        "skill_match_score": 0.9,
+        "skill_gaps": ["Vendor Management", "Process Optimization"],
+        "timeline_months": [2, 4],
+        "salary_impact_percent": [15, 30]
+      }
+    },
+    "from_nhan_su": {
+      "to_training_manager": {
+        "skill_match_score": 0.9,
+        "skill_gaps": ["LMS", "Curriculum Design"],
+        "timeline_months": [2, 4],
+        "salary_impact_percent": [15, 35]
+      },
+      "to_hr_consultant": {
+        "skill_match_score": 0.85,
+        "skill_gaps": ["Consulting", "Business Acumen"],
+        "timeline_months": [6, 12],
+        "salary_impact_percent": [40, 80]
+      },
+      "to_career_coach": {
+        "skill_match_score": 0.8,
+        "skill_gaps": ["Coaching Certification"],
+        "timeline_months": [2, 3],
+        "salary_impact_percent": [10, 40]
+      }
+    },
+    "universal_to_consultant": {
+      "skill_match_score": 0.7,
+      "skill_gaps": ["Consulting Framework", "Proposal Writing", "Personal Branding"],
+      "timeline_months": [3, 6],
+      "salary_impact_percent": [0, 100],
+      "requirements": ["Kinh nghiem 8+ nam trong nghanh"]
+    },
+    "universal_to_trainer": {
+      "skill_match_score": 0.8,
+      "skill_gaps": ["Presentation", "Adult Learning"],
+      "timeline_months": [1, 3],
+      "salary_impact_percent": [-10, 20],
+      "requirements": ["Kinh nghiem 5+ nam trong nghanh"]
+    },
+    "universal_to_coach": {
+      "skill_match_score": 0.75,
+      "skill_gaps": ["Coaching Certification", "Active Listening"],
+      "timeline_months": [1, 2],
+      "salary_impact_percent": [0, 50],
+      "requirements": ["Kinh nghiem 8+ nam", "Ky nang giao tiep tot"]
+    }
+  }
+}

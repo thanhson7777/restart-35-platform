@@ -36,6 +36,11 @@ except ImportError:
     logger.warning("google-genai not installed. Gemini features disabled.")
 
 
+def _should_use_gemini_for_career_paths() -> bool:
+    """Check if Gemini should be used for career paths (feature flag)."""
+    return os.getenv('ENABLE_GEMINI_FOR_CAREER_PATHS', 'false').lower() == 'true'
+
+
 class CareerPathCache:
     """
     In-memory cache cho career path generation.
@@ -200,7 +205,9 @@ Trả về JSON:
     
     @property
     def is_available(self) -> bool:
-        """Check if Gemini is available."""
+        """Check if Gemini is available (feature flag + client check)."""
+        if not _should_use_gemini_for_career_paths():
+            return False
         return self.client is not None and not self._circuit_open
     
     def generate_paths(

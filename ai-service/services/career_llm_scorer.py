@@ -31,6 +31,11 @@ except ImportError:
     logger.warning("google-genai not installed")
 
 
+def _should_use_gemini_for_llm_scoring() -> bool:
+    """Check if Gemini should be used for LLM scoring (feature flag)."""
+    return os.getenv('ENABLE_GEMINI_FOR_LLM_SCORING', 'false').lower() == 'true'
+
+
 class CareerPathExplanationCache:
     """
     In-memory cache for career path explanations.
@@ -100,7 +105,13 @@ class CareerLLMScorer:
         self._initialize()
     
     def _initialize(self) -> None:
-        """Initialize Gemini client."""
+        """Initialize Gemini client (only if feature flag is enabled)."""
+        # Check feature flag first
+        if not _should_use_gemini_for_llm_scoring():
+            self._init_error = "Gemini disabled by ENABLE_GEMINI_FOR_LLM_SCORING flag"
+            logger.info(f"CareerLLMScorer: {self._init_error}")
+            return
+        
         if not GEMINI_AVAILABLE:
             self._init_error = "Gemini not installed"
             return

@@ -4,6 +4,7 @@ Hybrid Recommender - Kết hợp TF-IDF + Semantic Search + Collaborative Filter
 
 from typing import List, Dict, Optional
 import numpy as np
+import pandas as pd
 import logging
 import requests
 import os
@@ -184,6 +185,28 @@ class HybridRecommender:
 
         jobs = tfidf_results['data']['jobs']
 
+        # Check if TF-IDF returned empty results - use fallback
+        if len(jobs) == 0 and (skills or target_job):
+            logger.info("TF-IDF returned empty, using keyword fallback")
+            fallback = self.tfidf._semantic_fallback(skills, target_job, limit)
+            if fallback:
+                return {
+                    'success': True,
+                    'data': {
+                        'jobs': fallback,
+                        'total': len(fallback),
+                        'scoring_method': 'keyword_fallback',
+                        'filters_applied': {
+                            'location': location,
+                            'skills_count': len(skills),
+                            'target_job': target_job,
+                            'use_semantic': False,
+                            'use_cf': False,
+                            'cf_available': False
+                        }
+                    }
+                }
+
         # Build job ID list for CF scoring
         job_ids = [job.get('id') for job in jobs]
 
@@ -219,7 +242,15 @@ class HybridRecommender:
         # 6. Return top-k after reranking
         top_jobs = jobs[:limit]
 
-        # 7. Build response
+        # 7. Semantic Fallback: Nếu không có kết quả, dùng TF-IDF gốc
+        if len(top_jobs) == 0 and job_ids:
+            logger.info("Semantic search returned empty, using TF-IDF results")
+            top_jobs = [
+                {**job, 'match_type': 'tfidf_fallback'}
+                for job in jobs[:limit]
+            ] if jobs else []
+
+        # 8. Build response
         return {
             'success': True,
             'data': {

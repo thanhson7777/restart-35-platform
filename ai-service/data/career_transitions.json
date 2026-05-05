@@ -1,0 +1,493 @@
+{
+  "metadata": {
+    "description": "Career transitions for workers 35+ in Vietnam",
+    "industries": [
+      "tu_van",
+      "co_khi",
+      "lai_xe",
+      "ban_hang",
+      "hanh_chinh",
+      "nhan_su",
+      "phuc_vu",
+      "bao_ve"
+    ],
+    "age_focus": "35-50+",
+    "source": "Labor market research + career_ladders.json",
+    "version": "1.0"
+  },
+  "transition_paths_by_industry": {
+    "bao_ve": {
+      "title": "Bao Ve & An Ninh",
+      "career_ladder_key": "bao_ve",
+      "salary_range": [8500000, 19890000],
+      "35_plus_transitions": [
+        {
+          "type": "security_consultant",
+          "title": "Tu Van An Ninh",
+          "description": "Tri tu kinh nghiem bao ve thanh tu van an ninh cho doanh nghiep",
+          "salary_range": [15000000, 25000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Security Audit", "Risk Assessment", "Report Writing"],
+          "pros": ["Thu nhap cao hon", "Tri tue", "Thi truong tot"],
+          "cons": ["Can chung chi", "Thi truong nho"],
+          "requirements": ["Kinh nghiem 5+ nam", "Chung chi an ninh"],
+          "difficulty": "medium"
+        },
+        {
+          "type": "facility_manager",
+          "title": "Quan Ly Co So",
+          "description": "Quan ly van hanh co so vat chat, van phong",
+          "salary_range": [15000000, 30000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["Facilities Management", "Vendor Relations", "Budget Planning"],
+          "pros": ["On dinh", "Nhieu co hoi", "Dung kinh nghiem"],
+          "cons": ["Trach nhiem lon", "Nhieu thu tri"],
+          "requirements": ["Kinh nghiem 3+ nam", "Ky nang quan ly"],
+          "difficulty": "medium"
+        },
+        {
+          "type": "safety_officer",
+          "title": "Chuyen Vien An Toan Lao Dong",
+          "description": "Dam bao an toan lao dong trong doanh nghiep",
+          "salary_range": [12000000, 20000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Safety Regulations", "Training", "Inspection"],
+          "pros": ["HOT TREND", "On dinh", "Y nghia"],
+          "cons": ["Chung chi chuyen mon"],
+          "requirements": ["Chung chi ATVSLD", "Kinh nghiem 3+ nam"],
+          "difficulty": "easy"
+        }
+      ]
+    },
+    "lai_xe": {
+      "title": "Lai Xe & Van Tai",
+      "career_ladder_key": "lai_xe",
+      "salary_range": [14000000, 36400000],
+      "35_plus_transitions": [
+        {
+          "type": "fleet_manager",
+          "title": "Quan Ly Dong Xe",
+          "description": "Quan ly va dieu phoi dong xe cho cong ty van tai",
+          "salary_range": [20000000, 35000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["Fleet Management", "GPS Systems", "Driver Management"],
+          "pros": ["Dung kinh nghiem lai xe", "Thu nhap tot"],
+          "cons": ["Can ky nang quan ly"],
+          "requirements": ["Bang lai hang E", "Kinh nghiem 5+ nam"],
+          "difficulty": "medium"
+        },
+        {
+          "type": "logistics_coordinator",
+          "title": "Dieu Phoi Logics",
+          "description": "Dieu phoi van chuyen, logistics cho doanh nghiep",
+          "salary_range": [15000000, 25000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Logistics Software", "Route Planning", "Customs"],
+          "pros": ["Co gang doi lon", "Nhieu co hoi", "HOT TREND"],
+          "cons": ["Can hoc ky nang moi"],
+          "requirements": ["Ky nang so", "Kinh nghiem van tai 3+ nam"],
+          "difficulty": "easy"
+        },
+        {
+          "type": "driver_trainer",
+          "title": "Giao Vien Lai Xe",
+          "description": "Dao tao lai xe cho hoc vien hoac cong ty",
+          "salary_range": [12000000, 18000000],
+          "timeline_months": [1, 3],
+          "skill_gaps": ["Teaching Skills", "Patience"],
+          "pros": ["Linh hoat", "Dung kinh nghiem", "On dinh"],
+          "cons": ["Thu nhap co dinh"],
+          "requirements": ["Bang lai hang E", "Kinh nghiem 10+ nam"],
+          "difficulty": "easy"
+        }
+      ]
+    },
+    "co_khi": {
+      "title": "Co Khi & San Xuat",
+      "career_ladder_key": "co_khi",
+      "salary_range": [15000000, 42900000],
+      "35_plus_transitions": [
+        {
+          "type": "production_manager",
+          "title": "Quan Ly San Xuat",
+          "description": "Quan ly toan bo hoat dong san xuat trong nha may",
+          "salary_range": [25000000, 40000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Lean Manufacturing", "Team Management", "OEE"],
+          "pros": ["HOT TREND Viet Nam", "Thu nhap cao", "Nhieu co hoi"],
+          "cons": ["Ap luc thoi han", "KPI"],
+          "requirements": ["Kinh nghiem san xuat 5+ nam", "Ky nang quan ly"],
+          "difficulty": "hard"
+        },
+        {
+          "type": "quality_manager",
+          "title": "Quan Ly Chat Luong",
+          "description": "Dam bao chat luong san pham, qua trinh",
+          "salary_range": [25000000, 50000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["ISO Standards", "Quality Control", "Six Sigma"],
+          "pros": ["Gia tri cao", "On dinh", "Tri tue"],
+          "cons": ["Can chung chi chuyen mon"],
+          "requirements": ["Chung chi ISO", "Kinh nghiem QC 5+ nam"],
+          "difficulty": "hard"
+        },
+        {
+          "type": "lean_consultant",
+          "title": "Tu Van Lean/Six Sigma",
+          "description": "Tu van cai tien quy trinh cho doanh nghiep",
+          "salary_range": [30000000, 60000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["Lean Six Sigma", "Process Mapping", "Root Cause Analysis"],
+          "pros": ["HOT TREND", "Thu nhap rat cao", "Tri tue"],
+          "cons": ["Can dau tu hoc hoi", "Chung chi"],
+          "requirements": ["Chung chi Green/Black Belt", "Kinh nghiem 7+ nam"],
+          "difficulty": "hard"
+        },
+        {
+          "type": "maintenance_supervisor",
+          "title": "Giam Sat Bao Tri",
+          "description": "Giam sat va quan ly bao tri may moc",
+          "salary_range": [18000000, 30000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Maintenance Planning", "TPM", "Predictive Maintenance"],
+          "pros": ["Dung kinh nghiem ky thuat", "On dinh"],
+          "cons": ["Can ky nang quan ly"],
+          "requirements": ["Kinh nghiem co khi 5+ nam", "Ky nang may tinh"],
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "ban_hang": {
+      "title": "Ban Hang & Kinh Doanh",
+      "career_ladder_key": "ban_hang",
+      "salary_range": [10000000, 28600000],
+      "35_plus_transitions": [
+        {
+          "type": "sales_trainer",
+          "title": "Huan Luyen Vien Ban Hang",
+          "description": "Dao tao ky nang ban hang cho doanh nghiep",
+          "salary_range": [25000000, 45000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Presentation", "Training Design", "Adult Learning"],
+          "pros": ["Dung kinh nghiem ban hang", "Thu nhap tot", "Tri tue"],
+          "cons": ["Can ky nang huan luyen"],
+          "requirements": ["Kinh nghiem ban hang 5+ nam", "Ky nang thuyet trinh"],
+          "difficulty": "medium"
+        },
+        {
+          "type": "key_account_manager",
+          "title": "Quan Ly Khach Hang Chinh",
+          "description": "Quan ly cac khach hang lon, quan he doi tac",
+          "salary_range": [25000000, 50000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["Key Account Management", "Strategic Selling", "Contract Negotiation"],
+          "pros": ["HOT TREND", "Thu nhap cao", "Tri tue"],
+          "cons": ["Co mat thuong hieu ca nhan"],
+          "requirements": ["Kinh nghiem ban hang 8+ nam", "Network manh"],
+          "difficulty": "hard"
+        },
+        {
+          "type": "business_development_manager",
+          "title": "Quan Ly Phat Trien Kinh Doanh",
+          "description": "Phat trien thi truong, doi tac moi",
+          "salary_range": [30000000, 60000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["Business Development", "Partnership Building", "Market Analysis"],
+          "pros": ["HOT TREND", "Thu nhap cao", "Co gang doi lon"],
+          "cons": ["Ap luc KPI", "Di lai nhieu"],
+          "requirements": ["Kinh nghiem ban hang/kinh doanh 8+ nam"],
+          "difficulty": "hard"
+        }
+      ]
+    },
+    "phuc_vu": {
+      "title": "Phuc Vu & Nha Hang",
+      "career_ladder_key": "phuc_vu",
+      "salary_range": [10000000, 28600000],
+      "35_plus_transitions": [
+        {
+          "type": "restaurant_consultant",
+          "title": "Tu Van Nha Hang",
+          "description": "Tu van van hanh, thiet ke menu cho nha hang",
+          "salary_range": [20000000, 40000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["Restaurant Operations", "Menu Design", "Cost Control"],
+          "pros": ["Kinh nghiem thuc te", "Tri tue"],
+          "cons": ["Thi truong kha yeu"],
+          "requirements": ["Kinh nghiem nha hang 8+ nam", "Ky nang quan ly"],
+          "difficulty": "medium"
+        },
+        {
+          "type": "catering_manager",
+          "title": "Quan Ly Catering",
+          "description": "Quan ly catering cho su kien, cong ty",
+          "salary_range": [15000000, 25000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Catering Operations", "Food Safety", "Event Management"],
+          "pros": ["Co gang doi lon", "On dinh", "HOT TREND"],
+          "cons": ["Can chung chi"],
+          "requirements": ["Kinh nghiem phuc vu 5+ nam", "Chung chi an toan thuc pham"],
+          "difficulty": "easy"
+        },
+        {
+          "type": "hospitality_manager",
+          "title": "Quan Ly Khach San/Nha Hang",
+          "description": "Quan ly van hanh khach san, nha hang",
+          "salary_range": [18000000, 35000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["Hospitality Management", "Guest Relations", "Revenue Management"],
+          "pros": ["On dinh", "Co gang doi lon", "Tri tue"],
+          "cons": ["Ca lam cuoi tuan"],
+          "requirements": ["Kinh nghiem quan ly 5+ nam"],
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "hanh_chinh": {
+      "title": "Hanh Chinh",
+      "career_ladder_key": "hanh_chinh",
+      "salary_range": [12000000, 35880000],
+      "35_plus_transitions": [
+        {
+          "type": "compliance_officer",
+          "title": "Chuyen Vien Compliance",
+          "description": "Dam bao tuyen dung, hanh chinh tuan thu phap luat",
+          "salary_range": [18000000, 35000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Legal Knowledge", "Compliance Systems", "Audit"],
+          "pros": ["HOT TREND", "On dinh", "Co gang doi lon", "Y nghia"],
+          "cons": ["Can kien thuc phap ly"],
+          "requirements": ["Kinh nghiem hanh chinh 5+ nam", "Hieu biet phap luat"],
+          "difficulty": "medium"
+        },
+        {
+          "type": "office_manager",
+          "title": "Quan Ly Van Phong",
+          "description": "Quan ly van hanh van phong hang ngay",
+          "salary_range": [15000000, 28000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Office Management", "Vendor Relations", "Process Optimization"],
+          "pros": ["Dung kinh nghiem", "Co gang doi lon", "On dinh"],
+          "cons": ["Luong co dinh"],
+          "requirements": ["Kinh nghiem hanh chinh 5+ nam"],
+          "difficulty": "easy"
+        },
+        {
+          "type": "procurement_specialist",
+          "title": "Chuyen Vien Mua Hang",
+          "description": "Quan ly mua hang, cung ung cho doanh nghiep",
+          "salary_range": [15000000, 30000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Procurement", "Negotiation", "Supplier Management"],
+          "pros": ["On dinh", "Co gang doi lon", "HOT TREND"],
+          "cons": ["Can ky nang dau"],
+          "requirements": ["Kinh nghiem hanh chinh/mua hang 3+ nam"],
+          "difficulty": "easy"
+        }
+      ]
+    },
+    "nhan_su": {
+      "title": "Nhan Su & HR",
+      "career_ladder_key": "nhan_su",
+      "salary_range": [12000000, 39000000],
+      "35_plus_transitions": [
+        {
+          "type": "hr_consultant",
+          "title": "Tu Van Nhan Su",
+          "description": "Tu van chien luoc nhan su cho doanh nghiep",
+          "salary_range": [25000000, 50000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["HR Consulting", "Recruitment Strategy", "Compensation Design"],
+          "pros": ["HOT TREND", "Thu nhap cao", "Tri tue"],
+          "cons": ["Can xay dung thuong hieu", "Network manh"],
+          "requirements": ["Kinh nghiem HR 8+ nam", "Chung chi HR"],
+          "difficulty": "hard"
+        },
+        {
+          "type": "training_manager",
+          "title": "Quan Ly Dao Tao",
+          "description": "Xay dung va quan ly chuong trinh dao tao",
+          "salary_range": [20000000, 35000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Training Design", "LMS Systems", "Needs Analysis"],
+          "pros": ["Dung kinh nghiem HR", "Co gang doi lon", "Tri tue"],
+          "cons": ["Can ky nang thiet ke"],
+          "requirements": ["Kinh nghiem dao tao 5+ nam"],
+          "difficulty": "medium"
+        },
+        {
+          "type": "recruitment_specialist",
+          "title": "Chuyen Vien Tuyen Dung Chuyen Sau",
+          "description": "Tuyen dung cap cao, executive search",
+          "salary_range": [20000000, 40000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Executive Search", "Headhunting", "Assessment"],
+          "pros": ["HOT TREND", "Thu nhap tot", "Linh hoat"],
+          "cons": ["Can network manh"],
+          "requirements": ["Kinh nghiem tuyen dung 5+ nam"],
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "tu_van": {
+      "title": "Tu Van",
+      "career_ladder_key": "tu_van",
+      "salary_range": [13000000, 40560000],
+      "35_plus_transitions": [
+        {
+          "type": "management_consultant",
+          "title": "Tu Van Quan Ly",
+          "description": "Tu van chien luoc quan ly cho doanh nghiep",
+          "salary_range": [40000000, 100000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["Business Strategy", "Change Management", "Financial Analysis"],
+          "pros": ["HOT TREND", "Thu nhap rat cao", "Tri tue"],
+          "cons": ["Can network manh", "Can dau tu lon"],
+          "requirements": ["Kinh nghiem quan ly cap cao 10+ nam", "MBA/kien thuc kinh doanh"],
+          "difficulty": "hard"
+        },
+        {
+          "type": "career_coach",
+          "title": "Coach Su Nghep",
+          "description": "Huong dan va coaching su nghep cho nguoi di lam",
+          "salary_range": [15000000, 40000000],
+          "timeline_months": [1, 3],
+          "skill_gaps": ["Coaching", "Career Assessment", "Psychology Basics"],
+          "pros": ["HOT TREND", "Linh hoat", "Y nghia", "Dung tri tue"],
+          "cons": ["Thu nhap khong on dinh"],
+          "requirements": ["Chung chi coaching", "Kinh nghiem 8+ nam"],
+          "difficulty": "easy"
+        },
+        {
+          "type": "business_coach",
+          "title": "Coach Kinh Doanh",
+          "description": "Coach cho chu doanh nghiep nho va vua",
+          "salary_range": [30000000, 80000000],
+          "timeline_months": [6, 12],
+          "skill_gaps": ["Business Coaching", "SME Knowledge", "Mentoring"],
+          "pros": ["HOT TREND", "Thu nhap cao", "Co gang doi lon"],
+          "cons": ["Can kinh nghiem kinh doanh"],
+          "requirements": ["Kinh nghiem kinh doanh 10+ nam", "Chung chi coaching"],
+          "difficulty": "hard"
+        },
+        {
+          "type": "financial_advisor",
+          "title": "Tu Van Tai Chinh",
+          "description": "Tu van dau tu, bao hiem, tai chinh ca nhan",
+          "salary_range": [20000000, 50000000],
+          "timeline_months": [3, 6],
+          "skill_gaps": ["Financial Planning", "Investment Products", "Regulations"],
+          "pros": ["HOT TREND", "Thu nhap tot", "On dinh"],
+          "cons": ["Chung chi chuyen mon"],
+          "requirements": ["Chung chi tai chinh", "Kinh nghiem 5+ nam"],
+          "difficulty": "medium"
+        }
+      ]
+    }
+  },
+  "cross_industry_transitions": {
+    "description": "Transitions that apply to ANY industry for 35+",
+    "urgency_factors": {
+      "age_35_40": {
+        "urgency": "high",
+        "description": "Giai doan vang - can hanh dong som",
+        "priority": 1
+      },
+      "age_40_50": {
+        "urgency": "critical",
+        "description": "Chuyen doi cuoi cung - hanh dong ngay",
+        "priority": 2
+      },
+      "age_50_plus": {
+        "urgency": "critical",
+        "description": "Toi uu hoa vi the - vai tro co van",
+        "priority": 3
+      }
+    },
+    "paths": [
+      {
+        "type": "trainer",
+        "title": "Dao Tao Vien",
+        "description": "Chuyen dong nghiep thanh dao tao vien - ap dung cho bat ky nghanh nao",
+        "salary_range": [15000000, 40000000],
+        "timeline_months": [2, 6],
+        "skill_gaps": ["Presentation", "Curriculum Design", "Adult Learning"],
+        "pros": ["Ung dung rong rai", "Tri tue", "Linh hoat", "Y nghia"],
+        "cons": ["Can ky nang huan luyen", "Thu nhap co dinh"],
+        "requirements": ["Kinh nghiem chuyen mon 5+ nam", "Ky nang thuyet trinh"],
+        "universally_applicable": true,
+        "difficulty": "easy"
+      },
+      {
+        "type": "consultant",
+        "title": "Tu Van Doc Lap",
+        "description": "Tri tu va kinh nghiem thanh consultant - ap dung cho bat ky nghanh nao",
+        "salary_range": [25000000, 80000000],
+        "timeline_months": [3, 12],
+        "skill_gaps": ["Consulting Framework", "Personal Branding", "Proposal Writing"],
+        "pros": ["Thu nhap cao", "Linh hoat", "Tri tue", "HOT TREND"],
+        "cons": ["Can xay dung thuong hieu", "Thi truong canh tranh"],
+        "requirements": ["Kinh nghiem chuyen mon 10+ nam", "Network"],
+        "universally_applicable": true,
+        "difficulty": "hard"
+      },
+      {
+        "type": "coach",
+        "title": "Mentor/Coach",
+        "description": "Huong dan va mentoring the he tre - ap dung cho bat ky nghanh nao",
+        "salary_range": [15000000, 50000000],
+        "timeline_months": [1, 3],
+        "skill_gaps": ["Coaching", "Mentoring", "Active Listening"],
+        "pros": ["HOT TREND", "Y nghia", "Linh hoat", "Dung tri tue"],
+        "cons": ["Thu nhap khong on dinh", "Can ky nang men"],
+        "requirements": ["Chung chi coaching", "Kinh nghiem 8+ nam"],
+        "universally_applicable": true,
+        "difficulty": "easy"
+      },
+      {
+        "type": "entrepreneur",
+        "title": "Khoi Nghiep",
+        "description": "Tri tue thanh chu doanh nghiep - ap dung cho bat ky nghanh nao",
+        "salary_range": [0, 100000000],
+        "timeline_months": [6, 24],
+        "skill_gaps": ["Business Planning", "Marketing", "Finance", "Sales"],
+        "pros": ["Tu do hoan toan", "Thu nhap khong gioi han", "HOT TREND"],
+        "cons": ["Rui ro cao", "Ap luc lon", "Dau tu lon"],
+        "requirements": ["Von", "Kien thuc kinh doanh", "Network"],
+        "universally_applicable": true,
+        "difficulty": "hard"
+      },
+      {
+        "type": "freelancer",
+        "title": "Freelance Specialist",
+        "description": "Lam viec tu do voi ky nang chuyen mon",
+        "salary_range": [20000000, 60000000],
+        "timeline_months": [1, 3],
+        "skill_gaps": ["Self-Marketing", "Client Management", "Time Management"],
+        "pros": ["Tu do thoi gian", "Thu nhap cao hon", "HOT TREND"],
+        "cons": ["Khong on dinh", "Tu quan ly"],
+        "requirements": ["Ky nang chuyen mon vung", "Khả năng tự quản lý"],
+        "universally_applicable": true,
+        "difficulty": "medium"
+      }
+    ]
+  },
+  "urgency_levels": {
+    "low": {
+      "age_range": [18, 35],
+      "description": "Con nhieu thoi gian - tap trung phat trien"
+    },
+    "medium": {
+      "age_range": [30, 35],
+      "description": "Bat dau chuan bi - khám phá huong di"
+    },
+    "high": {
+      "age_range": [35, 40],
+      "description": "GIAI DOAN VANG - Hanh dong som"
+    },
+    "critical": {
+      "age_range": [40, 70],
+      "description": "Chuyen doi cuoi cung - Hanh dong ngay"
+    }
+  }
+}

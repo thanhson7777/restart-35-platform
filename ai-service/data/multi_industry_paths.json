@@ -1,0 +1,355 @@
+{
+  "metadata": {
+    "description": "Career paths that REQUIRE multiple industry experience",
+    "note": "These paths are UNIQUE advantages for people with multi-industry experience",
+    "target_audience": "Workers 35+ with diverse work history",
+    "version": "1.0",
+    "updated": "2026-05-05"
+  },
+  "paths_requiring_multiple_industries": [
+    {
+      "id": "restaurant_manager",
+      "title": "Quan ly nha hang cao cap",
+      "required_experience_combinations": [
+        ["nau_an", "phuc_vu"],
+        ["phuc_vu", "ban_hang"]
+      ],
+      "description": "Quan ly toan bo nha hang cao cap, khach san, resort. Dieu phoi ban bep, phuc vu, ke toan.",
+      "salary_range": [20000000, 45000000],
+      "timeline_months": [6, 12],
+      "skill_gaps": ["Quan ly nhan su", "Tai chinh nha hang", "Marketing", "Hanh chinh"],
+      "pros": [
+        "Thu nhap cao, co phu cap",
+        "Co gang doi lon - tu kinh nghiem thuc te",
+        "On dinh, co the lam nhieu nam",
+        "Duoc uy quyen quan ly"
+      ],
+      "cons": [
+        "Trach nhiem lon, ap luc thoi gian",
+        "Gio lam dai, ngay le, cuoi tuan",
+        "Can kinh nghiem nhieu nam trong nghe",
+        "Thi truong tuyen dung khoc hanh"
+      ],
+      "difficulty": "medium",
+      "why_unique": "Nguoi chi co kinh nghiem nau an se khong hieu duoc van hanh phuc vu. Nguoi chi co kinh nghiem phuc vu se khong biet quan ly bep. Ban co ca hai - day la loi the HIEM CO.",
+      "market_demand": "Cao",
+      "growth_potential": "Co gang doi lon"
+    },
+    {
+      "id": "catering_event_organizer",
+      "title": "To chuc su kien am thuc (Catering)",
+      "required_experience_combinations": [
+        ["phuc_vu", "may_mac"],
+        ["nau_an", "ban_hang"],
+        ["phuc_vu", "nau_an"]
+      ],
+      "description": "To chuc tiec cuoi, dam cuoi, tiec cong ty, su kien lon. Quan ly logistic, thuc don, trang tri, nhan su.",
+      "salary_range": [30000000, 80000000],
+      "timeline_months": [3, 8],
+      "skill_gaps": ["Marketing su kien", "Mang luoi", "Dieu phoi nhan su", "Ky nang negotiaton"],
+      "pros": [
+        "Thu nhap cao, co the dat 50-100 trieu/thang neu co network tot",
+        "Lam viec theo du an, co the nghi giua cac mua",
+        "Co gang doi lon - bat dau tu kinh nghiem co san",
+        "Co the xay dung thuong hieu ca nhan"
+      ],
+      "cons": [
+        "Khoi dau can dau tu (thiet bi, nhan su, marketing)",
+        "Thu nhap khong co dinh, phu thuoc vao mua",
+        "Ap luc thoi gian - su kien thuong vao cuoi tuan",
+        "Can network manh de co khach hang"
+      ],
+      "difficulty": "hard",
+      "why_unique": "Nguoi co kinh nghiem trang tri (may mac) + am thuc (nau an) + phuc vu co the tao ra trai nghiem su kien tot hon nguoi chi co 1 trong 3.",
+      "market_demand": "Tang truong cao",
+      "growth_potential": "Rat cao neu co network"
+    },
+    {
+      "id": "vocational_instructor",
+      "title": "Giang vien day nghe thuc hanh",
+      "required_experience_combinations": [
+        ["nau_an", "phuc_vu"],
+        ["co_khi", "hanh_chinh"],
+        ["lai_xe", "hanh_chinh"],
+        ["bao_ve", "hanh_chinh"]
+      ],
+      "description": "Giang day nghe thuc hanh cho truong Cao dang, trung tam dao tao, co so giao duc nghe. Day cac ky nang thuc te ma minh da co.",
+      "salary_range": [12000000, 30000000],
+      "timeline_months": [2, 6],
+      "skill_gaps": ["Ky nang su pham co ban", "Thiet ke bai giang", "Cong cu soan bai", "Giao tiep voi hoc vien"],
+      "pros": [
+        "Thoi gian lam viec co dinh, nghi cuoi tuan",
+        "Co gang doi lon - trien khai kinh nghiem thanh kien thuc",
+        "Co the day truc tiep hoac online",
+        "Thu nhap on dinh, co che do bao hiem"
+      ],
+      "cons": [
+        "Thu nhap co dinh, khong tang nhieu",
+        "Can chung chi su pham hoac ky nang soan bai",
+        "Co the can hoc them ve phuong phap giang day",
+        "Thi truong giao duc nghe hien dang canh tranh"
+      ],
+      "difficulty": "easy",
+      "why_unique": "Nguoi 35+ co kinh nghiem thuc te 10-20 nam rat duoc cac hoc vien尊敬. Giao vien tre hon thuong chi co ly thuyet.",
+      "market_demand": "Cao",
+      "growth_potential": "Trung binh - co the mo rong thanh khoa hoc online"
+    },
+    {
+      "id": "food_content_creator",
+      "title": "Content creator am thuc",
+      "required_experience_combinations": [
+        ["nau_an", "phuc_vu"],
+        ["nau_an", "ban_hang"]
+      ],
+      "description": "Tao noi dung am thuc cho YouTube, TikTok, Facebook, Blog. Review nha hang, huong dan nau an, chia se kinh nghiem.",
+      "salary_range": [10000000, 80000000],
+      "timeline_months": [3, 12],
+      "skill_gaps": ["Quay video", "Editing video", "Social media marketing", "SEO content"],
+      "pros": [
+        "Linh hoat ve thoi gian, co the lam tu do",
+        "Co the phat trien thanh kenh lon (YouTube 1M+ subscribers)",
+        "Thu nhap tu quang cao, sponsor, affiliate",
+        "Xay dung thuong hieu ca nhan"
+      ],
+      "cons": [
+        "Khoi dau kho - mat 6-12 thang de co thu nhap",
+        "Can dau tu thiet bi (dien thoai tot, may quay, micro)",
+        "Can hoc ky nang content, algorithm",
+        "Thu nhap khong co dinh ban dau"
+      ],
+      "difficulty": "medium",
+      "why_unique": "Nguoi co kinh nghiem nau an + phuc vu hieu ve trai nghiem khach hang. Chi can them ky nang content de thanh cong.",
+      "market_demand": "Rat cao - xu huong video am thuc tang truong manh",
+      "growth_potential": "Rat cao - co the dat 50-100 trieu/thang sau 1-2 nam"
+    },
+    {
+      "id": "restaurant_consultant",
+      "title": "Tu van thiet ke & van hanh nha hang",
+      "required_experience_combinations": [
+        ["phuc_vu", "may_mac"],
+        ["nau_an", "ban_hang"]
+      ],
+      "description": "Tu van thiet ke noi that, trang tri, layout nha hang. Huong dan van hanh, tu van menu, dao tao nhan su cho chu nha hang.",
+      "salary_range": [20000000, 50000000],
+      "timeline_months": [3, 12],
+      "skill_gaps": ["Thiet ke noi that (AutoCAD, SketchUp)", "Phan tich tai chinh", "Quan ly du an"],
+      "pros": [
+        "Thu nhap cao, co the tu 30-60 trieu/thang",
+        "Xay dung uy tin chuyen gia",
+        "Co the lam freelance hoac full-time",
+        "Thi truong nha hang Viet Nam dang tang truong"
+      ],
+      "cons": [
+        "Can dau tu ban dau (portfolio, thiet bi)",
+        "Can network voi cac chu nha hang, nha dau tu",
+        "Kinh doanh co the bi anh huong boi kinh te",
+        "Can cap nhat xu huong lien tuc"
+      ],
+      "difficulty": "hard",
+      "why_unique": "Nguoi co kinh nghiem phuc vu + thiet ke (may mac) co mat tham my, hieu nhu cau khach hang tot hon nguoi chi bi ky thuat.",
+      "market_demand": "Cao",
+      "growth_potential": "Cao - co the mo cong ty tu van"
+    },
+    {
+      "id": "food_quality_consultant",
+      "title": "Chuyen gia kiem dinh chat luong thuc pham",
+      "required_experience_combinations": [
+        ["nau_an", "co_khi"],
+        ["phuc_vu", "co_khi"]
+      ],
+      "description": "Kiem dinh chat luong thuc pham cho nha may, nha hang, sieu thi. Huong dan ve sinh an toan thuc pham, tu van quy trinh.",
+      "salary_range": [18000000, 35000000],
+      "timeline_months": [3, 6],
+      "skill_gaps": ["Chung chi kiem dinh", "Quy pham ATTP", "He thong quan ly chat luong"],
+      "pros": [
+        "Thu nhap on dinh, co hoa don xanh",
+        "Thi truong quy dinh ngay cang nghiem nchat",
+        "Co the lam freelance hoac full-time",
+        "Co gang doi lon - trien khai kinh nghiem thuc te"
+      ],
+      "cons": [
+        "Can chung chi chuyen mon (ISO, HACCP)",
+        "Trach nhiem phap ly neu xay ra su co",
+        "Can cap nhat quy dinh lien tuc",
+        "Thi truong tuyen dung tuong doi hep"
+      ],
+      "difficulty": "medium",
+      "why_unique": "Nguoi co kinh nghiem nau an + co khi (may mac) hieu ve nguyen lieu, quy trinh san xuat. Hieu ve ca nhu cau thuc te va ky thuat.",
+      "market_demand": "Tang truong",
+      "growth_potential": "Trung binh - co the mo rong thanh dao tao ATTP"
+    },
+    {
+      "id": "hotel_operations_manager",
+      "title": "Quan ly van hanh khach san/nha nghi",
+      "required_experience_combinations": [
+        ["phuc_vu", "hanh_chinh"],
+        ["phuc_vu", "ban_hang"],
+        ["bao_ve", "hanh_chinh"]
+      ],
+      "description": "Quan ly van hanh khach san, nha nghi, homestay. Dieu phoi le tan, buong phong, ve sinh, an ninh.",
+      "salary_range": [15000000, 40000000],
+      "timeline_months": [6, 12],
+      "skill_gaps": ["Phan mem quan ly khach san (PMS)", "Ky nang tu van", "Quan ly chi phi"],
+      "pros": [
+        "Thu nhap on dinh, co phu cap",
+        "Co the lam trong nuoc hoac nuoc ngoai",
+        "Duoc dao tao chuyen mon",
+        "Co gang doi lon - trien khai kinh nghiem"
+      ],
+      "cons": [
+        "Gio lam xoay, ca ngay le",
+        "Can chung chi quan ly khach san (neu muon)",
+        "Thi truong tuyen dung co quy mô",
+        "Can ky nang giai quyet van de nhanh"
+      ],
+      "difficulty": "medium",
+      "why_unique": "Nguoi co kinh nghiem phuc vu + hanh chinh co the quan ly tot ca bong bo phan. Hieu ve nhu cau khach hang va van hanh.",
+      "market_demand": "Tang truong - du lich trong nuoc tang manh",
+      "growth_potential": "Trung binh - co the len quan ly cao hon"
+    },
+    {
+      "id": "delivery_operations_manager",
+      "title": "Quan ly van hanh giao hang",
+      "required_experience_combinations": [
+        ["lai_xe", "hanh_chinh"],
+        ["lai_xe", "ban_hang"],
+        ["phuc_vu", "hanh_chinh"]
+      ],
+      "description": "Quan ly doi ngu giao hang, shipper cho cac cong ty delivery, logistic. Tuyen dung, dao tao, lich lam, giai quyet khieu nai.",
+      "salary_range": [18000000, 35000000],
+      "timeline_months": [3, 8],
+      "skill_gaps": ["Phan mem quan ly logistic", "Ky nang tuyen dung", "Phan tich du lieu"],
+      "pros": [
+        "Thi truong delivery dang rat nong",
+        "Thu nhap on dinh, co che do phuc vu",
+        "Co gang doi lon - hieu ve thuc dia",
+        "Co the len chuc len quan ly lon hon"
+      ],
+      "cons": [
+        "Cong viec co ap luc, can giai quyet nhanh",
+        "Can lam viec cuoi tuan neu la shipper",
+        "Nhan su thuong co tinh chat luong thap",
+        "Can quan ly nhieu nguoi cung luc"
+      ],
+      "difficulty": "medium",
+      "why_unique": "Nguoi co kinh nghiem lai xe hoac phuc vu hieu ve thuc dia, nhu cau khach hang. Chi can them ky nang quan ly de thanh cong.",
+      "market_demand": "Rat cao",
+      "growth_potential": "Cao - thi truong delivery tang truong 20%/nam"
+    },
+    {
+      "id": "retail_store_manager",
+      "title": "Quan ly cua hang ban le",
+      "required_experience_combinations": [
+        ["ban_hang", "hanh_chinh"],
+        ["ban_hang", "may_mac"],
+        ["phuc_vu", "ban_hang"]
+      ],
+      "description": "Quan ly cua hang ban le: theu, my pham, thuc pham, do gia dung. Tuyen nhan vien, dao tao, quan ly hang ton, cham soc khach.",
+      "salary_range": [12000000, 25000000],
+      "timeline_months": [3, 6],
+      "skill_gaps": ["Quan ly tai chinh cua hang", "Ky nang tuyen dung", "Marketing cua hang"],
+      "pros": [
+        "Thu nhap on dinh, co hoa don xanh",
+        "Co the bat dau kinh doanh rieng",
+        "Linh hoat ve thoi gian",
+        "Co gang doi lon - hieu thi truong"
+      ],
+      "cons": [
+        "Thu nhap co gioi han - kho tang truong",
+        "Can lamviec cuoi tuan, ngay le",
+        "Can dau tu neu muon mo cua hang",
+        "Canh tranh manh tu cac sieu thi"
+      ],
+      "difficulty": "easy",
+      "why_unique": "Nguoi co kinh nghiem ban hang + hanh chinh co the quan ly cua hang hieu qua. Hieu ve ca ky thuat va con nguoi.",
+      "market_demand": "Trung binh",
+      "growth_potential": "Co gang doi lon - co the mo them cua hang"
+    },
+    {
+      "id": "workplace_safety_consultant",
+      "title": "Tu van an toan lao dong",
+      "required_experience_combinations": [
+        ["co_khi", "bao_ve"],
+        ["co_khi", "hanh_chinh"],
+        ["lai_xe", "hanh_chinh"]
+      ],
+      "description": "Tu van, kiem tra an toàn lao dong cho cac doanh nghiep. Danh gia rui ro, xay dung quy trinh, dao tao nhan vien.",
+      "salary_range": [20000000, 45000000],
+      "timeline_months": [3, 12],
+      "skill_gaps": ["Chung chi ATVSLD", "Quy pham phap luat", "Ky nang training"],
+      "pros": [
+        "Xu huong 'Xanh' - doanh nghiep can nhieu",
+        "Thu nhap cao, co the freelance",
+        "Co gang doi lon - trien khai kinh nghiem thuc te",
+        "Co the xay dung thuong hieu chuyen gia"
+      ],
+      "cons": [
+        "Can chung chi chuyen mon",
+        "Trach nhiem phap ly neu co su co",
+        "Can cap nhat quy dinh lien tuc",
+        "Can di lai nhieu - khao sat tai cho"
+      ],
+      "difficulty": "medium",
+      "why_unique": "Nguoi co kinh nghiem co khi + an ninh hieu ve rui ro thuc te. Khong chi ly thuyet ma co kinh nghiem thuc dia.",
+      "market_demand": "Tang truong manh",
+      "growth_potential": "Cao - co the mo cong ty tu van"
+    },
+    {
+      "id": "elderly_care_manager",
+      "title": "Quan ly co so cham soc nguoi cao tuoi",
+      "required_experience_combinations": [
+        ["phuc_vu", "hanh_chinh"],
+        ["nhan_su", "phuc_vu"],
+        ["bao_ve", "hanh_chinh"]
+      ],
+      "description": "Quan ly co so cham soc nguoi gia, trai nghỉ duong. Tuyen dung, dao tao, cham soc khach hang, quan ly tai chinh.",
+      "salary_range": [15000000, 35000000],
+      "timeline_months": [6, 12],
+      "skill_gaps": ["Ky nang chuyen mon ve cham soc nguoi gia", "Quan ly co so", "Ky nang giao tiep voi gia dinh"],
+      "pros": [
+        "Thi truong dang tang truong rat nhanh - dan so gia",
+        "Thu nhap on dinh, co che do",
+        "Mang lai y nghia - giup doi nguoi gia",
+        "Co gang doi lon - trien khai kinh nghiem"
+      ],
+      "cons": [
+        "Cong viec vo cung, can su kien tru",
+        "Can y te - chung chi lien quan",
+        "Ap luc tam ly cao",
+        "Can lam viec ngay le, cuoi tuan"
+      ],
+      "difficulty": "hard",
+      "why_unique": "Nguoi 35-50+ co empathy voi nguoi gia tot hon. Hieu ve nhu cau cua ho va gia dinh.",
+      "market_demand": "Rat cao - gap 3 lan trong 10 nam toi",
+      "growth_potential": "Rat cao - thi truong gap doi nam 2035"
+    },
+    {
+      "id": "professional_driver_coordinator",
+      "title": "Dieu phoi tai xe chuyen nghiệp",
+      "required_experience_combinations": [
+        ["lai_xe", "hanh_chinh"],
+        ["lai_xe", "ban_hang"]
+      ],
+      "description": "Dieu phoi, quan ly doi ngu tai xe cho cong ty, to chuc. Tuyen xe, lich trinh, quan ly nhien lieu, cham soc khach hang VIP.",
+      "salary_range": [18000000, 40000000],
+      "timeline_months": [3, 8],
+      "skill_gaps": ["Ky nang quan ly nhan su", "Phan mem quan ly fleet", "Ky nang tu van"],
+      "pros": [
+        "Dung kinh nghiem thuc te - duoc tai xe tin tuong",
+        "Thu nhap on dinh, co hoa don xanh",
+        "Co gang doi lon - chuyen tu thuong sang quan ly",
+        "Co the lam cho cac cong ty lon"
+      ],
+      "cons": [
+        "Can giai quyet van de 24/7",
+        "Ap luc tu tai xe va khach hang",
+        "Can theo doi nhien lieu, lich trinh",
+        "Thi truong tuyen dung co han"
+      ],
+      "difficulty": "medium",
+      "why_unique": "Nguoi co kinh nghiem lai xe hieu ve thuc dia, duong di, nhien lieu. Chi can them ky nang quan ly de thanh dieu phoi.",
+      "market_demand": "Cao",
+      "growth_potential": "Trung binh - co the len quan ly lon hon"
+    }
+  ]
+}
