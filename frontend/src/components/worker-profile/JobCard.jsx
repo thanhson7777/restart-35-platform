@@ -1,7 +1,7 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Input } from '@/components/ui/Input'
 import { SelectField } from '@/components/ui/SelectField'
-import { JOB_TYPE_OPTIONS } from '~/data/profileData'
+import { JOB_TYPE_OPTIONS, INDUSTRY_OPTIONS, SKILLS_OPTIONS } from '~/data/profileData'
 
 const BUILDING_ICON = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -39,6 +39,21 @@ const TRASH_ICON = () => (
   </svg>
 )
 
+const INDUSTRY_ICON = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
+    <path d="M17 18h1"/>
+    <path d="M12 18h1"/>
+    <path d="M7 18h1"/>
+  </svg>
+)
+
+const SKILLS_ICON = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+  </svg>
+)
+
 const YEAR_OPTIONS = Array.from({ length: 51 }, (_, i) => ({
   value: String(i),
   label: i === 0 ? '0 năm' : i === 1 ? '1 năm' : `${i} năm`
@@ -61,6 +76,7 @@ function formatDuration(months) {
 
 function JobCard({ job, onChange, onRemove, canRemove, index }) {
   const yearInputRef = useRef(null)
+  const [showSkillsDropdown, setShowSkillsDropdown] = useState(false)
 
   const years = Math.floor((job.duration || 0) / 12)
   const months = (job.duration || 0) % 12
@@ -76,6 +92,26 @@ function JobCard({ job, onChange, onRemove, canRemove, index }) {
     const newY = parseInt(String(years)) || 0
     onChange('duration', newY * 12 + newM)
   }
+
+  const handleSkillToggle = (skill) => {
+    const currentSkills = job.skills || []
+    if (currentSkills.includes(skill)) {
+      onChange('skills', currentSkills.filter(s => s !== skill))
+    } else if (currentSkills.length < 5) {
+      onChange('skills', [...currentSkills, skill])
+    }
+  }
+
+  const handleSkillRemove = (skillToRemove) => {
+    const currentSkills = job.skills || []
+    onChange('skills', currentSkills.filter(s => s !== skillToRemove))
+  }
+
+  // Filter skills based on search
+  const [skillSearch, setSkillSearch] = useState('')
+  const filteredSkills = SKILLS_OPTIONS.filter(skill =>
+    skill.toLowerCase().includes(skillSearch.toLowerCase())
+  ).filter(skill => !(job.skills || []).includes(skill))
 
   return (
     <div className="group relative bg-card border border-border rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -189,6 +225,105 @@ function JobCard({ job, onChange, onRemove, canRemove, index }) {
           placeholder="-- Chọn loại hình --"
           icon={<BRIEFCASE_ICON />}
         />
+
+        {/* Industry - Required for Career Transition */}
+        <SelectField
+          label="Ngành nghề"
+          value={job.industry || ''}
+          options={INDUSTRY_OPTIONS}
+          onChange={(val) => onChange('industry', val)}
+          placeholder="-- Chọn ngành nghề --"
+          icon={<INDUSTRY_ICON />}
+        />
+
+        {/* Skills for this job */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-foreground">
+            Kỹ năng sử dụng trong công việc này
+            <span className="ml-1 text-xs text-muted-foreground font-normal">(tối đa 5)</span>
+          </label>
+
+          {/* Selected skills tags */}
+          {(job.skills || []).length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {(job.skills || []).map((skill, idx) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
+                >
+                  {skill}
+                  <button
+                    type="button"
+                    onClick={() => handleSkillRemove(skill)}
+                    className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors"
+                  >
+                    <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M2 2L10 10M10 2L2 10" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Add skill button */}
+          {(job.skills || []).length < 5 && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowSkillsDropdown(!showSkillsDropdown)}
+                className="w-full py-2 px-3 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
+                </svg>
+                Thêm kỹ năng
+              </button>
+
+              {/* Skills dropdown */}
+              {showSkillsDropdown && (
+                <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-64 overflow-hidden">
+                  {/* Search input */}
+                  <div className="p-2 border-b border-border">
+                    <input
+                      type="text"
+                      placeholder="Tìm kiếm kỹ năng..."
+                      value={skillSearch}
+                      onChange={(e) => setSkillSearch(e.target.value)}
+                      className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
+
+                  {/* Skills list */}
+                  <div className="max-h-48 overflow-y-auto">
+                    {filteredSkills.length > 0 ? (
+                      filteredSkills.map((skill, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            handleSkillToggle(skill)
+                            setSkillSearch('')
+                          }}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2"
+                        >
+                          <div className="w-4 h-4 rounded border border-border flex items-center justify-center">
+                            <div className="w-2 h-2 rounded bg-primary opacity-0" />
+                          </div>
+                          {skill}
+                        </button>
+                      ))
+                    ) : (
+                      <p className="px-3 py-4 text-sm text-muted-foreground text-center">
+                        Không tìm thấy kỹ năng phù hợp
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Description */}
         <div className="space-y-1.5">

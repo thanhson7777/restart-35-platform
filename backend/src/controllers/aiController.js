@@ -4,6 +4,9 @@
  */
 
 import { aiService } from '~/services/aiService'
+import { careerRecommendationModel } from '~/models/careerRecommendationModel'
+import { getRedis, isRedisAvailable, CACHE_KEYS } from '~/config/redis'
+import { env } from '~/config/enviroment'
 import { StatusCodes } from 'http-status-codes'
 
 /**
@@ -270,6 +273,8 @@ const discoverCareerPath = async (req, res, next) => {
     res.status(StatusCodes.OK).json({
       success: true,
       message: 'Khám phá lộ trình sự nghiệp thành công',
+      // result chứa { success: true, data: { management_track: [...], age_transition: [...], ... } }
+      // Frontend cần nhận { success: true, data: { management_track: [...], ... } }
       data: result.data
     })
   } catch (error) {
@@ -365,6 +370,341 @@ const getSimilarJobs = async (req, res, next) => {
   }
 }
 
+// ============================================================================
+// CAREER TRANSITIONS CONTROLLERS (35+)
+// ============================================================================
+
+/**
+ * Lấy gợi ý chuyển đổi nghề nghiệp cho lao động 35+
+ * POST /v1/ai/career-transitions
+ */
+const getCareerTransitions = async (req, res, next) => {
+  try {
+    const profileData = req.body
+
+    const result = await aiService.getCareerTransitions(profileData)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy gợi ý chuyển đổi nghề nghiệp thành công',
+      data: result.data || result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi (35+)
+ * GET /v1/ai/career-transitions/urgency
+ */
+const getTransitionsUrgency = async (req, res, next) => {
+  try {
+    const { age } = req.query
+
+    if (!age) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Tham số age là bắt buộc'
+      })
+    }
+
+    const result = await aiService.getTransitionsUrgency(parseInt(age))
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy mức độ khẩn cấp thành công',
+      data: result.data || result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Lấy danh sách ngành nghề được hỗ trợ cho chuyển đổi (35+)
+ * GET /v1/ai/career-transitions/industries
+ */
+const getTransitionsIndustries = async (req, res, next) => {
+  try {
+    const result = await aiService.getTransitionsIndustries()
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách ngành nghề thành công',
+      data: result.data || result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Lấy skill gaps cho một ngành cụ thể (35+)
+ * GET /v1/ai/career-transitions/skills
+ */
+const getTransitionsSkills = async (req, res, next) => {
+  try {
+    const { industry } = req.query
+
+    if (!industry) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Tham số industry là bắt buộc'
+      })
+    }
+
+    const result = await aiService.getTransitionsSkills(industry)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy skill gaps thành công',
+      data: result.data || result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// ============================================================================
+// CACHED CAREER PATH CONTROLLERS
+// ============================================================================
+
+/**
+ * Lấy career path từ cache (Redis -> MongoDB)
+ * GET /v1/ai/career-path/cached
+ */
+const getCachedCareerPath = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    const redis = getRedis()
+
+    // 1. Check Redis first (hot cache)
+    if (redis && isRedisAvailable()) {
+      try {
+        const cachedData = await redis.get(CACHE_KEYS.careerPath(userId))
+        if (cachedData) {
+          console.log(`[Cache HIT] Redis - User: ${userId}`)
+          return res.status(StatusCodes.OK).json({
+            success: true,
+            source: 'cache',
+            data: JSON.parse(cachedData)
+          })
+        }
+      } catch (redisError) {
+        // Redis operation failed, continue to MongoDB
+      }
+    }
+
+    // 2. Check MongoDB (persistent cache)
+    const dbRecord = await careerRecommendationModel.findByUserId(userId)
+    if (dbRecord) {
+      console.log(`[Cache HIT] MongoDB - User: ${userId}`)
+
+      // Repopulate Redis if available
+      if (redis && isRedisAvailable()) {
+        try {
+          const cacheData = {
+            careerPath: dbRecord.careerPath,
+            careerTransitions: dbRecord.careerTransitions,
+            generatedAt: dbRecord.generatedAt,
+            scoringMethod: dbRecord.scoringMethod
+          }
+          await redis.setex(
+            CACHE_KEYS.careerPath(userId),
+            env.CAREER_PATH_CACHE_TTL,
+            JSON.stringify(cacheData)
+          )
+          console.log(`[Cache POPULATE] Redis from MongoDB - User: ${userId}`)
+        } catch (redisError) {
+          // Redis operation failed, continue
+        }
+      }
+
+      return res.status(StatusCodes.OK).json({
+        success: true,
+        source: 'database',
+        data: {
+          careerPath: dbRecord.careerPath,
+          careerTransitions: dbRecord.careerTransitions,
+          generatedAt: dbRecord.generatedAt,
+          scoringMethod: dbRecord.scoringMethod
+        }
+      })
+    }
+
+    // 3. No data found - needs generation
+    console.log(`[Cache MISS] User: ${userId}`)
+    return res.status(StatusCodes.NOT_FOUND).json({
+      success: false,
+      needsGeneration: true,
+      message: 'Career path chưa được tạo cho người dùng này'
+    })
+  } catch (error) {
+    console.error('[AIController] getCachedCareerPath error:', error)
+    next(error)
+  }
+}
+
+/**
+ * Trigger generation career path mới
+ * POST /v1/ai/career-path/generate
+ */
+const triggerCareerPathGeneration = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    const {
+      age,
+      currentRole,
+      currentIndustry,
+      experiences,
+      skills,
+      barriers,
+      targetSalary,
+      includeAgeTransition = true,
+      includeManagementTrack = true
+    } = req.body
+
+    const redis = getRedis()
+
+    // 1. Invalidate old cache
+    if (redis && isRedisAvailable()) {
+      try {
+        await redis.del(CACHE_KEYS.careerPath(userId))
+        console.log(`[Cache INVALIDATE] Redis - User: ${userId}`)
+      } catch (redisError) {
+        // Redis operation failed, continue
+      }
+    }
+
+    // Mark MongoDB record as stale
+    await careerRecommendationModel.markAsStale(userId)
+
+    // 2. Generate new career path via AI Service
+    console.log(`[Generation START] User: ${userId}`)
+    const result = await aiService.discoverCareerPath({
+      age,
+      currentRole,
+      currentIndustry,
+      experiences,
+      targetSalary,
+      includeAgeTransition,
+      includeManagementTrack
+    })
+
+    // 3. Save to MongoDB
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+    const saveData = {
+      userId,
+      profileSnapshot: {
+        age,
+        currentRole,
+        currentIndustry,
+        experiences,
+        skills,
+        barriers,
+        targetSalary
+      },
+      careerPath: result.data,
+      scoringMethod: result.scoring_method || 'rule_based',
+      generatedAt: new Date(),
+      expiresAt,
+      status: 'active',
+      version: 1
+    }
+
+    await careerRecommendationModel.upsertByUserId(userId, saveData)
+    console.log(`[Generation SAVE] MongoDB - User: ${userId}`)
+
+    // 4. Cache in Redis
+    if (redis && isRedisAvailable()) {
+      try {
+        const cacheData = {
+          careerPath: result.data,
+          careerTransitions: null,
+          generatedAt: new Date().toISOString(),
+          scoringMethod: result.scoring_method || 'rule_based'
+        }
+        await redis.setex(
+          CACHE_KEYS.careerPath(userId),
+          env.CAREER_PATH_CACHE_TTL,
+          JSON.stringify(cacheData)
+        )
+        console.log(`[Cache SET] Redis - User: ${userId}`)
+      } catch (redisError) {
+        // Redis operation failed, continue
+      }
+    }
+
+    console.log(`[Generation COMPLETE] User: ${userId}`)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Career path đã được tạo thành công',
+      data: result.data
+    })
+  } catch (error) {
+    console.error('[AIController] triggerCareerPathGeneration error:', error)
+    next(error)
+  }
+}
+
+/**
+ * Xóa cache career path
+ * DELETE /v1/ai/career-path/cache
+ */
+const invalidateCareerPathCache = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    const redis = getRedis()
+
+    // 1. Delete Redis cache
+    if (redis && isRedisAvailable()) {
+      try {
+        await redis.del(CACHE_KEYS.careerPath(userId))
+        console.log(`[Cache DELETE] Redis - User: ${userId}`)
+      } catch (redisError) {
+        // Redis operation failed, continue
+      }
+    }
+
+    // 2. Mark MongoDB record as stale
+    await careerRecommendationModel.markAsStale(userId)
+    console.log(`[Cache INVALIDATE] MongoDB stale - User: ${userId}`)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Cache career path đã được xóa'
+    })
+  } catch (error) {
+    console.error('[AIController] invalidateCareerPathCache error:', error)
+    next(error)
+  }
+}
+
 // Export controller functions
 export const aiController = {
   recommendJobs,
@@ -379,5 +719,14 @@ export const aiController = {
   getAgeUrgency,
   getCareerIndustries,
   getSemanticStatus,
-  getSimilarJobs
+  getSimilarJobs,
+  // Career Transitions (35+)
+  getCareerTransitions,
+  getTransitionsUrgency,
+  getTransitionsIndustries,
+  getTransitionsSkills,
+  // Cached Career Path
+  getCachedCareerPath,
+  triggerCareerPathGeneration,
+  invalidateCareerPathCache
 }

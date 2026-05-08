@@ -148,12 +148,13 @@ const JobsPage = () => {
     return formData?.aspirations?.skills?.length > 0
   }, [formData])
 
-  // Calculate experience from employment history
+  // Calculate experience from employment history (convert months to years)
   const totalExperience = useMemo(() => {
     if (!formData?.employmentHistory || formData.employmentHistory.length === 0) {
       return 0
     }
-    return formData.employmentHistory.reduce((sum, job) => sum + (job.duration || 0), 0)
+    const totalMonths = formData.employmentHistory.reduce((sum, job) => sum + (job.duration || 0), 0)
+    return Math.floor(totalMonths / 12) // Convert months to years
   }, [formData])
 
   // Fetch worker profile on mount if not already loaded
@@ -524,6 +525,8 @@ const JobsPage = () => {
                   </Card>
                 ))}
               </div>
+            ) : activeTab === 'career' && isProfileCompleted ? (
+              <CareerRecommendations userProfile={formData} />
             ) : currentJobs.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
@@ -547,8 +550,6 @@ const JobsPage = () => {
                   )}
                 </CardContent>
               </Card>
-            ) : activeTab === 'career' && isProfileCompleted ? (
-              <CareerRecommendations />
             ) : (
               <div className="space-y-4">
                 {currentJobs.map((job) => (

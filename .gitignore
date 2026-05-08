@@ -60,5 +60,11 @@ debug_*.html
 # Docs folder
 docs/
 
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local
+
+
 # HTML files in ai-service
 ai-service/**/*.html

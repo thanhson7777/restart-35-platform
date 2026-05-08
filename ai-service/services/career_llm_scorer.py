@@ -1,8 +1,8 @@
 """
 Career Path LLM Scorer Service
 
-Uses Gemini LLM to score and explain career path recommendations.
-Follows the same singleton + circuit breaker pattern as GeminiExplainer.
+Uses Unified LLM (GROQ/Gemini) to score and explain career path recommendations.
+Follows the same singleton + circuit breaker pattern.
 
 Usage:
     scorer = CareerLLMScorer.get_scorer()
@@ -23,17 +23,27 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+# Import unified LLM client
+try:
+    from config.groq_client import get_llm_client, LLMConfig
+    LLM_AVAILABLE = True
+except ImportError:
+    LLM_AVAILABLE = False
+    logger.warning("Unified LLM client not available")
+
+# Legacy imports for compatibility
 try:
     from google import genai
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
-    logger.warning("google-genai not installed")
 
 
-def _should_use_gemini_for_llm_scoring() -> bool:
-    """Check if Gemini should be used for LLM scoring (feature flag)."""
-    return os.getenv('ENABLE_GEMINI_FOR_LLM_SCORING', 'false').lower() == 'true'
+def _should_use_llm_for_scoring() -> bool:
+    """Check if LLM should be used for scoring (feature flag)."""
+    # Support both old and new flag names
+    return os.getenv('ENABLE_GROQ_FOR_LLM_SCORING', 
+                     os.getenv('ENABLE_GEMINI_FOR_LLM_SCORING', 'false')).lower() == 'true'
 
 
 class CareerPathExplanationCache:
@@ -92,7 +102,7 @@ class CareerLLMScorer:
     def __init__(self):
         self._initialized = False
         self._init_error: Optional[str] = None
-        self._client = None
+        self._llm_client = None
         self._cache = CareerPathExplanationCache()
         
         # Circuit breaker
@@ -105,26 +115,24 @@ class CareerLLMScorer:
         self._initialize()
     
     def _initialize(self) -> None:
-        """Initialize Gemini client (only if feature flag is enabled)."""
+        """Initialize LLM client (only if feature flag is enabled)."""
         # Check feature flag first
-        if not _should_use_gemini_for_llm_scoring():
-            self._init_error = "Gemini disabled by ENABLE_GEMINI_FOR_LLM_SCORING flag"
+        if not _should_use_llm_for_scoring():
+            self._init_error = "LLM disabled by ENABLE_GROQ_FOR_LLM_SCORING flag"
             logger.info(f"CareerLLMScorer: {self._init_error}")
             return
         
-        if not GEMINI_AVAILABLE:
-            self._init_error = "Gemini not installed"
+        if not LLM_AVAILABLE:
+            self._init_error = "Unified LLM client not available"
             return
         
         try:
-            api_key = os.getenv('GEMINI_API_KEY')
-            if not api_key:
-                self._init_error = "GEMINI_API_KEY not set"
-                return
-            
-            self._client = genai.Client(api_key=api_key)
-            self._initialized = True
-            logger.info("CareerLLMScorer initialized successfully")
+            self._llm_client = get_llm_client()
+            if self._llm_client.available:
+                self._initialized = True
+                logger.info("CareerLLMScorer initialized successfully with unified LLM client")
+            else:
+                self._init_error = "No LLM provider available (check API keys)"
         except Exception as e:
             self._init_error = str(e)
             logger.error(f"Failed to initialize CareerLLMScorer: {e}")
@@ -250,13 +258,12 @@ Tra loi theo format JSON:
         try:
             prompt = self._build_scoring_prompt(paths, profile)
             
-            response = self._client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=prompt
-            )
+            # Use unified LLM client
+            response_text = self._llm_client.generate(prompt=prompt)
             
-            # Parse response
-            response_text = response.text
+            if not response_text:
+                logger.error("Empty response from LLM")
+                return None
             
             # Try to extract JSON from response
             if "```json" in response_text:

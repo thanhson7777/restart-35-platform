@@ -15,10 +15,14 @@
  * - POST /career-path        - Khám phá lộ trình sự nghiệp
  * - GET  /career-path/urgency - Mức độ khẩn cấp chuyển đổi nghề
  * - GET  /career-path/industries - Danh sách ngành nghề hỗ trợ
+ * - GET  /career-path/cached  - Lấy career path từ cache
+ * - POST /career-path/generate - Trigger generation career path
+ * - DELETE /career-path/cache - Xóa cache career path
  */
 
 import express from 'express'
 import { aiController } from '~/controllers/aiController'
+import { authMiddleware } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
 
@@ -132,5 +136,78 @@ Router.get('/career-path/urgency', aiController.getAgeUrgency)
  * @access  Public
  */
 Router.get('/career-path/industries', aiController.getCareerIndustries)
+
+// ============================================================================
+// CAREER TRANSITIONS ROUTES (35+)
+// ============================================================================
+
+/**
+ * @route   POST /v1/ai/career-transitions
+ * @desc    Lấy gợi ý chuyển đổi nghề nghiệp cho lao động 35+
+ * @access  Private (requires auth)
+ * @body    { age, current_role, current_industry, experience_years, skills, barriers, work_history, ... }
+ */
+Router.post('/career-transitions', aiController.getCareerTransitions)
+
+/**
+ * @route   GET /v1/ai/career-transitions/urgency
+ * @desc    Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi (35+)
+ * @access  Public
+ * @query   age - Tuổi người dùng (18-70)
+ */
+Router.get('/career-transitions/urgency', aiController.getTransitionsUrgency)
+
+/**
+ * @route   GET /v1/ai/career-transitions/industries
+ * @desc    Lấy danh sách ngành nghề được hỗ trợ cho chuyển đổi (35+)
+ * @access  Public
+ */
+Router.get('/career-transitions/industries', aiController.getTransitionsIndustries)
+
+/**
+ * @route   GET /v1/ai/career-transitions/skills
+ * @desc    Lấy skill gaps cho một ngành cụ thể (35+)
+ * @access  Public
+ * @query   industry - Ngành cần xem skill gaps (e.g., co_khi, ban_hang)
+ */
+Router.get('/career-transitions/skills', aiController.getTransitionsSkills)
+
+// ============================================================================
+// CACHED CAREER PATH ROUTES
+// ============================================================================
+
+/**
+ * @route   GET /v1/ai/career-path/cached
+ * @desc    Lấy career path từ cache (Redis -> MongoDB)
+ * @access  Private (requires auth)
+ */
+Router.get(
+  '/career-path/cached',
+  authMiddleware.isAuthorized,
+  aiController.getCachedCareerPath
+)
+
+/**
+ * @route   POST /v1/ai/career-path/generate
+ * @desc    Trigger generation career path mới
+ * @access  Private (requires auth)
+ * @body    { age, currentRole, currentIndustry, experiences, ... }
+ */
+Router.post(
+  '/career-path/generate',
+  authMiddleware.isAuthorized,
+  aiController.triggerCareerPathGeneration
+)
+
+/**
+ * @route   DELETE /v1/ai/career-path/cache
+ * @desc    Xóa cache career path (khi profile thay đổi)
+ * @access  Private (requires auth)
+ */
+Router.delete(
+  '/career-path/cache',
+  authMiddleware.isAuthorized,
+  aiController.invalidateCareerPathCache
+)
 
 export const aiRoute = Router

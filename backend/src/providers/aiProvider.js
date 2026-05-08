@@ -212,7 +212,6 @@ class AIProvider {
       const response = await aiApiClient.get('/api/v1/ai/health')
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available, using mock data')
       return {
         status: 'mock',
         message: 'Using mock data',
@@ -242,16 +241,19 @@ class AIProvider {
         limit
       }
 
+      // Cap experience ở backend (0-50 năm)
+      payload.experience = Math.min(50, Math.max(0, parseInt(experience) || 0))
+
       if (location) payload.location = location
       if (targetJob) payload.target_job = targetJob
       if (targetSalary) payload.target_salary = targetSalary
       if (preferredJobType) payload.preferred_job_type = preferredJobType
       if (allowRemote) payload.allow_remote = allowRemote
 
-      const response = await aiApiClient.post('/api/v1/ai/recommend-jobs', payload)
+const response = await aiApiClient.post('/api/v1/ai/recommend-jobs', payload)
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available, returning mock data')
+      console.warn('[AIProvider] recommendJobs - AI Service error, using mock data')
       // Trả về mock data khi AI service không khả dụng
       let filteredJobs = filterJobsBySkills(MOCK_JOBS, skills, limit)
 
@@ -297,7 +299,7 @@ class AIProvider {
       })
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available, returning mock jobs')
+      console.warn('[AIProvider] Using mock data')
       return {
         data: {
           jobs: MOCK_JOBS.slice(0, limit),
@@ -316,7 +318,7 @@ class AIProvider {
       const response = await aiApiClient.get(`/api/v1/ai/jobs/${jobId}`)
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available, searching mock data')
+      console.warn('[AIProvider] Using mock data')
       const job = MOCK_JOBS.find(j => j.id === jobId || j._id === jobId)
       if (job) {
         return { data: job }
@@ -334,7 +336,7 @@ class AIProvider {
       const response = await aiApiClient.post('/api/v1/ai/predict-risk', workerData)
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available, returning mock risk prediction')
+      console.warn('[AIProvider] Using mock data')
       const baseRisk = 50
       const ageFactor = (workerData.age - 35) * 2
       const skillsFactor = workerData.skills?.length ? -5 : 10
@@ -364,7 +366,7 @@ class AIProvider {
       const response = await aiApiClient.post('/api/v1/ai/analyze-worker', workerData)
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available, returning mock analysis')
+      console.warn('[AIProvider] Using mock data')
       const riskResult = await this.predictRisk(workerData)
       const jobs = await this.recommendJobs({
         skills: workerData.skills,
@@ -394,7 +396,7 @@ class AIProvider {
       const response = await aiApiClient.get('/api/v1/ai/feature-importance')
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available')
+      console.warn('[AIProvider] Using mock data')
       return {
         data: {
           features: [
@@ -418,7 +420,7 @@ class AIProvider {
       const response = await aiApiClient.get('/api/v1/ai/model-info')
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available')
+      console.warn('[AIProvider] Using mock data')
       return {
         data: {
           model_type: 'Random Forest (Mock)',
@@ -445,7 +447,21 @@ class AIProvider {
     includeManagementTrack = true
   }) {
     try {
-      const payload = { age, experiences }
+      // Convert years từ tháng sang năm cho mỗi experience
+      const normalizedExperiences = experiences.map(exp => ({
+        ...exp,
+        years: Math.floor((parseInt(exp.years) || 0) / 12)  // Convert months to years
+      }))
+
+      // Calculate total years
+      const totalYears = normalizedExperiences.reduce((sum, exp) => sum + exp.years, 0)
+      const cappedTotalYears = Math.min(50, Math.max(0, totalYears))
+
+      const payload = { 
+        age: parseInt(age) || 0,
+        experiences: normalizedExperiences,
+        total_years: cappedTotalYears
+      }
       if (currentRole) payload.current_role = currentRole
       if (currentIndustry) payload.current_industry = currentIndustry
       if (targetSalary) payload.target_salary = targetSalary
@@ -454,9 +470,12 @@ class AIProvider {
       payload.include_management_track = includeManagementTrack
 
       const response = await aiApiClient.post('/api/v1/ai/career-path', payload)
+
+      // Python AI Service returns: { success: true, data: { management_track: [...], ... } }
+      // We need to unwrap to: { success: true, data: { ... } } for the Controller to wrap again
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available')
+      console.warn('[AIProvider] discoverCareerPath - AI Service error, using mock data')
       return {
         data: {
           career_paths: [
@@ -478,7 +497,7 @@ class AIProvider {
       const response = await aiApiClient.get('/api/v1/ai/career-path/urgency', { params: { age } })
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available')
+      console.warn('[AIProvider] Using mock data')
       return {
         data: {
           urgency: age > 55 ? 'critical' : age > 45 ? 'high' : 'medium',
@@ -497,7 +516,7 @@ class AIProvider {
       const response = await aiApiClient.get('/api/v1/ai/career-path/industries')
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available')
+      console.warn('[AIProvider] Using mock data')
       return {
         data: {
           industries: [
@@ -521,7 +540,7 @@ class AIProvider {
       const response = await aiApiClient.get('/api/v1/ai/semantic-status')
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available')
+      console.warn('[AIProvider] Using mock data')
       return {
         data: {
           status: 'unavailable',
@@ -540,7 +559,7 @@ class AIProvider {
       const response = await aiApiClient.get(`/api/v1/ai/jobs/${jobId}/similar`, { params: { limit } })
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] AI Service not available, finding similar from mock')
+      console.warn('[AIProvider] Using mock data')
       const currentJob = MOCK_JOBS.find(j => j.id === jobId || j._id === jobId)
 
       if (!currentJob) {
@@ -565,6 +584,141 @@ class AIProvider {
         data: {
           jobs: similarJobs,
           similar_jobs: similarJobs
+        }
+      }
+    }
+  }
+
+  // ============================================================================
+  // CAREER TRANSITIONS (35+) PROVIDER METHODS
+  // ============================================================================
+
+  /**
+   * Lấy gợi ý chuyển đổi nghề nghiệp cho lao động 35+
+   * POST /api/v1/ai/career-transitions
+   */
+  async getCareerTransitions(profileData) {
+    try {
+      const payload = {
+        age: profileData.age,
+        current_role: profileData.current_role,
+        current_industry: profileData.current_industry,
+        experience_years: profileData.experience_years || 0,
+        skills: profileData.skills || [],
+        target_salary: profileData.target_salary || null,
+        barriers: profileData.barriers || [],
+        transition_types: profileData.transition_types || ['management', 'cross_industry', 'universal', 'multi_industry'],
+        limit: profileData.limit || 10,
+        work_history: profileData.work_history || [],
+        personality_traits: profileData.personality_traits || [],
+        interests: profileData.interests || [],
+        values: profileData.values || []
+      }
+
+      const response = await aiApiClient.post('/api/v1/ai/career-transitions', payload)
+      return response.data
+    } catch (error) {
+      console.warn('[AIProvider] Career transitions error')
+      // Trả về mock data khi AI service không khả dụng
+      return {
+        success: false,
+        data: {
+          transitions: [],
+          urgency: { urgency: 'medium', message: 'Không thể kết nối AI Service' },
+          statistics: { total_transitions: 0 },
+          error: error.message
+        }
+      }
+    }
+  }
+
+  /**
+   * Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi
+   * GET /api/v1/ai/career-transitions/urgency
+   */
+  async getTransitionsUrgency(age) {
+    try {
+      const response = await aiApiClient.get('/api/v1/ai/career-transitions/urgency', {
+        params: { age }
+      })
+      return response.data
+    } catch (error) {
+      console.warn('[AIProvider] Transitions urgency error')
+      // Tính urgency cơ bản khi AI service không khả dụng
+      const urgency = age > 55 ? 'critical' : age > 45 ? 'high' : age > 35 ? 'medium' : 'low'
+      return {
+        success: true,
+        data: {
+          age,
+          urgency,
+          message: urgency === 'critical' ? 'Đây là giai đoạn chuyển đổi cuối cùng'
+            : urgency === 'high' ? 'Đây là GIAI ĐOẠN VÀNG để chuyển đổi'
+            : urgency === 'medium' ? 'Đã đến lúc bắt đầu khám phá các hướng đi mới'
+            : 'Bạn còn nhiều thời gian - hãy tập trung phát triển'
+        }
+      }
+    }
+  }
+
+  /**
+   * Lấy danh sách ngành nghề được hỗ trợ cho chuyển đổi
+   * GET /api/v1/ai/career-transitions/industries
+   */
+  async getTransitionsIndustries() {
+    try {
+      const response = await aiApiClient.get('/api/v1/ai/career-transitions/industries')
+      return response.data
+    } catch (error) {
+      console.warn('[AIProvider] Transitions industries error')
+      // Trả về danh sách mặc định
+      return {
+        success: true,
+        data: {
+          industries: {
+            'bao_ve': 'Bảo Vệ & An Ninh',
+            'lai_xe': 'Lái Xe & Vận Tải',
+            'co_khi': 'Cơ Khí & Sản Xuất',
+            'ban_hang': 'Bán Hàng & Kinh Doanh',
+            'phuc_vu': 'Phục Vụ & Nhà Hàng',
+            'hanh_chinh': 'Hành Chính',
+            'nhan_su': 'Nhân Sự & HR',
+            'tu_van': 'Tư Vấn'
+          },
+          total: 8,
+          recommended_for_35_plus: ['co_khi', 'tu_van', 'nhan_su', 'hanh_chinh']
+        }
+      }
+    }
+  }
+
+  /**
+   * Lấy skill gaps cho một ngành cụ thể
+   * GET /api/v1/ai/career-transitions/skills
+   */
+  async getTransitionsSkills(industry) {
+    try {
+      const response = await aiApiClient.get('/api/v1/ai/career-transitions/skills', {
+        params: { industry }
+      })
+      return response.data
+    } catch (error) {
+      console.warn('[AIProvider] Transitions skills error')
+      // Trả về skills mặc định
+      const defaultSkills = {
+        'bao_ve': ['Security Audit', 'Risk Assessment', 'Report Writing'],
+        'lai_xe': ['Fleet Management', 'GPS Systems', 'Route Planning'],
+        'co_khi': ['Lean Manufacturing', 'Six Sigma', 'Quality Control'],
+        'ban_hang': ['Presentation', 'Training Design', 'Strategic Selling'],
+        'phuc_vu': ['Restaurant Operations', 'Food Safety', 'Cost Control'],
+        'hanh_chinh': ['Legal Knowledge', 'Compliance Systems', 'Audit'],
+        'nhan_su': ['HR Consulting', 'Compensation Design', 'LMS'],
+        'tu_van': ['Business Strategy', 'Change Management', 'Coaching']
+      }
+      return {
+        success: true,
+        data: {
+          industry,
+          recommended_skills: defaultSkills[industry] || []
         }
       }
     }

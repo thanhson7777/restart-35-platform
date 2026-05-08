@@ -44,7 +44,9 @@ function createEmptyJob() {
     position: '',
     duration: 0,
     jobType: '',
-    description: ''
+    description: '',
+    industry: '',
+    skills: []
   }
 }
 

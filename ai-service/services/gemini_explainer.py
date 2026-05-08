@@ -1,8 +1,10 @@
 """
-Gemini LLM Explainer - Tao ly do goi y thong minh
+LLM Explainer - Tao ly do goi y thong minh
 
-Su dung Google Gemini API de tao ra cac ly do doc nhat,
+Su dung Unified LLM Client (GROQ hoac Gemini) de tao ra cac ly do doc nhat,
 co y nghia, so sanh cu the giua ho so user va job.
+
+Uu tien su dung GROQ (mien phi, khong gioi han).
 """
 
 import os
@@ -18,12 +20,20 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+# Import unified LLM client
+try:
+    from config.groq_client import get_llm_client, LLMConfig
+    LLM_AVAILABLE = True
+except ImportError:
+    LLM_AVAILABLE = False
+    logger.warning("Unified LLM client not available")
+
+# Legacy imports for compatibility
 try:
     from google import genai
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
-    logger.warning("google-genai not installed. Run: pip install google-genai")
 
 
 class ExplanationCache:
@@ -157,53 +167,51 @@ class ExplanationCache:
 
 class GeminiExplainer:
     """
-    LLM-powered explainer su dung Google Gemini.
-    
+    LLM-powered explainer su dung Unified LLM Client (GROQ hoac Gemini).
+
     Tao cac ly do goi y doc nhat, co y nghia,
     so sanh cu the giua profile ung vien va job.
-    
+
     Features:
     - Circuit breaker pattern for fault tolerance
     - In-memory caching to reduce API calls
+    - Auto-fallback between GROQ and Gemini
     """
     
     def __init__(self, api_key: str = None, cache_ttl_seconds: int = 86400):
         """
-        Khoi tao Gemini explainer.
-        
+        Khoi tao LLM explainer.
+
         Args:
-            api_key: Gemini API key. Neu None, doc tu GEMINI_API_KEY env.
+            api_key: GROQ or Gemini API key. Neu None, doc tu env.
             cache_ttl_seconds: Cache TTL in seconds (default: 24 hours)
         """
-        self.api_key = api_key or os.getenv('GEMINI_API_KEY')
-        self.client = None
-        # gemini-2.0-flash: Free tier 10 req/min, higher quota than 2.5-flash-lite (15 req/min but lower daily)
-        self.model = 'gemini-2.0-flash'
-        
+        self.api_key = api_key
+        self._llm_client = None
+        self.model = 'llama-3.3-70b-versatile'  # Default GROQ model
+
         # Circuit breaker state
         self._circuit_open = False
         self._circuit_open_time = 0
         self._circuit_timeout = 60  # 60 seconds cooldown after quota exceeded
         self._consecutive_errors = 0
         self._max_consecutive_errors = 3  # Open circuit after 3 consecutive errors
-        
+
         # Explanation cache
         self._cache = ExplanationCache(ttl_seconds=cache_ttl_seconds)
-        
-        if self.api_key and GEMINI_AVAILABLE:
+
+        # Initialize unified LLM client
+        if LLM_AVAILABLE:
             try:
-                self.client = genai.Client(api_key=self.api_key)
-                logger.info("GeminiExplainer initialized successfully")
+                self._llm_client = get_llm_client()
+                logger.info("LLM Explainer initialized successfully (using unified client)")
                 logger.info(f"  - Cache TTL: {cache_ttl_seconds}s")
                 logger.info(f"  - Model: {self.model}")
             except Exception as e:
-                logger.error(f"Failed to initialize Gemini client: {e}")
-                self.client = None
+                logger.error(f"Failed to initialize LLM client: {e}")
+                self._llm_client = None
         else:
-            if not self.api_key:
-                logger.warning("GEMINI_API_KEY not set in environment")
-            if not GEMINI_AVAILABLE:
-                logger.warning("google-genai package not installed")
+            logger.warning("Unified LLM client not available")
     
     def get_cache_stats(self) -> Dict:
         """Return cache statistics."""
@@ -237,8 +245,8 @@ class GeminiExplainer:
             self._open_circuit()
     
     def is_available(self) -> bool:
-        """Kiem tra xem Gemini co san sang su dung khong."""
-        return self.client is not None
+        """Kiem tra xem LLM co san sang su dung khong."""
+        return self._llm_client is not None and self._llm_client.available
     
     def generate_reasons(self, user_profile: dict, job: dict, max_reasons: int = 4) -> List[str]:
         """
@@ -248,11 +256,11 @@ class GeminiExplainer:
         """
         # Circuit breaker check
         if self._is_circuit_open:
-            logger.debug(f"Circuit open, skipping Gemini for job {job.get('id')}")
+            logger.debug(f"Circuit open, skipping LLM for job {job.get('id')}")
             return []
-        
+
         if not self.is_available():
-            logger.warning("Gemini not available, returning empty reasons")
+            logger.warning("LLM not available, returning empty reasons")
             return []
         
         if not job or not isinstance(job, dict):
@@ -268,8 +276,8 @@ class GeminiExplainer:
             logger.info(f"Using cached explanation for job: {job.get('title', 'N/A')}")
             return cached_reasons[:max_reasons]
         
-        # Cache miss - call Gemini
-        logger.info(f"Cache MISS for job {job_id}, calling Gemini...")
+        # Cache miss - call LLM
+        logger.info(f"Cache MISS for job {job_id}, calling LLM...")
         
         salary_info = self._format_salary(job)
         
@@ -280,12 +288,16 @@ class GeminiExplainer:
         prompt = self._build_prompt(user_profile, job, salary_info, matched_skills, max_reasons)
         
         try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt
-            )
-            
-            text = response.text.strip()
+            # Use unified LLM client (GROQ or Gemini)
+            text = self._llm_client.generate(prompt=prompt, model=self.model)
+
+            if not text:
+                self._consecutive_errors += 1
+                self._maybe_open_circuit()
+                logger.warning("Empty response from LLM")
+                return []
+
+            text = text.strip()
             
             if text.startswith('```'):
                 text = text.split('\n', 1)[1]
@@ -306,24 +318,24 @@ class GeminiExplainer:
             else:
                 self._consecutive_errors += 1
                 self._maybe_open_circuit()
-                logger.warning(f"Invalid response format from Gemini: {type(reasons)}")
+                logger.warning(f"Invalid response format from LLM: {type(reasons)}")
                 return []
-                
+
         except json.JSONDecodeError as e:
             self._consecutive_errors += 1
             self._maybe_open_circuit()
-            logger.error(f"Failed to parse JSON from Gemini: {e}")
+            logger.error(f"Failed to parse JSON from LLM: {e}")
             return []
         except Exception as e:
             error_str = str(e)
-            
+
             if '429' in error_str or 'RESOURCE_EXHAUSTED' in error_str or 'quota' in error_str.lower():
                 self._open_circuit()
             else:
                 self._consecutive_errors += 1
                 self._maybe_open_circuit()
-            
-            logger.error(f"Gemini API error: {e}")
+
+            logger.error(f"LLM API error: {e}")
             return []
     
     def _format_salary(self, job: dict) -> str:

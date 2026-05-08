@@ -37,5 +37,11 @@ export const env = {
 
   // AI Service Configuration
   AI_SERVICE_HOST: process.env.AI_SERVICE_HOST || 'localhost',
-  AI_SERVICE_PORT: process.env.AI_SERVICE_PORT || '8000'
+  AI_SERVICE_PORT: process.env.AI_SERVICE_PORT || '8000',
+
+  // Redis Cache Configuration
+  REDIS_HOST: process.env.REDIS_HOST || 'localhost',
+  REDIS_PORT: process.env.REDIS_PORT || 6379,
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD || undefined,
+  CAREER_PATH_CACHE_TTL: parseInt(process.env.CAREER_PATH_CACHE_TTL) || 86400 // 24 hours default
 }

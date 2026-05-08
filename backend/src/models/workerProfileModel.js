@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { JOB_TYPES, EDUCATION_LEVELS, BARRIER_TYPES, WORKER_PROFILE_STEPS, MAX_EMPLOYMENT_HISTORY } from '~/utils/constants'
+import { JOB_TYPES, EDUCATION_LEVELS, BARRIER_TYPES, WORKER_PROFILE_STEPS, MAX_EMPLOYMENT_HISTORY, INDUSTRY_TYPES } from '~/utils/constants'
 
 const WORKER_PROFILE_COLLECTION_NAME = 'worker_profiles'
 const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
@@ -25,7 +25,9 @@ const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
       position: Joi.string().allow(''),
       duration: Joi.number().integer().min(0),
       jobType: Joi.string().valid(...Object.values(JOB_TYPES)),
-      description: Joi.string().allow('')
+      description: Joi.string().allow(''),
+      industry: Joi.string().valid(...Object.values(INDUSTRY_TYPES)).allow(''),
+      skills: Joi.array().items(Joi.string())
     })
   ).max(MAX_EMPLOYMENT_HISTORY),
 

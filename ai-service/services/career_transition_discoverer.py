@@ -117,10 +117,60 @@ class CareerTransitionDiscoverer:
     # Universal transition types (apply to any industry)
     UNIVERSAL_TYPES = ["trainer", "consultant", "coach", "entrepreneur", "freelancer"]
     
+    # Map barriers với job characteristics không tương thích
+    # Score penalty: Giảm match score khi job không phù hợp với barrier
+    BARRIER_INCOMPATIBLE_JOBS = {
+        "health": {
+            "negative_keywords": [
+                "nang", "lao dong nang", "standing", "night shift", "ca dem",
+                "vat", "khu vuon", "ngoai troi", "muon", "heavy lifting",
+                "stand", "on feet", "physical", "the duc"
+            ],
+            "score_penalty": 0.4  # Giảm 40% match score
+        },
+        "family": {
+            "negative_keywords": [
+                "ca dem", "dem", "weekend", "cuoi tuan", "overtime",
+                "出差", "business trip", "ot", "late", "muon"
+            ],
+            "score_penalty": 0.3  # Giảm 30% match score
+        },
+        "techGap": {
+            "negative_keywords": [
+                "digital", "tech", "AI", "coding", "programming",
+                "software", "computer", "máy tính", "công nghệ cao",
+                "technical", "IT", "developer"
+            ],
+            "score_penalty": 0.35  # Giảm 35% match score
+        },
+        "location": {
+            "negative_keywords": [
+                "khac", "distant", "remote", "relocate", "đi xa",
+                "tỉnh khác", "ngoại thành", "đi công tác"
+            ],
+            "score_penalty": 0.25  # Giảm 25% match score
+        }
+    }
+    
     def __init__(self):
         self.transitions_data = self._load_transitions_data()
         self.skill_matrix = self._load_skill_matrix()
         self.career_ladders = self._load_career_ladders()
+        
+        # Initialize semantic skill matcher (lazy loaded)
+        self._semantic_matcher = None
+    
+    @property
+    def semantic_matcher(self):
+        """Lazy load semantic matcher."""
+        if self._semantic_matcher is None:
+            try:
+                from services.skill_matcher import SemanticSkillMatcher
+                self._semantic_matcher = SemanticSkillMatcher()
+            except Exception as e:
+                logger.warning(f"Could not load semantic matcher: {e}")
+                self._semantic_matcher = None
+        return self._semantic_matcher
     
     def _load_transitions_data(self) -> Dict:
         """Load career transitions data from JSON."""
@@ -541,7 +591,54 @@ class CareerTransitionDiscoverer:
             if 'extroverted' in profile.personality_traits or 'leadership' in profile.personality_traits:
                 score += 0.05
         
+        # APPLY BARRIER PENALTY
+        barrier_penalty = self._calculate_barrier_penalty(path, profile.barriers)
+        score *= barrier_penalty
+        
         return min(1.0, max(0.0, score))
+    
+    def _calculate_barrier_penalty(
+        self, 
+        transition: Dict, 
+        barriers: List[str]
+    ) -> float:
+        """
+        Tính penalty score dựa trên barriers.
+        
+        Ví dụ:
+        - User có health barrier + job yêu cầu đi lại nhiều → penalty 0.6
+        - User có family barrier + job ca dem → penalty 0.7
+        
+        Returns:
+            float: multiplier từ 0.1 đến 1.0
+            - 1.0 = Không có penalty
+            - 0.6 = Giảm 40% match score
+        """
+        if not barriers:
+            return 1.0
+        
+        # Tạo combined text từ title, description, pros, cons
+        title_lower = transition.get('title', '').lower()
+        desc_lower = transition.get('description', '').lower()
+        pros_lower = ' '.join(transition.get('pros', [])).lower()
+        cons_lower = ' '.join(transition.get('cons', [])).lower()
+        combined_text = f"{title_lower} {desc_lower} {pros_lower} {cons_lower}"
+        
+        total_penalty = 0.0
+        
+        for barrier in barriers:
+            if barrier in self.BARRIER_INCOMPATIBLE_JOBS:
+                config = self.BARRIER_INCOMPATIBLE_JOBS[barrier]
+                
+                # Kiểm tra từng keyword không tương thích
+                for keyword in config["negative_keywords"]:
+                    if keyword.lower() in combined_text:
+                        # Lấy penalty cao nhất (không cộng dồn)
+                        total_penalty = max(total_penalty, config["score_penalty"])
+                        break
+        
+        # Penalty tối thiểu là 0.1 (không hoàn toàn loại trừ)
+        return max(0.1, 1.0 - total_penalty)
     
     def _find_current_level(self, experience_years: int, levels: List[Dict]) -> int:
         """Find current career level based on experience."""
@@ -556,25 +653,58 @@ class CareerTransitionDiscoverer:
         user_skills: List[str], 
         transitions: List[Dict]
     ) -> float:
-        """Calculate skill match percentage."""
+        """
+        Calculate skill match percentage.
+        
+        Uses hybrid approach:
+        1. Exact match (keyword matching)
+        2. Semantic similarity (if available)
+        3. Category-based matching (fallback)
+        """
         if not user_skills or not transitions:
             return 0.5
         
         # Collect all required skills
-        required_skills = set()
+        required_skills = []
         for trans in transitions:
             for skill in trans.get("skill_gaps", []):
-                required_skills.add(skill.lower())
+                required_skills.append(skill)
         
         if not required_skills:
             return 0.5
         
-        # Calculate match
+        # Method 1: Exact match
         user_skill_set = set(s.lower() for s in user_skills)
-        matched = len(user_skill_set.intersection(required_skills))
-        total = len(required_skills)
+        required_skill_set = set(s.lower() for s in required_skills)
+        exact_matches = user_skill_set & required_skill_set
+        exact_score = len(exact_matches) / len(required_skill_set) if required_skill_set else 0.0
         
-        return matched / total if total > 0 else 0.5
+        # Method 2: Semantic matching (if available)
+        semantic_score = 0.0
+        if self.semantic_matcher:
+            semantic_score = self.semantic_matcher.get_skill_similarity(
+                user_skills, required_skills
+            )
+        
+        # Method 3: Category-based matching
+        category_score = 0.0
+        if self.semantic_matcher:
+            category_score = self.semantic_matcher._calculate_category_match(
+                user_skills, required_skills
+            )
+        else:
+            # Simple category fallback
+            category_score = exact_score
+        
+        # Combine scores
+        if semantic_score > 0:
+            # Use semantic when available
+            final_score = exact_score * 0.3 + semantic_score * 0.5 + category_score * 0.2
+        else:
+            # Fallback to exact + category
+            final_score = exact_score * 0.5 + category_score * 0.5
+        
+        return min(1.0, max(0.0, final_score))
     
     def _calculate_transition_match(
         self, 
@@ -607,11 +737,17 @@ class CareerTransitionDiscoverer:
                 elif profile.target_salary < min_sal:
                     score += 0.1  # Can accept lower
         
-        # Skill match (0-0.3)
+        # Skill match (0-0.3) - SUA: Dung combined_skills thay vi profile.skills
         skill_gaps = transition.get("skill_gaps", [])
         if skill_gaps:
-            skill_match = self._calculate_skill_match(profile.skills, [transition])
+            # Dung combined_skills de tinh diem matching tot hon
+            all_skills = profile.combined_skills  # Da bao gom skills tu work_history
+            skill_match = self._calculate_skill_match(all_skills, [transition])
             score += skill_match * 0.3
+        
+        # APPLY BARRIER PENALTY
+        barrier_penalty = self._calculate_barrier_penalty(transition, profile.barriers)
+        score *= barrier_penalty
         
         return min(1.0, max(0.0, score))
     
@@ -642,6 +778,10 @@ class CareerTransitionDiscoverer:
             score += 0.1
         elif difficulty == "hard":
             score -= 0.1
+        
+        # APPLY BARRIER PENALTY
+        barrier_penalty = self._calculate_barrier_penalty(transition, profile.barriers)
+        score *= barrier_penalty
         
         return min(1.0, max(0.0, score))
     
