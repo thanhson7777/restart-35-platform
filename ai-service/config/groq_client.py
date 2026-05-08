@@ -1,16 +1,18 @@
 """
-Groq LLM Client - Alternative miễn phí cho Gemini
+Unified LLM Client - Hỗ trợ GROQ và Gemini
 
-Groq cung cấp:
-- Miễn phí 100% với rate limit cao
-- 10 requests/giây
-- Không cần credit card
-- Hỗ trợ Vietnamese (yếu hơn Gemini)
+GROQ (Miễn phí, không giới hạn):
+- llama-3.3-70b-versatile: Nhanh, đa năng
+- mixtral-8x7b-32768: Rẻ, nhanh
+- qwen-2.5-72b-chat-32k: Tốt cho Vietnamese
 
-Hướng dẫn:
-1. Đăng ký: https://console.groq.com/keys
-2. Lấy API key
-3. Thêm vào .env: GROQ_API_KEY=your_key
+Gemini (Có quota):
+- gemini-2.0-flash: Nhanh, miễn phí (có giới hạn)
+
+Sử dụng:
+    from config.llm_client import get_llm_client
+    client = get_llm_client()
+    response = client.generate("Your prompt here")
 """
 
 import os
@@ -27,51 +29,77 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 
-class GroqConfig:
-    """Cấu hình Groq API"""
+class LLMConfig:
+    """Cấu hình LLM API - Unified"""
     
-    # Models
-    MODEL_LLAMA = "llama-3.3-70b-versatile"      # Nhanh, đa năng
-    MODEL_MIXTRAL = "mixtral-8x7b-32768"         # Rẻ, nhanh
-    MODEL_QWEN = "qwen-2.5-72b-chat-32k"        # Tốt cho Vietnamese
-    MODEL = MODEL_LLAMA  # Default
+    # Provider mặc định: 'groq' hoặc 'gemini'
+    DEFAULT_PROVIDER = os.getenv('LLM_PROVIDER', 'groq').lower()
     
-    # Rate limits (free tier)
-    REQUESTS_PER_MINUTE = 30
-    TOKENS_PER_MINUTE = 15000
+    # GROQ Models (Miễn phí, không giới hạn)
+    GROQ_LLAMA = "llama-3.3-70b-versatile"
+    GROQ_MIXTRAL = "mixtral-8x7b-32768"
+    GROQ_QWEN = "qwen-2.5-72b-chat-32k"
     
-    # Retry
+    # Gemini Models (Có quota)
+    GEMINI_FLASH = "gemini-2.0-flash"
+    
+    # Model mapping theo provider
+    DEFAULT_MODEL = GROQ_LLAMA if DEFAULT_PROVIDER == 'groq' else GEMINI_FLASH
+    
+    # Rate limits
+    REQUESTS_PER_MINUTE = 30 if DEFAULT_PROVIDER == 'groq' else 15
+    TOKENS_PER_MINUTE = 15000 if DEFAULT_PROVIDER == 'groq' else 1_000_000
+    
+    # Retry settings
     MAX_RETRIES = 3
     RETRY_DELAY = 2
 
 
-class GroqClient:
+class UnifiedLLMClient:
     """
-    Wrapper cho Groq API
+    Unified LLM Client hỗ trợ nhiều providers:
+    - GROQ: Miễn phí, không giới hạn (recommend)
+    - Gemini: Có quota limit
     """
     
-    def __init__(self, api_key: str = None):
-        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+    def __init__(self, provider: str = None, api_key: str = None):
+        self.provider = provider or LLMConfig.DEFAULT_PROVIDER
+        self._groq_client = None
+        self._gemini_client = None
         
-        if not self.api_key:
-            logger.warning("GROQ_API_KEY not found. Add to .env: GROQ_API_KEY=your_key")
-            self.available = False
-        else:
-            self._init_client()
+        # Initialize GROQ client
+        groq_api_key = api_key or os.getenv("GROQ_API_KEY")
+        if groq_api_key:
+            self._init_groq(groq_api_key)
+        
+        # Initialize Gemini client
+        gemini_api_key = api_key or os.getenv("GEMINI_API_KEY")
+        if gemini_api_key:
+            self._init_gemini(gemini_api_key)
+        
+        self.available = self._groq_client is not None or self._gemini_client is not None
     
-    def _init_client(self):
-        """Initialize Groq client"""
+    def _init_groq(self, api_key: str):
+        """Initialize GROQ client"""
         try:
             from groq import Groq
-            self.client = Groq(api_key=self.api_key)
-            self.available = True
-            logger.info(f"Groq client initialized with model: {GroqConfig.MODEL}")
+            self._groq_client = Groq(api_key=api_key)
+            logger.info(f"GROQ client initialized (model: {LLMConfig.GROQ_LLAMA})")
         except ImportError:
-            logger.error("groq not installed. Run: pip install groq")
-            self.available = False
+            logger.warning("groq not installed. Run: pip install groq")
         except Exception as e:
-            logger.error(f"Failed to init Groq: {e}")
-            self.available = False
+            logger.error(f"Failed to init GROQ: {e}")
+    
+    def _init_gemini(self, api_key: str):
+        """Initialize Gemini client"""
+        try:
+            from google import genai
+            self._gemini_client = genai.Client(api_key=api_key)
+            logger.info("Gemini client initialized")
+        except ImportError:
+            logger.warning("google-genai not installed")
+        except Exception as e:
+            logger.error(f"Failed to init Gemini: {e}")
     
     def generate(
         self,
@@ -80,43 +108,86 @@ class GroqClient:
         temperature: float = 0.1,
         max_tokens: int = 2048
     ) -> Optional[str]:
-        """Generate text từ Groq"""
+        """
+        Generate text từ LLM provider.
+        
+        Args:
+            prompt: Input prompt
+            model: Model name (auto-select based on provider if not specified)
+            temperature: Sampling temperature (0.0 - 1.0)
+            max_tokens: Max tokens in response
+            
+        Returns:
+            Generated text or None if failed
+        """
         if not self.available:
+            logger.warning("No LLM client available")
             return None
         
-        model = model or GroqConfig.MODEL
+        # Auto-select model based on provider
+        if model is None:
+            model = LLMConfig.GROQ_LLAMA if self.provider == 'groq' else LLMConfig.GEMINI_FLASH
         
-        for attempt in range(GroqConfig.MAX_RETRIES):
+        for attempt in range(LLMConfig.MAX_RETRIES):
             try:
-                response = self.client.chat.completions.create(
-                    model=model,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=temperature,
-                    max_tokens=max_tokens
-                )
-                
-                return response.choices[0].message.content
-                
+                if self.provider == 'groq' and self._groq_client:
+                    return self._call_groq(model, prompt, temperature, max_tokens)
+                elif self.provider == 'gemini' and self._gemini_client:
+                    return self._call_gemini(model, prompt, temperature, max_tokens)
+                else:
+                    # Fallback: try other provider
+                    if self._groq_client and self.provider != 'groq':
+                        logger.info("Falling back to GROQ")
+                        return self._call_groq(LLMConfig.GROQ_LLAMA, prompt, temperature, max_tokens)
+                    elif self._gemini_client:
+                        logger.info("Falling back to Gemini")
+                        return self._call_gemini(LLMConfig.GEMINI_FLASH, prompt, temperature, max_tokens)
+                        
             except Exception as e:
-                logger.warning(f"Groq error (attempt {attempt + 1}): {e}")
-                if attempt < GroqConfig.MAX_RETRIES - 1:
-                    time.sleep(GroqConfig.RETRY_DELAY * (attempt + 1))
+                logger.warning(f"LLM error (attempt {attempt + 1}): {e}")
+                if attempt < LLMConfig.MAX_RETRIES - 1:
+                    time.sleep(LLMConfig.RETRY_DELAY * (attempt + 1))
         
         return None
     
+    def _call_groq(self, model: str, prompt: str, temperature: float, max_tokens: int) -> Optional[str]:
+        """Call GROQ API"""
+        response = self._groq_client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+        return response.choices[0].message.content
+    
+    def _call_gemini(self, model: str, prompt: str, temperature: float, max_tokens: int) -> Optional[str]:
+        """Call Gemini API"""
+        response = self._gemini_client.models.generate_content(
+            model=model,
+            contents=prompt,
+            config={
+                "temperature": temperature,
+                "max_output_tokens": max_tokens
+            }
+        )
+        return response.text if response.text else None
+    
     def generate_json(self, prompt: str) -> Optional[Dict]:
         """Generate JSON output"""
-        json_prompt = prompt + "\n\nCHI tra loi JSON hop le, khong giai thich."
+        json_prompt = prompt + "\n\nTra loi CHI la JSON hop le, khong giai thich gi them."
         
         response = self.generate(prompt=json_prompt)
         
         if response:
             try:
                 text = response.strip()
+                # Handle markdown code blocks
                 if text.startswith("```"):
-                    text = text.split("```")[1]
-                    if text.startswith("json"):
-                        text = text[4:]
+                    parts = text.split("```")
+                    if len(parts) >= 3:
+                        text = parts[1]
+                        if text.startswith("json"):
+                            text = text[4:]
                 return json.loads(text)
             except json.JSONDecodeError:
                 return None
@@ -124,70 +195,59 @@ class GroqClient:
         return None
 
 
-# Vietnamese-optimized prompts (dùng cho Groq vì nó yếu về tiếng Việt)
-class VietnamesePrompts:
-    """Prompts được viết đơn giản hơn cho Groq"""
-    
-    @staticmethod
-    def extract_job_info(title: str, description: str = "") -> str:
-        return f"""Extract job info. Return JSON only.
-
-Title: {title}
-Description: {description or 'N/A'}
-
-JSON format:
-{{
-    "job_summary": "2-3 sentence summary",
-    "key_responsibilities": ["resp1", "resp2"],
-    "requirements": ["req1", "req2"],
-    "benefits": ["benefit1"],
-    "skills_required": ["skill1", "skill2"],
-    "experience_level": "junior|mid|senior|manager",
-    "education_level": "high_school|college|university|any",
-    "work_environment": "office|remote|hybrid"
-}}
-
-JSON only:"""
+# Singleton instance
+_llm_client_instance: Optional[UnifiedLLMClient] = None
 
 
-def get_groq_client() -> GroqClient:
-    """Get singleton Groq client"""
-    if not hasattr(get_groq_client, '_instance'):
-        get_groq_client._instance = GroqClient()
-    return get_groq_client._instance
+def get_llm_client() -> UnifiedLLMClient:
+    """Get singleton LLM client instance"""
+    global _llm_client_instance
+    if _llm_client_instance is None:
+        _llm_client_instance = UnifiedLLMClient()
+    return _llm_client_instance
 
 
-def is_groq_available() -> bool:
-    """Check if Groq is available"""
-    return get_groq_client().available
+def is_llm_available() -> bool:
+    """Check if any LLM client is available"""
+    return get_llm_client().available
 
 
-def test_groq_connection():
-    """Test Groq connection"""
+# Export flag for other modules to check
+LLM_AVAILABLE = is_llm_available()
+
+
+def test_llm_connection():
+    """Test LLM connection"""
     print("=" * 50)
-    print("Testing Groq API Connection")
+    print("Testing Unified LLM API Connection")
     print("=" * 50)
     
-    client = GroqClient()
+    client = get_llm_client()
     
     if not client.available:
-        print("[-] Groq not available")
+        print("[-] No LLM client available")
         print("\nSetup instructions:")
-        print("1. Go to: https://console.groq.com/keys")
-        print("2. Sign up (free, no credit card)")
-        print("3. Create API key")
-        print("4. Add to .env: GROQ_API_KEY=your_key")
+        print("GROQ (Recommended - Free):")
+        print("  1. Go to: https://console.groq.com/keys")
+        print("  2. Create API key")
+        print("  3. Add to .env: GROQ_API_KEY=your_key")
+        print("\nGemini (Has quota limits):")
+        print("  1. Go to: https://aistudio.google.com/app/apikey")
+        print("  2. Create API key")
+        print("  3. Add to .env: GEMINI_API_KEY=your_key")
         return False
     
-    print(f"[+] Groq available")
-    print(f"[+] Model: {GroqConfig.MODEL}")
+    print(f"[+] LLM client available")
+    print(f"[+] Provider: {client.provider}")
+    print(f"[+] GROQ available: {client._groq_client is not None}")
+    print(f"[+] Gemini available: {client._gemini_client is not None}")
     
     print("\nTesting generation...")
-    response = client.generate("Hello, who are you? Reply in 1 sentence.")
+    response = client.generate("Hello! Reply in 1 sentence: Who are you?")
     
     if response:
         print(f"[+] Response: {response[:100]}...")
-        print("\n[SUCCESS] Groq API is working!")
+        print("\n[SUCCESS] LLM API is working!")
         return True
     else:
         print("[-] Generation failed")
@@ -195,4 +255,4 @@ def test_groq_connection():
 
 
 if __name__ == "__main__":
-    test_groq_connection()
+    test_llm_connection()

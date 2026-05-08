@@ -185,22 +185,145 @@ export const getModelInfoAPI = async () => {
  * @param {boolean} [profileData.include_management_track] - Bao gồm thang quản lý (default: true)
  * @returns {Promise<Object>} - Kết quả career paths { success, data: { user_profile, management_track, age_transition, skill_upgrades, ... } }
  */
+
+// Industry normalization mapping - chuẩn hóa industry name về key
+const INDUSTRY_NORMALIZE_MAP = {
+  // IT / Technology
+  'it': 'tu_van',
+  'technology': 'tu_van',
+  'tech': 'tu_van',
+  'software': 'tu_van',
+  'web': 'tu_van',
+  'developer': 'tu_van',
+  'programmer': 'tu_van',
+  'công nghệ': 'tu_van',
+  'cntt': 'tu_van',
+  'cntt': 'tu_van',
+  // Manufacturing
+  'manufacturing': 'co_khi',
+  'sản xuất': 'co_khi',
+  'cơ khí': 'co_khi',
+  'production': 'co_khi',
+  'factory': 'co_khi',
+  'dệt may': 'co_khi',
+  'textile': 'co_khi',
+  'garment': 'co_khi',
+  // Business / Sales
+  'business': 'ban_hang',
+  'kinh doanh': 'ban_hang',
+  'sales': 'ban_hang',
+  'sale': 'ban_hang',
+  'retail': 'ban_hang',
+  'marketing': 'ban_hang',
+  // Finance / Consulting
+  'finance': 'tu_van',
+  'tài chính': 'tu_van',
+  'banking': 'tu_van',
+  'insurance': 'tu_van',
+  'consulting': 'tu_van',
+  // Education
+  'education': 'nhan_su',
+  'giáo dục': 'nhan_su',
+  'training': 'nhan_su',
+  'school': 'nhan_su',
+  // Healthcare
+  'healthcare': 'hanh_chinh',
+  'y tế': 'hanh_chinh',
+  'hospital': 'hanh_chinh',
+  'medical': 'hanh_chinh',
+  // Service
+  'service': 'phuc_vu',
+  'dịch vụ': 'phuc_vu',
+  'restaurant': 'phuc_vu',
+  'nhà hàng': 'phuc_vu',
+  'hotel': 'phuc_vu',
+  'khách sạn': 'phuc_vu',
+  // Admin
+  'admin': 'hanh_chinh',
+  'administrative': 'hanh_chinh',
+  'office': 'hanh_chinh',
+  'hành chính': 'hanh_chinh',
+  // HR
+  'hr': 'nhan_su',
+  'nhân sự': 'nhan_su',
+  'human resources': 'nhan_su',
+  // Security
+  'security': 'bao_ve',
+  'bảo vệ': 'bao_ve',
+  'safety': 'bao_ve',
+  // Driver
+  'driver': 'lai_xe',
+  'lái xe': 'lai_xe',
+  'transport': 'lai_xe',
+  'vận tải': 'lai_xe',
+  'logistics': 'lai_xe',
+}
+
+/**
+ * Normalize industry name to standard key
+ * @param {string} industry - Industry name
+ * @returns {string} - Normalized industry key
+ */
+const normalizeIndustry = (industry) => {
+  if (!industry) return 'tu_van' // Default fallback
+
+  const normalized = industry.toLowerCase().trim()
+
+  // Check direct match
+  if (INDUSTRY_NORMALIZE_MAP[normalized]) {
+    return INDUSTRY_NORMALIZE_MAP[normalized]
+  }
+
+  // Check partial match
+  for (const [key, value] of Object.entries(INDUSTRY_NORMALIZE_MAP)) {
+    if (normalized.includes(key) || key.includes(normalized)) {
+      return value
+    }
+  }
+
+  // Default fallback
+  return 'tu_van'
+}
+
+/**
+ * Normalize experiences array with proper industry keys
+ * @param {Array} experiences - Array of work experiences
+ * @returns {Array} - Normalized experiences
+ */
+const normalizeExperiences = (experiences) => {
+  if (!Array.isArray(experiences)) return []
+
+  return experiences.map(exp => ({
+    ...exp,
+    industry: normalizeIndustry(exp.industry || exp.current_industry),
+    role: exp.role || '',
+    years: parseFloat(exp.years || 0),
+    skills: Array.isArray(exp.skills) ? exp.skills : []
+  }))
+}
+
 export const discoverCareerPathAPI = async (profileData) => {
   // Validate required fields
   if (!profileData.age) {
     throw new Error('Tuổi là bắt buộc để khám phá lộ trình sự nghiệp')
   }
 
+  // Normalize experiences with proper industry keys
+  const normalizedExperiences = normalizeExperiences(profileData.experiences || [])
+
+  // Also normalize current_industry if provided
+  const normalizedCurrentIndustry = normalizeIndustry(profileData.current_industry)
+
   const payload = {
     age: profileData.age,
-    experiences: profileData.experiences || [],
+    experiences: normalizedExperiences,
     include_age_transition: profileData.include_age_transition !== false,
     include_management_track: profileData.include_management_track !== false
   }
 
-  // Thêm các optional fields nếu có giá trị
+  // Add current role and industry (normalized)
   if (profileData.current_role) payload.current_role = profileData.current_role
-  if (profileData.current_industry) payload.current_industry = profileData.current_industry
+  if (normalizedCurrentIndustry) payload.current_industry = normalizedCurrentIndustry
   if (profileData.target_salary) payload.target_salary = profileData.target_salary
   if (profileData.work_preference) payload.work_preference = profileData.work_preference
 
@@ -276,13 +399,27 @@ export const getCareerTransitionsAPI = async (profileData) => {
     current_industry: profileData.current_industry,
     experience_years: profileData.experience_years || 0,
     skills: profileData.skills || [],
-    transition_types: profileData.transition_types || ['management', 'cross_industry', 'universal'],
+    transition_types: profileData.transition_types || ['management', 'cross_industry', 'universal', 'multi_industry'],
     limit: profileData.limit || 10
   }
 
   // Optional fields
   if (profileData.target_salary) payload.target_salary = profileData.target_salary
   if (profileData.barriers && profileData.barriers.length > 0) payload.barriers = profileData.barriers
+
+  // Multi-industry fields (for users with diverse work history)
+  if (profileData.work_history && profileData.work_history.length > 0) {
+    payload.work_history = profileData.work_history
+  }
+  if (profileData.personality_traits && profileData.personality_traits.length > 0) {
+    payload.personality_traits = profileData.personality_traits
+  }
+  if (profileData.interests && profileData.interests.length > 0) {
+    payload.interests = profileData.interests
+  }
+  if (profileData.values && profileData.values.length > 0) {
+    payload.values = profileData.values
+  }
 
   const response = await authorizeAxiosInstance.post(
     `${AI_BASE_URL}/career-transitions`,
@@ -329,5 +466,76 @@ export const getTransitionsSkillsAPI = async (industry) => {
     throw new Error('Ngành là bắt buộc')
   }
   const response = await authorizeAxiosInstance.get(`${AI_BASE_URL}/career-transitions/skills?industry=${industry}`)
+  return response.data
+}
+
+// =============================================================================
+// CACHED CAREER PATH APIs
+// =============================================================================
+
+/**
+ * Lấy career path từ cache (Redis -> MongoDB)
+ * GET /v1/ai/career-path/cached
+ *
+ * @returns {Promise<Object>} - Career path data { success, source, data, generatedAt }
+ * @returns {string} source - Nguồn data: 'cache' (Redis) | 'database' (MongoDB)
+ */
+export const getCachedCareerPathAPI = async () => {
+  const response = await authorizeAxiosInstance.get(`${AI_BASE_URL}/career-path/cached`)
+  return response.data
+}
+
+/**
+ * Trigger generation career path mới
+ * POST /v1/ai/career-path/generate
+ *
+ * @param {Object} profileData - Dữ liệu hồ sơ người lao động
+ * @param {number} profileData.age - Tuổi (bắt buộc)
+ * @param {string} [profileData.currentRole] - Vị trí hiện tại
+ * @param {string} [profileData.currentIndustry] - Ngành hiện tại
+ * @param {Array} [profileData.experiences] - Danh sách kinh nghiệm
+ * @param {Array} [profileData.skills] - Danh sách kỹ năng
+ * @param {Object} [profileData.barriers] - Các rào cản
+ * @param {number} [profileData.targetSalary] - Mức lương mong muốn
+ * @param {boolean} [profileData.includeAgeTransition] - Bao gồm chuyển đổi theo tuổi
+ * @param {boolean} [profileData.includeManagementTrack] - Bao gồm thang quản lý
+ * @returns {Promise<Object>} - Career path mới { success, message, data }
+ */
+export const triggerCareerPathGenerationAPI = async (profileData) => {
+  if (!profileData.age) {
+    throw new Error('Tuổi là bắt buộc để tạo lộ trình sự nghiệp')
+  }
+
+  // Normalize experiences with proper industry keys
+  const normalizedExperiences = normalizeExperiences(profileData.experiences || [])
+
+  const payload = {
+    age: profileData.age,
+    includeAgeTransition: profileData.includeAgeTransition !== false,
+    includeManagementTrack: profileData.includeManagementTrack !== false
+  }
+
+  if (profileData.currentRole) payload.currentRole = profileData.currentRole
+  if (profileData.currentIndustry) payload.currentIndustry = normalizeIndustry(profileData.currentIndustry)
+  if (normalizedExperiences.length > 0) payload.experiences = normalizedExperiences
+  if (profileData.skills && profileData.skills.length > 0) payload.skills = profileData.skills
+  if (profileData.barriers) payload.barriers = profileData.barriers
+  if (profileData.targetSalary) payload.targetSalary = profileData.targetSalary
+
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/career-path/generate`,
+    payload
+  )
+  return response.data
+}
+
+/**
+ * Xóa cache career path (khi profile thay đổi)
+ * DELETE /v1/ai/career-path/cache
+ *
+ * @returns {Promise<Object>} - Kết quả { success, message }
+ */
+export const invalidateCareerPathCacheAPI = async () => {
+  const response = await authorizeAxiosInstance.delete(`${AI_BASE_URL}/career-path/cache`)
   return response.data
 }

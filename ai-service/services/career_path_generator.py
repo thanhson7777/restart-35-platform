@@ -24,9 +24,13 @@ import os
 from typing import List, Dict, Optional, Any
 from datetime import datetime
 
-from services.gemini_explainer import get_explainer
-
 logger = logging.getLogger(__name__)
+
+try:
+    from config.groq_client import get_llm_client, LLM_AVAILABLE
+except ImportError:
+    LLM_AVAILABLE = False
+    logger.warning("Unified LLM client not available")
 
 try:
     from google import genai
@@ -36,9 +40,11 @@ except ImportError:
     logger.warning("google-genai not installed. Gemini features disabled.")
 
 
-def _should_use_gemini_for_career_paths() -> bool:
-    """Check if Gemini should be used for career paths (feature flag)."""
-    return os.getenv('ENABLE_GEMINI_FOR_CAREER_PATHS', 'false').lower() == 'true'
+def _should_use_llm_for_career_paths() -> bool:
+    """Check if LLM should be used for career paths (feature flag)."""
+    # Support both old and new flag names
+    return os.getenv('ENABLE_GROQ_FOR_CAREER_PATHS', 
+                     os.getenv('ENABLE_GEMINI_FOR_CAREER_PATHS', 'false')).lower() == 'true'
 
 
 class CareerPathCache:
@@ -168,11 +174,11 @@ Trả về JSON:
         Khởi tạo CareerPathGenerator.
         
         Args:
-            api_key: Gemini API key. Nếu None, đọc từ env.
+            api_key: LLM API key. Neu None, doc tu env.
         """
         self.api_key = api_key
-        self.client = None
-        self.model = 'gemini-2.0-flash'
+        self._llm_client = None
+        self.model = 'llama-3.3-70b-versatile'  # Default GROQ model
         self._cache = CareerPathCache(ttl_seconds=3600)  # 1 hour cache
         
         # Circuit breaker
@@ -183,32 +189,26 @@ Trả về JSON:
         self._init_client()
     
     def _init_client(self):
-        """Initialize Gemini client."""
-        if not GEMINI_AVAILABLE:
-            logger.warning("google-genai not installed")
+        """Initialize unified LLM client."""
+        if not LLM_AVAILABLE:
+            logger.warning("Unified LLM client not available")
             return
         
-        if not self.api_key:
-            from dotenv import load_dotenv
-            load_dotenv()
-            self.api_key = os.getenv('GEMINI_API_KEY')
-        
-        if self.api_key:
-            try:
-                self.client = genai.Client(api_key=self.api_key)
-                logger.info("CareerPathGenerator: Gemini client initialized")
-            except Exception as e:
-                logger.error(f"Failed to initialize Gemini: {e}")
-                self.client = None
-        else:
-            logger.warning("GEMINI_API_KEY not set")
+        try:
+            self._llm_client = get_llm_client()
+            if self._llm_client.available:
+                logger.info("CareerPathGenerator: LLM client initialized")
+            else:
+                logger.warning("No LLM provider available")
+        except Exception as e:
+            logger.error(f"Failed to initialize LLM: {e}")
     
     @property
     def is_available(self) -> bool:
-        """Check if Gemini is available (feature flag + client check)."""
-        if not _should_use_gemini_for_career_paths():
+        """Check if LLM is available (feature flag + client check)."""
+        if not _should_use_llm_for_career_paths():
             return False
-        return self.client is not None and not self._circuit_open
+        return self._llm_client is not None and self._llm_client.available and not self._circuit_open
     
     def generate_paths(
         self,
@@ -242,26 +242,26 @@ Trả về JSON:
         if cached_paths:
             return cached_paths
         
-        # Generate with Gemini
+        # Generate with LLM
         if self.is_available:
             try:
-                paths = self._generate_with_gemini(user_profile, available_jobs)
+                paths = self._generate_with_llm(user_profile, available_jobs)
                 if paths:
                     self._cache.set(user_profile, paths)
                     return paths
             except Exception as e:
-                logger.error(f"Gemini generation failed: {e}")
+                logger.error(f"LLM generation failed: {e}")
                 self._handle_error(e)
         
         # Fallback to rule-based
         return self._generate_fallback_paths(user_profile)
     
-    def _generate_with_gemini(
+    def _generate_with_llm(
         self,
         user_profile: dict,
         available_jobs: List[dict] = None
     ) -> List[dict]:
-        """Generate paths using Gemini."""
+        """Generate paths using Unified LLM client."""
         
         # Format available jobs
         if available_jobs and len(available_jobs) > 0:
@@ -270,22 +270,22 @@ Trả về JSON:
                 for job in available_jobs[:30]  # Max 30 jobs
             ])
         else:
-            jobs_text = "- Các công việc phù hợp với ngành nghề"
+            jobs_text = "- Cac cong viec phu hop voi nganh nghe"
         
         # Format barriers
         barriers = user_profile.get('barriers', {})
         barriers_list = [
             k for k, v in barriers.items() if v
         ] if barriers else []
-        barriers_str = ", ".join(barriers_list) if barriers_list else "Không có"
+        barriers_str = ", ".join(barriers_list) if barriers_list else "Khong co"
         
         # Format skills
         skills = user_profile.get('skills', [])
-        skills_str = ", ".join(skills[:10]) if skills else "Không có"
+        skills_str = ", ".join(skills[:10]) if skills else "Khong co"
         
         # Format salary
         salary = user_profile.get('target_salary', 0)
-        salary_str = f"{salary/1000000:.0f} triệu/tháng" if salary > 0 else "Thương lượng"
+        salary_str = f"{salary/1000000:.0f} trieu/thang" if salary > 0 else "Thuong luong"
         
         # Format experience
         exp = user_profile.get('experience', 0)
@@ -311,14 +311,15 @@ Trả về JSON:
                 experience=exp
             )
         
-        # Call Gemini
+        # Call LLM
         try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt
-            )
+            response = self._llm_client.generate(prompt=prompt, model=self.model)
             
-            text = response.text.strip()
+            if not response:
+                logger.error("Empty response from LLM")
+                return []
+            
+            text = response.strip()
             
             # Parse JSON
             if text.startswith('```'):
@@ -329,14 +330,14 @@ Trả về JSON:
             data = json.loads(text)
             paths = data.get('career_paths', [])
             
-            logger.info(f"Generated {len(paths)} career paths with Gemini")
+            logger.info(f"Generated {len(paths)} career paths with LLM")
             return paths
             
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse Gemini response: {e}")
+            logger.error(f"Failed to parse LLM response: {e}")
             return []
         except Exception as e:
-            logger.error(f"Gemini API error: {e}")
+            logger.error(f"LLM API error: {e}")
             raise
     
     def _generate_fallback_paths(self, user_profile: dict) -> List[dict]:

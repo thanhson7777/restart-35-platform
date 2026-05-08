@@ -30,6 +30,18 @@ export const JOB_TYPE_OPTIONS = [
   { value: 'freelance', label: 'Làm tự do' }
 ]
 
+// 8 Industries cho Career Transition (35+)
+export const INDUSTRY_OPTIONS = [
+  { value: 'bao_ve', label: 'Bảo Vệ & An Ninh' },
+  { value: 'lai_xe', label: 'Lái Xe & Vận Tải' },
+  { value: 'co_khi', label: 'Cơ Khí & Sản Xuất' },
+  { value: 'ban_hang', label: 'Bán Hàng & Kinh Doanh' },
+  { value: 'phuc_vu', label: 'Phục Vụ & Nhà Hàng' },
+  { value: 'hanh_chinh', label: 'Hành Chính' },
+  { value: 'nhan_su', label: 'Nhân Sự & HR' },
+  { value: 'tu_van', label: 'Tư Vấn' }
+]
+
 export const BARRIER_OPTIONS = [
   {
     value: 'health',

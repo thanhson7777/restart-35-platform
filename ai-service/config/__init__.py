@@ -12,12 +12,11 @@ from .gemini_client import (
 )
 
 from .groq_client import (
-    GroqConfig,
-    GroqClient,
-    VietnamesePrompts,
-    get_groq_client,
-    is_groq_available,
-    test_groq_connection
+    LLMConfig,
+    UnifiedLLMClient,
+    get_llm_client,
+    is_llm_available,
+    test_llm_connection
 )
 
 __all__ = [
@@ -28,11 +27,10 @@ __all__ = [
     'get_gemini_client',
     'is_gemini_available',
     'test_gemini_connection',
-    # Groq
-    'GroqConfig',
-    'GroqClient',
-    'VietnamesePrompts',
-    'get_groq_client',
-    'is_groq_available',
-    'test_groq_connection',
+    # Unified LLM Client (GROQ + Gemini)
+    'LLMConfig',
+    'UnifiedLLMClient',
+    'get_llm_client',
+    'is_llm_available',
+    'test_llm_connection',
 ]

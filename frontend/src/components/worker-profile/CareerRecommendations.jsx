@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { motion } from 'framer-motion'
-import { TrendingUp, AlertTriangle, Zap, ArrowRight, Clock, DollarSign, Target, Loader2 } from 'lucide-react'
+import { TrendingUp, AlertTriangle, Zap, ArrowRight, Clock, DollarSign, Target, Loader2, RefreshCw } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import {
   selectCareerPath,
@@ -10,8 +10,14 @@ import {
   selectManagementTrack,
   selectAgeTransition,
   selectSkillUpgrades,
-  fetchCareerPath
+  fetchCareerPath,
+  setCareerPath
 } from '@/redux/ai/aiSlice'
+import {
+  getCachedCareerPathAPI,
+  triggerCareerPathGenerationAPI,
+  invalidateCareerPathCacheAPI
+} from '@/apis/aiAPI'
 
 const UrgencyBadge = ({ urgency }) => {
   const config = {
@@ -217,7 +223,7 @@ const ErrorState = ({ error, onRetry }) => (
   </div>
 )
 
-function CareerRecommendations({ className }) {
+function CareerRecommendations({ className, userProfile }) {
   const dispatch = useDispatch()
   const careerPath = useSelector(selectCareerPath)
   const isLoading = useSelector(selectCareerPathLoading)
@@ -225,17 +231,110 @@ function CareerRecommendations({ className }) {
   const managementTrack = useSelector(selectManagementTrack)
   const ageTransition = useSelector(selectAgeTransition)
   const skillUpgrades = useSelector(selectSkillUpgrades)
-  
+
+  // Cache-aware state
+  const [dataSource, setDataSource] = useState(null) // 'cache' | 'database' | 'fresh'
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [lastGenerated, setLastGenerated] = useState(null)
+
   const hasData = managementTrack.length > 0 || ageTransition.length > 0 || skillUpgrades.length > 0
-  
-  const handleRetry = () => {
-    if (careerPath?.user_profile?.age) {
+
+  // Build profile data for API calls
+  const buildProfileData = (profile) => {
+    return {
+      age: profile.age,
+      experiences: profile.experiences || [],
+      currentRole: profile.primary_role || profile.current_role,
+      currentIndustry: profile.primary_industry || profile.current_industry,
+      targetSalary: profile.target_salary,
+      includeAgeTransition: true,
+      includeManagementTrack: true
+    }
+  }
+
+  // Fetch from cache first, fallback to generation
+  const fetchFromCache = async (profileData) => {
+    try {
+      const result = await getCachedCareerPathAPI()
+
+      if (result.success) {
+        // Cache hit - use cached data
+        setDataSource(result.source)
+        setLastGenerated(result.data?.generatedAt)
+
+        // Update Redux with cached career path
+        if (result.data?.careerPath) {
+          dispatch(setCareerPath(result.data.careerPath))
+        }
+        console.log(`[Cache] Career path loaded from ${result.source}`)
+        return
+      }
+
+      // No cache - trigger generation
+      if (result.needsGeneration) {
+        await triggerGeneration(profileData)
+      }
+    } catch (err) {
+      console.error('[Cache] Error fetching from cache')
+      // Fallback to direct API call
       dispatch(fetchCareerPath({
-        age: careerPath.user_profile.age,
-        experiences: careerPath.user_profile.experiences || [],
+        age: profileData.age,
+        experiences: profileData.experiences || [],
+        current_role: profileData.currentRole,
+        current_industry: profileData.currentIndustry,
         include_age_transition: true,
         include_management_track: true
       }))
+    }
+  }
+
+  // Trigger new career path generation
+  const triggerGeneration = async (profileData) => {
+    setIsRefreshing(true)
+    try {
+      const result = await triggerCareerPathGenerationAPI(profileData)
+
+      if (result.success) {
+        setDataSource('fresh')
+        setLastGenerated(new Date())
+        // Update Redux with new career path
+        dispatch(setCareerPath(result.data))
+      }
+    } catch (err) {
+      console.error('[Generation] Error')
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  // Manual refresh - invalidate cache and regenerate
+  const handleRefresh = async () => {
+    try {
+      await invalidateCareerPathCacheAPI()
+      const profileData = userProfile || careerPath?.user_profile
+      if (profileData?.age) {
+        await triggerGeneration(buildProfileData(profileData))
+      }
+    } catch (err) {
+      console.error('[Refresh] Error')
+    }
+  }
+
+  // Auto-fetch career path when component mounts
+  useEffect(() => {
+    const profileData = userProfile || careerPath?.user_profile
+
+    // Only fetch if we have profile data and no cached data yet
+    if (profileData?.age && !careerPath && !isLoading && !dataSource) {
+      fetchFromCache(buildProfileData(profileData))
+    }
+  }, [dispatch, userProfile, careerPath, isLoading, dataSource])
+
+  const handleRetry = () => {
+    const profileData = userProfile || careerPath?.user_profile
+
+    if (profileData?.age) {
+      handleRefresh()
     }
   }
   
@@ -278,11 +377,29 @@ function CareerRecommendations({ className }) {
             </p>
           )}
         </div>
-        {careerPath?.scoring_method && (
-          <span className="text-xs text-muted-foreground bg-slate-100 px-2 py-1 rounded">
-            {careerPath.scoring_method === 'llm' ? 'AI-powered' : 'Rule-based'}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {dataSource && (
+            <span className="text-xs text-muted-foreground bg-slate-100 px-2 py-1 rounded">
+              {dataSource === 'cache' ? 'Từ cache' : dataSource === 'database' ? 'Từ DB' : 'Mới tạo'}
+            </span>
+          )}
+          {careerPath?.scoring_method && (
+            <span className="text-xs text-muted-foreground bg-slate-100 px-2 py-1 rounded">
+              {careerPath.scoring_method === 'llm' ? 'AI-powered' : 'Rule-based'}
+            </span>
+          )}
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className={cn(
+              'p-2 rounded-lg hover:bg-slate-100 transition-colors',
+              isRefreshing && 'opacity-50 cursor-not-allowed'
+            )}
+            title="Làm mới lộ trình"
+          >
+            <RefreshCw size={16} className={cn('text-muted-foreground', isRefreshing && 'animate-spin')} />
+          </button>
+        </div>
       </div>
       
       {/* Management Track */}

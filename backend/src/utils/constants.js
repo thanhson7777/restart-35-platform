@@ -41,6 +41,19 @@ export const BARRIER_TYPES = {
   OTHER: 'other'              // Khác
 }
 
+// ============ INDUSTRY TYPES ============
+// 8 industries cho Career Transition (35+)
+export const INDUSTRY_TYPES = {
+  BAO_VE: 'bao_ve',           // Bảo Vệ & An Ninh
+  LAI_XE: 'lai_xe',           // Lái Xe & Vận Tải
+  CO_KHI: 'co_khi',           // Cơ Khí & Sản Xuất
+  BAN_HANG: 'ban_hang',       // Bán Hàng & Kinh Doanh
+  PHUC_VU: 'phuc_vu',         // Phục Vụ & Nhà Hàng
+  HANH_CHINH: 'hanh_chinh',   // Hành Chính
+  NHAN_SU: 'nhan_su',         // Nhân Sự & HR
+  TU_VAN: 'tu_van'            // Tư Vấn
+}
+
 // ============ RISK LEVELS ============
 export const RISK_LEVELS = {
   HIGH: 'high',

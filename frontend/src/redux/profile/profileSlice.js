@@ -6,6 +6,7 @@ import {
   autosaveWorkerProfileAPI,
   completeWorkerProfileAPI
 } from '~/apis/profileAPI'
+import { invalidateCareerPathCacheAPI } from '~/apis/aiAPI'
 
 // Async thunks
 export const fetchMyProfile = createAsyncThunk(
@@ -42,6 +43,15 @@ export const saveStep = createAsyncThunk(
   async ({ step, data }, { rejectWithValue }) => {
     try {
       const response = await updateWorkerProfileStepAPI(step, data)
+
+      // Invalidate career path cache when profile is updated
+      // This ensures fresh recommendations on next visit
+      try {
+        await invalidateCareerPathCacheAPI()
+      } catch (cacheError) {
+        console.warn('[Profile] Failed to invalidate career cache:', cacheError)
+      }
+
       return { step, data: response.data }
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message)
@@ -54,6 +64,15 @@ export const autosave = createAsyncThunk(
   async ({ step, data }, { rejectWithValue }) => {
     try {
       const response = await autosaveWorkerProfileAPI(step, data)
+
+      // Invalidate career path cache when profile is updated
+      // This ensures fresh recommendations on next visit
+      try {
+        await invalidateCareerPathCacheAPI()
+      } catch (cacheError) {
+        console.warn('[Profile] Failed to invalidate career cache:', cacheError)
+      }
+
       return { profileId: response.data.profileId, savedAt: response.data.savedAt }
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message)
@@ -66,6 +85,14 @@ export const completeProfile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const body = await completeWorkerProfileAPI()
+
+      // Invalidate career path cache when profile is completed
+      try {
+        await invalidateCareerPathCacheAPI()
+      } catch (cacheError) {
+        console.warn('[Profile] Failed to invalidate career cache:', cacheError)
+      }
+
       // Backend: { success, message, data: profile }
       return body?.data ?? body
     } catch (error) {

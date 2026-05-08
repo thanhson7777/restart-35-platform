@@ -24,17 +24,27 @@ from functools import wraps
 
 logger = logging.getLogger(__name__)
 
+# Import unified LLM client
+try:
+    from config.groq_client import get_llm_client, LLMConfig
+    LLM_AVAILABLE = True
+except ImportError:
+    LLM_AVAILABLE = False
+    logger.warning("Unified LLM client not available")
+
+# Legacy imports for compatibility
 try:
     from google import genai
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
-    logger.warning("google-genai not installed")
 
 
-def _should_use_gemini_for_transitions() -> bool:
-    """Check if Gemini should be used for career transitions (feature flag)."""
-    return os.getenv('ENABLE_GEMINI_FOR_TRANSITIONS', 'true').lower() == 'true'
+def _should_use_llm_for_transitions() -> bool:
+    """Check if LLM should be used for career transitions (feature flag)."""
+    # Support both old and new flag names
+    return os.getenv('ENABLE_GROQ_FOR_TRANSITIONS', 
+                     os.getenv('ENABLE_GEMINI_FOR_TRANSITIONS', 'true')).lower() == 'true'
 
 
 @dataclass
@@ -117,7 +127,7 @@ _explainer_instance: Optional['CareerTransitionExplainer'] = None
 
 class CareerTransitionExplainer:
     """
-    Token-optimized Gemini integration for career transitions.
+    Token-optimized LLM integration for career transitions.
     
     Optimization strategies:
     1. Compact prompts (< 500 tokens input)
@@ -144,11 +154,39 @@ class CareerTransitionExplainer:
         "trainer", "consultant", "coach", "entrepreneur", "freelancer",
         "cross_industry", "career_pivot", "multi_industry"
     ]
-    
+
+    # Skills mapping by industry/job keywords
+    SKILLS_BY_INDUSTRY = {
+        "bao_ve": ["Security Audit", "Risk Assessment", "Report Writing", "Conflict Resolution", "Patrol Procedures"],
+        "lai_xe": ["Fleet Management", "GPS Navigation", "Route Planning", "Vehicle Maintenance", "Defensive Driving"],
+        "co_khi": ["Lean Manufacturing", "Six Sigma", "Quality Control", "CNC Operations", "Machine Maintenance"],
+        "ban_hang": ["Sales Strategy", "Customer Service", "Negotiation", "Inventory Management", "POS Operations"],
+        "phuc_vu": ["Restaurant Operations", "Food Safety", "Cost Control", "Customer Relations", "Event Planning"],
+        "hanh_chinh": ["Legal Knowledge", "Compliance Systems", "Document Management", "Records Management", "Office Administration"],
+        "nhan_su": ["HR Consulting", "Compensation Design", "LMS", "Recruitment", "Performance Management"],
+        "tu_van": ["Business Strategy", "Change Management", "Coaching", "Problem Solving", "Stakeholder Management"]
+    }
+
+    # Skills mapping by job title keywords
+    SKILLS_BY_KEYWORD = {
+        "ban_hang": ["bán hàng", "bán lẻ", "thu ngân", "sales", "retail"],
+        "nhan_vien": ["chăm sóc khách hàng", "customer service", "nhập liệu", "data entry"],
+        "tai_xe": ["lái xe", "giao hàng", "vận chuyển", "driver"],
+        "bao_ve": ["bảo vệ", "an ninh", "security", "bảo an"],
+        "nau_an": ["nấu ăn", "đầu bếp", "cook", "chef"],
+        "may": ["may mặc", "cắt may", "sewing", "tailoring"],
+        "lon_lap": ["lắp ráp", "assembly", "production"],
+        "han": ["hàn", "welding"],
+        "dien": ["điện", "điện nước", "electrical", "plumbing"],
+        "ke_toan": ["kế toán", "accounting", "tài chính"],
+        "quan_ly": ["quản lý", "management", "giám sát"],
+        "hanh_chinh": ["hành chính", "administrative", "văn phòng"]
+    }
+
     def __init__(self):
         self._initialized = False
         self._init_error: Optional[str] = None
-        self._client = None
+        self._llm_client = None
         self._cache = ExplanationCache()
         
         # Circuit breaker
@@ -165,26 +203,24 @@ class CareerTransitionExplainer:
         self._initialize()
     
     def _initialize(self) -> None:
-        """Initialize Gemini client (only if feature flag is enabled)."""
+        """Initialize LLM client (only if feature flag is enabled)."""
         # Check feature flag first
-        if not _should_use_gemini_for_transitions():
-            self._init_error = "Gemini disabled by ENABLE_GEMINI_FOR_TRANSITIONS flag"
+        if not _should_use_llm_for_transitions():
+            self._init_error = "LLM disabled by ENABLE_GROQ_FOR_TRANSITIONS flag"
             logger.info(f"CareerTransitionExplainer: {self._init_error}")
             return
         
-        if not GEMINI_AVAILABLE:
-            self._init_error = "Gemini not installed"
+        if not LLM_AVAILABLE:
+            self._init_error = "Unified LLM client not available"
             return
         
         try:
-            api_key = os.getenv('GEMINI_API_KEY')
-            if not api_key:
-                self._init_error = "GEMINI_API_KEY not set"
-                return
-            
-            self._client = genai.Client(api_key=api_key)
-            self._initialized = True
-            logger.info("CareerTransitionExplainer initialized successfully")
+            self._llm_client = get_llm_client()
+            if self._llm_client.available:
+                self._initialized = True
+                logger.info("CareerTransitionExplainer initialized successfully with unified LLM client")
+            else:
+                self._init_error = "No LLM provider available (check API keys)"
         except Exception as e:
             self._init_error = str(e)
             logger.error(f"Failed to initialize: {e}")
@@ -235,6 +271,79 @@ class CareerTransitionExplainer:
     def _is_complex_transition(self, transition_type: str) -> bool:
         """Check if transition is complex (use LLM)."""
         return transition_type in self.COMPLEX_TYPES
+
+    def _extract_skills_from_position(self, position: str, industry: str = "") -> List[str]:
+        """
+        Extract skills from job position and industry.
+        Used as fallback when user doesn't provide skills explicitly.
+        """
+        if not position:
+            return []
+
+        position_lower = position.lower()
+        skills = []
+
+        # First, try industry-based skills
+        if industry and industry in self.SKILLS_BY_INDUSTRY:
+            skills.extend(self.SKILLS_BY_INDUSTRY[industry][:3])
+
+        # Then, try keyword matching in job title
+        for keyword, keyword_skills in self.SKILLS_BY_KEYWORD.items():
+            if keyword in position_lower:
+                for skill in keyword_skills:
+                    # Map keyword skill to English skill if available
+                    for ind, ind_skills in self.SKILLS_BY_INDUSTRY.items():
+                        if skill.lower() in [s.lower() for s in ind_skills]:
+                            skills.extend([s for s in ind_skills if s not in skills][:2])
+                            break
+
+        # Default skills based on common patterns
+        default_mapping = {
+            "nhân viên": ["Customer Service", "Teamwork", "Communication"],
+            "quản lý": ["Leadership", "Team Management", "Decision Making"],
+            "giám đốc": ["Strategic Planning", "Leadership", "Business Development"],
+            "trưởng phòng": ["Team Leadership", "Budget Management", "Planning"],
+            "phó phòng": ["Team Support", "Coordination", "Reporting"],
+            "chuyên viên": ["Analysis", "Reporting", "Communication"],
+            "kỹ thuật": ["Technical Skills", "Problem Solving", "Troubleshooting"],
+            "tài xế": ["Vehicle Operation", "Route Planning", "Time Management"],
+            "bảo vệ": ["Security Awareness", "Incident Response", "Communication"],
+            "phục vụ": ["Customer Service", "Food Handling", "Coordination"],
+            "đầu bếp": ["Food Preparation", "Kitchen Management", "Hygiene"],
+            "kế toán": ["Financial Reporting", "Data Analysis", "Attention to Detail"],
+            "hành chính": ["Organization", "Documentation", "Scheduling"]
+        }
+
+        for keyword, default_skills in default_mapping.items():
+            if keyword in position_lower:
+                for skill in default_skills:
+                    if skill not in skills:
+                        skills.append(skill)
+                break
+
+        return list(dict.fromkeys(skills))[:5]  # Dedupe and limit to 5
+
+    def _get_barriers_text(self, barriers: List[str]) -> str:
+        """
+        Format barriers for prompt inclusion.
+        """
+        if not barriers:
+            return "Không có rào cản đáng kể"
+
+        barrier_names = {
+            "health": "Hạn chế về sức khỏe",
+            "family": "Cần chăm sóc gia đình",
+            "techGap": "Hạn chế về công nghệ",
+            "location": "Hạn chế về vị trí địa lý",
+            "other": "Có rào cản khác"
+        }
+
+        barrier_texts = []
+        for barrier in barriers:
+            name = barrier_names.get(barrier, barrier)
+            barrier_texts.append(name)
+
+        return ", ".join(barrier_texts)
     
     def _build_compact_prompt(
         self, 
@@ -274,8 +383,8 @@ OUTPUT JSON (toi da {self.MAX_OUTPUT_TOKENS * max_trans} tokens):
 """
 
     def _build_vietnam_expert_prompt(
-        self, 
-        profile: Dict, 
+        self,
+        profile: Dict,
         transitions: List[Dict]
     ) -> str:
         """
@@ -295,13 +404,26 @@ OUTPUT JSON (toi da {self.MAX_OUTPUT_TOKENS * max_trans} tokens):
                 ind_name = job.get('industry', 'N/A')
                 role = job.get('role', 'N/A')
                 years = job.get('years', 0)
-                skills = ', '.join(job.get('skills', [])[:5])
+                # Get skills from job or extract from position
+                job_skills = job.get('skills', [])
+                if not job_skills and role:
+                    job_skills = self._extract_skills_from_position(role, ind_name)
+                skills = ', '.join(job_skills[:5])
                 work_hist += f"- {years} nam {ind_name}: {role}\n"
                 work_hist += f"  Skills: {skills}\n"
 
-        # Format combined skills
-        combined_skills = profile.get('combined_skills', profile.get('skills', []))
-        skills_text = ', '.join(combined_skills[:10])
+        # Extract skills for current position if not provided
+        current_skills = profile.get('combined_skills', profile.get('skills', []))
+        if not current_skills and profile.get('current_role'):
+            current_skills = self._extract_skills_from_position(
+                profile.get('current_role'),
+                profile.get('current_industry', '')
+            )
+        skills_text = ', '.join(current_skills[:10])
+
+        # Format barriers
+        barriers = profile.get('barriers', [])
+        barriers_text = self._get_barriers_text(barriers)
 
         # Format transitions
         trans_text = ""
@@ -333,6 +455,7 @@ NHIEM VU: Phan tich va goi y CHI TIET, THUC TE cho nguoi cung hoan canh.
 - Nghe/Nghanh hien tai: {profile.get('current_role', 'N/A')} / {profile.get('current_industry', 'N/A')}
 - Muc tieu luong: {profile.get('target_salary', 'N/A') or 'Chua xac dinh'} VND/thang
 - Ky nang hien tai: {skills_text}
+- Rao can hien tai: {barriers_text}
 {work_hist}
 
 === CAC GOI Y CHUYEN DOI ===
@@ -352,6 +475,14 @@ NHIEM VU: Phan tich va goi y CHI TIET, THUC TE cho nguoi cung hoan canh.
    - NHAN MANH LOI THE: "Ban co kinh nghiem X nam A + Y nam B"
    - GIOI THIEU nhung nghề ma NGUOI CHI CO 1 NGANH KHONG LAM DUOC
    - GIAI THICH tai sao loi the nay HIEM CO va CO GIA TRI
+
+3. VOI NGUOI CO RAO CAN (barriers):
+   - TUYET DOI phai xem xet rao can trong MOI goi y
+   - Neu co "health": Tranh nhung nghe nang, di lai nhieu, lam ca dem
+   - Neu co "family": Uu tien cong viec o gan nha, thoi gian linh hoat
+   - Neu co "techGap": Tranh nhung nghe can ky nang tech cao
+   - Neu co "location": Chi goi y nhung nghe co the lam tai dia phuong
+   - GIAI THICH RO RANG: Tai sao nghe nay PHAI HOAC KHONG NEN voi rao can cua ho
 
 3. XU HUONG THI TRUONG 2026:
    - Nhung nganh nao dang TUYEN DUNG manh?
@@ -385,36 +516,33 @@ Tra ve JSON chinh xac, khong markdown:
     }}
 }}"""
 
-    def _call_gemini(self, prompt: str) -> Optional[str]:
-        """Call Gemini API with retry."""
+    def _call_llm(self, prompt: str) -> Optional[str]:
+        """Call LLM API with retry (supports GROQ or Gemini)."""
         if not self.is_available():
             return None
         
         for attempt in range(3):
             try:
-                response = self._client.models.generate_content(
-                    model="gemini-2.0-flash",
-                    contents=prompt
-                )
+                response = self._llm_client.generate(prompt=prompt)
                 
-                if response.text:
+                if response:
                     # Estimate tokens (rough)
                     self._total_input_tokens += len(prompt.split())
-                    self._total_output_tokens += len(response.text.split())
+                    self._total_output_tokens += len(response.split())
                     
                     self._error_count = 0  # Reset on success
-                    return response.text
+                    return response
                     
             except Exception as e:
-                logger.warning(f"Gemini call failed (attempt {attempt + 1}): {e}")
+                logger.warning(f"LLM call failed (attempt {attempt + 1}): {e}")
                 if attempt < 2:
                     time.sleep(2 * (attempt + 1))
         
-        self._record_error(Exception("Gemini call failed"))
+        self._record_error(Exception("LLM call failed"))
         return None
     
     def _parse_json_response(self, response: str) -> Optional[Dict]:
-        """Parse JSON from Gemini response."""
+        """Parse JSON from LLM response."""
         try:
             text = response.strip()
             
@@ -504,8 +632,8 @@ Tra ve JSON chinh xac, khong markdown:
         else:
             prompt = self._build_compact_prompt(profile, transitions)
         
-        # Call Gemini
-        response = self._call_gemini(prompt)
+        # Call LLM
+        response = self._call_llm(prompt)
         
         if response:
             parsed = self._parse_json_response(response)

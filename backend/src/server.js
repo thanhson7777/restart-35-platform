@@ -2,6 +2,7 @@
 import express from 'express'
 import exitHook from 'async-exit-hook'
 import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
+import { connectRedis, closeRedis } from '~/config/redis'
 import { env } from './config/enviroment'
 import { APIS_V1 } from './routes/v1'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
@@ -34,6 +35,7 @@ const START_SERVER = () => {
   exitHook(() => {
     console.log('Server đang tắt')
     CLOSE_DB()
+    closeRedis()
     console.log('Server đã tắt')
   })
 }
@@ -43,7 +45,12 @@ const START_SERVER = () => {
   try {
     console.log('Đang kết nối tới mongoDB cloud atlas')
     await CONNECT_DB()
-    console.log('Đã kêt nối tới mongoDB cloud atlas')
+    console.log('Đã kết nối tới mongoDB cloud atlas')
+
+    console.log('Đang kết nối tới Redis...')
+    await connectRedis()
+    console.log('Đã kết nối tới Redis')
+
     START_SERVER()
   } catch (error) {
     console.log(error)

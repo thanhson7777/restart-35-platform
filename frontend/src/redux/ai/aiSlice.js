@@ -172,8 +172,11 @@ export const fetchCareerPath = createAsyncThunk(
   async (profileData, { rejectWithValue }) => {
     try {
       const response = await discoverCareerPathAPI(profileData)
-      // Backend response: { success, data: { user_profile, management_track, age_transition, skill_upgrades, ... } }
-      return response?.data ?? response
+      // Backend trả về: { success: true, data: { management_track: [...], age_transition: [...], ... } }
+      // aiAPI trả về: response = { success: true, data: {...} } (axios unwrap)
+      // Thunk unwrap 2 lần: response?.data?.data = { management_track: [...], ... }
+      const result = response?.data?.data || response?.data || response
+      return result
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || error.message || 'Không thể khám phá lộ trình sự nghiệp'
@@ -439,6 +442,14 @@ const aiSlice = createSlice({
     },
 
     /**
+     * Set career path directly (for cache loading)
+     */
+    setCareerPath: (state, action) => {
+      state.careerPath = action.payload
+      state.careerPathError = null
+    },
+
+    /**
      * Reset all AI state
      */
     resetAIState: () => initialState
@@ -674,6 +685,7 @@ export const {
   clearRiskPrediction,
   clearWorkerAnalysis,
   clearCareerPath,
+  setCareerPath,
   resetAIState
 } = aiSlice.actions
 
@@ -726,6 +738,7 @@ export const selectCareerPathUrgency = (state) => state.ai.careerPathUrgency
 export const selectCareerPathIndustries = (state) => state.ai.careerPathIndustries
 
 // Career Path convenience selectors
+// Redux state: { management_track: [...], age_transition: [...], ... }
 export const selectManagementTrack = (state) => state.ai.careerPath?.management_track ?? []
 export const selectAgeTransition = (state) => state.ai.careerPath?.age_transition ?? []
 export const selectSkillUpgrades = (state) => state.ai.careerPath?.skill_upgrades ?? []

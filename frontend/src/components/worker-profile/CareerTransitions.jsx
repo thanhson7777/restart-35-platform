@@ -47,8 +47,41 @@ const TRANSITION_TABS = [
   { key: 'consultant', label: 'Tư vấn', icon: '💼' },
   { key: 'coach', label: 'Coach/Mentor', icon: '🎯' },
   { key: 'cross_industry', label: 'Chuyển ngành', icon: '🔄' },
-  { key: 'management_track', label: 'Thăng tiến', icon: '📈' }
+  { key: 'management_track', label: 'Thăng tiến', icon: '📈' },
+  { key: 'multi_industry', label: 'Đa ngành', icon: '🎪' }
 ]
+
+/**
+ * Transform barriers from Object format to Array format
+ * Input: { health: false, family: true, techGap: false, location: false, other: true, otherDescription: '...' }
+ * Output: ['family', 'other']
+ */
+const transformBarriers = (barriers) => {
+  if (!barriers || typeof barriers !== 'object') return []
+  
+  return Object.entries(barriers)
+    .filter(([key, value]) => key !== 'otherDescription' && value === true)
+    .map(([key]) => key)
+}
+
+/**
+ * Transform work history from experiences format to API format
+ * Input: [{ companyName, position, duration, jobType, industry, skills, ... }]
+ * Output: [{ industry, role, years, skills }]
+ */
+const transformWorkHistory = (experiences) => {
+  if (!experiences || !Array.isArray(experiences)) return []
+  
+  return experiences
+    .filter(job => job.position || job.companyName) // Only include jobs with position or company
+    .map(job => ({
+      industry: job.industry || '',
+      role: job.position || '',
+      years: Math.floor((job.duration || 0) / 12),
+      skills: Array.isArray(job.skills) ? job.skills : []
+    }))
+    .filter(job => job.role || job.industry) // Only include jobs with role or industry
+}
 
 /**
  * CareerTransitions Component
@@ -66,6 +99,12 @@ const CareerTransitions = ({ profile }) => {
   // Fetch transitions when profile changes
   useEffect(() => {
     if (profile && profile.age && profile.current_role && profile.current_industry) {
+      // Transform barriers from Object to Array format
+      const barriers = transformBarriers(profile.barriers)
+      
+      // Transform work history from experiences format to API format
+      const work_history = transformWorkHistory(profile.experiences || profile.work_history || [])
+      
       dispatch(fetchCareerTransitions({
         age: profile.age,
         current_role: profile.current_role,
@@ -73,8 +112,15 @@ const CareerTransitions = ({ profile }) => {
         experience_years: profile.experience_years || profile.experience || 0,
         skills: profile.skills || [],
         target_salary: profile.target_salary,
-        transition_types: ['management', 'cross_industry', 'universal'],
-        limit: 15
+        // Send barriers as array (already transformed)
+        barriers: barriers,
+        transition_types: ['management', 'cross_industry', 'universal', 'multi_industry'],
+        limit: 15,
+        // Multi-industry fields (already transformed)
+        work_history: work_history,
+        personality_traits: profile.personality_traits || [],
+        interests: profile.interests || [],
+        values: profile.values || []
       }))
     }
   }, [profile, dispatch])
@@ -83,6 +129,9 @@ const CareerTransitions = ({ profile }) => {
   const filteredTransitions = transitions.filter(t => {
     if (activeTab === 'universal') {
       return ['trainer', 'consultant', 'coach', 'entrepreneur', 'freelancer'].includes(t.transition?.type)
+    }
+    if (activeTab === 'multi_industry') {
+      return t.transition?.type === 'multi_industry'
     }
     return t.transition?.type === activeTab
   })
@@ -255,7 +304,7 @@ const TransitionCard = ({ data, isExpanded, onToggle }) => {
           <div>
             <h5 className="text-sm font-medium text-gray-700 mb-1">Mức lương dự kiến</h5>
             <p className="text-lg font-semibold text-green-600">
-              {salaryMin / 1e6:.0f} - {salaryMax / 1e6:.0f} triệu VND/tháng
+              {(salaryMin / 1e6).toFixed(0)} - {(salaryMax / 1e6).toFixed(0)} triệu VND/tháng
             </p>
           </div>
           

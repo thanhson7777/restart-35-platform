@@ -623,6 +623,166 @@ const getSimilarJobs = async (jobId, limit = 5) => {
   }
 }
 
+// ============================================================================
+// CAREER TRANSITIONS SERVICES (35+)
+// ============================================================================
+
+/**
+ * Lấy gợi ý chuyển đổi nghề nghiệp cho lao động 35+
+ *
+ * @param {Object} profileData - Dữ liệu hồ sơ người lao động
+ * @returns {Promise<Object>} Kết quả transitions
+ */
+const getCareerTransitions = async (profileData) => {
+  try {
+    // Validate required fields
+    if (!profileData.age) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Tuổi là bắt buộc để khám phá chuyển đổi nghề')
+    }
+    if (!profileData.current_role) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Vị trí hiện tại là bắt buộc')
+    }
+    if (!profileData.current_industry) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Ngành hiện tại là bắt buộc')
+    }
+
+    const result = await aiProvider.getCareerTransitions(profileData)
+    return result
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] getCareerTransitions error:', error)
+
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng. Vui lòng thử lại sau.'
+      )
+    }
+
+    if (error.response?.status === 400) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        error.response?.data?.detail || 'Dữ liệu không hợp lệ cho việc khám phá chuyển đổi nghề'
+      )
+    }
+
+    if (error.response?.status === 500) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Lỗi từ AI Service khi khám phá chuyển đổi nghề'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể khám phá chuyển đổi nghề. Vui lòng thử lại.'
+    )
+  }
+}
+
+/**
+ * Lấy mức độ khẩn cấp chuyển đổi nghề theo tuổi (35+)
+ *
+ * @param {number} age - Tuổi người dùng
+ * @returns {Promise<Object>} Thông tin mức độ khẩn cấp
+ */
+const getTransitionsUrgency = async (age) => {
+  try {
+    if (!age || age < 18 || age > 70) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Tuổi phải từ 18 đến 70')
+    }
+
+    const result = await aiProvider.getTransitionsUrgency(age)
+    return result
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] getTransitionsUrgency error:', error)
+
+    if (error.code === 'ECONNREFUSED') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể lấy thông tin mức độ khẩn cấp'
+    )
+  }
+}
+
+/**
+ * Lấy danh sách ngành nghề được hỗ trợ cho chuyển đổi (35+)
+ *
+ * @returns {Promise<Object>} Danh sách ngành nghề
+ */
+const getTransitionsIndustries = async () => {
+  try {
+    const result = await aiProvider.getTransitionsIndustries()
+    return result
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] getTransitionsIndustries error:', error)
+
+    if (error.code === 'ECONNREFUSED') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể lấy danh sách ngành nghề'
+    )
+  }
+}
+
+/**
+ * Lấy skill gaps cho một ngành cụ thể (35+)
+ *
+ * @param {string} industry - Ngành cần xem skill gaps
+ * @returns {Promise<Object>} Skill gaps cho ngành
+ */
+const getTransitionsSkills = async (industry) => {
+  try {
+    if (!industry) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Ngành là bắt buộc')
+    }
+
+    const result = await aiProvider.getTransitionsSkills(industry)
+    return result
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] getTransitionsSkills error:', error)
+
+    if (error.code === 'ECONNREFUSED') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể lấy thông tin skill gaps'
+    )
+  }
+}
+
 // Export các functions
 export const aiService = {
   getRecommendedJobs,
@@ -637,5 +797,10 @@ export const aiService = {
   getAgeUrgency,
   getCareerIndustries,
   getSemanticStatus,
-  getSimilarJobs
+  getSimilarJobs,
+  // Career Transitions (35+)
+  getCareerTransitions,
+  getTransitionsUrgency,
+  getTransitionsIndustries,
+  getTransitionsSkills
 }
