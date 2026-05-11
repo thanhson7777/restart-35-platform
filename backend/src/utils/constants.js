@@ -1,8 +1,10 @@
+/* eslint-disable no-multi-spaces */
 import { env } from '~/config/enviroment'
 
-// ============ DEFAULT PAGINATION ============
+// ============ PAGINATION DEFAULTS ============
 export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEM_PER_PAGE = 10
+export const MAX_ITEM_PER_PAGE = 50
 
 // ============ USER ROLES ============
 export const USER_ROLES = {
@@ -68,6 +70,118 @@ export const WORKER_PROFILE_STEPS = {
   BARRIERS: 3,
   ASPIRATIONS: 4,
   MAX_STEP: 4
+}
+
+//============= COURSE STATUS ============
+export const COURSE_STATUS = {
+  DRAFT: 'draft',
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  ARCHIVED: 'archived'
+}
+
+//============COURSE LEVELS ============
+export const COURSE_LEVELS = {
+  BEGINNER: 'beginner',
+  INTERMEDIATE: 'intermediate',
+  ADVANCED: 'advanced'
+}
+
+//============DURATION UNITS ============
+export const DURATION_UNITS = {
+  HOURS: 'hours',
+  WEEKS: 'weeks',
+  MONTHS: 'months',
+  DAYS: 'days'
+}
+
+//============LOCATION TYPES ============
+export const LOCATION_TYPES = {
+  ONLINE: 'online',
+  OFFLINE: 'offline',
+  HYBRID: 'hybrid'
+}
+
+// ============ ENROLLMENT STATUS ============
+export const ENROLLMENT_STATUS = {
+  PENDING: 'pending',
+  WAITLIST: 'waitlist',
+  ENROLLED: 'enrolled',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  DROPPED: 'dropped',
+  CANCELLED: 'cancelled',
+  ON_HOLD: 'on_hold'
+}
+
+// ============ COMPLETION STATUS ============
+export const COMPLETION_STATUS = {
+  NOT_STARTED: 'not_started',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  FAILED: 'failed'
+}
+
+// ============ ENROLLMENT SOURCE ============
+export const ENROLLMENT_SOURCE = {
+  DIRECT: 'direct',
+  SCHOLARSHIP: 'scholarship',
+  RECOMMENDATION: 'recommendation'
+}
+
+// ============ SCHOLARSHIP COVERAGE ============
+export const SCHOLARSHIP_COVERAGE = {
+  FULL: 'full',
+  PARTIAL: 'partial',
+  NONE: 'none'
+}
+
+// ============ SCHEDULE STATUS ============
+export const SCHEDULE_STATUS = {
+  DRAFT: 'draft',
+  PUBLISHED: 'published',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled'
+}
+
+// ============ SESSION STATUS ============
+export const SESSION_STATUS = {
+  SCHEDULED: 'scheduled',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  RESCHEDULED: 'rescheduled'
+}
+
+// ============ ATTENDANCE STATUS ============
+export const ATTENDANCE_STATUS = {
+  PRESENT: 'present',
+  ABSENT: 'absent',
+  LATE: 'late',
+  EXCUSED: 'excused'
+}
+
+// ============ REMINDER TYPES ============
+export const REMINDER_TYPES = {
+  EMAIL: 'email',
+  SMS: 'sms',
+  PUSH: 'push'
+}
+
+// ============ REMINDER STATUS ============
+export const REMINDER_STATUS = {
+  PENDING: 'pending',
+  SENT: 'sent',
+  FAILED: 'failed'
+}
+
+// ============ REVIEW STATUS ============
+export const REVIEW_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected'
 }
 
 // ============ CORS & DOMAIN ============

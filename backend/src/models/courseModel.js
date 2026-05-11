@@ -1,0 +1,530 @@
+import Joi from 'joi'
+import { ObjectId } from 'mongodb'
+import { GET_DB } from '~/config/mongodb'
+import { COURSE_STATUS, COURSE_LEVELS, DURATION_UNITS, LOCATION_TYPES } from '~/utils/constants'
+
+const COURSE_COLLECTION_NAME = 'courses'
+const COURSE_COLLECTION_SCHEMA = Joi.object({
+  // Thong tin co ban
+  title: Joi.string().required().trim().strict().min(3).max(255),
+  slug: Joi.string().required().trim().strict().min(3).max(255),
+  description: Joi.string().required().trim().strict().min(3).max(5000),
+  shortDescription: Joi.string().required().trim().strict().max(500),
+  thumbnail: Joi.string().uri().allow(null, ''),
+  // Danh muc va Trung tâm
+  categoryId: Joi.string().required(),
+  providerId: Joi.string().required(),
+  // Thong tin khoa hoc
+  duration: Joi.object({
+    value: Joi.number().required().min(1),
+    unit: Joi.string().valid(...Object.values(DURATION_UNITS)).required()
+  }),
+  schedule: Joi.string().allow(null, ''),
+  location: Joi.object({
+    type: Joi.string().valid(...Object.values(LOCATION_TYPES)).required(),
+    address: Joi.string().allow(null, ''),
+    link: Joi.string().uri().allow(null, '')
+  }),
+  // Hoc phi
+  fee: Joi.number().min(0).default(0),
+  isFree: Joi.boolean().default(false),
+  scholarshipEligibility: Joi.boolean().default(false),
+  // Tuyen sinh
+  maxStudents: Joi.number().integer().min(1).default(30),
+  currentStudents: Joi.number().integer().min(0).default(0),
+  enrollmentStartDate: Joi.date().timestamp('javascript').allow(null, ''),
+  // Nội dung
+  level: Joi.string().valid(...Object.values(COURSE_LEVELS)).default(COURSE_LEVELS.BEGINNER),
+  skills: Joi.array().items(Joi.string()).max(20),
+  prerequisites: Joi.array().items(Joi.string()).max(10),
+  requirements: Joi.array().items(Joi.string()).max(10),
+  syllabus: Joi.array().items(
+    Joi.object({
+      week: Joi.number().required(),
+      title: Joi.string().required(),
+      content: Joi.string(),
+      duration: Joi.string()
+    })
+  ).max(50),
+  certificate: Joi.string().allow(''),
+  outcomes: Joi.array().items(Joi.string()).max(20),
+  // Đánh giá
+  rating: Joi.object({
+    average: Joi.number().min(0).max(5).default(0),
+    count: Joi.number().integer().min(0).default(0)
+  }),
+  // Trạng thái & duyệt
+  status: Joi.string().valid(...Object.values(COURSE_STATUS)).default(COURSE_STATUS.DRAFT),
+  rejectionReason: Joi.string().allow(null, ''),
+  approvedBy: Joi.string().allow(null),
+  approvedAt: Joi.date().timestamp().allow(null),
+  // Metadata
+  viewCount: Joi.number().integer().min(0).default(0),
+  enrollmentCount: Joi.number().integer().min(0).default(0),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  _destroy: Joi.boolean().default(false)
+})
+
+// Helper tạo slug
+const generateSlug = (title) => {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .substring(0, 200)
+}
+
+// Helper tạo slug unique
+const createUniqueSlug = async (title) => {
+  let baseSlug = generateSlug(title)
+  let uniqueSlug = baseSlug
+  let counter = 1
+
+  while (await GET_DB().collection(COURSE_COLLECTION_NAME).findOne({ slug: uniqueSlug, _destroy: false })) {
+    uniqueSlug = `${baseSlug}-${counter}`
+    counter++
+  }
+
+  return uniqueSlug
+}
+
+// Validate before create
+const validateBeforeCreate = async (data) => {
+  return await COURSE_COLLECTION_SCHEMA.validateAsync(data, {
+    abortEarly: false,
+    stripUnknown: true
+  })
+}
+
+// ============ CREATE ============
+const createNew = async (data, skipValidation = false) => {
+  try {
+    const validData = skipValidation
+      ? data
+      : await validateBeforeCreate(data)
+    if (!validData.slug) {
+      validData.slug = await createUniqueSlug(validData.title)
+    }
+    return await GET_DB().collection(COURSE_COLLECTION_NAME).insertOne(validData)
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+// ============ READ ============
+const findOneById = async (courseId) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    return await GET_DB().collection(COURSE_COLLECTION_NAME).findOne({
+      _id: objectId,
+      _destroy: false
+    })
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+const findOneBySlug = async (slug) => {
+  try {
+    return await GET_DB().collection(COURSE_COLLECTION_NAME).findOne({
+      slug: slug,
+      _destroy: false
+    })
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+const findByProvider = async (providerId, skip = 0, limit = 10) => {
+  try {
+    const query = {
+      providerId: providerId,
+      _destroy: false
+    }
+    const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+    const totalCourses = await GET_DB().collection(COURSE_COLLECTION_NAME).countDocuments(query)
+    return { courses, totalCourses }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+const findByCategory = async (categoryId, skip = 0, limit = 10, additionalFilters = {}) => {
+  try {
+    const query = {
+      categoryId: categoryId,
+      status: COURSE_STATUS.APPROVED,
+      _destroy: false,
+      ...additionalFilters
+    }
+    const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find(query)
+      .sort({ enrollmentCount: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+    const totalCourses = await GET_DB().collection(COURSE_COLLECTION_NAME).countDocuments(query)
+    return { courses, totalCourses }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const searchCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, sort = { createdAt: -1 }) => {
+  try {
+    const matchStage = {
+      status: COURSE_STATUS.APPROVED,
+      _destroy: false
+    }
+    // Search by title/description
+    if (searchQuery) {
+      matchStage.$or = [
+        { title: { $regex: searchQuery, $options: 'i' } },
+        { description: { $regex: searchQuery, $options: 'i' } }
+      ]
+    }
+    // Apply filters
+    if (filters.category) {
+      matchStage.categoryId = filters.category
+    }
+    if (filters.provider) {
+      matchStage.providerId = filters.provider
+    }
+    if (filters.level) {
+      matchStage.level = filters.level
+    }
+    if (filters.isFree === true) {
+      matchStage.isFree = true
+    } else if (filters.isFree === false && (filters.minFee !== undefined || filters.maxFee !== undefined)) {
+      matchStage.isFree = false
+      if (filters.minFee !== undefined) {
+        matchStage.fee = { ...matchStage.fee, $gte: filters.minFee }
+      }
+      if (filters.maxFee !== undefined) {
+        matchStage.fee = { ...matchStage.fee, $lte: filters.maxFee }
+      }
+    }
+    if (filters.hasScholarship) {
+      matchStage.scholarshipEligibility = true
+    }
+    if (filters.skill) {
+      matchStage.skills = { $in: [new RegExp(filters.skill, 'i')] }
+    }
+    const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find(matchStage)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+    const totalCourses = await GET_DB().collection(COURSE_COLLECTION_NAME).countDocuments(matchStage)
+    return { courses, totalCourses }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const findBySkills = async (skills, limit = 10) => {
+  try {
+    const query = {
+      skills: { $in: skills.map(s => new RegExp(s, 'i')) },
+      status: COURSE_STATUS.APPROVED,
+      _destroy: false
+    }
+    return await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find(query)
+      .sort({ rating: -1, enrollmentCount: -1 })
+      .limit(limit)
+      .toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const findPopular = async (limit = 10) => {
+  try {
+    return await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find({
+        status: COURSE_STATUS.APPROVED,
+        _destroy: false
+      })
+      .sort({ enrollmentCount: -1, rating: -1 })
+      .limit(limit)
+      .toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const findNew = async (limit = 10) => {
+  try {
+    return await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find({
+        status: COURSE_STATUS.APPROVED,
+        _destroy: false
+      })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const findRelated = async (courseId, limit = 5) => {
+  try {
+    const course = await findOneById(courseId)
+    if (!course) return []
+    return await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find({
+        _id: { $ne: new ObjectId(courseId) },
+        categoryId: course.categoryId,
+        status: COURSE_STATUS.APPROVED,
+        _destroy: false
+      })
+      .sort({ enrollmentCount: -1 })
+      .limit(limit)
+      .toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const getPendingCourses = async (skip = 0, limit = 10) => {
+  try {
+    const query = {
+      status: COURSE_STATUS.PENDING,
+      _destroy: false
+    }
+    const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find(query)
+      .sort({ createdAt: 1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+    const totalCourses = await GET_DB().collection(COURSE_COLLECTION_NAME).countDocuments(query)
+    return { courses, totalCourses }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+// ============ UPDATE ============
+const update = async (courseId, data) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    const updateData = {
+      ...data,
+      updatedAt: Date.now()
+    }
+    const result = await GET_DB().collection(COURSE_COLLECTION_NAME).findOneAndUpdate(
+      { _id: objectId },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const updateStatus = async (courseId, status, adminId, rejectionReason = null) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    const updateData = {
+      status: status,
+      updatedAt: Date.now()
+    }
+    if (status === COURSE_STATUS.APPROVED) {
+      updateData.approvedBy = adminId
+      updateData.approvedAt = Date.now()
+    }
+    if (status === COURSE_STATUS.REJECTED && rejectionReason) {
+      updateData.rejectionReason = rejectionReason
+    }
+    const result = await GET_DB().collection(COURSE_COLLECTION_NAME).findOneAndUpdate(
+      { _id: objectId },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const incrementViewCount = async (courseId) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    return await GET_DB().collection(COURSE_COLLECTION_NAME).updateOne(
+      { _id: objectId },
+      {
+        $inc: { viewCount: 1 },
+        $set: { updatedAt: Date.now() }
+      }
+    )
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const incrementEnrollmentCount = async (courseId) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    return await GET_DB().collection(COURSE_COLLECTION_NAME).updateOne(
+      { _id: objectId },
+      {
+        $inc: { enrollmentCount: 1, currentStudents: 1 },
+        $set: { updatedAt: Date.now() }
+      }
+    )
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const decrementEnrollmentCount = async (courseId) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    return await GET_DB().collection(COURSE_COLLECTION_NAME).updateOne(
+      { _id: objectId },
+      {
+        $inc: { currentStudents: -1 },
+        $set: { updatedAt: Date.now() }
+      }
+    )
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const updateRating = async (courseId, newAverage, newCount) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    return await GET_DB().collection(COURSE_COLLECTION_NAME).updateOne(
+      { _id: objectId },
+      {
+        $set: {
+          'rating.average': newAverage,
+          'rating.count': newCount,
+          updatedAt: Date.now()
+        }
+      }
+    )
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+// ============ DELETE ============
+const deleteCourse = async (courseId) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    return await GET_DB().collection(COURSE_COLLECTION_NAME).updateOne(
+      { _id: objectId },
+      {
+        $set: {
+          _destroy: true,
+          status: COURSE_STATUS.ARCHIVED,
+          updatedAt: Date.now()
+        }
+      }
+    )
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+// ============ AGGREGATE ============
+const getCourseStats = async (courseId) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    const stats = await GET_DB().collection(COURSE_COLLECTION_NAME).aggregate([
+      { $match: { _id: objectId } },
+      {
+        $lookup: {
+          from: 'enrollments',
+          let: { courseId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$courseId', '$$courseId'] },
+                _destroy: false
+              }
+            },
+            {
+              $group: {
+                _id: '$status',
+                count: { $sum: 1 }
+              }
+            }
+          ],
+          as: 'enrollmentStats'
+        }
+      },
+      {
+        $lookup: {
+          from: 'reviews',
+          let: { courseId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$courseId', '$$courseId'] },
+                status: 'approved',
+                _destroy: false
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                avgRating: { $avg: '$rating.average' },
+                totalReviews: { $sum: 1 }
+              }
+            }
+          ],
+          as: 'reviewStats'
+        }
+      }
+    ]).toArray()
+    return stats[0] || null
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+export const courseModel = {
+  COURSE_COLLECTION_NAME,
+  COURSE_COLLECTION_SCHEMA,
+  COURSE_STATUS,
+  COURSE_LEVELS,
+  DURATION_UNITS,
+  LOCATION_TYPES,
+  // Create
+  createNew,
+  // Read
+  findOneById,
+  findOneBySlug,
+  findByProvider,
+  findByCategory,
+  searchCourses,
+  findBySkills,
+  findPopular,
+  findNew,
+  findRelated,
+  getPendingCourses,
+  // Update
+  update,
+  updateStatus,
+  incrementViewCount,
+  incrementEnrollmentCount,
+  decrementEnrollmentCount,
+  updateRating,
+  // Delete
+  deleteCourse,
+  // Aggregate
+  getCourseStats
+}
