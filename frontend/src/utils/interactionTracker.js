@@ -101,8 +101,6 @@ class InteractionTracker {
     
     this.setupScrollTracking()
     this.setupPageHide()
-    
-    console.log('[InteractionTracker] Initialized with session:', this.session.getSessionId())
   }
   
   // ============================================================
