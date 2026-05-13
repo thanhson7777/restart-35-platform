@@ -539,3 +539,127 @@ export const invalidateCareerPathCacheAPI = async () => {
   const response = await authorizeAxiosInstance.delete(`${AI_BASE_URL}/career-path/cache`)
   return response.data
 }
+
+// =============================================================================
+// RAG CAREER RECOMMENDATION APIs
+// =============================================================================
+
+/**
+ * Trigger RAG-based career recommendation generation
+ * POST /v1/ai/rag/career-recommendation
+ *
+ * @param {Object} profile - User profile data
+ * @param {Object} profile.basicInfo - Basic info { age, gender, province, education }
+ * @param {Array} profile.employmentHistory - Work history [{ industry, role, years, skills }]
+ * @param {Object} profile.aspirations - Aspirations { targetJob, targetIndustry, skills, targetSalary }
+ * @param {Object} profile.barriers - Barriers { health, family, techGap, time, finance }
+ * @param {boolean} [includeSalary=true] - Include salary data from RAG
+ * @param {boolean} [includeTrends=true] - Include industry trends from RAG
+ * @returns {Promise<Object>} - RAG recommendation { success, data: { best_fits, income_boost, progression }, sources, meta }
+ */
+export const triggerRAGCareerRecommendationAPI = async (profile, includeSalary = true, includeTrends = true) => {
+  if (!profile || !profile.basicInfo || !profile.basicInfo.age) {
+    throw new Error('Profile với age là bắt buộc để tạo RAG recommendation')
+  }
+
+  const payload = {
+    profile,
+    include_salary: includeSalary,
+    include_trends: includeTrends
+  }
+
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/rag/career-recommendation`,
+    payload
+  )
+  return response.data
+}
+
+/**
+ * Get cached RAG career recommendation for current user
+ * GET /v1/ai/rag/career-recommendation
+ *
+ * @returns {Promise<Object>} - Cached RAG data {
+ *   success, data: { best_fits, income_boost, progression },
+ *   meta: { sources, generatedAt, refreshCount, expiresAt, isFresh, isExpired, status }
+ * }
+ */
+export const getCachedRAGRecommendationAPI = async () => {
+  const response = await authorizeAxiosInstance.get(`${AI_BASE_URL}/rag/career-recommendation`)
+  return response.data
+}
+
+/**
+ * Refresh RAG career recommendation
+ * POST /v1/ai/rag/career-recommendation/refresh
+ *
+ * Rate limit: Max 1 refresh per 24 hours
+ *
+ * @param {Object} profile - User profile data (same structure as triggerRAGCareerRecommendationAPI)
+ * @param {boolean} [includeSalary=true] - Include salary data
+ * @param {boolean} [includeTrends=true] - Include industry trends
+ * @returns {Promise<Object>} - Refreshed RAG data { success, data, meta }
+ */
+export const refreshRAGRecommendationAPI = async (profile, includeSalary = true, includeTrends = true) => {
+  if (!profile || !profile.basicInfo || !profile.basicInfo.age) {
+    throw new Error('Profile với age là bắt buộc để refresh RAG recommendation')
+  }
+
+  const payload = {
+    profile,
+    include_salary: includeSalary,
+    include_trends: includeTrends
+  }
+
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/rag/career-recommendation/refresh`,
+    payload
+  )
+  return response.data
+}
+
+/**
+ * Get available RAG data sources
+ * GET /v1/ai/rag/sources
+ *
+ * Public endpoint - No auth required
+ *
+ * @returns {Promise<Object>} - Data sources {
+ *   success, data: {
+ *     sources: ['salary_benchmarks.json', 'industry_trends.json', ...],
+ *     document_count, embedding_model, last_updated
+ *   }
+ * }
+ */
+export const getRAGSourcesAPI = async () => {
+  // This endpoint is public, so we use regular axios instance without auth
+  const { default: axiosInstance } = await import('axios')
+  const { API_ROOT } = await import('~/utils/constants')
+
+  const response = await axiosInstance.get(`${API_ROOT}/v1/ai/rag/sources`)
+  return response.data
+}
+
+/**
+ * Get RAG system health status
+ * GET /v1/ai/rag/health
+ *
+ * Public endpoint - No auth required
+ *
+ * @returns {Promise<Object>} - Health status {
+ *   status: 'healthy' | 'degraded' | 'error',
+ *   components: {
+ *     rag_engine: { status, initialized, document_count },
+ *     llm: { status, available }
+ *   },
+ *   timestamp
+ * }
+ */
+export const getRAGHealthAPI = async () => {
+  // This endpoint is public, so we use regular axios instance without auth
+  const { default: axiosInstance } = await import('axios')
+  const { API_ROOT } = await import('~/utils/constants')
+
+  const response = await axiosInstance.get(`${API_ROOT}/v1/ai/rag/health`)
+  return response.data
+}

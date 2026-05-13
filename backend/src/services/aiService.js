@@ -4,6 +4,7 @@
  */
 
 import { aiProvider } from '~/providers/aiProvider'
+import { careerRecommendationModel } from '~/models/careerRecommendationModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 
@@ -783,6 +784,277 @@ const getTransitionsSkills = async (industry) => {
   }
 }
 
+// ============================================================================
+// RAG (Retrieval-Augmented Generation) SERVICES
+// ============================================================================
+
+/**
+ * Trigger RAG-based career recommendation cho user
+ *
+ * @param {string} userId - User ID
+ * @param {Object} profile - User profile data
+ * @returns {Promise<Object>} RAG recommendation result
+ */
+const triggerRAGCareerRecommendation = async (userId, profile) => {
+  try {
+    // Validate required profile data
+    if (!profile || !profile.basicInfo || !profile.basicInfo.age) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Profile data là bắt buộc')
+    }
+
+    // Call AI Service RAG endpoint
+    const ragResult = await aiProvider.getRAGCareerRecommendation(profile)
+
+    if (!ragResult.success) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        ragResult.message || 'RAG recommendation failed'
+      )
+    }
+
+    // Save to MongoDB
+    const updateData = {
+      ragRecommendations: {
+        best_fits: ragResult.best_fits || [],
+        income_boost: ragResult.income_boost || [],
+        progression: ragResult.progression || []
+      },
+      ragSources: ragResult.sources || [],
+      ragGeneratedAt: new Date(),
+      ragRefreshCount: 1,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      status: 'active',
+      scoringMethod: 'rag'
+    }
+
+    await careerRecommendationModel.upsertByUserId(userId, updateData)
+
+    return {
+      success: true,
+      data: ragResult,
+      meta: {
+        userId,
+        sources: ragResult.sources || [],
+        generatedAt: new Date().toISOString(),
+        expiresIn: '7 days'
+      }
+    }
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] triggerRAGCareerRecommendation error:', error)
+
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng. Vui lòng thử lại sau.'
+      )
+    }
+
+    if (error.response?.status === 503) {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'RAG system hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể tạo RAG recommendation. Vui lòng thử lại.'
+    )
+  }
+}
+
+/**
+ * Lấy cached RAG recommendation cho user
+ *
+ * @param {string} userId - User ID
+ * @returns {Promise<Object>} Cached RAG recommendation
+ */
+const getCachedRAGRecommendation = async (userId) => {
+  try {
+    if (!userId) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'User ID là bắt buộc')
+    }
+
+    // Get from MongoDB
+    const cachedData = await careerRecommendationModel.getRAGRecommendationsByUserId(userId)
+
+    if (!cachedData || !cachedData.ragRecommendations) {
+      return {
+        success: false,
+        data: null,
+        message: 'Chưa có RAG recommendation cho user này',
+        meta: {
+          hasData: false,
+          recommendation: 'Goi API trigger de tao moi'
+        }
+      }
+    }
+
+    // Check if expired
+    const isExpired = cachedData.expiresAt && new Date(cachedData.expiresAt) < new Date()
+
+    return {
+      success: true,
+      data: cachedData.ragRecommendations,
+      meta: {
+        userId,
+        sources: cachedData.ragSources || [],
+        generatedAt: cachedData.ragGeneratedAt,
+        refreshCount: cachedData.ragRefreshCount || 0,
+        expiresAt: cachedData.expiresAt,
+        isFresh: !isExpired,
+        isExpired,
+        status: cachedData.status
+      }
+    }
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] getCachedRAGRecommendation error:', error)
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể lấy cached RAG recommendation'
+    )
+  }
+}
+
+/**
+ * Refresh RAG recommendation cho user
+ *
+ * @param {string} userId - User ID
+ * @param {Object} profile - User profile data
+ * @returns {Promise<Object>} Refreshed RAG recommendation
+ */
+const refreshRAGRecommendation = async (userId, profile) => {
+  try {
+    if (!userId) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'User ID là bắt buộc')
+    }
+
+    if (!profile || !profile.basicInfo) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Profile data là bắt buộc')
+    }
+
+    // Get current recommendation to check refresh count
+    const currentData = await careerRecommendationModel.getRAGRecommendationsByUserId(userId)
+    const currentCount = currentData?.ragRefreshCount || 0
+
+    // Rate limit: max 1 refresh per day (consider 24 hours)
+    if (currentCount > 0) {
+      const lastRefresh = currentData?.ragGeneratedAt
+      if (lastRefresh) {
+        const hoursSinceLastRefresh = (Date.now() - new Date(lastRefresh).getTime()) / (1000 * 60 * 60)
+        if (hoursSinceLastRefresh < 24) {
+          throw new ApiError(
+            StatusCodes.TOO_MANY_REQUESTS,
+            `Đã refresh gần đây. Vui lòng chờ ${Math.ceil(24 - hoursSinceLastRefresh)} giờ trước khi refresh tiếp.`
+          )
+        }
+      }
+    }
+
+    // Call AI Service
+    const ragResult = await aiProvider.getRAGCareerRecommendation(profile)
+
+    if (!ragResult.success) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        ragResult.message || 'RAG refresh failed'
+      )
+    }
+
+    // Update MongoDB
+    const updateData = {
+      ragRecommendations: {
+        best_fits: ragResult.best_fits || [],
+        income_boost: ragResult.income_boost || [],
+        progression: ragResult.progression || []
+      },
+      ragSources: ragResult.sources || [],
+      ragGeneratedAt: new Date(),
+      ragRefreshCount: currentCount + 1,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      status: 'active',
+      scoringMethod: 'rag'
+    }
+
+    await careerRecommendationModel.updateRAGRecommendations(userId, updateData)
+
+    return {
+      success: true,
+      data: ragResult,
+      meta: {
+        userId,
+        sources: ragResult.sources || [],
+        generatedAt: new Date().toISOString(),
+        refreshCount: currentCount + 1,
+        expiresIn: '7 days'
+      }
+    }
+  } catch (error) {
+    if (error.isApiError) {
+      throw error
+    }
+
+    console.error('[AIService] refreshRAGRecommendation error:', error)
+
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng'
+      )
+    }
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể refresh RAG recommendation'
+    )
+  }
+}
+
+/**
+ * Lấy RAG data sources
+ *
+ * @returns {Promise<Object>} RAG data sources
+ */
+const getRAGSources = async () => {
+  try {
+    const result = await aiProvider.getRAGSources()
+    return result
+  } catch (error) {
+    console.error('[AIService] getRAGSources error:', error)
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể lấy RAG sources'
+    )
+  }
+}
+
+/**
+ * Kiểm tra trạng thái RAG system
+ *
+ * @returns {Promise<Object>} RAG health status
+ */
+const getRAGHealth = async () => {
+  try {
+    const result = await aiProvider.getRAGHealth()
+    return result
+  } catch (error) {
+    console.error('[AIService] getRAGHealth error:', error)
+    return {
+      status: 'error',
+      message: 'Khong the kiem tra trang thai RAG',
+      error: error.message
+    }
+  }
+}
+
 // Export các functions
 export const aiService = {
   getRecommendedJobs,
@@ -802,5 +1074,11 @@ export const aiService = {
   getCareerTransitions,
   getTransitionsUrgency,
   getTransitionsIndustries,
-  getTransitionsSkills
+  getTransitionsSkills,
+  // RAG Services
+  triggerRAGCareerRecommendation,
+  getCachedRAGRecommendation,
+  refreshRAGRecommendation,
+  getRAGSources,
+  getRAGHealth
 }

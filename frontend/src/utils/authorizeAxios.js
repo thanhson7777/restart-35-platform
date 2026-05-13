@@ -28,6 +28,7 @@ export const injectStore = (store) => {
 
 let isRefreshing = false
 let failedQueue = [] /** @type {{resolve: Function, reject: Function}[]} */
+let refreshedToken = null // Store the most recently refreshed token
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
@@ -56,13 +57,17 @@ const refreshAccessToken = async () => {
     response.data?.data ?? response.data ?? {}
 
   if (!accessToken) {
-    throw new Error('Token refresh failed')
+    throw new Error('Token refresh failed - no accessToken in response')
   }
 
+  // Update localStorage immediately when we get the new token
   localStorage.setItem('accessToken', accessToken)
   if (newRefreshToken) {
     localStorage.setItem('refreshToken', newRefreshToken)
   }
+
+  // Also store in variable for immediate access
+  refreshedToken = accessToken
 
   return accessToken
 }
@@ -79,9 +84,13 @@ publicAxiosInstance.interceptors.response.use(
 
 authorizeAxiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken')
+    // Use refreshed token if available, otherwise read from localStorage
+    const token = refreshedToken || localStorage.getItem('accessToken')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+      console.log('[Interceptor] Token added to request:', config.url, '- Token:', token.substring(0, 20) + '...')
+    } else {
+      console.log('[Interceptor] NO TOKEN for request:', config.url)
     }
     return config
   },
@@ -89,7 +98,11 @@ authorizeAxiosInstance.interceptors.request.use(
 )
 
 authorizeAxiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Clear refreshed token after successful response
+    refreshedToken = null
+    return response
+  },
   async (error) => {
     const originalRequest = error.config
 
@@ -105,6 +118,7 @@ authorizeAxiosInstance.interceptors.response.use(
 
       try {
         const newToken = await refreshAccessToken()
+
         processQueue(null, newToken)
 
         // Replay the failed request with the fresh token
@@ -124,6 +138,7 @@ authorizeAxiosInstance.interceptors.response.use(
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
+        refreshedToken = null
       }
     }
 
@@ -131,7 +146,10 @@ authorizeAxiosInstance.interceptors.response.use(
     return new Promise((resolve, reject) => {
       failedQueue.push({
         resolve: (token) => {
+          // Update header with token from queue
           originalRequest.headers.Authorization = `Bearer ${token}`
+          // Also update the refreshedToken variable
+          refreshedToken = token
           resolve(authorizeAxiosInstance(originalRequest))
         },
         reject: (err) => {

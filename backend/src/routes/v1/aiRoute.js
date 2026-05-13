@@ -210,4 +210,57 @@ Router.delete(
   aiController.invalidateCareerPathCache
 )
 
+// ============================================================================
+// RAG (RETRIEVAL-AUGMENTED GENERATION) ROUTES
+// ============================================================================
+
+/**
+ * @route   POST /v1/ai/rag/career-recommendation
+ * @desc    Trigger RAG-based career recommendation
+ * @access  Private (requires auth)
+ * @body    { profile: {...} }
+ */
+Router.post(
+  '/rag/career-recommendation',
+  authMiddleware.isAuthorized,
+  aiController.triggerRAGCareerRecommendation
+)
+
+/**
+ * @route   GET /v1/ai/rag/career-recommendation
+ * @desc    Get cached RAG recommendation for user
+ * @access  Private (requires auth)
+ */
+Router.get(
+  '/rag/career-recommendation',
+  authMiddleware.isAuthorized,
+  aiController.getCachedRAGRecommendation
+)
+
+/**
+ * @route   POST /v1/ai/rag/career-recommendation/refresh
+ * @desc    Refresh RAG recommendation
+ * @access  Private (requires auth)
+ * @body    { profile: {...} }
+ */
+Router.post(
+  '/rag/career-recommendation/refresh',
+  authMiddleware.isAuthorized,
+  aiController.refreshRAGRecommendation
+)
+
+/**
+ * @route   GET /v1/ai/rag/sources
+ * @desc    Get available RAG data sources
+ * @access  Public
+ */
+Router.get('/rag/sources', aiController.getRAGSources)
+
+/**
+ * @route   GET /v1/ai/rag/health
+ * @desc    Get RAG system health status
+ * @access  Public
+ */
+Router.get('/rag/health', aiController.getRAGHealth)
+
 export const aiRoute = Router

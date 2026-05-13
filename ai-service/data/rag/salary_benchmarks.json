@@ -1,0 +1,214 @@
+{
+  "metadata": {
+    "source": "Vietnam Salary Survey 2025-2026",
+    "last_updated": "2026-05-12",
+    "version": "1.0"
+  },
+  "industries": {
+    "hanh_chinh": {
+      "label": "Hành chính - Văn phòng",
+      "positions": {
+        "thu_ky": {
+          "label": "Thư ký",
+          "salary_range": "8-12 triệu",
+          "senior_range": "12-18 triệu",
+          "locations": {
+            "HCM": "+20%",
+            "HN": "+15%",
+            "tinh": "base"
+          },
+          "growth_rate": "-5%"
+        },
+        "tro_ly_giam_doc": {
+          "label": "Trợ lý Giám đốc",
+          "salary_range": "15-25 triệu",
+          "senior_range": "25-35 triệu",
+          "locations": {
+            "HCM": "+15%",
+            "HN": "+10%"
+          },
+          "growth_rate": "+5%"
+        },
+        "truong_phong_hanh_chinh": {
+          "label": "Trưởng phòng Hành chính",
+          "salary_range": "18-28 triệu",
+          "senior_range": "28-40 triệu",
+          "growth_rate": "0%"
+        },
+        "hc_admin": {
+          "label": "HC Admin",
+          "salary_range": "10-15 triệu",
+          "senior_range": "15-22 triệu",
+          "growth_rate": "-3%"
+        }
+      }
+    },
+    "nhan_su": {
+      "label": "Nhân sự - HR",
+      "positions": {
+        "nhan_vien_tuyen_dung": {
+          "label": "Nhân viên Tuyển dụng",
+          "salary_range": "10-15 triệu",
+          "senior_range": "15-20 triệu",
+          "growth_rate": "+5%"
+        },
+        "hr_generalist": {
+          "label": "HR Generalist",
+          "salary_range": "12-18 triệu",
+          "senior_range": "18-25 triệu",
+          "growth_rate": "+10%"
+        },
+        "hr_manager": {
+          "label": "HR Manager",
+          "salary_range": "25-40 triệu",
+          "senior_range": "40-60 triệu",
+          "growth_rate": "+15%"
+        },
+        "hr_director": {
+          "label": "HR Director",
+          "salary_range": "50-80 triệu",
+          "senior_range": "80-120 triệu",
+          "growth_rate": "+20%"
+        },
+        "people_analyst": {
+          "label": "People Analyst",
+          "salary_range": "20-35 triệu",
+          "senior_range": "35-50 triệu",
+          "growth_rate": "+25%"
+        }
+      }
+    },
+    "ke_toan": {
+      "label": "Kế toán - Tài chính",
+      "positions": {
+        "nhan_vien_ke_toan": {
+          "label": "Nhân viên Kế toán",
+          "salary_range": "10-15 triệu",
+          "senior_range": "15-25 triệu",
+          "growth_rate": "-10%"
+        },
+        "ke_toan_truong": {
+          "label": "Kế toán trưởng",
+          "salary_range": "20-35 triệu",
+          "senior_range": "35-50 triệu",
+          "growth_rate": "+5%"
+        },
+        "financial_analyst": {
+          "label": "Financial Analyst",
+          "salary_range": "18-30 triệu",
+          "senior_range": "30-50 triệu",
+          "growth_rate": "+15%"
+        },
+        "tax_advisor": {
+          "label": "Tư vấn Thuế",
+          "salary_range": "20-40 triệu",
+          "senior_range": "40-80 triệu",
+          "growth_rate": "+10%"
+        }
+      }
+    },
+    "it": {
+      "label": "Công nghệ thông tin",
+      "positions": {
+        "lap_trinh_vien": {
+          "label": "Lập trình viên",
+          "salary_range": "15-30 triệu",
+          "senior_range": "30-50 triệu",
+          "growth_rate": "+15%"
+        },
+        "data_analyst": {
+          "label": "Data Analyst",
+          "salary_range": "18-35 triệu",
+          "senior_range": "35-60 triệu",
+          "growth_rate": "+25%"
+        },
+        "project_manager_it": {
+          "label": "IT Project Manager",
+          "salary_range": "25-45 triệu",
+          "senior_range": "45-80 triệu",
+          "growth_rate": "+20%"
+        },
+        "ai_ml_engineer": {
+          "label": "AI/ML Engineer",
+          "salary_range": "30-60 triệu",
+          "senior_range": "60-120 triệu",
+          "growth_rate": "+30%"
+        },
+        "devops_engineer": {
+          "label": "DevOps Engineer",
+          "salary_range": "25-45 triệu",
+          "senior_range": "45-75 triệu",
+          "growth_rate": "+20%"
+        }
+      }
+    },
+    "ban_hang": {
+      "label": "Bán hàng - Kinh doanh",
+      "positions": {
+        "nhan_vien_kinh_doanh": {
+          "label": "Nhân viên Kinh doanh",
+          "salary_range": "8-15 triệu",
+          "senior_range": "15-25 triệu",
+          "commission": "3-10%",
+          "growth_rate": "+10%"
+        },
+        "quan_ly_sales": {
+          "label": "Quản lý Sales",
+          "salary_range": "20-35 triệu",
+          "senior_range": "35-60 triệu",
+          "commission": "5-15%",
+          "growth_rate": "+15%"
+        },
+        "digital_sales": {
+          "label": "Digital Sales Specialist",
+          "salary_range": "15-25 triệu",
+          "senior_range": "25-40 triệu",
+          "commission": "5-12%",
+          "growth_rate": "+20%"
+        },
+        "account_manager": {
+          "label": "Account Manager",
+          "salary_range": "20-35 triệu",
+          "senior_range": "35-60 triệu",
+          "commission": "8-15%",
+          "growth_rate": "+18%"
+        }
+      }
+    },
+    "tu_van": {
+      "label": "Tư vấn - Coaching",
+      "positions": {
+        "tu_van_vien": {
+          "label": "Tư vấn viên",
+          "salary_range": "12-20 triệu",
+          "senior_range": "20-40 triệu",
+          "growth_rate": "+15%"
+        },
+        "career_coach": {
+          "label": "Career Coach",
+          "salary_range": "15-30 triệu",
+          "senior_range": "30-80 triệu",
+          "growth_rate": "+25%"
+        },
+        "business_consultant": {
+          "label": "Business Consultant",
+          "salary_range": "30-60 triệu",
+          "senior_range": "60-150 triệu",
+          "growth_rate": "+20%"
+        },
+        "executive_coach": {
+          "label": "Executive Coach",
+          "salary_range": "40-80 triệu",
+          "senior_range": "80-200 triệu",
+          "growth_rate": "+25%"
+        },
+        "management_consultant": {
+          "label": "Management Consultant",
+          "salary_range": "35-70 triệu",
+          "senior_range": "70-150 triệu",
+          "growth_rate": "+18%"
+        }
+      }
+    }
+  }
+}

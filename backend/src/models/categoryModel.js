@@ -6,7 +6,7 @@ const CATEGORY_COLLECTION_NAME = 'categories'
 
 const CATEGORY_COLLECTION_SCHEMA = Joi.object({
   name: Joi.string().required().trim().max(100),
-  slug: Joi.string().required().trim().lowercase().max(100),
+  slug: Joi.string().allow(null, '').trim().lowercase().max(100),
   description: Joi.string().allow(null, '').max(500),
   icon: Joi.string().allow(null, '').max(255),
 

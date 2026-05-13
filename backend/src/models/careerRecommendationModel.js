@@ -40,7 +40,27 @@ const CAREER_RECOMMENDATION_COLLECTION_SCHEMA = Joi.object({
     barriers: Joi.array(),
     recommendations: Joi.array()
   })),
-  scoringMethod: Joi.string().valid('rule_based', 'llm_scored', 'hybrid'),
+  // RAG-based recommendations (from AI Service with RAG)
+  ragRecommendations: Joi.object({
+    best_fits: Joi.array().items(Joi.object({
+      job_title: Joi.string().allow(''),
+      match_score: Joi.number().min(0).max(1),
+      salary_range: Joi.string().allow(''),
+      learning_path: Joi.array().items(Joi.string()),
+      timeline: Joi.string().allow(''),
+      sources: Joi.array().items(Joi.string())
+    })),
+    income_boost: Joi.array().items(Joi.object()),
+    progression: Joi.array().items(Joi.object()),
+    salary_context: Joi.string().allow('').allow(null),
+    trends_context: Joi.string().allow('').allow(null),
+    sources: Joi.array().items(Joi.string())
+  }).allow(null),
+  // RAG metadata
+  ragSources: Joi.array().items(Joi.string()).default([]),
+  ragGeneratedAt: Joi.date().timestamp('javascript').allow(null),
+  ragRefreshCount: Joi.number().integer().min(0).default(0),
+  scoringMethod: Joi.string().valid('rule_based', 'llm_scored', 'hybrid', 'rag').default('rule_based'),
   generatedAt: Joi.date().timestamp('javascript').default(Date.now),
   expiresAt: Joi.date().timestamp('javascript'),
   status: Joi.string().valid('active', 'stale', 'generating').default('active'),
@@ -127,23 +147,26 @@ const markAsStale = async (userId) => {
 
 const upsertByUserId = async (userId, data) => {
   try {
-    const existingRecord = await findByUserId(userId)
-
-    if (existingRecord) {
-      return await updateByUserId(userId, {
-        ...data,
-        version: (existingRecord.version || 1) + 1
-      })
-    } else {
-      const newRecord = {
-        ...data,
-        userId: userId,
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      }
-      const result = await GET_DB().collection(CAREER_RECOMMENDATION_COLLECTION_NAME).insertOne(newRecord)
-      return { ...newRecord, _id: result.insertedId }
+    // Sử dụng native upsert để tránh race condition
+    const updateData = {
+      ...data,
+      userId: userId,
+      updatedAt: Date.now()
     }
+
+    const result = await GET_DB().collection(CAREER_RECOMMENDATION_COLLECTION_NAME).findOneAndUpdate(
+      { userId: userId },
+      {
+        $set: updateData,
+        $inc: { version: 1 },
+        $setOnInsert: { createdAt: Date.now() }
+      },
+      {
+        returnDocument: 'after',
+        upsert: true
+      }
+    )
+    return result
   } catch (error) {
     throw new Error(error.message)
   }
@@ -186,6 +209,94 @@ const softDeleteByUserId = async (userId) => {
   }
 }
 
+// ============================================================================
+// RAG-specific Operations
+// ============================================================================
+
+/**
+ * Update RAG recommendations for a user
+ * @param {string} userId - User ID
+ * @param {Object} ragData - RAG recommendation data
+ * @returns {Promise<Object>} Updated document
+ */
+const updateRAGRecommendations = async (userId, ragData) => {
+  try {
+    const result = await GET_DB().collection(CAREER_RECOMMENDATION_COLLECTION_NAME).findOneAndUpdate(
+      { userId: userId },
+      {
+        $set: {
+          ragRecommendations: ragData,
+          ragSources: ragData.sources || [],
+          ragGeneratedAt: new Date(),
+          ragRefreshCount: 1,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+          status: 'active',
+          updatedAt: Date.now()
+        }
+      },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+/**
+ * Increment RAG refresh count
+ * @param {string} userId - User ID
+ * @returns {Promise<Object>} Updated document
+ */
+const incrementRAGRefreshCount = async (userId) => {
+  try {
+    const result = await GET_DB().collection(CAREER_RECOMMENDATION_COLLECTION_NAME).findOneAndUpdate(
+      { userId: userId },
+      {
+        $inc: { ragRefreshCount: 1 },
+        $set: {
+          ragGeneratedAt: new Date(),
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          updatedAt: Date.now()
+        }
+      },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+/**
+ * Get RAG recommendations only (for caching)
+ * @param {string} userId - User ID
+ * @returns {Promise<Object|null>} RAG recommendations
+ */
+const getRAGRecommendationsByUserId = async (userId) => {
+  try {
+    const doc = await GET_DB().collection(CAREER_RECOMMENDATION_COLLECTION_NAME).findOne(
+      {
+        userId: userId,
+        _destroy: false,
+        status: 'active'
+      },
+      {
+        projection: {
+          ragRecommendations: 1,
+          ragSources: 1,
+          ragGeneratedAt: 1,
+          ragRefreshCount: 1,
+          expiresAt: 1,
+          status: 1
+        }
+      }
+    )
+    return doc
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 const cleanupExpired = async () => {
   try {
     const result = await GET_DB().collection(CAREER_RECOMMENDATION_COLLECTION_NAME).deleteMany({
@@ -208,5 +319,9 @@ export const careerRecommendationModel = {
   upsertByUserId,
   updateStatus,
   softDeleteByUserId,
-  cleanupExpired
+  cleanupExpired,
+  // RAG-specific operations
+  updateRAGRecommendations,
+  incrementRAGRefreshCount,
+  getRAGRecommendationsByUserId
 }
