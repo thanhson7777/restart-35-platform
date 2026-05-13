@@ -476,7 +476,7 @@ const getTransitionsSkills = async (req, res, next) => {
  */
 const getCachedCareerPath = async (req, res, next) => {
   try {
-    const userId = req.user?.userId
+    const userId = req.user?.userId || req.user?._id
 
     if (!userId) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -560,7 +560,7 @@ const getCachedCareerPath = async (req, res, next) => {
  */
 const triggerCareerPathGeneration = async (req, res, next) => {
   try {
-    const userId = req.user?.userId
+    const userId = req.user?.userId || req.user?._id
 
     if (!userId) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -670,7 +670,7 @@ const triggerCareerPathGeneration = async (req, res, next) => {
  */
 const invalidateCareerPathCache = async (req, res, next) => {
   try {
-    const userId = req.user?.userId
+    const userId = req.user?.userId || req.user?._id
 
     if (!userId) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -705,6 +705,135 @@ const invalidateCareerPathCache = async (req, res, next) => {
   }
 }
 
+// ============================================================================
+// RAG (RETRIEVAL-AUGMENTED GENERATION) CONTROLLERS
+// ============================================================================
+
+/**
+ * Trigger RAG-based career recommendation
+ * POST /v1/ai/rag/career-recommendation
+ */
+const triggerRAGCareerRecommendation = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId || req.user?._id
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    const { profile } = req.body
+
+    if (!profile) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Profile data là bắt buộc'
+      })
+    }
+
+    console.log(`[RAG Trigger] User: ${userId}`)
+
+    const result = await aiService.triggerRAGCareerRecommendation(userId, profile)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] triggerRAGCareerRecommendation error:', error)
+    next(error)
+  }
+}
+
+/**
+ * Get cached RAG recommendation
+ * GET /v1/ai/rag/career-recommendation
+ */
+const getCachedRAGRecommendation = async (req, res, next) => {
+  try {
+    // Fix: JWT payload có _id, không phải userId
+    const userId = req.user?.userId || req.user?._id || req.user?._id
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    console.log(`[RAG Get Cached] User: ${userId}`)
+
+    const result = await aiService.getCachedRAGRecommendation(userId)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] getCachedRAGRecommendation error:', error)
+    next(error)
+  }
+}
+
+/**
+ * Refresh RAG recommendation
+ * POST /v1/ai/rag/career-recommendation/refresh
+ */
+const refreshRAGRecommendation = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId || req.user?._id
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    const { profile } = req.body
+
+    if (!profile) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Profile data là bắt buộc để refresh'
+      })
+    }
+
+    console.log(`[RAG Refresh] User: ${userId}`)
+
+    const result = await aiService.refreshRAGRecommendation(userId, profile)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] refreshRAGRecommendation error:', error)
+    next(error)
+  }
+}
+
+/**
+ * Get RAG data sources
+ * GET /v1/ai/rag/sources
+ */
+const getRAGSources = async (req, res, next) => {
+  try {
+    const result = await aiService.getRAGSources()
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] getRAGSources error:', error)
+    next(error)
+  }
+}
+
+/**
+ * Get RAG health status
+ * GET /v1/ai/rag/health
+ */
+const getRAGHealth = async (req, res, next) => {
+  try {
+    const result = await aiService.getRAGHealth()
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] getRAGHealth error:', error)
+    next(error)
+  }
+}
+
 // Export controller functions
 export const aiController = {
   recommendJobs,
@@ -728,5 +857,11 @@ export const aiController = {
   // Cached Career Path
   getCachedCareerPath,
   triggerCareerPathGeneration,
-  invalidateCareerPathCache
+  invalidateCareerPathCache,
+  // RAG Controllers
+  triggerRAGCareerRecommendation,
+  getCachedRAGRecommendation,
+  refreshRAGRecommendation,
+  getRAGSources,
+  getRAGHealth
 }

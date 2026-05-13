@@ -18,7 +18,12 @@ import {
   getCareerTransitionsAPI,
   getTransitionsUrgencyAPI,
   getTransitionsIndustriesAPI,
-  getTransitionsSkillsAPI
+  getTransitionsSkillsAPI,
+  triggerRAGCareerRecommendationAPI,
+  getCachedRAGRecommendationAPI,
+  refreshRAGRecommendationAPI,
+  getRAGSourcesAPI,
+  getRAGHealthAPI
 } from '~/apis/aiAPI'
 
 /**
@@ -281,6 +286,113 @@ export const fetchTransitionsIndustries = createAsyncThunk(
   }
 )
 
+// =============================================================================
+// RAG CAREER RECOMMENDATION THUNKS
+// =============================================================================
+
+/**
+ * Trigger RAG-based career recommendation
+ * POST /v1/ai/rag/career-recommendation
+ */
+export const triggerRAGRecommendation = createAsyncThunk(
+  'ai/triggerRAGRecommendation',
+  async ({ profile, includeSalary = true, includeTrends = true }, { rejectWithValue }) => {
+    try {
+      const response = await triggerRAGCareerRecommendationAPI(profile, includeSalary, includeTrends)
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể tạo RAG recommendation'
+      )
+    }
+  }
+)
+
+/**
+ * Get cached RAG career recommendation
+ * GET /v1/ai/rag/career-recommendation
+ */
+export const fetchCachedRAGRecommendation = createAsyncThunk(
+  'ai/fetchCachedRAGRecommendation',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getCachedRAGRecommendationAPI()
+      // Response: { success, data: { best_fits, income_boost, progression }, meta: {...} }
+      return response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể lấy RAG recommendation đã cache'
+      )
+    }
+  }
+)
+
+/**
+ * Refresh RAG career recommendation
+ * POST /v1/ai/rag/career-recommendation/refresh
+ *
+ * Rate limit: Max 1 refresh per 24 hours
+ */
+export const refreshRAGRecommendation = createAsyncThunk(
+  'ai/refreshRAGRecommendation',
+  async ({ profile, includeSalary = true, includeTrends = true }, { rejectWithValue }) => {
+    try {
+      const response = await refreshRAGRecommendationAPI(profile, includeSalary, includeTrends)
+      return response?.data ?? response
+    } catch (error) {
+      // Check for rate limit error (410 Gone)
+      if (error.response?.status === 410) {
+        return rejectWithValue(
+          error.response?.data?.message || 'Đã refresh gần đây. Vui lòng chờ 24 giờ trước khi refresh tiếp.'
+        )
+      }
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể refresh RAG recommendation'
+      )
+    }
+  }
+)
+
+/**
+ * Get RAG data sources
+ * GET /v1/ai/rag/sources
+ *
+ * Public endpoint - No auth required
+ */
+export const fetchRAGSources = createAsyncThunk(
+  'ai/fetchRAGSources',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getRAGSourcesAPI()
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể lấy RAG sources'
+      )
+    }
+  }
+)
+
+/**
+ * Get RAG system health status
+ * GET /v1/ai/rag/health
+ *
+ * Public endpoint - No auth required
+ */
+export const fetchRAGHealth = createAsyncThunk(
+  'ai/fetchRAGHealth',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getRAGHealthAPI()
+      return response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể lấy RAG health status'
+      )
+    }
+  }
+)
+
 /**
  * Risk Level Constants
  */
@@ -376,7 +488,19 @@ const initialState = {
   careerTransitionsLoading: false,
   careerTransitionsError: null,
   careerTransitionsUrgency: null,  // Urgency info for current age
-  careerTransitionsIndustries: []   // Supported industries
+  careerTransitionsIndustries: [],   // Supported industries
+
+  // RAG Career Recommendations
+  ragRecommendation: null,         // { best_fits, income_boost, progression }
+  ragLoading: false,
+  ragError: null,
+  ragSources: [],                  // ['salary_benchmarks.json', ...]
+  ragHealth: null,                // { status, components: {...} }
+  ragGeneratedAt: null,           // ISO timestamp
+  ragRefreshCount: 0,
+  ragExpiresAt: null,
+  ragIsFresh: null,               // boolean - is data fresh or expired
+  ragIsExpired: null               // boolean - is data expired
 }
 
 /**
@@ -452,7 +576,23 @@ const aiSlice = createSlice({
     /**
      * Reset all AI state
      */
-    resetAIState: () => initialState
+    resetAIState: () => initialState,
+
+    /**
+     * Clear RAG recommendation
+     */
+    clearRAGRecommendation: (state) => {
+      state.ragRecommendation = null
+      state.ragError = null
+    },
+
+    /**
+     * Set RAG recommendation directly (for cache loading)
+     */
+    setRAGRecommendation: (state, action) => {
+      state.ragRecommendation = action.payload
+      state.ragError = null
+    }
   },
 
   extraReducers: (builder) => {
@@ -672,6 +812,121 @@ const aiSlice = createSlice({
           }))
         }
       })
+
+    /**
+     * =============================================================================
+     * RAG CAREER RECOMMENDATION REDUCERS
+     * =============================================================================
+     */
+
+    /**
+     * triggerRAGRecommendation
+     */
+    builder
+      .addCase(triggerRAGRecommendation.pending, (state) => {
+        state.ragLoading = true
+        state.ragError = null
+      })
+      .addCase(triggerRAGRecommendation.fulfilled, (state, action) => {
+        state.ragLoading = false
+        // Response: { success, data: { best_fits, income_boost, progression }, meta: {...} }
+        const payload = action.payload
+        if (payload?.success && payload?.data) {
+          state.ragRecommendation = payload.data
+        } else {
+          // Fallback: use payload directly
+          state.ragRecommendation = payload
+        }
+      })
+      .addCase(triggerRAGRecommendation.rejected, (state, action) => {
+        state.ragLoading = false
+        state.ragError = action.payload
+      })
+
+    /**
+     * fetchCachedRAGRecommendation
+     */
+    builder
+      .addCase(fetchCachedRAGRecommendation.pending, (state) => {
+        state.ragLoading = true
+        state.ragError = null
+      })
+      .addCase(fetchCachedRAGRecommendation.fulfilled, (state, action) => {
+        state.ragLoading = false
+        const payload = action.payload
+        if (payload?.success) {
+          state.ragRecommendation = payload?.data ?? null
+          // Update metadata from meta
+          if (payload?.meta) {
+            state.ragGeneratedAt = payload.meta.generatedAt
+            state.ragRefreshCount = payload.meta.refreshCount
+            state.ragExpiresAt = payload.meta.expiresAt
+            state.ragIsFresh = payload.meta.isFresh
+            state.ragIsExpired = payload.meta.isExpired
+          }
+        } else {
+          // No cached data
+          state.ragRecommendation = null
+          if (payload?.meta) {
+            state.ragGeneratedAt = payload.meta.generatedAt
+            state.ragIsFresh = false
+          }
+        }
+      })
+      .addCase(fetchCachedRAGRecommendation.rejected, (state, action) => {
+        state.ragLoading = false
+        state.ragError = action.payload
+      })
+
+    /**
+     * refreshRAGRecommendation
+     */
+    builder
+      .addCase(refreshRAGRecommendation.pending, (state) => {
+        state.ragLoading = true
+        state.ragError = null
+      })
+      .addCase(refreshRAGRecommendation.fulfilled, (state, action) => {
+        state.ragLoading = false
+        const payload = action.payload
+        if (payload?.success && payload?.data) {
+          state.ragRecommendation = payload.data
+        } else {
+          state.ragRecommendation = payload
+        }
+      })
+      .addCase(refreshRAGRecommendation.rejected, (state, action) => {
+        state.ragLoading = false
+        state.ragError = action.payload
+      })
+
+    /**
+     * fetchRAGSources
+     */
+    builder
+      .addCase(fetchRAGSources.pending, (state) => {
+        state.ragLoading = true
+      })
+      .addCase(fetchRAGSources.fulfilled, (state, action) => {
+        state.ragLoading = false
+        const payload = action.payload
+        if (payload?.data?.sources) {
+          state.ragSources = payload.data.sources
+        } else if (payload?.sources) {
+          state.ragSources = payload.sources
+        }
+      })
+      .addCase(fetchRAGSources.rejected, (state) => {
+        state.ragLoading = false
+      })
+
+    /**
+     * fetchRAGHealth
+     */
+    builder
+      .addCase(fetchRAGHealth.fulfilled, (state, action) => {
+        state.ragHealth = action.payload
+      })
 }
 })
 
@@ -686,7 +941,9 @@ export const {
   clearWorkerAnalysis,
   clearCareerPath,
   setCareerPath,
-  resetAIState
+  resetAIState,
+  clearRAGRecommendation,
+  setRAGRecommendation
 } = aiSlice.actions
 
 /**
@@ -749,5 +1006,22 @@ export const selectCareerTransitionsLoading = (state) => state.ai.careerTransiti
 export const selectCareerTransitionsError = (state) => state.ai.careerTransitionsError
 export const selectCareerTransitionsUrgency = (state) => state.ai.careerTransitionsUrgency
 export const selectCareerTransitionsIndustries = (state) => state.ai.careerTransitionsIndustries
+
+// RAG Career Recommendation selectors
+export const selectRAGRecommendation = (state) => state.ai.ragRecommendation
+export const selectRAGLoading = (state) => state.ai.ragLoading
+export const selectRAGError = (state) => state.ai.ragError
+export const selectRAGSources = (state) => state.ai.ragSources
+export const selectRAGHealth = (state) => state.ai.ragHealth
+export const selectRAGGeneratedAt = (state) => state.ai.ragGeneratedAt
+export const selectRAGRefreshCount = (state) => state.ai.ragRefreshCount
+export const selectRAGExpiresAt = (state) => state.ai.ragExpiresAt
+export const selectRAGIsFresh = (state) => state.ai.ragIsFresh
+export const selectRAGIsExpired = (state) => state.ai.ragIsExpired
+
+// RAG convenience selectors
+export const selectBestFits = (state) => state.ai.ragRecommendation?.best_fits ?? []
+export const selectIncomeBoost = (state) => state.ai.ragRecommendation?.income_boost ?? []
+export const selectProgression = (state) => state.ai.ragRecommendation?.progression ?? []
 
 export default aiSlice.reducer

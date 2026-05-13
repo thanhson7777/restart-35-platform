@@ -1,0 +1,138 @@
+{
+  "metadata": {
+    "source": "Skill Transferability Analysis 2026",
+    "last_updated": "2026-05-12"
+  },
+  "skill_transfers": {
+    "hanh_chinh": {
+      "label": "Hành chính - Văn phòng",
+      "can_transfer_to": ["nhan_su", "ban_hang", "tu_van"],
+      "transferable_skills": ["Tổ chức", "MS Office", "Giao tiếp", "Quản lý tài liệu", "Lên lịch", "Support"],
+      "skill_gap": ["HRIS", "Data analysis", "Strategic thinking"]
+    },
+    "nhan_su": {
+      "label": "Nhân sự - HR",
+      "can_transfer_to": ["hanh_chinh", "tu_van", "ban_hang"],
+      "transferable_skills": ["Giao tiếp", "Tuyển chọn", "Đàm phán", "Coaching", "Đào tạo", "Employee relations"],
+      "skill_gap": ["Business acumen", "Finance basics", "Strategic HR"]
+    },
+    "ke_toan": {
+      "label": "Kế toán - Tài chính",
+      "can_transfer_to": ["nhan_su", "tu_van", "it"],
+      "transferable_skills": ["Phân tích số liệu", "Excel nâng cao", "Chính xác", "Chi tiết", "Compliance"],
+      "skill_gap": ["Business analysis", "Programming basics", "Communication"]
+    },
+    "it": {
+      "label": "Công nghệ thông tin",
+      "can_transfer_to": ["nhan_su", "ban_hang", "tu_van"],
+      "transferable_skills": ["Problem solving", "Logic", "Technical writing", "Data analysis"],
+      "skill_gap": ["Business domain knowledge", "Communication", "Soft skills"]
+    },
+    "ban_hang": {
+      "label": "Bán hàng - Kinh doanh",
+      "can_transfer_to": ["tu_van", "nhan_su", "hanh_chinh"],
+      "transferable_skills": ["Giao tiếp", "Thuyết phục", "Relationship building", "Presentation", "Negotiation"],
+      "skill_gap": ["Process knowledge", "Technical skills", "Strategic thinking"]
+    },
+    "tu_van": {
+      "label": "Tư vấn - Coaching",
+      "can_transfer_to": ["nhan_su", "ban_hang", "hanh_chinh"],
+      "transferable_skills": ["Listening", "Empathy", "Communication", "Problem solving", "Coaching", "Presentation"],
+      "skill_gap": ["Domain expertise", "Industry knowledge", "Business fundamentals"]
+    }
+  },
+  "skill_gaps_by_profile": {
+    "hanh_chinh_35plus": {
+      "current_skills": ["Word", "Excel", "Sổ sách", "Tiếp tân", "Lưu trữ"],
+      "needed_for_advancement": ["HR Analytics", "Digital Tools", "Strategic thinking", "Presentation", "Data visualization"],
+      "learning_difficulty": "Medium",
+      "timeline": "3-6 tháng",
+      "recommended_path": "Chuyển sang HR Generalist hoặc People Analyst"
+    },
+    "nhan_su_35plus": {
+      "current_skills": ["Tuyển dụng", "C&B", "Đào tạo", "Office work"],
+      "needed_for_advancement": ["HR Analytics", "Digital HR", "Strategic HR", "Change Management"],
+      "learning_difficulty": "Medium",
+      "timeline": "6-12 tháng",
+      "recommended_path": "Chuyển sang HR Manager hoặc HRBP"
+    },
+    "it_35plus": {
+      "current_skills": ["Programming", "Database", "System admin"],
+      "needed_for_advancement": ["Cloud", "AI/ML basics", "Architecture", "Leadership"],
+      "learning_difficulty": "Medium-High",
+      "timeline": "6-12 tháng",
+      "recommended_path": "Chuyển sang Architect, DevOps, hoặc AI/ML"
+    }
+  },
+  "endangered_skills_2026": {
+    "description": "Những kỹ năng đang mất giá trị nhanh chóng",
+    "skills": [
+      {
+        "skill": "Data Entry thủ công",
+        "reason": "AI và automation thay thế",
+        "替代": "Data Analysis, Data Quality"
+      },
+      {
+        "skill": "Telesales không chuyên môn",
+        "reason": "Chatbot và AI handling",
+        "替代": "Consultative selling, Relationship sales"
+      },
+      {
+        "skill": "Kế toán đơn giản",
+        "reason": "Software tự động hóa",
+        "替代": "Financial Analysis, Tax Advisory"
+      },
+      {
+        "skill": "Dịch thuật cơ bản",
+        "reason": "AI translation",
+        "替代": "Localization, Editing, Industry expertise"
+      },
+      {
+        "skill": "Basic administrative tasks",
+        "reason": "Workflow automation",
+        "替代": "Process optimization, Digital transformation"
+      }
+    ]
+  },
+  "future_proof_skills_2026": {
+    "description": "Những kỹ năng sẽ có giá trị cao trong 5-10 năm tới",
+    "skills": [
+      {
+        "skill": "AI/ML fundamentals",
+        "reason": "AI đang transform mọi ngành",
+        "difficulty": "Medium-High",
+        "timeline": "6-12 tháng"
+      },
+      {
+        "skill": "Data Analysis & Visualization",
+        "reason": "Data-driven decision making là xu hướng",
+        "difficulty": "Low-Medium",
+        "timeline": "3-6 tháng"
+      },
+      {
+        "skill": "Digital Marketing",
+        "reason": "Online presence là thiết yếu",
+        "difficulty": "Low-Medium",
+        "timeline": "3-6 tháng"
+      },
+      {
+        "skill": "Coaching & Mentoring",
+        "reason": "Human connection không bị thay thế",
+        "difficulty": "Medium",
+        "timeline": "6-12 tháng"
+      },
+      {
+        "skill": "Critical Thinking & Problem Solving",
+        "reason": "AI xử lý routine, human xử lý complex",
+        "difficulty": "Low",
+        "timeline": "Ongoing"
+      },
+      {
+        "skill": "Communication & Presentation",
+        "reason": "Kết nối human-to-human",
+        "difficulty": "Medium",
+        "timeline": "3-12 tháng"
+      }
+    ]
+  }
+}

@@ -5,23 +5,28 @@ import { jwtProvider } from '~/providers/jwtProvider'
 import { USER_ROLES } from '~/utils/constants'
 
 const isAuthorized = async (req, res, next) => {
+  console.log('[Auth Middleware] Request URL:', req.originalUrl)
+  console.log('[Auth Middleware] Headers:', req.headers.authorization ? 'Has Authorization' : 'NO Authorization')
+  console.log('[Auth Middleware] Cookies:', req.cookies)
+  
   const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
-  // console.log('=== Auth Middleware Debug ===')
-  // console.log('Token exists:', !!clientAccessToken)
-  // console.log('Token value:', clientAccessToken ? clientAccessToken.substring(0, 20) + '...' : 'none')
-  // console.log('==============================')
+  
   if (!clientAccessToken) {
+    console.log('[Auth Middleware] No token found - rejecting')
     next(new ApiError(StatusCodes.UNAUTHORIZED, 'Không tồn tại token này!'))
     return
   }
+
+  console.log('[Auth Middleware] Token found:', clientAccessToken.substring(0, 30) + '...')
 
   try {
     const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
     req.user = accessTokenDecoded
     req.jwtDecoded = accessTokenDecoded
-    // console.log('Auth passed, user:', accessTokenDecoded)
+    console.log('[Auth Middleware] Token verified successfully, user:', accessTokenDecoded)
     next()
   } catch (error) {
+    console.log('[Auth Middleware] Token verification failed:', error.message)
     // Nếu access tokenn hết hạn thì trả về lỗi 410
     if (error?.message?.includes('jwt expired')) {
       next(new ApiError(StatusCodes.GONE, 'Cần làm mới token!'))

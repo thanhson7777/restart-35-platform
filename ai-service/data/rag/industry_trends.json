@@ -1,0 +1,118 @@
+{
+  "metadata": {
+    "source": "Vietnam Market Trends 2026",
+    "last_updated": "2026-05-12",
+    "version": "1.0"
+  },
+  "2026_overall": {
+    "trends": {
+      "dang_tang": [
+        "AI/Machine Learning Engineer",
+        "Digital Marketing & E-commerce",
+        "Data Analyst/Scientist",
+        "Logistics & Supply Chain",
+        "Healthcare Technology",
+        "Renewable Energy",
+        "Customer Success Manager"
+      ],
+      "dang_giam": [
+        "Data Entry cơ bản",
+        "Telesales không chuyên môn",
+        "Kế toán đơn giản",
+        "Nhân viên phục vụ truyền thống"
+      ],
+      "xuat_hien_moi": [
+        "AI Prompt Engineer",
+        "UX Writer",
+        "E-commerce Operations Manager",
+        "Sustainability Manager",
+        "Remote Work Coordinator"
+      ]
+    }
+  },
+  "industries": {
+    "hanh_chinh": {
+      "trend": "Chuyển đổi số mạnh mẽ, giảm nhân sự quản lý, tăng tự động hóa. AI đang dần thay thế các công việc hành chính đơn giản.",
+      "growth_rate": "-10% nhu cầu nhân sự",
+      "demand": "Giảm",
+      "advice": "Chuyển sang HR Analytics, Digital Transformation, Employee Experience để giữ giá trị.",
+      "salary_outlook": "Cạnh tranh nhưng không tăng nhiều cho nhân sự không có kỹ năng số.",
+      "opportunities": [
+        "HRIS Administrator",
+        "Digital Transformation Specialist",
+        "Employee Experience Manager",
+        "Process Automation Specialist"
+      ]
+    },
+    "nhan_su": {
+      "trend": "HRBP (HR Business Partner) là xu hướng chính, tập trung vào data-driven decisions. Nhu cầu HR có kỹ năng phân tích tăng mạnh.",
+      "growth_rate": "+5% nhu cầu cho HR có kỹ năng phân tích",
+      "demand": "Ổn định, chuyển dịch chất lượng",
+      "advice": "Học HR Analytics, People Analytics, Digital HR Tools để tăng giá trị bản thân.",
+      "salary_outlook": "Tăng cho vị trí senior có tech skills",
+      "opportunities": [
+        "People Analyst",
+        "HRIS Specialist",
+        "Talent Acquisition Lead",
+        "Employee Experience Lead",
+        "HR Business Partner"
+      ]
+    },
+    "ke_toan": {
+      "trend": "Automation sẽ thay thế kế toán đơn giản, nhu cầu chuyển sang advisory và phân tích tài chính.",
+      "growth_rate": "-15% cho junior, +10% cho senior advisory",
+      "demand": "Chuyển dịch từ execution sang advisory",
+      "advice": "Học Financial Analysis, Tax Advisory, IFRS, Financial Planning để chuyển hướng.",
+      "salary_outlook": "Junior giảm, senior tăng. Cơ hội cho người chuyển đổi sớm.",
+      "opportunities": [
+        "Financial Analyst",
+        "Tax Consultant",
+        "Finance Business Partner",
+        "FP&A Specialist",
+        "Risk Management"
+      ]
+    },
+    "it": {
+      "trend": "AI hỗ trợ lập trình, low-code/no-code platforms tăng, cloud adoption mạnh. AI/ML là hottest skill.",
+      "growth_rate": "+20% nhu cầu AI-related roles",
+      "demand": "Rất cao, đặc biệt AI/ML và Data",
+      "advice": "Học Python, AI/ML basics, Cloud computing, Data Engineering để赶上趋势.",
+      "salary_outlook": "Tăng mạnh, đặc biệt AI/ML roles. Junior có thể đạt 20-30 triệu.",
+      "opportunities": [
+        "AI/ML Engineer",
+        "Data Engineer",
+        "Cloud Solutions Architect",
+        "DevOps Engineer",
+        "Data Scientist"
+      ]
+    },
+    "ban_hang": {
+      "trend": "E-commerce bùng nổ, cần digital sales skills. Khách hàng ngày càng mua sắm online nhiều hơn.",
+      "growth_rate": "+15% cho digital sales",
+      "demand": "Ổn định, chuyển dịch sang digital",
+      "advice": "Học Digital Marketing, CRM, Sales Automation tools để tăng hiệu quả.",
+      "salary_outlook": "Tăng cho digital-first sales roles. Commission có thể cao hơn traditional sales.",
+      "opportunities": [
+        "Digital Sales Specialist",
+        "E-commerce Manager",
+        "Account Manager (Enterprise)",
+        "Sales Operations Analyst",
+        "Customer Success Manager"
+      ]
+    },
+    "tu_van": {
+      "trend": "Nhu cầu career coaching và business consulting tăng mạnh do làn sóng chuyển đổi nghề nghiệp sau COVID.",
+      "growth_rate": "+25% nhu cầu coaching",
+      "demand": "Rất cao, đặc biệt career transition và executive coaching",
+      "advice": "Build personal brand, get certifications (ICF, coaching certificates), specialize in niche market.",
+      "salary_outlook": "Tăng mạnh, freelance opportunity cao. Experienced coach có thể earn 100+ triệu/tháng.",
+      "opportunities": [
+        "Career Coach",
+        "Executive Coach",
+        "Business Consultant",
+        "Management Consultant",
+        "Life Coach"
+      ]
+    }
+  }
+}

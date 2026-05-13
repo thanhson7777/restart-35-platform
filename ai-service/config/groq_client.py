@@ -106,16 +106,18 @@ class UnifiedLLMClient:
         prompt: str,
         model: str = None,
         temperature: float = 0.1,
-        max_tokens: int = 2048
+        max_tokens: int = 2048,
+        system_prompt: str = None
     ) -> Optional[str]:
         """
         Generate text từ LLM provider.
         
         Args:
-            prompt: Input prompt
+            prompt: Input prompt (user message)
             model: Model name (auto-select based on provider if not specified)
             temperature: Sampling temperature (0.0 - 1.0)
             max_tokens: Max tokens in response
+            system_prompt: Optional system prompt
             
         Returns:
             Generated text or None if failed
@@ -131,14 +133,14 @@ class UnifiedLLMClient:
         for attempt in range(LLMConfig.MAX_RETRIES):
             try:
                 if self.provider == 'groq' and self._groq_client:
-                    return self._call_groq(model, prompt, temperature, max_tokens)
+                    return self._call_groq(model, prompt, temperature, max_tokens, system_prompt)
                 elif self.provider == 'gemini' and self._gemini_client:
                     return self._call_gemini(model, prompt, temperature, max_tokens)
                 else:
                     # Fallback: try other provider
                     if self._groq_client and self.provider != 'groq':
                         logger.info("Falling back to GROQ")
-                        return self._call_groq(LLMConfig.GROQ_LLAMA, prompt, temperature, max_tokens)
+                        return self._call_groq(LLMConfig.GROQ_LLAMA, prompt, temperature, max_tokens, system_prompt)
                     elif self._gemini_client:
                         logger.info("Falling back to Gemini")
                         return self._call_gemini(LLMConfig.GEMINI_FLASH, prompt, temperature, max_tokens)
@@ -150,11 +152,20 @@ class UnifiedLLMClient:
         
         return None
     
-    def _call_groq(self, model: str, prompt: str, temperature: float, max_tokens: int) -> Optional[str]:
+    def _call_groq(self, model: str, prompt: str, temperature: float, max_tokens: int, system_prompt: str = None) -> Optional[str]:
         """Call GROQ API"""
+        messages = []
+        
+        # Add system prompt if provided
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        
+        # Add user prompt
+        messages.append({"role": "user", "content": prompt})
+        
         response = self._groq_client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": prompt}],
+            messages=messages,
             temperature=temperature,
             max_tokens=max_tokens
         )

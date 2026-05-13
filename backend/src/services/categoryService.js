@@ -31,8 +31,6 @@ const createCategory = async (data) => {
     const result = await categoryModel.createNew(categoryData)
     const category = await categoryModel.findOneById(result.insertedId)
 
-    console.log(`Category created: ${category.name}`)
-
     return category
   } catch (error) { throw error }
 }
@@ -181,8 +179,6 @@ const reorderCategories = async (categoryOrders) => {
     }
 
     await categoryModel.reorder(categoryOrders)
-
-    console.log(`Categories reordered`)
 
     return true
   } catch (error) { throw error }

@@ -723,6 +723,105 @@ const response = await aiApiClient.post('/api/v1/ai/recommend-jobs', payload)
       }
     }
   }
+
+  // ============================================================================
+  // RAG (Retrieval-Augmented Generation) PROVIDER METHODS
+  // ============================================================================
+
+  /**
+   * Lấy RAG-based career recommendation
+   * POST /api/v1/ai/rag/career-recommendation
+   * @param {Object} profile - User profile data
+   * @param {boolean} includeSalary - Include salary data from RAG
+   * @param {boolean} includeTrends - Include industry trends from RAG
+   * @returns {Promise<Object>} RAG recommendation result
+   */
+  async getRAGCareerRecommendation(profile, includeSalary = true, includeTrends = true) {
+    try {
+      const payload = {
+        profile,
+        include_salary: includeSalary,
+        include_trends: includeTrends
+      }
+
+      const response = await aiApiClient.post(
+        '/api/v1/ai/rag/career-recommendation',
+        payload
+      )
+
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] RAG career recommendation error:', error.message)
+      throw error
+    }
+  }
+
+  /**
+   * Lấy danh sách RAG data sources
+   * GET /api/v1/ai/rag/sources
+   * @returns {Promise<Object>} Data sources info
+   */
+  async getRAGSources() {
+    try {
+      const response = await aiApiClient.get('/api/v1/ai/rag/sources')
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] RAG sources error:', error.message)
+      return {
+        success: false,
+        data: {
+          sources: [],
+          message: 'Khong the lay danh sach nguon du lieu RAG'
+        }
+      }
+    }
+  }
+
+  /**
+   * Kiểm tra trạng thái RAG system
+   * GET /api/v1/ai/rag/health
+   * @returns {Promise<Object>} RAG health status
+   */
+  async getRAGHealth() {
+    try {
+      const response = await aiApiClient.get('/api/v1/ai/rag/health')
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] RAG health check error:', error.message)
+      return {
+        status: 'error',
+        message: 'RAG system khong kha dung',
+        components: {
+          rag_engine: { status: 'unavailable' },
+          llm: { status: 'unavailable' }
+        }
+      }
+    }
+  }
+
+  /**
+   * Custom RAG query
+   * POST /api/v1/ai/rag/query
+   * @param {string} query - Query text
+   * @param {string} docType - Optional document type filter
+   * @param {number} nResults - Number of results to return
+   * @returns {Promise<Object>} Query results
+   */
+  async queryRAG(query, docType = null, nResults = 5) {
+    try {
+      const response = await aiApiClient.post('/api/v1/ai/rag/query', null, {
+        params: {
+          query,
+          doc_type: docType,
+          n_results: nResults
+        }
+      })
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] RAG query error:', error.message)
+      throw error
+    }
+  }
 }
 
 // Export singleton instance

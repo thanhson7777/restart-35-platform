@@ -113,11 +113,17 @@ async def log_requests(request: Request, call_next):
 from routers.ai import router as ai_router
 from routers.career_path import router as career_path_router
 from routers.career_transition import router as career_transition_router
+from routers.career_recommendation import router as rag_recommendation_router
+
+# Global instances
+_rag_engine = None
+_llm_client = None
 
 # Register routers
 app.include_router(ai_router)
 app.include_router(career_path_router)
 app.include_router(career_transition_router)
+app.include_router(rag_recommendation_router)
 
 
 # =============================================================================
@@ -217,6 +223,57 @@ async def startup_event():
     prediction_log = logs_dir / "predictions.jsonl"
     logger.info(f"📝 Prediction log: {prediction_log}")
 
+    # =============================================================================
+    # RAG System Initialization
+    # =============================================================================
+    logger.info("🔄 Initializing RAG index...")
+    try:
+        from services.rag.rag_engine import CareerRAGEngine
+
+        rag_engine = CareerRAGEngine()
+        rag_engine.initialize_index()
+
+        stats = rag_engine.get_index_stats()
+        logger.info(f"✅ RAG index ready: {stats['document_count']} documents")
+        logger.info(f"   Embedding model: {stats['embedding_model']}")
+
+        # Store globally for use in endpoints
+        global _rag_engine
+        _rag_engine = rag_engine
+
+        # Set RAG engine in career_recommendation router
+        from routers.career_recommendation import set_rag_engine
+        set_rag_engine(rag_engine)
+
+    except Exception as e:
+        logger.warning(f"⚠️ RAG initialization failed: {e}")
+        logger.warning("   RAG features will be unavailable")
+        import traceback
+        traceback.print_exc()
+
+    # =============================================================================
+    # LLM Client Initialization (GROQ)
+    # =============================================================================
+    logger.info("🔄 Initializing LLM client (GROQ)...")
+    try:
+        from config.groq_client import get_llm_client
+
+        llm_client = get_llm_client()
+
+        if llm_client.available:
+            logger.info(f"✅ LLM client ready (provider: {llm_client.provider})")
+            global _llm_client
+            _llm_client = llm_client
+
+            # Set LLM client in career_recommendation router
+            from routers.career_recommendation import set_llm_client
+            set_llm_client(llm_client)
+        else:
+            logger.warning("⚠️ LLM client not available - GROQ_API_KEY may be missing")
+
+    except Exception as e:
+        logger.warning(f"⚠️ LLM initialization failed: {e}")
+
     logger.info("=" * 60)
     logger.info("✅ Service ready!")
     logger.info("=" * 60)
@@ -230,6 +287,13 @@ async def startup_event():
     logger.info("   • POST /api/v1/ai/career-transitions - Career transitions (35+)")
     logger.info("   • GET  /api/v1/ai/career-transitions/urgency - Urgency by age")
     logger.info("   • GET  /api/v1/ai/career-transitions/industries - Supported industries")
+    if _rag_engine:
+        logger.info("   • POST /api/v1/ai/rag/career-recommendation - RAG career recommendation")
+        logger.info("   • GET  /api/v1/ai/rag/sources     - RAG data sources")
+        logger.info("   • GET  /api/v1/ai/rag/health      - RAG health check")
+        logger.info("   • GET  /api/v1/ai/rag/debug/profile-test - Test with sample profile")
+    if _llm_client:
+        logger.info("   ✅ GROQ LLM integration enabled")
     logger.info("")
     logger.info(f"📚 API Docs: http://localhost:8000/docs")
     logger.info("=" * 60)
