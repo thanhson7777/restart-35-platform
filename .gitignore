@@ -67,4 +67,4 @@ docs/
 
 
 # HTML files in ai-service
-ai-service/**/*.html
+ai-service/**/*.htmlai-service/.env
