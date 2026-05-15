@@ -834,6 +834,76 @@ const getRAGHealth = async (req, res, next) => {
   }
 }
 
+/**
+ * Get RAG-based startup suggestions
+ * POST /v1/ai/rag/startup-suggestions
+ */
+const getRAGStartupSuggestions = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId || req.user?._id
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    const { profile, budget } = req.body
+
+    if (!profile) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Profile data là bắt buộc'
+      })
+    }
+
+    console.log(`[RAG Startup] User: ${userId}`)
+
+    const result = await aiService.getRAGStartupSuggestions(profile, budget)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] getRAGStartupSuggestions error:', error)
+    next(error)
+  }
+}
+
+/**
+ * Get RAG-based skills gap analysis
+ * POST /v1/ai/rag/skills-gap
+ */
+const getRAGSkillsGap = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId || req.user?._id
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    const { profile } = req.body
+
+    if (!profile) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Profile data là bắt buộc'
+      })
+    }
+
+    console.log(`[RAG Skills Gap] User: ${userId}`)
+
+    const result = await aiService.getRAGSkillsGap(profile)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] getRAGSkillsGap error:', error)
+    next(error)
+  }
+}
+
 // Export controller functions
 export const aiController = {
   recommendJobs,
@@ -863,5 +933,8 @@ export const aiController = {
   getCachedRAGRecommendation,
   refreshRAGRecommendation,
   getRAGSources,
-  getRAGHealth
+  getRAGHealth,
+  // RAG Startup & Skills Gap
+  getRAGStartupSuggestions,
+  getRAGSkillsGap
 }

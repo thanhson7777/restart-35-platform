@@ -13,7 +13,10 @@ import {
   RefreshCw,
   Sparkles,
   Database,
-  BarChart3
+  BarChart3,
+  Rocket,
+  Brain,
+  Route
 } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import {
@@ -38,7 +41,17 @@ import {
   selectRAGIsExpired,
   triggerRAGRecommendation,
   fetchCachedRAGRecommendation,
-  clearRAGRecommendation
+  clearRAGRecommendation,
+  // Startup selectors
+  selectStartupIdeas,
+  selectStartupLoading,
+  selectStartupError,
+  triggerStartupSuggestion,
+  // Skills Gap selectors
+  selectSkillsGap,
+  selectSkillsGapLoading,
+  selectSkillsGapError,
+  triggerSkillsGapAnalysis
 } from '@/redux/ai/aiSlice'
 import {
   getCachedCareerPathAPI,
@@ -271,14 +284,24 @@ const LoadingState = ({ isRAG }) => (
 const EmptyState = ({ onRetry, type }) => (
   <div className="flex flex-col items-center justify-center py-8 text-center">
     <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
-      {type === 'rag' ? (
+      {type === 'rag' || type === 'career' ? (
         <Sparkles size={24} className="text-slate-400" />
+      ) : type === 'startup' ? (
+        <Rocket size={24} className="text-slate-400" />
+      ) : type === 'skills' ? (
+        <Brain size={24} className="text-slate-400" />
       ) : (
         <TrendingUp size={24} className="text-slate-400" />
       )}
     </div>
     <p className="text-sm text-muted-foreground mb-3">
-      {type === 'rag' ? 'Chưa có gợi ý từ AI' : 'Chưa có gợi ý lộ trình sự nghiệp'}
+      {type === 'rag' || type === 'career'
+        ? 'Chưa có gợi ý từ AI'
+        : type === 'startup'
+          ? 'Chưa có gợi ý khởi nghiệp'
+          : type === 'skills'
+            ? 'Chưa có phân tích kỹ năng'
+            : 'Chưa có gợi ý lộ trình sự nghiệp'}
     </p>
     {onRetry && (
       <button
@@ -310,6 +333,162 @@ const ErrorState = ({ error, onRetry }) => (
 )
 
 // ============================================================================
+// STARTUP CARD COMPONENT
+// ============================================================================
+
+const StartupCard = ({ idea, index }) => {
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { delay: index * 0.1, duration: 0.3 }
+    }
+  }
+
+  return (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="bg-white rounded-xl border border-border p-4 hover:shadow-md transition-shadow"
+    >
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+          <Rocket size={20} className="text-orange-500" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-medium text-foreground">{idea.name}</h4>
+          <p className="text-sm text-muted-foreground mt-1">{idea.description}</p>
+
+          <div className="grid grid-cols-2 gap-3 mt-3 text-xs">
+            <div className="flex items-center gap-1">
+              <DollarSign size={12} className="text-muted-foreground" />
+              <span className="text-muted-foreground">Vốn:</span>
+              <span className="font-medium">{idea.required_capital}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock size={12} className="text-muted-foreground" />
+              <span className="text-muted-foreground">Thời gian:</span>
+              <span className="font-medium">{idea.timeline}</span>
+            </div>
+          </div>
+
+          {idea.expected_profit && (
+            <p className="text-xs text-green-600 mt-2">
+              Lợi nhuận dự kiến: {idea.expected_profit}
+            </p>
+          )}
+
+          {idea.leverage_experience && (
+            <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+              <p className="text-xs text-slate-600">
+                <span className="font-medium">Tận dụng kinh nghiệm:</span> {idea.leverage_experience}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// ============================================================================
+// SKILLS GAP ANALYSIS COMPONENT
+// ============================================================================
+
+const SkillsGapAnalysis = ({ data }) => {
+  if (!data) return null
+
+  return (
+    <div className="space-y-4">
+      {/* Endangered Skills */}
+      {data.endangered_skills?.length > 0 && (
+        <div className="bg-red-50 rounded-xl border border-red-200 p-4">
+          <h4 className="font-medium text-red-700 mb-2 flex items-center gap-2">
+            <AlertTriangle size={16} /> Kỹ năng đang mất giá
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {data.endangered_skills.map((skill, i) => (
+              <span key={i} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Must Learn Skills */}
+      {data.must_learn_skills?.length > 0 && (
+        <div className="bg-amber-50 rounded-xl border border-amber-200 p-4">
+          <h4 className="font-medium text-amber-700 mb-2 flex items-center gap-2">
+            <Zap size={16} /> Kỹ năng cần học ngay
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {data.must_learn_skills.map((skill, i) => (
+              <span key={i} className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm">
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Future Proof Skills */}
+      {data.future_proof_skills?.length > 0 && (
+        <div className="bg-green-50 rounded-xl border border-green-200 p-4">
+          <h4 className="font-medium text-green-700 mb-2 flex items-center gap-2">
+            <Target size={16} /> Kỹ năng an toàn tương lai
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {data.future_proof_skills.map((skill, i) => (
+              <span key={i} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Learning Path */}
+      {data.learning_path?.length > 0 && (
+        <div className="bg-emerald-50 rounded-xl border border-emerald-200 p-4">
+          <h4 className="font-medium text-emerald-700 mb-3 flex items-center gap-2">
+            <TrendingUp size={16} /> Lộ trình học tập
+          </h4>
+          <div className="space-y-3">
+            {data.learning_path.map((month, i) => (
+              <div key={i} className="flex gap-3">
+                <div className="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center text-xs font-bold text-emerald-700 flex-shrink-0">
+                  T{i + 1}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-emerald-800">
+                    Tháng {month.month || i + 1}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {(month.skills || []).map((skill, j) => (
+                      <span key={j} className="px-2 py-0.5 bg-white text-emerald-700 rounded text-xs border border-emerald-200">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                  {month.resources?.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Tài liệu: {month.resources.length} nguồn
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
@@ -336,16 +515,27 @@ function CareerRecommendations({ className, userProfile }) {
   const ragIsFresh = useSelector(selectRAGIsFresh)
   const ragIsExpired = useSelector(selectRAGIsExpired)
 
+  // Startup state
+  const startupIdeas = useSelector(selectStartupIdeas)
+  const startupLoading = useSelector(selectStartupLoading)
+  const startupError = useSelector(selectStartupError)
+
+  // Skills Gap state
+  const skillsGap = useSelector(selectSkillsGap)
+  const skillsGapLoading = useSelector(selectSkillsGapLoading)
+  const skillsGapError = useSelector(selectSkillsGapError)
+
   // Local state
   const [dataSource, setDataSource] = useState(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastGenerated, setLastGenerated] = useState(null)
-  const [activeTab, setActiveTab] = useState('legacy') // 'legacy' | 'rag'
-  const [useRAG, setUseRAG] = useState(true) // Toggle between legacy and RAG
+  const [activeTab, setActiveTab] = useState('career') // 'career' | 'startup' | 'skills'
 
   // Refs to prevent infinite loops
   const hasFetchedRAG = useRef(false)
   const hasFetchedLegacy = useRef(false)
+  const hasFetchedStartup = useRef(false)
+  const hasFetchedSkills = useRef(false)
   const prevProfileRef = useRef(null)
 
   // Check if user is logged in
@@ -517,36 +707,25 @@ function CareerRecommendations({ className, userProfile }) {
       // Invalidate legacy cache
       await invalidateCareerPathCacheAPI()
 
-      if (useRAG) {
-        // Refresh RAG data
+      if (activeTab === 'career') {
+        // Refresh career data
         const ragProfile = buildProfileData(profileData)
         console.log('[Refresh] Triggering RAG with profile:', ragProfile)
         await dispatch(triggerRAGRecommendation({ profile: ragProfile })).unwrap()
         setDataSource('fresh')
         setLastGenerated(new Date())
-      } else {
-        // Refresh legacy data - needs flat structure
-        const legacyProfile = profileData?.basicInfo
-          ? {
-              age: profileData.basicInfo.age,
-              experiences: profileData.employmentHistory?.map(exp => ({
-                industry: exp.industry,
-                role: exp.position || exp.role,
-                years: exp.duration ? Math.floor(exp.duration / 12) : (exp.years || 0),
-                skills: exp.skills || []
-              })) || [],
-              currentRole: profileData.employmentHistory?.[0]?.position,
-              currentIndustry: profileData.employmentHistory?.[0]?.industry
-            }
-          : {
-              age: profileData.age,
-              experiences: profileData.experiences || [],
-              currentRole: profileData.primary_role || profileData.current_role,
-              currentIndustry: profileData.primary_industry || profileData.current_industry
-            }
-
-        console.log('[Refresh] Triggering legacy with profile:', legacyProfile)
-        await triggerGeneration(legacyProfile)
+      } else if (activeTab === 'startup') {
+        // Refresh startup data
+        const startupProfile = buildProfileData(profileData)
+        console.log('[Refresh] Triggering startup with profile:', startupProfile)
+        hasFetchedStartup.current = false
+        dispatch(triggerStartupSuggestion({ profile: startupProfile }))
+      } else if (activeTab === 'skills') {
+        // Refresh skills gap data
+        const skillsProfile = buildProfileData(profileData)
+        console.log('[Refresh] Triggering skills gap with profile:', skillsProfile)
+        hasFetchedSkills.current = false
+        dispatch(triggerSkillsGapAnalysis({ profile: skillsProfile }))
       }
     } catch (err) {
       console.error('[Refresh] Error:', err)
@@ -555,95 +734,59 @@ function CareerRecommendations({ className, userProfile }) {
     }
   }
 
-  // Auto-fetch on mount - only fetch once
+  // Fetch data based on active tab
   useEffect(() => {
-    // Get profile data - from props first, then from Redux state
-    const profileData = userProfile || careerPath?.user_profile
-
-    // Check if profile has age - handle both formData and direct structure
-    const hasAge = profileData?.basicInfo?.age || profileData?.age
-
-    // Check if profile changed
-    const profileChanged = profileData !== prevProfileRef.current
-
-    // Skip if not logged in
-    if (!isLoggedIn) {
-      console.log('[CareerRecs] User not logged in, skipping fetch')
-      return
-    }
-
-    // Skip if no age
-    if (!hasAge) {
-      console.log('[CareerRecs] No profile age found, skipping fetch')
-      return
-    }
-
-    if (!profileChanged && (hasFetchedRAG.current || hasFetchedLegacy.current)) {
-      console.log('[CareerRecs] Profile unchanged and already fetched, skipping')
-      return
-    }
-
-    // Mark profile as seen
-    prevProfileRef.current = profileData
-
-    if (useRAG) {
-      console.log('[RAG] Fetching RAG data with profile:', profileData)
-      hasFetchedRAG.current = true
-      fetchRAGData(profileData)
-    } else {
-      // Legacy mode needs flat structure
-      const legacyProfile = profileData?.basicInfo
-        ? {
-            age: profileData.basicInfo.age,
-            experiences: profileData.employmentHistory?.map(exp => ({
-              industry: exp.industry,
-              role: exp.position || exp.role,
-              years: exp.duration ? Math.floor(exp.duration / 12) : (exp.years || 0),
-              skills: exp.skills || []
-            })) || [],
-            currentRole: profileData.employmentHistory?.[0]?.position,
-            currentIndustry: profileData.employmentHistory?.[0]?.industry
-          }
-        : {
-            age: profileData.age,
-            experiences: profileData.experiences || [],
-            currentRole: profileData.primary_role || profileData.current_role,
-            currentIndustry: profileData.primary_industry || profileData.current_industry
-          }
-
-      console.log('[Legacy] Fetching career path with profile:', legacyProfile)
-      hasFetchedLegacy.current = true
-      fetchFromCache(legacyProfile)
-    }
-  }, [dispatch, userProfile, careerPath, useRAG, isLoggedIn])
-
-  // Reset fetch flags when mode changes
-  useEffect(() => {
-    // Reset flags when toggling between RAG and Legacy
+    // Reset flags when switching between tabs
     hasFetchedRAG.current = false
     hasFetchedLegacy.current = false
+    hasFetchedStartup.current = false
+    hasFetchedSkills.current = false
     prevProfileRef.current = null
-  }, [useRAG])
+
+    // Fetch data based on active tab
+    const profileData = userProfile || careerPath?.user_profile
+    const hasAge = profileData?.basicInfo?.age || profileData?.age
+
+    if (!isLoggedIn || !hasAge) return
+
+    if (activeTab === 'career' && !hasFetchedRAG.current) {
+      hasFetchedRAG.current = true
+      fetchRAGData(profileData)
+    }
+    if (activeTab === 'startup' && !hasFetchedStartup.current && startupIdeas.length === 0) {
+      hasFetchedStartup.current = true
+      const profile = buildProfileData(profileData)
+      dispatch(triggerStartupSuggestion({ profile }))
+    }
+    if (activeTab === 'skills' && !hasFetchedSkills.current && !skillsGap) {
+      hasFetchedSkills.current = true
+      const profile = buildProfileData(profileData)
+      dispatch(triggerSkillsGapAnalysis({ profile }))
+    }
+  }, [activeTab, isLoggedIn, startupIdeas.length, skillsGap])
 
   const handleRetry = () => {
-    // Reset flags for retry
-    if (useRAG) {
+    // Reset flags for retry based on current tab
+    if (activeTab === 'career') {
       hasFetchedRAG.current = false
-    } else {
       hasFetchedLegacy.current = false
+    } else if (activeTab === 'startup') {
+      hasFetchedStartup.current = false
+    } else if (activeTab === 'skills') {
+      hasFetchedSkills.current = false
     }
     handleRefresh()
   }
 
-  // Determine which loading/error state to show
-  const isLoading = useRAG ? isLoadingRAG : isLoadingLegacy
-  const error = useRAG ? errorRAG : errorLegacy
-  const hasData = useRAG ? hasRAGData : hasLegacyData
+  // Determine which loading/error state to show based on active tab
+  const isLoading = isLoadingRAG || startupLoading || skillsGapLoading
+  const error = errorRAG || startupError || skillsGapError
+  const hasData = hasLegacyData || hasRAGData
 
   if (isLoading) {
     return (
       <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
-        <LoadingState isRAG={useRAG} />
+        <LoadingState isRAG={true} />
       </div>
     )
   }
@@ -675,7 +818,7 @@ function CareerRecommendations({ className, userProfile }) {
   if (!hasData && !careerPath && !ragRecommendation) {
     return (
       <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
-        <EmptyState onRetry={handleRetry} type={useRAG ? 'rag' : 'legacy'} />
+        <EmptyState onRetry={handleRetry} type={activeTab} />
       </div>
     )
   }
@@ -683,7 +826,7 @@ function CareerRecommendations({ className, userProfile }) {
   return (
     <div className={cn('space-y-6', className)}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
             <TrendingUp size={20} className="text-primary" />
@@ -696,65 +839,53 @@ function CareerRecommendations({ className, userProfile }) {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Tab Toggle */}
-          <div className="flex bg-slate-100 rounded-lg p-1">
-            <button
-              onClick={() => {
-                setUseRAG(false)
-                hasFetchedLegacy.current = false
-              }}
-              className={cn(
-                'px-3 py-1 text-xs rounded-md transition-colors',
-                !useRAG ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              Rule-based
-            </button>
-            <button
-              onClick={() => {
-                setUseRAG(true)
-                hasFetchedRAG.current = false
-              }}
-              className={cn(
-                'px-3 py-1 text-xs rounded-md transition-colors flex items-center gap-1',
-                useRAG ? 'bg-emerald-500 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <Sparkles size={12} />
-              AI RAG
-            </button>
-          </div>
-
-          {dataSource && (
-            <span className="text-xs text-muted-foreground bg-slate-100 px-2 py-1 rounded">
-              {dataSource === 'cache' ? 'Từ cache' : dataSource === 'database' ? 'Từ DB' : 'Mới tạo'}
-            </span>
-          )}
-          {useRAG && ragIsFresh !== null && (
-            <span className={cn(
-              'text-xs px-2 py-1 rounded',
-              ragIsFresh ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-            )}>
-              {ragIsFresh ? 'Fresh' : 'Expired'}
-            </span>
-          )}
+        {/* Tab Navigation */}
+        <div className="flex border-b border-border">
           <button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
+            onClick={() => setActiveTab('career')}
             className={cn(
-              'p-2 rounded-lg hover:bg-slate-100 transition-colors',
-              isRefreshing && 'opacity-50 cursor-not-allowed'
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
+              activeTab === 'career'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             )}
-            title="Làm mới"
           >
-            <RefreshCw size={16} className={cn('text-muted-foreground', isRefreshing && 'animate-spin')} />
+            <Route size={14} />
+            Lộ trình nghề nghiệp
+          </button>
+
+          <button
+            onClick={() => setActiveTab('startup')}
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
+              activeTab === 'startup'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Rocket size={14} />
+            Khởi nghiệp
+          </button>
+
+          <button
+            onClick={() => setActiveTab('skills')}
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
+              activeTab === 'skills'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Brain size={14} />
+            Phân tích Kỹ năng
           </button>
         </div>
       </div>
 
-      {/* RAG Mode */}
-      {useRAG && (
+      {/* Tab Content */}
+
+      {/* Tab 1: Lộ trình nghề nghiệp */}
+      {activeTab === 'career' && (
         <div className="space-y-6">
           {/* RAG Sources */}
           {ragSources.length > 0 && (
@@ -830,89 +961,70 @@ function CareerRecommendations({ className, userProfile }) {
               Phân tích RAG lúc: {new Date(ragGeneratedAt).toLocaleString('vi-VN')}
             </p>
           )}
-        </div>
-      )}
 
-      {/* Legacy Mode */}
-      {!useRAG && (
-        <div className="space-y-6">
-          {/* Management Track */}
-          {managementTrack.length > 0 && (
-            <div>
-              <SectionHeader
-                title="Thăng tiến trong nghành"
-                subtitle="Lộ trình phát triển sự nghiệp"
-                icon={TrendingUp}
-                count={managementTrack.length}
-              />
-              <div className="space-y-3">
-                {managementTrack.map((path, index) => (
-                  <PathCard key={`mgmt-${index}`} path={path} type="management" index={index} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Age Transition */}
-          {ageTransition.length > 0 && (
-            <div>
-              <SectionHeader
-                title="Chuyển đổi nghề nghiệp"
-                subtitle="Phù hợp với độ tuổi"
-                icon={AlertTriangle}
-                count={ageTransition.length}
-              />
-              <div className="space-y-3">
-                {ageTransition.map((path, index) => (
-                  <PathCard key={`age-${index}`} path={path} type="age_transition" index={index} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Skill Upgrades */}
-          {skillUpgrades.length > 0 && (
-            <div>
-              <SectionHeader
-                title="Nâng cấp kỹ năng"
-                subtitle="Cần thiết để thăng tiến"
-                icon={Zap}
-                count={skillUpgrades.length}
-              />
-              <div className="space-y-3">
-                {skillUpgrades.map((path, index) => (
-                  <PathCard key={`skill-${index}`} path={path} type="skill_upgrade" index={index} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* AI Advice */}
-          {careerPath?.advice?.length > 0 && (
-            <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
-              <h4 className="font-medium text-foreground mb-2 flex items-center gap-2">
-                <Target size={16} className="text-primary" />
-                Lời khuyên từ AI
-              </h4>
-              <ul className="space-y-2">
-                {careerPath.advice.slice(0, 3).map((advice, i) => (
-                  <li key={i} className="text-sm text-foreground flex items-start gap-2">
-                    <span className="text-primary font-medium">{i + 1}.</span>
-                    {advice}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Generated timestamp */}
-          {careerPath?.generated_at && (
-            <p className="text-xs text-muted-foreground text-center">
-              Phân tích lúc: {new Date(careerPath.generated_at).toLocaleString('vi-VN')}
-            </p>
+          {/* Show empty state if no RAG data */}
+          {bestFits.length === 0 && incomeBoost.length === 0 && progression.length === 0 && !isLoadingRAG && !errorRAG && (
+            <EmptyState type="rag" />
           )}
         </div>
       )}
+
+      {/* Tab 2: Khởi nghiệp */}
+      {activeTab === 'startup' && (
+        <div className="space-y-4">
+          {startupLoading ? (
+            <LoadingState isRAG={false} />
+          ) : startupError ? (
+            <ErrorState error={startupError} onRetry={handleRetry} />
+          ) : startupIdeas.length > 0 ? (
+            <>
+              <div className="text-sm text-muted-foreground mb-4">
+                Dựa trên kinh nghiệm và kỹ năng của bạn, đây là những gợi ý khởi nghiệp phù hợp:
+              </div>
+              {startupIdeas.map((idea, i) => (
+                <StartupCard key={i} idea={idea} index={i} />
+              ))}
+            </>
+          ) : (
+            <EmptyState type="startup" />
+          )}
+        </div>
+      )}
+
+      {/* Tab 3: Phân tích Kỹ năng */}
+      {activeTab === 'skills' && (
+        <div className="space-y-4">
+          {skillsGapLoading ? (
+            <LoadingState isRAG={false} />
+          ) : skillsGapError ? (
+            <ErrorState error={skillsGapError} onRetry={handleRetry} />
+          ) : skillsGap ? (
+            <>
+              <div className="text-sm text-muted-foreground mb-4">
+                Phân tích kỹ năng của bạn để xác định những gì cần học:
+              </div>
+              <SkillsGapAnalysis data={skillsGap} />
+            </>
+          ) : (
+            <EmptyState type="skills" />
+          )}
+        </div>
+      )}
+
+      {/* Refresh button */}
+      <div className="flex justify-center pt-4 border-t border-border">
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing || isLoadingRAG || startupLoading || skillsGapLoading}
+          className={cn(
+            'flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-slate-100 rounded-lg transition-colors',
+            (isRefreshing || isLoadingRAG || startupLoading || skillsGapLoading) && 'opacity-50 cursor-not-allowed'
+          )}
+        >
+          <RefreshCw size={14} className={cn(isRefreshing && 'animate-spin')} />
+          Làm mới dữ liệu
+        </button>
+      </div>
     </div>
   )
 }

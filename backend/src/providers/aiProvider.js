@@ -822,6 +822,44 @@ const response = await aiApiClient.post('/api/v1/ai/recommend-jobs', payload)
       throw error
     }
   }
+
+  /**
+   * Get RAG-based startup suggestions
+   * POST /api/v1/ai/rag/startup-suggestions
+   * @param {Object} profile - User profile data
+   * @param {string} budget - Budget for startup
+   * @returns {Promise<Object>} Startup suggestions
+   */
+  async getRAGStartupSuggestions(profile, budget = '50-100 triệu') {
+    try {
+      const response = await aiApiClient.post('/api/v1/ai/rag/startup-suggestions', {
+        profile,
+        budget
+      })
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] RAG startup suggestions error:', error.message)
+      throw error
+    }
+  }
+
+  /**
+   * Get RAG-based skills gap analysis
+   * POST /api/v1/ai/rag/skills-gap
+   * @param {Object} profile - User profile data
+   * @returns {Promise<Object>} Skills gap analysis
+   */
+  async getRAGSkillsGap(profile) {
+    try {
+      const response = await aiApiClient.post('/api/v1/ai/rag/skills-gap', {
+        profile
+      })
+      return response.data
+    } catch (error) {
+      console.error('[AIProvider] RAG skills gap error:', error.message)
+      throw error
+    }
+  }
 }
 
 // Export singleton instance
