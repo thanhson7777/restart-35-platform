@@ -23,7 +23,9 @@ import {
   getCachedRAGRecommendationAPI,
   refreshRAGRecommendationAPI,
   getRAGSourcesAPI,
-  getRAGHealthAPI
+  getRAGHealthAPI,
+  triggerStartupSuggestionAPI,
+  triggerSkillsGapAnalysisAPI
 } from '~/apis/aiAPI'
 
 /**
@@ -394,6 +396,42 @@ export const fetchRAGHealth = createAsyncThunk(
 )
 
 /**
+ * Get RAG-based startup suggestions
+ * POST /v1/ai/rag/startup-suggestions
+ */
+export const triggerStartupSuggestion = createAsyncThunk(
+  'ai/triggerStartupSuggestion',
+  async ({ profile, budget = '50-100 triệu' }, { rejectWithValue }) => {
+    try {
+      const response = await triggerStartupSuggestionAPI(profile, budget)
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể lấy gợi ý khởi nghiệp'
+      )
+    }
+  }
+)
+
+/**
+ * Get RAG-based skills gap analysis
+ * POST /v1/ai/rag/skills-gap
+ */
+export const triggerSkillsGapAnalysis = createAsyncThunk(
+  'ai/triggerSkillsGapAnalysis',
+  async ({ profile }, { rejectWithValue }) => {
+    try {
+      const response = await triggerSkillsGapAnalysisAPI(profile)
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể phân tích kỹ năng'
+      )
+    }
+  }
+)
+
+/**
  * Risk Level Constants
  */
 export const RISK_LEVELS = {
@@ -500,7 +538,17 @@ const initialState = {
   ragRefreshCount: 0,
   ragExpiresAt: null,
   ragIsFresh: null,               // boolean - is data fresh or expired
-  ragIsExpired: null               // boolean - is data expired
+  ragIsExpired: null,               // boolean - is data expired
+
+  // Startup state
+  startupIdeas: [],
+  startupLoading: false,
+  startupError: null,
+
+  // Skills Gap state
+  skillsGap: null,
+  skillsGapLoading: false,
+  skillsGapError: null
 }
 
 /**
@@ -927,7 +975,46 @@ const aiSlice = createSlice({
       .addCase(fetchRAGHealth.fulfilled, (state, action) => {
         state.ragHealth = action.payload
       })
-}
+
+    /**
+     * triggerStartupSuggestion
+     */
+    builder
+      .addCase(triggerStartupSuggestion.pending, (state) => {
+        state.startupLoading = true
+        state.startupError = null
+      })
+      .addCase(triggerStartupSuggestion.fulfilled, (state, action) => {
+        state.startupLoading = false
+        const payload = action.payload
+        if (payload?.success && payload?.startup_ideas) {
+          state.startupIdeas = payload.startup_ideas
+        } else if (Array.isArray(payload)) {
+          state.startupIdeas = payload
+        }
+      })
+      .addCase(triggerStartupSuggestion.rejected, (state, action) => {
+        state.startupLoading = false
+        state.startupError = action.payload
+      })
+
+    /**
+     * triggerSkillsGapAnalysis
+     */
+    builder
+      .addCase(triggerSkillsGapAnalysis.pending, (state) => {
+        state.skillsGapLoading = true
+        state.skillsGapError = null
+      })
+      .addCase(triggerSkillsGapAnalysis.fulfilled, (state, action) => {
+        state.skillsGapLoading = false
+        state.skillsGap = action.payload
+      })
+      .addCase(triggerSkillsGapAnalysis.rejected, (state, action) => {
+        state.skillsGapLoading = false
+        state.skillsGapError = action.payload
+      })
+  }
 })
 
 /**
@@ -1023,5 +1110,15 @@ export const selectRAGIsExpired = (state) => state.ai.ragIsExpired
 export const selectBestFits = (state) => state.ai.ragRecommendation?.best_fits ?? []
 export const selectIncomeBoost = (state) => state.ai.ragRecommendation?.income_boost ?? []
 export const selectProgression = (state) => state.ai.ragRecommendation?.progression ?? []
+
+// Startup selectors
+export const selectStartupIdeas = (state) => state.ai.startupIdeas
+export const selectStartupLoading = (state) => state.ai.startupLoading
+export const selectStartupError = (state) => state.ai.startupError
+
+// Skills Gap selectors
+export const selectSkillsGap = (state) => state.ai.skillsGap
+export const selectSkillsGapLoading = (state) => state.ai.skillsGapLoading
+export const selectSkillsGapError = (state) => state.ai.skillsGapError
 
 export default aiSlice.reducer

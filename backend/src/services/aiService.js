@@ -1055,6 +1055,37 @@ const getRAGHealth = async () => {
   }
 }
 
+/**
+ * Get RAG-based startup suggestions
+ * @param {Object} profile - User profile data
+ * @param {string} budget - Budget for startup
+ * @returns {Promise<Object>} - Startup suggestions
+ */
+const getRAGStartupSuggestions = async (profile, budget = '50-100 triệu') => {
+  try {
+    const result = await aiProvider.getRAGStartupSuggestions(profile, budget)
+    return result
+  } catch (error) {
+    console.error('[AIService] getRAGStartupSuggestions error:', error)
+    throw error
+  }
+}
+
+/**
+ * Get RAG-based skills gap analysis
+ * @param {Object} profile - User profile data
+ * @returns {Promise<Object>} - Skills gap analysis
+ */
+const getRAGSkillsGap = async (profile) => {
+  try {
+    const result = await aiProvider.getRAGSkillsGap(profile)
+    return result
+  } catch (error) {
+    console.error('[AIService] getRAGSkillsGap error:', error)
+    throw error
+  }
+}
+
 // Export các functions
 export const aiService = {
   getRecommendedJobs,
@@ -1080,5 +1111,8 @@ export const aiService = {
   getCachedRAGRecommendation,
   refreshRAGRecommendation,
   getRAGSources,
-  getRAGHealth
+  getRAGHealth,
+  // RAG Startup & Skills Gap
+  getRAGStartupSuggestions,
+  getRAGSkillsGap
 }

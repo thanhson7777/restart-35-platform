@@ -263,4 +263,28 @@ Router.get('/rag/sources', aiController.getRAGSources)
  */
 Router.get('/rag/health', aiController.getRAGHealth)
 
+/**
+ * @route   POST /v1/ai/rag/startup-suggestions
+ * @desc    Get RAG-based startup suggestions
+ * @access  Private (requires auth)
+ * @body    { profile: {...}, budget: "50-100 triệu" }
+ */
+Router.post(
+  '/rag/startup-suggestions',
+  authMiddleware.isAuthorized,
+  aiController.getRAGStartupSuggestions
+)
+
+/**
+ * @route   POST /v1/ai/rag/skills-gap
+ * @desc    Get RAG-based skills gap analysis
+ * @access  Private (requires auth)
+ * @body    { profile: {...} }
+ */
+Router.post(
+  '/rag/skills-gap',
+  authMiddleware.isAuthorized,
+  aiController.getRAGSkillsGap
+)
+
 export const aiRoute = Router
