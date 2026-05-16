@@ -87,4 +87,20 @@ Router.get(
   enrollmentController.getAllEnrollments
 )
 
+// Lấy thống kê admin
+Router.get(
+  '/admin/stats',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  enrollmentController.getAdminStats
+)
+
+// Export enrollments
+Router.get(
+  '/admin/export',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  enrollmentController.exportEnrollments
+)
+
 export const enrollmentRoute = Router

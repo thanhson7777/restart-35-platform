@@ -17,6 +17,10 @@ import ScholarshipPage from '@/pages/ScholarshipPage';
 import ScholarshipDetailPage from '@/pages/ScholarshipDetailPage';
 import MyApplicationsPage from '@/pages/MyApplicationsPage';
 import ApplicationDetailPage from '@/pages/ApplicationDetailPage';
+import AdminDashboardPage from '@/pages/AdminDashboardPage';
+import AdminUsersPage from '@/pages/AdminUsersPage';
+import AdminCoursesPage from '@/pages/AdminCoursesPage';
+import AdminEnrollmentsPage from '@/pages/admin/AdminEnrollmentsPage';
 import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
 
 function App() {
@@ -60,6 +64,13 @@ function App() {
       <Routes>
         {/* Auth Page */}
         <Route path="/auth" element={<AuthPage />} />
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+        <Route path="/admin/courses" element={<AdminCoursesPage />} />
+        <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
+        <Route path="/admin/applications" element={<AdminDashboardPage />} />
+        <Route path="/admin/scholarships" element={<AdminDashboardPage />} />
         {/* Worker Profile Page */}
         <Route path="/worker-profile" element={<WorkerProfilePage />} />
         {/* Jobs Page */}

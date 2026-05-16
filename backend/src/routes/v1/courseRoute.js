@@ -120,6 +120,14 @@ Router.put(
 
 // ============ ADMIN ROUTES (Auth + Admin Required) ============
 
+// Thống kê khóa học
+Router.get(
+  '/admin/stats',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  courseController.getAdminCourseStats
+)
+
 // Danh sách khóa học chờ duyệt
 Router.get(
   '/admin/pending',
@@ -127,6 +135,15 @@ Router.get(
   authMiddleware.isAuthorizedAdmin,
   courseValidation.queryCourses,
   courseController.getPendingCourses
+)
+
+// Danh sách tất cả khóa học (admin)
+Router.get(
+  '/admin/all',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  courseValidation.queryCourses,
+  courseController.getAdminCourses
 )
 
 // Duyệt/từ chối khóa học

@@ -355,7 +355,7 @@ const submitForApproval = async (courseId, userId) => {
   } catch (error) { throw error }
 }
 
-const approveCourse = async (courseId, adminId, rejectionReason = null) => {
+const approveCourse = async (courseId, adminId, status = 'approved', rejectionReason = null) => {
   try {
     const course = await courseModel.findOneById(courseId)
     if (!course) {
@@ -366,8 +366,8 @@ const approveCourse = async (courseId, adminId, rejectionReason = null) => {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Chỉ khóa học đang chờ duyệt mới có thể duyệt!')
     }
 
-    const status = rejectionReason ? COURSE_STATUS.REJECTED : COURSE_STATUS.APPROVED
-    const updatedCourse = await courseModel.updateStatus(courseId, status, adminId, rejectionReason)
+    const finalStatus = status === 'rejected' ? COURSE_STATUS.REJECTED : COURSE_STATUS.APPROVED
+    const updatedCourse = await courseModel.updateStatus(courseId, finalStatus, adminId, rejectionReason)
 
     return updatedCourse
   } catch (error) { throw error }
@@ -394,6 +394,85 @@ const getPendingCourses = async (queryParams) => {
             displayName: providerInfo.displayName,
             email: providerInfo.email,
             avatar: providerInfo.avatar
+          } : null
+        }
+      })
+    )
+
+    return {
+      courses: enrichedCourses,
+      pagination: {
+        totalRecords: totalCourses,
+        totalPages: Math.ceil(totalCourses / recordLimit),
+        currentPage,
+        limit: recordLimit
+      }
+    }
+  } catch (error) { throw error }
+}
+
+const getAdminCourseStats = async () => {
+  try {
+    const stats = await courseModel.getAdminCourseStats()
+    return stats
+  } catch (error) { throw error }
+}
+
+const getAdminCourses = async (queryParams) => {
+  try {
+    const {
+      page = DEFAULT_PAGE,
+      limit = DEFAULT_ITEM_PER_PAGE,
+      search = '',
+      status,
+      category,
+      level,
+      location,
+      isFree,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = queryParams
+
+    const currentPage = parseInt(page, 10) || DEFAULT_PAGE
+    const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
+    const skip = (currentPage - 1) * recordLimit
+
+    // Build filters
+    const filters = {}
+    if (status) filters.status = status
+    if (category) filters.category = category
+    if (level) filters.level = level
+    if (location) filters.location = location
+    if (isFree !== undefined) filters.isFree = isFree
+
+    // Build sort options
+    const sortOptions = {}
+    sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1
+
+    const { courses, totalCourses } = await courseModel.getAdminCourses(
+      search,
+      filters,
+      skip,
+      recordLimit,
+      sortOptions
+    )
+
+    // Enrich with provider info
+    const enrichedCourses = await Promise.all(
+      courses.map(async (course) => {
+        const providerInfo = await userModel.findOneById(course.providerId)
+        const categoryInfo = await categoryModel.findOneById(course.categoryId)
+        return {
+          ...course,
+          provider: providerInfo ? {
+            _id: providerInfo._id,
+            displayName: providerInfo.displayName,
+            email: providerInfo.email,
+            avatar: providerInfo.avatar
+          } : null,
+          category: categoryInfo ? {
+            _id: categoryInfo._id,
+            name: categoryInfo.name
           } : null
         }
       })
@@ -531,6 +610,8 @@ export const courseService = {
   getRelatedCourses,
   getCoursesByCategory,
   getPendingCourses,
+  getAdminCourseStats,
+  getAdminCourses,
 
   // Update
   updateCourse,

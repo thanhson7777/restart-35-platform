@@ -174,6 +174,11 @@ export const getUserByIdAPI = async (id) => {
   return response.data
 }
 
+export const getUserStatsAPI = async () => {
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/users/stats`)
+  return response.data
+}
+
 export const updateUserStatusAPI = async (id, data) => {
   const response = await authorizeAxiosInstance.patch(`${API_ROOT}/v1/users/${id}/status`, data)
   return response.data

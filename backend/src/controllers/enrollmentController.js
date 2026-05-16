@@ -168,6 +168,91 @@ const getEnrollmentStats = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ============ GET ADMIN STATS ============
+const getAdminStats = async (req, res, next) => {
+  try {
+    const stats = await enrollmentService.getAdminStats()
+    const monthlyTrend = await enrollmentService.getMonthlyTrend(6)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thống kê thành công!',
+      data: {
+        ...stats,
+        monthlyTrend
+      }
+    })
+  } catch (error) { next(error) }
+}
+
+// ============ EXPORT ENROLLMENTS ============
+const exportEnrollments = async (req, res, next) => {
+  try {
+    const { format = 'csv', status, courseId, startDate, endDate } = req.query
+
+    const filters = {}
+    if (status) filters.status = status
+    if (courseId) filters.courseId = courseId
+    if (startDate) filters.enrolledAt = { $gte: new Date(startDate) }
+    if (endDate) filters.enrolledAt = { ...filters.enrolledAt, $lte: new Date(endDate) }
+
+    const enrollments = await enrollmentService.getEnrollmentsForExport(filters)
+
+    // Convert to CSV
+    const headers = [
+      'ID', 'Họ tên', 'Email', 'Khóa học', 'Trạng thái',
+      'Tiến độ (%)', 'Học phí', 'Đã thanh toán', 'Còn nợ',
+      'Ngày đăng ký', 'Ngày bắt đầu', 'Ngày hoàn thành', 'Nguồn'
+    ]
+
+    const rows = enrollments.map(e => [
+      e.enrollmentId,
+      e.userName,
+      e.userEmail,
+      e.courseTitle,
+      e.status,
+      e.progress,
+      e.totalFee,
+      e.paidFee,
+      e.pendingFee,
+      e.enrolledAt ? new Date(e.enrolledAt).toLocaleDateString('vi-VN') : '',
+      e.startDate ? new Date(e.startDate).toLocaleDateString('vi-VN') : '',
+      e.completedAt ? new Date(e.completedAt).toLocaleDateString('vi-VN') : '',
+      e.source
+    ])
+
+    if (format === 'csv') {
+      const csvContent = [headers, ...rows]
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n')
+
+      res.setHeader('Content-Type', 'text/csv')
+      res.setHeader('Content-Disposition', `attachment; filename=enrollments_${Date.now()}.csv`)
+      return res.send(csvContent)
+    }
+
+    if (format === 'xlsx') {
+      const XLSX = await import('xlsx')
+      const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows])
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Enrollments')
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      res.setHeader('Content-Disposition', `attachment; filename=enrollments_${Date.now()}.xlsx`)
+      return res.send(buffer)
+    }
+
+    // Default to JSON
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Xuất dữ liệu thành công!',
+      data: enrollments,
+      count: enrollments.length
+    })
+  } catch (error) { next(error) }
+}
+
 export const enrollmentController = {
   // Worker
   enrollCourse,
@@ -182,5 +267,7 @@ export const enrollmentController = {
   getEnrollmentStats,
 
   // Admin
-  getAllEnrollments
+  getAllEnrollments,
+  getAdminStats,
+  exportEnrollments
 }

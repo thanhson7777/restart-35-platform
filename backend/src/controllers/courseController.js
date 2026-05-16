@@ -159,8 +159,8 @@ const approveCourse = async (req, res, next) => {
   try {
     const courseId = req.params.id
     const adminId = req.user._id.toString()
-    const { rejectionReason } = req.body
-    const course = await courseService.approveCourse(courseId, adminId, rejectionReason)
+    const { status, rejectionReason } = req.body
+    const course = await courseService.approveCourse(courseId, adminId, status, rejectionReason)
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -181,6 +181,31 @@ const getPendingCourses = async (req, res, next) => {
       success: true,
       message: 'Lấy danh sách khóa học chờ duyệt thành công!',
       data: result.courses,
+      pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
+const getAdminCourseStats = async (req, res, next) => {
+  try {
+    const stats = await courseService.getAdminCourseStats()
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thống kê khóa học thành công!',
+      data: stats
+    })
+  } catch (error) { next(error) }
+}
+
+const getAdminCourses = async (req, res, next) => {
+  try {
+    const result = await courseService.getAdminCourses(req.query)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách khóa học thành công!',
+      courses: result.courses,
       pagination: result.pagination
     })
   } catch (error) { next(error) }
@@ -223,6 +248,8 @@ export const courseController = {
 
   // Admin
   getPendingCourses,
+  getAdminCourseStats,
+  getAdminCourses,
 
   // Delete
   deleteCourse

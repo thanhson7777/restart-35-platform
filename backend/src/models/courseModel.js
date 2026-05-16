@@ -496,6 +496,85 @@ const getCourseStats = async (courseId) => {
     throw new Error(error.message)
   }
 }
+
+// Admin aggregate functions
+const getAdminCourseStats = async () => {
+  try {
+    const stats = await GET_DB().collection(COURSE_COLLECTION_NAME).aggregate([
+      { $match: { _destroy: false } },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ]).toArray()
+
+    const result = {
+      total: 0,
+      draft: 0,
+      pending: 0,
+      approved: 0,
+      rejected: 0,
+      archived: 0
+    }
+
+    stats.forEach(stat => {
+      result[stat._id] = stat.count
+      result.total += stat.count
+    })
+
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const getAdminCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, sort = { createdAt: -1 }) => {
+  try {
+    const matchStage = {
+      _destroy: false
+    }
+
+    // Search by title/description
+    if (searchQuery) {
+      matchStage.$or = [
+        { title: { $regex: searchQuery, $options: 'i' } },
+        { description: { $regex: searchQuery, $options: 'i' } }
+      ]
+    }
+
+    // Apply filters
+    if (filters.status) {
+      matchStage.status = filters.status
+    }
+    if (filters.category) {
+      matchStage.categoryId = filters.category
+    }
+    if (filters.level) {
+      matchStage.level = filters.level
+    }
+    if (filters.location) {
+      matchStage['location.type'] = filters.location
+    }
+    if (filters.isFree !== undefined) {
+      matchStage.isFree = filters.isFree
+    }
+
+    const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find(matchStage)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+    
+    const totalCourses = await GET_DB().collection(COURSE_COLLECTION_NAME).countDocuments(matchStage)
+    
+    return { courses, totalCourses }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
 export const courseModel = {
   COURSE_COLLECTION_NAME,
   COURSE_COLLECTION_SCHEMA,
@@ -516,6 +595,8 @@ export const courseModel = {
   findNew,
   findRelated,
   getPendingCourses,
+  getAdminCourseStats,
+  getAdminCourses,
   // Update
   update,
   updateStatus,

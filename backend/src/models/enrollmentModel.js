@@ -489,6 +489,148 @@ const getOverallStats = async () => {
   }
 }
 
+// ============ ADMIN STATS ============
+const getAdminStats = async () => {
+  try {
+    // Total by status
+    const statusPipeline = [
+      { $match: { _destroy: false } },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]
+    const statusStats = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(statusPipeline).toArray()
+
+    const byStatus = {}
+    let total = 0
+    statusStats.forEach(stat => {
+      byStatus[stat._id] = stat.count
+      total += stat.count
+    })
+
+    // Revenue stats
+    const revenuePipeline = [
+      { $match: { _destroy: false } },
+      { $group: {
+        _id: null,
+        totalFee: { $sum: '$fee.total' },
+        totalPaid: { $sum: '$fee.paid' },
+        totalPending: { $sum: '$fee.pending' }
+      }}
+    ]
+    const revenueStats = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(revenuePipeline).toArray()
+    const revenue = revenueStats[0] || { totalFee: 0, totalPaid: 0, totalPending: 0 }
+
+    // Top courses by enrollment count
+    const topCoursesPipeline = [
+      { $match: { _destroy: false } },
+      { $group: { _id: '$courseId', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]
+    const topCourses = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(topCoursesPipeline).toArray()
+
+    // Get course details for top courses
+    const topCoursesWithDetails = await Promise.all(
+      topCourses.map(async (item) => {
+        const course = await courseModel.findOneById(item._id)
+        return {
+          courseId: item._id,
+          title: course?.title || 'Unknown',
+          count: item.count
+        }
+      })
+    )
+
+    return {
+      total,
+      byStatus,
+      revenue: {
+        total: revenue.totalFee,
+        paid: revenue.totalPaid,
+        pending: revenue.totalPending
+      },
+      topCourses: topCoursesWithDetails
+    }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const getMonthlyTrend = async (months = 6) => {
+  try {
+    const startDate = new Date()
+    startDate.setMonth(startDate.getMonth() - months)
+
+    const pipeline = [
+      {
+        $match: {
+          _destroy: false,
+          enrolledAt: { $gte: startDate }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$enrolledAt' },
+            month: { $month: '$enrolledAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1 } }
+    ]
+
+    const trend = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(pipeline).toArray()
+
+    return trend.map(item => ({
+      year: item._id.year,
+      month: item._id.month,
+      count: item.count,
+      label: `${item._id.year}-${String(item._id.month).padStart(2, '0')}`
+    }))
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const getEnrollmentsForExport = async (filters = {}) => {
+  try {
+    const query = { _destroy: false, ...filters }
+
+    const enrollments = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME)
+      .find(query)
+      .sort({ enrolledAt: -1 })
+      .toArray()
+
+    const enrichedEnrollments = await Promise.all(
+      enrollments.map(async (enrollment) => {
+        const course = await courseModel.findOneById(enrollment.courseId)
+        const user = await userModel.findOneById(enrollment.userId)
+        return {
+          enrollmentId: enrollment._id,
+          userId: enrollment.userId,
+          userName: user?.displayName || 'N/A',
+          userEmail: user?.email || 'N/A',
+          courseId: enrollment.courseId,
+          courseTitle: course?.title || 'N/A',
+          status: enrollment.status,
+          progress: enrollment.progress?.percentage || 0,
+          totalFee: enrollment.fee?.total || 0,
+          paidFee: enrollment.fee?.paid || 0,
+          pendingFee: enrollment.fee?.pending || 0,
+          enrolledAt: enrollment.enrolledAt,
+          startDate: enrollment.startDate,
+          completedAt: enrollment.completedAt,
+          source: enrollment.source
+        }
+      })
+    )
+
+    return enrichedEnrollments
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 export const enrollmentModel = {
   ENROLLMENT_COLLECTION_NAME,
   ENROLLMENT_COLLECTION_SCHEMA,
@@ -517,5 +659,10 @@ export const enrollmentModel = {
   // Aggregate
   getStatsByCourse,
   getStatsByUser,
-  getOverallStats
+  getOverallStats,
+
+  // Admin
+  getAdminStats,
+  getMonthlyTrend,
+  getEnrollmentsForExport
 }

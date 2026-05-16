@@ -646,6 +646,19 @@ const checkCapacity = async (course) => {
   }
 }
 
+// ============ GET ADMIN STATS ============
+const getAdminStats = async () => {
+  return await enrollmentModel.getAdminStats()
+}
+
+const getMonthlyTrend = async (months = 6) => {
+  return await enrollmentModel.getMonthlyTrend(months)
+}
+
+const getEnrollmentsForExport = async (filters = {}) => {
+  return await enrollmentModel.getEnrollmentsForExport(filters)
+}
+
 export const enrollmentService = {
   // Core
   enrollCourse,
@@ -661,6 +674,11 @@ export const enrollmentService = {
 
   // Stats
   getEnrollmentStats,
+
+  // Admin
+  getAdminStats,
+  getMonthlyTrend,
+  getEnrollmentsForExport,
 
   // Helpers
   checkEligibility,

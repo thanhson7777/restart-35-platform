@@ -51,6 +51,13 @@ Router.route('/')
     userController.getUsers
   )
 
+Router.route('/stats')
+  .get(
+    authMiddleware.isAuthorized,
+    authMiddleware.isAuthorizedAdmin,
+    userController.getUserStats
+  )
+
 Router.route('/:id/status')
   .patch(
     authMiddleware.isAuthorized,
