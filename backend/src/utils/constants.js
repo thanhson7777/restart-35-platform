@@ -137,6 +137,51 @@ export const SCHOLARSHIP_COVERAGE = {
   NONE: 'none'
 }
 
+// ============ SCHOLARSHIP STATUS ============
+export const SCHOLARSHIP_STATUS = {
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  PAUSED: 'paused',
+  EXHAUSTED: 'exhausted',
+  EXPIRED: 'expired'
+}
+
+// ============ APPLICATION STATUS ============
+export const APPLICATION_STATUS = {
+  DRAFT: 'draft',
+  SUBMITTED: 'submitted',
+  REVIEWING: 'reviewing',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  WAITLIST: 'waitlist'
+}
+
+// ============ DISBURSEMENT STATUS ============
+export const DISBURSEMENT_STATUS = {
+  PENDING: 'pending',
+  DISBURSED: 'disbursed',
+  CLAWBACK: 'clawback',
+  REFUNDED: 'refunded'
+}
+
+// ============ APPEAL STATUS ============
+export const APPEAL_STATUS = {
+  PENDING: 'pending',
+  ACCEPTED: 'accepted',
+  REJECTED: 'rejected'
+}
+
+// ============ DOCUMENT TYPES ============
+export const DOCUMENT_TYPES = {
+  INCOME_PROOF: 'income_proof',
+  ID_CARD: 'id_card',
+  HOUSEHOLD_REGISTER: 'household_register',
+  BIRTH_CERTIFICATE: 'birth_certificate',
+  MARRIAGE_CERTIFICATE: 'marriage_certificate',
+  EMPLOYMENT_CONTRACT: 'employment_contract',
+  UNEMPLOYMENT_PROOF: 'unemployment_proof'
+}
+
 // ============ SCHEDULE STATUS ============
 export const SCHEDULE_STATUS = {
   DRAFT: 'draft',

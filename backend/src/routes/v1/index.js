@@ -12,6 +12,8 @@ import { enrollmentRoute } from './enrollmentRoute'
 import { scheduleRoute } from './scheduleRoute'
 import { reviewRoute } from './reviewRoute'
 import { categoryRoute } from './categoryRoute'
+import { scholarshipRoute } from './scholarshipRoute'
+import { applicationRoute } from './applicationRoute'
 
 const Router = express.Router()
 
@@ -29,7 +31,9 @@ Router.get('/', (req, res) => {
       enrollments: '/v1/enrollments',
       schedules: '/v1/schedules',
       reviews: '/v1/reviews',
-      categories: '/v1/categories'
+      categories: '/v1/categories',
+      scholarships: '/v1/scholarships',
+      applications: '/v1/applications'
     }
   })
 })
@@ -45,5 +49,7 @@ Router.use('/enrollments', enrollmentRoute)
 Router.use('/schedules', scheduleRoute)
 Router.use('/reviews', reviewRoute)
 Router.use('/categories', categoryRoute)
+Router.use('/scholarships', scholarshipRoute)
+Router.use('/applications', applicationRoute)
 
 export const APIS_V1 = Router

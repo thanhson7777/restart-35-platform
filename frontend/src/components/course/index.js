@@ -1,4 +1,5 @@
-// Placeholder exports for course components
-// These are referenced in App.jsx but components are not yet implemented
-
-export const CourseCard = () => null;
+// Course components
+export { CourseCard } from './CourseCard';
+export { CourseCardSkeleton } from './CourseCardSkeleton';
+export { CourseFilters } from './CourseFilters';
+export { CourseGrid } from './CourseGrid';

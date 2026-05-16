@@ -452,3 +452,12 @@ export const getWardsAPI = async (districtCode) => {
   const list = Array.isArray(data?.wards) ? data.wards : (data?.data?.wards || [])
   return { data: { success: true, data: list } }
 }
+
+// Course & Enrollment API exports
+export * from './courseApi';
+
+// Scholarship API exports
+export * from './scholarshipApi';
+
+// Application API exports
+export * from './applicationApi';

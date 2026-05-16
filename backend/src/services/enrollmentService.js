@@ -2,6 +2,7 @@ import { enrollmentModel } from '~/models/enrollmentModel'
 import { courseModel } from '~/models/courseModel'
 import { userModel } from '~/models/userModel'
 import { workerProfileModel } from '~/models/workerProfileModel'
+import { applicationService } from './applicationService'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import {
@@ -10,7 +11,8 @@ import {
   ENROLLMENT_STATUS,
   COMPLETION_STATUS,
   COURSE_STATUS,
-  USER_ROLES
+  USER_ROLES,
+  SCHOLARSHIP_COVERAGE
 } from '~/utils/constants'
 
 // ============ ENROLL COURSE ============
@@ -89,8 +91,12 @@ const enrollCourse = async (userId, courseId, data) => {
       source: source || 'direct',
       scholarship: {
         scholarshipId: scholarshipId || null,
-        coverage: scholarshipId ? 'partial' : 'none',
-        fundedAmount: 0
+        applicationId: null,
+        coverage: scholarshipId ? SCHOLARSHIP_COVERAGE.PARTIAL : SCHOLARSHIP_COVERAGE.NONE,
+        fundedAmount: 0,
+        disbursedAmount: 0,
+        clawbackAmount: 0,
+        disbursements: []
       },
       fee: {
         total: course.isFree ? 0 : course.fee,
@@ -329,11 +335,17 @@ const updateProgress = async (enrollmentId, progressData, trainerId) => {
 
     const updatedEnrollment = await enrollmentModel.updateProgress(enrollmentId, updateData)
 
+    // Xử lý khi hoàn thành 100%
     if (progressData.percentage >= 100 && enrollment.status !== ENROLLMENT_STATUS.COMPLETED) {
       await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.COMPLETED, {
         completedAt: Date.now()
       })
       await courseModel.decrementEnrollmentCount(enrollment.courseId)
+
+      // Trigger disbursement nếu có scholarship
+      if (enrollment.scholarship?.scholarshipId) {
+        await applicationService.processCompletion(enrollmentId)
+      }
     } else if (progressData.percentage > 0 && progressData.percentage < 100) {
       if (enrollment.status === ENROLLMENT_STATUS.ENROLLED) {
         await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.IN_PROGRESS)
@@ -411,6 +423,11 @@ const updateStatus = async (enrollmentId, status, additionalData, trainerId) => 
 
     if (status === ENROLLMENT_STATUS.DROPPED || status === ENROLLMENT_STATUS.CANCELLED) {
       await courseModel.decrementEnrollmentCount(enrollment.courseId)
+
+      // Xử lý clawback nếu có scholarship đã giải ngân
+      if (enrollment.scholarship?.scholarshipId && enrollment.scholarship?.disbursedAmount > 0) {
+        await applicationService.processClawback(enrollmentId)
+      }
     }
 
     return updatedEnrollment
@@ -458,6 +475,11 @@ const cancelEnrollment = async (enrollmentId, userId, reason) => {
       if (nextInWaitlist) {
         console.log(`Promoted user ${nextInWaitlist.userId} from waitlist for course ${enrollment.courseId}`)
       }
+    }
+
+    // Xử lý refund nếu có scholarship đã giải ngân
+    if (enrollment.scholarship?.scholarshipId && enrollment.scholarship?.disbursedAmount > 0) {
+      await applicationService.processRefund(enrollmentId)
     }
 
     return updatedEnrollment

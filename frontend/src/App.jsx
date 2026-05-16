@@ -10,6 +10,13 @@ import { Toaster } from 'react-hot-toast';
 import AuthPage from '@/pages/AuthPage';
 import WorkerProfilePage from '@/pages/WorkerProfilePage';
 import JobsPage from '@/pages/JobsPage';
+import CoursesPage from '@/pages/CoursesPage';
+import CourseDetailPage from '@/pages/CourseDetailPage';
+import MyEnrollmentsPage from '@/pages/MyEnrollmentsPage';
+import ScholarshipPage from '@/pages/ScholarshipPage';
+import ScholarshipDetailPage from '@/pages/ScholarshipDetailPage';
+import MyApplicationsPage from '@/pages/MyApplicationsPage';
+import ApplicationDetailPage from '@/pages/ApplicationDetailPage';
 import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
 
 function App() {
@@ -57,6 +64,17 @@ function App() {
         <Route path="/worker-profile" element={<WorkerProfilePage />} />
         {/* Jobs Page */}
         <Route path="/jobs" element={<JobsPage />} />
+        {/* Courses */}
+        <Route path="/courses" element={<CoursesPage />} />
+        <Route path="/courses/:id" element={<CourseDetailPage />} />
+        {/* My Enrollments */}
+        <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
+        {/* Scholarships */}
+        <Route path="/scholarships" element={<ScholarshipPage />} />
+        <Route path="/scholarships/:id" element={<ScholarshipDetailPage />} />
+        {/* My Applications */}
+        <Route path="/my-applications" element={<MyApplicationsPage />} />
+        <Route path="/my-applications/:id" element={<ApplicationDetailPage />} />
         {/* Landing Page */}
         <Route path="/" element={
           <LandingLayout>
