@@ -51,10 +51,20 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
 
   scholarship: Joi.object({
     scholarshipId: Joi.string().allow(null),
+    applicationId: Joi.string().allow(null),
     coverage: Joi.string()
       .valid(...Object.values(SCHOLARSHIP_COVERAGE))
       .default(SCHOLARSHIP_COVERAGE.NONE),
-    fundedAmount: Joi.number().integer().min(0).default(0)
+    fundedAmount: Joi.number().integer().min(0).default(0),
+    disbursedAmount: Joi.number().integer().min(0).default(0),
+    clawbackAmount: Joi.number().integer().min(0).default(0),
+    disbursements: Joi.array().items(
+      Joi.object({
+        amount: Joi.number().integer().min(0).required(),
+        date: Joi.date().timestamp('javascript').default(Date.now()),
+        status: Joi.string().valid('pending', 'disbursed', 'clawback', 'refunded')
+      })
+    ).default([])
   }),
 
   enrolledAt: Joi.date().timestamp('javascript').default(Date.now()),

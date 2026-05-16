@@ -54,7 +54,58 @@ const isAuthorizedAdmin = async (req, res, next) => {
     req.jwtDecoded = accessTokenDecoded
     next()
   } catch (error) {
-    // Nếu access tokenn hết hạn thì trả về lỗi 410
+    if (error?.message?.includes('jwt expired')) {
+      next(new ApiError(StatusCodes.GONE, 'Cần làm mới token!'))
+      return
+    }
+    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized!'))
+  }
+}
+
+const isAuthorizedNGO = async (req, res, next) => {
+  const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
+  if (!clientAccessToken) {
+    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Không tồn tại token này!'))
+    return
+  }
+
+  try {
+    const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
+
+    if (!accessTokenDecoded || accessTokenDecoded.role !== USER_ROLES.NGO) {
+      next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
+      return
+    }
+    req.user = accessTokenDecoded
+    req.jwtDecoded = accessTokenDecoded
+    next()
+  } catch (error) {
+    if (error?.message?.includes('jwt expired')) {
+      next(new ApiError(StatusCodes.GONE, 'Cần làm mới token!'))
+      return
+    }
+    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized!'))
+  }
+}
+
+const isAuthorizedTrainer = async (req, res, next) => {
+  const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
+  if (!clientAccessToken) {
+    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Không tồn tại token này!'))
+    return
+  }
+
+  try {
+    const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
+
+    if (!accessTokenDecoded || accessTokenDecoded.role !== USER_ROLES.TRAINER) {
+      next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
+      return
+    }
+    req.user = accessTokenDecoded
+    req.jwtDecoded = accessTokenDecoded
+    next()
+  } catch (error) {
     if (error?.message?.includes('jwt expired')) {
       next(new ApiError(StatusCodes.GONE, 'Cần làm mới token!'))
       return
@@ -65,5 +116,7 @@ const isAuthorizedAdmin = async (req, res, next) => {
 
 export const authMiddleware = {
   isAuthorized,
-  isAuthorizedAdmin
+  isAuthorizedAdmin,
+  isAuthorizedNGO,
+  isAuthorizedTrainer
 }
