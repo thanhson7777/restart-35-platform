@@ -163,6 +163,20 @@ const changePassword = async (req, res, next) => {
   }
 }
 
+const getUserStats = async (req, res, next) => {
+  try {
+    const stats = await userService.getUserStats()
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thống kê người dùng thành công',
+      data: stats
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userController = {
   createNew,
   verifyAccount,
@@ -173,5 +187,6 @@ export const userController = {
   getUsers,
   updateUserStatus,
   changePassword,
-  getMe
+  getMe,
+  getUserStats
 }

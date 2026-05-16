@@ -59,8 +59,33 @@ export const getEnrollmentStats = (params) =>
 export const getAllEnrollments = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/admin/all`, { params });
 
+// ─── Admin Courses ─────────────────────────────────────────────────────────────
+
+export const getAdminCourses = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/admin/all`, { params });
+
+export const getAdminPendingCourses = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/admin/pending`, { params });
+
+export const getAdminCourseStats = () =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/admin/stats`);
+
 export const getPendingCourses = () =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/admin/pending`);
 
 export const approveCourse = (id, data) =>
   authorizeAxiosInstance.put(`${API_ROOT}/v1/courses/${id}/approve`, data);
+
+export const getCourseByIdAdmin = (id, params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/${id}`, { params });
+
+// ─── Admin Enrollments ─────────────────────────────────────────────────────────
+
+export const getAdminEnrollmentStats = () =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/admin/stats`);
+
+export const exportEnrollments = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/admin/export`, {
+    params,
+    responseType: 'blob'
+  });

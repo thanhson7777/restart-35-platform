@@ -259,6 +259,15 @@ const changePassword = async (userId, reqBody) => {
   } catch (error) { throw error }
 }
 
+const getUserStats = async () => {
+  try {
+    const stats = await userModel.getUserStats()
+    return stats
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
   createNew,
   verifyAccount,
@@ -268,5 +277,6 @@ export const userService = {
   getAdminUsers,
   updateUserStatus,
   changePassword,
-  getMe
+  getMe,
+  getUserStats
 }

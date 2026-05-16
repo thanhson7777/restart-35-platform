@@ -11,7 +11,7 @@ import {
   PHONE_RULE,
   PHONE_RULE_MESSAGE
 } from '~/utils/validator'
-import { USER_ROLE } from '~/utils/constants'
+import { USER_ROLES } from '~/utils/constants'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -77,7 +77,7 @@ const update = async (req, res, next) => {
 const updateUserStatus = async (req, res, next) => {
   const correctCondition = Joi.object({
     isActive: Joi.boolean().strict(),
-    role: Joi.string().valid(...Object.values(USER_ROLE))
+    role: Joi.string().valid(...Object.values(USER_ROLES))
   }).min(1)
 
   try {

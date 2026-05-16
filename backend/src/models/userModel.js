@@ -133,6 +133,55 @@ const countTotalUsers = async () => {
   } catch (error) { throw error }
 }
 
+const getUserStats = async () => {
+  try {
+    const db = await GET_DB()
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
+    const roles = ['worker', 'enterprise', 'trainer', 'ngo', 'admin']
+    const stats = {}
+
+    for (const role of roles) {
+      const [total, active, newThisMonth] = await Promise.all([
+        db.collection(USER_COLLECTION_NAME).countDocuments({ role }),
+        db.collection(USER_COLLECTION_NAME).countDocuments({ role, isActive: true }),
+        db.collection(USER_COLLECTION_NAME).countDocuments({
+          role,
+          createdAt: { $gte: startOfMonth }
+        })
+      ])
+
+      stats[role] = {
+        total,
+        active,
+        inactive: total - active,
+        newThisMonth
+      }
+    }
+
+    // Calculate "all" stats
+    const [allTotal, allActive, allNewThisMonth] = await Promise.all([
+      db.collection(USER_COLLECTION_NAME).countDocuments({}),
+      db.collection(USER_COLLECTION_NAME).countDocuments({ isActive: true }),
+      db.collection(USER_COLLECTION_NAME).countDocuments({
+        createdAt: { $gte: startOfMonth }
+      })
+    ])
+
+    stats.all = {
+      total: allTotal,
+      active: allActive,
+      inactive: allTotal - allActive,
+      newThisMonth: allNewThisMonth
+    }
+
+    return stats
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
@@ -143,6 +192,7 @@ export const userModel = {
   countUsersByRole,
   getUsers,
   updateUserStatus,
-  countTotalUsers
+  countTotalUsers,
+  getUserStats
 }
 
