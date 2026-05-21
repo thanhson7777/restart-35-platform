@@ -82,6 +82,7 @@ const barriersValidation = Joi.object({
 // ============ Step 4: Aspirations Validation ============
 const aspirationsValidation = Joi.object({
   targetJob: Joi.string().allow(''),
+  targetJobNoPreference: Joi.boolean().default(false),
   targetSalary: Joi.number().integer().min(0).max(1000000000)
     .messages({
       'number.max': 'Mức lương không hợp lệ'
@@ -92,6 +93,7 @@ const aspirationsValidation = Joi.object({
     .messages({
       'array.max': `Chỉ được chọn tối đa ${MAX_SKILLS} kỹ năng`
     }),
+  wantsToStartBusiness: Joi.boolean().default(false),
   description: Joi.string().allow('')
 })
 

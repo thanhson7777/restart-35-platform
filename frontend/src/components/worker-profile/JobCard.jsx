@@ -325,28 +325,6 @@ function JobCard({ job, onChange, onRemove, canRemove, index }) {
           )}
         </div>
 
-        {/* Description */}
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-foreground">
-            Mô tả công việc
-            <span className="ml-1 text-xs text-muted-foreground font-normal">(tùy chọn)</span>
-          </label>
-          <textarea
-            placeholder="Mô tả công việc đã làm, nhiệm vụ chính..."
-            value={job.description || ''}
-            onChange={(e) => onChange('description', e.target.value)}
-            rows={3}
-            className="
-              flex w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm
-              ring-offset-background transition-all duration-200
-              placeholder:text-muted-foreground/60
-              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-              focus-visible:ring-primary/50 focus-visible:border-primary
-              disabled:cursor-not-allowed disabled:opacity-50
-              resize-none
-            "
-          />
-        </div>
       </div>
     </div>
   )

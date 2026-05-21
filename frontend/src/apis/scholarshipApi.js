@@ -48,3 +48,14 @@ export const addLinkedCourse = (scholarshipId, data) =>
 
 export const removeLinkedCourse = (scholarshipId, courseId) =>
   authorizeAxiosInstance.delete(`${API_ROOT}/v1/scholarships/${scholarshipId}/courses/${courseId}`);
+
+// ─── Admin (Authenticated) ─────────────────────────────────────────────────────
+
+export const getAdminScholarships = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/scholarships/admin/all`, { params });
+
+export const getAdminScholarshipStats = () =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/scholarships/admin/stats`);
+
+export const getAdminScholarshipApplications = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/scholarships/admin/applications`, { params });
