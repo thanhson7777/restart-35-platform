@@ -9,7 +9,6 @@ import { Input, Label, Textarea } from '@/components/ui/Input'
 import { SelectField } from '@/components/ui/SelectField'
 import SalaryInput from './SalaryInput'
 import JobTypeSelector from './JobTypeSelector'
-import SkillsSelector from './SkillsSelector'
 import { VIETNAM_PROVINCES } from '~/data/profileData'
 import {
   autosave,
@@ -43,11 +42,12 @@ const itemVariants = {
 // Initial state for aspirations
 const initialAspirations = {
   targetJob: '',
+  targetJobNoPreference: false,
   targetSalary: 0,
   targetProvince: '',
   preferredJobType: '',
   skills: [],
-  description: ''
+  wantsToStartBusiness: false
 }
 
 function AspirationsForm({ onComplete }) {
@@ -164,7 +164,6 @@ function AspirationsForm({ onComplete }) {
         aspirations.targetSalary !== savedAspirations.targetSalary ||
         aspirations.targetProvince !== savedAspirations.targetProvince ||
         aspirations.preferredJobType !== savedAspirations.preferredJobType ||
-        aspirations.description !== savedAspirations.description ||
         JSON.stringify(aspirations.skills) !== JSON.stringify(savedAspirations.skills || [])
 
       if (!hasChanges) {
@@ -257,12 +256,29 @@ function AspirationsForm({ onComplete }) {
               placeholder="VD: Phục vụ bàn, Lái xe, Nấu ăn..."
               error={errors.targetJob}
               list="suggested-jobs"
+              disabled={aspirations.targetJobNoPreference}
             />
             <datalist id="suggested-jobs">
               {suggestedJobs.map((skill) => (
                 <option key={skill} value={skill} />
               ))}
             </datalist>
+            <div className="mt-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={aspirations.targetJobNoPreference || false}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      updateField('targetJob', '')
+                    }
+                    updateField('targetJobNoPreference', e.target.checked)
+                  }}
+                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-muted-foreground">Không có</span>
+              </label>
+            </div>
           </div>
         </motion.div>
 
@@ -304,32 +320,19 @@ function AspirationsForm({ onComplete }) {
           />
         </motion.div>
 
-        {/* Skills */}
-        <motion.div variants={itemVariants} data-error="skills">
-          <SkillsSelector
-            value={aspirations.skills}
-            onChange={(value) => updateField('skills', value)}
-            label="Kỹ năng"
-            error={errors.skills}
-          />
-        </motion.div>
-
-        {/* Description */}
-        <motion.div variants={itemVariants} data-error="description">
-          <div className="space-y-1.5">
-            <Label htmlFor="description" className="text-foreground">
-              Mô tả thêm
-            </Label>
-            <Textarea
-              id="description"
-              value={aspirations.description}
-              onChange={(e) => updateField('description', e.target.value)}
-              placeholder="Mô tả thêm về công việc mong muốn, môi trường làm việc lý tưởng..."
-              rows={3}
-              error={errors.description}
-              className="resize-none"
+        {/* Wants to start business */}
+        <motion.div variants={itemVariants}>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={aspirations.wantsToStartBusiness || false}
+              onChange={(e) => updateField('wantsToStartBusiness', e.target.checked)}
+              className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
             />
-          </div>
+            <span className="text-sm font-medium text-foreground">
+              Bạn có muốn lập nghiệp?
+            </span>
+          </label>
         </motion.div>
 
         {/* Submit Button */}

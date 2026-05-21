@@ -224,6 +224,49 @@ const removeLinkedCourse = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ============ ADMIN ROUTES ============
+
+// Lấy tất cả scholarships cho admin
+const getAllScholarshipsAdmin = async (req, res, next) => {
+  try {
+    const result = await scholarshipService.getAllScholarshipsAdmin(req.query)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách học bổng thành công!',
+      data: result.scholarships,
+      pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
+// Lấy thống kê cho admin
+const getAdminStats = async (req, res, next) => {
+  try {
+    const stats = await scholarshipService.getAdminStats()
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thống kê thành công!',
+      data: stats
+    })
+  } catch (error) { next(error) }
+}
+
+// Lấy tất cả applications cho admin
+const getAllApplicationsAdmin = async (req, res, next) => {
+  try {
+    const result = await scholarshipService.getAllApplicationsAdmin(req.query)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách đơn đăng ký thành công!',
+      data: result.applications,
+      pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
 export const scholarshipController = {
   // Public
   getScholarships,
@@ -243,5 +286,10 @@ export const scholarshipController = {
   deleteScholarship,
   getScholarshipStats,
   addLinkedCourse,
-  removeLinkedCourse
+  removeLinkedCourse,
+
+  // Admin
+  getAllScholarshipsAdmin,
+  getAdminStats,
+  getAllApplicationsAdmin
 }

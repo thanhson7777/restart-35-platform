@@ -1,3 +1,4 @@
+import { GET_DB } from '~/config/mongodb'
 import { scholarshipModel } from '~/models/scholarshipModel'
 import { scholarshipApplicationModel } from '~/models/scholarshipApplicationModel'
 import { userModel } from '~/models/userModel'
@@ -396,6 +397,219 @@ const removeLinkedCourse = async (scholarshipId, ngoId, courseId) => {
   } catch (error) { throw error }
 }
 
+// ============ ADMIN FUNCTIONS ============
+
+// Lấy tất cả scholarships cho admin
+const getAllScholarshipsAdmin = async (queryParams) => {
+  try {
+    const {
+      page = DEFAULT_PAGE,
+      limit = DEFAULT_ITEM_PER_PAGE,
+      status,
+      search,
+      ngoId
+    } = queryParams
+
+    const currentPage = parseInt(page, 10) || DEFAULT_PAGE
+    const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
+    const skip = (currentPage - 1) * recordLimit
+
+    const filters = { _destroy: false }
+    if (status) filters.status = status
+    if (ngoId) filters.ngoId = ngoId
+
+    let scholarships
+    let totalScholarships
+
+    if (search) {
+      // Search with text index
+      scholarships = await GET_DB().collection(scholarshipModel.SCHOLARSHIP_COLLECTION_NAME)
+        .find({
+          ...filters,
+          title: { $regex: search, $options: 'i' }
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(recordLimit)
+        .toArray()
+
+      totalScholarships = await GET_DB().collection(scholarshipModel.SCHOLARSHIP_COLLECTION_NAME)
+        .countDocuments({
+          ...filters,
+          title: { $regex: search, $options: 'i' }
+        })
+    } else {
+      const result = await scholarshipModel.findAll(skip, recordLimit, filters)
+      scholarships = result.scholarships
+      totalScholarships = result.totalScholarships
+    }
+
+    // Enrich data with NGO info and application stats
+    const enrichedScholarships = await Promise.all(
+      scholarships.map(async (s) => {
+        const ngo = await userModel.findOneById(s.ngoId)
+        const applicationStats = await scholarshipApplicationModel.getStatsByScholarship(s._id.toString())
+        return {
+          ...s,
+          ngo: ngo ? {
+            _id: ngo._id,
+            displayName: ngo.displayName,
+            avatar: ngo.avatar
+          } : null,
+          applicationStats
+        }
+      })
+    )
+
+    return {
+      scholarships: enrichedScholarships,
+      pagination: {
+        totalRecords: totalScholarships,
+        totalPages: Math.ceil(totalScholarships / recordLimit),
+        currentPage,
+        limit: recordLimit
+      }
+    }
+  } catch (error) { throw error }
+}
+
+// Lấy thống kê tổng quan cho admin
+const getAdminStats = async () => {
+  try {
+    // Get scholarship stats
+    const scholarshipPipeline = [
+      { $match: { _destroy: false } },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 },
+          totalBudget: { $sum: '$budget' },
+          totalSpent: { $sum: '$spent' },
+          totalRemaining: { $sum: '$remaining' },
+          totalRecipients: { $sum: '$currentRecipients' }
+        }
+      }
+    ]
+
+    const scholarshipStats = await GET_DB().collection(scholarshipModel.SCHOLARSHIP_COLLECTION_NAME)
+      .aggregate(scholarshipPipeline).toArray()
+
+    // Get application stats
+    const applicationPipeline = [
+      { $match: { _destroy: false } },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 },
+          totalDisbursed: { $sum: '$totalDisbursed' }
+        }
+      }
+    ]
+
+    const applicationStats = await GET_DB().collection(scholarshipApplicationModel.APPLICATION_COLLECTION_NAME)
+      .aggregate(applicationPipeline).toArray()
+
+    // Calculate totals
+    let totalScholarships = 0
+    let activeScholarships = 0
+    let totalBudget = 0
+    let totalSpent = 0
+    let pendingApplications = 0
+    let totalDisbursed = 0
+
+    scholarshipStats.forEach(stat => {
+      totalScholarships += stat.count
+      totalBudget += stat.totalBudget
+      totalSpent += stat.totalSpent
+      if (stat._id === SCHOLARSHIP_STATUS.ACTIVE) {
+        activeScholarships = stat.count
+      }
+    })
+
+    applicationStats.forEach(stat => {
+      if (stat._id === APPLICATION_STATUS.SUBMITTED || stat._id === APPLICATION_STATUS.REVIEWING) {
+        pendingApplications += stat.count
+      }
+      totalDisbursed += stat.totalDisbursed
+    })
+
+    return {
+      scholarships: {
+        total: totalScholarships,
+        active: activeScholarships,
+        totalBudget,
+        totalSpent,
+        totalRemaining: totalBudget - totalSpent,
+        totalRecipients: scholarshipStats.reduce((sum, s) => sum + (s._id === SCHOLARSHIP_STATUS.ACTIVE ? s.totalRecipients : 0), 0)
+      },
+      applications: {
+        pending: pendingApplications,
+        totalDisbursed
+      },
+      byStatus: {
+        scholarships: Object.fromEntries(scholarshipStats.map(s => [s._id, s.count])),
+        applications: Object.fromEntries(applicationStats.map(s => [s._id, s.count]))
+      }
+    }
+  } catch (error) { throw error }
+}
+
+// Lấy tất cả applications cho admin
+const getAllApplicationsAdmin = async (queryParams) => {
+  try {
+    const {
+      page = DEFAULT_PAGE,
+      limit = DEFAULT_ITEM_PER_PAGE,
+      status,
+      scholarshipId,
+      userId
+    } = queryParams
+
+    const currentPage = parseInt(page, 10) || DEFAULT_PAGE
+    const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
+    const skip = (currentPage - 1) * recordLimit
+
+    const filters = { _destroy: false }
+    if (status) filters.status = status
+    if (scholarshipId) filters.scholarshipId = scholarshipId
+    if (userId) filters.userId = userId
+
+    const result = await scholarshipApplicationModel.findAll(skip, recordLimit, filters)
+
+    // Enrich with user and scholarship info
+    const enrichedApplications = await Promise.all(
+      result.applications.map(async (app) => {
+        const user = await userModel.findOneById(app.userId)
+        const scholarship = await scholarshipModel.findOneById(app.scholarshipId)
+        return {
+          ...app,
+          user: user ? {
+            _id: user._id,
+            displayName: user.displayName,
+            email: user.email,
+            avatar: user.avatar
+          } : null,
+          scholarship: scholarship ? {
+            _id: scholarship._id,
+            title: scholarship.title,
+            thumbnail: scholarship.thumbnail
+          } : null
+        }
+      })
+    )
+
+    return {
+      applications: enrichedApplications,
+      pagination: {
+        totalRecords: result.totalApplications,
+        totalPages: Math.ceil(result.totalApplications / recordLimit),
+        currentPage,
+        limit: recordLimit
+      }
+    }
+  } catch (error) { throw error }
+}
+
 export const scholarshipService = {
   // CRUD
   createScholarship,
@@ -417,5 +631,10 @@ export const scholarshipService = {
 
   // Linked courses
   addLinkedCourse,
-  removeLinkedCourse
+  removeLinkedCourse,
+
+  // Admin
+  getAllScholarshipsAdmin,
+  getAdminStats,
+  getAllApplicationsAdmin
 }

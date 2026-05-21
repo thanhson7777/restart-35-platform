@@ -37,7 +37,42 @@ Router.get(
   scholarshipController.checkEligibility
 )
 
+// ============ ADMIN ROUTES (Auth + Admin Required) ============
+// QUAN TRỌNG: Các route cụ thể phải đặt TRƯỚC route có tham số :id
+
+// Lấy tất cả scholarships cho admin
+Router.get(
+  '/admin/all',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  scholarshipController.getAllScholarshipsAdmin
+)
+
+// Lấy thống kê cho admin
+Router.get(
+  '/admin/stats',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  scholarshipController.getAdminStats
+)
+
+// Lấy tất cả applications cho admin
+Router.get(
+  '/admin/applications',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  scholarshipController.getAllApplicationsAdmin
+)
+
 // ============ NGO ROUTES (Auth + NGO Required) ============
+
+// Lấy scholarships của NGO
+Router.get(
+  '/my/list',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedNGO,
+  scholarshipController.getMyScholarships
+)
 
 // Tạo scholarship mới
 Router.post(
@@ -47,12 +82,12 @@ Router.post(
   scholarshipController.createScholarship
 )
 
-// Lấy scholarships của NGO
+// ============ ROUTES VỚI THAM SỐ :id (Đặt SAU các routes cụ thể) ============
+
+// Chi tiết scholarship
 Router.get(
-  '/my/list',
-  authMiddleware.isAuthorized,
-  authMiddleware.isAuthorizedNGO,
-  scholarshipController.getMyScholarships
+  '/:id',
+  scholarshipController.getScholarshipById
 )
 
 // Cập nhật scholarship

@@ -7,6 +7,7 @@ import { CourseCard } from '@/components/course';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
+import { Agentation } from 'agentation';
 import AuthPage from '@/pages/AuthPage';
 import WorkerProfilePage from '@/pages/WorkerProfilePage';
 import JobsPage from '@/pages/JobsPage';
@@ -21,6 +22,7 @@ import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
 import AdminCoursesPage from '@/pages/AdminCoursesPage';
 import AdminEnrollmentsPage from '@/pages/admin/AdminEnrollmentsPage';
+import AdminScholarshipsPage from '@/pages/AdminScholarshipsPage';
 import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
 
 function App() {
@@ -70,7 +72,7 @@ function App() {
         <Route path="/admin/courses" element={<AdminCoursesPage />} />
         <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
         <Route path="/admin/applications" element={<AdminDashboardPage />} />
-        <Route path="/admin/scholarships" element={<AdminDashboardPage />} />
+        <Route path="/admin/scholarships" element={<AdminScholarshipsPage />} />
         {/* Worker Profile Page */}
         <Route path="/worker-profile" element={<WorkerProfilePage />} />
         {/* Jobs Page */}
@@ -103,6 +105,7 @@ function App() {
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Agentation />
     </BrowserRouter>
   );
 }

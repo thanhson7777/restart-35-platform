@@ -38,6 +38,7 @@ const isAuthorized = async (req, res, next) => {
 
 const isAuthorizedAdmin = async (req, res, next) => {
   const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
+
   if (!clientAccessToken) {
     next(new ApiError(StatusCodes.UNAUTHORIZED, 'Không tồn tại token này!'))
     return

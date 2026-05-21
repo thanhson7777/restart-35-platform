@@ -25,7 +25,6 @@ const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
       position: Joi.string().allow(''),
       duration: Joi.number().integer().min(0),
       jobType: Joi.string().valid(...Object.values(JOB_TYPES)),
-      description: Joi.string().allow(''),
       industry: Joi.string().valid(...Object.values(INDUSTRY_TYPES)).allow(''),
       skills: Joi.array().items(Joi.string())
     })
@@ -42,11 +41,12 @@ const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
 
   aspirations: Joi.object({
     targetJob: Joi.string().allow(''),
+    targetJobNoPreference: Joi.boolean().default(false),
     targetSalary: Joi.number().integer().min(0),
     targetProvince: Joi.string().allow(''),
     preferredJobType: Joi.string().valid(...Object.values(JOB_TYPES)),
     skills: Joi.array().items(Joi.string()),
-    description: Joi.string().allow('')
+    wantsToStartBusiness: Joi.boolean().default(false)
   }),
 
   riskLevel: Joi.string().valid('high', 'medium', 'low'),
