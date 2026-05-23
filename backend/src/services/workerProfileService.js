@@ -123,12 +123,27 @@ const completeProfile = async (userId) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Hồ sơ không tồn tại!')
     }
 
-    if (profile.isCompleted) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Hồ sơ đã hoàn thành!')
-    }
+    // Cho phép cập nhật lại hồ sơ đã hoàn thành
+    // Data đã được autosave trước đó
 
     const completedProfile = await workerProfileModel.completeProfile(userId)
     return completedProfile
+  } catch (error) { throw error }
+}
+
+const reopenProfile = async (userId) => {
+  try {
+    const profile = await workerProfileModel.findOneByUserId(userId)
+    if (!profile) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Hồ sơ không tồn tại!')
+    }
+
+    const result = await workerProfileModel.update(profile._id, {
+      isCompleted: false,
+      currentStep: 4,
+      updatedAt: Date.now()
+    })
+    return result
   } catch (error) { throw error }
 }
 
@@ -201,6 +216,7 @@ export const workerProfileService = {
   updateStep,
   autosave,
   completeProfile,
+  reopenProfile,
   getProfiles,
   updateAIData,
   getProfileWithUserInfo

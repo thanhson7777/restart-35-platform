@@ -36,6 +36,13 @@ Router.route('/complete')
     workerProfileController.completeProfile
   )
 
+// Mở lại hồ sơ để chỉnh sửa
+Router.route('/reopen')
+  .put(
+    authMiddleware.isAuthorized,
+    workerProfileController.reopenProfile
+  )
+
 // Cập nhật từng bước
 Router.route('/step/:step')
   .put(

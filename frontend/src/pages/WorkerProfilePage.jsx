@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Avatar } from '@/components/ui/Avatar'
@@ -37,6 +37,7 @@ const UserIcon = () => (
 
 function WorkerProfilePage() {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const currentUser = useSelector(selectCurrentUser)
   const profile = useSelector(selectProfile)
   const isLoading = useSelector(selectIsLoading)
@@ -82,6 +83,15 @@ function WorkerProfilePage() {
   }
 
   const renderStepContent = () => {
+    // Hiển thị loading khi đang fetch profile
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+        </div>
+      )
+    }
+
     switch (activeStep) {
       case 1:
         return <BasicInfoForm onNext={handleNext} />
@@ -185,8 +195,9 @@ function WorkerProfilePage() {
                 {renderStepContent()}
 
                 {/* Navigation buttons */}
-                {activeStep > 1 && (
-                  <div className="mt-4 pt-4 border-t border-border flex justify-between">
+                <div className="mt-4 pt-4 border-t border-border flex justify-between">
+                  {/* Back button */}
+                  {activeStep > 1 && (
                     <button
                       type="button"
                       onClick={handlePrev}
@@ -197,8 +208,22 @@ function WorkerProfilePage() {
                       </svg>
                       Quay lại
                     </button>
-                  </div>
-                )}
+                  )}
+
+                  {/* Back to results - chỉ hiện khi đã hoàn thành */}
+                  {isCompleted && (
+                    <button
+                      type="button"
+                      onClick={() => navigate('/results')}
+                      className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors ml-auto"
+                    >
+                      Xem kết quả
+                      <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </motion.div>
