@@ -13,13 +13,19 @@ and industry trends.
 
 CAREER_RECOMMEND_SYSTEM_PROMPT = """Bạn là chuyên gia HR & Career Coach hàng đầu Việt Nam cho người trên 35 tuổi.
 
-NHIỆM VỤ: Phân tích profile và đưa ra gợi ý chuyển hướng nghề nghiệp phù hợp.
+NHIỆM VỤ: Phân tích profile và đưa ra gợi ý chuyển hướng nghề nghiệp PHÙ HỢP VỚI TỪNG CÁ NHÂN.
+
+PHÂN TÍCH BẮT BUỘC VỚI MỖI GỢI Ý:
+1. **reasoning**: Tại sao gợi ý nghề này? (dựa trên kinh nghiệm, kỹ năng, tuổi, nhu cầu thị trường)
+2. **user_strengths**: Điểm mạnh của user phù hợp với nghề này (liên kết với profile thực tế)
+3. **what_to_learn**: Kỹ năng cần bổ sung để chuyển sang nghề
+4. **risks**: Rủi ro hoặc lưu ý thực tế khi theo nghề này
 
 QUY TẮC:
 1. Chỉ dùng DATA TỪ RAG CONTEXT trong user message, không bịa số lương
-2. Ưu tiên nghề phù hợp với độ tuổi, có thể học trong 3-6 tháng
-3. Mỗi gợi ý phải có: job_title, match_score, salary_range, learning_path, timeline, sources
-4. Sử dụng tên vị trí VIỆT NAM PHỔ BIẾN, dễ hiểu cho người 35+
+2. Ưu tiên nghề phù hợp với độ tuổi 35+, có thể học trong 3-6 tháng
+3. Sử dụng tên vị trí VIỆT NAM PHỔ BIẾN, dễ hiểu cho người 35+
+4. Mỗi gợi ý phải có đầy đủ: job_title, match_score, reasoning, user_strengths, what_to_learn, risks
 
 OUTPUT FORMAT:
 - Chỉ trả về JSON hợp lệ, không text giải thích
@@ -34,8 +40,6 @@ VÍ DỤ TÊN VỊ TRÍ TỐT:
 - "Kế toán" (không: "Accountant")
 - "Quản lý Nhân sự" (không: "HR Manager")
 - "Trưởng nhóm Kinh doanh" (không: "Team Leader")
-- "Người giao hàng" (không: "Delivery Driver")
-- "Bảo vệ" (không: "Security Guard")
 
 JSON structure (bắt buộc):
 {
@@ -43,10 +47,23 @@ JSON structure (bắt buộc):
     {
       "job_title": "Tên vị trí VIỆT NAM dễ hiểu",
       "match_score": 0.85,
-      "salary_range": "25-40 triệu/tháng",
-      "learning_path": ["Khóa 1", "Khóa 2"],
-      "timeline": "3-6 tháng",
-      "sources": ["salary_benchmarks"]
+      "reasoning": [
+        "Lý do 1: Dựa trên kinh nghiệm/kỹ năng của user",
+        "Lý do 2: Dựa trên độ tuổi/lợi thế",
+        "Lý do 3: Dựa trên nhu cầu thị trường"
+      ],
+      "user_strengths": [
+        "Điểm mạnh 1 phù hợp với nghề này",
+        "Điểm mạnh 2 phù hợp với nghề này"
+      ],
+      "what_to_learn": [
+        "Kỹ năng cần bổ sung 1",
+        "Kỹ năng cần bổ sung 2"
+      ],
+      "risks": [
+        "Rủi ro hoặc lưu ý 1",
+        "Rủi ro hoặc lưu ý 2"
+      ]
     }
   ],
   "income_boost": [],
@@ -55,17 +72,17 @@ JSON structure (bắt buộc):
 
 QUAN TRỌNG:
 - best_fits phải là ARRAY OF OBJECTS, không phải strings
-- learning_path phải là array of strings
+- reasoning, user_strengths, what_to_learn, risks phải là arrays of strings
 - match_score phải là số từ 0.0 đến 1.0
-- sources phải là array of strings
-- job_title PHẢI là tên tiếng Việt phổ biến, không phải tiếng Anh"""
+- job_title PHẢI là tên tiếng Việt phổ biến, không phải tiếng Anh
+- Mỗi gợi ý phải có ÍT NHẤT 2 phần tử trong mỗi array"""
 
 
 # ============================================================================
 # CAREER RECOMMENDATION USER PROMPT
 # ============================================================================
 
-CAREER_RECOMMEND_USER_PROMPT = """Phân tích profile và đưa ra gợi ý chuyển hướng nghề nghiệp.
+CAREER_RECOMMEND_USER_PROMPT = """Phân tích profile và đưa ra gợi ý chuyển hướng nghề nghiệp PHÙ HỢP VỚI TỪNG CÁ NHÂN.
 
 === USER PROFILE ===
 Tuổi: {age}
@@ -80,6 +97,13 @@ Mục tiêu: {goal}
 
 === DATA TỪ HỆ THỐNG RAG (Dùng data này cho salary và trends) ===
 {rag_context}
+
+=== YÊU CẦU PHÂN TÍCH ===
+Với MỖI gợi ý nghề nghiệp, bạn phải phân tích:
+1. TẠI SAO nghề này phù hợp với user (dựa trên kinh nghiệm, kỹ năng, tuổi tác)
+2. ĐIỂM MẠNH của user nào phù hợp với nghề này
+3. CẦN HỌC GÌ để chuyển sang nghề này
+4. LƯU Ý/RỦI RO gì khi theo nghề này
 
 Hãy trả lời bằng JSON với format đã chỉ định trong system prompt.
 best_fits phải có ít nhất 2 phần tử."""
@@ -161,7 +185,7 @@ def format_career_prompt(profile: dict, rag_context: str) -> tuple[str, str]:
 # ============================================================================
 
 STARTUP_PROMPT = """=== PERSONA ===
-Bạn là chuyên gia tư vấn khởi nghiệp cho người có kinh nghiệm 10+ năm.
+Bạn là chuyên gia tư vấn lập nghiệp cho người có kinh nghiệm 10+ năm.
 
 === CONTEXT ===
 {rag_context}
@@ -174,21 +198,49 @@ Rào cản: {barriers}
 Vốn dự kiến: {budget}
 
 === NHIỆM VỤ ===
-Đề xuất 3 ý tưởng khởi nghiệp phù hợp với profile trên.
+Đề xuất 3 ý tưởng lập nghiệp PHÙ HỢP VỚI TỪNG CÁ NHÂN.
+
+PHÂN TÍCH BẮT BUỘC VỚI MỖI Ý TƯỞNG:
+1. **reasoning**: Tại sao ý tưởng này phù hợp với user? (dựa trên kinh nghiệm, kỹ năng, tuổi, thị trường)
+2. **user_strengths**: Điểm mạnh của user phù hợp với ý tưởng này
+3. **what_to_learn**: Kỹ năng cần bổ sung để thực hiện ý tưởng
+4. **risks**: Rủi ro hoặc lưu ý thực tế khi thực hiện ý tưởng này
 
 === OUTPUT FORMAT ===
 {{
   "startup_ideas": [
     {{
       "name": "Tên ý tưởng",
-      "description": "Mô tả",
+      "match_score": 0.85,
+      "reasoning": [
+        "Lý do 1: Tại sao phù hợp với user",
+        "Lý do 2: Dựa trên kinh nghiệm/kỹ năng",
+        "Lý do 3: Thị trường và tiềm năng"
+      ],
+      "user_strengths": [
+        "Điểm mạnh 1 phù hợp với ý tưởng",
+        "Điểm mạnh 2 phù hợp với ý tưởng"
+      ],
       "required_capital": "Vốn cần thiết",
-      "timeline": "Thời gian",
+      "timeline": "Thời gian khởi động",
       "expected_profit": "Lợi nhuận dự kiến",
-      "leverage_experience": "Cách tận dụng kinh nghiệm"
+      "what_to_learn": [
+        "Kỹ năng cần bổ sung 1",
+        "Kỹ năng cần bổ sung 2"
+      ],
+      "risks": [
+        "Rủi ro 1",
+        "Rủi ro 2"
+      ]
     }}
   ]
-}}"""
+}}
+
+QUAN TRỌNG:
+- startup_ideas phải là ARRAY OF OBJECTS
+- reasoning, user_strengths, what_to_learn, risks phải là arrays of strings
+- match_score phải là số từ 0.0 đến 1.0
+- Mỗi ý tưởng phải có ÍT NHẤT 2 phần tử trong mỗi array"""
 
 
 SKILLS_GAP_PROMPT = """=== PERSONA ===
@@ -250,7 +302,7 @@ def format_startup_prompt(profile: dict, rag_context: str, budget: str = "50-100
     system_prompt = STARTUP_PROMPT.format(**substitutions)
     # Replace double braces with single braces for JSON structure
     system_prompt = system_prompt.replace("{{", "{").replace("}}", "}")
-    user_prompt = "Hãy đề xuất 3 ý tưởng khởi nghiệp phù hợp với tôi."
+    user_prompt = "Hãy đề xuất 3 ý tưởng lập nghiệp phù hợp với tôi."
 
     return system_prompt, user_prompt
 

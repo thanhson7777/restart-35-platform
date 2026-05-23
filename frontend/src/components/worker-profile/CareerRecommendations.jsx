@@ -16,7 +16,11 @@ import {
   BarChart3,
   Rocket,
   Brain,
-  Route
+  Route,
+  Lightbulb,
+  ThumbsUp,
+  BookOpen,
+  AlertCircle
 } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import {
@@ -110,148 +114,147 @@ const PathCard = ({ path, type, index }) => {
       animate="visible"
       className="bg-white rounded-xl border border-border p-4 hover:shadow-md transition-shadow"
     >
-      <div className="flex items-start gap-3">
+      {/* Header: Icon + Title + Match Score */}
+      <div className="flex items-start gap-3 mb-3">
         <div className={cn('flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center', bg)}>
           <Icon size={20} className={color} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h4 className="font-medium text-foreground truncate">{path.job_title || path.title}</h4>
-            {path.urgency && <UrgencyBadge urgency={path.urgency} />}
             {path.match_score && (
               <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
                 Match: {(path.match_score * 100).toFixed(0)}%
               </span>
             )}
           </div>
+        </div>
+      </div>
 
-          {path.description && (
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-              {path.description}
-            </p>
-          )}
+      {/* Content: 1 khối gộp */}
+      <div className="space-y-3">
+        {/* Reasoning: Tại sao gợi ý */}
+        {path.reasoning?.length > 0 && (
+          <div className="bg-emerald-50 rounded-lg p-3 border-l-4 border-emerald-500">
+            <div className="flex items-center gap-2 mb-2">
+              <Lightbulb size={14} className="text-emerald-600" />
+              <p className="text-sm font-medium text-emerald-800">Tại sao gợi ý nghề này?</p>
+            </div>
+            <ul className="space-y-1">
+              {path.reasoning.map((reason, i) => (
+                <li key={i} className="text-xs text-emerald-700 flex items-start gap-1.5">
+                  <span className="text-emerald-500 mt-0.5">✓</span>
+                  <span>{reason}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-          {/* Salary & Timeline */}
-          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
-            {path.salary_range?.display && (
-              <span className="inline-flex items-center gap-1">
-                <DollarSign size={12} />
-                {path.salary_range.display}
-              </span>
+        {/* User Strengths: Điểm mạnh của bạn */}
+        {path.user_strengths?.length > 0 && (
+          <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+            <div className="flex items-center gap-2 mb-2">
+              <ThumbsUp size={14} className="text-blue-600" />
+              <p className="text-sm font-medium text-blue-800">Điểm mạnh của bạn</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {path.user_strengths.map((strength, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs"
+                >
+                  {strength}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* What to Learn: Cần học thêm */}
+        {(path.what_to_learn?.length > 0 || path.learning_path?.length > 0 || path.missing_skills?.length > 0) && (
+          <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen size={14} className="text-purple-600" />
+              <p className="text-sm font-medium text-purple-800">Cần học thêm</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {(path.what_to_learn || path.learning_path || path.missing_skills)?.map((skill, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs"
+                >
+                  <ArrowRight size={10} />
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Risks: Lưu ý */}
+        {path.risks?.length > 0 && (
+          <div className="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-500">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle size={14} className="text-amber-600" />
+              <p className="text-sm font-medium text-amber-800">Lưu ý</p>
+            </div>
+            <ul className="space-y-1">
+              {path.risks.map((risk, i) => (
+                <li key={i} className="text-xs text-amber-700 flex items-start gap-1.5">
+                  <span className="text-amber-500 mt-0.5">!</span>
+                  <span>{risk}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Legacy: Description fallback if no reasoning */}
+        {!path.reasoning?.length > 0 && path.description && (
+          <p className="text-sm text-muted-foreground">{path.description}</p>
+        )}
+
+        {/* Legacy: Pros/Cons fallback */}
+        {(path.pros?.length > 0 || path.cons?.length > 0) && (
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {path.pros?.length > 0 && (
+              <div>
+                <p className="text-green-600 font-medium mb-1">Ưu điểm:</p>
+                <ul className="text-slate-600 space-y-0.5">
+                  {path.pros.slice(0, 2).map((pro, i) => (
+                    <li key={i} className="flex items-start gap-1">
+                      <span className="text-green-500">+</span>
+                      {pro}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
-            {path.salary_range && !path.salary_range?.display && (
-              <span className="inline-flex items-center gap-1">
-                <DollarSign size={12} />
-                {path.salary_range}
-              </span>
-            )}
-            {path.timeline_months > 0 && (
-              <span className="inline-flex items-center gap-1">
-                <Clock size={12} />
-                {path.timeline_months} tháng
-              </span>
-            )}
-            {path.timeline && (
-              <span className="inline-flex items-center gap-1">
-                <Clock size={12} />
-                {path.timeline}
-              </span>
-            )}
-            {path.score > 0 && (
-              <span className="inline-flex items-center gap-1">
-                <Target size={12} />
-                Score: {path.score.toFixed(1)}
-              </span>
+            {path.cons?.length > 0 && (
+              <div>
+                <p className="text-amber-600 font-medium mb-1">Lưu ý:</p>
+                <ul className="text-slate-600 space-y-0.5">
+                  {path.cons.slice(0, 2).map((con, i) => (
+                    <li key={i} className="flex items-start gap-1">
+                      <span className="text-amber-500">!</span>
+                      {con}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
           </div>
+        )}
 
-          {/* Learning Path (RAG) */}
-          {path.learning_path?.length > 0 && (
-            <div className="mt-3">
-              <p className="text-xs text-muted-foreground mb-1.5">Lộ trình học tập:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {path.learning_path.slice(0, 4).map((skill, i) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-xs"
-                  >
-                    <ArrowRight size={10} />
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Missing Skills (Legacy) */}
-          {path.missing_skills?.length > 0 && (
-            <div className="mt-3">
-              <p className="text-xs text-muted-foreground mb-1.5">Cần học thêm:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {path.missing_skills.slice(0, 4).map((skill, i) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/5 text-primary rounded text-xs"
-                  >
-                    <ArrowRight size={10} />
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Sources (RAG) */}
-          {path.sources?.length > 0 && (
-            <div className="mt-3 flex items-center gap-1">
-              <Database size={10} className="text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">
-                Nguồn: {path.sources.join(', ')}
-              </span>
-            </div>
-          )}
-
-          {/* Leverage Experience (Startup) */}
-          {path.leverage_experience && (
-            <div className="mt-3 p-3 bg-slate-50 rounded-lg">
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {path.leverage_experience}
-              </p>
-            </div>
-          )}
-
-          {/* Pros/Cons */}
-          {(path.pros?.length > 0 || path.cons?.length > 0) && (
-            <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              {path.pros?.length > 0 && (
-                <div>
-                  <p className="text-green-600 font-medium mb-1">Ưu điểm:</p>
-                  <ul className="text-slate-600 space-y-0.5">
-                    {path.pros.slice(0, 2).map((pro, i) => (
-                      <li key={i} className="flex items-start gap-1">
-                        <span className="text-green-500">+</span>
-                        {pro}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {path.cons?.length > 0 && (
-                <div>
-                  <p className="text-amber-600 font-medium mb-1">Lưu ý:</p>
-                  <ul className="text-slate-600 space-y-0.5">
-                    {path.cons.slice(0, 2).map((con, i) => (
-                      <li key={i} className="flex items-start gap-1">
-                        <span className="text-amber-500">!</span>
-                        {con}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        {/* Leverage Experience (Startup) */}
+        {path.leverage_experience && (
+          <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+            <p className="text-xs text-slate-600 leading-relaxed">
+              {path.leverage_experience}
+            </p>
+          </div>
+        )}
       </div>
     </motion.div>
   )
@@ -298,7 +301,7 @@ const EmptyState = ({ onRetry, type }) => (
       {type === 'rag' || type === 'career'
         ? 'Chưa có gợi ý từ AI'
         : type === 'startup'
-          ? 'Chưa có gợi ý khởi nghiệp'
+          ? 'Chưa có gợi ý lập nghiệp'
           : type === 'skills'
             ? 'Chưa có phân tích kỹ năng'
             : 'Chưa có gợi ý lộ trình sự nghiệp'}
@@ -353,41 +356,139 @@ const StartupCard = ({ idea, index }) => {
       animate="visible"
       className="bg-white rounded-xl border border-border p-4 hover:shadow-md transition-shadow"
     >
-      <div className="flex items-start gap-3">
+      {/* Header: Rocket icon + Name + Match Score */}
+      <div className="flex items-start gap-3 mb-3">
         <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
           <Rocket size={20} className="text-orange-500" />
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-foreground">{idea.name}</h4>
-          <p className="text-sm text-muted-foreground mt-1">{idea.description}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h4 className="font-medium text-foreground">{idea.name}</h4>
+            {idea.match_score && (
+              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                Match: {(idea.match_score * 100).toFixed(0)}%
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-3 text-xs">
-            <div className="flex items-center gap-1">
-              <DollarSign size={12} className="text-muted-foreground" />
-              <span className="text-muted-foreground">Vốn:</span>
-              <span className="font-medium">{idea.required_capital}</span>
+      {/* Content: 1 khối gộp */}
+      <div className="space-y-3">
+        {/* Reasoning: Tại sao gợi ý */}
+        {idea.reasoning?.length > 0 && (
+          <div className="bg-emerald-50 rounded-lg p-3 border-l-4 border-emerald-500">
+            <div className="flex items-center gap-2 mb-2">
+              <Lightbulb size={14} className="text-emerald-600" />
+              <p className="text-sm font-medium text-emerald-800">Tại sao gợi ý ý tưởng này?</p>
             </div>
-            <div className="flex items-center gap-1">
-              <Clock size={12} className="text-muted-foreground" />
-              <span className="text-muted-foreground">Thời gian:</span>
-              <span className="font-medium">{idea.timeline}</span>
+            <ul className="space-y-1">
+              {idea.reasoning.map((reason, i) => (
+                <li key={i} className="text-xs text-emerald-700 flex items-start gap-1.5">
+                  <span className="text-emerald-500 mt-0.5">✓</span>
+                  <span>{reason}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* User Strengths: Điểm mạnh của bạn */}
+        {idea.user_strengths?.length > 0 && (
+          <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+            <div className="flex items-center gap-2 mb-2">
+              <ThumbsUp size={14} className="text-blue-600" />
+              <p className="text-sm font-medium text-blue-800">Điểm mạnh của bạn</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {idea.user_strengths.map((strength, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs"
+                >
+                  {strength}
+                </span>
+              ))}
             </div>
           </div>
+        )}
 
-          {idea.expected_profit && (
-            <p className="text-xs text-green-600 mt-2">
-              Lợi nhuận dự kiến: {idea.expected_profit}
-            </p>
-          )}
-
-          {idea.leverage_experience && (
-            <div className="mt-3 p-3 bg-slate-50 rounded-lg">
-              <p className="text-xs text-slate-600">
-                <span className="font-medium">Tận dụng kinh nghiệm:</span> {idea.leverage_experience}
-              </p>
+        {/* What to Learn: Cần học thêm */}
+        {idea.what_to_learn?.length > 0 && (
+          <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen size={14} className="text-purple-600" />
+              <p className="text-sm font-medium text-purple-800">Cần học thêm</p>
             </div>
-          )}
-        </div>
+            <div className="flex flex-wrap gap-1.5">
+              {idea.what_to_learn.map((skill, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs"
+                >
+                  <ArrowRight size={10} />
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Risks: Lưu ý */}
+        {idea.risks?.length > 0 && (
+          <div className="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-500">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle size={14} className="text-amber-600" />
+              <p className="text-sm font-medium text-amber-800">Lưu ý</p>
+            </div>
+            <ul className="space-y-1">
+              {idea.risks.map((risk, i) => (
+                <li key={i} className="text-xs text-amber-700 flex items-start gap-1.5">
+                  <span className="text-amber-500 mt-0.5">!</span>
+                  <span>{risk}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Legacy: Description fallback if no reasoning */}
+        {!idea.reasoning?.length > 0 && idea.description && (
+          <p className="text-sm text-muted-foreground">{idea.description}</p>
+        )}
+
+        {/* Legacy: leverage_experience fallback */}
+        {idea.leverage_experience && (
+          <div className="p-3 bg-slate-50 rounded-lg">
+            <p className="text-xs text-slate-600">
+              <span className="font-medium">Tận dụng kinh nghiệm:</span> {idea.leverage_experience}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Footer: Basic Info - Compact */}
+      <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-border text-xs">
+        {idea.required_capital && (
+          <div className="flex items-center gap-1">
+            <DollarSign size={12} className="text-muted-foreground" />
+            <span className="text-muted-foreground">Vốn:</span>
+            <span className="font-medium">{idea.required_capital}</span>
+          </div>
+        )}
+        {idea.timeline && (
+          <div className="flex items-center gap-1">
+            <Clock size={12} className="text-muted-foreground" />
+            <span className="text-muted-foreground">Thời gian:</span>
+            <span className="font-medium">{idea.timeline}</span>
+          </div>
+        )}
+        {idea.expected_profit && (
+          <div className="flex items-center gap-1 text-green-600">
+            <TrendingUp size={12} />
+            <span className="font-medium">{idea.expected_profit}</span>
+          </div>
+        )}
       </div>
     </motion.div>
   )
@@ -529,7 +630,10 @@ function CareerRecommendations({ className, userProfile }) {
   const [dataSource, setDataSource] = useState(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastGenerated, setLastGenerated] = useState(null)
-  const [activeTab, setActiveTab] = useState('career') // 'career' | 'startup' | 'skills'
+  const [activeTab, setActiveTab] = useState('career') // 'career' | 'skills'
+
+  // Check if user wants to see startup suggestions
+  const wantsToStartBusiness = userProfile?.aspirations?.wantsToStartBusiness || false
 
   // Refs to prevent infinite loops
   const hasFetchedRAG = useRef(false)
@@ -753,7 +857,8 @@ function CareerRecommendations({ className, userProfile }) {
       hasFetchedRAG.current = true
       fetchRAGData(profileData)
     }
-    if (activeTab === 'startup' && !hasFetchedStartup.current && startupIdeas.length === 0) {
+    // Fetch startup when viewing career tab AND user wants to start business
+    if (activeTab === 'career' && wantsToStartBusiness && !hasFetchedStartup.current && startupIdeas.length === 0) {
       hasFetchedStartup.current = true
       const profile = buildProfileData(profileData)
       dispatch(triggerStartupSuggestion({ profile }))
@@ -763,15 +868,17 @@ function CareerRecommendations({ className, userProfile }) {
       const profile = buildProfileData(profileData)
       dispatch(triggerSkillsGapAnalysis({ profile }))
     }
-  }, [activeTab, isLoggedIn, startupIdeas.length, skillsGap])
+  }, [activeTab, isLoggedIn, wantsToStartBusiness, startupIdeas.length, skillsGap])
 
   const handleRetry = () => {
     // Reset flags for retry based on current tab
     if (activeTab === 'career') {
       hasFetchedRAG.current = false
       hasFetchedLegacy.current = false
-    } else if (activeTab === 'startup') {
-      hasFetchedStartup.current = false
+      // Also reset startup if wantsToStartBusiness is true
+      if (wantsToStartBusiness) {
+        hasFetchedStartup.current = false
+      }
     } else if (activeTab === 'skills') {
       hasFetchedSkills.current = false
     }
@@ -852,19 +959,6 @@ function CareerRecommendations({ className, userProfile }) {
           >
             <Route size={14} />
             Lộ trình nghề nghiệp
-          </button>
-
-          <button
-            onClick={() => setActiveTab('startup')}
-            className={cn(
-              'px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
-              activeTab === 'startup'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <Rocket size={14} />
-            Khởi nghiệp
           </button>
 
           <button
@@ -955,6 +1049,31 @@ function CareerRecommendations({ className, userProfile }) {
             </div>
           )}
 
+          {/* Startup Section - Chỉ hiển thị khi wantsToStartBusiness = true */}
+          {wantsToStartBusiness && (
+            <div>
+              <SectionHeader
+                title="Gợi ý lập nghiệp"
+                subtitle="Dựa trên kinh nghiệm của bạn"
+                icon={Rocket}
+                count={startupIdeas.length}
+              />
+              {startupLoading ? (
+                <LoadingState isRAG={false} />
+              ) : startupError ? (
+                <ErrorState error={startupError} onRetry={handleRetry} />
+              ) : startupIdeas.length > 0 ? (
+                <div className="space-y-3">
+                  {startupIdeas.map((idea, i) => (
+                    <StartupCard key={`startup-${i}`} idea={idea} index={i} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState type="startup" />
+              )}
+            </div>
+          )}
+
           {/* RAG Generated timestamp */}
           {ragGeneratedAt && (
             <p className="text-xs text-muted-foreground text-center">
@@ -965,28 +1084,6 @@ function CareerRecommendations({ className, userProfile }) {
           {/* Show empty state if no RAG data */}
           {bestFits.length === 0 && incomeBoost.length === 0 && progression.length === 0 && !isLoadingRAG && !errorRAG && (
             <EmptyState type="rag" />
-          )}
-        </div>
-      )}
-
-      {/* Tab 2: Khởi nghiệp */}
-      {activeTab === 'startup' && (
-        <div className="space-y-4">
-          {startupLoading ? (
-            <LoadingState isRAG={false} />
-          ) : startupError ? (
-            <ErrorState error={startupError} onRetry={handleRetry} />
-          ) : startupIdeas.length > 0 ? (
-            <>
-              <div className="text-sm text-muted-foreground mb-4">
-                Dựa trên kinh nghiệm và kỹ năng của bạn, đây là những gợi ý khởi nghiệp phù hợp:
-              </div>
-              {startupIdeas.map((idea, i) => (
-                <StartupCard key={i} idea={idea} index={i} />
-              ))}
-            </>
-          ) : (
-            <EmptyState type="startup" />
           )}
         </div>
       )}

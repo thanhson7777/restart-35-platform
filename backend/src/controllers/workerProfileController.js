@@ -89,6 +89,19 @@ const completeProfile = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const reopenProfile = async (req, res, next) => {
+  try {
+    const userId = req.user._id.toString()
+    const result = await workerProfileService.reopenProfile(userId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Mở lại hồ sơ để chỉnh sửa!',
+      data: result
+    })
+  } catch (error) { next(error) }
+}
+
 const getProfiles = async (req, res, next) => {
   try {
     const { page, limit, isCompleted } = req.query
@@ -110,5 +123,6 @@ export const workerProfileController = {
   updateStep,
   autosave,
   completeProfile,
+  reopenProfile,
   getProfiles
 }

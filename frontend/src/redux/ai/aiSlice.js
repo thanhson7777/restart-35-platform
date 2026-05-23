@@ -407,7 +407,7 @@ export const triggerStartupSuggestion = createAsyncThunk(
       return response?.data ?? response
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || error.message || 'Không thể lấy gợi ý khởi nghiệp'
+        error.response?.data?.message || error.message || 'Không thể lấy gợi ý lập nghiệp'
       )
     }
   }

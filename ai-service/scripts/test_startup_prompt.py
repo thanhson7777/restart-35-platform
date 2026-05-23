@@ -474,7 +474,7 @@ def test_edge_cases(llm_client):
 
         system_prompt, user_prompt = format_startup_prompt(
             case["profile"],
-            "Mock RAG context với thông tin về xu hướng khởi nghiệp 2026.",
+            "Mock RAG context với thông tin về xu hướng lập nghiệp 2026.",
             budget="10-20 triệu"
         )
 
