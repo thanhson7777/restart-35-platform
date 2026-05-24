@@ -1,7 +1,24 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { JOB_TYPES, EDUCATION_LEVELS, BARRIER_TYPES, WORKER_PROFILE_STEPS, MAX_EMPLOYMENT_HISTORY, INDUSTRY_TYPES } from '~/utils/constants'
+import { JOB_TYPES, EDUCATION_LEVELS, BARRIER_TYPES, WORKER_PROFILE_STEPS, MAX_EMPLOYMENT_HISTORY } from '~/utils/constants'
+
+// ESCO Occupation schema (for nested data)
+const OCCUPATION_SCHEMA = Joi.object({
+  uri: Joi.string().allow(''),
+  code: Joi.string().allow(''),
+  titleEn: Joi.string().allow(''),
+  titleVi: Joi.string().allow('')
+})
+
+// ESCO Skill schema (for nested data)
+const SKILL_SCHEMA = Joi.object({
+  uri: Joi.string().allow(''),
+  titleEn: Joi.string().allow(''),
+  titleVi: Joi.string().allow(''),
+  type: Joi.string().allow(''),
+  isEssential: Joi.boolean().default(false)
+})
 
 const WORKER_PROFILE_COLLECTION_NAME = 'worker_profiles'
 const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
@@ -22,11 +39,24 @@ const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
   employmentHistory: Joi.array().items(
     Joi.object({
       companyName: Joi.string().allow(''),
+      // New occupation format (ESCO)
+      occupation: Joi.alternatives().try(
+        OCCUPATION_SCHEMA,
+        Joi.string().allow('') // Backward compat: old position string
+      ),
+      // Legacy position field (for backward compatibility)
       position: Joi.string().allow(''),
       duration: Joi.number().integer().min(0),
       jobType: Joi.string().valid(...Object.values(JOB_TYPES)),
-      industry: Joi.string().valid(...Object.values(INDUSTRY_TYPES)).allow(''),
-      skills: Joi.array().items(Joi.string())
+      // Skills can be string[] (legacy) or object[] (ESCO)
+      skills: Joi.array().items(
+        Joi.alternatives().try(
+          SKILL_SCHEMA,
+          Joi.string()
+        )
+      ),
+      // Legacy industry field (kept for backward compat but deprecated)
+      industry: Joi.string().allow('')
     })
   ).max(MAX_EMPLOYMENT_HISTORY),
 
@@ -40,12 +70,22 @@ const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
   }),
 
   aspirations: Joi.object({
-    targetJob: Joi.string().allow(''),
+    // New targetJob format (ESCO object)
+    targetJob: Joi.alternatives().try(
+      OCCUPATION_SCHEMA,
+      Joi.string().allow('') // Backward compat: old string format
+    ),
     targetJobNoPreference: Joi.boolean().default(false),
     targetSalary: Joi.number().integer().min(0),
     targetProvince: Joi.string().allow(''),
     preferredJobType: Joi.string().valid(...Object.values(JOB_TYPES)),
-    skills: Joi.array().items(Joi.string()),
+    // Skills can be string[] (legacy) or object[] (ESCO)
+    skills: Joi.array().items(
+      Joi.alternatives().try(
+        SKILL_SCHEMA,
+        Joi.string()
+      )
+    ),
     wantsToStartBusiness: Joi.boolean().default(false)
   }),
 

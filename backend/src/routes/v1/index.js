@@ -14,6 +14,7 @@ import { reviewRoute } from './reviewRoute'
 import { categoryRoute } from './categoryRoute'
 import { scholarshipRoute } from './scholarshipRoute'
 import { applicationRoute } from './applicationRoute'
+import { escoRoute } from './escoRoute'
 
 const Router = express.Router()
 
@@ -33,7 +34,8 @@ Router.get('/', (req, res) => {
       reviews: '/v1/reviews',
       categories: '/v1/categories',
       scholarships: '/v1/scholarships',
-      applications: '/v1/applications'
+      applications: '/v1/applications',
+      esco: '/v1/esco'
     }
   })
 })
@@ -51,5 +53,6 @@ Router.use('/reviews', reviewRoute)
 Router.use('/categories', categoryRoute)
 Router.use('/scholarships', scholarshipRoute)
 Router.use('/applications', applicationRoute)
+Router.use('/esco', escoRoute)
 
 export const APIS_V1 = Router
