@@ -136,16 +136,24 @@ def format_career_prompt(profile: dict, rag_context: str) -> tuple[str, str]:
     skills = []
     if current.get("skills"):
         if isinstance(current["skills"], list):
-            skills.extend(current["skills"])
+            for s in current["skills"]:
+                if isinstance(s, dict):
+                    skills.append(s.get("title", s.get("name", str(s))))
+                else:
+                    skills.append(str(s))
         else:
             skills.append(str(current["skills"]))
     
     # Also check basicInfo skills
     if basic_info.get("skills"):
         if isinstance(basic_info["skills"], list):
-            skills.extend(basic_info["skills"])
+            for s in basic_info["skills"]:
+                if isinstance(s, dict):
+                    skills.append(s.get("title", s.get("name", str(s))))
+                else:
+                    skills.append(str(s))
         else:
-            skills.append(str(basicInfo["skills"]))
+            skills.append(str(basic_info["skills"]))
     
     if isinstance(skills, list):
         skills_text = ", ".join(skills[:10])
@@ -280,11 +288,18 @@ def format_startup_prompt(profile: dict, rag_context: str, budget: str = "50-100
 
     current = employment[0] if employment else {}
 
-    skills = profile.get("skills", [])
-    if isinstance(skills, list):
+    # Extract skills from profile, handling both strings and dicts
+    raw_skills = profile.get("skills", [])
+    if isinstance(raw_skills, list):
+        skills = []
+        for s in raw_skills:
+            if isinstance(s, dict):
+                skills.append(s.get("title", s.get("name", str(s))))
+            else:
+                skills.append(str(s))
         skills_text = ", ".join(skills[:10])
     else:
-        skills_text = str(skills)
+        skills_text = str(raw_skills)
 
     barrier_list = [k for k, v in barriers.items() if v]
     barriers_text = ", ".join(barrier_list) if barrier_list else "Không có"
@@ -314,11 +329,17 @@ def format_skills_gap_prompt(profile: dict, rag_context: str) -> tuple[str, str]
     basic_info = profile.get("basicInfo", {})
     aspirations = profile.get("aspirations", {})
 
-    skills = profile.get("skills", basic_info.get("skills", []))
-    if isinstance(skills, list):
+    raw_skills = profile.get("skills", basic_info.get("skills", []))
+    if isinstance(raw_skills, list):
+        skills = []
+        for s in raw_skills:
+            if isinstance(s, dict):
+                skills.append(s.get("title", s.get("name", str(s))))
+            else:
+                skills.append(str(s))
         skills_text = ", ".join(skills[:10])
     else:
-        skills_text = str(skills)
+        skills_text = str(raw_skills)
 
     substitutions = {
         "rag_context": rag_context,

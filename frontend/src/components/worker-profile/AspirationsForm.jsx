@@ -6,8 +6,9 @@ import toast from 'react-hot-toast'
 import { MapPin, Lightbulb, Sparkles, RefreshCw, Loader2 } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import { Button } from '@/components/ui/Button'
-import { Input, Label, Textarea } from '@/components/ui/Input'
+import { Label } from '@/components/ui/Input'
 import { SelectField } from '@/components/ui/SelectField'
+import { OccupationSelect } from '@/components/ui/OccupationSelect'
 import SalaryInput from './SalaryInput'
 import JobTypeSelector from './JobTypeSelector'
 import { VIETNAM_PROVINCES } from '~/data/profileData'
@@ -42,7 +43,7 @@ const itemVariants = {
 
 // Initial state for aspirations
 const initialAspirations = {
-  targetJob: '',
+  targetJob: null, // Object format: { uri, code, titleEn, titleVi }
   targetJobNoPreference: false,
   targetSalary: 0,
   targetProvince: '',
@@ -123,6 +124,15 @@ function AspirationsForm({ onComplete }) {
     triggerAutosave()
   }
 
+  // Handle targetJob change from OccupationSelect
+  const handleTargetJobChange = (occupation) => {
+    setAspirations(prev => ({ ...prev, targetJob: occupation }))
+    if (errors.targetJob) {
+      setErrors(prev => ({ ...prev, targetJob: '' }))
+    }
+    triggerAutosave()
+  }
+
   // Validation
   const validate = () => {
     const newErrors = {}
@@ -193,9 +203,6 @@ function AspirationsForm({ onComplete }) {
     }
   }
 
-  // Suggested job based on selected skills
-  const suggestedJobs = aspirations.skills.slice(0, 3)
-
   // Handle update profile (khi đã hoàn thành)
   const handleUpdateProfile = async (e) => {
     e.preventDefault()
@@ -253,26 +260,18 @@ function AspirationsForm({ onComplete }) {
       </motion.div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Target Job */}
+        {/* Target Job - Using ESCO Search + Autocomplete */}
         <motion.div variants={itemVariants} data-error="targetJob">
           <div className="space-y-1.5">
             <Label htmlFor="targetJob" className="text-foreground">
               Công việc mong muốn
             </Label>
-            <Input
-              id="targetJob"
+            <OccupationSelect
               value={aspirations.targetJob}
-              onChange={(e) => updateField('targetJob', e.target.value)}
-              placeholder="VD: Phục vụ bàn, Lái xe, Nấu ăn..."
+              onChange={handleTargetJobChange}
+              placeholder="Tìm và chọn nghề nghiệp..."
               error={errors.targetJob}
-              list="suggested-jobs"
-              disabled={aspirations.targetJobNoPreference}
             />
-            <datalist id="suggested-jobs">
-              {suggestedJobs.map((skill) => (
-                <option key={skill} value={skill} />
-              ))}
-            </datalist>
             <div className="mt-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -280,7 +279,7 @@ function AspirationsForm({ onComplete }) {
                   checked={aspirations.targetJobNoPreference || false}
                   onChange={(e) => {
                     if (e.target.checked) {
-                      updateField('targetJob', '')
+                      setAspirations(prev => ({ ...prev, targetJob: null }))
                     }
                     updateField('targetJobNoPreference', e.target.checked)
                   }}
