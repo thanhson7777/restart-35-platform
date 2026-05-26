@@ -71,6 +71,14 @@ class Vieclam24hScraper(BaseScraper):
     def get_source_name(self) -> str:
         return 'Vieclam24h'
 
+    def start(self):
+        """Khởi tạo Playwright (được gọi bởi orchestrator)"""
+        return self._init_playwright()
+
+    def stop(self):
+        """Dọn dẹp Playwright (được gọi bởi orchestrator)"""
+        self._cleanup_playwright()
+
     def _init_playwright(self):
         """Khởi tạo Playwright nếu chưa có"""
         if self.browser is None:
