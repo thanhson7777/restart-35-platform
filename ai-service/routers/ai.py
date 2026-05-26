@@ -110,6 +110,11 @@ class JobResult(BaseModel):
     type: str
     experience_required: int
     description: str
+    # New fields for source tracking
+    source_url: str = ""
+    is_active: bool = True
+    quality_score: float = 0.0
+    source: str = ""
 
 
 class RecommendJobsResponse(BaseModel):

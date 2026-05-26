@@ -352,6 +352,61 @@ class JobRecommender:
         except (ValueError, TypeError):
             return 0.5  # Neutral nếu parse fails
 
+    def _compute_quality_score(self, row: 'pd.Series') -> float:
+        """
+        Compute quality score (0-100) based on data completeness.
+
+        Args:
+            row: Job row from dataframe
+
+        Returns:
+            Quality score from 0-100
+        """
+        score = 0
+
+        # Title (required)
+        if row.get('title'):
+            score += 20
+
+        # Company name
+        if row.get('company'):
+            score += 10
+
+        # Description length
+        desc_len = len(str(row.get('description') or ''))
+        if desc_len > 500:
+            score += 20
+        elif desc_len > 100:
+            score += 10
+        elif desc_len > 0:
+            score += 5
+
+        # Skills count
+        skills_list = row.get('skills_list', [])
+        skills_count = len(skills_list) if isinstance(skills_list, list) else 0
+        if skills_count >= 3:
+            score += 15
+        elif skills_count >= 1:
+            score += 5
+
+        # Salary
+        salary_min = row.get('salary_min') or 0
+        salary_max = row.get('salary_max') or 0
+        if salary_min and salary_max:
+            score += 15
+        elif salary_min or salary_max:
+            score += 5
+
+        # Location
+        if row.get('location'):
+            score += 10
+
+        # Experience
+        if row.get('experience_required') is not None:
+            score += 10
+
+        return min(score, 100)
+
     def _semantic_fallback(self, skills: List[str], target_job: Optional[str],
                            limit: int) -> List[Dict]:
         """
@@ -559,6 +614,11 @@ class JobRecommender:
                 'description': row.get('description', ''),
                 'scraped_at': row.get('scraped_at', ''),
                 'recency_score': round(recency_score, 2),
+                # New fields for source tracking
+                'source_url': row.get('job_url', ''),
+                'is_active': True,  # Assume active until verified otherwise
+                'quality_score': self._compute_quality_score(row),
+                'source': row.get('source', ''),
             }
 
             results.append(job_result)
@@ -619,7 +679,12 @@ class JobRecommender:
             'type': row.get('type', ''),
             'age_preference': row.get('age_preference', ''),
             'experience_required': row.get('experience_required', 0),
-            'description': row.get('description', '')
+            'description': row.get('description', ''),
+            # New fields
+            'source_url': row.get('job_url', ''),
+            'is_active': True,
+            'quality_score': self._compute_quality_score(row),
+            'source': row.get('source', ''),
         }
 
     def get_all_jobs(self, limit: int = 50) -> List[Dict]:
