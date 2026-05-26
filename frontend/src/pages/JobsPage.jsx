@@ -5,6 +5,7 @@ import { Button } from '@/components/ui'
 import { Card, CardContent } from '@/components/ui'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { JobCard } from '@/components/jobs'
+import JobDetailModal from '@/components/jobs/JobDetailModal'
 import CareerRecommendations from '@/components/worker-profile/CareerRecommendations'
 import MainLayout from '@/components/layout/MainLayout'
 import {
@@ -18,7 +19,9 @@ import {
   selectJobsError,
   selectJobFilters,
   selectSimilarJobs,
-  selectSavedJobs
+  selectSavedJobs,
+  reportDeadLinkAsync,
+  toggleSaveJob
 } from '@/redux/job/jobSlice'
 import {
   selectProfile,
@@ -121,6 +124,26 @@ const JobsPage = () => {
 
   // State
   const [activeTab, setActiveTab] = useState('recommended')
+  const [selectedJob, setSelectedJob] = useState(null)
+
+  // Handlers for job detail modal
+  const handleOpenJobDetail = (job) => {
+    setSelectedJob(job)
+  }
+
+  const handleCloseJobDetail = () => {
+    setSelectedJob(null)
+  }
+
+  const handleReportDeadLink = (jobId) => {
+    dispatch(reportDeadLinkAsync(jobId))
+    toast.success('Cảm ơn bạn đã báo cáo!')
+  }
+
+  const handleSaveJob = (job) => {
+    dispatch(toggleSaveJob(job))
+    toast.success('Đã lưu việc làm!')
+  }
 
   // Selectors
   const profile = useSelector(selectProfile)
@@ -560,6 +583,7 @@ const JobsPage = () => {
                     targetSalary={formData?.aspirations?.targetSalary}
                     onApply={handleApply}
                     onViewSimilar={handleViewSimilar}
+                    onOpenDetail={handleOpenJobDetail}
                   />
                 ))}
               </div>
@@ -576,6 +600,17 @@ const JobsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Job Detail Modal */}
+      {selectedJob && (
+        <JobDetailModal
+          job={selectedJob}
+          onClose={handleCloseJobDetail}
+          onApply={handleApply}
+          onReportDeadLink={handleReportDeadLink}
+          onSave={handleSaveJob}
+        />
+      )}
     </MainLayout>
   )
 }

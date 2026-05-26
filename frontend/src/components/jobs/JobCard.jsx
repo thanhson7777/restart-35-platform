@@ -114,7 +114,7 @@ const getMatchScoreColor = (score) => {
  * 2. Match score badge
  * 3. Skill tags with match indicators
  * 4. Explainability: "Tại sao phù hợp?"
- * Actions: Save, Similar, Apply
+ * Actions: Save, Similar, Apply, Open Detail
  *
  * @param {Object} props
  * @param {Object} props.job - Job data object
@@ -141,6 +141,7 @@ const getMatchScoreColor = (score) => {
  * @param {Object} [props.targetSalary] - User's target salary
  * @param {Object} [props.onApply] - Callback when clicking apply
  * @param {Object} [props.onViewSimilar] - Callback when clicking view similar
+ * @param {Function} [props.onOpenDetail] - Callback when clicking to open detail modal
  * @param {string} [props.className] - Additional CSS classes
  */
 const JobCard = ({
@@ -149,6 +150,7 @@ const JobCard = ({
   targetSalary = null,
   onApply,
   onViewSimilar,
+  onOpenDetail,
   className
 }) => {
   const dispatch = useDispatch()
@@ -170,7 +172,11 @@ const JobCard = ({
     matchingSkills: job?.matching_skills || [],
     logo: job?.logo || job?.company_logo,
     postedDate: job?.posted_date || job?.postedDate || job?.created_at,
-    description: job?.description || job?.job_description
+    description: job?.description || job?.job_description,
+    sourceUrl: job?.source_url || job?.sourceUrl || job?.job_url || '',
+    isActive: job?.is_active !== false,
+    qualityScore: job?.quality_score || job?.qualityScore || 0,
+    source: job?.source || ''
   }
 
   // Calculate matching skills if user skills provided
@@ -242,6 +248,14 @@ const JobCard = ({
     onApply?.(jobData)
   }
 
+  // Handle open detail
+  const handleOpenDetail = (e) => {
+    if (onOpenDetail) {
+      e?.stopPropagation?.()
+      onOpenDetail(job)
+    }
+  }
+
   // Generate company logo fallback
   const companyInitials = jobData.company
     .split(' ')
@@ -254,9 +268,10 @@ const JobCard = ({
   return (
     <Card
       className={cn(
-        'group hover:shadow-md transition-all duration-200 border-border/50 hover:border-primary/30',
+        'group hover:shadow-md transition-all duration-200 border-border/50 hover:border-primary/30 cursor-pointer',
         className
       )}
+      onClick={() => handleOpenDetail()}
     >
       <CardContent className="p-0">
         {/* Section 1: Basic Info */}

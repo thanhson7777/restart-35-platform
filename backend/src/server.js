@@ -9,6 +9,7 @@ import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
 import { corsOptions } from './config/cors'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import { initJobScheduler } from './services/jobScheduler.js'
 
 const START_SERVER = () => {
   const app = express()
@@ -52,6 +53,9 @@ const START_SERVER = () => {
     console.log('Đã kết nối tới Redis')
 
     START_SERVER()
+
+    // Khoi tao job scheduler
+    initJobScheduler()
   } catch (error) {
     console.log(error)
     process.exit(0)
