@@ -91,6 +91,21 @@ export const fetchJobById = createAsyncThunk(
   }
 )
 
+// Report dead link
+export const reportDeadLinkAsync = createAsyncThunk(
+  'jobs/reportDeadLink',
+  async (jobId, { rejectWithValue }) => {
+    try {
+      const response = await authorizeAxiosInstance.post('/v1/jobs/report-dead', {
+        jobId
+      })
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to report dead link')
+    }
+  }
+)
+
 const initialState = {
   // All jobs (for browsing)
   jobs: [],
@@ -219,6 +234,19 @@ const jobSlice = createSlice({
       .addCase(fetchJobById.fulfilled, (state, action) => {
         state.currentJob = action.payload
       })
+
+    // reportDeadLink
+    builder
+      .addCase(reportDeadLinkAsync.pending, (state) => {
+        // Optional: set loading state
+      })
+      .addCase(reportDeadLinkAsync.fulfilled, (state, action) => {
+        // Optional: track reported links
+        console.log('Dead link reported:', action.payload)
+      })
+      .addCase(reportDeadLinkAsync.rejected, (state, action) => {
+        console.error('Failed to report dead link:', action.payload)
+      })
   }
 })
 
@@ -229,7 +257,8 @@ export const {
   setFilters,
   clearFilters,
   toggleSaveJob,
-  clearSavedJobs
+  clearSavedJobs,
+  reportDeadLink
 } = jobSlice.actions
 
 // Selectors

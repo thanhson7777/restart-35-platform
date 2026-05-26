@@ -210,7 +210,7 @@ def translate_skills(limit: int = None, skip: int = 0) -> dict:
     query = {
         "$or": [
             {"titleVi": {"$exists": False}},
-            {"TitleVi": None},
+            {"titleVi": None},
             {"titleVi": ""}
         ]
     }
