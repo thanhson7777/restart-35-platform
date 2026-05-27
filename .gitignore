@@ -1,4 +1,6 @@
+# ============================
 # Python
+# ============================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -7,71 +9,141 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+*.egg
 
-# Virtual environments
+# ============================
+# Virtual Environments
+# ============================
 venv/
 env/
 .venv/
 
-# IDE
+# ============================
+# IDE & Editor
+# ============================
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
 Desktop.ini
 
-# Scraped output (keep sample, ignore large)
+# ============================
+# Node.js & Frontend
+# ============================
+node_modules/
+package-lock.json
+yarn.lock
+npm-debug.log*
+yarn-error.log*
+
+# Frontend build
+frontend/dist/
+frontend/.env
+
+# ============================
+# Backend / API
+# ============================
+backend/.env
+backend/node_modules/
+
+# ============================
+# Logs
+# ============================
+*.log
+logs/
+scraping*.log
+*.log.*
+
+# ============================
+# Python Logs (ai-service)
+# ============================
+ai-service/logs/
+ai-service/*.log
+ai-service/scraping*.log
+ai-service/scripts/scraping/*.log
+
+# ============================
+# Environment Files
+# ============================
+.env
+.env.local
+.env.*.local
+.env.example
+
+# ============================
+# Backup Files
+# ============================
+*_backup_*.csv
+*_backup_*.json
+*.bak
+*.backup
+
+# ============================
+# Cache
+# ============================
+*.cache
+*.pyo
+.pytest_cache/
+*.cache
+
+# ============================
+# Large Data Files (AI/ML)
+# ============================
+*.npy
+*.npz
+*.pkl
+*.pickle
+*.h5
+*.pt
+*.pth
+*.onnx
+*.model
+*.index
+*.faiss*
+*.faiss
+
+# ============================
+# Scraping Data
+# ============================
 scraped/
 metadata_*.json
 data/scraped/
 
-# Model temp files
+# ============================
+# Model Temp Files
+# ============================
 vi_model_temp/
+*.tmp
 
-# Logs
-logs/
-*.log
-scraping_*.log
+# ============================
+# Debug Files
+# ============================
+debug*.html
+*.debug
 
-# Backup files
-*_backup_*.csv
-*_backup_*.json
+# ============================
+# OS Files
+# ============================
+.DS_Store
+Thumbs.db
+Desktop.ini
 
-# Debug files
-debug_*.html
-
-# Cache
-*.pyc
-*.pyo
-*.cache
-
-# Cron scripts (Windows-specific)
-*_cron.bat
-scraping_cron.bat
-
-# Test outputs
-*_test.json
-*_test.csv
-debug_*.html
-
-# Cursor settings
+# ============================
+# Cursor / AI Tools
+# ============================
 .cursor/
+bfg.jar
+*.bfg-report
 
-# Docs folder
+# ============================
+# Docs (optional)
+# ============================
 docs/
 
-# Environment files (contain secrets)
-.env
-.env.local
-.env.*.local
-
-
-# HTML files in ai-service
-ai-service/**/*.htmlai-service/.env
-__pycache__/
-*.pyc
+# ============================
+# Data Folders
+# ============================
+data/esc*
