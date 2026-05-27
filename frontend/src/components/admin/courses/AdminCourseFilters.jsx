@@ -93,20 +93,18 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-                isActive
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'text-slate-600 hover:bg-slate-100'
-              }`}
+                }`}
             >
               {tab.label}
               {count !== null && (
                 <span
-                  className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                    isActive
+                  className={`ml-2 px-2 py-0.5 rounded-full text-xs ${isActive
                       ? 'bg-primary-foreground/20'
                       : 'bg-slate-100 text-slate-600'
-                  }`}
+                    }`}
                 >
                   {count}
                 </span>
