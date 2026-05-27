@@ -1,0 +1,3412 @@
+{
+  "metadata": {
+    "total_skills": 49,
+    "high_confidence": 14,
+    "medium_confidence": 35,
+    "low_confidence": 0,
+    "source": "Phase 4 test_results.json",
+    "generation_date": "2026-05-27"
+  },
+  "by_confidence_band": {
+    "high": [
+      {
+        "id": "skill_0004",
+        "job_id": "scraped_vietnamworks_algolia_07623",
+        "original_text": "quality",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+        "ground_truth_label": "quality standards",
+        "score": 0.9109,
+        "match_type": "embedding",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8977
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e54a3ed7-465f-432b-8940-2aeabeaa449e",
+            "label": "footwear quality",
+            "score": 0.8908
+          }
+        ]
+      },
+      {
+        "id": "skill_0005",
+        "job_id": "scraped_vietnamworks_algolia_07623",
+        "original_text": "communication",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+        "ground_truth_label": "communication",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/5ae07007-1348-4068-ab55-e6f420fa3874",
+            "label": "communication sciences",
+            "score": 0.9048
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/fe30a4b0-1a99-4fc7-afff-b162b8c834ba",
+            "label": "communication principles",
+            "score": 0.9041
+          }
+        ]
+      },
+      {
+        "id": "skill_0006",
+        "job_id": "scraped_vietnamworks_algolia_07623",
+        "original_text": "negotiation",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/7ee9fb56-91b1-4363-b51f-ea54ae1b5761",
+        "ground_truth_label": "negotiate price",
+        "score": 0.901,
+        "match_type": "embedding",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d4199178-81a1-40dd-a8c8-0f91b0489913",
+            "label": "negotiate settlements",
+            "score": 0.8906
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/fa68995c-305b-4962-96e7-70782fc385f8",
+            "label": "perform political negotiation",
+            "score": 0.8872
+          }
+        ]
+      },
+      {
+        "id": "skill_0007",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0008",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0010",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0011",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0013",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "English",
+        "ner_label": "SKILL_LANGUAGE",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+        "ground_truth_label": "English",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+            "label": "academic English",
+            "score": 0.8719
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+            "label": "write English",
+            "score": 0.8643
+          }
+        ]
+      },
+      {
+        "id": "skill_0014",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0032",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "English",
+        "ner_label": "SKILL_LANGUAGE",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+        "ground_truth_label": "English",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+            "label": "academic English",
+            "score": 0.8719
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+            "label": "write English",
+            "score": 0.8643
+          }
+        ]
+      },
+      {
+        "id": "skill_0033",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "Korean",
+        "ner_label": "SKILL_LANGUAGE",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/f9bc2890-d1f2-4a83-bd7b-b150a7679c79",
+        "ground_truth_label": "Korean",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/39c675c4-af13-49db-bbed-cf762102f85e",
+            "label": "Japanese",
+            "score": 0.8601
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/1fe42b38-cd42-4fc7-ae77-14e4c9e96295",
+            "label": "Chinese",
+            "score": 0.8591
+          }
+        ]
+      },
+      {
+        "id": "skill_0039",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "English",
+        "ner_label": "SKILL_LANGUAGE",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+        "ground_truth_label": "English",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+            "label": "academic English",
+            "score": 0.8719
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+            "label": "write English",
+            "score": 0.8643
+          }
+        ]
+      },
+      {
+        "id": "skill_0040",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "communication",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+        "ground_truth_label": "communication",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/5ae07007-1348-4068-ab55-e6f420fa3874",
+            "label": "communication sciences",
+            "score": 0.9048
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/fe30a4b0-1a99-4fc7-afff-b162b8c834ba",
+            "label": "communication principles",
+            "score": 0.9041
+          }
+        ]
+      },
+      {
+        "id": "skill_0044",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "Logistics",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/e843973c-23dd-416a-8a9c-9e89512542fb",
+        "ground_truth_label": "logistics",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/953c0b65-537a-42fe-a90b-26cd36c64361",
+            "label": "manage logistics",
+            "score": 0.8906
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/2ca4c857-1450-4004-9fdb-8500def6b8fa",
+            "label": "military logistics",
+            "score": 0.8832
+          }
+        ]
+      }
+    ],
+    "medium": [
+      {
+        "id": "skill_0001",
+        "job_id": "scraped_vietnamworks_algolia_06347",
+        "original_text": "Sáng tạo",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/8c4c49d4-9708-433f-8ca7-bf2c5211ee49",
+        "ground_truth_label": "develop creative ideas",
+        "score": 0.8488,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/c624c6a3-b0ba-4a31-a296-0d433fe47e41",
+            "label": "think creatively",
+            "score": 0.8478
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e927ab40-a135-4a7a-9dfc-b57132741281",
+            "label": "organise creative performance",
+            "score": 0.8351
+          }
+        ]
+      },
+      {
+        "id": "skill_0002",
+        "job_id": "scraped_vietnamworks_algolia_06347",
+        "original_text": "chịu áp lực",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/d15f8745-28f8-4abf-a7b6-6cb8a304efd2",
+        "ground_truth_label": "tolerate stress",
+        "score": 0.859,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/7a147904-22b3-498a-b4d9-7bceeb86b45d",
+            "label": "cope with stress",
+            "score": 0.8538
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/d82b3bfc-b323-44d6-8776-e3d28e9183a4",
+            "label": "cope with challenging demands",
+            "score": 0.8529
+          }
+        ]
+      },
+      {
+        "id": "skill_0003",
+        "job_id": "scraped_vietnamworks_algolia_07623",
+        "original_text": "meet",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/113b4428-0a31-4199-8496-070af7854b91",
+        "ground_truth_label": "meet commitments",
+        "score": 0.8898,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/fc3cdc2c-7b79-4b5c-a4b0-f3b996fef849",
+            "label": "attend meetings",
+            "score": 0.8792
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/aed3d1e7-e9f5-4298-9a51-45266a49c844",
+            "label": "match people",
+            "score": 0.874
+          }
+        ]
+      },
+      {
+        "id": "skill_0009",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "finance",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/b895bd42-0009-4815-a150-eb9eb5caec21",
+        "ground_truth_label": "stock market",
+        "score": 0.8624,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/88af9294-b697-4687-ae19-aefbb6234dfa",
+            "label": "economics",
+            "score": 0.8598
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/387ee646-0aaa-4161-ab3b-cde87ec09fdf",
+            "label": "public finance",
+            "score": 0.857
+          }
+        ]
+      },
+      {
+        "id": "skill_0012",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "interpersonal",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/15952b07-e74b-4618-baf2-51f40a5edbc4",
+        "ground_truth_label": "intermodalism",
+        "score": 0.873,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+            "label": "communication",
+            "score": 0.8674
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/956487a3-5b0b-4d03-8d0e-01e71fb65482",
+            "label": "social bonds",
+            "score": 0.8671
+          }
+        ]
+      },
+      {
+        "id": "skill_0015",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8493,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+            "label": "manage human resources",
+            "score": 0.8486
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/2d140a3a-45a6-4248-80dd-b3760ebc9cc6",
+            "label": "operations management",
+            "score": 0.8472
+          }
+        ]
+      },
+      {
+        "id": "skill_0016",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "bảo trì",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+        "ground_truth_label": "maintain equipment",
+        "score": 0.8628,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+            "label": "maintenance operations",
+            "score": 0.8592
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+            "label": "predictive maintenance",
+            "score": 0.8581
+          }
+        ]
+      },
+      {
+        "id": "skill_0017",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "bảo dưỡng",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/c927ec6e-9082-4b22-afd3-0c4e219eaf73",
+        "ground_truth_label": "ensure equipment maintenance",
+        "score": 0.8448,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/2ea26d96-22bc-4425-97d4-3fab5384f614",
+            "label": "manage nutrients",
+            "score": 0.8438
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/ca17f0df-59e4-4ed2-9360-fc5325bc7151",
+            "label": "supervise equipment",
+            "score": 0.8428
+          }
+        ]
+      },
+      {
+        "id": "skill_0018",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "bảo trì",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+        "ground_truth_label": "maintain equipment",
+        "score": 0.8628,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+            "label": "maintenance operations",
+            "score": 0.8592
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+            "label": "predictive maintenance",
+            "score": 0.8581
+          }
+        ]
+      },
+      {
+        "id": "skill_0019",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Tổ chức",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+        "ground_truth_label": "organisational structure",
+        "score": 0.8504,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/5bdb8e03-04ab-4869-a48f-3b013b5a2c3c",
+            "label": "organise compositions",
+            "score": 0.8499
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/bf05da8d-772a-4423-adb2-df79672f46f7",
+            "label": "organise information",
+            "score": 0.8478
+          }
+        ]
+      },
+      {
+        "id": "skill_0020",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "bảo trì",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+        "ground_truth_label": "maintain equipment",
+        "score": 0.8628,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+            "label": "maintenance operations",
+            "score": 0.8592
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+            "label": "predictive maintenance",
+            "score": 0.8581
+          }
+        ]
+      },
+      {
+        "id": "skill_0021",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Sửa chữa",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/af1c7b89-679b-4fae-b67c-ed05c669719c",
+        "ground_truth_label": "repair wiring",
+        "score": 0.8584,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/334e3e49-fb02-4051-809a-f06adfdc1c40",
+            "label": "troubleshoot",
+            "score": 0.8527
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e487f6f8-854d-4210-9658-4196f07cc209",
+            "label": "repair electronic components",
+            "score": 0.8522
+          }
+        ]
+      },
+      {
+        "id": "skill_0022",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Cao đẳng",
+        "ner_label": "CERTIFICATION",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/4e097377-7950-4993-9e22-a61b067b5c00",
+        "ground_truth_label": "social sciences",
+        "score": 0.818,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/489b2571-ce18-4944-b452-ed1f54e55b68",
+            "label": "Schoology",
+            "score": 0.8158
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/60856bbb-e5db-4398-babb-300a24a7fe97",
+            "label": "adult education",
+            "score": 0.8146
+          }
+        ]
+      },
+      {
+        "id": "skill_0023",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Bảo trì",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+        "ground_truth_label": "maintain equipment",
+        "score": 0.8532,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/a56054aa-4ffd-4c8b-8b63-437435d98187",
+            "label": "maintain trusts",
+            "score": 0.8501
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/a703b581-ad64-4791-8bb3-624aea569fa5",
+            "label": "maintain contract administration",
+            "score": 0.85
+          }
+        ]
+      },
+      {
+        "id": "skill_0024",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8749,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+            "label": "manage profitability",
+            "score": 0.8724
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8713
+          }
+        ]
+      },
+      {
+        "id": "skill_0025",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "vận hành",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/73de691d-d112-444b-a99f-606888fa9414",
+        "ground_truth_label": "transportation methods",
+        "score": 0.8438,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d7809fa0-8818-492f-95aa-ac8993e22aa8",
+            "label": "operation of transport equipment",
+            "score": 0.8432
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/a8ff65fc-b9ae-4ece-899a-30160209ab58",
+            "label": "operate dragline",
+            "score": 0.8432
+          }
+        ]
+      },
+      {
+        "id": "skill_0026",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "chất lượng",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+        "ground_truth_label": "quality standards",
+        "score": 0.8613,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8512
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e54a3ed7-465f-432b-8940-2aeabeaa449e",
+            "label": "footwear quality",
+            "score": 0.8488
+          }
+        ]
+      },
+      {
+        "id": "skill_0027",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "Tốt nghiệp Đại học",
+        "ner_label": "CERTIFICATION",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+        "ground_truth_label": "manage student admissions",
+        "score": 0.8329,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d4e9055e-597f-42ca-98ac-a5e3d8e881e1",
+            "label": "university procedures",
+            "score": 0.8307
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/9cdec88a-fe17-4f9a-9247-1f1802ab7408",
+            "label": "post-secondary school procedures",
+            "score": 0.8285
+          }
+        ]
+      },
+      {
+        "id": "skill_0028",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "Tài chính",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/387ee646-0aaa-4161-ab3b-cde87ec09fdf",
+        "ground_truth_label": "public finance",
+        "score": 0.8501,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/73d95ec0-d7fb-45e5-8134-b2ee1c0be8af",
+            "label": "manage personal finances",
+            "score": 0.848
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/4a460161-eaea-4fe2-bd0e-164ccc635be1",
+            "label": "financial statements",
+            "score": 0.8462
+          }
+        ]
+      },
+      {
+        "id": "skill_0029",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "Excel",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+        "ground_truth_label": "use spreadsheets software",
+        "score": 0.8377,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+            "label": "office software",
+            "score": 0.8308
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/598de5b0-5b58-4ea7-8058-a4bc4d18c742",
+            "label": "SQL",
+            "score": 0.8272
+          }
+        ]
+      },
+      {
+        "id": "skill_0030",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "Word",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/b6f26b50-3914-46ff-8f88-3defb71e007a",
+        "ground_truth_label": "terminology",
+        "score": 0.8311,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d4ae9564-0b61-4aa0-9df0-d4fdc969fd6f",
+            "label": "grammar",
+            "score": 0.8309
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e52a9361-b12f-4545-92a9-1c165e6dc3a4",
+            "label": "identify new words",
+            "score": 0.8303
+          }
+        ]
+      },
+      {
+        "id": "skill_0031",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "PowerPoint",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/234aeb8d-56c3-4531-9193-1c5e6a8d16cb",
+        "ground_truth_label": "use presentation software",
+        "score": 0.855,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/348b74cd-49ce-4844-8bdf-ec188b497213",
+            "label": "visual presentation techniques",
+            "score": 0.8502
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/14ced458-5f4b-495f-bd3d-9c240614bda0",
+            "label": "Adobe Photoshop",
+            "score": 0.8427
+          }
+        ]
+      },
+      {
+        "id": "skill_0034",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "HR",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+        "ground_truth_label": "human resource management",
+        "score": 0.8693,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+            "label": "manage human resources",
+            "score": 0.8623
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/5aa57bdc-5765-435e-8fc9-99b3febdb213",
+            "label": "hire human resources",
+            "score": 0.8532
+          }
+        ]
+      },
+      {
+        "id": "skill_0035",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "HR",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+        "ground_truth_label": "human resource management",
+        "score": 0.8693,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+            "label": "manage human resources",
+            "score": 0.8623
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/5aa57bdc-5765-435e-8fc9-99b3febdb213",
+            "label": "hire human resources",
+            "score": 0.8532
+          }
+        ]
+      },
+      {
+        "id": "skill_0036",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "Microsoft Office",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/f683ae1d-cb7c-4aa1-b9fe-205e1bd23535",
+        "ground_truth_label": "use microsoft office",
+        "score": 0.8651,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+            "label": "office software",
+            "score": 0.8649
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/6a609f8f-1451-4102-ad2d-62c5270e1237",
+            "label": "office administration",
+            "score": 0.8434
+          }
+        ]
+      },
+      {
+        "id": "skill_0037",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "Excel",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+        "ground_truth_label": "use spreadsheets software",
+        "score": 0.8377,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+            "label": "office software",
+            "score": 0.8308
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/598de5b0-5b58-4ea7-8058-a4bc4d18c742",
+            "label": "SQL",
+            "score": 0.8272
+          }
+        ]
+      },
+      {
+        "id": "skill_0038",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "Power BI",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/0f00f63f-3ab4-4057-b92f-500584b51757",
+        "ground_truth_label": "Informatica PowerCenter",
+        "score": 0.8486,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/36fccad9-1d20-4104-bcc2-a8ea9d1ce5ea",
+            "label": "assess power needs",
+            "score": 0.8416
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/143769cb-b61e-47d8-a61e-eedfbec1016c",
+            "label": "business intelligence",
+            "score": 0.8393
+          }
+        ]
+      },
+      {
+        "id": "skill_0041",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "tổ chức",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+        "ground_truth_label": "organisational structure",
+        "score": 0.8641,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/3ecff5db-ded6-4263-9db5-6601090ba299",
+            "label": "organise stage",
+            "score": 0.8528
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/5bdb8e03-04ab-4869-a48f-3b013b5a2c3c",
+            "label": "organise compositions",
+            "score": 0.8526
+          }
+        ]
+      },
+      {
+        "id": "skill_0042",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8749,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+            "label": "manage profitability",
+            "score": 0.8724
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8713
+          }
+        ]
+      },
+      {
+        "id": "skill_0043",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "Tốt nghiệp Đại học",
+        "ner_label": "CERTIFICATION",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+        "ground_truth_label": "manage student admissions",
+        "score": 0.8329,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d4e9055e-597f-42ca-98ac-a5e3d8e881e1",
+            "label": "university procedures",
+            "score": 0.8307
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/9cdec88a-fe17-4f9a-9247-1f1802ab7408",
+            "label": "post-secondary school procedures",
+            "score": 0.8285
+          }
+        ]
+      },
+      {
+        "id": "skill_0045",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "Chuỗi cung ứng",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/162c2e87-3d6f-4f7e-ab3c-97694c2f6f08",
+        "ground_truth_label": "schedule hatchery supplies",
+        "score": 0.826,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/9ea652f6-accf-45bb-b9a8-590f06f7bd51",
+            "label": "supply machine",
+            "score": 0.8256
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/3bc08c26-2f98-4730-bbb6-ec4a8566e3cf",
+            "label": "procurement lifecycle",
+            "score": 0.8247
+          }
+        ]
+      },
+      {
+        "id": "skill_0046",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8749,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+            "label": "manage profitability",
+            "score": 0.8724
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8713
+          }
+        ]
+      },
+      {
+        "id": "skill_0047",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "Kỹ năng giao tiếp",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/f5122357-c3f7-4f3e-b0cc-25173199d554",
+        "ground_truth_label": "teach communication methods",
+        "score": 0.8398,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/95930ceb-4d39-44d1-a361-b60bad7df2e5",
+            "label": "speech techniques",
+            "score": 0.8392
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/d6dbc6ea-9bb6-4a8f-9bc2-e9299d74fff9",
+            "label": "interact verbally in Vietnamese",
+            "score": 0.8388
+          }
+        ]
+      },
+      {
+        "id": "skill_0048",
+        "job_id": "scraped_vietnamworks_algolia_07966",
+        "original_text": "Kế toán",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+        "ground_truth_label": "accounting techniques",
+        "score": 0.86,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+            "label": "manage payroll",
+            "score": 0.8512
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e2e15494-65b9-4af5-8b86-53fb51e7e022",
+            "label": "manage accounts",
+            "score": 0.8491
+          }
+        ]
+      },
+      {
+        "id": "skill_0049",
+        "job_id": "scraped_vietnamworks_algolia_07966",
+        "original_text": "quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8749,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+            "label": "manage profitability",
+            "score": 0.8724
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8713
+          }
+        ]
+      }
+    ],
+    "low": []
+  },
+  "all_skills": [
+    {
+      "id": "skill_0001",
+      "job_id": "scraped_vietnamworks_algolia_06347",
+      "original_text": "Sáng tạo",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/8c4c49d4-9708-433f-8ca7-bf2c5211ee49",
+      "ground_truth_label": "develop creative ideas",
+      "score": 0.8488,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/c624c6a3-b0ba-4a31-a296-0d433fe47e41",
+          "label": "think creatively",
+          "score": 0.8478
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/e927ab40-a135-4a7a-9dfc-b57132741281",
+          "label": "organise creative performance",
+          "score": 0.8351
+        }
+      ]
+    },
+    {
+      "id": "skill_0002",
+      "job_id": "scraped_vietnamworks_algolia_06347",
+      "original_text": "chịu áp lực",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/d15f8745-28f8-4abf-a7b6-6cb8a304efd2",
+      "ground_truth_label": "tolerate stress",
+      "score": 0.859,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/7a147904-22b3-498a-b4d9-7bceeb86b45d",
+          "label": "cope with stress",
+          "score": 0.8538
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/d82b3bfc-b323-44d6-8776-e3d28e9183a4",
+          "label": "cope with challenging demands",
+          "score": 0.8529
+        }
+      ]
+    },
+    {
+      "id": "skill_0003",
+      "job_id": "scraped_vietnamworks_algolia_07623",
+      "original_text": "meet",
+      "ner_label": "SKILL_TOOL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/113b4428-0a31-4199-8496-070af7854b91",
+      "ground_truth_label": "meet commitments",
+      "score": 0.8898,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/fc3cdc2c-7b79-4b5c-a4b0-f3b996fef849",
+          "label": "attend meetings",
+          "score": 0.8792
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/aed3d1e7-e9f5-4298-9a51-45266a49c844",
+          "label": "match people",
+          "score": 0.874
+        }
+      ]
+    },
+    {
+      "id": "skill_0004",
+      "job_id": "scraped_vietnamworks_algolia_07623",
+      "original_text": "quality",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+      "ground_truth_label": "quality standards",
+      "score": 0.9109,
+      "match_type": "embedding",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+          "label": "manage quality",
+          "score": 0.8977
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/e54a3ed7-465f-432b-8940-2aeabeaa449e",
+          "label": "footwear quality",
+          "score": 0.8908
+        }
+      ]
+    },
+    {
+      "id": "skill_0005",
+      "job_id": "scraped_vietnamworks_algolia_07623",
+      "original_text": "communication",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+      "ground_truth_label": "communication",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/5ae07007-1348-4068-ab55-e6f420fa3874",
+          "label": "communication sciences",
+          "score": 0.9048
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/fe30a4b0-1a99-4fc7-afff-b162b8c834ba",
+          "label": "communication principles",
+          "score": 0.9041
+        }
+      ]
+    },
+    {
+      "id": "skill_0006",
+      "job_id": "scraped_vietnamworks_algolia_07623",
+      "original_text": "negotiation",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/7ee9fb56-91b1-4363-b51f-ea54ae1b5761",
+      "ground_truth_label": "negotiate price",
+      "score": 0.901,
+      "match_type": "embedding",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/d4199178-81a1-40dd-a8c8-0f91b0489913",
+          "label": "negotiate settlements",
+          "score": 0.8906
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/fa68995c-305b-4962-96e7-70782fc385f8",
+          "label": "perform political negotiation",
+          "score": 0.8872
+        }
+      ]
+    },
+    {
+      "id": "skill_0007",
+      "job_id": "scraped_vietnamworks_algolia_00057",
+      "original_text": "accounting",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+      "ground_truth_label": "accounting",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+          "label": "accounting techniques",
+          "score": 0.9099
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+          "label": "accounting entries",
+          "score": 0.8956
+        }
+      ]
+    },
+    {
+      "id": "skill_0008",
+      "job_id": "scraped_vietnamworks_algolia_00057",
+      "original_text": "accounting",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+      "ground_truth_label": "accounting",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+          "label": "accounting techniques",
+          "score": 0.9099
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+          "label": "accounting entries",
+          "score": 0.8956
+        }
+      ]
+    },
+    {
+      "id": "skill_0009",
+      "job_id": "scraped_vietnamworks_algolia_00057",
+      "original_text": "finance",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/b895bd42-0009-4815-a150-eb9eb5caec21",
+      "ground_truth_label": "stock market",
+      "score": 0.8624,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/88af9294-b697-4687-ae19-aefbb6234dfa",
+          "label": "economics",
+          "score": 0.8598
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/387ee646-0aaa-4161-ab3b-cde87ec09fdf",
+          "label": "public finance",
+          "score": 0.857
+        }
+      ]
+    },
+    {
+      "id": "skill_0010",
+      "job_id": "scraped_vietnamworks_algolia_00057",
+      "original_text": "accounting",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+      "ground_truth_label": "accounting",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+          "label": "accounting techniques",
+          "score": 0.9099
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+          "label": "accounting entries",
+          "score": 0.8956
+        }
+      ]
+    },
+    {
+      "id": "skill_0011",
+      "job_id": "scraped_vietnamworks_algolia_00057",
+      "original_text": "accounting",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+      "ground_truth_label": "accounting",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+          "label": "accounting techniques",
+          "score": 0.9099
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+          "label": "accounting entries",
+          "score": 0.8956
+        }
+      ]
+    },
+    {
+      "id": "skill_0012",
+      "job_id": "scraped_vietnamworks_algolia_00057",
+      "original_text": "interpersonal",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/15952b07-e74b-4618-baf2-51f40a5edbc4",
+      "ground_truth_label": "intermodalism",
+      "score": 0.873,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+          "label": "communication",
+          "score": 0.8674
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/956487a3-5b0b-4d03-8d0e-01e71fb65482",
+          "label": "social bonds",
+          "score": 0.8671
+        }
+      ]
+    },
+    {
+      "id": "skill_0013",
+      "job_id": "scraped_vietnamworks_algolia_00057",
+      "original_text": "English",
+      "ner_label": "SKILL_LANGUAGE",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+      "ground_truth_label": "English",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+          "label": "academic English",
+          "score": 0.8719
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+          "label": "write English",
+          "score": 0.8643
+        }
+      ]
+    },
+    {
+      "id": "skill_0014",
+      "job_id": "scraped_vietnamworks_algolia_00057",
+      "original_text": "accounting",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+      "ground_truth_label": "accounting",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+          "label": "accounting techniques",
+          "score": 0.9099
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+          "label": "accounting entries",
+          "score": 0.8956
+        }
+      ]
+    },
+    {
+      "id": "skill_0015",
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "original_text": "Quản lý",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+      "ground_truth_label": "manage payroll",
+      "score": 0.8493,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+          "label": "manage human resources",
+          "score": 0.8486
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/2d140a3a-45a6-4248-80dd-b3760ebc9cc6",
+          "label": "operations management",
+          "score": 0.8472
+        }
+      ]
+    },
+    {
+      "id": "skill_0016",
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "original_text": "bảo trì",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+      "ground_truth_label": "maintain equipment",
+      "score": 0.8628,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+          "label": "maintenance operations",
+          "score": 0.8592
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+          "label": "predictive maintenance",
+          "score": 0.8581
+        }
+      ]
+    },
+    {
+      "id": "skill_0017",
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "original_text": "bảo dưỡng",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/c927ec6e-9082-4b22-afd3-0c4e219eaf73",
+      "ground_truth_label": "ensure equipment maintenance",
+      "score": 0.8448,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/2ea26d96-22bc-4425-97d4-3fab5384f614",
+          "label": "manage nutrients",
+          "score": 0.8438
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/ca17f0df-59e4-4ed2-9360-fc5325bc7151",
+          "label": "supervise equipment",
+          "score": 0.8428
+        }
+      ]
+    },
+    {
+      "id": "skill_0018",
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "original_text": "bảo trì",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+      "ground_truth_label": "maintain equipment",
+      "score": 0.8628,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+          "label": "maintenance operations",
+          "score": 0.8592
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+          "label": "predictive maintenance",
+          "score": 0.8581
+        }
+      ]
+    },
+    {
+      "id": "skill_0019",
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "original_text": "Tổ chức",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+      "ground_truth_label": "organisational structure",
+      "score": 0.8504,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/5bdb8e03-04ab-4869-a48f-3b013b5a2c3c",
+          "label": "organise compositions",
+          "score": 0.8499
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/bf05da8d-772a-4423-adb2-df79672f46f7",
+          "label": "organise information",
+          "score": 0.8478
+        }
+      ]
+    },
+    {
+      "id": "skill_0020",
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "original_text": "bảo trì",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+      "ground_truth_label": "maintain equipment",
+      "score": 0.8628,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+          "label": "maintenance operations",
+          "score": 0.8592
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+          "label": "predictive maintenance",
+          "score": 0.8581
+        }
+      ]
+    },
+    {
+      "id": "skill_0021",
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "original_text": "Sửa chữa",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/af1c7b89-679b-4fae-b67c-ed05c669719c",
+      "ground_truth_label": "repair wiring",
+      "score": 0.8584,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/334e3e49-fb02-4051-809a-f06adfdc1c40",
+          "label": "troubleshoot",
+          "score": 0.8527
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/e487f6f8-854d-4210-9658-4196f07cc209",
+          "label": "repair electronic components",
+          "score": 0.8522
+        }
+      ]
+    },
+    {
+      "id": "skill_0022",
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "original_text": "Cao đẳng",
+      "ner_label": "CERTIFICATION",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/4e097377-7950-4993-9e22-a61b067b5c00",
+      "ground_truth_label": "social sciences",
+      "score": 0.818,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/489b2571-ce18-4944-b452-ed1f54e55b68",
+          "label": "Schoology",
+          "score": 0.8158
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/60856bbb-e5db-4398-babb-300a24a7fe97",
+          "label": "adult education",
+          "score": 0.8146
+        }
+      ]
+    },
+    {
+      "id": "skill_0023",
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "original_text": "Bảo trì",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+      "ground_truth_label": "maintain equipment",
+      "score": 0.8532,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/a56054aa-4ffd-4c8b-8b63-437435d98187",
+          "label": "maintain trusts",
+          "score": 0.8501
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/a703b581-ad64-4791-8bb3-624aea569fa5",
+          "label": "maintain contract administration",
+          "score": 0.85
+        }
+      ]
+    },
+    {
+      "id": "skill_0024",
+      "job_id": "scraped_vietnamworks_algolia_05561",
+      "original_text": "quản lý",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+      "ground_truth_label": "manage payroll",
+      "score": 0.8749,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+          "label": "manage profitability",
+          "score": 0.8724
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+          "label": "manage quality",
+          "score": 0.8713
+        }
+      ]
+    },
+    {
+      "id": "skill_0025",
+      "job_id": "scraped_vietnamworks_algolia_05561",
+      "original_text": "vận hành",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/73de691d-d112-444b-a99f-606888fa9414",
+      "ground_truth_label": "transportation methods",
+      "score": 0.8438,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/d7809fa0-8818-492f-95aa-ac8993e22aa8",
+          "label": "operation of transport equipment",
+          "score": 0.8432
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/a8ff65fc-b9ae-4ece-899a-30160209ab58",
+          "label": "operate dragline",
+          "score": 0.8432
+        }
+      ]
+    },
+    {
+      "id": "skill_0026",
+      "job_id": "scraped_vietnamworks_algolia_05561",
+      "original_text": "chất lượng",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+      "ground_truth_label": "quality standards",
+      "score": 0.8613,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+          "label": "manage quality",
+          "score": 0.8512
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/e54a3ed7-465f-432b-8940-2aeabeaa449e",
+          "label": "footwear quality",
+          "score": 0.8488
+        }
+      ]
+    },
+    {
+      "id": "skill_0027",
+      "job_id": "scraped_vietnamworks_algolia_05561",
+      "original_text": "Tốt nghiệp Đại học",
+      "ner_label": "CERTIFICATION",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+      "ground_truth_label": "manage student admissions",
+      "score": 0.8329,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/d4e9055e-597f-42ca-98ac-a5e3d8e881e1",
+          "label": "university procedures",
+          "score": 0.8307
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/9cdec88a-fe17-4f9a-9247-1f1802ab7408",
+          "label": "post-secondary school procedures",
+          "score": 0.8285
+        }
+      ]
+    },
+    {
+      "id": "skill_0028",
+      "job_id": "scraped_vietnamworks_algolia_05561",
+      "original_text": "Tài chính",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/387ee646-0aaa-4161-ab3b-cde87ec09fdf",
+      "ground_truth_label": "public finance",
+      "score": 0.8501,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/73d95ec0-d7fb-45e5-8134-b2ee1c0be8af",
+          "label": "manage personal finances",
+          "score": 0.848
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/4a460161-eaea-4fe2-bd0e-164ccc635be1",
+          "label": "financial statements",
+          "score": 0.8462
+        }
+      ]
+    },
+    {
+      "id": "skill_0029",
+      "job_id": "scraped_vietnamworks_algolia_04615",
+      "original_text": "Excel",
+      "ner_label": "SKILL_TOOL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+      "ground_truth_label": "use spreadsheets software",
+      "score": 0.8377,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+          "label": "office software",
+          "score": 0.8308
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/598de5b0-5b58-4ea7-8058-a4bc4d18c742",
+          "label": "SQL",
+          "score": 0.8272
+        }
+      ]
+    },
+    {
+      "id": "skill_0030",
+      "job_id": "scraped_vietnamworks_algolia_04615",
+      "original_text": "Word",
+      "ner_label": "SKILL_TOOL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/b6f26b50-3914-46ff-8f88-3defb71e007a",
+      "ground_truth_label": "terminology",
+      "score": 0.8311,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/d4ae9564-0b61-4aa0-9df0-d4fdc969fd6f",
+          "label": "grammar",
+          "score": 0.8309
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/e52a9361-b12f-4545-92a9-1c165e6dc3a4",
+          "label": "identify new words",
+          "score": 0.8303
+        }
+      ]
+    },
+    {
+      "id": "skill_0031",
+      "job_id": "scraped_vietnamworks_algolia_04615",
+      "original_text": "PowerPoint",
+      "ner_label": "SKILL_TOOL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/234aeb8d-56c3-4531-9193-1c5e6a8d16cb",
+      "ground_truth_label": "use presentation software",
+      "score": 0.855,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/348b74cd-49ce-4844-8bdf-ec188b497213",
+          "label": "visual presentation techniques",
+          "score": 0.8502
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/14ced458-5f4b-495f-bd3d-9c240614bda0",
+          "label": "Adobe Photoshop",
+          "score": 0.8427
+        }
+      ]
+    },
+    {
+      "id": "skill_0032",
+      "job_id": "scraped_vietnamworks_algolia_04615",
+      "original_text": "English",
+      "ner_label": "SKILL_LANGUAGE",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+      "ground_truth_label": "English",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+          "label": "academic English",
+          "score": 0.8719
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+          "label": "write English",
+          "score": 0.8643
+        }
+      ]
+    },
+    {
+      "id": "skill_0033",
+      "job_id": "scraped_vietnamworks_algolia_04615",
+      "original_text": "Korean",
+      "ner_label": "SKILL_LANGUAGE",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/f9bc2890-d1f2-4a83-bd7b-b150a7679c79",
+      "ground_truth_label": "Korean",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/39c675c4-af13-49db-bbed-cf762102f85e",
+          "label": "Japanese",
+          "score": 0.8601
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/1fe42b38-cd42-4fc7-ae77-14e4c9e96295",
+          "label": "Chinese",
+          "score": 0.8591
+        }
+      ]
+    },
+    {
+      "id": "skill_0034",
+      "job_id": "scraped_vietnamworks_algolia_04839",
+      "original_text": "HR",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+      "ground_truth_label": "human resource management",
+      "score": 0.8693,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+          "label": "manage human resources",
+          "score": 0.8623
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/5aa57bdc-5765-435e-8fc9-99b3febdb213",
+          "label": "hire human resources",
+          "score": 0.8532
+        }
+      ]
+    },
+    {
+      "id": "skill_0035",
+      "job_id": "scraped_vietnamworks_algolia_04839",
+      "original_text": "HR",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+      "ground_truth_label": "human resource management",
+      "score": 0.8693,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+          "label": "manage human resources",
+          "score": 0.8623
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/5aa57bdc-5765-435e-8fc9-99b3febdb213",
+          "label": "hire human resources",
+          "score": 0.8532
+        }
+      ]
+    },
+    {
+      "id": "skill_0036",
+      "job_id": "scraped_vietnamworks_algolia_04839",
+      "original_text": "Microsoft Office",
+      "ner_label": "SKILL_TOOL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/f683ae1d-cb7c-4aa1-b9fe-205e1bd23535",
+      "ground_truth_label": "use microsoft office",
+      "score": 0.8651,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+          "label": "office software",
+          "score": 0.8649
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/6a609f8f-1451-4102-ad2d-62c5270e1237",
+          "label": "office administration",
+          "score": 0.8434
+        }
+      ]
+    },
+    {
+      "id": "skill_0037",
+      "job_id": "scraped_vietnamworks_algolia_04839",
+      "original_text": "Excel",
+      "ner_label": "SKILL_TOOL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+      "ground_truth_label": "use spreadsheets software",
+      "score": 0.8377,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+          "label": "office software",
+          "score": 0.8308
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/598de5b0-5b58-4ea7-8058-a4bc4d18c742",
+          "label": "SQL",
+          "score": 0.8272
+        }
+      ]
+    },
+    {
+      "id": "skill_0038",
+      "job_id": "scraped_vietnamworks_algolia_04839",
+      "original_text": "Power BI",
+      "ner_label": "SKILL_TOOL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/0f00f63f-3ab4-4057-b92f-500584b51757",
+      "ground_truth_label": "Informatica PowerCenter",
+      "score": 0.8486,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/36fccad9-1d20-4104-bcc2-a8ea9d1ce5ea",
+          "label": "assess power needs",
+          "score": 0.8416
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/143769cb-b61e-47d8-a61e-eedfbec1016c",
+          "label": "business intelligence",
+          "score": 0.8393
+        }
+      ]
+    },
+    {
+      "id": "skill_0039",
+      "job_id": "scraped_vietnamworks_algolia_04839",
+      "original_text": "English",
+      "ner_label": "SKILL_LANGUAGE",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+      "ground_truth_label": "English",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+          "label": "academic English",
+          "score": 0.8719
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+          "label": "write English",
+          "score": 0.8643
+        }
+      ]
+    },
+    {
+      "id": "skill_0040",
+      "job_id": "scraped_vietnamworks_algolia_04839",
+      "original_text": "communication",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+      "ground_truth_label": "communication",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/5ae07007-1348-4068-ab55-e6f420fa3874",
+          "label": "communication sciences",
+          "score": 0.9048
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/fe30a4b0-1a99-4fc7-afff-b162b8c834ba",
+          "label": "communication principles",
+          "score": 0.9041
+        }
+      ]
+    },
+    {
+      "id": "skill_0041",
+      "job_id": "scraped_vietnamworks_algolia_00798",
+      "original_text": "tổ chức",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+      "ground_truth_label": "organisational structure",
+      "score": 0.8641,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/3ecff5db-ded6-4263-9db5-6601090ba299",
+          "label": "organise stage",
+          "score": 0.8528
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/5bdb8e03-04ab-4869-a48f-3b013b5a2c3c",
+          "label": "organise compositions",
+          "score": 0.8526
+        }
+      ]
+    },
+    {
+      "id": "skill_0042",
+      "job_id": "scraped_vietnamworks_algolia_00798",
+      "original_text": "quản lý",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+      "ground_truth_label": "manage payroll",
+      "score": 0.8749,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+          "label": "manage profitability",
+          "score": 0.8724
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+          "label": "manage quality",
+          "score": 0.8713
+        }
+      ]
+    },
+    {
+      "id": "skill_0043",
+      "job_id": "scraped_vietnamworks_algolia_00798",
+      "original_text": "Tốt nghiệp Đại học",
+      "ner_label": "CERTIFICATION",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+      "ground_truth_label": "manage student admissions",
+      "score": 0.8329,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/d4e9055e-597f-42ca-98ac-a5e3d8e881e1",
+          "label": "university procedures",
+          "score": 0.8307
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/9cdec88a-fe17-4f9a-9247-1f1802ab7408",
+          "label": "post-secondary school procedures",
+          "score": 0.8285
+        }
+      ]
+    },
+    {
+      "id": "skill_0044",
+      "job_id": "scraped_vietnamworks_algolia_00798",
+      "original_text": "Logistics",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/e843973c-23dd-416a-8a9c-9e89512542fb",
+      "ground_truth_label": "logistics",
+      "score": 1.0,
+      "match_type": "exact",
+      "confidence_band": "high",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/953c0b65-537a-42fe-a90b-26cd36c64361",
+          "label": "manage logistics",
+          "score": 0.8906
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/2ca4c857-1450-4004-9fdb-8500def6b8fa",
+          "label": "military logistics",
+          "score": 0.8832
+        }
+      ]
+    },
+    {
+      "id": "skill_0045",
+      "job_id": "scraped_vietnamworks_algolia_00798",
+      "original_text": "Chuỗi cung ứng",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/162c2e87-3d6f-4f7e-ab3c-97694c2f6f08",
+      "ground_truth_label": "schedule hatchery supplies",
+      "score": 0.826,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/9ea652f6-accf-45bb-b9a8-590f06f7bd51",
+          "label": "supply machine",
+          "score": 0.8256
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/3bc08c26-2f98-4730-bbb6-ec4a8566e3cf",
+          "label": "procurement lifecycle",
+          "score": 0.8247
+        }
+      ]
+    },
+    {
+      "id": "skill_0046",
+      "job_id": "scraped_vietnamworks_algolia_00798",
+      "original_text": "quản lý",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+      "ground_truth_label": "manage payroll",
+      "score": 0.8749,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+          "label": "manage profitability",
+          "score": 0.8724
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+          "label": "manage quality",
+          "score": 0.8713
+        }
+      ]
+    },
+    {
+      "id": "skill_0047",
+      "job_id": "scraped_vietnamworks_algolia_00798",
+      "original_text": "Kỹ năng giao tiếp",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/f5122357-c3f7-4f3e-b0cc-25173199d554",
+      "ground_truth_label": "teach communication methods",
+      "score": 0.8398,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/95930ceb-4d39-44d1-a361-b60bad7df2e5",
+          "label": "speech techniques",
+          "score": 0.8392
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/d6dbc6ea-9bb6-4a8f-9bc2-e9299d74fff9",
+          "label": "interact verbally in Vietnamese",
+          "score": 0.8388
+        }
+      ]
+    },
+    {
+      "id": "skill_0048",
+      "job_id": "scraped_vietnamworks_algolia_07966",
+      "original_text": "Kế toán",
+      "ner_label": "SKILL_TECHNICAL",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+      "ground_truth_label": "accounting techniques",
+      "score": 0.86,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+          "label": "manage payroll",
+          "score": 0.8512
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/e2e15494-65b9-4af5-8b86-53fb51e7e022",
+          "label": "manage accounts",
+          "score": 0.8491
+        }
+      ]
+    },
+    {
+      "id": "skill_0049",
+      "job_id": "scraped_vietnamworks_algolia_07966",
+      "original_text": "quản lý",
+      "ner_label": "SKILL_SOFT",
+      "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+      "ground_truth_label": "manage payroll",
+      "score": 0.8749,
+      "match_type": "embedding",
+      "confidence_band": "medium",
+      "alternatives": [
+        {
+          "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+          "label": "manage profitability",
+          "score": 0.8724
+        },
+        {
+          "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+          "label": "manage quality",
+          "score": 0.8713
+        }
+      ]
+    }
+  ],
+  "by_ner_label": {
+    "SKILL_SOFT": [
+      {
+        "id": "skill_0001",
+        "job_id": "scraped_vietnamworks_algolia_06347",
+        "original_text": "Sáng tạo",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/8c4c49d4-9708-433f-8ca7-bf2c5211ee49",
+        "ground_truth_label": "develop creative ideas",
+        "score": 0.8488,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/c624c6a3-b0ba-4a31-a296-0d433fe47e41",
+            "label": "think creatively",
+            "score": 0.8478
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e927ab40-a135-4a7a-9dfc-b57132741281",
+            "label": "organise creative performance",
+            "score": 0.8351
+          }
+        ]
+      },
+      {
+        "id": "skill_0002",
+        "job_id": "scraped_vietnamworks_algolia_06347",
+        "original_text": "chịu áp lực",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/d15f8745-28f8-4abf-a7b6-6cb8a304efd2",
+        "ground_truth_label": "tolerate stress",
+        "score": 0.859,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/7a147904-22b3-498a-b4d9-7bceeb86b45d",
+            "label": "cope with stress",
+            "score": 0.8538
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/d82b3bfc-b323-44d6-8776-e3d28e9183a4",
+            "label": "cope with challenging demands",
+            "score": 0.8529
+          }
+        ]
+      },
+      {
+        "id": "skill_0005",
+        "job_id": "scraped_vietnamworks_algolia_07623",
+        "original_text": "communication",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+        "ground_truth_label": "communication",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/5ae07007-1348-4068-ab55-e6f420fa3874",
+            "label": "communication sciences",
+            "score": 0.9048
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/fe30a4b0-1a99-4fc7-afff-b162b8c834ba",
+            "label": "communication principles",
+            "score": 0.9041
+          }
+        ]
+      },
+      {
+        "id": "skill_0006",
+        "job_id": "scraped_vietnamworks_algolia_07623",
+        "original_text": "negotiation",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/7ee9fb56-91b1-4363-b51f-ea54ae1b5761",
+        "ground_truth_label": "negotiate price",
+        "score": 0.901,
+        "match_type": "embedding",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d4199178-81a1-40dd-a8c8-0f91b0489913",
+            "label": "negotiate settlements",
+            "score": 0.8906
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/fa68995c-305b-4962-96e7-70782fc385f8",
+            "label": "perform political negotiation",
+            "score": 0.8872
+          }
+        ]
+      },
+      {
+        "id": "skill_0012",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "interpersonal",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/15952b07-e74b-4618-baf2-51f40a5edbc4",
+        "ground_truth_label": "intermodalism",
+        "score": 0.873,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+            "label": "communication",
+            "score": 0.8674
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/956487a3-5b0b-4d03-8d0e-01e71fb65482",
+            "label": "social bonds",
+            "score": 0.8671
+          }
+        ]
+      },
+      {
+        "id": "skill_0015",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8493,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+            "label": "manage human resources",
+            "score": 0.8486
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/2d140a3a-45a6-4248-80dd-b3760ebc9cc6",
+            "label": "operations management",
+            "score": 0.8472
+          }
+        ]
+      },
+      {
+        "id": "skill_0019",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Tổ chức",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+        "ground_truth_label": "organisational structure",
+        "score": 0.8504,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/5bdb8e03-04ab-4869-a48f-3b013b5a2c3c",
+            "label": "organise compositions",
+            "score": 0.8499
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/bf05da8d-772a-4423-adb2-df79672f46f7",
+            "label": "organise information",
+            "score": 0.8478
+          }
+        ]
+      },
+      {
+        "id": "skill_0024",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8749,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+            "label": "manage profitability",
+            "score": 0.8724
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8713
+          }
+        ]
+      },
+      {
+        "id": "skill_0040",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "communication",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+        "ground_truth_label": "communication",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/5ae07007-1348-4068-ab55-e6f420fa3874",
+            "label": "communication sciences",
+            "score": 0.9048
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/fe30a4b0-1a99-4fc7-afff-b162b8c834ba",
+            "label": "communication principles",
+            "score": 0.9041
+          }
+        ]
+      },
+      {
+        "id": "skill_0041",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "tổ chức",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+        "ground_truth_label": "organisational structure",
+        "score": 0.8641,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/3ecff5db-ded6-4263-9db5-6601090ba299",
+            "label": "organise stage",
+            "score": 0.8528
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/5bdb8e03-04ab-4869-a48f-3b013b5a2c3c",
+            "label": "organise compositions",
+            "score": 0.8526
+          }
+        ]
+      },
+      {
+        "id": "skill_0042",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8749,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+            "label": "manage profitability",
+            "score": 0.8724
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8713
+          }
+        ]
+      },
+      {
+        "id": "skill_0046",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8749,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+            "label": "manage profitability",
+            "score": 0.8724
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8713
+          }
+        ]
+      },
+      {
+        "id": "skill_0047",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "Kỹ năng giao tiếp",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/f5122357-c3f7-4f3e-b0cc-25173199d554",
+        "ground_truth_label": "teach communication methods",
+        "score": 0.8398,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/95930ceb-4d39-44d1-a361-b60bad7df2e5",
+            "label": "speech techniques",
+            "score": 0.8392
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/d6dbc6ea-9bb6-4a8f-9bc2-e9299d74fff9",
+            "label": "interact verbally in Vietnamese",
+            "score": 0.8388
+          }
+        ]
+      },
+      {
+        "id": "skill_0049",
+        "job_id": "scraped_vietnamworks_algolia_07966",
+        "original_text": "quản lý",
+        "ner_label": "SKILL_SOFT",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "ground_truth_label": "manage payroll",
+        "score": 0.8749,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+            "label": "manage profitability",
+            "score": 0.8724
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8713
+          }
+        ]
+      }
+    ],
+    "SKILL_TOOL": [
+      {
+        "id": "skill_0003",
+        "job_id": "scraped_vietnamworks_algolia_07623",
+        "original_text": "meet",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/113b4428-0a31-4199-8496-070af7854b91",
+        "ground_truth_label": "meet commitments",
+        "score": 0.8898,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/fc3cdc2c-7b79-4b5c-a4b0-f3b996fef849",
+            "label": "attend meetings",
+            "score": 0.8792
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/aed3d1e7-e9f5-4298-9a51-45266a49c844",
+            "label": "match people",
+            "score": 0.874
+          }
+        ]
+      },
+      {
+        "id": "skill_0029",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "Excel",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+        "ground_truth_label": "use spreadsheets software",
+        "score": 0.8377,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+            "label": "office software",
+            "score": 0.8308
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/598de5b0-5b58-4ea7-8058-a4bc4d18c742",
+            "label": "SQL",
+            "score": 0.8272
+          }
+        ]
+      },
+      {
+        "id": "skill_0030",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "Word",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/b6f26b50-3914-46ff-8f88-3defb71e007a",
+        "ground_truth_label": "terminology",
+        "score": 0.8311,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d4ae9564-0b61-4aa0-9df0-d4fdc969fd6f",
+            "label": "grammar",
+            "score": 0.8309
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e52a9361-b12f-4545-92a9-1c165e6dc3a4",
+            "label": "identify new words",
+            "score": 0.8303
+          }
+        ]
+      },
+      {
+        "id": "skill_0031",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "PowerPoint",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/234aeb8d-56c3-4531-9193-1c5e6a8d16cb",
+        "ground_truth_label": "use presentation software",
+        "score": 0.855,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/348b74cd-49ce-4844-8bdf-ec188b497213",
+            "label": "visual presentation techniques",
+            "score": 0.8502
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/14ced458-5f4b-495f-bd3d-9c240614bda0",
+            "label": "Adobe Photoshop",
+            "score": 0.8427
+          }
+        ]
+      },
+      {
+        "id": "skill_0036",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "Microsoft Office",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/f683ae1d-cb7c-4aa1-b9fe-205e1bd23535",
+        "ground_truth_label": "use microsoft office",
+        "score": 0.8651,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+            "label": "office software",
+            "score": 0.8649
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/6a609f8f-1451-4102-ad2d-62c5270e1237",
+            "label": "office administration",
+            "score": 0.8434
+          }
+        ]
+      },
+      {
+        "id": "skill_0037",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "Excel",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+        "ground_truth_label": "use spreadsheets software",
+        "score": 0.8377,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+            "label": "office software",
+            "score": 0.8308
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/598de5b0-5b58-4ea7-8058-a4bc4d18c742",
+            "label": "SQL",
+            "score": 0.8272
+          }
+        ]
+      },
+      {
+        "id": "skill_0038",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "Power BI",
+        "ner_label": "SKILL_TOOL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/0f00f63f-3ab4-4057-b92f-500584b51757",
+        "ground_truth_label": "Informatica PowerCenter",
+        "score": 0.8486,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/36fccad9-1d20-4104-bcc2-a8ea9d1ce5ea",
+            "label": "assess power needs",
+            "score": 0.8416
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/143769cb-b61e-47d8-a61e-eedfbec1016c",
+            "label": "business intelligence",
+            "score": 0.8393
+          }
+        ]
+      }
+    ],
+    "SKILL_TECHNICAL": [
+      {
+        "id": "skill_0004",
+        "job_id": "scraped_vietnamworks_algolia_07623",
+        "original_text": "quality",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+        "ground_truth_label": "quality standards",
+        "score": 0.9109,
+        "match_type": "embedding",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8977
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e54a3ed7-465f-432b-8940-2aeabeaa449e",
+            "label": "footwear quality",
+            "score": 0.8908
+          }
+        ]
+      },
+      {
+        "id": "skill_0007",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0008",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0009",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "finance",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/b895bd42-0009-4815-a150-eb9eb5caec21",
+        "ground_truth_label": "stock market",
+        "score": 0.8624,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/88af9294-b697-4687-ae19-aefbb6234dfa",
+            "label": "economics",
+            "score": 0.8598
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/387ee646-0aaa-4161-ab3b-cde87ec09fdf",
+            "label": "public finance",
+            "score": 0.857
+          }
+        ]
+      },
+      {
+        "id": "skill_0010",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0011",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0014",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "accounting",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+        "ground_truth_label": "accounting",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.9099
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+            "label": "accounting entries",
+            "score": 0.8956
+          }
+        ]
+      },
+      {
+        "id": "skill_0016",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "bảo trì",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+        "ground_truth_label": "maintain equipment",
+        "score": 0.8628,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+            "label": "maintenance operations",
+            "score": 0.8592
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+            "label": "predictive maintenance",
+            "score": 0.8581
+          }
+        ]
+      },
+      {
+        "id": "skill_0017",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "bảo dưỡng",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/c927ec6e-9082-4b22-afd3-0c4e219eaf73",
+        "ground_truth_label": "ensure equipment maintenance",
+        "score": 0.8448,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/2ea26d96-22bc-4425-97d4-3fab5384f614",
+            "label": "manage nutrients",
+            "score": 0.8438
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/ca17f0df-59e4-4ed2-9360-fc5325bc7151",
+            "label": "supervise equipment",
+            "score": 0.8428
+          }
+        ]
+      },
+      {
+        "id": "skill_0018",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "bảo trì",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+        "ground_truth_label": "maintain equipment",
+        "score": 0.8628,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+            "label": "maintenance operations",
+            "score": 0.8592
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+            "label": "predictive maintenance",
+            "score": 0.8581
+          }
+        ]
+      },
+      {
+        "id": "skill_0020",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "bảo trì",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+        "ground_truth_label": "maintain equipment",
+        "score": 0.8628,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+            "label": "maintenance operations",
+            "score": 0.8592
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+            "label": "predictive maintenance",
+            "score": 0.8581
+          }
+        ]
+      },
+      {
+        "id": "skill_0021",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Sửa chữa",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/af1c7b89-679b-4fae-b67c-ed05c669719c",
+        "ground_truth_label": "repair wiring",
+        "score": 0.8584,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/334e3e49-fb02-4051-809a-f06adfdc1c40",
+            "label": "troubleshoot",
+            "score": 0.8527
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e487f6f8-854d-4210-9658-4196f07cc209",
+            "label": "repair electronic components",
+            "score": 0.8522
+          }
+        ]
+      },
+      {
+        "id": "skill_0023",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Bảo trì",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+        "ground_truth_label": "maintain equipment",
+        "score": 0.8532,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/a56054aa-4ffd-4c8b-8b63-437435d98187",
+            "label": "maintain trusts",
+            "score": 0.8501
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/a703b581-ad64-4791-8bb3-624aea569fa5",
+            "label": "maintain contract administration",
+            "score": 0.85
+          }
+        ]
+      },
+      {
+        "id": "skill_0025",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "vận hành",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/73de691d-d112-444b-a99f-606888fa9414",
+        "ground_truth_label": "transportation methods",
+        "score": 0.8438,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d7809fa0-8818-492f-95aa-ac8993e22aa8",
+            "label": "operation of transport equipment",
+            "score": 0.8432
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/a8ff65fc-b9ae-4ece-899a-30160209ab58",
+            "label": "operate dragline",
+            "score": 0.8432
+          }
+        ]
+      },
+      {
+        "id": "skill_0026",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "chất lượng",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+        "ground_truth_label": "quality standards",
+        "score": 0.8613,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+            "label": "manage quality",
+            "score": 0.8512
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e54a3ed7-465f-432b-8940-2aeabeaa449e",
+            "label": "footwear quality",
+            "score": 0.8488
+          }
+        ]
+      },
+      {
+        "id": "skill_0028",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "Tài chính",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/387ee646-0aaa-4161-ab3b-cde87ec09fdf",
+        "ground_truth_label": "public finance",
+        "score": 0.8501,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/73d95ec0-d7fb-45e5-8134-b2ee1c0be8af",
+            "label": "manage personal finances",
+            "score": 0.848
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/4a460161-eaea-4fe2-bd0e-164ccc635be1",
+            "label": "financial statements",
+            "score": 0.8462
+          }
+        ]
+      },
+      {
+        "id": "skill_0034",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "HR",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+        "ground_truth_label": "human resource management",
+        "score": 0.8693,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+            "label": "manage human resources",
+            "score": 0.8623
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/5aa57bdc-5765-435e-8fc9-99b3febdb213",
+            "label": "hire human resources",
+            "score": 0.8532
+          }
+        ]
+      },
+      {
+        "id": "skill_0035",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "HR",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+        "ground_truth_label": "human resource management",
+        "score": 0.8693,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+            "label": "manage human resources",
+            "score": 0.8623
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/5aa57bdc-5765-435e-8fc9-99b3febdb213",
+            "label": "hire human resources",
+            "score": 0.8532
+          }
+        ]
+      },
+      {
+        "id": "skill_0044",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "Logistics",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/e843973c-23dd-416a-8a9c-9e89512542fb",
+        "ground_truth_label": "logistics",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/953c0b65-537a-42fe-a90b-26cd36c64361",
+            "label": "manage logistics",
+            "score": 0.8906
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/2ca4c857-1450-4004-9fdb-8500def6b8fa",
+            "label": "military logistics",
+            "score": 0.8832
+          }
+        ]
+      },
+      {
+        "id": "skill_0045",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "Chuỗi cung ứng",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/162c2e87-3d6f-4f7e-ab3c-97694c2f6f08",
+        "ground_truth_label": "schedule hatchery supplies",
+        "score": 0.826,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/9ea652f6-accf-45bb-b9a8-590f06f7bd51",
+            "label": "supply machine",
+            "score": 0.8256
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/3bc08c26-2f98-4730-bbb6-ec4a8566e3cf",
+            "label": "procurement lifecycle",
+            "score": 0.8247
+          }
+        ]
+      },
+      {
+        "id": "skill_0048",
+        "job_id": "scraped_vietnamworks_algolia_07966",
+        "original_text": "Kế toán",
+        "ner_label": "SKILL_TECHNICAL",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+        "ground_truth_label": "accounting techniques",
+        "score": 0.86,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+            "label": "manage payroll",
+            "score": 0.8512
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/e2e15494-65b9-4af5-8b86-53fb51e7e022",
+            "label": "manage accounts",
+            "score": 0.8491
+          }
+        ]
+      }
+    ],
+    "SKILL_LANGUAGE": [
+      {
+        "id": "skill_0013",
+        "job_id": "scraped_vietnamworks_algolia_00057",
+        "original_text": "English",
+        "ner_label": "SKILL_LANGUAGE",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+        "ground_truth_label": "English",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+            "label": "academic English",
+            "score": 0.8719
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+            "label": "write English",
+            "score": 0.8643
+          }
+        ]
+      },
+      {
+        "id": "skill_0032",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "English",
+        "ner_label": "SKILL_LANGUAGE",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+        "ground_truth_label": "English",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+            "label": "academic English",
+            "score": 0.8719
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+            "label": "write English",
+            "score": 0.8643
+          }
+        ]
+      },
+      {
+        "id": "skill_0033",
+        "job_id": "scraped_vietnamworks_algolia_04615",
+        "original_text": "Korean",
+        "ner_label": "SKILL_LANGUAGE",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/f9bc2890-d1f2-4a83-bd7b-b150a7679c79",
+        "ground_truth_label": "Korean",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/39c675c4-af13-49db-bbed-cf762102f85e",
+            "label": "Japanese",
+            "score": 0.8601
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/1fe42b38-cd42-4fc7-ae77-14e4c9e96295",
+            "label": "Chinese",
+            "score": 0.8591
+          }
+        ]
+      },
+      {
+        "id": "skill_0039",
+        "job_id": "scraped_vietnamworks_algolia_04839",
+        "original_text": "English",
+        "ner_label": "SKILL_LANGUAGE",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+        "ground_truth_label": "English",
+        "score": 1.0,
+        "match_type": "exact",
+        "confidence_band": "high",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+            "label": "academic English",
+            "score": 0.8719
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+            "label": "write English",
+            "score": 0.8643
+          }
+        ]
+      }
+    ],
+    "CERTIFICATION": [
+      {
+        "id": "skill_0022",
+        "job_id": "scraped_vietnamworks_algolia_00143",
+        "original_text": "Cao đẳng",
+        "ner_label": "CERTIFICATION",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/4e097377-7950-4993-9e22-a61b067b5c00",
+        "ground_truth_label": "social sciences",
+        "score": 0.818,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/489b2571-ce18-4944-b452-ed1f54e55b68",
+            "label": "Schoology",
+            "score": 0.8158
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/60856bbb-e5db-4398-babb-300a24a7fe97",
+            "label": "adult education",
+            "score": 0.8146
+          }
+        ]
+      },
+      {
+        "id": "skill_0027",
+        "job_id": "scraped_vietnamworks_algolia_05561",
+        "original_text": "Tốt nghiệp Đại học",
+        "ner_label": "CERTIFICATION",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+        "ground_truth_label": "manage student admissions",
+        "score": 0.8329,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d4e9055e-597f-42ca-98ac-a5e3d8e881e1",
+            "label": "university procedures",
+            "score": 0.8307
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/9cdec88a-fe17-4f9a-9247-1f1802ab7408",
+            "label": "post-secondary school procedures",
+            "score": 0.8285
+          }
+        ]
+      },
+      {
+        "id": "skill_0043",
+        "job_id": "scraped_vietnamworks_algolia_00798",
+        "original_text": "Tốt nghiệp Đại học",
+        "ner_label": "CERTIFICATION",
+        "ground_truth_uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+        "ground_truth_label": "manage student admissions",
+        "score": 0.8329,
+        "match_type": "embedding",
+        "confidence_band": "medium",
+        "alternatives": [
+          {
+            "uri": "http://data.europa.eu/esco/skill/d4e9055e-597f-42ca-98ac-a5e3d8e881e1",
+            "label": "university procedures",
+            "score": 0.8307
+          },
+          {
+            "uri": "http://data.europa.eu/esco/skill/9cdec88a-fe17-4f9a-9247-1f1802ab7408",
+            "label": "post-secondary school procedures",
+            "score": 0.8285
+          }
+        ]
+      }
+    ]
+  }
+}

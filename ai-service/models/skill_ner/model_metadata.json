@@ -1,0 +1,48 @@
+{
+  "model_name": "skill_ner",
+  "version": "1.0.0",
+  "description": "NER model for extracting skill entities from Vietnamese job descriptions",
+  "language": "vi",
+  "framework": "spacy",
+  "training_date": "2026-05-27",
+  "training_data": {
+    "train_samples": 210,
+    "dev_samples": 60,
+    "test_samples": 30,
+    "total_entities": 1383
+  },
+  "entity_labels": [
+    "SKILL_TECHNICAL",
+    "SKILL_TOOL",
+    "SKILL_SOFT",
+    "SKILL_LANGUAGE",
+    "CERTIFICATION"
+  ],
+  "test_metrics": {
+    "ents_f": 0.9781,
+    "ents_p": 0.9710,
+    "ents_r": 0.9853,
+    "ents_per_type": {
+      "SKILL_TOOL": {"p": 0.8421, "r": 1.0, "f": 0.9143},
+      "SKILL_LANGUAGE": {"p": 1.0, "r": 0.9231, "f": 0.96},
+      "CERTIFICATION": {"p": 1.0, "r": 1.0, "f": 1.0},
+      "SKILL_SOFT": {"p": 1.0, "r": 0.9583, "f": 0.9787},
+      "SKILL_TECHNICAL": {"p": 0.9825, "r": 1.0, "f": 0.9912}
+    }
+  },
+  "target_metrics": {
+    "SKILL_TOOL": 0.80,
+    "SKILL_LANGUAGE": 0.85,
+    "CERTIFICATION": 0.75,
+    "SKILL_SOFT": 0.70,
+    "SKILL_TECHNICAL": 0.65,
+    "OVERALL": 0.70
+  },
+  "all_targets_met": true,
+  "files": {
+    "model_dir": "models/skill_ner/model-last",
+    "config": "config/skill_ner/train_config.cfg",
+    "metrics": "models/skill_ner/metrics.json",
+    "error_analysis": "models/skill_ner/error_analysis.json"
+  }
+}

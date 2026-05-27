@@ -9,6 +9,8 @@ import logging
 import requests
 import os
 
+from services.recommender_config import config
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,15 +34,13 @@ class HybridRecommender:
     - Exact keyword matches still prioritized (TF-IDF)
     """
 
-    # Weights for hybrid scoring (ML-enhanced)
-    TFIDF_WEIGHT = 0.25
-    SEMANTIC_WEIGHT = 0.25
-    CF_WEIGHT = 0.30
-    CONTENT_WEIGHT = 0.20
-
-    # Backend API configuration
-    BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:8017')
+    # Backend API configuration (sử dụng config)
     CF_ENDPOINT = '/v1/interactions'
+    
+    @classmethod
+    def get_weights(cls) -> dict:
+        """Get hybrid weights from config"""
+        return config.get_hybrid_weights()
 
     def __init__(self,
                  tfidf_recommender,
@@ -102,7 +102,7 @@ class HybridRecommender:
 
         try:
             # Get CF recommendations from backend
-            url = f"{self.BACKEND_URL}{self.CF_ENDPOINT}/user/{self.user_id}/cf-recommendations"
+            url = f"{config.BACKEND_URL}{self.CF_ENDPOINT}/user/{self.user_id}/cf-recommendations"
             params = {'limit': min(len(job_ids) * 2, 50)}
 
             response = requests.get(url, params=params, timeout=5)
@@ -358,27 +358,28 @@ class HybridRecommender:
             cf_score = max(0.0, min(1.0, cf_score))
 
             # Hybrid score with or without CF
+            weights = self.get_weights()
             if has_cf and cf_score > 0:
                 hybrid_score = (
-                    tfidf_score * self.TFIDF_WEIGHT +
-                    semantic_score * self.SEMANTIC_WEIGHT +
-                    cf_score * self.CF_WEIGHT
+                    tfidf_score * weights['tfidf'] +
+                    semantic_score * weights['semantic'] +
+                    cf_score * weights['cf']
                 )
                 weights_used = {
-                    'tfidf': self.TFIDF_WEIGHT,
-                    'semantic': self.SEMANTIC_WEIGHT,
-                    'cf': self.CF_WEIGHT
+                    'tfidf': weights['tfidf'],
+                    'semantic': weights['semantic'],
+                    'cf': weights['cf']
                 }
             else:
                 # Fallback to TF-IDF + Semantic only
-                total_weight = self.TFIDF_WEIGHT + self.SEMANTIC_WEIGHT
+                total_weight = weights['tfidf'] + weights['semantic']
                 hybrid_score = (
-                    tfidf_score * (self.TFIDF_WEIGHT / total_weight) +
-                    semantic_score * (self.SEMANTIC_WEIGHT / total_weight)
+                    tfidf_score * (weights['tfidf'] / total_weight) +
+                    semantic_score * (weights['semantic'] / total_weight)
                 )
                 weights_used = {
-                    'tfidf': self.TFIDF_WEIGHT / total_weight,
-                    'semantic': self.SEMANTIC_WEIGHT / total_weight,
+                    'tfidf': weights['tfidf'] / total_weight,
+                    'semantic': weights['semantic'] / total_weight,
                     'cf': 0
                 }
 

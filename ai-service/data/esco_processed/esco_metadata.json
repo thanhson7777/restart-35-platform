@@ -1,0 +1,11 @@
+{
+  "total_skills": 13939,
+  "total_alt_labels": 13921,
+  "created_at": "2026-05-27T14:44:46.258991",
+  "source": "ESCO Dataset v1.2.1",
+  "embedding_model": "intfloat/multilingual-e5-base",
+  "embedding_dim": 768,
+  "total_embeddings": 13939,
+  "embeddings_file": "D:\\LUAN_VAN\\restart-35-platform\\ai-service\\data\\esco_processed\\esco_embeddings.npy",
+  "embeddings_size_mb": 40.8369140625
+}

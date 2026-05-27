@@ -166,9 +166,22 @@ const JobsPage = () => {
   const hasFetchedAll = useRef(false)
   const hasFetchedCareer = useRef(false)
 
+  // Helper: Extract skills from employment history (deduplicated)
+  const extractSkillsFromEmployment = (data) => {
+    const skills = (data?.employmentHistory || [])
+      .flatMap(job => job.skills || [])
+      .filter((skill, index, self) => self.indexOf(skill) === index)
+    return skills
+  }
+
   // Check if profile has required data for recommendations
   const hasProfileForRecommendations = useMemo(() => {
-    return formData?.aspirations?.skills?.length > 0
+    return extractSkillsFromEmployment(formData).length > 0
+  }, [formData])
+
+  // Skills from employment history
+  const userSkills = useMemo(() => {
+    return extractSkillsFromEmployment(formData)
   }, [formData])
 
   // Calculate experience from employment history (convert months to years)
@@ -201,8 +214,15 @@ const JobsPage = () => {
     if (activeTab === 'recommended' && hasProfileForRecommendations && !recommendedLoading) {
       if (!hasFetchedRecommended.current) {
         hasFetchedRecommended.current = true
+        console.log('[JobsPage] Fetching recommended jobs with:', {
+          userSkills,
+          userSkillsLength: userSkills?.length,
+          experience: totalExperience,
+          location: formData.basicInfo?.province,
+          employmentHistoryLength: formData?.employmentHistory?.length
+        })
         dispatch(fetchRecommendedJobs({
-          skills: formData.aspirations.skills,
+          skills: userSkills,
           experience: totalExperience,
           location: formData.basicInfo?.province,
           targetJob: formData.aspirations?.targetJob,
@@ -245,7 +265,7 @@ const JobsPage = () => {
   }, [
     activeTab,
     hasProfileForRecommendations,
-    formData?.aspirations?.skills,
+    userSkills,
     formData?.aspirations?.targetJob,
     formData?.aspirations?.targetSalary,
     formData?.aspirations?.preferredJobType,
@@ -267,7 +287,7 @@ const JobsPage = () => {
     if (activeTab === 'recommended') {
       hasFetchedRecommended.current = false
       dispatch(fetchRecommendedJobs({
-        skills: formData.aspirations.skills,
+        skills: userSkills,
         experience: totalExperience,
         location: formData.basicInfo?.province,
         targetJob: formData.aspirations?.targetJob,
@@ -456,13 +476,13 @@ const JobsPage = () => {
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Chưa có kỹ năng trong hồ sơ</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Vui lòng thêm kỹ năng trong bước "Nguyện vọng" để nhận gợi ý việc làm phù hợp.
+                    Vui lòng thêm kỹ năng trong bước "Kinh nghiệm làm việc" để nhận gợi ý việc làm phù hợp.
                   </p>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate('/worker-profile?step=4')}
+                  onClick={() => navigate('/worker-profile?step=2')}
                   className="shrink-0"
                 >
                   Thêm kỹ năng

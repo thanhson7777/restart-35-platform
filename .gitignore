@@ -68,3 +68,5 @@ docs/
 
 # HTML files in ai-service
 ai-service/**/*.htmlai-service/.env
+__pycache__/
+*.pyc

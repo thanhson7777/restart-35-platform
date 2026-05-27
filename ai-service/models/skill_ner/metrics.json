@@ -1,0 +1,313 @@
+{
+  "model": "D:\\LUAN_VAN\\restart-35-platform\\ai-service\\models\\skill_ner\\model-last",
+  "ents_f": 0.9781,
+  "ents_p": 0.971,
+  "ents_r": 0.9853,
+  "ents_per_type": {
+    "CERTIFICATION": {
+      "p": 1.0,
+      "r": 1.0,
+      "f": 1.0,
+      "tp": 27,
+      "fp": 0,
+      "fn": 0
+    },
+    "SKILL_LANGUAGE": {
+      "p": 1.0,
+      "r": 0.9231,
+      "f": 0.96,
+      "tp": 12,
+      "fp": 0,
+      "fn": 1
+    },
+    "SKILL_SOFT": {
+      "p": 1.0,
+      "r": 0.9583,
+      "f": 0.9787,
+      "tp": 23,
+      "fp": 0,
+      "fn": 1
+    },
+    "SKILL_TECHNICAL": {
+      "p": 0.9825,
+      "r": 1.0,
+      "f": 0.9912,
+      "tp": 56,
+      "fp": 1,
+      "fn": 0
+    },
+    "SKILL_TOOL": {
+      "p": 0.8421,
+      "r": 1.0,
+      "f": 0.9143,
+      "tp": 16,
+      "fp": 3,
+      "fn": 0
+    }
+  },
+  "sample_predictions": [
+    {
+      "text": "1. Kiểm soát & phân tích rủi ro thuế • Nhận diện và phân tích rủi ro thuế dựa trên kế hoạch hoạt động kinh doanh và số liệu kế toán. • Chủ động đánh giá các khoản chi phí, doanh thu có nguy cơ rủi ro ...",
+      "reference": [
+        [
+          285,
+          294,
+          "SKILL_TECHNICAL",
+          "Tài chính"
+        ],
+        [
+          276,
+          283,
+          "SKILL_TECHNICAL",
+          "Kế toán"
+        ],
+        [
+          328,
+          335,
+          "SKILL_TECHNICAL",
+          "Kế toán"
+        ],
+        [
+          244,
+          262,
+          "CERTIFICATION",
+          "Tốt nghiệp Đại học"
+        ],
+        [
+          124,
+          131,
+          "SKILL_TECHNICAL",
+          "kế toán"
+        ]
+      ],
+      "predictions": [
+        [
+          285,
+          294,
+          "SKILL_TECHNICAL",
+          "Tài chính"
+        ],
+        [
+          276,
+          283,
+          "SKILL_TECHNICAL",
+          "Kế toán"
+        ],
+        [
+          328,
+          335,
+          "SKILL_TECHNICAL",
+          "Kế toán"
+        ],
+        [
+          244,
+          262,
+          "CERTIFICATION",
+          "Tốt nghiệp Đại học"
+        ],
+        [
+          124,
+          131,
+          "SKILL_TECHNICAL",
+          "kế toán"
+        ]
+      ]
+    },
+    {
+      "text": "Nhân Viên Kế Toán Doanh Thu Và Công Nợ Phải Thu - Đi Làm Ngay",
+      "reference": [
+        [
+          10,
+          17,
+          "SKILL_TECHNICAL",
+          "Kế Toán"
+        ]
+      ],
+      "predictions": [
+        [
+          10,
+          17,
+          "SKILL_TECHNICAL",
+          "Kế Toán"
+        ]
+      ]
+    },
+    {
+      "text": "- Thiết kế quy hoạch tổng thể, chi tiết, khái toán tổng mức đầu tư cho các Dự án đầu tư xây dựng. - Thiết kế, phác thảo phương án kiến trúc cho các dự án đầu tư của Công ty. - Quản lý, kiểm soát hồ sơ...",
+      "reference": [
+        [
+          176,
+          183,
+          "SKILL_SOFT",
+          "Quản lý"
+        ],
+        [
+          454,
+          461,
+          "SKILL_TOOL",
+          "Autocad"
+        ],
+        [
+          343,
+          352,
+          "CERTIFICATION",
+          "chứng chỉ"
+        ],
+        [
+          255,
+          273,
+          "CERTIFICATION",
+          "Tốt nghiệp Đại học"
+        ],
+        [
+          463,
+          468,
+          "SKILL_TOOL",
+          "Revit"
+        ]
+      ],
+      "predictions": [
+        [
+          176,
+          183,
+          "SKILL_SOFT",
+          "Quản lý"
+        ],
+        [
+          454,
+          461,
+          "SKILL_TOOL",
+          "Autocad"
+        ],
+        [
+          343,
+          352,
+          "CERTIFICATION",
+          "chứng chỉ"
+        ],
+        [
+          255,
+          273,
+          "CERTIFICATION",
+          "Tốt nghiệp Đại học"
+        ],
+        [
+          463,
+          468,
+          "SKILL_TOOL",
+          "Revit"
+        ]
+      ]
+    },
+    {
+      "text": "• Manage and coordinate all activities of the tax accounting team to ensure compliance with current tax regulations. • Take responsibility for the preparation, review, and timely submission of tax ret...",
+      "reference": [
+        [
+          50,
+          60,
+          "SKILL_TECHNICAL",
+          "accounting"
+        ],
+        [
+          290,
+          300,
+          "SKILL_TECHNICAL",
+          "accounting"
+        ],
+        [
+          316,
+          326,
+          "SKILL_TECHNICAL",
+          "accounting"
+        ],
+        [
+          445,
+          452,
+          "SKILL_TECHNICAL",
+          "Finance"
+        ],
+        [
+          709,
+          719,
+          "SKILL_TECHNICAL",
+          "accounting"
+        ]
+      ],
+      "predictions": [
+        [
+          50,
+          60,
+          "SKILL_TECHNICAL",
+          "accounting"
+        ],
+        [
+          290,
+          300,
+          "SKILL_TECHNICAL",
+          "accounting"
+        ],
+        [
+          316,
+          326,
+          "SKILL_TECHNICAL",
+          "accounting"
+        ],
+        [
+          445,
+          452,
+          "SKILL_TECHNICAL",
+          "Finance"
+        ],
+        [
+          709,
+          719,
+          "SKILL_TECHNICAL",
+          "accounting"
+        ]
+      ]
+    },
+    {
+      "text": "1. Thiết kế phần cứng điện cho thiết bị phi tiêu chuẩn (Vẽ sơ đồ điện (mạch, wiring diagram, ladder diagram, …) 2. Lựa chọn, đề xuất các linh kiện, thiết bị điện phù hợp với yêu cầu kỹ thuật và chi ph...",
+      "reference": [
+        [
+          432,
+          441,
+          "SKILL_TECHNICAL",
+          "lập trình"
+        ],
+        [
+          406,
+          415,
+          "SKILL_TECHNICAL",
+          "lập trình"
+        ],
+        [
+          280,
+          299,
+          "CERTIFICATION",
+          "Tốt nghiệp Cao đẳng"
+        ]
+      ],
+      "predictions": [
+        [
+          432,
+          441,
+          "SKILL_TECHNICAL",
+          "lập trình"
+        ],
+        [
+          406,
+          415,
+          "SKILL_TECHNICAL",
+          "lập trình"
+        ],
+        [
+          280,
+          299,
+          "CERTIFICATION",
+          "Tốt nghiệp Cao đẳng"
+        ]
+      ]
+    }
+  ]
+}

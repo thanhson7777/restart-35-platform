@@ -14,6 +14,7 @@ Ngày: 2026-04-10
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
+from enum import Enum
 from datetime import datetime
 import logging
 import json
@@ -121,6 +122,68 @@ class RecommendJobsResponse(BaseModel):
     """Response cho job recommendation"""
     success: bool
     data: dict
+
+
+# =============================================================================
+# Worker Profile V2 Models (Job Selection)
+# =============================================================================
+
+class JobSelectionMode(str, Enum):
+    """Chế độ chọn nghề nghiệp cho matching"""
+    RECENT_JOB = "recent_job"
+    ALL_JOBS = "all_jobs"
+    NEW_JOB = "new_job"
+
+
+class JobSelection(BaseModel):
+    """Chọn nguồn skills cho job matching"""
+    mode: JobSelectionMode = Field(
+        ...,
+        description="Chế độ chọn: recent_job | all_jobs | new_job"
+    )
+    new_job_title: Optional[str] = Field(
+        default=None,
+        description="Tên nghề mới (khi mode = new_job)"
+    )
+    selected_job_index: Optional[int] = Field(
+        default=None,
+        description="Index của job được chọn (0-based)"
+    )
+
+
+class WorkExperienceItem(BaseModel):
+    """Một công việc trong employment history"""
+    industry: str = Field(..., description="Ngành nghề")
+    role: str = Field(..., description="Vị trí/Tiêu đề công việc")
+    years: float = Field(..., ge=0, le=50, description="Số năm kinh nghiệm")
+    skills: List[str] = Field(default_factory=list, description="Kỹ năng đã sử dụng")
+
+
+class WorkerProfileRequest(BaseModel):
+    """Request cho worker analysis với cấu trúc mới - lấy skills từ employment_history"""
+    age: int = Field(..., ge=35, le=65, description="Tuổi")
+    gender: Optional[str] = Field(None, description="Giới tính: male/female")
+    education: Optional[str] = Field(None, description="Trình độ học vấn")
+    province: Optional[str] = Field(None, description="Tỉnh/Thành phố")
+    
+    employment_history: List[WorkExperienceItem] = Field(
+        ...,
+        min_length=1,
+        description="Danh sách công việc đã làm"
+    )
+    
+    job_selection: JobSelection = Field(
+        ...,
+        description="Chọn nguồn skills cho job matching"
+    )
+    
+    target_industry: Optional[str] = Field(None, description="Ngành mong muốn")
+    target_salary: Optional[float] = Field(None, description="Mức lương mong muốn (VND)")
+    preferred_job_type: Optional[str] = Field(None, description="Loại công việc: full-time, part-time, temporary, freelance")
+    
+    barrier_health: int = Field(default=0, ge=0, le=1, description="Rào cản sức khỏe")
+    barrier_family: int = Field(default=0, ge=0, le=1, description="Rào cản gia đình")
+    barrier_techGap: int = Field(default=0, ge=0, le=1, description="Rào cản kỹ thuật số")
 
 
 # --- Risk Prediction Models ---
@@ -524,6 +587,84 @@ async def recommend_jobs(request: RecommendJobsRequest):
         )
     except Exception as e:
         logger.error(f"Recommendation error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Recommendation error: {str(e)}"
+        )
+
+
+@router.post("/recommend-jobs-v2", response_model=RecommendJobsResponse)
+async def recommend_jobs_v2(request: WorkerProfileRequest):
+    """
+    Gợi ý công việc phù hợp với cấu trúc WorkerProfileRequest mới.
+
+    Thay đổi so với /recommend-jobs:
+    - Skills được trích xuất từ employment_history theo job_selection mode
+    - Hỗ trợ 3 modes: recent_job, all_jobs, new_job
+    - Skills không còn bắt buộc trong request
+
+    Args:
+        request: WorkerProfileRequest với employment_history và job_selection
+
+    Returns:
+        List of recommended jobs with scores
+    """
+    try:
+        # Import extract function
+        from services.job_matching_utils import extract_skills_for_matching
+
+        # Extract skills từ job selection
+        skills, target_job, experience = extract_skills_for_matching(
+            request.employment_history,
+            request.job_selection
+        )
+
+        logger.info(
+            f"Job selection: mode={request.job_selection.mode.value}, "
+            f"skills_count={len(skills)}, target_job={target_job}, "
+            f"experience_years={experience}"
+        )
+
+        # Use hybrid recommender (TF-IDF + Semantic)
+        hybrid = get_hybrid_recommender()
+
+        result = hybrid.recommend(
+            skills=skills,
+            experience=int(experience),
+            location=request.province,
+            target_job=target_job,
+            target_salary=request.target_salary,
+            preferred_job_type=request.preferred_job_type,
+            limit=10,  # Default limit
+            allow_remote=False,
+            use_semantic=True,
+            use_cf=True,
+            user_id=None
+        )
+
+        # Add metadata about job selection
+        if result.get("success"):
+            result["data"]["job_selection"] = {
+                "mode": request.job_selection.mode.value,
+                "skills_count": len(skills),
+                "target_job": target_job,
+                "experience_years": experience
+            }
+
+        return result
+
+    except FileNotFoundError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Data file not found: {str(e)}"
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid request: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"Recommendation v2 error: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Recommendation error: {str(e)}"

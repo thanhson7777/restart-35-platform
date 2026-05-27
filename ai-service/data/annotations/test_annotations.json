@@ -1,0 +1,1740 @@
+[
+  {
+    "job_id": "scraped_vietnamworks_algolia_05942",
+    "title": "Kế Toán Thuế Upto 25 Triệu ( Hà Nội )",
+    "company": "Công Ty TNHH Khoáng Sản Vina Global",
+    "text": "1. Kiểm soát & phân tích rủi ro thuế • Nhận diện và phân tích rủi ro thuế dựa trên kế hoạch hoạt động kinh doanh và số liệu kế toán. • Chủ động đánh giá các khoản chi phí, doanh thu có nguy cơ rủi ro về thuế. 2. Tư... Yêu cầu: • Tuổi 30 <=45 • Tốt nghiệp Đại học chuyên ngành Kế toán, Tài chính, Kiểm toán. • Có kinh nghiệm làm Kế toán thuế (ưu tiên 5 năm trở lên). • Am hiểu luật thuế, quy định về hóa đơn, chứng từ. • Có kinh nghiệm làm việc với cơ quan thuế, thanh tra thuế. • Tư duy...",
+    "category": "accounting",
+    "existing_skills": [
+      "Kế toán"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 124,
+        "end": 131,
+        "label": "SKILL_TECHNICAL",
+        "text": "kế toán",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 244,
+        "end": 262,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 276,
+        "end": 283,
+        "label": "SKILL_TECHNICAL",
+        "text": "Kế toán",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 285,
+        "end": 294,
+        "label": "SKILL_TECHNICAL",
+        "text": "Tài chính",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 328,
+        "end": 335,
+        "label": "SKILL_TECHNICAL",
+        "text": "Kế toán",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.629338",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_mywork_00227",
+    "title": "Nhân Viên Kế Toán Doanh Thu Và Công Nợ Phải Thu - Đi Làm Ngay",
+    "company": "Công Ty Cổ Phần Aspire",
+    "text": "Nhân Viên Kế Toán Doanh Thu Và Công Nợ Phải Thu - Đi Làm Ngay",
+    "category": "bao_ve",
+    "existing_skills": [
+      "Kế Toán"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 10,
+        "end": 17,
+        "label": "SKILL_TECHNICAL",
+        "text": "Kế Toán",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.629724",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_02018",
+    "title": "Kiến Trúc Sư",
+    "company": "Công Ty Cổ Phần Xây Dựng Và Đầu Tư Visicons",
+    "text": "- Thiết kế quy hoạch tổng thể, chi tiết, khái toán tổng mức đầu tư cho các Dự án đầu tư xây dựng. - Thiết kế, phác thảo phương án kiến trúc cho các dự án đầu tư của Công ty. - Quản lý, kiểm soát hồ sơ thiết kế quy hoạch, kiến trúc. Làm việc... Yêu cầu: - Tốt nghiệp Đại học chuyên ngành Kiến trúc - Có kinh nghiệm trong lĩnh vực liên quan, có chứng chỉ thiết kế là một lợi thế - Sử dụng thành thạo tin học văn phòng và các phần mềm phục vụ công việc như Autocad, Revit, Sketch-up, 3Dmaxs... - Có khả năng chịu được áp lực...",
+    "category": "construction",
+    "existing_skills": [
+      "Sketch"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 176,
+        "end": 183,
+        "label": "SKILL_SOFT",
+        "text": "Quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 255,
+        "end": 273,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 343,
+        "end": 352,
+        "label": "CERTIFICATION",
+        "text": "chứng chỉ",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 454,
+        "end": 461,
+        "label": "SKILL_TOOL",
+        "text": "Autocad",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 463,
+        "end": 468,
+        "label": "SKILL_TOOL",
+        "text": "Revit",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.634082",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_05897",
+    "title": "Tax Manager",
+    "company": "ONPOINT COMPANY LIMITED",
+    "text": "• Manage and coordinate all activities of the tax accounting team to ensure compliance with current tax regulations. • Take responsibility for the preparation, review, and timely submission of tax returns (VAT, CIT, PIT, foreign contractor tax, business license tax, etc.). • Supervise tax accounting entries in the accounting system, ensuring accuracy, transparency, and completeness of... Yêu cầu: • Bachelor’s degree in accounting, Auditing, Finance, or Taxation. • Professional certifications in accounting/tax (e.g., CPA, ACCA.) are an advantage. • Minimum 5 years of experience in accounting/tax, including at least 2 years in a senior or team leader role. • Strong knowledge of Vietnamese tax laws and accounting regulations; experience in working with tax authorities. • Proven...",
+    "category": "other",
+    "existing_skills": [],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 50,
+        "end": 60,
+        "label": "SKILL_TECHNICAL",
+        "text": "accounting",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 290,
+        "end": 300,
+        "label": "SKILL_TECHNICAL",
+        "text": "accounting",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 316,
+        "end": 326,
+        "label": "SKILL_TECHNICAL",
+        "text": "accounting",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 423,
+        "end": 433,
+        "label": "SKILL_TECHNICAL",
+        "text": "accounting",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 445,
+        "end": 452,
+        "label": "SKILL_TECHNICAL",
+        "text": "Finance",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 500,
+        "end": 510,
+        "label": "SKILL_TECHNICAL",
+        "text": "accounting",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 522,
+        "end": 525,
+        "label": "CERTIFICATION",
+        "text": "CPA",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 527,
+        "end": 531,
+        "label": "CERTIFICATION",
+        "text": "ACCA",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 587,
+        "end": 597,
+        "label": "SKILL_TECHNICAL",
+        "text": "accounting",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 709,
+        "end": 719,
+        "label": "SKILL_TECHNICAL",
+        "text": "accounting",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.640223",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_00178",
+    "title": "Kỹ Sư Phần Mềm Thiết Bị Tự Động Hóa",
+    "company": "Pegatron VIETNAM",
+    "text": "1. Thiết kế phần cứng điện cho thiết bị phi tiêu chuẩn (Vẽ sơ đồ điện (mạch, wiring diagram, ladder diagram, …) 2. Lựa chọn, đề xuất các linh kiện, thiết bị điện phù hợp với yêu cầu kỹ thuật và chi phí 3. Hỗ trợ kỹ sư điện trong việc thiết kế và nghiệm thu... Yêu cầu: Yêu cầu CV Tốt nghiệp Cao đẳng trở lên chuyên ngành Cơ điện tử hoặc Tự động hoá điện Yêu cầu kinh nghiệm 1. Có kinh nghiệm thực tế trong lập trình PLC Mitsubishi, lập trình robot, và/hoặc thực hiện nghiệm thu, chạy thử thiết bị 2. Hiểu biết về việc lựa chọn, mua sắm các linh...",
+    "category": "other",
+    "existing_skills": [],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 280,
+        "end": 299,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp Cao đẳng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 406,
+        "end": 415,
+        "label": "SKILL_TECHNICAL",
+        "text": "lập trình",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 432,
+        "end": 441,
+        "label": "SKILL_TECHNICAL",
+        "text": "lập trình",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.643288",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_03738",
+    "title": "Chuyên Gia Quản Lý Dự Án (PMO)",
+    "company": "Ngân Hàng TMCP Quốc Dân ( NCB )",
+    "text": "• Quản lý và điều phối dự án: - Trực tiếp quản lý hoặc điều phối các dự án được giao theo phân công từ PMO. - Xây dựng và giám sát kế hoạch dự án, quản lý phạm vi, tiến độ, chi phí và chất lượng. ... Yêu cầu: • Trình độ học vấn/chuyên môn: Tốt nghiệp Đại học trở lên, chuyên ngành: Quản trị Kinh doanh, Công nghệ thông tin, Tài chính - Ngân hàng hoặc tương đương. • Có tối thiểu 3 năm kinh nghiệm trong quản lý dự án, ưu tiên trong ngành ngân hàng, tài chính, công nghệ. Có...",
+    "category": "other",
+    "existing_skills": [
+      "IT"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 2,
+        "end": 9,
+        "label": "SKILL_SOFT",
+        "text": "Quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 42,
+        "end": 49,
+        "label": "SKILL_SOFT",
+        "text": "quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 147,
+        "end": 154,
+        "label": "SKILL_SOFT",
+        "text": "quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 184,
+        "end": 194,
+        "label": "SKILL_TECHNICAL",
+        "text": "chất lượng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 240,
+        "end": 258,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 324,
+        "end": 333,
+        "label": "SKILL_TECHNICAL",
+        "text": "Tài chính",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 403,
+        "end": 410,
+        "label": "SKILL_SOFT",
+        "text": "quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 449,
+        "end": 458,
+        "label": "SKILL_TECHNICAL",
+        "text": "tài chính",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.645852",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_00143",
+    "title": "Trưởng Nhóm Bảo Trì",
+    "company": "Công Ty Cổ Phần Tập Đoàn Sunhouse",
+    "text": "1. Quản lý công tác bảo trì – bảo dưỡng. - Lập kế hoạch bảo trì định kỳ (PM) cho toàn bộ máy móc thiết bị trong nhà máy. - Tổ chức thực hiện, giám sát và đánh giá hiệu quả bảo trì. - Đảm bảo máy móc hoạt động ổn định, giảm thiểu thời gian dừng máy. 2. Sửa chữa & xử... Yêu cầu: 1. Trình độ học vấn: Cao đẳng trở lên (Cơ khí/Tự động hóa/Điện công nghiệp) 2. Chuyên môn: Cơ khí / Điện/ Điện tử 3. Kinh nghiệm: Ít nhất 2 năm tại vị trí Nhóm trưởng Bảo trì 4. Kiến thức - Hiểu về hệ thống máy móc sản xuất - Kiến thức điện – cơ – khí – tự động hóa cơ bản...",
+    "category": "other",
+    "existing_skills": [],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 3,
+        "end": 10,
+        "label": "SKILL_SOFT",
+        "text": "Quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 20,
+        "end": 27,
+        "label": "SKILL_TECHNICAL",
+        "text": "bảo trì",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 30,
+        "end": 39,
+        "label": "SKILL_TECHNICAL",
+        "text": "bảo dưỡng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 56,
+        "end": 63,
+        "label": "SKILL_TECHNICAL",
+        "text": "bảo trì",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 123,
+        "end": 130,
+        "label": "SKILL_SOFT",
+        "text": "Tổ chức",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 172,
+        "end": 179,
+        "label": "SKILL_TECHNICAL",
+        "text": "bảo trì",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 252,
+        "end": 260,
+        "label": "SKILL_TECHNICAL",
+        "text": "Sửa chữa",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 299,
+        "end": 307,
+        "label": "CERTIFICATION",
+        "text": "Cao đẳng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 445,
+        "end": 452,
+        "label": "SKILL_TECHNICAL",
+        "text": "Bảo trì",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.649845",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_02475",
+    "title": "Kế Toán Tổng Hợp",
+    "company": "Công Ty Cổ Phần Dịch Vụ Sài Gòn Ô Tô",
+    "text": "I. MỤC TIÊU CÔNG VIỆC: - Đảm bảo cung cấp cho Trưởng phòng kế toán, Ban tổng Giám đốc & các cơ quan hữu quan theo quyết định của Trưởng phòng kế toán hoặc Ban tổng Giám đốc các báo cáo tài chính của toàn công ty kịp thời và chính xác - Kiểm tra giám sát... Yêu cầu: IV. MỐI QUAN HỆ 1.Bên trong: Các phòng ban 2.Bên ngoài: Ngân hàng, Ford VN, Các đơn vị góp vốn V. CHỈ TIÊU ĐÁNH GIÁ CÔNG VIỆC: - Kiểm tra, giám sát, phát hiện, điều chỉnh, ngăn ngừa các sai sót trong việc thực hiện các phần hành kế toán - Lập và gởi báo cáo theo yêu cầu chính...",
+    "category": "accounting",
+    "existing_skills": [
+      "Kế toán"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 59,
+        "end": 66,
+        "label": "SKILL_TECHNICAL",
+        "text": "kế toán",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 142,
+        "end": 149,
+        "label": "SKILL_TECHNICAL",
+        "text": "kế toán",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 185,
+        "end": 194,
+        "label": "SKILL_TECHNICAL",
+        "text": "tài chính",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 495,
+        "end": 502,
+        "label": "SKILL_TECHNICAL",
+        "text": "kế toán",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.653751",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_04940",
+    "title": "Sales Supervisor GT (HCM/ Long Khánh/ Long An)",
+    "company": "Bel",
+    "text": "Với nhu cầu phát triển và mở rộng, Bel Vietnam tuyển dụng 03 vị trí giám sát bán hàng mới với chi tiết như sau: - 01 giám sát bán hàng - HCM - 01 giám sát bán hàng - Long Khánh (Đồng Nai) - 01 giám sát bán hàng - Long An - Gò Dầu (Tây... Yêu cầu: 1.Học vấn: Cao đẳng hoặc Đại học 2. Kinh nghiệm: 2-3 năm kinh nghiệm trong ngành hàng tiêu dùng tại vị trí GSBH 3.Kỷ năng yêu cầu : - Có kỹ năng dẫn dắt và quản lý nhân viên và đội nhóm - Có kỹ năng hàng động và hướng đến kết quả - Có kiến thức va...",
+    "category": "sales",
+    "existing_skills": [
+      "Kinh doanh",
+      "Xây dựng"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 47,
+        "end": 57,
+        "label": "SKILL_TECHNICAL",
+        "text": "tuyển dụng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 77,
+        "end": 85,
+        "label": "SKILL_TECHNICAL",
+        "text": "bán hàng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 126,
+        "end": 134,
+        "label": "SKILL_TECHNICAL",
+        "text": "bán hàng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 155,
+        "end": 163,
+        "label": "SKILL_TECHNICAL",
+        "text": "bán hàng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 202,
+        "end": 210,
+        "label": "SKILL_TECHNICAL",
+        "text": "bán hàng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 258,
+        "end": 266,
+        "label": "CERTIFICATION",
+        "text": "Cao đẳng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 272,
+        "end": 279,
+        "label": "CERTIFICATION",
+        "text": "Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 403,
+        "end": 410,
+        "label": "SKILL_SOFT",
+        "text": "quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.657661",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_02484",
+    "title": "Supplier Development Leader",
+    "company": "Công Ty Trách Nhiệm Hữu Hạn Meggitt (Việt Nam)",
+    "text": "Position Summary The Supplier Development Leader is accountable for driving and improving Supplier’s Performance across the Division. Position will directly report to the Division Supplier Development Manager. The Supplier Development Leader will collaborate with supply chain management, quality, and engineering teams ensuring customer requirements are met. Main Duties • Responsible for driving performance improvements in Delivery,... Yêu cầu: Minimum Qualifications Education Level: (Required): Bachelor's Degree (Preferred): MBA Degree Field of Study/Area of Experience • Engineering college degree required. Mechanical, Electronic or Manufacturing Engineering preferred. • Minimum of 3-5 years in the same role required. Previous experience in supplier development preferred. • ...",
+    "category": "other",
+    "existing_skills": [
+      "IT"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 264,
+        "end": 276,
+        "label": "SKILL_TECHNICAL",
+        "text": "supply chain",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 289,
+        "end": 296,
+        "label": "SKILL_TECHNICAL",
+        "text": "quality",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 314,
+        "end": 319,
+        "label": "SKILL_TOOL",
+        "text": "teams",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.661606",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_mywork_00552",
+    "title": "Nhân Viên Kế Toán Nội Bộ Đi Làm Ngay",
+    "company": "Công Ty TNHH Vietnam Moving",
+    "text": "Nhân Viên Kế Toán Nội Bộ Đi Làm Ngay",
+    "category": "phuc_vu",
+    "existing_skills": [
+      "Kế Toán"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 10,
+        "end": 17,
+        "label": "SKILL_TECHNICAL",
+        "text": "Kế Toán",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.661861",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_03734",
+    "title": "Business Development / Sales (Project) – Logistics & Cargo",
+    "company": "DSV X Schenker",
+    "text": "Purpose of the position The Project Business Development Specialist will work on multiple project teams simultaneously as sales in project team . Main responsibilities focus on Development customer / vendor / tender / bidding / project and follow up actions to archive the target. Main Duties & Responsibilities • Discussing with Project Director for yearly target GP / NR... Yêu cầu: • Sales skills, at least 2 years in logistics field • Business experience preferably in the areas of Projects, Windmill, turbine, heavy-lift and out-of-gauge / Oil & Gas / Sea & Air freight forwarding. • Excellent communication skills in local and English languages, both oral and written. • Practical mindset and solution orientated. • Maintain good standards and...",
+    "category": "accounting",
+    "existing_skills": [
+      "Communication",
+      "English"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 98,
+        "end": 103,
+        "label": "SKILL_TOOL",
+        "text": "teams",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 122,
+        "end": 127,
+        "label": "SKILL_TECHNICAL",
+        "text": "sales",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 387,
+        "end": 392,
+        "label": "SKILL_TECHNICAL",
+        "text": "Sales",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 421,
+        "end": 430,
+        "label": "SKILL_TECHNICAL",
+        "text": "logistics",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 599,
+        "end": 612,
+        "label": "SKILL_SOFT",
+        "text": "communication",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 633,
+        "end": 640,
+        "label": "SKILL_LANGUAGE",
+        "text": "English",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.665686",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_07062",
+    "title": "Trưởng Phòng Nghiên Cứu và Phát Triển",
+    "company": "CÔNG TY TNHH DƯỢC PHẨM NHẤT NHẤT",
+    "text": "• Quản lý và thực hiện theo chức năng và nhiệm vụ của phòng R&D • Nghiên cứu và phát triển sản phẩm đã và đang thực hiện công bố mới. • Tìm hiểu về sản phẩm mới, kiến thức về chuyên môn và đề xuất sản phẩm • Quản lý và phát triển nhân sự R&D • Xử lý khiếu... Yêu cầu: • Tốt nghiệp Đại học Dược (ưu tiên Dược sĩ Đại học hoặc Thạc sĩ chuyên ngành bào chế, công nghệ dược). • Có kinh nghiệm tối thiểu 5 năm ở vị trí tương đương hoặc kỹ năng nghiên cứu các sản phẩm hóa dược. • Có kiến thức về các hệ thống tiêu chuẩn, văn bản pháp lý...",
+    "category": "other",
+    "existing_skills": [
+      "R"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 2,
+        "end": 9,
+        "label": "SKILL_SOFT",
+        "text": "Quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 208,
+        "end": 215,
+        "label": "SKILL_SOFT",
+        "text": "Quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 230,
+        "end": 237,
+        "label": "SKILL_TECHNICAL",
+        "text": "nhân sự",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 270,
+        "end": 288,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 311,
+        "end": 318,
+        "label": "CERTIFICATION",
+        "text": "Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.669971",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_05485",
+    "title": "[URGENT] [HANOI] Employee Experience & Event Manager (Experienced)",
+    "company": "CÔNG TY TNHH YIC ONE",
+    "text": "1. Job Summary • The Employee Experience & Event Manager will be responsible for designing and executing unique corporate events • that reflect YIC’s core values and ESG (Environmental, Social, and Governance) vision. • This role aims to strengthen the sense of belonging among employees, foster a vibrant organizational culture, • and lead successful large-scale events in collaboration... Yêu cầu: • Minimum 3 years of experience in corporate events, sustainability initiatives, employer branding, or marketing/PR projects. • Strong creative planning, content development, and storytelling skills with proven project management ability. • Excellent communication skills to engage diverse teams and build cross-cultural connections. • Fluency in English, both written and spoken. • Proactive, energetic mindset with passion for creating...",
+    "category": "other",
+    "existing_skills": [
+      "Communication",
+      "English"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 374,
+        "end": 387,
+        "label": "SKILL_SOFT",
+        "text": "collaboration",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 503,
+        "end": 512,
+        "label": "SKILL_TECHNICAL",
+        "text": "marketing",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 535,
+        "end": 543,
+        "label": "SKILL_SOFT",
+        "text": "creative",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 651,
+        "end": 664,
+        "label": "SKILL_SOFT",
+        "text": "communication",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 690,
+        "end": 695,
+        "label": "SKILL_TOOL",
+        "text": "teams",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 747,
+        "end": 754,
+        "label": "SKILL_LANGUAGE",
+        "text": "English",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.675222",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_00722",
+    "title": "Sales B2B",
+    "company": "FPT Software",
+    "text": "ABOUT FPT SOFTWARE • FPT Software, a subsidiary of FPT Group, is a leading global IT service provider headquartered in Vietnam. With 33,000&#43; employees in 88 offices across 30 countries, we serve 1,100&#43; clients, including 96 Fortune 500 companies. • We believe diversity fuels innovation and strive to create an inclusive workplace where talents of all backgrounds thrive.... Yêu cầu: • A bachelor’s degree in Business Administration, Business Management, or any other related fields. • 3&#43; year of experience in software development/outsourcing/product B2B sales • Outstanding communications and interpersonal skills, dynamic, outgoing with demonstrated ability to develop new corporate relationship as well as maintaining existing relationships • Entrepreneurial and innovative in problem-solving within the product...",
+    "category": "sales",
+    "existing_skills": [
+      "Kinh doanh"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 568,
+        "end": 573,
+        "label": "SKILL_TECHNICAL",
+        "text": "sales",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 607,
+        "end": 620,
+        "label": "SKILL_SOFT",
+        "text": "interpersonal",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.680482",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_04512",
+    "title": "Nhân Viên Khai Thác Dự Án Thu Nhập Hấp Dẫn",
+    "company": "Công ty Cổ phần HOBI Việt Nam",
+    "text": "- Tìm kiếm khách hàng là các dự án thi công, dự án bán vật tư về sàn gỗ, sàn nhựa. - Lập hồ sơ chào giá, báo giá cho khách hàng. - Soạn thảo hợp đồng, đàm phán và ký kết hợp đồng. - Bám sát tiến độ, là đầu mối giải quyết và hỗ trợ... Yêu cầu: - Tốt nghiệp Cao đẳng trở lên, ưu tiên các ngành: Kinh tế, Thương mại, Xây dựng, Kỹ thuật hoặc liên quan - Am hiểu thị trường vật liệu xây dựng, nội thất (sàn gỗ, sàn nhựa…) và hoạt động kinh doanh dự án. - Thành thạo tin học văn phòng (Word, Excel, PowerPoint) - Tối thiểu...",
+    "category": "other",
+    "existing_skills": [
+      "Excel",
+      "Word",
+      "Powerpoint"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 151,
+        "end": 159,
+        "label": "SKILL_SOFT",
+        "text": "đàm phán",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 245,
+        "end": 264,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp Cao đẳng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 480,
+        "end": 484,
+        "label": "SKILL_TOOL",
+        "text": "Word",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 486,
+        "end": 491,
+        "label": "SKILL_TOOL",
+        "text": "Excel",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 493,
+        "end": 503,
+        "label": "SKILL_TOOL",
+        "text": "PowerPoint",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.685943",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_07000",
+    "title": "Sales (B2B Food Ingredients/Horeca)",
+    "company": "Navigos Search",
+    "text": "• Job Responsibilities 1. New Business Development (Main Mission) • Develop new B2B customers • Expand customer base in food and supplement industries • Approach distributors, trading companies, and brand owners 2. Sales Activities • Visit customers and conduct proposal-based... Yêu cầu: Mandatory • Minimum 5 years of sales experience • Experience in B2B food ingredient sales (Chemical industry experience may also be considered) • Business-level English communication skills (meetings, communication with Japan, reading/writing/speaking) Preferred • Japanese language skills • Knowledge of food ingredients such as gelatin, collagen, stabilizers, etc.",
+    "category": "sales",
+    "existing_skills": [
+      "Communication",
+      "English",
+      "Japanese"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 215,
+        "end": 220,
+        "label": "SKILL_TECHNICAL",
+        "text": "Sales",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 320,
+        "end": 325,
+        "label": "SKILL_TECHNICAL",
+        "text": "sales",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 373,
+        "end": 378,
+        "label": "SKILL_TECHNICAL",
+        "text": "sales",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 450,
+        "end": 457,
+        "label": "SKILL_LANGUAGE",
+        "text": "English",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 458,
+        "end": 471,
+        "label": "SKILL_SOFT",
+        "text": "communication",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 490,
+        "end": 503,
+        "label": "SKILL_SOFT",
+        "text": "communication",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 554,
+        "end": 562,
+        "label": "SKILL_LANGUAGE",
+        "text": "Japanese",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.692620",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_06020",
+    "title": "Logistics Manager",
+    "company": "Sharkninja Vietnam",
+    "text": "About the Role: With the development of SharkNinja business, Logistics Department, as an indispensable part of the whole company, we are looking for someone who is willing to face the challenges, have good experience in logistics industry, have the ability to work with suppliers/forwarders in day to day operations in shipping arrangement, documents preparation and... Yêu cầu: Experience required: • 10+ years in logistics experience preferred. • Manufacturing environment logistics experience. • Forwarding Industry background/experience. Functional Skills/Knowledge: • Good communications skills. • Fluent in both Vietnamese and English (Chinese is a plus). • Team player. • Result-Oriented to have getting things done manner. • Cooperative with both internal and external teams as business requirement. • Understand time management. • Sense of urgency...",
+    "category": "warehouse",
+    "existing_skills": [
+      "Time Management",
+      "English",
+      "Chinese"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 61,
+        "end": 70,
+        "label": "SKILL_TECHNICAL",
+        "text": "Logistics",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 220,
+        "end": 229,
+        "label": "SKILL_TECHNICAL",
+        "text": "logistics",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 415,
+        "end": 424,
+        "label": "SKILL_TECHNICAL",
+        "text": "logistics",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 475,
+        "end": 484,
+        "label": "SKILL_TECHNICAL",
+        "text": "logistics",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 633,
+        "end": 640,
+        "label": "SKILL_LANGUAGE",
+        "text": "English",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 642,
+        "end": 649,
+        "label": "SKILL_LANGUAGE",
+        "text": "Chinese",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 777,
+        "end": 782,
+        "label": "SKILL_TOOL",
+        "text": "teams",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 821,
+        "end": 836,
+        "label": "SKILL_SOFT",
+        "text": "time management",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.698805",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_05666",
+    "title": "Kỹ Thuật Điện",
+    "company": "Công Ty TNHH Xây Dựng Đông Nam",
+    "text": "MÔ TẢ CÔNG VIỆC: - Theo dõi, giám sát thi công hệ thống điện trên công trường. - Đi thực tế, kiểm tra công trường. - Tuân thủ các quy trình thiết kế của công ty và các quy định, tiêu chuẩn chuyên ngành. - Đề xuất vật tư thiết bị và kiểm soát khối lượng, trang thiết... Yêu cầu: • Tốt nghiệp Trung cấp/Cao Đẳng/Đại Học chuyên ngành hệ thống điện, kỹ thuật điện, điện công nghiệp, điện dân dụng, cơ khí, hoặc kỹ sư ngành MEP • Ưu tiên có kinh nghiệm tham gia thiết kế, thi công hệ thống điện (Trạm điện, tủ động lực, chiếu sáng…). • Am hiểu các kỹ thuật...",
+    "category": "skilled",
+    "existing_skills": [
+      "Cơ khí",
+      "Điện"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 280,
+        "end": 300,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp Trung cấp",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 301,
+        "end": 309,
+        "label": "CERTIFICATION",
+        "text": "Cao Đẳng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 310,
+        "end": 317,
+        "label": "CERTIFICATION",
+        "text": "Đại Học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.704789",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_01320",
+    "title": "Kỹ Sư Kết Cấu",
+    "company": "Toda Vietnam Company Limited",
+    "text": "Mô tả công việc • Tham gia phát triển dự án từ giai đoạn thiết kế ý tưởng đến hồ sơ mời thầu và hồ sơ thi công. • Phối hợp với team thiết kế, đóng góp ý tưởng và chia sẻ chuyên môn. • Triển khai bản vẽ kết cấu và lập bảng tính toán kết cấu.... Yêu cầu: Yêu cầu ứng viên • Tốt nghiệp Đại học chuyên ngành Xây dựng hoặc liên quan. • Có ít nhất 1 năm kinh nghiệm (chấp nhận sinh viên mới tốt nghiệp loại Khá/Giỏi chuyên ngành Kết cấu). • Nắm vững tiêu chuẩn thiết kế Việt Nam và các tiêu chuẩn quốc tế phổ biến (Eurocode, ACI, AISC…). • Sử...",
+    "category": "other",
+    "existing_skills": [],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 272,
+        "end": 290,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.708786",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_05300",
+    "title": "Nhân Viên Quản Lý Dự Án/ Giám Sát Nội Bộ (Cầu Đường)",
+    "company": "Công Ty Cổ Phần Xây Dựng Nasaco - Chi Nhánh TP. Hồ Chí Minh",
+    "text": "• Triển khai đấu thầu công trình; • Kiểm tra thi công các công trình; • Kiểm tra hồ sơ thanh, quyết toán công trình; • Lập kế hoạch và báo cáo công việc tháng. Yêu cầu: • Nam trên 25 tuổi • Tốt nghiệp đại học chuyên nghành xây dựng cầu đường; • Sử dụng thành thạo word, excel, autocad…. • Trung thực, siêng năng, cẩn thận, xử lý tốt các tình huống, vấn đề phát sinh trong công việc, giải quyết vấn đề một cách hiệu quả. Quyền lợi: • Lương, thưởng theo...",
+    "category": "production",
+    "existing_skills": [
+      "Excel",
+      "Word"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 190,
+        "end": 208,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 264,
+        "end": 268,
+        "label": "SKILL_TOOL",
+        "text": "word",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 270,
+        "end": 275,
+        "label": "SKILL_TOOL",
+        "text": "excel",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 277,
+        "end": 284,
+        "label": "SKILL_TOOL",
+        "text": "autocad",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 383,
+        "end": 400,
+        "label": "SKILL_SOFT",
+        "text": "giải quyết vấn đề",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.712015",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_07522",
+    "title": "Nhân Viên Sourcing",
+    "company": "Vifon",
+    "text": "- Tìm kiếm, đánh giá và phát triển nhà cung cấp trong và ngoài nước nhằm phục vụ nhu cầu phát triển sản phẩm của Công ty - Làm việc trực tiếp với nhà cung cấp để phát triển sản phẩm OEM theo yêu cầu của Công ty. - Thu thập và chuẩn bị hồ sơ... Yêu cầu: - Giới tính: Ưu tiên Nam. - Trình độ: Tốt nghiệp Đại học. - Chuyên ngành: Thương mại quốc tế, Ngoại thương, Quản trị kinh doanh quốc tế hoặc các ngành liên quan. - Ngoại ngữ: Tiếng Anh tốt. Biết thêm tiếng Trung là lợi thế. - Kinh nghiệm: Tối thiểu 1 năm. Ưu tiên ứng viên đã...",
+    "category": "other",
+    "existing_skills": [],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 291,
+        "end": 309,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 428,
+        "end": 437,
+        "label": "SKILL_LANGUAGE",
+        "text": "Tiếng Anh",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 453,
+        "end": 464,
+        "label": "SKILL_LANGUAGE",
+        "text": "tiếng Trung",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.717878",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_06538",
+    "title": "Kỹ Sư Chăn Nuôi",
+    "company": "AJINOMOTO VIETNAM COMPANY",
+    "text": "Chịu trách nhiệm thực hiện các nhiệm vụ liên quan đến : - Thực hiện các hoạt động nghiên cứu, phát triển, cải tiến quy trình sản xuất và ứng dụng các sản phẩm phụ trợ trong thực tiễn. - Giám sát các hoạt động phát triển nông nghiệp để đảm bảo đánh giá chính... Yêu cầu: - Bằng cử nhân trở lên chuyên ngành Chăn Nuôi, Công nghệ sinh học, hoặc các lĩnh vực liên quan khác; - Có kiến thức về sinh lý và dinh dưỡng động vật, qua các giai đoạn sinh trưởng, khoa học về động vật. - Có khả năng giao tiếp và sử dụng tiếng anh; -...",
+    "category": "agriculture",
+    "existing_skills": [
+      "Nông nghiệp"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 488,
+        "end": 497,
+        "label": "SKILL_SOFT",
+        "text": "giao tiếp",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 509,
+        "end": 518,
+        "label": "SKILL_LANGUAGE",
+        "text": "tiếng anh",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.724776",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_05264",
+    "title": "Trưởng Bộ Môn Khoa Học Công Nghệ",
+    "company": "Hệ Thống Trường Quốc Tế Tây Úc",
+    "text": "- Tham gia công tác dạy các môn KHCN: Steam/Robotics/ICT - Xây dựng, thiết kế; đánh giá, góp ý chỉnh sửa giáo trình và chương trình đào tạo giảng dạy - Tham gia & hỗ trợ Triển khai các môn học Steam/ Robotics/ICT - Tham gia các sự kiện, hội thảo, cuộc thi có liên quan đến... Yêu cầu: - Trình độ: Tốt nghiệp đại học về các chuyên ngành liên quan nhu CNTT, Vật lý, Điện tử,.. - Ưu tiên ứng viên tốt nghiệp các trường Đại học Bách Khoa, Đại học Công nghệ, Đại học quốc gia, Đại học Sư phạm. - Có ít nhất 2-3 năm kinh nghiệm trong giảng dạy hoặc...",
+    "category": "accounting",
+    "existing_skills": [
+      "Kế toán",
+      "Kho vận"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 7,
+        "end": 15,
+        "label": "SKILL_TECHNICAL",
+        "text": "gia công",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 101,
+        "end": 104,
+        "label": "SKILL_TECHNICAL",
+        "text": "sửa",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 297,
+        "end": 315,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 416,
+        "end": 423,
+        "label": "CERTIFICATION",
+        "text": "Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 435,
+        "end": 442,
+        "label": "CERTIFICATION",
+        "text": "Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 454,
+        "end": 461,
+        "label": "CERTIFICATION",
+        "text": "Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 472,
+        "end": 479,
+        "label": "CERTIFICATION",
+        "text": "Đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.728734",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_06746",
+    "title": "Leader Line Sản Xuất",
+    "company": "Công Ty TNHH Điện Tử UMC Việt Nam",
+    "text": "* Chịu trách nhiệm triển khai kế hoạch sản xuất, tổ chức sản xuất đảm bảo chất lượng kỹ thuật, sản lượng đặt ra và năng suất cao. * Xử lý các vấn đề liên quan đến chất lượng trong sản xuất,cải tiến, phân tích giảm thiểu lỗi trong quá trình sản xuất. * Quản lý,... Yêu cầu: * Nam/Nữ, tuổi từ 20 - 35. * Tốt nghiệp một trong các chuyên ngành sau: Điện tử / Tự động hóa / Công nghệ chế tạo máy / Quản trị doanh nghiệp. * Biết sử dụng máy tính và tin học văn phòng: Word, Excel, Powerpoint. * Hiểu biết về 5S, 7 công cụ QC, Kaizen,...",
+    "category": "production",
+    "existing_skills": [
+      "Excel",
+      "Word",
+      "Powerpoint"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 49,
+        "end": 56,
+        "label": "SKILL_SOFT",
+        "text": "tổ chức",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 74,
+        "end": 84,
+        "label": "SKILL_TECHNICAL",
+        "text": "chất lượng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 163,
+        "end": 173,
+        "label": "SKILL_TECHNICAL",
+        "text": "chất lượng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 252,
+        "end": 259,
+        "label": "SKILL_SOFT",
+        "text": "Quản lý",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 462,
+        "end": 466,
+        "label": "SKILL_TOOL",
+        "text": "Word",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 468,
+        "end": 473,
+        "label": "SKILL_TOOL",
+        "text": "Excel",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 475,
+        "end": 485,
+        "label": "SKILL_TOOL",
+        "text": "Powerpoint",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 516,
+        "end": 518,
+        "label": "SKILL_TECHNICAL",
+        "text": "QC",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.732372",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_04327",
+    "title": "Recruiter Intern (Recruitment Trainee)",
+    "company": "Navigos Group",
+    "text": "• Determine applicant qualifications by interviewing applicants; analyzing responses; verifying references; follow up with clients. • Evaluate applicants by discussing job requirements and applicant qualifications with hiring managers; interviewing applicants on consistent set of qualifications. • Updates job knowledge. • Join team projects as a recruiter as well as a consultant recruitment. • Support internal & external events Yêu cầu: • Proficiency in communication and professional work in English. • Smart, Adaptable, Hardworking. • Great team player. • Task driven. • MS office tools • Leader/Member of Student Clubs/Associations is a plus.",
+    "category": "other",
+    "existing_skills": [
+      "Communication",
+      "English"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 458,
+        "end": 471,
+        "label": "SKILL_SOFT",
+        "text": "communication",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 497,
+        "end": 504,
+        "label": "SKILL_LANGUAGE",
+        "text": "English",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.737318",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_03771",
+    "title": "Lab Colorist (Kỹ Thuật Viên Phòng Thí Nghiệm)",
+    "company": "Hanesbrands Inc. (HY Plant)",
+    "text": "- Đánh giá và phê duyệt màu sắc của mẫu, mẫu sản xuất bằng trực quan và/hoặc thiết bị đo màu. - Đưa ra nhận xét và hướng dẫn nhà máy/nhà cung cấp điều chỉnh các mẫu chưa đạt yêu cầu màu sắc. - Kiểm tra và đánh giá sự thay đổi màu sắc sau các... Yêu cầu: Yêu cầu kinh nghiệm làm việc/ Kỹ năng / Trình độ - Tốt nghiệp đại học ngành Dệt may hoặc các ngành kỹ thuật có liên quan trở lên - Ngôn ngữ Viết, Nói tiếng Anh cơ bản - Không yêu cầu kinh nghiệm - Ưu tiên kinh nghiệm làm việc trong các phòng thí nghiệm",
+    "category": "skilled",
+    "existing_skills": [
+      "Cơ khí"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 305,
+        "end": 323,
+        "label": "CERTIFICATION",
+        "text": "Tốt nghiệp đại học",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 404,
+        "end": 413,
+        "label": "SKILL_LANGUAGE",
+        "text": "tiếng Anh",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.741275",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_01793",
+    "title": "Chuyên Viên Content Marketing Executive",
+    "company": "Công ty TNHH SMB Viêt Nam",
+    "text": "Chúng tôi đang tìm kiếm một Content Marketing Executive có khả năng viết nội dung chiều sâu, tư duy chủ động, làm chủ công nghệ (AI, Canva, Adobe, Google Office) và sẵn sàng học ngành tài chính. Bạn sẽ chịu trách nhiệm sản xuất nội dung hướng đến cộng đồng người Việt – đặc... Yêu cầu: • 1-2 năm kinh nghiệm ở vị trí content marketing hoặc tương đương. • Thành thạo AI (ChatGPT, Gemini hoặc tương tự) và có thể minh chứng qua bài test hoặc portfolio. • Sử dụng tốt Canva (thiết kế cơ bản đến trung cấp: bài post, infographic, slide). • Thành thạo Google Office (Docs, Sheets, Slides) phục...",
+    "category": "sales",
+    "existing_skills": [
+      "Kinh doanh",
+      "Marketing"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 36,
+        "end": 45,
+        "label": "SKILL_TECHNICAL",
+        "text": "Marketing",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 184,
+        "end": 193,
+        "label": "SKILL_TECHNICAL",
+        "text": "tài chính",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 325,
+        "end": 334,
+        "label": "SKILL_TECHNICAL",
+        "text": "marketing",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 492,
+        "end": 501,
+        "label": "CERTIFICATION",
+        "text": "trung cấp",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.745957",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_06128",
+    "title": "Nhân Viên Quản Lý Kho",
+    "company": "Công Ty TNHH Emberfoods",
+    "text": "A. Xuất – Nhập hàng 1. Nhập kho NVL, bao bì, hóa chất - Đối chiếu hàng thực nhận với PO/Phiếu giao hàng - Kiểm tra cảm quan hàng hóa; Cân/đo lại hàng có giá trị cao hoặc nghi ngờ sai số. - Kiểm tra COA/CO/CQ với các nguyên liệu bắt buộc theo HACCP (bột, bơ, sữa,... Yêu cầu: - Tốt nghiệp nghề/trung cấp/cao đẳng chuyên ngành: Quản trị kho vận, Logistics, Kinh tế, Công nghệ thực phẩm hoặc tương đương - Kinh nghiệm từ 2 năm ở vị trí tương đương tại các nhà máy/xưởng sản xuất. Ưu tiên ứng viên từng làm việc tại các công ty sản xuất thực phẩm có...",
+    "category": "accounting",
+    "existing_skills": [
+      "Kế toán",
+      "Kho vận"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 293,
+        "end": 302,
+        "label": "CERTIFICATION",
+        "text": "trung cấp",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 303,
+        "end": 311,
+        "label": "CERTIFICATION",
+        "text": "cao đẳng",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 344,
+        "end": 353,
+        "label": "SKILL_TECHNICAL",
+        "text": "Logistics",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.751392",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  },
+  {
+    "job_id": "scraped_vietnamworks_algolia_05514",
+    "title": "Operations Staff - INBOUND",
+    "company": "CÔNG TY TNHH COSCO SHIPPING LINES (VIỆT NAM)",
+    "text": "• Send emails to partners informing the ship's name, profile code, deadline to upload MNF, deadline to return Discharge list. • Handle, upload MNF on VNSW within deadline • Download and convert Discharge List into excel file for services, checking quantity before sending out. • Handle daily DISCHARGE LIST & Vessel operation • Handle wrong seal report/Check, Keep... Yêu cầu: • Graduated from university with a relevant major. • Language: Good command of spoken and written English, Chinese is advantaged. • 1-2 years of working experience, preferably in sales/shipping lines will be a plus. • Excellent communication skills, able to build and maintain relationships. • High responsibility, being able to work under pressure.",
+    "category": "other",
+    "existing_skills": [
+      "Communication",
+      "English",
+      "Chinese",
+      "Excel"
+    ],
+    "language": "vi",
+    "entities": [
+      {
+        "start": 214,
+        "end": 219,
+        "label": "SKILL_TOOL",
+        "text": "excel",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 475,
+        "end": 482,
+        "label": "SKILL_LANGUAGE",
+        "text": "English",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 484,
+        "end": 491,
+        "label": "SKILL_LANGUAGE",
+        "text": "Chinese",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 556,
+        "end": 561,
+        "label": "SKILL_TECHNICAL",
+        "text": "sales",
+        "normalized": null,
+        "source": "keyword_pattern"
+      },
+      {
+        "start": 605,
+        "end": 618,
+        "label": "SKILL_SOFT",
+        "text": "communication",
+        "normalized": null,
+        "source": "keyword_pattern"
+      }
+    ],
+    "metadata": {
+      "annotator": "keyword_pattern",
+      "annotated_at": "2026-05-27T15:09:42.756054",
+      "agreement": null,
+      "status": "pre_annotated",
+      "notes": ""
+    }
+  }
+]

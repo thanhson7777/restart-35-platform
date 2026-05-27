@@ -1,0 +1,17 @@
+<View>
+  <!-- Job Description Text -->
+  <Text name="text" value="$text"/>
+
+  <!-- Skill Labels -->
+  <Labels name="label" toName="text">
+    <Label value="SKILL_TECHNICAL" background="#FF6B6B" stroke="#CC5555"/>
+    <Label value="SKILL_TOOL" background="#4ECDC4" stroke="#3BA99F"/>
+    <Label value="SKILL_SOFT" background="#45B7D1" stroke="#3590A5"/>
+    <Label value="SKILL_LANGUAGE" background="#96CEB4" stroke="#78A38E"/>
+    <Label value="CERTIFICATION" background="#FFEAA7" stroke="#CCBB85"/>
+  </Labels>
+
+  <!-- Information for annotator -->
+  <Header value="Skill Entity Labels:"/>
+  <Text value="$info"/>
+</View>

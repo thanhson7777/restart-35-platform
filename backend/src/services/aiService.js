@@ -33,6 +33,18 @@ const getRecommendedJobs = async ({
   allowRemote = false
 }) => {
   try {
+    // Log input parameters for debugging
+    console.log('[AIService] getRecommendedJobs INPUT:', {
+      skills,
+      skillsType: typeof skills,
+      skillsIsArray: Array.isArray(skills),
+      skillsLength: skills?.length,
+      experience,
+      location,
+      targetJob,
+      limit
+    })
+
     // Validate input
     if (!skills || skills.length === 0) {
       throw new ApiError(
@@ -40,12 +52,39 @@ const getRecommendedJobs = async ({
         'Skills là bắt buộc để gợi ý việc làm'
       )
     }
+    
+    // Extract skill strings from various formats
+    let validSkills = []
+    
+    if (typeof skills[0] === 'string') {
+      // skills is already an array of strings
+      validSkills = skills.filter(s => typeof s === 'string' && s.trim().length > 0)
+    } else if (typeof skills[0] === 'object') {
+      // skills is an array of objects (e.g., ESCO format with uri, titleEn, titleVi)
+      validSkills = skills
+        .filter(s => s && typeof s === 'object')
+        .map(s => s.titleVi || s.titleEn || s.uri)
+        .filter(s => typeof s === 'string' && s.trim().length > 0)
+    }
+    
+    if (validSkills.length === 0) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Skills phải là một mảng chuỗi không rỗng'
+      )
+    }
 
     // Cap limit ở backend (max: 50)
     const cappedLimit = Math.min(50, Math.max(1, limit || 10))
 
-    const result = await aiProvider.recommendJobs({
+    console.log('[AIService] Calling aiProvider.recommendJobs with:', {
       skills,
+      experience,
+      cappedLimit
+    })
+
+    const result = await aiProvider.recommendJobs({
+      skills: validSkills,
       experience,
       location,
       targetJob,
@@ -55,18 +94,37 @@ const getRecommendedJobs = async ({
       allowRemote
     })
 
+    console.log('[AIService] aiProvider.recommendJobs RESULT:', {
+      resultType: typeof result,
+      hasData: result?.data !== undefined,
+      resultKeys: result ? Object.keys(result) : [],
+      dataKeys: result?.data ? Object.keys(result.data) : []
+    })
+
     // Handle both direct response and wrapped response
-    return {
+    const finalResult = {
       data: result.data || result
     }
+    console.log('[AIService] Final result:', {
+      hasJobs: finalResult.data?.jobs !== undefined,
+      jobsCount: finalResult.data?.jobs?.length || 0
+    })
+
+    return finalResult
   } catch (error) {
+    console.log('[AIService] ERROR caught:', {
+      errorType: error?.constructor?.name,
+      errorMessage: error?.message,
+      errorStack: error?.stack,
+      isApiError: error?.isApiError,
+      errorCode: error?.code,
+      errorKeys: error ? Object.keys(error) : []
+    })
+
     // Nếu là ApiError thì throw lại
     if (error.isApiError) {
       throw error
     }
-
-    // Xử lý error từ AI Service
-    console.error('[AIService] getRecommendedJobs error:', error)
 
     // Check nếu AI service không available
     if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {

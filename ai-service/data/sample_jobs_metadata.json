@@ -1,0 +1,22 @@
+{
+  "sample_size": 300,
+  "random_seed": 42,
+  "categories": {
+    "other": 93,
+    "sales": 61,
+    "skilled": 43,
+    "accounting": 37,
+    "bao_ve": 22,
+    "construction": 9,
+    "production": 8,
+    "security": 5,
+    "service": 5,
+    "warehouse": 5,
+    "driver": 5,
+    "agriculture": 3,
+    "phuc_vu": 2,
+    "lai_xe": 1,
+    "co_khi": 1
+  },
+  "jobs_with_skills": 261
+}

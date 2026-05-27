@@ -1,0 +1,83 @@
+{
+  "error_summary": {
+    "total_fp": 4,
+    "total_fn": 2,
+    "total_misclassifications": 0,
+    "errors_by_label": {
+      "SKILL_TOOL": {
+        "fp": 3,
+        "fn": 0
+      },
+      "SKILL_SOFT": {
+        "fp": 0,
+        "fn": 1
+      },
+      "SKILL_TECHNICAL": {
+        "fp": 1,
+        "fn": 0
+      },
+      "SKILL_LANGUAGE": {
+        "fp": 0,
+        "fn": 1
+      }
+    }
+  },
+  "false_positives": [
+    {
+      "job_id": "I. MỤC TIÊU CÔNG VIỆC: - Đảm bảo cung cấp cho Trưở",
+      "label": "SKILL_TOOL",
+      "text": "Ford",
+      "context": "n ngoài: Ngân hàng, Ford VN, Các đơn vị góp "
+    },
+    {
+      "job_id": "- Tìm kiếm khách hàng là các dự án thi công, dự án",
+      "label": "SKILL_TECHNICAL",
+      "text": "bán vật tư",
+      "context": " án thi công, dự án bán vật tư về sàn gỗ, sàn nhựa"
+    },
+    {
+      "job_id": "Chúng tôi đang tìm kiếm một Content Marketing Exec",
+      "label": "SKILL_TOOL",
+      "text": "Google Office",
+      "context": " (AI, Canva, Adobe, Google Office) và sẵn sàng học ng"
+    },
+    {
+      "job_id": "Chúng tôi đang tìm kiếm một Content Marketing Exec",
+      "label": "SKILL_TOOL",
+      "text": "Google Office",
+      "context": "lide). • Thành thạo Google Office (Docs, Sheets, Slid"
+    }
+  ],
+  "false_negatives": [
+    {
+      "job_id": "1. Job Summary • The Employee Experience & Event M",
+      "label": "SKILL_SOFT",
+      "text": "collaboration",
+      "context": "rge-scale events in collaboration... Yêu cầu: • Minim"
+    },
+    {
+      "job_id": "• Job Responsibilities 1. New Business Development",
+      "label": "SKILL_LANGUAGE",
+      "text": "Japanese",
+      "context": "eaking) Preferred • Japanese language skills • K"
+    }
+  ],
+  "misclassifications": [],
+  "recommendations": [
+    {
+      "issue": "Missing SKILL_SOFT entities",
+      "count": 1,
+      "suggestion": "Add more SKILL_SOFT examples to training data"
+    },
+    {
+      "issue": "Missing SKILL_LANGUAGE entities",
+      "count": 1,
+      "suggestion": "Add more SKILL_LANGUAGE examples to training data"
+    },
+    {
+      "issue": "More false positives than false negatives",
+      "count": "4 FP vs 2 FN",
+      "suggestion": "Consider tightening entity boundaries or adding negative examples"
+    }
+  ]
+}

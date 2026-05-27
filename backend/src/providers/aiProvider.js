@@ -241,6 +241,14 @@ class AIProvider {
         limit
       }
 
+      console.log('[AIProvider] recommendJobs payload:', {
+        skills,
+        experience,
+        limit,
+        skillsIsArray: Array.isArray(skills),
+        skillsLength: skills?.length
+      })
+
       // Cap experience ở backend (0-50 năm)
       payload.experience = Math.min(50, Math.max(0, parseInt(experience) || 0))
 
@@ -250,10 +258,32 @@ class AIProvider {
       if (preferredJobType) payload.preferred_job_type = preferredJobType
       if (allowRemote) payload.allow_remote = allowRemote
 
-const response = await aiApiClient.post('/api/v1/ai/recommend-jobs', payload)
+      console.log('[AIProvider] Sending request to AI service with payload:', payload)
+      
+      const response = await aiApiClient.post('/api/v1/ai/recommend-jobs', payload)
+      console.log('[AIProvider] AI service response:', {
+        status: response?.status,
+        hasData: response?.data !== undefined,
+        dataKeys: response?.data ? Object.keys(response.data) : []
+      })
       return response.data
     } catch (error) {
-      console.warn('[AIProvider] recommendJobs - AI Service error, using mock data')
+      console.log('[AIProvider] recommendJobs error:', {
+        errorMessage: error?.message,
+        errorCode: error?.code,
+        errorResponse: error?.response?.data,
+        errorResponseStatus: error?.response?.status,
+        isAxiosError: error?.isAxiosError
+      })
+      
+      // Log chi tiết payload để debug 422
+      console.log('[AIProvider] Payload sent:', JSON.stringify(payload, null, 2))
+      
+      // Handle 422 validation errors
+      if (error?.response?.status === 422) {
+        console.error('[AIProvider] Validation error from AI service:', error.response.data)
+        throw new Error(`Validation error: ${JSON.stringify(error.response.data)}`)
+      }
       // Trả về mock data khi AI service không khả dụng
       let filteredJobs = filterJobsBySkills(MOCK_JOBS, skills, limit)
 

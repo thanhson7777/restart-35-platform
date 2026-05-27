@@ -234,12 +234,12 @@ class VietnamWorksAlgoliaScraper(BaseScraper):
             if benefits:
                 benefits_text = ', '.join(str(b) for b in benefits)
 
-            # Build job URL
+            # Build job URL - NEW FORMAT (2026: removed /viec-lam/, added -jv suffix)
             alias = item.get('alias', '')
             if alias:
-                job_url = f"https://www.vietnamworks.com/viec-lam/{alias}-{job_id}"
+                job_url = f"https://www.vietnamworks.com/{alias}-{job_id}-jv"
             else:
-                job_url = f"https://www.vietnamworks.com/viec-lam/{job_id}"
+                job_url = f"https://www.vietnamworks.com/job-{job_id}-jv"
 
             # Extract posted date
             posted_date = item.get('onlineOn') or item.get('createdOn', '')

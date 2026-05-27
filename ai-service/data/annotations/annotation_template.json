@@ -1,0 +1,34 @@
+{
+  "annotation_format": "manual_json",
+  "instructions": "Annotate skill entities in the text. Mark the start and end character positions for each skill.",
+  "entity_labels": [
+    "SKILL_TECHNICAL",
+    "SKILL_TOOL",
+    "SKILL_SOFT",
+    "SKILL_LANGUAGE",
+    "CERTIFICATION"
+  ],
+  "example": {
+    "text": "Cần người biết hàn MIG/MAG, sử dụng AutoCAD, Excel",
+    "entities": [
+      {
+        "start": 18,
+        "end": 29,
+        "label": "SKILL_TECHNICAL",
+        "text": "hàn MIG/MAG"
+      },
+      {
+        "start": 43,
+        "end": 50,
+        "label": "SKILL_TOOL",
+        "text": "AutoCAD"
+      },
+      {
+        "start": 52,
+        "end": 57,
+        "label": "SKILL_TOOL",
+        "text": "Excel"
+      }
+    ]
+  }
+}

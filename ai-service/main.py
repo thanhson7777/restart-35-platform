@@ -40,17 +40,22 @@ app = FastAPI(
 
     ## Tính năng chính
 
-    ### 1. Job Recommendation
+    ### 1. ESCO Skill Normalization
+    - Extract skills from job descriptions using NER
+    - Match skills to ESCO taxonomy using embeddings
+    - Store normalized jobs to MongoDB
+
+    ### 2. Job Recommendation
     - TF-IDF Vectorization cho skills + title
     - Hybrid Scoring: Base Score + Salary + Job Type
     - Filter by location, experience, salary
 
-    ### 2. Risk Prediction
+    ### 3. Risk Prediction
     - XGBoost Regularized với Threshold Optimization
     - Chiến lược: "Thà bắt nhầm còn hơn bỏ sót"
     - Threshold = 0.15 để đạt Recall (High) = 1.00
 
-    ### 3. Worker Analysis
+    ### 4. Worker Analysis
     - Kết hợp Risk Prediction + Job Recommendation
     - Filter jobs theo risk level
     - Ưu tiên hỗ trợ người có risk cao
@@ -61,7 +66,7 @@ app = FastAPI(
     - Không một ai có rủi ro cao bị bỏ sót
     - Chấp nhận Precision thấp hơn để đổi lấy Recall cao hơn
     """,
-    version="1.0.0",
+    version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -114,6 +119,7 @@ from routers.ai import router as ai_router
 from routers.career_path import router as career_path_router
 from routers.career_transition import router as career_transition_router
 from routers.career_recommendation import router as rag_recommendation_router
+from routers.esco_normalization import router as esco_router
 
 # Global instances
 _rag_engine = None
@@ -124,6 +130,7 @@ app.include_router(ai_router)
 app.include_router(career_path_router)
 app.include_router(career_transition_router)
 app.include_router(rag_recommendation_router)
+app.include_router(esco_router)
 
 
 # =============================================================================

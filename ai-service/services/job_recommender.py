@@ -3,6 +3,7 @@ Job Recommender Service
 - TF-IDF Vectorization cho skills + title
 - Hybrid Scoring: Base Score (Cosine Similarity) + Bonus Score
 - Soft Distance Scoring: Location matching
+- ESCO Semantic Matching cho skill similarity
 """
 
 import pandas as pd
@@ -13,7 +14,57 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 import logging
 
+from services.recommender_config import config
+
 logger = logging.getLogger(__name__)
+
+
+# ============================================================
+# ESCO Skill Similarity Functions
+# ============================================================
+
+def calculate_esco_skill_similarity(
+    user_skills: List[str],
+    job_skills: List[str],
+    normalizer
+) -> float:
+    """
+    Tính ESCO-based skill similarity sử dụng Jaccard similarity
+    
+    Args:
+        user_skills: List[str] - skills của worker
+        job_skills: List[str] - skills của job
+        normalizer: ESCO normalizer instance
+    
+    Returns:
+        float: similarity score (0.0 - 1.0)
+    """
+    if not user_skills or not job_skills:
+        return 0.0
+    
+    user_escos = set()
+    job_escos = set()
+    
+    for skill in user_skills:
+        try:
+            matches = normalizer.normalize_skill(skill)
+            if matches:
+                user_escos.add(matches[0]['uri'])
+        except Exception:
+            continue
+    
+    for skill in job_skills:
+        try:
+            matches = normalizer.normalize_skill(skill)
+            if matches:
+                job_escos.add(matches[0]['uri'])
+        except Exception:
+            continue
+    
+    if not user_escos or not job_escos:
+        return 0.0
+    
+    return len(user_escos & job_escos) / len(user_escos | job_escos)
 
 
 # ============================================================
@@ -101,15 +152,40 @@ NEARBY_PAIRS = {
 }
 
 
-class JobRecommender:
-    """Job Recommendation Engine sử dụng TF-IDF + Hybrid Scoring"""
+# =============================================================================
+# Soft Scoring Constants
+# =============================================================================
 
-    def __init__(self, data_path: Optional[Path] = None):
+# Education level mappings (worker education)
+EDUCATION_LEVELS = {
+    'primary': 1,
+    'lower_secondary': 2,
+    'upper_secondary': 3,
+    'college': 4,
+    'university': 5,
+    'postgraduate': 6
+}
+
+# Job education requirements
+EDUCATION_JOB_LEVELS = {
+    'any': 0,
+    'low': 2,       # Lao động phổ thông
+    'high': 3,      # Tốt nghiệp THPT
+    'college': 4,   # Cao đẳng
+    'university': 5  # Đại học
+}
+
+
+class JobRecommender:
+    """Job Recommendation Engine sử dụng TF-IDF + Hybrid Scoring + ESCO"""
+
+    def __init__(self, data_path: Optional[Path] = None, use_esco: bool = True):
         """
         Khởi tạo JobRecommender
 
         Args:
             data_path: Đường dẫn đến thư mục chứa jobs.csv
+            use_esco: Sử dụng ESCO semantic matching (default: True)
         """
         if data_path is None:
             data_path = Path(__file__).parent.parent / "data"
@@ -118,6 +194,10 @@ class JobRecommender:
         self.jobs_df = None
         self.tfidf_vectorizer = None
         self.job_vectors = None
+        
+        # ESCO normalizer - lazy load
+        self._esco_normalizer = None
+        self._use_esco = use_esco
 
         self._load_data()
         self._build_tfidf_model()
@@ -185,6 +265,10 @@ class JobRecommender:
         if target_salary is None:
             return 0.5  # Neutral score nếu không có target
 
+        # Handle zero salary
+        if salary_min == 0 and salary_max == 0:
+            return 0.5  # Neutral if no salary info
+
         # Kiểm tra target nằm trong range
         if salary_min <= target_salary <= salary_max:
             return 1.0
@@ -192,10 +276,10 @@ class JobRecommender:
         # Tính khoảng cách từ target đến range
         if target_salary < salary_min:
             distance = salary_min - target_salary
-            max_distance = salary_min * 0.5  # Cho phép lệch 50%
+            max_distance = max(salary_min * 0.5, 1)  # Ensure non-zero
         else:
             distance = target_salary - salary_max
-            max_distance = salary_max * 0.3
+            max_distance = max(salary_max * 0.3, 1)  # Ensure non-zero
 
         score = max(0, 1 - (distance / max_distance))
         return min(1.0, max(0.0, score))
@@ -352,6 +436,209 @@ class JobRecommender:
         except (ValueError, TypeError):
             return 0.5  # Neutral nếu parse fails
 
+    @property
+    def esco_normalizer(self):
+        """Lazy load ESCO normalizer"""
+        if self._esco_normalizer is None and self._use_esco:
+            try:
+                from services.esco_normalizer import get_normalizer
+                self._esco_normalizer = get_normalizer()
+                logger.info("ESCO normalizer loaded successfully")
+            except Exception as e:
+                logger.warning(f"Failed to load ESCO normalizer: {e}. Using exact match only.")
+                self._use_esco = False
+        return self._esco_normalizer
+
+    def calculate_skill_match(self, skills: List[str], row) -> Tuple[float, int]:
+        """
+        Tính skill match score với ESCO semantic matching
+        
+        Args:
+            skills: List[str] - skills của worker
+            row: pd.Series - job row
+        
+        Returns:
+            Tuple: (combined_score, exact_match_count)
+        """
+        if not skills:
+            return 0.0, 0
+        
+        # 1. Exact match (vẫn giữ cho những skills không có ESCO)
+        skills_lower = set(str(s).lower() for s in skills)
+        row_skills_lower = set(str(s).lower() for s in row['skills_list'])
+        exact_match = len(skills_lower & row_skills_lower)
+        
+        # 2. ESCO semantic match
+        if self.esco_normalizer:
+            try:
+                esco_similarity = calculate_esco_skill_similarity(
+                    skills, row['skills_list'], self.esco_normalizer
+                )
+            except Exception as e:
+                logger.warning(f"ESCO matching failed: {e}")
+                esco_similarity = 0.0
+        else:
+            esco_similarity = 0.0
+        
+        # 3. Combine scores
+        max_skills = max(len(skills), 1)
+        exact_bonus = exact_match / max_skills
+        
+        # Use config for ESCO weights
+        combined_score = (
+            exact_bonus * config.ESCO_EXACT_WEIGHT + 
+            esco_similarity * config.ESCO_SIMILARITY_WEIGHT
+        )
+        
+        return combined_score, exact_match
+
+    def _calculate_age_score(self, worker_age: Optional[int], age_pref: str) -> float:
+        """
+        Tính age match score (0.0 - 1.0)
+        
+        Args:
+            worker_age: Tuổi của worker
+            age_pref: Age preference từ job (e.g., "18-35", ">50", "any")
+        
+        Returns:
+            Score từ 0.0 đến 1.0
+        """
+        if worker_age is None:
+            return 1.0
+        
+        if not age_pref or age_pref == 'any':
+            return 1.0
+        
+        # Parse age preference (e.g., "18-35", ">50", "<30")
+        try:
+            if '-' in str(age_pref):
+                parts = age_pref.split('-')
+                min_age, max_age = int(parts[0]), int(parts[1])
+            elif '>' in age_pref:
+                min_age, max_age = int(age_pref[1:]), 100
+            elif '<' in age_pref:
+                min_age, max_age = 0, int(age_pref[1:])
+            else:
+                return 1.0
+        except (ValueError, IndexError):
+            return 1.0
+        
+        # Calculate score based on distance from range
+        if min_age <= worker_age <= max_age:
+            return 1.0  # Perfect match
+        elif worker_age < min_age:
+            distance = min_age - worker_age
+            if distance <= 2: return 0.8
+            elif distance <= 5: return 0.5
+            else: return 0.2
+        else:  # worker_age > max_age
+            distance = worker_age - max_age
+            if distance <= 3: return 0.7
+            elif distance <= 10: return 0.3
+            else: return 0.1
+
+    def _calculate_education_score(self, worker_edu: Optional[str], job_edu_req: str) -> float:
+        """
+        Tính education match score (0.0 - 1.0)
+        
+        Args:
+            worker_edu: Trình độ của worker
+            job_edu_req: Yêu cầu trình độ từ job
+        
+        Returns:
+            Score từ 0.0 đến 1.0
+        """
+        if worker_edu is None:
+            return 1.0
+        
+        if not job_edu_req or job_edu_req == 'any':
+            return 1.0
+        
+        worker_level = EDUCATION_LEVELS.get(worker_edu.lower().strip(), 3)
+        job_level = EDUCATION_JOB_LEVELS.get(job_edu_req.lower().strip(), 0)
+        
+        if job_level == 0:
+            return 1.0
+        
+        if worker_level >= job_level:
+            diff = worker_level - job_level
+            if diff == 0: return 1.0
+            elif diff == 1: return 0.9
+            else: return max(0.7, 0.9 - diff * 0.1)
+        else:
+            diff = job_level - worker_level
+            if diff == 1: return 0.4
+            else: return 0.1
+
+    def _calculate_gender_score(self, worker_gender: str, job_title: str) -> float:
+        """
+        Tính gender match score (0.0 - 1.0)
+        
+        Args:
+            worker_gender: Giới tính của worker ('male'/'female')
+            job_title: Tiêu đề job (có thể chứa '_Nữ', '_Nam')
+        
+        Returns:
+            Score từ 0.0 đến 1.0
+        """
+        if not job_title:
+            return 1.0
+        
+        # Detect gender requirement from job title
+        if 'Nữ' in job_title or '_Nữ' in job_title:
+            job_gender = 'female'
+        elif 'Nam' in job_title or '_Nam' in job_title:
+            job_gender = 'male'
+        else:
+            return 1.0  # No gender requirement
+        
+        # Match score
+        if worker_gender == job_gender:
+            return 1.0
+        elif worker_gender not in ['male', 'female']:
+            return 0.5  # Unknown gender
+        else:
+            return 0.0  # Gender mismatch
+
+    def _calculate_family_score(self, barrier_family: int, job_description: str) -> float:
+        """
+        Tính family compatibility score (0.0 - 1.0)
+        
+        Args:
+            barrier_family: Worker có rào cản gia đình (0/1)
+            job_description: Mô tả công việc
+        
+        Returns:
+            Score từ 0.0 đến 1.0
+        """
+        if barrier_family != 1:
+            return 1.0
+        
+        # Handle NaN or non-string values
+        if not job_description or not isinstance(job_description, str):
+            return 0.8  # Neutral if no description
+        
+        job_text = job_description.lower()
+        
+        # Negative keywords - very unsuitable
+        if any(kw in job_text for kw in ['ca dem', 'ca đêm', 'dem', 'night shift']):
+            return 0.1  # Night shift - rất không phù hợp
+        
+        if any(kw in job_text for kw in ['overtime', 'ot ', 'tăng ca', 'tang ca']):
+            return 0.3  # Overtime thường xuyên
+        
+        if any(kw in job_text for kw in ['công tác', 'business trip', '出差']):
+            return 0.3  # Công tác nhiều
+        
+        if any(kw in job_text for kw in ['cuối tuần', 'cuoi tuan', 'weekend', '7/7']):
+            return 0.4  # Weekend work
+        
+        # Positive keywords - suitable
+        if any(kw in job_text for kw in ['linh hoạt', 'linh hoat', 'flexible', 'thời gian tự chọn', 'work from home', 'wfh']):
+            return 1.0  # Flexible hours - phù hợp
+        
+        return 0.8  # Default - somewhat suitable
+
     def _compute_quality_score(self, row: 'pd.Series') -> float:
         """
         Compute quality score (0-100) based on data completeness.
@@ -480,7 +767,13 @@ class JobRecommender:
                   target_salary: Optional[float] = None,
                   preferred_job_type: Optional[str] = None,
                   limit: int = 10,
-                  allow_remote: bool = False) -> Dict:
+                  allow_remote: bool = False,
+                  # NEW: Soft scoring parameters
+                  age: Optional[int] = None,
+                  education: Optional[str] = None,
+                  gender: Optional[str] = None,
+                  barrier_family: int = 0,
+                  barrier_health: int = 0) -> Dict:
         """
         Gợi ý công việc dựa trên profile của user
 
@@ -493,6 +786,11 @@ class JobRecommender:
             preferred_job_type: Loại công việc ưa thích
             limit: Số lượng jobs tối đa trả về (max: 50)
             allow_remote: Cho phép làm việc từ xa
+            age: Tuổi của worker (cho soft scoring)
+            education: Trình độ học vấn của worker
+            gender: Giới tính của worker ('male'/'female')
+            barrier_family: Rào cản gia đình (0/1)
+            barrier_health: Rào cản sức khỏe (0/1)
 
         Returns:
             Dict chứa danh sách jobs và metadata
@@ -527,11 +825,9 @@ class JobRecommender:
         for idx, row in self.jobs_df.iterrows():
             base_score = similarities[idx]
 
-            # Calculate skills match first (used in multiple places) - case insensitive
-            skills_lower = set(str(s).lower() for s in skills)
-            row_skills_lower = set(str(s).lower() for s in row['skills_list'])
-            skills_match = len(skills_lower & row_skills_lower)
-            has_skill_match = skills_match > 0
+            # Calculate skills match using ESCO semantic matching
+            skill_match_score, skills_match = self.calculate_skill_match(skills, row)
+            has_skill_match = skills_match > 0 or skill_match_score > 0
 
             # Check target_job match
             has_job_match = target_job and target_job.lower() in str(row.get('title', '')).lower()
@@ -550,10 +846,9 @@ class JobRecommender:
                 allow_remote
             )
 
-            # Chỉ skip nếu location score quá thấp (< 0.1)
-            # Điều này cho phép jobs ở nearby provinces được hiển thị
-            if location_score < 0.1:
-                continue
+            # KHÔNG skip jobs dựa trên location nữa
+            # Thay vào đó, giảm final_score theo location_score
+            # Jobs ở region khác vẫn hiển thị nhưng với score thấp hơn
 
             # 5. Calculate Bonus Scores
             salary_score = self._calculate_salary_score(
@@ -575,23 +870,43 @@ class JobRecommender:
             # Tính recency score
             recency_score = self._calculate_recency_score(row.get('scraped_at', ''))
 
-            # Skills Match Bonus - cải thiện relevance cho skill-based matching
-            skills_bonus = min(0.15, skills_match * 0.05)  # Max 15% bonus
+            # Skills Match Bonus - sử dụng ESCO semantic matching
+            # Combined score: 30% exact + 70% ESCO similarity
+            skills_bonus = min(config.SKILL_BONUS_MAX, skill_match_score * config.SKILLS_BONUS_WEIGHT)
 
-            # 6. Final Score = Weighted Average
-            # Base: 50%, Skills: variable, Salary: 10%, Job Type: 8%, Location: 10%, Recency: 10%
-            location_bonus = location_score * 0.10  # 10% weight cho location
-            recency_bonus = recency_score * 0.10  # 10% weight cho recency
+            # 5.5. Calculate Soft Scores for Demographics
+            age_score = self._calculate_age_score(age, row.get('age_preference', 'any'))
+            education_score = self._calculate_education_score(
+                education, row.get('education_required', 'any')
+            )
+            gender_score = self._calculate_gender_score(
+                gender or '', row.get('title', '')
+            )
+            family_score = self._calculate_family_score(
+                barrier_family, row.get('description', '')
+            )
+
+            # 6. Final Score = Weighted Average (sử dụng config)
+            location_bonus = location_score * config.LOCATION_SCORE_WEIGHT
+            recency_bonus = recency_score * config.RECENCY_SCORE_WEIGHT
 
             final_score = (
-                base_score * 0.50 +
+                base_score * config.BASE_SCORE_FINAL_WEIGHT +
                 skills_bonus +
-                salary_score * 0.10 +
-                job_type_score * 0.08 +
+                salary_score * config.SALARY_SCORE_WEIGHT +
+                job_type_score * config.JOB_TYPE_SCORE_WEIGHT +
                 experience_bonus +
                 location_bonus +
-                recency_bonus
+                recency_bonus +
+                age_score * config.AGE_SCORE_WEIGHT +
+                education_score * config.EDUCATION_SCORE_WEIGHT +
+                gender_score * config.GENDER_SCORE_WEIGHT +
+                family_score * config.FAMILY_SCORE_WEIGHT
             )
+
+            # Áp dụng location soft scoring
+            # Jobs ở region khác vẫn hiển thị nhưng với score thấp hơn
+            final_score *= location_score
 
             # Normalize final score về 0-1
             final_score = min(1.0, final_score)
@@ -604,11 +919,13 @@ class JobRecommender:
                 'score': round(final_score, 3),
                 'skills': row['skills_list'],
                 'skills_match': skills_match,
+                'esco_skill_score': round(skill_match_score, 3),  # ESCO combined score
                 'salary_range': f"{int(row['salary_min']/1000000)}-{int(row['salary_max']/1000000)} triệu",
                 'salary_min': int(row['salary_min']),
                 'salary_max': int(row['salary_max']),
                 'location': job_location,
                 'location_score': round(location_score, 2),
+                'location_multiplier': round(location_score, 2),  # Soft scoring multiplier
                 'type': row.get('type', ''),
                 'experience_required': row.get('experience_required', 0),
                 'description': row.get('description', ''),
@@ -619,6 +936,11 @@ class JobRecommender:
                 'is_active': True,  # Assume active until verified otherwise
                 'quality_score': self._compute_quality_score(row),
                 'source': row.get('source', ''),
+                # Soft scoring scores
+                'age_score': round(age_score, 2),
+                'education_score': round(education_score, 2),
+                'gender_score': round(gender_score, 2),
+                'family_score': round(family_score, 2),
             }
 
             results.append(job_result)
@@ -817,16 +1139,9 @@ class JobRecommender:
                     # This is a tech job, downgrade but don't exclude
                     pass
 
-            # Age suitability - prefer jobs matching age
-            if age:
-                age_pref = job.get('age_preference', 'any')
-                if age_pref != 'any':
-                    # Check if job's age preference matches worker age
-                    if '35' in str(age_pref) and age < 35:
-                        continue
-                    if '50' in str(age_pref) and age > 50:
-                        # Older worker may not want "young" jobs
-                        pass
+            # Age filtering is now handled by soft scoring in recommend()
+            # The _calculate_age_score() method provides a smooth score instead of hard filtering
+            # This allows jobs outside preferred age ranges to still appear with lower scores
 
             filtered.append(job)
 

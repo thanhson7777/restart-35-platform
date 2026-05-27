@@ -1,0 +1,1764 @@
+{
+  "evaluation_date": "2026-05-27T15:35:18.663784",
+  "normalizer_stats": {
+    "num_esco_skills": 13939,
+    "threshold": 0.75,
+    "ner_model": "D:\\LUAN_VAN\\restart-35-platform\\ai-service\\models\\skill_ner\\model-last",
+    "embedding_model": "intfloat/multilingual-e5-base"
+  },
+  "timing": {
+    "init_time_s": 0.0,
+    "total_normalize_time_s": 35.58,
+    "avg_time_per_job_s": 0.712
+  },
+  "statistics": {
+    "total_jobs": 50,
+    "jobs_with_skills": 48,
+    "jobs_with_matches": 48,
+    "total_skills": 237,
+    "total_matches": 237,
+    "avg_skills_per_job": 4.94,
+    "avg_match_rate": 1.0,
+    "avg_confidence": 0.881,
+    "by_label": {
+      "SKILL_SOFT": {
+        "skills": 52,
+        "matches": 52
+      },
+      "SKILL_TOOL": {
+        "skills": 30,
+        "matches": 30
+      },
+      "SKILL_TECHNICAL": {
+        "skills": 90,
+        "matches": 90
+      },
+      "SKILL_LANGUAGE": {
+        "skills": 27,
+        "matches": 27
+      },
+      "CERTIFICATION": {
+        "skills": 37,
+        "matches": 37
+      }
+    }
+  },
+  "sample_results": [
+    {
+      "job_id": "scraped_vietnamworks_algolia_06347",
+      "title": "Chuyên Viên Thiết Kế Đồ Họa",
+      "total_skills": 2,
+      "matched_skills": 2,
+      "match_rate": 1.0,
+      "avg_confidence": 0.8538870215415955,
+      "entities": [
+        {
+          "text": "Sáng tạo",
+          "start": 287,
+          "end": 295,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/8c4c49d4-9708-433f-8ca7-bf2c5211ee49",
+              "label": "develop creative ideas",
+              "score": 0.8488082885742188,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/c624c6a3-b0ba-4a31-a296-0d433fe47e41",
+              "label": "think creatively",
+              "score": 0.8478384017944336,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/e927ab40-a135-4a7a-9dfc-b57132741281",
+              "label": "organise creative performance",
+              "score": 0.8351092338562012,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/8c4c49d4-9708-433f-8ca7-bf2c5211ee49",
+            "label": "develop creative ideas",
+            "score": 0.8488082885742188,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "chịu áp lực",
+          "start": 361,
+          "end": 372,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/d15f8745-28f8-4abf-a7b6-6cb8a304efd2",
+              "label": "tolerate stress",
+              "score": 0.8589657545089722,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/7a147904-22b3-498a-b4d9-7bceeb86b45d",
+              "label": "cope with stress",
+              "score": 0.853775143623352,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/d82b3bfc-b323-44d6-8776-e3d28e9183a4",
+              "label": "cope with challenging demands",
+              "score": 0.852916955947876,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/d15f8745-28f8-4abf-a7b6-6cb8a304efd2",
+            "label": "tolerate stress",
+            "score": 0.8589657545089722,
+            "match_type": "embedding"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_07623",
+      "title": "Purchaser",
+      "total_skills": 4,
+      "matched_skills": 4,
+      "match_rate": 1.0,
+      "avg_confidence": 0.9254190176725388,
+      "entities": [
+        {
+          "text": "meet",
+          "start": 240,
+          "end": 244,
+          "label": "SKILL_TOOL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/113b4428-0a31-4199-8496-070af7854b91",
+              "label": "meet commitments",
+              "score": 0.8897743821144104,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/fc3cdc2c-7b79-4b5c-a4b0-f3b996fef849",
+              "label": "attend meetings",
+              "score": 0.8791671395301819,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/aed3d1e7-e9f5-4298-9a51-45266a49c844",
+              "label": "match people",
+              "score": 0.8739962577819824,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/113b4428-0a31-4199-8496-070af7854b91",
+            "label": "meet commitments",
+            "score": 0.8897743821144104,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "quality",
+          "start": 816,
+          "end": 823,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+              "label": "quality standards",
+              "score": 0.910865306854248,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+              "label": "manage quality",
+              "score": 0.8976746797561646,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/e54a3ed7-465f-432b-8940-2aeabeaa449e",
+              "label": "footwear quality",
+              "score": 0.8908419609069824,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+            "label": "quality standards",
+            "score": 0.910865306854248,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "communication",
+          "start": 847,
+          "end": 860,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+              "label": "communication",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/5ae07007-1348-4068-ab55-e6f420fa3874",
+              "label": "communication sciences",
+              "score": 0.9047921895980835,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/fe30a4b0-1a99-4fc7-afff-b162b8c834ba",
+              "label": "communication principles",
+              "score": 0.9041192531585693,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+            "label": "communication",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        },
+        {
+          "text": "negotiation",
+          "start": 862,
+          "end": 873,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/7ee9fb56-91b1-4363-b51f-ea54ae1b5761",
+              "label": "negotiate price",
+              "score": 0.9010363817214966,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/d4199178-81a1-40dd-a8c8-0f91b0489913",
+              "label": "negotiate settlements",
+              "score": 0.8906303644180298,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/fa68995c-305b-4962-96e7-70782fc385f8",
+              "label": "perform political negotiation",
+              "score": 0.8872432708740234,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/7ee9fb56-91b1-4363-b51f-ea54ae1b5761",
+            "label": "negotiate price",
+            "score": 0.9010363817214966,
+            "match_type": "embedding"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_00057",
+      "title": "Accounting & Tax Associate (Client Service)",
+      "total_skills": 8,
+      "matched_skills": 8,
+      "match_rate": 1.0,
+      "avg_confidence": 0.9669205769896507,
+      "entities": [
+        {
+          "text": "accounting",
+          "start": 15,
+          "end": 25,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+              "label": "accounting",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+              "label": "accounting techniques",
+              "score": 0.9099270105361938,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+              "label": "accounting entries",
+              "score": 0.8956459760665894,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+            "label": "accounting",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        },
+        {
+          "text": "accounting",
+          "start": 41,
+          "end": 51,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+              "label": "accounting",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+              "label": "accounting techniques",
+              "score": 0.9099270105361938,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+              "label": "accounting entries",
+              "score": 0.8956459760665894,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+            "label": "accounting",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        },
+        {
+          "text": "finance",
+          "start": 298,
+          "end": 305,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/b895bd42-0009-4815-a150-eb9eb5caec21",
+              "label": "stock market",
+              "score": 0.8623735904693604,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/88af9294-b697-4687-ae19-aefbb6234dfa",
+              "label": "economics",
+              "score": 0.8598155975341797,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/387ee646-0aaa-4161-ab3b-cde87ec09fdf",
+              "label": "public finance",
+              "score": 0.8569977283477783,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/b895bd42-0009-4815-a150-eb9eb5caec21",
+            "label": "stock market",
+            "score": 0.8623735904693604,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "accounting",
+          "start": 310,
+          "end": 320,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+              "label": "accounting",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+              "label": "accounting techniques",
+              "score": 0.9099270105361938,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+              "label": "accounting entries",
+              "score": 0.8956459760665894,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+            "label": "accounting",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        },
+        {
+          "text": "accounting",
+          "start": 474,
+          "end": 484,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+              "label": "accounting",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+              "label": "accounting techniques",
+              "score": 0.9099270105361938,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+              "label": "accounting entries",
+              "score": 0.8956459760665894,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+            "label": "accounting",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        },
+        {
+          "text": "interpersonal",
+          "start": 518,
+          "end": 531,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/15952b07-e74b-4618-baf2-51f40a5edbc4",
+              "label": "intermodalism",
+              "score": 0.8729910254478455,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+              "label": "communication",
+              "score": 0.8673937320709229,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/956487a3-5b0b-4d03-8d0e-01e71fb65482",
+              "label": "social bonds",
+              "score": 0.8670608997344971,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/15952b07-e74b-4618-baf2-51f40a5edbc4",
+            "label": "intermodalism",
+            "score": 0.8729910254478455,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "English",
+          "start": 644,
+          "end": 651,
+          "label": "SKILL_LANGUAGE",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+              "label": "English",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+              "label": "academic English",
+              "score": 0.8718971014022827,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+              "label": "write English",
+              "score": 0.8642857670783997,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+            "label": "English",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        },
+        {
+          "text": "accounting",
+          "start": 671,
+          "end": 681,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+              "label": "accounting",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+              "label": "accounting techniques",
+              "score": 0.9099270105361938,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/99b163e8-7815-43e2-83f3-a47f3076354c",
+              "label": "accounting entries",
+              "score": 0.8956459760665894,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/ecc18804-a466-40d9-98b4-fba5cd67dd4b",
+            "label": "accounting",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_00143",
+      "title": "Trưởng Nhóm Bảo Trì",
+      "total_skills": 9,
+      "matched_skills": 9,
+      "match_rate": 1.0,
+      "avg_confidence": 0.8513602018356323,
+      "entities": [
+        {
+          "text": "Quản lý",
+          "start": 3,
+          "end": 10,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+              "label": "manage payroll",
+              "score": 0.849305272102356,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+              "label": "manage human resources",
+              "score": 0.8486263751983643,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/2d140a3a-45a6-4248-80dd-b3760ebc9cc6",
+              "label": "operations management",
+              "score": 0.8472277522087097,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+            "label": "manage payroll",
+            "score": 0.849305272102356,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "bảo trì",
+          "start": 20,
+          "end": 27,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+              "label": "maintain equipment",
+              "score": 0.8627631068229675,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+              "label": "maintenance operations",
+              "score": 0.8591514229774475,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+              "label": "predictive maintenance",
+              "score": 0.8581088781356812,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+            "label": "maintain equipment",
+            "score": 0.8627631068229675,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "bảo dưỡng",
+          "start": 30,
+          "end": 39,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/c927ec6e-9082-4b22-afd3-0c4e219eaf73",
+              "label": "ensure equipment maintenance",
+              "score": 0.8447628021240234,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/2ea26d96-22bc-4425-97d4-3fab5384f614",
+              "label": "manage nutrients",
+              "score": 0.8437720537185669,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/ca17f0df-59e4-4ed2-9360-fc5325bc7151",
+              "label": "supervise equipment",
+              "score": 0.8427845239639282,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/c927ec6e-9082-4b22-afd3-0c4e219eaf73",
+            "label": "ensure equipment maintenance",
+            "score": 0.8447628021240234,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "bảo trì",
+          "start": 56,
+          "end": 63,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+              "label": "maintain equipment",
+              "score": 0.8627631068229675,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+              "label": "maintenance operations",
+              "score": 0.8591514229774475,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+              "label": "predictive maintenance",
+              "score": 0.8581088781356812,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+            "label": "maintain equipment",
+            "score": 0.8627631068229675,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Tổ chức",
+          "start": 123,
+          "end": 130,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+              "label": "organisational structure",
+              "score": 0.850365161895752,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/5bdb8e03-04ab-4869-a48f-3b013b5a2c3c",
+              "label": "organise compositions",
+              "score": 0.8498556017875671,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/bf05da8d-772a-4423-adb2-df79672f46f7",
+              "label": "organise information",
+              "score": 0.8477731943130493,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+            "label": "organisational structure",
+            "score": 0.850365161895752,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "bảo trì",
+          "start": 172,
+          "end": 179,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+              "label": "maintain equipment",
+              "score": 0.8627631068229675,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/6cb9c23b-e3bc-4917-b588-26c4cef9d920",
+              "label": "maintenance operations",
+              "score": 0.8591514229774475,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/7d913551-e17a-40ba-baf7-48d0c3b12e50",
+              "label": "predictive maintenance",
+              "score": 0.8581088781356812,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+            "label": "maintain equipment",
+            "score": 0.8627631068229675,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Sửa chữa",
+          "start": 252,
+          "end": 260,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/af1c7b89-679b-4fae-b67c-ed05c669719c",
+              "label": "repair wiring",
+              "score": 0.8583545684814453,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/334e3e49-fb02-4051-809a-f06adfdc1c40",
+              "label": "troubleshoot",
+              "score": 0.8526776432991028,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/e487f6f8-854d-4210-9658-4196f07cc209",
+              "label": "repair electronic components",
+              "score": 0.8522301316261292,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/af1c7b89-679b-4fae-b67c-ed05c669719c",
+            "label": "repair wiring",
+            "score": 0.8583545684814453,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Cao đẳng",
+          "start": 299,
+          "end": 307,
+          "label": "CERTIFICATION",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/4e097377-7950-4993-9e22-a61b067b5c00",
+              "label": "social sciences",
+              "score": 0.8179963827133179,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/489b2571-ce18-4944-b452-ed1f54e55b68",
+              "label": "Schoology",
+              "score": 0.8158443570137024,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/60856bbb-e5db-4398-babb-300a24a7fe97",
+              "label": "adult education",
+              "score": 0.8145524859428406,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/4e097377-7950-4993-9e22-a61b067b5c00",
+            "label": "social sciences",
+            "score": 0.8179963827133179,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Bảo trì",
+          "start": 445,
+          "end": 452,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+              "label": "maintain equipment",
+              "score": 0.8531683087348938,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/a56054aa-4ffd-4c8b-8b63-437435d98187",
+              "label": "maintain trusts",
+              "score": 0.8501428961753845,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/a703b581-ad64-4791-8bb3-624aea569fa5",
+              "label": "maintain contract administration",
+              "score": 0.8499503135681152,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/5033c2fb-ec55-4b8e-b0a4-9379593f1e1c",
+            "label": "maintain equipment",
+            "score": 0.8531683087348938,
+            "match_type": "embedding"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": "scraped_mywork_00281",
+      "title": "Nhân Viên Tư Vấn / Kinh Doanh Tại Bình Thạnh - Lương Cơ Bản Từ 10 Triệu Không Yêu Cầu Kinh Nghiệm",
+      "total_skills": 0,
+      "matched_skills": 0,
+      "match_rate": 0.0,
+      "avg_confidence": 0.0,
+      "entities": []
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_05561",
+      "title": "Quản Lý Bộ Phận Tư Vấn và Phản Hồi Khách Hàng",
+      "total_skills": 5,
+      "matched_skills": 5,
+      "match_rate": 1.0,
+      "avg_confidence": 0.8526102304458618,
+      "entities": [
+        {
+          "text": "quản lý",
+          "start": 19,
+          "end": 26,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+              "label": "manage payroll",
+              "score": 0.8748544454574585,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+              "label": "manage profitability",
+              "score": 0.8724340796470642,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+              "label": "manage quality",
+              "score": 0.8712931871414185,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+            "label": "manage payroll",
+            "score": 0.8748544454574585,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "vận hành",
+          "start": 27,
+          "end": 35,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/73de691d-d112-444b-a99f-606888fa9414",
+              "label": "transportation methods",
+              "score": 0.8438129425048828,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/d7809fa0-8818-492f-95aa-ac8993e22aa8",
+              "label": "operation of transport equipment",
+              "score": 0.8432093858718872,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/a8ff65fc-b9ae-4ece-899a-30160209ab58",
+              "label": "operate dragline",
+              "score": 0.8431966304779053,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/73de691d-d112-444b-a99f-606888fa9414",
+            "label": "transportation methods",
+            "score": 0.8438129425048828,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "chất lượng",
+          "start": 159,
+          "end": 169,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+              "label": "quality standards",
+              "score": 0.8613126873970032,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+              "label": "manage quality",
+              "score": 0.8512023687362671,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/e54a3ed7-465f-432b-8940-2aeabeaa449e",
+              "label": "footwear quality",
+              "score": 0.8487522602081299,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/8d4271ca-c9fd-40b3-875f-15f78332a49e",
+            "label": "quality standards",
+            "score": 0.8613126873970032,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Tốt nghiệp Đại học",
+          "start": 271,
+          "end": 289,
+          "label": "CERTIFICATION",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+              "label": "manage student admissions",
+              "score": 0.8329484462738037,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/d4e9055e-597f-42ca-98ac-a5e3d8e881e1",
+              "label": "university procedures",
+              "score": 0.8307020664215088,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/9cdec88a-fe17-4f9a-9247-1f1802ab7408",
+              "label": "post-secondary school procedures",
+              "score": 0.8284963369369507,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+            "label": "manage student admissions",
+            "score": 0.8329484462738037,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Tài chính",
+          "start": 356,
+          "end": 365,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/387ee646-0aaa-4161-ab3b-cde87ec09fdf",
+              "label": "public finance",
+              "score": 0.8501226305961609,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/73d95ec0-d7fb-45e5-8134-b2ee1c0be8af",
+              "label": "manage personal finances",
+              "score": 0.8479862213134766,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/4a460161-eaea-4fe2-bd0e-164ccc635be1",
+              "label": "financial statements",
+              "score": 0.8461709022521973,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/387ee646-0aaa-4161-ab3b-cde87ec09fdf",
+            "label": "public finance",
+            "score": 0.8501226305961609,
+            "match_type": "embedding"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_04615",
+      "title": "SMEs Banking Staff",
+      "total_skills": 5,
+      "matched_skills": 5,
+      "match_rate": 1.0,
+      "avg_confidence": 0.9047499537467957,
+      "entities": [
+        {
+          "text": "Excel",
+          "start": 551,
+          "end": 556,
+          "label": "SKILL_TOOL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+              "label": "use spreadsheets software",
+              "score": 0.8376723527908325,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+              "label": "office software",
+              "score": 0.8308113813400269,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/598de5b0-5b58-4ea7-8058-a4bc4d18c742",
+              "label": "SQL",
+              "score": 0.82724529504776,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+            "label": "use spreadsheets software",
+            "score": 0.8376723527908325,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Word",
+          "start": 558,
+          "end": 562,
+          "label": "SKILL_TOOL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/b6f26b50-3914-46ff-8f88-3defb71e007a",
+              "label": "terminology",
+              "score": 0.8310563564300537,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/d4ae9564-0b61-4aa0-9df0-d4fdc969fd6f",
+              "label": "grammar",
+              "score": 0.8309402465820312,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/e52a9361-b12f-4545-92a9-1c165e6dc3a4",
+              "label": "identify new words",
+              "score": 0.8302657604217529,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/b6f26b50-3914-46ff-8f88-3defb71e007a",
+            "label": "terminology",
+            "score": 0.8310563564300537,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "PowerPoint",
+          "start": 564,
+          "end": 574,
+          "label": "SKILL_TOOL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/234aeb8d-56c3-4531-9193-1c5e6a8d16cb",
+              "label": "use presentation software",
+              "score": 0.855021059513092,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/348b74cd-49ce-4844-8bdf-ec188b497213",
+              "label": "visual presentation techniques",
+              "score": 0.8502416610717773,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/14ced458-5f4b-495f-bd3d-9c240614bda0",
+              "label": "Adobe Photoshop",
+              "score": 0.8427082300186157,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/234aeb8d-56c3-4531-9193-1c5e6a8d16cb",
+            "label": "use presentation software",
+            "score": 0.855021059513092,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "English",
+          "start": 648,
+          "end": 655,
+          "label": "SKILL_LANGUAGE",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+              "label": "English",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+              "label": "academic English",
+              "score": 0.8718971014022827,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+              "label": "write English",
+              "score": 0.8642857670783997,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+            "label": "English",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        },
+        {
+          "text": "Korean",
+          "start": 659,
+          "end": 665,
+          "label": "SKILL_LANGUAGE",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/f9bc2890-d1f2-4a83-bd7b-b150a7679c79",
+              "label": "Korean",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/39c675c4-af13-49db-bbed-cf762102f85e",
+              "label": "Japanese",
+              "score": 0.8601045608520508,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/1fe42b38-cd42-4fc7-ae77-14e4c9e96295",
+              "label": "Chinese",
+              "score": 0.8590878248214722,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/f9bc2890-d1f2-4a83-bd7b-b150a7679c79",
+            "label": "Korean",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_04839",
+      "title": "People Experience Advisor (HRBP) - Commercial",
+      "total_skills": 7,
+      "matched_skills": 7,
+      "match_rate": 1.0,
+      "avg_confidence": 0.8985760382243565,
+      "entities": [
+        {
+          "text": "HR",
+          "start": 63,
+          "end": 65,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+              "label": "human resource management",
+              "score": 0.869338870048523,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+              "label": "manage human resources",
+              "score": 0.8622796535491943,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/5aa57bdc-5765-435e-8fc9-99b3febdb213",
+              "label": "hire human resources",
+              "score": 0.85317462682724,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+            "label": "human resource management",
+            "score": 0.869338870048523,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "HR",
+          "start": 513,
+          "end": 515,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+              "label": "human resource management",
+              "score": 0.869338870048523,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/279a4b1d-21df-4d78-9f4d-324c73fd7536",
+              "label": "manage human resources",
+              "score": 0.8622796535491943,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/5aa57bdc-5765-435e-8fc9-99b3febdb213",
+              "label": "hire human resources",
+              "score": 0.85317462682724,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/e437eba1-3e22-41f2-8703-741e94785cba",
+            "label": "human resource management",
+            "score": 0.869338870048523,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Microsoft Office",
+          "start": 621,
+          "end": 637,
+          "label": "SKILL_TOOL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/f683ae1d-cb7c-4aa1-b9fe-205e1bd23535",
+              "label": "use microsoft office",
+              "score": 0.8650782704353333,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+              "label": "office software",
+              "score": 0.8648759126663208,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/6a609f8f-1451-4102-ad2d-62c5270e1237",
+              "label": "office administration",
+              "score": 0.8434039354324341,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/f683ae1d-cb7c-4aa1-b9fe-205e1bd23535",
+            "label": "use microsoft office",
+            "score": 0.8650782704353333,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Excel",
+          "start": 652,
+          "end": 657,
+          "label": "SKILL_TOOL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+              "label": "use spreadsheets software",
+              "score": 0.8376723527908325,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/cf310cff-0d28-4dbc-9dbb-cc500a3196c2",
+              "label": "office software",
+              "score": 0.8308113813400269,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/598de5b0-5b58-4ea7-8058-a4bc4d18c742",
+              "label": "SQL",
+              "score": 0.82724529504776,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/1973c966-f236-40c9-b2d4-5d71a89019be",
+            "label": "use spreadsheets software",
+            "score": 0.8376723527908325,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Power BI",
+          "start": 663,
+          "end": 671,
+          "label": "SKILL_TOOL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/0f00f63f-3ab4-4057-b92f-500584b51757",
+              "label": "Informatica PowerCenter",
+              "score": 0.8486039042472839,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/36fccad9-1d20-4104-bcc2-a8ea9d1ce5ea",
+              "label": "assess power needs",
+              "score": 0.8415693640708923,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/143769cb-b61e-47d8-a61e-eedfbec1016c",
+              "label": "business intelligence",
+              "score": 0.8392726182937622,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/0f00f63f-3ab4-4057-b92f-500584b51757",
+            "label": "Informatica PowerCenter",
+            "score": 0.8486039042472839,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "English",
+          "start": 688,
+          "end": 695,
+          "label": "SKILL_LANGUAGE",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+              "label": "English",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+              "label": "academic English",
+              "score": 0.8718971014022827,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/3993c87c-7719-4186-811b-8ddfb40e76be",
+              "label": "write English",
+              "score": 0.8642857670783997,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/6d3edede-8951-4621-a835-e04323300fa0",
+            "label": "English",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        },
+        {
+          "text": "communication",
+          "start": 720,
+          "end": 733,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+              "label": "communication",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/5ae07007-1348-4068-ab55-e6f420fa3874",
+              "label": "communication sciences",
+              "score": 0.9047921895980835,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/fe30a4b0-1a99-4fc7-afff-b162b8c834ba",
+              "label": "communication principles",
+              "score": 0.9041192531585693,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/15d76317-c71a-4fa2-aadc-2ecc34e627b7",
+            "label": "communication",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_00798",
+      "title": "Quản Lý Nghiệp Vụ Hệ Thống Kho",
+      "total_skills": 7,
+      "matched_skills": 7,
+      "match_rate": 1.0,
+      "avg_confidence": 0.8732163735798427,
+      "entities": [
+        {
+          "text": "tổ chức",
+          "start": 86,
+          "end": 93,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+              "label": "organisational structure",
+              "score": 0.8640900254249573,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/3ecff5db-ded6-4263-9db5-6601090ba299",
+              "label": "organise stage",
+              "score": 0.8528227806091309,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/5bdb8e03-04ab-4869-a48f-3b013b5a2c3c",
+              "label": "organise compositions",
+              "score": 0.8525640964508057,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/c4272323-cce6-4535-ac71-4f6841f4f89a",
+            "label": "organisational structure",
+            "score": 0.8640900254249573,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "quản lý",
+          "start": 105,
+          "end": 112,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+              "label": "manage payroll",
+              "score": 0.8748544454574585,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+              "label": "manage profitability",
+              "score": 0.8724340796470642,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+              "label": "manage quality",
+              "score": 0.8712931871414185,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+            "label": "manage payroll",
+            "score": 0.8748544454574585,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Tốt nghiệp Đại học",
+          "start": 288,
+          "end": 306,
+          "label": "CERTIFICATION",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+              "label": "manage student admissions",
+              "score": 0.8329484462738037,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/d4e9055e-597f-42ca-98ac-a5e3d8e881e1",
+              "label": "university procedures",
+              "score": 0.8307020664215088,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/9cdec88a-fe17-4f9a-9247-1f1802ab7408",
+              "label": "post-secondary school procedures",
+              "score": 0.8284963369369507,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/bde68bd3-16bd-4610-a31a-7de31efa3339",
+            "label": "manage student admissions",
+            "score": 0.8329484462738037,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Logistics",
+          "start": 318,
+          "end": 327,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/e843973c-23dd-416a-8a9c-9e89512542fb",
+              "label": "logistics",
+              "score": 1.0,
+              "match_type": "exact"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/953c0b65-537a-42fe-a90b-26cd36c64361",
+              "label": "manage logistics",
+              "score": 0.8906374573707581,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/2ca4c857-1450-4004-9fdb-8500def6b8fa",
+              "label": "military logistics",
+              "score": 0.8832439184188843,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/e843973c-23dd-416a-8a9c-9e89512542fb",
+            "label": "logistics",
+            "score": 1.0,
+            "match_type": "exact"
+          }
+        },
+        {
+          "text": "Chuỗi cung ứng",
+          "start": 330,
+          "end": 344,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/162c2e87-3d6f-4f7e-ab3c-97694c2f6f08",
+              "label": "schedule hatchery supplies",
+              "score": 0.8259524703025818,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/9ea652f6-accf-45bb-b9a8-590f06f7bd51",
+              "label": "supply machine",
+              "score": 0.8256471157073975,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/3bc08c26-2f98-4730-bbb6-ec4a8566e3cf",
+              "label": "procurement lifecycle",
+              "score": 0.8246501088142395,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/162c2e87-3d6f-4f7e-ab3c-97694c2f6f08",
+            "label": "schedule hatchery supplies",
+            "score": 0.8259524703025818,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "quản lý",
+          "start": 400,
+          "end": 407,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+              "label": "manage payroll",
+              "score": 0.8748544454574585,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+              "label": "manage profitability",
+              "score": 0.8724340796470642,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+              "label": "manage quality",
+              "score": 0.8712931871414185,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+            "label": "manage payroll",
+            "score": 0.8748544454574585,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "Kỹ năng giao tiếp",
+          "start": 457,
+          "end": 474,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/f5122357-c3f7-4f3e-b0cc-25173199d554",
+              "label": "teach communication methods",
+              "score": 0.8398147821426392,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/95930ceb-4d39-44d1-a361-b60bad7df2e5",
+              "label": "speech techniques",
+              "score": 0.8391831517219543,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/d6dbc6ea-9bb6-4a8f-9bc2-e9299d74fff9",
+              "label": "interact verbally in Vietnamese",
+              "score": 0.8387967348098755,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/f5122357-c3f7-4f3e-b0cc-25173199d554",
+            "label": "teach communication methods",
+            "score": 0.8398147821426392,
+            "match_type": "embedding"
+          }
+        }
+      ]
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_07966",
+      "title": "Kế Toán Kho Thủ Kho",
+      "total_skills": 2,
+      "matched_skills": 2,
+      "match_rate": 1.0,
+      "avg_confidence": 0.8674095571041107,
+      "entities": [
+        {
+          "text": "Kế toán",
+          "start": 20,
+          "end": 27,
+          "label": "SKILL_TECHNICAL",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+              "label": "accounting techniques",
+              "score": 0.8599646687507629,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+              "label": "manage payroll",
+              "score": 0.8512226343154907,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/e2e15494-65b9-4af5-8b86-53fb51e7e022",
+              "label": "manage accounts",
+              "score": 0.8491308093070984,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/880c54f9-866e-4f37-b5fa-25ef8a7d49b6",
+            "label": "accounting techniques",
+            "score": 0.8599646687507629,
+            "match_type": "embedding"
+          }
+        },
+        {
+          "text": "quản lý",
+          "start": 185,
+          "end": 192,
+          "label": "SKILL_SOFT",
+          "normalized": null,
+          "esco_matches": [
+            {
+              "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+              "label": "manage payroll",
+              "score": 0.8748544454574585,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/4cfc7ef6-e251-4c93-bd5e-fd6936dee11c",
+              "label": "manage profitability",
+              "score": 0.8724340796470642,
+              "match_type": "embedding"
+            },
+            {
+              "uri": "http://data.europa.eu/esco/skill/35ebe444-9ece-4fbc-a55d-e99ea37267ae",
+              "label": "manage quality",
+              "score": 0.8712931871414185,
+              "match_type": "embedding"
+            }
+          ],
+          "best_match": {
+            "uri": "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+            "label": "manage payroll",
+            "score": 0.8748544454574585,
+            "match_type": "embedding"
+          }
+        }
+      ]
+    }
+  ]
+}

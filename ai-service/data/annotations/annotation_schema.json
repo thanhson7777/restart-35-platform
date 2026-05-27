@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ESCO Skill Annotation Schema",
+  "description": "JSON schema for skill entity annotations in job descriptions",
+  "type": "object",
+  "required": ["job_id", "text", "entities", "language"],
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "Unique identifier for the job"
+    },
+    "text": {
+      "type": "string",
+      "description": "Full text of the job description"
+    },
+    "language": {
+      "type": "string",
+      "description": "Language code (e.g., 'vi' for Vietnamese)",
+      "enum": ["vi", "en"]
+    },
+    "entities": {
+      "type": "array",
+      "description": "List of annotated skill entities",
+      "items": {
+        "type": "object",
+        "required": ["start", "end", "label", "text"],
+        "properties": {
+          "start": {
+            "type": "integer",
+            "description": "Start character index (inclusive)",
+            "minimum": 0
+          },
+          "end": {
+            "type": "integer",
+            "description": "End character index (exclusive)",
+            "minimum": 1
+          },
+          "label": {
+            "type": "string",
+            "description": "Entity label",
+            "enum": [
+              "SKILL_TECHNICAL",
+              "SKILL_TOOL",
+              "SKILL_SOFT",
+              "SKILL_LANGUAGE",
+              "CERTIFICATION"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "description": "The actual text of the entity"
+          },
+          "normalized": {
+            "type": ["string", "null"],
+            "description": "Normalized/formatted version of the skill",
+            "default": null
+          },
+          "esco_uri": {
+            "type": ["string", "null"],
+            "description": "Matched ESCO URI (optional, for later phases)",
+            "default": null
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "annotator": {
+          "type": "string",
+          "description": "Annotator identifier"
+        },
+        "annotated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp"
+        },
+        "agreement": {
+          "type": ["number", "null"],
+          "description": "Agreement score if multiple annotators",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes"
+        }
+      }
+    }
+  },
+  "entity_labels": {
+    "SKILL_TECHNICAL": {
+      "description": "Kỹ năng kỹ thuật, chuyên môn cụ thể của ngành nghề",
+      "examples": [
+        "hàn MIG/MAG",
+        "lập trình",
+        "vận hành máy CNC",
+        "gia công cơ khí"
+      ]
+    },
+    "SKILL_TOOL": {
+      "description": "Công cụ, phần mềm, thiết bị sử dụng trong công việc",
+      "examples": [
+        "Excel",
+        "AutoCAD",
+        "SAP",
+        "máy photocopy"
+      ]
+    },
+    "SKILL_SOFT": {
+      "description": "Kỹ năng mềm, kỹ năng làm việc chung",
+      "examples": [
+        "giao tiếp",
+        "làm việc nhóm",
+        "quản lý thời gian",
+        "chịu áp lực"
+      ]
+    },
+    "SKILL_LANGUAGE": {
+      "description": "Ngôn ngữ (ngoại ngữ)",
+      "examples": [
+        "tiếng Anh",
+        "Japanese",
+        "Chinese",
+        "Hàn Quốc"
+      ]
+    },
+    "CERTIFICATION": {
+      "description": "Chứng chỉ, bằng cấp, giấy phép",
+      "examples": [
+        "PMP",
+        "CPA",
+        "đại học",
+        "bằng lái xe B2"
+      ]
+    }
+  }
+}

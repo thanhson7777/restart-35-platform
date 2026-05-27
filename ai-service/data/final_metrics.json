@@ -1,0 +1,70 @@
+{
+  "evaluation_date": "2026-05-27T16:14:41.968513",
+  "pipeline_version": "1.0.0",
+  "threshold": 0.75,
+  "components": {
+    "ner_metrics": {
+      "avg_skills_per_job": 5.19,
+      "avg_confidence": 0.8617,
+      "unique_skills": 157,
+      "sample_size": 48,
+      "top_skills": [
+        [
+          "manage payroll",
+          39
+        ],
+        [
+          "accounting techniques",
+          32
+        ],
+        [
+          "university procedures",
+          30
+        ],
+        [
+          "manage human resources",
+          29
+        ],
+        [
+          "manage accounts",
+          25
+        ],
+        [
+          "academic English",
+          24
+        ],
+        [
+          "post-secondary school procedures",
+          19
+        ],
+        [
+          "operations management",
+          18
+        ],
+        [
+          "manage student admissions",
+          15
+        ],
+        [
+          "financial capability",
+          15
+        ]
+      ]
+    },
+    "normalization_metrics": {
+      "total_normalized_jobs": 50,
+      "avg_confidence": 0.8273,
+      "avg_skills_per_job": 4.98,
+      "avg_matched_per_job": 4.98,
+      "high_confidence_jobs": 31,
+      "high_confidence_rate": 0.62
+    },
+    "performance": {
+      "avg_processing_time_ms": 643.9,
+      "min_processing_time_ms": 9.3,
+      "max_processing_time_ms": 1658.5,
+      "throughput_texts_per_sec": 1.6,
+      "sample_size": 50
+    }
+  }
+}

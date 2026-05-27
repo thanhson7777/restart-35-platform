@@ -1,0 +1,25 @@
+{
+  "split_date": "2026-05-27T15:01:39.268586",
+  "random_seed": 42,
+  "ratios": {
+    "train": 0.7,
+    "dev": 0.2,
+    "test": 0.1
+  },
+  "splits": {
+    "train": {
+      "count": 210,
+      "purpose": "Train NER model"
+    },
+    "dev": {
+      "count": 60,
+      "purpose": "Validate/tune model"
+    },
+    "test": {
+      "count": 30,
+      "purpose": "Final evaluation"
+    }
+  },
+  "total": 300,
+  "note": "Split based on available 300 sample jobs from Phase 1"
+}

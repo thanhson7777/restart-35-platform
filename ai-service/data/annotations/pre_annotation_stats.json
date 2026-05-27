@@ -1,0 +1,41 @@
+{
+  "train": {
+    "total_jobs": 210,
+    "jobs_with_entities": 195,
+    "total_entities": 968,
+    "by_label": {
+      "SKILL_TECHNICAL": 429,
+      "SKILL_SOFT": 200,
+      "CERTIFICATION": 135,
+      "SKILL_TOOL": 130,
+      "SKILL_LANGUAGE": 74
+    },
+    "avg_entities_per_job": 4.96
+  },
+  "dev": {
+    "total_jobs": 60,
+    "jobs_with_entities": 55,
+    "total_entities": 274,
+    "by_label": {
+      "SKILL_TECHNICAL": 130,
+      "CERTIFICATION": 45,
+      "SKILL_TOOL": 27,
+      "SKILL_LANGUAGE": 22,
+      "SKILL_SOFT": 50
+    },
+    "avg_entities_per_job": 4.98
+  },
+  "test": {
+    "total_jobs": 30,
+    "jobs_with_entities": 30,
+    "total_entities": 141,
+    "by_label": {
+      "SKILL_TECHNICAL": 59,
+      "CERTIFICATION": 28,
+      "SKILL_SOFT": 25,
+      "SKILL_TOOL": 16,
+      "SKILL_LANGUAGE": 13
+    },
+    "avg_entities_per_job": 4.7
+  }
+}

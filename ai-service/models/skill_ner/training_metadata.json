@@ -1,0 +1,7 @@
+{
+  "training_date": "2026-05-27T15:21:46.424663",
+  "train_data": "D:\\LUAN_VAN\\restart-35-platform\\ai-service\\data\\annotations\\train.spacy",
+  "dev_data": "D:\\LUAN_VAN\\restart-35-platform\\ai-service\\data\\annotations\\dev.spacy",
+  "config": "D:\\LUAN_VAN\\restart-35-platform\\ai-service\\config\\skill_ner\\train_config.cfg",
+  "model_output": "D:\\LUAN_VAN\\restart-35-platform\\ai-service\\models\\skill_ner"
+}
