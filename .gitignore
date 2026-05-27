@@ -25,20 +25,25 @@ env/
 Thumbs.db
 Desktop.ini
 
-# Scraping data (large, auto-generated)
+# Scraped output (keep sample, ignore large)
+scraped/
+metadata_*.json
+data/scraped/
+
+# Model temp files
+vi_model_temp/
+
+# Logs
+logs/
 *.log
 scraping_*.log
-*.html  # debug HTML files
 
-# Backups
+# Backup files
 *_backup_*.csv
 *_backup_*.json
 
-# Scraped output (keep sample, ignore large)
-# ai-service/data/scraped_mywork.json
-# ai-service/data/jobs.csv
-scraped/
-metadata_*.json
+# Debug files
+debug_*.html
 
 # Cache
 *.pyc
