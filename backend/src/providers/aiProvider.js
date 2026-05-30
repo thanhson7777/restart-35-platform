@@ -177,10 +177,15 @@ const filterJobsBySkills = (jobs, userSkills, limit = 10) => {
 
   // Tính match score cho mỗi job dựa trên skills
   const jobsWithMatch = jobs.map(job => {
-    const jobSkills = (job.required_skills || []).map(s => s.toLowerCase())
-    const matchedSkills = userSkills.filter(skill =>
-      jobSkills.some(js => js.includes(skill.toLowerCase()) || skill.toLowerCase().includes(js))
-    )
+    // AI service trả về job.skills, không phải job.required_skills
+    const rawSkills = job.skills || job.required_skills || []
+    const jobSkills = rawSkills
+      .filter(s => typeof s === 'string')
+      .map(s => s.toLowerCase())
+    const matchedSkills = userSkills.filter(skill => {
+      const skillLower = String(skill).toLowerCase()
+      return jobSkills.some(js => js.includes(skillLower) || skillLower.includes(js))
+    })
     const matchScore = jobSkills.length > 0
       ? Math.round((matchedSkills.length / jobSkills.length) * 100)
       : 50

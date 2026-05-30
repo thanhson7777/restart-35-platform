@@ -166,10 +166,67 @@ const JobsPage = () => {
   const hasFetchedAll = useRef(false)
   const hasFetchedCareer = useRef(false)
 
+  // =============================================================================
+  // HELPER FUNCTIONS - Skills extraction
+  // =============================================================================
+  
+  /**
+   * Transform ESCO skills to string array for API calls.
+   * ESCO format: {uri, titleEn, titleVi, type} -> string
+   */
+  const transformSkillsToStrings = (skills) => {
+    if (!skills || !Array.isArray(skills)) return []
+    
+    return skills.map(skill => {
+      // If already a string, return as-is
+      if (typeof skill === 'string') return skill
+      
+      // If ESCO object format, extract titleEn (English) or titleVi (Vietnamese)
+      if (skill.titleEn) return skill.titleEn
+      if (skill.titleVi) return skill.titleVi
+      
+      // Fallback: return uri or skill itself
+      return skill.uri || String(skill)
+    }).filter(Boolean)
+  }
+
+  /**
+   * Extract skills from profile data.
+   * Priority: aspirations.skills > employmentHistory[*].skills
+   * This matches the backend's extract_skills_for_matching logic.
+   */
+  const extractSkillsFromProfile = (profile) => {
+    // Priority 1: aspirations.skills (legacy flow)
+    if (profile?.aspirations?.skills && profile.aspirations.skills.length > 0) {
+      return transformSkillsToStrings(profile.aspirations.skills)
+    }
+    
+    // Priority 2: employmentHistory[*].skills (new flow - matches backend)
+    // Note: profileSlice uses camelCase 'employmentHistory', not snake_case
+    if (profile?.employmentHistory && profile.employmentHistory.length > 0) {
+      const allSkills = []
+      for (const job of profile.employmentHistory) {
+        if (job.skills && Array.isArray(job.skills)) {
+          const transformedSkills = transformSkillsToStrings(job.skills)
+          allSkills.push(...transformedSkills)
+        }
+      }
+      // Remove duplicates
+      return [...new Set(allSkills)]
+    }
+    
+    return []
+  }
+
+  // Get skills for API call (with fallback chain)
+  const skillsForRecommendation = extractSkillsFromProfile(formData)
+
   // Check if profile has required data for recommendations
   const hasProfileForRecommendations = useMemo(() => {
-    return formData?.aspirations?.skills?.length > 0
-  }, [formData])
+    // FIX: Check both aspirations.skills AND employment_history skills
+    // This allows matching even when aspirations.skills is empty but employment_history has skills
+    return skillsForRecommendation.length > 0
+  }, [skillsForRecommendation])
 
   // Calculate experience from employment history (convert months to years)
   const totalExperience = useMemo(() => {
@@ -202,7 +259,7 @@ const JobsPage = () => {
       if (!hasFetchedRecommended.current) {
         hasFetchedRecommended.current = true
         dispatch(fetchRecommendedJobs({
-          skills: formData.aspirations.skills,
+          skills: skillsForRecommendation,
           experience: totalExperience,
           location: formData.basicInfo?.province,
           targetJob: formData.aspirations?.targetJob,
@@ -245,7 +302,7 @@ const JobsPage = () => {
   }, [
     activeTab,
     hasProfileForRecommendations,
-    formData?.aspirations?.skills,
+    skillsForRecommendation, // Changed from formData?.aspirations?.skills
     formData?.aspirations?.targetJob,
     formData?.aspirations?.targetSalary,
     formData?.aspirations?.preferredJobType,
@@ -267,7 +324,7 @@ const JobsPage = () => {
     if (activeTab === 'recommended') {
       hasFetchedRecommended.current = false
       dispatch(fetchRecommendedJobs({
-        skills: formData.aspirations.skills,
+        skills: skillsForRecommendation,
         experience: totalExperience,
         location: formData.basicInfo?.province,
         targetJob: formData.aspirations?.targetJob,
@@ -359,7 +416,7 @@ const JobsPage = () => {
       {/* Header */}
       <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-b border-border">
         <div className="container mx-auto px-4 py-8">
-            <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                 <SparklesIcon className="w-8 h-8 text-primary" />
@@ -447,7 +504,7 @@ const JobsPage = () => {
           </Card>
         )}
 
-        {/* Missing Skills Banner */}
+        {/* Missing Skills Banner - Chỉ hiển thị khi thực sự không có skills */}
         {activeTab === 'recommended' && !hasProfileForRecommendations && (
           <Card className="mb-6 border-primary/50 bg-primary/5">
             <CardContent className="p-4">
@@ -456,13 +513,13 @@ const JobsPage = () => {
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Chưa có kỹ năng trong hồ sơ</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Vui lòng thêm kỹ năng trong bước "Nguyện vọng" để nhận gợi ý việc làm phù hợp.
+                    Vui lòng thêm kỹ năng trong bước "Kinh nghiệm làm việc" hoặc "Nguyện vọng" để nhận gợi ý việc làm phù hợp.
                   </p>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate('/worker-profile?step=4')}
+                  onClick={() => navigate('/worker-profile?step=3')}
                   className="shrink-0"
                 >
                   Thêm kỹ năng
@@ -579,7 +636,7 @@ const JobsPage = () => {
                   <JobCard
                     key={job.id || job._id || Math.random()}
                     job={job}
-                    userSkills={formData?.aspirations?.skills || []}
+                    userSkills={skillsForRecommendation} // Changed from formData?.aspirations?.skills
                     targetSalary={formData?.aspirations?.targetSalary}
                     onApply={handleApply}
                     onViewSimilar={handleViewSimilar}

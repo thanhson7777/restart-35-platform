@@ -1,0 +1,10 @@
+{
+  "num_skills": 13984,
+  "embedding_dim": 384,
+  "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+  "norm_type": "L2 normalized",
+  "language": "vietnamese",
+  "source": "mongodb",
+  "collection": "esco_skills",
+  "created_at": "2026-05-30 15:43:57"
+}
