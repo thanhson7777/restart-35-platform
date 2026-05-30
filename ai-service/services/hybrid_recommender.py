@@ -9,6 +9,9 @@ import logging
 import requests
 import os
 
+# Import config
+from services.recommender_config import config
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,11 +35,22 @@ class HybridRecommender:
     - Exact keyword matches still prioritized (TF-IDF)
     """
 
-    # Weights for hybrid scoring (ML-enhanced)
-    TFIDF_WEIGHT = 0.25
-    SEMANTIC_WEIGHT = 0.25
-    CF_WEIGHT = 0.30
-    CONTENT_WEIGHT = 0.20
+    # Weights for hybrid scoring (ML-enhanced) - from config
+    @property
+    def TFIDF_WEIGHT(self):
+        return config.BASE_SCORE_FINAL_WEIGHT
+
+    @property
+    def SEMANTIC_WEIGHT(self):
+        return 0.25
+
+    @property
+    def CF_WEIGHT(self):
+        return 0.30
+
+    @property
+    def CONTENT_WEIGHT(self):
+        return 0.20
 
     # Backend API configuration
     BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:8017')

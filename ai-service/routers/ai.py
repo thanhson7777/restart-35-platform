@@ -23,6 +23,7 @@ from services.job_recommender import JobRecommender
 from services.risk_predictor import RiskPredictorML
 from services.semantic_search import SemanticSearch
 from services.hybrid_recommender import HybridRecommender
+from services.worker_profile import WorkerProfileRequest, JobSelection, JobSelectionMode
 
 router = APIRouter(prefix="/api/v1/ai", tags=["AI"])
 
@@ -524,6 +525,61 @@ async def recommend_jobs(request: RecommendJobsRequest):
         )
     except Exception as e:
         logger.error(f"Recommendation error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Recommendation error: {str(e)}"
+        )
+
+
+@router.post("/recommend-jobs-profile", response_model=RecommendJobsResponse)
+async def recommend_jobs_from_profile(request: WorkerProfileRequest):
+    """
+    Gợi ý công việc phù hợp dựa trên worker profile với job selection.
+
+    Sử dụng worker profile mới với 3 chế độ chọn nghề:
+    - RECENT_JOB: Sử dụng nghề gần đây nhất
+    - ALL_JOBS: Sử dụng tất cả nghề đã có kinh nghiệm
+    - NEW_JOB: Sử dụng nghề mới (nhập mới)
+
+    Args:
+        request: WorkerProfileRequest với employment_history và job_selection
+
+    Returns:
+        List of recommended jobs with scores
+    """
+    try:
+        # Get recommender instance
+        recommender = get_recommender()
+
+        # Get recommendations from worker profile
+        results = recommender.recommend_from_worker_profile(
+            profile=request,
+            top_k=10
+        )
+
+        return {
+            "success": True,
+            "data": {
+                "recommendations": results,
+                "total": len(results),
+                "worker_profile": {
+                    "age": request.age,
+                    "gender": request.gender,
+                    "education": request.education,
+                    "province": request.province,
+                    "job_selection_mode": request.job_selection.mode.value,
+                    "target_job": request.job_selection.new_job_title if request.job_selection.mode == JobSelectionMode.NEW_JOB else None,
+                }
+            }
+        }
+
+    except FileNotFoundError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Data file not found: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"Worker profile recommendation error: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Recommendation error: {str(e)}"
