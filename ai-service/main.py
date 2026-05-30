@@ -114,6 +114,7 @@ from routers.ai import router as ai_router
 from routers.career_path import router as career_path_router
 from routers.career_transition import router as career_transition_router
 from routers.career_recommendation import router as rag_recommendation_router
+from routers.esco_normalization import router as esco_router
 
 # Global instances
 _rag_engine = None
@@ -124,6 +125,7 @@ app.include_router(ai_router)
 app.include_router(career_path_router)
 app.include_router(career_transition_router)
 app.include_router(rag_recommendation_router)
+app.include_router(esco_router)
 
 
 # =============================================================================

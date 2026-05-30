@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-05-30T16:43:16.387405",
+  "total_jobs": 3,
+  "results": [
+    {
+      "job_id": "scraped_vietnamworks_algolia_00000",
+      "title": "Quality Assurance Engineer (QA Engineer)",
+      "entities": [
+        {
+          "text": "Excel",
+          "category": "SKILL_TOOL",
+          "position": {
+            "start": 577,
+            "end": 582
+          },
+          "esco_uri": null,
+          "esco_label": null,
+          "score": 0.0,
+          "match_type": "none"
+        },
+        {
+          "text": "teamwork",
+          "category": "SKILL_SOFT",
+          "position": {
+            "start": 710,
+            "end": 718
+          },
+          "esco_uri": "http://data.europa.eu/esco/skill/a5b0cd5c-e13a-4ab3-8d93-4d242adcfb01",
+          "esco_label": "Nguyên tắc Làm việc nhóm",
+          "score": 0.92,
+          "match_type": "embedding"
+        },
+        {
+          "text": "English",
+          "category": "SKILL_LANGUAGE",
+          "position": {
+            "start": 491,
+            "end": 498
+          },
+          "esco_uri": "http://data.europa.eu/esco/skill/7ce196c4-65c5-4aa0-88a2-9ab08eb9fd49",
+          "esco_label": "tiếng anh học thuật",
+          "score": 0.878,
+          "match_type": "embedding"
+        },
+        {
+          "text": "Korean",
+          "category": "SKILL_LANGUAGE",
+          "position": {
+            "start": 499,
+            "end": 505
+          },
+          "esco_uri": "http://data.europa.eu/esco/skill/02d68c2b-1722-4440-8e25-376650e123c8",
+          "esco_label": "hiểu tiếng Hàn viết",
+          "score": 0.908,
+          "match_type": "embedding"
+        },
+        {
+          "text": "Chinese",
+          "category": "SKILL_LANGUAGE",
+          "position": {
+            "start": 506,
+            "end": 513
+          },
+          "esco_uri": "http://data.europa.eu/esco/skill/1fe42b38-cd42-4fc7-ae77-14e4c9e96295",
+          "esco_label": "Tiếng Trung",
+          "score": 0.935,
+          "match_type": "embedding"
+        }
+      ],
+      "total_skills": 5,
+      "matched_skills": 4,
+      "unmatched_skills": 1,
+      "match_rate": 0.8,
+      "processing_time_ms": 55257.22,
+      "original_job": {
+        "company": "Công Ty TNHH LG Display Việt Nam Hải Phòng",
+        "location": "Hải Phòng",
+        "source": "VietnamWorks_Algolia"
+      }
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_00001",
+      "title": "Senior Consultant",
+      "entities": [],
+      "total_skills": 0,
+      "matched_skills": 0,
+      "unmatched_skills": 0,
+      "match_rate": 0.0,
+      "processing_time_ms": 1.22,
+      "original_job": {
+        "company": "Navigos Group",
+        "location": "Hồ Chí Minh",
+        "source": "VietnamWorks_Algolia"
+      }
+    },
+    {
+      "job_id": "scraped_vietnamworks_algolia_00002",
+      "title": "Kỹ Sư Kinh Tế Xây Dựng",
+      "entities": [],
+      "total_skills": 0,
+      "matched_skills": 0,
+      "unmatched_skills": 0,
+      "match_rate": 0.0,
+      "processing_time_ms": 0.91,
+      "original_job": {
+        "company": "Eurowindow Holding",
+        "location": "Hà Nội",
+        "source": "VietnamWorks_Algolia"
+      }
+    }
+  ]
+}
