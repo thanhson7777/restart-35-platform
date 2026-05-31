@@ -24,8 +24,7 @@ import {
   refreshRAGRecommendationAPI,
   getRAGSourcesAPI,
   getRAGHealthAPI,
-  triggerStartupSuggestionAPI,
-  triggerSkillsGapAnalysisAPI
+  triggerStartupSuggestionAPI
 } from '~/apis/aiAPI'
 
 /**
@@ -414,24 +413,6 @@ export const triggerStartupSuggestion = createAsyncThunk(
 )
 
 /**
- * Get RAG-based skills gap analysis
- * POST /v1/ai/rag/skills-gap
- */
-export const triggerSkillsGapAnalysis = createAsyncThunk(
-  'ai/triggerSkillsGapAnalysis',
-  async ({ profile }, { rejectWithValue }) => {
-    try {
-      const response = await triggerSkillsGapAnalysisAPI(profile)
-      return response?.data ?? response
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || error.message || 'Không thể phân tích kỹ năng'
-      )
-    }
-  }
-)
-
-/**
  * Risk Level Constants
  */
 export const RISK_LEVELS = {
@@ -543,12 +524,7 @@ const initialState = {
   // Startup state
   startupIdeas: [],
   startupLoading: false,
-  startupError: null,
-
-  // Skills Gap state
-  skillsGap: null,
-  skillsGapLoading: false,
-  skillsGapError: null
+  startupError: null
 }
 
 /**
@@ -1005,23 +981,6 @@ const aiSlice = createSlice({
         state.startupLoading = false
         state.startupError = action.payload
       })
-
-    /**
-     * triggerSkillsGapAnalysis
-     */
-    builder
-      .addCase(triggerSkillsGapAnalysis.pending, (state) => {
-        state.skillsGapLoading = true
-        state.skillsGapError = null
-      })
-      .addCase(triggerSkillsGapAnalysis.fulfilled, (state, action) => {
-        state.skillsGapLoading = false
-        state.skillsGap = action.payload
-      })
-      .addCase(triggerSkillsGapAnalysis.rejected, (state, action) => {
-        state.skillsGapLoading = false
-        state.skillsGapError = action.payload
-      })
   }
 })
 
@@ -1124,10 +1083,5 @@ export const selectProgression = (state) => state.ai.ragRecommendation?.progress
 export const selectStartupIdeas = (state) => state.ai.startupIdeas
 export const selectStartupLoading = (state) => state.ai.startupLoading
 export const selectStartupError = (state) => state.ai.startupError
-
-// Skills Gap selectors
-export const selectSkillsGap = (state) => state.ai.skillsGap
-export const selectSkillsGapLoading = (state) => state.ai.skillsGapLoading
-export const selectSkillsGapError = (state) => state.ai.skillsGapError
 
 export default aiSlice.reducer

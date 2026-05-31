@@ -676,7 +676,7 @@ export const getRAGHealthAPI = async () => {
 }
 
 // =============================================================================
-// RAG STARTUP & SKILLS GAP APIs
+// RAG STARTUP APIs
 // =============================================================================
 
 /**
@@ -693,27 +693,6 @@ export const triggerStartupSuggestionAPI = async (profile, budget = '50-100 triá
   const response = await authorizeAxiosInstance.post(
     `${AI_BASE_URL}/rag/startup-suggestions`,
     { profile, budget }
-  )
-  return response.data
-}
-
-/**
- * Get RAG-based skills gap analysis
- * POST /v1/ai/rag/skills-gap
- *
- * @param {Object} profile - User profile data
- * @returns {Promise<Object>} - Skills gap analysis {
- *   success,
- *   endangered_skills: [...],
- *   must_learn_skills: [...],
- *   future_proof_skills: [...],
- *   learning_path: [{ month, skills, resources }]
- * }
- */
-export const triggerSkillsGapAnalysisAPI = async (profile) => {
-  const response = await authorizeAxiosInstance.post(
-    `${AI_BASE_URL}/rag/skills-gap`,
-    { profile }
   )
   return response.data
 }

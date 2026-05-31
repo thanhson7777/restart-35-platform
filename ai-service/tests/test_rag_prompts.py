@@ -1,7 +1,7 @@
 """
 RAG Prompts Integration Tests
 
-Tests for all 3 RAG prompts: career recommendation, startup ideas, and skills gap analysis.
+Tests for RAG prompts: career recommendation and startup ideas.
 """
 
 import sys
@@ -16,11 +16,8 @@ from prompts.career_recommend import (
     CAREER_RECOMMEND_SYSTEM_PROMPT,
     CAREER_RECOMMEND_USER_PROMPT,
     STARTUP_PROMPT,
-    SKILLS_GAP_PROMPT,
     format_career_prompt,
     format_startup_prompt,
-    format_skills_gap_prompt,
-    _format_json_output
 )
 from services.rag.rag_engine import CareerRAGEngine
 
@@ -88,39 +85,6 @@ def startup_profile():
             "techGap": False,
             "time": False,
             "finance": True
-        }
-    }
-
-
-@pytest.fixture
-def skills_gap_profile():
-    return {
-        "basicInfo": {
-            "age": 38,
-            "gender": "male",
-            "province": "DN",
-            "education": "college"
-        },
-        "employmentHistory": [
-            {
-                "industry": "sales",
-                "role": "Sales Executive",
-                "years": 8,
-                "skills": ["Communication", "Negotiation", "CRM"]
-            }
-        ],
-        "aspirations": {
-            "targetJob": "Sales Manager",
-            "targetIndustry": "sales",
-            "skills": ["Digital Marketing", "Data Analysis"],
-            "targetSalary": 40000000
-        },
-        "barriers": {
-            "health": False,
-            "family": True,
-            "techGap": True,
-            "time": False,
-            "finance": False
         }
     }
 
@@ -208,90 +172,6 @@ class TestStartupPrompt:
         assert "resource_requirements" in system_prompt
 
 
-class TestSkillsGapPrompt:
-    """Tests for skills gap prompt formatting"""
-
-    def test_format_skills_gap_prompt_basic(self, skills_gap_profile):
-        """Test basic skills gap prompt formatting"""
-        system_prompt, user_prompt = format_skills_gap_prompt(skills_gap_profile)
-
-        assert system_prompt is not None
-        assert user_prompt is not None
-        assert len(system_prompt) > 0
-        assert len(user_prompt) > 0
-
-        # Check profile data included
-        assert str(skills_gap_profile["basicInfo"]["age"]) in user_prompt
-
-    def test_format_skills_gap_prompt_escapes_braces(self, skills_gap_profile):
-        """Test that curly braces in JSON are properly escaped"""
-        system_prompt, user_prompt = format_skills_gap_prompt(skills_gap_profile)
-
-        # Single braces should be present (after unescaping)
-        assert "{" in system_prompt
-        assert "}" in system_prompt
-        # No double braces
-        assert "{{" not in system_prompt
-        assert "}}" not in system_prompt
-
-    def test_format_skills_gap_prompt_structure(self, skills_gap_profile):
-        """Test skills gap prompt has correct structure"""
-        system_prompt, user_prompt = format_skills_gap_prompt(skills_gap_profile)
-
-        assert "skill_gaps" in system_prompt
-        assert "missing_skills" in system_prompt
-        assert "recommended_courses" in system_prompt
-
-
-# ============================================================================
-# JSON OUTPUT PARSING TESTS
-# ============================================================================
-
-class TestJSONOutputFormatting:
-    """Tests for JSON output formatting function"""
-
-    def test_format_json_output_basic(self):
-        """Test basic JSON formatting"""
-        data = {
-            "name": "Test",
-            "count": 5,
-            "items": ["a", "b", "c"]
-        }
-        output = _format_json_output(data)
-
-        assert '"name": "Test"' in output
-        assert '"count": 5' in output
-        assert '"items":' in output
-
-    def test_format_json_output_preserves_structure(self):
-        """Test that JSON structure is preserved"""
-        data = {
-            "best_fits": [
-                {"job_title": "Developer", "score": 0.9}
-            ]
-        }
-        output = _format_json_output(data)
-
-        assert "best_fits" in output
-        assert "Developer" in output
-        assert "0.9" in output
-
-    def test_format_json_output_handles_nested(self):
-        """Test nested JSON structure"""
-        data = {
-            "level1": {
-                "level2": {
-                    "value": "deep"
-                }
-            }
-        }
-        output = _format_json_output(data)
-
-        assert "level1" in output
-        assert "level2" in output
-        assert "deep" in output
-
-
 # ============================================================================
 # RAG ENGINE INTEGRATION TESTS
 # ============================================================================
@@ -335,7 +215,7 @@ class TestRAGEngine:
     def test_parse_json_response_with_extra_text(self):
         """Test parsing JSON response with extra text before/after"""
         # Simulated LLM response with extra text
-        raw_response = '''Dưới đây là gợi ý cho bạn:
+        raw_response = '''Duới đây là gợi ý cho bạn:
 
 {
   "best_fits": [

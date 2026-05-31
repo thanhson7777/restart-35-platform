@@ -100,11 +100,6 @@ class RAGStartupRequest(BaseModel):
     budget: str = Field("50-100 triệu", description="Budget for startup")
 
 
-class RAGSkillsGapRequest(BaseModel):
-    """Request body for RAG-based skills gap analysis"""
-    profile: Dict[str, Any] = Field(..., description="User profile")
-
-
 class RAGCareerResponse(BaseModel):
     """Response model for RAG career recommendation"""
     success: bool
@@ -621,105 +616,4 @@ async def get_startup_suggestions(request: RAGStartupRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Error generating startup suggestions: {str(e)}"
-        )
-
-
-@router.post("/skills-gap", response_model=dict)
-async def get_skills_gap(request: RAGSkillsGapRequest):
-    """
-    Get RAG-based skills gap analysis.
-
-    This endpoint:
-    1. Retrieves relevant context from RAG system
-    2. Builds prompt with user profile + RAG context using format_skills_gap_prompt
-    3. Calls LLM (GROQ) for skills gap analysis
-    4. Returns structured skills gap analysis
-    """
-    global _rag_engine, _llm_client
-
-    logger.info(f"RAG skills gap analysis request for profile")
-
-    # Check RAG engine
-    if _rag_engine is None:
-        raise HTTPException(
-            status_code=503,
-            detail="RAG engine not initialized. Please restart the service."
-        )
-
-    # Check LLM client
-    if _llm_client is None or not _llm_client.available:
-        raise HTTPException(
-            status_code=503,
-            detail="LLM service not available. Please check GROQ_API_KEY."
-        )
-
-    try:
-        # Step 1: Get RAG context
-        rag_context = _rag_engine.get_recommendation_context_sync(request.profile)
-        sources = _rag_engine.get_sources()
-
-        logger.info(f"RAG retrieved {len(sources)} sources for skills gap")
-
-        # Step 2: Build prompt using format_skills_gap_prompt
-        from prompts.career_recommend import format_skills_gap_prompt
-
-        system_prompt, user_prompt = format_skills_gap_prompt(
-            request.profile,
-            rag_context
-        )
-
-        # Step 3: Call LLM
-        logger.info("Calling GROQ API for skills gap analysis...")
-        response = _llm_client.generate(
-            prompt=user_prompt,
-            temperature=0.1,
-            max_tokens=2048,
-            system_prompt=system_prompt
-        )
-
-        if not response:
-            raise HTTPException(
-                status_code=500,
-                detail="LLM generation failed"
-            )
-
-        # Step 4: Parse response
-        result = parse_llm_json_response(response)
-
-        if result is None:
-            logger.warning("Failed to parse LLM JSON for skills gap, returning empty")
-            return {
-                "success": True,
-                "endangered_skills": [],
-                "must_learn_skills": [],
-                "future_proof_skills": [],
-                "learning_path": [],
-                "sources": sources,
-                "generated_at": datetime.now().isoformat(),
-                "rag_context_used": True,
-                "message": "LLM response parsing failed. Please try again."
-            }
-
-        # Step 5: Build response
-        return {
-            "success": True,
-            "endangered_skills": result.get("endangered_skills", []),
-            "must_learn_skills": result.get("must_learn_skills", []),
-            "future_proof_skills": result.get("future_proof_skills", []),
-            "learning_path": result.get("learning_path", []),
-            "sources": sources,
-            "generated_at": datetime.now().isoformat(),
-            "rag_context_used": True,
-            "message": "Success"
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"RAG skills gap error: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error generating skills gap analysis: {str(e)}"
         )

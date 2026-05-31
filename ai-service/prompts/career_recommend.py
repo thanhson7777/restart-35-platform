@@ -189,7 +189,7 @@ def format_career_prompt(profile: dict, rag_context: str) -> tuple[str, str]:
 
 
 # ============================================================================
-# OTHER PROMPTS (kept for compatibility)
+# STARTUP PROMPT
 # ============================================================================
 
 STARTUP_PROMPT = """=== PERSONA ===
@@ -251,33 +251,6 @@ QUAN TRỌNG:
 - Mỗi ý tưởng phải có ÍT NHẤT 2 phần tử trong mỗi array"""
 
 
-SKILLS_GAP_PROMPT = """=== PERSONA ===
-Bạn là chuyên gia phân tích kỹ năng.
-
-=== CONTEXT ===
-{rag_context}
-
-=== USER PROFILE ===
-Tuổi: {age}
-Ngành: {current_industry}
-Kỹ năng hiện tại: {skills}
-Mục tiêu: {goal}
-
-=== OUTPUT FORMAT ===
-{{
-  "endangered_skills": ["Kỹ năng đang mất giá"],
-  "must_learn_skills": ["Kỹ năng cần học ngay"],
-  "future_proof_skills": ["Kỹ năng an toàn tương lai"],
-  "learning_path": [
-    {{
-      "month": 1,
-      "skills": ["..."],
-      "resources": ["..."]
-    }}
-  ]
-}}"""
-
-
 def format_startup_prompt(profile: dict, rag_context: str, budget: str = "50-100 triệu") -> tuple[str, str]:
     """
     Format startup suggestion prompt.
@@ -337,40 +310,5 @@ def format_startup_prompt(profile: dict, rag_context: str, budget: str = "50-100
     # Replace double braces with single braces for JSON structure
     system_prompt = system_prompt.replace("{{", "{").replace("}}", "}")
     user_prompt = "Hãy đề xuất 3 ý tưởng lập nghiệp phù hợp với tôi."
-
-    return system_prompt, user_prompt
-
-
-def format_skills_gap_prompt(profile: dict, rag_context: str) -> tuple[str, str]:
-    """
-    Format skills gap analysis prompt.
-    """
-    basic_info = profile.get("basicInfo", {})
-    aspirations = profile.get("aspirations", {})
-
-    raw_skills = profile.get("skills", basic_info.get("skills", []))
-    if isinstance(raw_skills, list):
-        skills = []
-        for s in raw_skills:
-            if isinstance(s, dict):
-                skills.append(s.get("title", s.get("name", str(s))))
-            else:
-                skills.append(str(s))
-        skills_text = ", ".join(skills[:10])
-    else:
-        skills_text = str(raw_skills)
-
-    substitutions = {
-        "rag_context": rag_context,
-        "age": basic_info.get("age", "N/A"),
-        "current_industry": aspirations.get("targetIndustry", "N/A"),
-        "skills": skills_text,
-        "goal": aspirations.get("targetJob", "Chưa xác định"),
-    }
-
-    system_prompt = SKILLS_GAP_PROMPT.format(**substitutions)
-    # Replace double braces with single braces for JSON structure
-    system_prompt = system_prompt.replace("{{", "{").replace("}}", "}")
-    user_prompt = "Hãy phân tích kỹ năng của tôi và đề xuất lộ trình học tập."
 
     return system_prompt, user_prompt

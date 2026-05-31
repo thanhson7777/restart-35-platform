@@ -15,7 +15,6 @@ import {
   Database,
   BarChart3,
   Rocket,
-  Brain,
   Route,
   Lightbulb,
   ThumbsUp,
@@ -50,12 +49,7 @@ import {
   selectStartupIdeas,
   selectStartupLoading,
   selectStartupError,
-  triggerStartupSuggestion,
-  // Skills Gap selectors
-  selectSkillsGap,
-  selectSkillsGapLoading,
-  selectSkillsGapError,
-  triggerSkillsGapAnalysis
+  triggerStartupSuggestion
 } from '@/redux/ai/aiSlice'
 import {
   getCachedCareerPathAPI,
@@ -291,8 +285,6 @@ const EmptyState = ({ onRetry, type }) => (
         <Sparkles size={24} className="text-slate-400" />
       ) : type === 'startup' ? (
         <Rocket size={24} className="text-slate-400" />
-      ) : type === 'skills' ? (
-        <Brain size={24} className="text-slate-400" />
       ) : (
         <TrendingUp size={24} className="text-slate-400" />
       )}
@@ -302,9 +294,7 @@ const EmptyState = ({ onRetry, type }) => (
         ? 'Chưa có gợi ý từ AI'
         : type === 'startup'
           ? 'Chưa có gợi ý lập nghiệp'
-          : type === 'skills'
-            ? 'Chưa có phân tích kỹ năng'
-            : 'Chưa có gợi ý lộ trình sự nghiệp'}
+          : 'Chưa có gợi ý lộ trình sự nghiệp'}
     </p>
     {onRetry && (
       <button
@@ -495,101 +485,6 @@ const StartupCard = ({ idea, index }) => {
 }
 
 // ============================================================================
-// SKILLS GAP ANALYSIS COMPONENT
-// ============================================================================
-
-const SkillsGapAnalysis = ({ data }) => {
-  if (!data) return null
-
-  return (
-    <div className="space-y-4">
-      {/* Endangered Skills */}
-      {data.endangered_skills?.length > 0 && (
-        <div className="bg-red-50 rounded-xl border border-red-200 p-4">
-          <h4 className="font-medium text-red-700 mb-2 flex items-center gap-2">
-            <AlertTriangle size={16} /> Kỹ năng đang mất giá
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {data.endangered_skills.map((skill, i) => (
-              <span key={i} className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
-                {skill}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Must Learn Skills */}
-      {data.must_learn_skills?.length > 0 && (
-        <div className="bg-amber-50 rounded-xl border border-amber-200 p-4">
-          <h4 className="font-medium text-amber-700 mb-2 flex items-center gap-2">
-            <Zap size={16} /> Kỹ năng cần học ngay
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {data.must_learn_skills.map((skill, i) => (
-              <span key={i} className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm">
-                {skill}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Future Proof Skills */}
-      {data.future_proof_skills?.length > 0 && (
-        <div className="bg-green-50 rounded-xl border border-green-200 p-4">
-          <h4 className="font-medium text-green-700 mb-2 flex items-center gap-2">
-            <Target size={16} /> Kỹ năng an toàn tương lai
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {data.future_proof_skills.map((skill, i) => (
-              <span key={i} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
-                {skill}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Learning Path */}
-      {data.learning_path?.length > 0 && (
-        <div className="bg-emerald-50 rounded-xl border border-emerald-200 p-4">
-          <h4 className="font-medium text-emerald-700 mb-3 flex items-center gap-2">
-            <TrendingUp size={16} /> Lộ trình học tập
-          </h4>
-          <div className="space-y-3">
-            {data.learning_path.map((month, i) => (
-              <div key={i} className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center text-xs font-bold text-emerald-700 flex-shrink-0">
-                  T{i + 1}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-emerald-800">
-                    Tháng {month.month || i + 1}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {(month.skills || []).map((skill, j) => (
-                      <span key={j} className="px-2 py-0.5 bg-white text-emerald-700 rounded text-xs border border-emerald-200">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                  {month.resources?.length > 0 && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Tài liệu: {month.resources.length} nguồn
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
@@ -621,11 +516,6 @@ function CareerRecommendations({ className, userProfile }) {
   const startupLoading = useSelector(selectStartupLoading)
   const startupError = useSelector(selectStartupError)
 
-  // Skills Gap state
-  const skillsGap = useSelector(selectSkillsGap)
-  const skillsGapLoading = useSelector(selectSkillsGapLoading)
-  const skillsGapError = useSelector(selectSkillsGapError)
-
   // Local state
   const [dataSource, setDataSource] = useState(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -639,7 +529,6 @@ function CareerRecommendations({ className, userProfile }) {
   const hasFetchedRAG = useRef(false)
   const hasFetchedLegacy = useRef(false)
   const hasFetchedStartup = useRef(false)
-  const hasFetchedSkills = useRef(false)
   const prevProfileRef = useRef(null)
 
   // Detect profile changes (especially employmentHistory) and reset fetch flags
@@ -656,7 +545,6 @@ function CareerRecommendations({ className, userProfile }) {
       hasFetchedRAG.current = false
       hasFetchedLegacy.current = false
       hasFetchedStartup.current = false
-      hasFetchedSkills.current = false
     }
 
     // Update previous profile ref
@@ -845,12 +733,6 @@ function CareerRecommendations({ className, userProfile }) {
         console.log('[Refresh] Triggering startup with profile:', startupProfile)
         hasFetchedStartup.current = false
         dispatch(triggerStartupSuggestion({ profile: startupProfile }))
-      } else if (activeTab === 'skills') {
-        // Refresh skills gap data
-        const skillsProfile = buildProfileData(profileData)
-        console.log('[Refresh] Triggering skills gap with profile:', skillsProfile)
-        hasFetchedSkills.current = false
-        dispatch(triggerSkillsGapAnalysis({ profile: skillsProfile }))
       }
     } catch (err) {
       console.error('[Refresh] Error:', err)
@@ -865,7 +747,6 @@ function CareerRecommendations({ className, userProfile }) {
     hasFetchedRAG.current = false
     hasFetchedLegacy.current = false
     hasFetchedStartup.current = false
-    hasFetchedSkills.current = false
     prevProfileRef.current = null
 
     // Fetch data based on active tab
@@ -884,12 +765,7 @@ function CareerRecommendations({ className, userProfile }) {
       const profile = buildProfileData(profileData)
       dispatch(triggerStartupSuggestion({ profile }))
     }
-    if (activeTab === 'skills' && !hasFetchedSkills.current && !skillsGap) {
-      hasFetchedSkills.current = true
-      const profile = buildProfileData(profileData)
-      dispatch(triggerSkillsGapAnalysis({ profile }))
-    }
-  }, [activeTab, isLoggedIn, wantsToStartBusiness, startupIdeas.length, skillsGap, userProfile])
+  }, [activeTab, isLoggedIn, wantsToStartBusiness, startupIdeas.length, userProfile])
 
   const handleRetry = () => {
     // Reset flags for retry based on current tab
@@ -900,15 +776,13 @@ function CareerRecommendations({ className, userProfile }) {
       if (wantsToStartBusiness) {
         hasFetchedStartup.current = false
       }
-    } else if (activeTab === 'skills') {
-      hasFetchedSkills.current = false
     }
     handleRefresh()
   }
 
   // Determine which loading/error state to show based on active tab
-  const isLoading = isLoadingRAG || startupLoading || skillsGapLoading
-  const error = errorRAG || startupError || skillsGapError
+  const isLoading = isLoadingRAG || startupLoading
+  const error = errorRAG || startupError
   const hasData = hasLegacyData || hasRAGData
 
   if (isLoading) {
@@ -980,19 +854,6 @@ function CareerRecommendations({ className, userProfile }) {
           >
             <Route size={14} />
             Lộ trình nghề nghiệp
-          </button>
-
-          <button
-            onClick={() => setActiveTab('skills')}
-            className={cn(
-              'px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
-              activeTab === 'skills'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <Brain size={14} />
-            Phân tích Kỹ năng
           </button>
         </div>
       </div>
@@ -1109,34 +970,14 @@ function CareerRecommendations({ className, userProfile }) {
         </div>
       )}
 
-      {/* Tab 3: Phân tích Kỹ năng */}
-      {activeTab === 'skills' && (
-        <div className="space-y-4">
-          {skillsGapLoading ? (
-            <LoadingState isRAG={false} />
-          ) : skillsGapError ? (
-            <ErrorState error={skillsGapError} onRetry={handleRetry} />
-          ) : skillsGap ? (
-            <>
-              <div className="text-sm text-muted-foreground mb-4">
-                Phân tích kỹ năng của bạn để xác định những gì cần học:
-              </div>
-              <SkillsGapAnalysis data={skillsGap} />
-            </>
-          ) : (
-            <EmptyState type="skills" />
-          )}
-        </div>
-      )}
-
       {/* Refresh button */}
       <div className="flex justify-center pt-4 border-t border-border">
         <button
           onClick={handleRefresh}
-          disabled={isRefreshing || isLoadingRAG || startupLoading || skillsGapLoading}
+          disabled={isRefreshing || isLoadingRAG || startupLoading}
           className={cn(
             'flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-slate-100 rounded-lg transition-colors',
-            (isRefreshing || isLoadingRAG || startupLoading || skillsGapLoading) && 'opacity-50 cursor-not-allowed'
+            (isRefreshing || isLoadingRAG || startupLoading) && 'opacity-50 cursor-not-allowed'
           )}
         >
           <RefreshCw size={14} className={cn(isRefreshing && 'animate-spin')} />
