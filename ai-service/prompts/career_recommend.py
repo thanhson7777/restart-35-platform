@@ -288,18 +288,37 @@ def format_startup_prompt(profile: dict, rag_context: str, budget: str = "50-100
 
     current = employment[0] if employment else {}
 
-    # Extract skills from profile, handling both strings and dicts
-    raw_skills = profile.get("skills", [])
-    if isinstance(raw_skills, list):
-        skills = []
-        for s in raw_skills:
+    # Extract skills from employmentHistory (skills are stored there, not at top level)
+    employment_skills = []
+    for exp in employment:
+        exp_skills = exp.get("skills", [])
+        if isinstance(exp_skills, list):
+            for s in exp_skills:
+                if isinstance(s, dict):
+                    employment_skills.append(s.get("title", s.get("name", str(s))))
+                else:
+                    employment_skills.append(str(s))
+        elif exp_skills:
+            employment_skills.append(str(exp_skills))
+    
+    # Also check top-level skills for backward compatibility
+    top_level_skills = profile.get("skills", [])
+    if isinstance(top_level_skills, list):
+        for s in top_level_skills:
             if isinstance(s, dict):
-                skills.append(s.get("title", s.get("name", str(s))))
+                employment_skills.append(s.get("title", s.get("name", str(s))))
             else:
-                skills.append(str(s))
-        skills_text = ", ".join(skills[:10])
-    else:
-        skills_text = str(raw_skills)
+                employment_skills.append(str(s))
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_skills = []
+    for skill in employment_skills:
+        if skill not in seen:
+            seen.add(skill)
+            unique_skills.append(skill)
+    
+    skills_text = ", ".join(unique_skills[:15]) if unique_skills else "Không có thông tin"
 
     barrier_list = [k for k, v in barriers.items() if v]
     barriers_text = ", ".join(barrier_list) if barrier_list else "Không có"

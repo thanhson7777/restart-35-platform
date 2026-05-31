@@ -238,6 +238,17 @@ Router.get(
 )
 
 /**
+ * @route   DELETE /v1/ai/rag/cache
+ * @desc    Xóa cache RAG recommendation (khi profile thay đổi)
+ * @access  Private (requires auth)
+ */
+Router.delete(
+  '/rag/cache',
+  authMiddleware.isAuthorized,
+  aiController.invalidateRAGCache
+)
+
+/**
  * @route   POST /v1/ai/rag/career-recommendation/refresh
  * @desc    Refresh RAG recommendation
  * @access  Private (requires auth)

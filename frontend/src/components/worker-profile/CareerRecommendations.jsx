@@ -642,6 +642,27 @@ function CareerRecommendations({ className, userProfile }) {
   const hasFetchedSkills = useRef(false)
   const prevProfileRef = useRef(null)
 
+  // Detect profile changes (especially employmentHistory) and reset fetch flags
+  useEffect(() => {
+    const currentProfile = userProfile || careerPath?.user_profile
+    if (!currentProfile) return
+
+    // Create a hash/key to compare employmentHistory
+    const currentJobs = JSON.stringify(currentProfile.employmentHistory)
+    const prevJobs = prevProfileRef.current
+
+    // Reset fetch flags if employmentHistory changed
+    if (prevJobs !== currentJobs) {
+      hasFetchedRAG.current = false
+      hasFetchedLegacy.current = false
+      hasFetchedStartup.current = false
+      hasFetchedSkills.current = false
+    }
+
+    // Update previous profile ref
+    prevProfileRef.current = currentJobs
+  }, [userProfile, careerPath])
+
   // Check if user is logged in
   const isLoggedIn = typeof window !== 'undefined' && !!localStorage.getItem('accessToken')
 
@@ -868,7 +889,7 @@ function CareerRecommendations({ className, userProfile }) {
       const profile = buildProfileData(profileData)
       dispatch(triggerSkillsGapAnalysis({ profile }))
     }
-  }, [activeTab, isLoggedIn, wantsToStartBusiness, startupIdeas.length, skillsGap])
+  }, [activeTab, isLoggedIn, wantsToStartBusiness, startupIdeas.length, skillsGap, userProfile])
 
   const handleRetry = () => {
     // Reset flags for retry based on current tab

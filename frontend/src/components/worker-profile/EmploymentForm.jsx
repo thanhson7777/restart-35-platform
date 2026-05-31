@@ -13,6 +13,12 @@ import {
   selectIsSaving,
   selectLastSavedAt
 } from '@/redux/profile/profileSlice'
+import {
+  clearCareerPath,
+  clearRAGRecommendation,
+  clearStartupIdeas
+} from '@/redux/ai/aiSlice'
+import { invalidateCareerPathCacheAPI, invalidateRAGCacheAPI } from '@/apis/aiAPI'
 
 const MAX_JOBS = 3
 
@@ -151,6 +157,19 @@ function EmploymentForm({ onNext }) {
       const result = await dispatch(saveStep({ step: STEP_NUMBER, data: jobs }))
 
       if (saveStep.fulfilled.match(result)) {
+        // Clear career path cache vì employment history đã thay đổi
+        dispatch(clearCareerPath())
+        dispatch(clearRAGRecommendation())
+        dispatch(clearStartupIdeas())
+
+        // Invalidate cache ở backend (async, không block UI)
+        invalidateCareerPathCacheAPI().catch(err => {
+          console.error('[EmploymentForm] Failed to invalidate career path cache:', err)
+        })
+        invalidateRAGCacheAPI().catch(err => {
+          console.error('[EmploymentForm] Failed to invalidate RAG cache:', err)
+        })
+
         // Advance to step 3
         dispatch(setCurrentStep(STEP_NUMBER + 1))
         toast.success('Đã lưu kinh nghiệm làm việc!')
