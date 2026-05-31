@@ -632,7 +632,6 @@ class JobRecommender:
             return 1.0
 
         return 1.0  # Default - no specific issues found
-
     def _compute_quality_score(self, row: 'pd.Series') -> float:
         """
         Compute quality score (0-100) based on data completeness.

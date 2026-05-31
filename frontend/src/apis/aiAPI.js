@@ -540,6 +540,17 @@ export const invalidateCareerPathCacheAPI = async () => {
   return response.data
 }
 
+/**
+ * Xóa cache RAG recommendation (khi profile thay đổi)
+ * DELETE /v1/ai/rag/cache
+ *
+ * @returns {Promise<Object>} - Kết quả { success, message }
+ */
+export const invalidateRAGCacheAPI = async () => {
+  const response = await authorizeAxiosInstance.delete(`${AI_BASE_URL}/rag/cache`)
+  return response.data
+}
+
 // =============================================================================
 // RAG CAREER RECOMMENDATION APIs
 // =============================================================================

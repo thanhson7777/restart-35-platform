@@ -705,6 +705,35 @@ const invalidateCareerPathCache = async (req, res, next) => {
   }
 }
 
+/**
+ * Xóa cache RAG recommendation
+ * DELETE /v1/ai/rag/cache
+ */
+const invalidateRAGCache = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId || req.user?._id
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    // Mark RAG recommendation as stale
+    await careerRecommendationModel.markAsStale(userId)
+    console.log(`[Cache INVALIDATE] RAG cache stale - User: ${userId}`)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Cache RAG recommendation đã được xóa'
+    })
+  } catch (error) {
+    console.error('[AIController] invalidateRAGCache error:', error)
+    next(error)
+  }
+}
+
 // ============================================================================
 // RAG (RETRIEVAL-AUGMENTED GENERATION) CONTROLLERS
 // ============================================================================
@@ -931,6 +960,7 @@ export const aiController = {
   // RAG Controllers
   triggerRAGCareerRecommendation,
   getCachedRAGRecommendation,
+  invalidateRAGCache,
   refreshRAGRecommendation,
   getRAGSources,
   getRAGHealth,

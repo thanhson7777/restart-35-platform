@@ -635,6 +635,14 @@ const aiSlice = createSlice({
     },
 
     /**
+     * Clear startup ideas (khi profile thay đổi)
+     */
+    clearStartupIdeas: (state) => {
+      state.startupIdeas = []
+      state.startupError = null
+    },
+
+    /**
      * Set RAG recommendation directly (for cache loading)
      */
     setRAGRecommendation: (state, action) => {
@@ -1030,7 +1038,8 @@ export const {
   setCareerPath,
   resetAIState,
   clearRAGRecommendation,
-  setRAGRecommendation
+  setRAGRecommendation,
+  clearStartupIdeas
 } = aiSlice.actions
 
 /**

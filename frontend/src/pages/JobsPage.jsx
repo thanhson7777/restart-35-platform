@@ -37,74 +37,28 @@ import {
 import { selectCurrentUser } from '@/redux/user/userSlice'
 import toast from 'react-hot-toast'
 
-// Icons
-const SparklesIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-  </svg>
-)
-
-const AlertCircleIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" x2="12" y1="8" y2="12" />
-    <line x1="12" x2="12.01" y1="16" y2="16" />
-  </svg>
-)
-
-const RefreshCwIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-    <path d="M3 3v5h5" />
-  </svg>
-)
-
-const BriefcaseIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-    <rect width="20" height="14" x="2" y="6" rx="2" />
-  </svg>
-)
-
-const BookmarkIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-  </svg>
-)
-
-const TrendingUpIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-    <polyline points="17 6 23 6 23 12" />
-  </svg>
-)
-
-const UserIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-)
-
-const ArrowRightIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" x2="19" y1="12" y2="12" />
-    <polyline points="12 5 19 12 12 19" />
-  </svg>
-)
-
-const ChevronLeftIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="15 18 9 12 15 6" />
-  </svg>
-)
+// Lucide React Icons
+import {
+  Sparkles,
+  AlertCircle,
+  RefreshCw,
+  Briefcase,
+  Bookmark,
+  TrendingUp,
+  User,
+  ArrowRight,
+  ChevronLeft,
+  Layers,
+  Settings2,
+  Check
+} from 'lucide-react'
 
 // Tab options
 const TABS = [
-  { id: 'recommended', label: 'Gợi ý cho bạn', icon: SparklesIcon },
-  { id: 'career', label: 'Lộ trình nghề nghiệp', icon: TrendingUpIcon },
-  { id: 'all', label: 'Tất cả việc làm', icon: BriefcaseIcon },
-  { id: 'saved', label: 'Đã lưu', icon: BookmarkIcon }
+  { id: 'recommended', label: 'Gợi ý cho bạn', icon: Sparkles },
+  { id: 'career', label: 'Lộ trình nghề nghiệp', icon: TrendingUp },
+  { id: 'all', label: 'Tất cả việc làm', icon: Briefcase },
+  { id: 'saved', label: 'Đã lưu', icon: Bookmark }
 ]
 
 /**
@@ -125,6 +79,9 @@ const JobsPage = () => {
   // State
   const [activeTab, setActiveTab] = useState('recommended')
   const [selectedJob, setSelectedJob] = useState(null)
+  const [skillFilterMode, setSkillFilterMode] = useState('all') // 'all' | 'latest' | 'custom'
+  const [selectedJobIndex, setSelectedJobIndex] = useState(null)
+  const [showCustomDropdown, setShowCustomDropdown] = useState(false)
 
   // Handlers for job detail modal
   const handleOpenJobDetail = (job) => {
@@ -169,22 +126,22 @@ const JobsPage = () => {
   // =============================================================================
   // HELPER FUNCTIONS - Skills extraction
   // =============================================================================
-  
+
   /**
    * Transform ESCO skills to string array for API calls.
    * ESCO format: {uri, titleEn, titleVi, type} -> string
    */
   const transformSkillsToStrings = (skills) => {
     if (!skills || !Array.isArray(skills)) return []
-    
+
     return skills.map(skill => {
       // If already a string, return as-is
       if (typeof skill === 'string') return skill
-      
+
       // If ESCO object format, extract titleEn (English) or titleVi (Vietnamese)
       if (skill.titleEn) return skill.titleEn
       if (skill.titleVi) return skill.titleVi
-      
+
       // Fallback: return uri or skill itself
       return skill.uri || String(skill)
     }).filter(Boolean)
@@ -200,7 +157,7 @@ const JobsPage = () => {
     if (profile?.aspirations?.skills && profile.aspirations.skills.length > 0) {
       return transformSkillsToStrings(profile.aspirations.skills)
     }
-    
+
     // Priority 2: employmentHistory[*].skills (new flow - matches backend)
     // Note: profileSlice uses camelCase 'employmentHistory', not snake_case
     if (profile?.employmentHistory && profile.employmentHistory.length > 0) {
@@ -214,12 +171,50 @@ const JobsPage = () => {
       // Remove duplicates
       return [...new Set(allSkills)]
     }
-    
+
     return []
+  }
+
+  /**
+   * Extract skills from a specific job in employment history.
+   * @param {Object} job - Single employment history job
+   */
+  const extractSkillsFromJob = (job) => {
+    if (!job?.skills || !Array.isArray(job.skills)) return []
+    return transformSkillsToStrings(job.skills)
   }
 
   // Get skills for API call (with fallback chain)
   const skillsForRecommendation = extractSkillsFromProfile(formData)
+
+  // Get latest job for display
+  const latestJob = formData?.employmentHistory?.[0]
+
+  // Helper to get display title from job (prioritize occupation from ESCO)
+  const getJobTitle = (job) => {
+    if (!job) return '...'
+    // Priority: occupation.titleVi > occupation.titleEn > position > generic
+    return job.occupation?.titleVi || job.occupation?.titleEn || job.position || 'Chưa chọn nghề'
+  }
+
+  // Computed skills based on filter mode
+  const skillsByFilterMode = useMemo(() => {
+    const employmentHistory = formData?.employmentHistory || []
+
+    if (skillFilterMode === 'latest' && latestJob) {
+      return extractSkillsFromJob(latestJob)
+    }
+
+    if (skillFilterMode === 'custom' && selectedJobIndex !== null && employmentHistory[selectedJobIndex]) {
+      return extractSkillsFromJob(employmentHistory[selectedJobIndex])
+    }
+
+    // Default: all skills
+    return skillsForRecommendation
+  }, [skillFilterMode, selectedJobIndex, latestJob, formData, skillsForRecommendation])
+
+  // Get selected custom job for display
+  const selectedCustomJob = formData?.employmentHistory?.[selectedJobIndex]
 
   // Check if profile has required data for recommendations
   const hasProfileForRecommendations = useMemo(() => {
@@ -244,28 +239,27 @@ const JobsPage = () => {
     }
   }, [dispatch, profile, isProfileCompleted])
 
+  // Reset fetch flag when filter mode changes
+  useEffect(() => {
+    if (activeTab === 'recommended') {
+      hasFetchedRecommended.current = false
+    }
+  }, [skillFilterMode, selectedJobIndex, activeTab])
+
   // Fetch jobs based on active tab
   useEffect(() => {
-    // console.log('=== DEBUG useEffect ===', {
-    //   activeTab,
-    //   hasProfileForRecommendations,
-    //   hasFetchedRecommended: hasFetchedRecommended.current,
-    //   recommendedLoading,
-    //   skills: formData?.aspirations?.skills
-    // })
-
     // Only fetch recommended jobs once when tab is 'recommended' and profile is ready
     if (activeTab === 'recommended' && hasProfileForRecommendations && !recommendedLoading) {
       if (!hasFetchedRecommended.current) {
         hasFetchedRecommended.current = true
         dispatch(fetchRecommendedJobs({
-          skills: skillsForRecommendation,
+          skills: skillsByFilterMode,
           experience: totalExperience,
           location: formData.basicInfo?.province,
           targetJob: formData.aspirations?.targetJob,
           targetSalary: formData.aspirations?.targetSalary,
           preferredJobType: formData.aspirations?.preferredJobType,
-          limit: 20
+          limit: 50
         }))
       }
     } else if (activeTab === 'all' && !jobsLoading) {
@@ -302,7 +296,7 @@ const JobsPage = () => {
   }, [
     activeTab,
     hasProfileForRecommendations,
-    skillsForRecommendation, // Changed from formData?.aspirations?.skills
+    skillsByFilterMode,
     formData?.aspirations?.targetJob,
     formData?.aspirations?.targetSalary,
     formData?.aspirations?.preferredJobType,
@@ -324,7 +318,7 @@ const JobsPage = () => {
     if (activeTab === 'recommended') {
       hasFetchedRecommended.current = false
       dispatch(fetchRecommendedJobs({
-        skills: skillsForRecommendation,
+        skills: skillsByFilterMode,
         experience: totalExperience,
         location: formData.basicInfo?.province,
         targetJob: formData.aspirations?.targetJob,
@@ -419,7 +413,7 @@ const JobsPage = () => {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                <SparklesIcon className="w-8 h-8 text-primary" />
+                <Sparkles className="w-8 h-8 text-primary" />
                 Việc làm gợi ý cho bạn
               </h1>
               <p className="text-muted-foreground mt-2 text-lg">
@@ -433,7 +427,7 @@ const JobsPage = () => {
                   onClick={() => navigate('/worker-profile')}
                   className="shrink-0"
                 >
-                  <UserIcon className="w-4 h-4 mr-2" />
+                  <User className="w-4 h-4 mr-2" />
                   Cập nhật hồ sơ
                 </Button>
               )}
@@ -443,7 +437,7 @@ const JobsPage = () => {
                 disabled={isLoading}
                 className="shrink-0"
               >
-                <RefreshCwIcon className={cn('w-4 h-4 mr-2', isLoading && 'animate-spin')} />
+                <RefreshCw className={cn('w-4 h-4 mr-2', isLoading && 'animate-spin')} />
                 Làm mới
               </Button>
             </div>
@@ -457,7 +451,7 @@ const JobsPage = () => {
           <Card className="mb-6 border-warning/50 bg-warning/5">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <AlertCircleIcon className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -471,7 +465,7 @@ const JobsPage = () => {
                   className="shrink-0"
                 >
                   Cập nhật hồ sơ
-                  <ArrowRightIcon className="w-4 h-4 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </CardContent>
@@ -483,7 +477,7 @@ const JobsPage = () => {
           <Card className="mb-6 border-warning/50 bg-warning/5">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <AlertCircleIcon className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -497,7 +491,7 @@ const JobsPage = () => {
                   className="shrink-0"
                 >
                   Hoàn thiện hồ sơ
-                  <ArrowRightIcon className="w-4 h-4 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </CardContent>
@@ -509,7 +503,7 @@ const JobsPage = () => {
           <Card className="mb-6 border-primary/50 bg-primary/5">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <UserIcon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <User className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Chưa có kỹ năng trong hồ sơ</p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -523,7 +517,7 @@ const JobsPage = () => {
                   className="shrink-0"
                 >
                   Thêm kỹ năng
-                  <ArrowRightIcon className="w-4 h-4 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </CardContent>
@@ -562,12 +556,135 @@ const JobsPage = () => {
               </p>
             </div>
 
+            {/* Smart Filter Chip Bar - Chỉ hiển thị khi tab là 'recommended' và có employmentHistory */}
+            {activeTab === 'recommended' && formData?.employmentHistory?.length > 0 && (
+              <div className="mb-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Chip: Toàn bộ hồ sơ */}
+                  <button
+                    onClick={() => {
+                      setSkillFilterMode('all')
+                      setSelectedJobIndex(null)
+                      setShowCustomDropdown(false)
+                    }}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all border',
+                      skillFilterMode === 'all'
+                        ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                        : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
+                    )}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Toàn bộ hồ sơ</span>
+                  </button>
+
+                  {/* Chip: Nghề gần nhất */}
+                  <button
+                    onClick={() => {
+                      setSkillFilterMode('latest')
+                      setSelectedJobIndex(null)
+                      setShowCustomDropdown(false)
+                    }}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all border',
+                      skillFilterMode === 'latest'
+                        ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                        : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
+                    )}
+                  >
+                    <Briefcase className="w-3.5 h-3.5" />
+                    <span>Nghề gần nhất: {getJobTitle(latestJob)}</span>
+                  </button>
+
+                  {/* Chip: Tùy chỉnh */}
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        if (skillFilterMode === 'custom') {
+                          setSkillFilterMode('all')
+                          setSelectedJobIndex(null)
+                          setShowCustomDropdown(false)
+                        } else {
+                          setSkillFilterMode('custom')
+                          setShowCustomDropdown(!showCustomDropdown)
+                        }
+                      }}
+                      className={cn(
+                        'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all border',
+                        skillFilterMode === 'custom'
+                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                          : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
+                      )}
+                    >
+                      <Settings2 className="w-3.5 h-3.5" />
+                      <span>
+                        {skillFilterMode === 'custom' && selectedCustomJob
+                          ? `Tùy chỉnh: ${getJobTitle(selectedCustomJob)}`
+                          : 'Tùy chỉnh'}
+                      </span>
+                    </button>
+
+                    {/* Dropdown menu khi chọn custom */}
+                    {showCustomDropdown && skillFilterMode === 'custom' && (
+                      <div className="absolute top-full left-0 mt-2 w-72 bg-background border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                        <div className="p-2 border-b bg-muted/50">
+                          <p className="text-xs font-medium text-muted-foreground">
+                            Chọn kinh nghiệm để gợi ý
+                          </p>
+                        </div>
+                        {formData.employmentHistory.map((job, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setSelectedJobIndex(index)
+                              setShowCustomDropdown(false)
+                            }}
+                            className={cn(
+                              'w-full text-left px-3 py-2.5 text-sm hover:bg-muted transition-colors flex items-center justify-between gap-2',
+                              selectedJobIndex === index && 'bg-muted font-medium'
+                            )}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium truncate">
+                                {getJobTitle(job)}
+                              </div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {job.companyName || 'Không có công ty'} • {job.duration ? Math.floor(job.duration / 12) : 0} năm
+                              </div>
+                            </div>
+                            {selectedJobIndex === index && (
+                              <Check className="w-4 h-4 text-primary shrink-0" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Info badge - số skills đang dùng */}
+                <div className="flex items-center gap-2 mt-3">
+                  <div className="h-px flex-1 bg-border" />
+                  <p className="text-xs text-muted-foreground">
+                    Đang dùng <span className="font-medium text-foreground">{skillsByFilterMode.length}</span> skills để gợi ý
+                    {skillFilterMode === 'latest' && latestJob && (
+                      <span className="ml-1">(từ: {getJobTitle(latestJob)})</span>
+                    )}
+                    {skillFilterMode === 'custom' && selectedCustomJob && (
+                      <span className="ml-1">(từ: {getJobTitle(selectedCustomJob)})</span>
+                    )}
+                  </p>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+              </div>
+            )}
+
             {/* Error State */}
             {error && (
               <Card className="mb-6 border-destructive/50 bg-destructive/5">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <AlertCircleIcon className="w-5 h-5 text-destructive shrink-0" />
+                    <AlertCircle className="w-5 h-5 text-destructive shrink-0" />
                     <p className="text-destructive">{error}</p>
                     <Button
                       variant="ghost"
@@ -610,7 +727,7 @@ const JobsPage = () => {
             ) : currentJobs.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
-                  <BriefcaseIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">
                     {activeTab === 'recommended'
                       ? 'Không có việc làm gợi ý'
@@ -636,7 +753,7 @@ const JobsPage = () => {
                   <JobCard
                     key={job.id || job._id || Math.random()}
                     job={job}
-                    userSkills={skillsForRecommendation} // Changed from formData?.aspirations?.skills
+                    userSkills={skillsByFilterMode}
                     targetSalary={formData?.aspirations?.targetSalary}
                     onApply={handleApply}
                     onViewSimilar={handleViewSimilar}
