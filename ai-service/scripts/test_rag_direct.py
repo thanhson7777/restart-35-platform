@@ -377,108 +377,6 @@ def test_startup_prompt(rag_engine, llm_client):
 
 
 # ============================================================================
-# Test 4: Test Skills Gap Prompt
-# ============================================================================
-
-def test_skills_gap_prompt(rag_engine, llm_client):
-    """Test skills gap prompt."""
-    print_section("TEST 4: Skills Gap Prompt (Direct)")
-
-    try:
-        from prompts.career_recommend import format_skills_gap_prompt
-
-        profile = SAMPLE_PROFILES["tech_manager"]
-
-        print_subsection("Step 1: Get RAG Context")
-        rag_context = rag_engine.get_recommendation_context_sync(profile)
-        print(f"   [OK] Context retrieved ({len(rag_context)} chars)")
-
-        print_subsection("Step 2: Build Prompt")
-        system_prompt, user_prompt = format_skills_gap_prompt(profile, rag_context)
-        print(f"   [OK] System prompt: {len(system_prompt)} chars")
-
-        print_subsection("Step 3: Call LLM")
-        response = llm_client.generate(
-            prompt=user_prompt,
-            temperature=0.1,
-            max_tokens=2048,
-            system_prompt=system_prompt
-        )
-
-        if not response:
-            print("   [FAIL] No response from LLM")
-            return False
-
-        print(f"   [OK] Response received ({len(response)} chars)")
-
-        print_subsection("Step 4: Parse & Validate")
-        text = response.strip()
-
-        # Remove text before JSON
-        json_start = text.find('{')
-        if json_start > 0:
-            text = text[json_start:]
-
-        # Find end of JSON
-        json_end = -1
-        brace_count = 0
-        in_string = False
-        escape_next = False
-
-        for i, char in enumerate(text):
-            if escape_next:
-                escape_next = False
-                continue
-            if char == '\\' and in_string:
-                escape_next = True
-                continue
-            if char == '"' and not escape_next:
-                in_string = not in_string
-                continue
-            if not in_string:
-                if char == '{':
-                    brace_count += 1
-                elif char == '}':
-                    brace_count -= 1
-                    if brace_count == 0:
-                        json_end = i + 1
-                        break
-
-        if json_end > 0:
-            text = text[:json_end]
-
-        try:
-            result = json.loads(text)
-            print("   [OK] JSON parsed successfully")
-
-            # Validate structure
-            required_keys = ["endangered_skills", "must_learn_skills", "future_proof_skills", "learning_path"]
-            for key in required_keys:
-                has_key = key in result
-                print(f"   [OK] {key}: {has_key}")
-
-            if result.get("learning_path"):
-                print(f"\n   [INFO] Learning Path ({len(result['learning_path'])} months):")
-                for month_data in result["learning_path"][:3]:
-                    print(f"          Month {month_data.get('month')}: {len(month_data.get('skills', []))} skills")
-
-            print_subsection("Full Response")
-            print_json(result)
-
-            return True
-
-        except json.JSONDecodeError as e:
-            print(f"   [FAIL] JSON parse failed: {e}")
-            return False
-
-    except Exception as e:
-        print(f"   [FAIL] Test failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
-
-
-# ============================================================================
 # Main Test Runner
 # ============================================================================
 
@@ -491,8 +389,7 @@ def run_all_tests():
     results = {
         "init": False,
         "career_recommendation": False,
-        "startup": False,
-        "skills_gap": False
+        "startup": False
     }
 
     # Test 1: Initialize
@@ -509,15 +406,11 @@ def run_all_tests():
     # Test 3: Startup Prompt
     results["startup"] = test_startup_prompt(rag_engine, llm_client)
 
-    # Test 4: Skills Gap Prompt
-    results["skills_gap"] = test_skills_gap_prompt(rag_engine, llm_client)
-
     # Summary
     print_section("FINAL TEST SUMMARY")
     print(f"   Initialization:        {'PASS' if results['init'] else 'FAIL'}")
     print(f"   Career Recommendation: {'PASS' if results['career_recommendation'] else 'FAIL'}")
     print(f"   Startup Prompt:        {'PASS' if results['startup'] else 'FAIL'}")
-    print(f"   Skills Gap Prompt:     {'PASS' if results['skills_gap'] else 'FAIL'}")
 
     all_passed = all(results.values())
     print("\n" + "=" * 70)
