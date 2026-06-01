@@ -422,6 +422,12 @@ export const RISK_LEVELS = {
 }
 
 /**
+ * =============================================================================
+ * FEDERATED CAREER ANALYSIS THUNKS (Phase 2+)
+ * =============================================================================
+ */
+
+/**
  * Risk Display Configuration - Cấu hình hiển thị cho từng mức rủi ro
  */
 export const RISK_CONFIG = {

@@ -213,6 +213,34 @@ PHÂN TÍCH BẮT BUỘC VỚI MỖI Ý TƯỞNG:
 2. **user_strengths**: Điểm mạnh của user phù hợp với ý tưởng này
 3. **what_to_learn**: Kỹ năng cần bổ sung để thực hiện ý tưởng
 4. **risks**: Rủi ro hoặc lưu ý thực tế khi thực hiện ý tưởng này
+5. **required_skills**: Phân tích chi tiết kỹ năng cần thiết với mức độ ưu tiên
+
+PHAN TÍCH SKILL GAPS - CHI TIẾT VÀO:
+1. SỐ LƯỢNG: 8-10 kỹ năng cụ thể, phân bổ:
+   - 3-4 essential (bắt buộc, không có không thể khởi đầu)
+   - 3-4 important (quan trọng, ảnh hưởng lớn đến thành công)
+   - 2-3 nice_to_have (bổ trợ, tạo lợi thế cạnh tranh)
+
+2. TÊN KỸ NĂNG (skill_name) - PHẢI CỤ THỂ:
+   - TUYỆT ĐỐI KHÔNG: "Kỹ năng marketing", "Quản lý tài chính", "Kỹ năng mềm"
+   - BẮT BUỘC PHẢI CÓ: "Chạy quảng cáo Facebook/Meta cho dịch vụ F&B", "Lập kế hoạch tài chính tháng cho quán 50m2", "Xây dựng SOP vận hành quán ăn"
+   - Mỗi skill_name phải gắn với hành động cụ thể + ngữ cảnh ngành
+
+3. LÝ DO (reason) - GIẢI THÍCH RÕ:
+   - Phân tích NHƯ THẾ NÀO skill đó giúp ý tưởng thành công
+   - Nếu user thiếu hoàn toàn → ghi rõ mức độ thiếu + hậu quả
+   - Nếu user có nhưng yếu → ghi rõ cần nâng cao đến đâu
+   - Mỗi reason tối thiểu 10 từ
+
+4. LOẠI BỎ TRÙNG LẶP:
+   - So sánh với "{skills}" (kỹ năng user đã có)
+   - Nếu user đã có "Marketing" → chỉ đề xuất "Chạy ads Facebook/Meta cụ thể cho ngành X"
+   - Nếu user có "Quản lý" → đề xuất "Tuyển và đào tạo nhân viên phục vụ" (biến thể cụ thể)
+
+5. GẮN VỚI NGÀNH NGHỀ CỤ THỂ:
+   - Phân tích ngành mà ý tưởng đang hoạt động
+   - Vd: ý tưởng "Quán ăn" → kỹ năng phải gắn với F&B, ẩm thực, vận hành quán
+   - Không đề xuất kỹ năng tổng quát như "Lập trình Python" nếu không liên quan
 
 === OUTPUT FORMAT ===
 {{
@@ -236,6 +264,11 @@ PHÂN TÍCH BẮT BUỘC VỚI MỖI Ý TƯỞNG:
         "Kỹ năng cần bổ sung 1",
         "Kỹ năng cần bổ sung 2"
       ],
+      "required_skills": [
+        {{ "skill_name": "Tên kỹ năng", "priority": "essential", "reason": "Giải thích ngắn gọn tại sao cần kỹ năng này" }},
+        {{ "skill_name": "Tên kỹ năng", "priority": "important", "reason": "Giải thích ngắn gọn" }},
+        {{ "skill_name": "Tên kỹ năng", "priority": "nice_to_have", "reason": "Giải thích ngắn gọn" }}
+      ],
       "risks": [
         "Rủi ro 1",
         "Rủi ro 2"
@@ -248,6 +281,12 @@ QUAN TRỌNG:
 - startup_ideas phải là ARRAY OF OBJECTS
 - reasoning, user_strengths, what_to_learn, risks phải là arrays of strings
 - match_score phải là số từ 0.0 đến 1.0
+- required_skills phải là array of objects với 3 trường:
+  skill_name (string), priority (string), reason (string)
+- required_skills phải có 8-10 kỹ năng cụ thể (không chung chung)
+- Mỗi reason phải dài ít nhất 10 từ, giải thích rõ giá trị thực tiễn
+- skill_name phải là hành động + ngữ cảnh cụ thể, KHÔNG phải danh từ chung
+- LOẠI BỎ skill_name có từ "kỹ năng", "kiến thức", "khả năng" ở đầu
 - Mỗi ý tưởng phải có ÍT NHẤT 2 phần tử trong mỗi array"""
 
 

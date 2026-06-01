@@ -38,6 +38,7 @@ export const env = {
   // AI Service Configuration
   AI_SERVICE_HOST: process.env.AI_SERVICE_HOST || 'localhost',
   AI_SERVICE_PORT: process.env.AI_SERVICE_PORT || '8000',
+  AI_SERVICE_URL: `http://${process.env.AI_SERVICE_HOST || 'localhost'}:${process.env.AI_SERVICE_PORT || '8000'}`,
 
   // Redis Cache Configuration
   REDIS_HOST: process.env.REDIS_HOST || 'localhost',

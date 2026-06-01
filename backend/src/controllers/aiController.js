@@ -8,6 +8,7 @@ import { careerRecommendationModel } from '~/models/careerRecommendationModel'
 import { getRedis, isRedisAvailable, CACHE_KEYS } from '~/config/redis'
 import { env } from '~/config/enviroment'
 import { StatusCodes } from 'http-status-codes'
+import axios from 'axios'
 
 /**
  * Gợi ý công việc cho user
@@ -933,6 +934,102 @@ const getRAGSkillsGap = async (req, res, next) => {
   }
 }
 
+// ============================================================================
+// ESCO SKILL GAP CONTROLLERS
+// ============================================================================
+
+/**
+ * Analyze ESCO skill gaps - Proxy to AI Service
+ * POST /v1/ai/skill-gap/esco
+ */
+const analyzeEscoSkillGaps = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId || req.user?._id
+
+    if (!userId) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Không xác định được người dùng'
+      })
+    }
+
+    const { user_skills, target_occupation, age, max_gaps, career_context } = req.body
+
+    if (!user_skills || !target_occupation) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'user_skills và target_occupation là bắt buộc'
+      })
+    }
+
+    console.log(`[ESCO Skill Gap] User: ${userId}, Occupation: ${target_occupation}`)
+
+    const result = await aiService.analyzeEscoSkillGaps({
+      user_skills,
+      target_occupation,
+      age: age || 30,
+      max_gaps: max_gaps || 15,
+      career_context: career_context || null
+    })
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] analyzeEscoSkillGaps error:', error)
+    next(error)
+  }
+}
+
+/**
+ * Get ESCO skill gap service health
+ * GET /v1/ai/skill-gap/health
+ */
+const getSkillGapHealth = async (req, res, next) => {
+  try {
+    const result = await aiService.getSkillGapHealth()
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] getSkillGapHealth error:', error)
+    next(error)
+  }
+}
+
+// ============================================================================
+// FEDERATED CAREER ANALYSIS (Phase 3)
+// ============================================================================
+
+/**
+ * Federated career analysis - Proxy to AI Service
+ * POST /v1/ai/career/analyze-full
+ */
+const federatedCareerAnalysis = async (req, res, next) => {
+  try {
+    const { user_profile, options } = req.body
+
+    // AI Service URL (từ env)
+    const AI_SERVICE_URL = `http://${env.AI_SERVICE_HOST}:${env.AI_SERVICE_PORT}`
+
+    const response = await axios.post(
+      `${AI_SERVICE_URL}/api/v1/career/analyze-full`,
+      { user_profile, options },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': req.headers.authorization
+        },
+        timeout: 30000
+      }
+    )
+
+    res.json(response.data)
+  } catch (error) {
+    console.error('[AIController] federatedCareerAnalysis error:', error.message)
+    res.status(error.response?.status || 500).json({
+      success: false,
+      message: error.message || 'Federated analysis failed'
+    })
+  }
+}
+
 // Export controller functions
 export const aiController = {
   recommendJobs,
@@ -966,5 +1063,10 @@ export const aiController = {
   getRAGHealth,
   // RAG Startup & Skills Gap
   getRAGStartupSuggestions,
-  getRAGSkillsGap
+  getRAGSkillsGap,
+  // ESCO Skill Gap
+  analyzeEscoSkillGaps,
+  getSkillGapHealth,
+  // Federated Career Analysis (Phase 3)
+  federatedCareerAnalysis
 }
