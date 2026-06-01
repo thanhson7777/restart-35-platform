@@ -5,8 +5,10 @@
 
 import { aiProvider } from '~/providers/aiProvider'
 import { careerRecommendationModel } from '~/models/careerRecommendationModel'
+import { env } from '~/config/enviroment'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
+import axios from 'axios'
 
 /**
  * Lấy danh sách công việc gợi ý cho user dựa trên kỹ năng
@@ -1086,6 +1088,64 @@ const getRAGSkillsGap = async (profile) => {
   }
 }
 
+// ============================================================================
+// ESCO SKILL GAP SERVICE
+// ============================================================================
+
+/**
+ * Analyze ESCO skill gaps
+ * @param {Object} params - { user_skills, target_occupation, age, max_gaps }
+ * @returns {Promise<Object>} - Skill gap analysis
+ */
+const analyzeEscoSkillGaps = async (params) => {
+  try {
+    const { user_skills, target_occupation, age, max_gaps, career_context } = params
+
+    const response = await axios.post(
+      `${env.AI_SERVICE_URL}/api/v1/skill-gap/esco`,
+      {
+        user_skills,
+        target_occupation,
+        age: age || 30,
+        max_gaps: max_gaps || 15,
+        career_context: career_context || null
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 60000
+      }
+    )
+
+    return response.data
+  } catch (error) {
+    console.error('[AIService] analyzeEscoSkillGaps error:', error.message)
+    throw error
+  }
+}
+
+/**
+ * Get ESCO skill gap service health
+ * @returns {Promise<Object>} - Health status
+ */
+const getSkillGapHealth = async () => {
+  try {
+    console.log('[AIService] getSkillGapHealth - AI_SERVICE_URL:', env.AI_SERVICE_URL)
+    const response = await axios.get(
+      `${env.AI_SERVICE_URL}/api/v1/skill-gap/health`,
+      { timeout: 30000 }
+    )
+    console.log('[AIService] getSkillGapHealth - response:', response.data)
+    return response.data
+  } catch (error) {
+    console.error('[AIService] getSkillGapHealth error:', error.message)
+    console.error('[AIService] getSkillGapHealth error details:', error.code)
+    return {
+      status: 'unavailable',
+      message: 'Không thể kết nối đến AI Service'
+    }
+  }
+}
+
 // Export các functions
 export const aiService = {
   getRecommendedJobs,
@@ -1114,5 +1174,8 @@ export const aiService = {
   getRAGHealth,
   // RAG Startup & Skills Gap
   getRAGStartupSuggestions,
-  getRAGSkillsGap
+  getRAGSkillsGap,
+  // ESCO Skill Gap
+  analyzeEscoSkillGaps,
+  getSkillGapHealth
 }

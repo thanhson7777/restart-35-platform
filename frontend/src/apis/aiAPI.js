@@ -696,3 +696,32 @@ export const triggerStartupSuggestionAPI = async (profile, budget = '50-100 triá
   )
   return response.data
 }
+
+// =============================================================================
+// ESCO-BASED SKILL GAP ANALYSIS (Phase 4)
+// =============================================================================
+
+/**
+ * Analyze skill gaps using ESCO database
+ * POST /api/v1/skill-gap/esco
+ *
+ * @param {string[]} userSkills - User's current skills
+ * @param {string} targetOccupation - Target job title
+ * @param {number} age - User's age
+ * @param {number} maxGaps - Max number of gaps (default 15)
+ * @param {Object} careerContext - Optional context: industry, strengths, aspirations, barriers
+ * @returns {Promise<Object>} - ESCO skill gap analysis result
+ */
+export const analyzeSkillGapsFromEscoAPI = async (userSkills, targetOccupation, age = 30, maxGaps = 15, careerContext = null) => {
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/skill-gap/esco`,
+    {
+      user_skills: userSkills,
+      target_occupation: targetOccupation,
+      age: age,
+      max_gaps: maxGaps,
+      career_context: careerContext
+    }
+  )
+  return response.data
+}

@@ -17,6 +17,15 @@ export default defineConfig({
       { find: '@', replacement: path.resolve(__dirname, './src') }
     ]
   },
+  server: {
+    proxy: {
+      '/v1/ai/skill-gap': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/v1\/ai/, '/api/v1')
+      }
+    }
+  },
   test: {
     globals: true,
     environment: 'jsdom',

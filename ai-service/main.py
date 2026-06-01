@@ -115,6 +115,9 @@ from routers.career_path import router as career_path_router
 from routers.career_transition import router as career_transition_router
 from routers.career_recommendation import router as rag_recommendation_router
 from routers.esco_normalization import router as esco_router
+from routers.skill_gap import router as skill_gap_router
+from routers.career_federated import router as career_federated_router
+
 
 # Global instances
 _rag_engine = None
@@ -126,6 +129,8 @@ app.include_router(career_path_router)
 app.include_router(career_transition_router)
 app.include_router(rag_recommendation_router)
 app.include_router(esco_router)
+app.include_router(skill_gap_router)
+app.include_router(career_federated_router)
 
 
 # =============================================================================
@@ -165,6 +170,9 @@ async def startup_event():
     Startup event - Pre-load models vào memory.
     Đảm bảo Response Time < 50ms khi inference.
     """
+    global _rag_engine, _llm_client, career_service
+    career_service = None
+
     logger.info("=" * 60)
     logger.info("🚀 Restart-35 AI Service starting...")
     logger.info("=" * 60)
@@ -247,6 +255,27 @@ async def startup_event():
         from routers.career_recommendation import set_rag_engine
         set_rag_engine(rag_engine)
 
+        # Set RAG engine in career_federated router
+        from routers.career_federated import set_career_service
+        from services.career_federation import CareerAnalysisService
+
+        career_service = CareerAnalysisService()
+        career_service.set_rag_engine(rag_engine)
+        if 'llm_client' in dir() and llm_client:
+            career_service.set_llm_client(llm_client)
+
+        # Initialize and set skill gap engine
+        try:
+            from services.hybrid_skill_gap_engine import HybridSkillGapEngine
+            skill_gap_engine = HybridSkillGapEngine(use_llm=False)
+            career_service.set_skill_gap_engine(skill_gap_engine)
+            logger.info("✅ Skill Gap engine initialized for Career Federation")
+        except Exception as e:
+            logger.warning(f"⚠️ Skill Gap engine init failed: {e}")
+
+        set_career_service(career_service)
+        logger.info("✅ Career Federation Service configured with RAG engine")
+
     except Exception as e:
         logger.warning(f"⚠️ RAG initialization failed: {e}")
         logger.warning("   RAG features will be unavailable")
@@ -264,7 +293,6 @@ async def startup_event():
 
         if llm_client.available:
             logger.info(f"✅ LLM client ready (provider: {llm_client.provider})")
-            global _llm_client
             _llm_client = llm_client
 
             # Set LLM client in career_recommendation router
@@ -294,6 +322,8 @@ async def startup_event():
         logger.info("   • GET  /api/v1/ai/rag/sources     - RAG data sources")
         logger.info("   • GET  /api/v1/ai/rag/health      - RAG health check")
         logger.info("   • GET  /api/v1/ai/rag/debug/profile-test - Test with sample profile")
+    if career_service:
+        logger.info("   • POST /api/v1/career/analyze-full - Federated career analysis")
     if _llm_client:
         logger.info("   ✅ GROQ LLM integration enabled")
     logger.info("")

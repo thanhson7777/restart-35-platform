@@ -19,7 +19,8 @@ import {
   Lightbulb,
   ThumbsUp,
   BookOpen,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import {
@@ -54,8 +55,11 @@ import {
 import {
   getCachedCareerPathAPI,
   triggerCareerPathGenerationAPI,
-  invalidateCareerPathCacheAPI
+  invalidateCareerPathCacheAPI,
+  analyzeSkillGapsFromEscoAPI
 } from '@/apis/aiAPI'
+import SkillGapSection from '@/components/SkillGapSection'
+import { featureFlags } from '@/config/features'
 
 // ============================================================================
 // SUB-COMPONENTS
@@ -79,7 +83,7 @@ const UrgencyBadge = ({ urgency }) => {
   )
 }
 
-const PathCard = ({ path, type, index }) => {
+const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -165,6 +169,56 @@ const PathCard = ({ path, type, index }) => {
           </div>
         )}
 
+        {/* Skill Gaps Preview - ESCO-based */}
+        {skillGaps?.length > 0 && (() => {
+          const essential = skillGaps.filter(g => g.priority === 'essential').slice(0, 3)
+          const important = skillGaps.filter(g => g.priority === 'important').slice(0, Math.max(0, 3 - essential.length))
+          const preview = [...essential, ...important].slice(0, 3)
+          return (
+            <div className="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Target size={14} className="text-orange-600" />
+                  <p className="text-sm font-medium text-orange-800">Kỹ năng cần phát triển</p>
+                </div>
+                <span className="text-xs text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-full">
+                  {skillGaps.length} kỹ năng
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {preview.map((gap, i) => (
+                  <span
+                    key={i}
+                    className={cn(
+                      'inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium',
+                      gap.priority === 'essential'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-amber-100 text-amber-700'
+                    )}
+                  >
+                    {gap.priority === 'essential' ? (
+                      <TrendingUp size={10} />
+                    ) : (
+                      <Zap size={10} />
+                    )}
+                    {gap.skill_name}
+                  </span>
+                ))}
+              </div>
+              {skillGaps.length > 3 && onViewAllSkills && (
+                <button
+                  onClick={() => onViewAllSkills(path.job_title || path.title, skillGaps)}
+                  className="mt-2 flex items-center gap-1 text-xs text-orange-700 font-semibold hover:text-orange-900 hover:underline transition-colors"
+                >
+                  <BookOpen size={12} />
+                  Xem tất cả {skillGaps.length} kỹ năng
+                  <ArrowRight size={12} />
+                </button>
+              )}
+            </div>
+          )
+        })()}
+
         {/* What to Learn: Cần học thêm */}
         {(path.what_to_learn?.length > 0 || path.learning_path?.length > 0 || path.missing_skills?.length > 0) && (
           <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
@@ -183,6 +237,64 @@ const PathCard = ({ path, type, index }) => {
                 </span>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Required Skills: Kỹ năng bắt buộc (Federated API) */}
+        {path.required_skills?.length > 0 && (
+          <div className="bg-rose-50 rounded-lg p-3 border-l-4 border-rose-500">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle size={14} className="text-rose-600" />
+              <p className="text-sm font-medium text-rose-800">Kỹ năng bắt buộc</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {path.required_skills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-rose-100 text-rose-700 rounded text-xs"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Preferred Skills: Kỹ năng ưu tiên (Federated API) */}
+        {path.preferred_skills?.length > 0 && (
+          <div className="bg-cyan-50 rounded-lg p-3 border-l-4 border-cyan-500">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles size={14} className="text-cyan-600" />
+              <p className="text-sm font-medium text-cyan-800">Kỹ năng ưu tiên</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {path.preferred_skills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-700 rounded text-xs"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Salary & Growth: Thông tin bổ sung (Federated API) */}
+        {(path.salary_range || path.growth_outlook) && (
+          <div className="flex gap-4 text-xs text-muted-foreground">
+            {path.salary_range && (
+              <div className="flex items-center gap-1">
+                <DollarSign size={12} />
+                <span>{path.salary_range}</span>
+              </div>
+            )}
+            {path.growth_outlook && (
+              <div className="flex items-center gap-1">
+                <TrendingUp size={12} />
+                <span>{path.growth_outlook}</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -329,7 +441,7 @@ const ErrorState = ({ error, onRetry }) => (
 // STARTUP CARD COMPONENT
 // ============================================================================
 
-const StartupCard = ({ idea, index }) => {
+const StartupCard = ({ idea, index, onViewAllSkills }) => {
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -423,6 +535,56 @@ const StartupCard = ({ idea, index }) => {
             </div>
           </div>
         )}
+
+        {/* Skill Gaps Preview - Startup-specific */}
+        {idea.required_skills?.length > 0 && (() => {
+          const essential = idea.required_skills.filter(s => s.priority === 'essential').slice(0, 3)
+          const important = idea.required_skills.filter(s => s.priority === 'important').slice(0, Math.max(0, 3 - essential.length))
+          const preview = [...essential, ...important].slice(0, 3)
+          return (
+            <div className="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Target size={14} className="text-orange-600" />
+                  <p className="text-sm font-medium text-orange-800">Kỹ năng cần phát triển</p>
+                </div>
+                <span className="text-xs text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-full">
+                  {idea.required_skills.length} kỹ năng
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {preview.map((skill, i) => (
+                  <span
+                    key={i}
+                    className={cn(
+                      'inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium',
+                      skill.priority === 'essential'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-amber-100 text-amber-700'
+                    )}
+                  >
+                    {skill.priority === 'essential' ? (
+                      <TrendingUp size={10} />
+                    ) : (
+                      <Zap size={10} />
+                    )}
+                    {skill.skill_name}
+                  </span>
+                ))}
+              </div>
+              {idea.required_skills.length > 3 && onViewAllSkills && (
+                <button
+                  onClick={() => onViewAllSkills(idea.name, idea.required_skills)}
+                  className="mt-2 flex items-center gap-1 text-xs text-orange-700 font-semibold hover:text-orange-900 hover:underline transition-colors"
+                >
+                  <BookOpen size={12} />
+                  Xem tất cả {idea.required_skills.length} kỹ năng
+                  <ArrowRight size={12} />
+                </button>
+              )}
+            </div>
+          )
+        })()}
 
         {/* Risks: Lưu ý */}
         {idea.risks?.length > 0 && (
@@ -521,6 +683,19 @@ function CareerRecommendations({ className, userProfile }) {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastGenerated, setLastGenerated] = useState(null)
   const [activeTab, setActiveTab] = useState('career') // 'career' | 'skills'
+  const [selectedCareerPath, setSelectedCareerPath] = useState(null)
+  const [skillGapsMap, setSkillGapsMap] = useState(new Map())
+  const [isLoadingSkillGaps, setIsLoadingSkillGaps] = useState(false)
+
+  // Skill Gap Modal state
+  const [skillModal, setSkillModal] = useState({ isOpen: false, occupation: null, result: null })
+  const handleOpenSkillModal = (occupation, result) => setSkillModal({ isOpen: true, occupation, result })
+  const handleCloseSkillModal = () => setSkillModal({ isOpen: false, occupation: null, result: null })
+
+  // Startup Skill Gap Modal state
+  const [startupSkillModal, setStartupSkillModal] = useState({ isOpen: false, startupName: null, skills: null })
+  const handleOpenStartupSkillModal = (startupName, skills) => setStartupSkillModal({ isOpen: true, startupName, skills })
+  const handleCloseStartupSkillModal = () => setStartupSkillModal({ isOpen: false, startupName: null, skills: null })
 
   // Check if user wants to see startup suggestions
   const wantsToStartBusiness = userProfile?.aspirations?.wantsToStartBusiness || false
@@ -703,6 +878,128 @@ function CareerRecommendations({ className, userProfile }) {
     }
   }
 
+  // Fetch skill gaps from ESCO for multiple occupations (Phase 2-3)
+  const fetchSkillGapsFromEsco = async (profileData) => {
+    try {
+      // Extract user skills from employment history
+      const employmentHistory = profileData?.employmentHistory || profileData?.employment_history || []
+      const userSkills = []
+
+      for (const exp of employmentHistory) {
+        if (exp.skills && Array.isArray(exp.skills)) {
+          for (const skill of exp.skills) {
+            if (typeof skill === 'string') {
+              userSkills.push(skill)
+            } else if (skill?.name) {
+              userSkills.push(skill.name)
+            } else if (skill?.titleVi) {
+              userSkills.push(skill.titleVi)
+            } else if (skill?.titleEn) {
+              userSkills.push(skill.titleEn)
+            }
+          }
+        }
+      }
+
+      if (userSkills.length === 0) {
+        console.log('[SkillGaps] No user skills found in profile')
+        return
+      }
+
+      // Extract unique occupations from all 3 RAG sources + startup
+      const occupationSet = new Set()
+
+      // From bestFits
+      bestFits.forEach(f => {
+        const title = f.job_title || f.title || ''
+        if (title) occupationSet.add(title)
+      })
+
+      // From incomeBoost
+      incomeBoost.forEach(f => {
+        const title = f.job_title || f.title || ''
+        if (title) occupationSet.add(title)
+      })
+
+      // From progression
+      progression.forEach(f => {
+        const title = f.job_title || f.title || ''
+        if (title) occupationSet.add(title)
+      })
+
+      // From startupIdeas
+      startupIdeas.forEach(s => {
+        const title = s.job_title || ''
+        if (title) occupationSet.add(title)
+      })
+
+      // From employment history (fallback)
+      if (employmentHistory.length > 0) {
+        const empOcc = employmentHistory[0].occupation?.titleVi
+          || employmentHistory[0].occupation?.titleEn
+          || employmentHistory[0].role
+          || employmentHistory[0].jobTitle
+          || employmentHistory[0].position
+          || ''
+        if (empOcc) occupationSet.add(empOcc)
+      }
+
+      const occupations = Array.from(occupationSet).slice(0, 8) // max 8 occupations
+
+      if (occupations.length === 0) {
+        console.log('[SkillGaps] No occupations found to analyze')
+        return
+      }
+
+      const age = profileData?.basicInfo?.age || profileData?.age || 30
+
+      // Build career context
+      const careerContext = {
+        industry: profileData?.basicInfo?.industry || profileData?.industry || '',
+        userStrengths: profileData?.strengths || [],
+        aspirations: profileData?.aspirations || {},
+        barriers: {
+          age,
+          ...(profileData?.barriers || {})
+        }
+      }
+
+      setIsLoadingSkillGaps(true)
+      console.log(`[SkillGaps] Analyzing ${occupations.length} occupations:`, occupations)
+
+      // Call ESCO analysis for ALL occupations in parallel
+      const results = await Promise.all(
+        occupations.map(occ =>
+          analyzeSkillGapsFromEscoAPI(
+            userSkills,
+            occ,
+            age,
+            15,
+            careerContext
+          ).catch(err => {
+            console.warn(`[SkillGaps] Failed for ${occ}:`, err.message)
+            return null
+          })
+        )
+      )
+
+      // Build Map: occupation -> result
+      const newMap = new Map()
+      results.forEach((result, idx) => {
+        if (result?.success) {
+          newMap.set(occupations[idx], result)
+        }
+      })
+
+      setSkillGapsMap(newMap)
+      console.log(`[SkillGaps] Loaded gaps for ${newMap.size} occupations`)
+    } catch (err) {
+      console.warn('[SkillGaps] ESCO analysis failed:', err.message)
+    } finally {
+      setIsLoadingSkillGaps(false)
+    }
+  }
+
   // Manual refresh
   const handleRefresh = async () => {
     try {
@@ -765,7 +1062,19 @@ function CareerRecommendations({ className, userProfile }) {
       const profile = buildProfileData(profileData)
       dispatch(triggerStartupSuggestion({ profile }))
     }
-  }, [activeTab, isLoggedIn, wantsToStartBusiness, startupIdeas.length, userProfile])
+  }, [activeTab, isLoggedIn, wantsToStartBusiness, startupIdeas.length, userProfile, dispatch])
+
+  // Trigger ESCO skill gaps AFTER bestFits is populated
+  const hasFetchedSkillGaps = useRef(false)
+  useEffect(() => {
+    if (bestFits.length > 0 && !hasFetchedSkillGaps.current) {
+      hasFetchedSkillGaps.current = true
+      const profileData = userProfile || careerPath?.user_profile
+      if (profileData) {
+        fetchSkillGapsFromEsco(profileData)
+      }
+    }
+  }, [bestFits.length, userProfile, careerPath])
 
   const handleRetry = () => {
     // Reset flags for retry based on current tab
@@ -890,9 +1199,20 @@ function CareerRecommendations({ className, userProfile }) {
                 count={bestFits.length}
               />
               <div className="space-y-3">
-                {bestFits.map((path, index) => (
-                  <PathCard key={`best-fit-${index}`} path={path} type="best_fit" index={index} />
-                ))}
+                {bestFits.map((path, index) => {
+                  const occKey = path.job_title || path.title
+                  const gaps = skillGapsMap.get(occKey)?.skill_gaps || []
+                  return (
+                    <PathCard
+                      key={`best-fit-${index}`}
+                      path={path}
+                      type="best_fit"
+                      index={index}
+                      skillGaps={gaps}
+                      onViewAllSkills={handleOpenSkillModal}
+                    />
+                  )
+                })}
               </div>
             </div>
           )}
@@ -907,9 +1227,20 @@ function CareerRecommendations({ className, userProfile }) {
                 count={incomeBoost.length}
               />
               <div className="space-y-3">
-                {incomeBoost.map((path, index) => (
-                  <PathCard key={`income-${index}`} path={path} type="income_boost" index={index} />
-                ))}
+                {incomeBoost.map((path, index) => {
+                  const occKey = path.job_title || path.title
+                  const gaps = skillGapsMap.get(occKey)?.skill_gaps || []
+                  return (
+                    <PathCard
+                      key={`income-${index}`}
+                      path={path}
+                      type="income_boost"
+                      index={index}
+                      skillGaps={gaps}
+                      onViewAllSkills={handleOpenSkillModal}
+                    />
+                  )
+                })}
               </div>
             </div>
           )}
@@ -924,9 +1255,20 @@ function CareerRecommendations({ className, userProfile }) {
                 count={progression.length}
               />
               <div className="space-y-3">
-                {progression.map((path, index) => (
-                  <PathCard key={`progression-${index}`} path={path} type="progression" index={index} />
-                ))}
+                {progression.map((path, index) => {
+                  const occKey = path.job_title || path.title
+                  const gaps = skillGapsMap.get(occKey)?.skill_gaps || []
+                  return (
+                    <PathCard
+                      key={`progression-${index}`}
+                      path={path}
+                      type="progression"
+                      index={index}
+                      skillGaps={gaps}
+                      onViewAllSkills={handleOpenSkillModal}
+                    />
+                  )
+                })}
               </div>
             </div>
           )}
@@ -947,7 +1289,7 @@ function CareerRecommendations({ className, userProfile }) {
               ) : startupIdeas.length > 0 ? (
                 <div className="space-y-3">
                   {startupIdeas.map((idea, i) => (
-                    <StartupCard key={`startup-${i}`} idea={idea} index={i} />
+                    <StartupCard key={`startup-${i}`} idea={idea} index={i} onViewAllSkills={handleOpenStartupSkillModal} />
                   ))}
                 </div>
               ) : (
@@ -970,7 +1312,94 @@ function CareerRecommendations({ className, userProfile }) {
         </div>
       )}
 
+      {/* Skill Gap Modal */}
+      {skillModal.isOpen && skillModal.occupation && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            onClick={handleCloseSkillModal}
+          />
+          {/* Modal */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="relative bg-background rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+              {/* Header */}
+              <div className="shrink-0 p-5 border-b bg-orange-50">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Target size={18} className="text-orange-600" />
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        Kỹ năng cần phát triển
+                      </h2>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Vị trí: <span className="font-medium text-gray-900">{skillModal.occupation}</span>
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleCloseSkillModal}
+                    className="shrink-0 p-2 rounded-lg hover:bg-orange-100 transition-colors"
+                  >
+                    <X size={18} className="text-gray-500" />
+                  </button>
+                </div>
+              </div>
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto p-5">
+                <SkillGapSection
+                  occupation={skillModal.occupation}
+                  result={{ skill_gaps: skillModal.result }}
+                  showFilters={true}
+                  showTrending={false}
+                  showSoftSkills={false}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Refresh button */}
+      {/* Startup Skill Gap Modal */}
+      {startupSkillModal.isOpen && startupSkillModal.startupName && (
+        <>
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" onClick={handleCloseStartupSkillModal} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="relative bg-background rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+              <div className="shrink-0 p-5 border-b bg-orange-50">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Target size={18} className="text-orange-600" />
+                      <h2 className="text-lg font-semibold text-gray-900">Kỹ năng cần phát triển</h2>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Y tuong: <span className="font-medium text-gray-900">{startupSkillModal.startupName}</span>
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleCloseStartupSkillModal}
+                    className="shrink-0 p-2 rounded-lg hover:bg-orange-100 transition-colors"
+                  >
+                    <X size={18} className="text-gray-500" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto p-5">
+                <SkillGapSection
+                  occupation={startupSkillModal.startupName}
+                  result={{ skill_gaps: startupSkillModal.skills }}
+                  showFilters={true}
+                  showTrending={false}
+                  showSoftSkills={false}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       <div className="flex justify-center pt-4 border-t border-border">
         <button
           onClick={handleRefresh}

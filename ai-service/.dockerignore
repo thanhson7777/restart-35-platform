@@ -1,0 +1,75 @@
+# Docker ignore file
+# Files and directories to exclude from Docker build context
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Virtual environments
+venv/
+env/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+docs/
+*.md
+!requirements.txt
+
+# Data files (large, should be mounted or built differently)
+data/
+*.npy
+*.npz
+*.pkl
+*.joblib
+*.sqlite
+*.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local development
+.env.local
+.env.development
+*.local
+
+# Credentials
+credentials.json
+secrets/

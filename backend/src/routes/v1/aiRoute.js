@@ -298,4 +298,43 @@ Router.post(
   aiController.getRAGSkillsGap
 )
 
+// ============================================================================
+// ESCO SKILL GAP ROUTES
+// ============================================================================
+
+/**
+ * @route   POST /v1/ai/skill-gap/esco
+ * @desc    Get ESCO-based skill gap analysis
+ * @access  Private
+ * @body    { user_skills: string[], target_occupation: string, age: number, max_gaps: number }
+ */
+Router.post(
+  '/skill-gap/esco',
+  authMiddleware.isAuthorized,
+  aiController.analyzeEscoSkillGaps
+)
+
+/**
+ * @route   GET /v1/ai/skill-gap/health
+ * @desc    Get ESCO skill gap service health
+ * @access  Public
+ */
+Router.get('/skill-gap/health', aiController.getSkillGapHealth)
+
+// ============================================================================
+// FEDERATED CAREER ANALYSIS ROUTES (Phase 3)
+// ============================================================================
+
+/**
+ * @route   POST /v1/ai/career/analyze-full
+ * @desc    Federated career analysis (RAG + Skill Gap combined)
+ * @access  Private
+ * @body    { user_profile: {...}, options: {...} }
+ */
+Router.post(
+  '/career/analyze-full',
+  authMiddleware.isAuthorized,
+  aiController.federatedCareerAnalysis
+)
+
 export const aiRoute = Router

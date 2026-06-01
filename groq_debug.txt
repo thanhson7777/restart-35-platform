@@ -1,0 +1,20 @@
+{
+  "trending_skills": [
+    {"name": "Tự động hóa quy trình sản xuất", "reason": "Công nghệ tự động hóa giúp tăng hiệu suất và giảm thiểu sai sót trong quá trình phun bi"},
+    {"name": "Quản lý và phân tích dữ liệu sản xuất", "reason": "Kỹ năng phân tích dữ liệu giúp công nhân phun bi tối ưu hóa quy trình sản xuất và cải thiện chất lượng sản phẩm"},
+    {"name": "An toàn lao động và quản lý rủi ro", "reason": "Kỹ năng này giúp công nhân phun bi nhận biết và giảm thiểu rủi ro trong quá trình làm việc"},
+    {"name": "Sử dụng máy móc và thiết bị hiện đại", "reason": "Kỹ năng này giúp công nhân phun bi vận hành máy móc và thiết bị một cách hiệu quả"},
+    {"name": "Kiểm soát chất lượng sản phẩm", "reason": "Kỹ năng này giúp công nhân phun bi đảm bảo chất lượng sản phẩm và giảm thiểu sai sót"}
+  ],
+  "soft_skills": [
+    {"name": "Giao tiếp hiệu quả", "reason": "Kỹ năng giao tiếp giúp công nhân phun bi phối hợp với đồng nghiệp và quản lý một cách hiệu quả"},
+    {"name": "Quản lý thời gian và tổ chức công việc", "reason": "Kỹ năng này giúp công nhân phun bi hoàn thành công việc đúng hạn và đạt hiệu suất cao"},
+    {"name": "Giải quyết vấn đề và sáng tạo", "reason": "Kỹ năng này giúp công nhân phun bi giải quyết vấn đề phát sinh trong quá trình làm việc và tìm ra giải pháp sáng tạo"},
+    {"name": "Làm việc độc lập và theo nhóm", "reason": "Kỹ năng này giúp công nhân phun bi làm việc hiệu quả trong môi trường độc lập và theo nhóm"},
+    {"name": "Học hỏi và thích nghi với công nghệ mới", "reason": "Kỹ năng này giúp công nhân phun bi cập nhật kiến thức và kỹ năng mới để đáp ứng yêu cầu của công việc"}
+  ],
+  "reasoning": [
+    "Công việc của công nhân phun bi đòi hỏi sự kết hợp giữa kỹ năng kỹ thuật và kỹ năng mềm để đảm bảo chất lượng sản phẩm và an toàn lao động",
+    "Người trên 35 tuổi chuyển nghề sang vị trí này cần có kỹ năng mềm để thích nghi với môi trường làm việc mới và kỹ năng kỹ thuật để vận hành máy móc và thiết bị hiện đại"
+  ]
+}
