@@ -1,7 +1,10 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { COURSE_STATUS, COURSE_LEVELS, DURATION_UNITS, LOCATION_TYPES } from '~/utils/constants'
+import {
+  COURSE_STATUS, COURSE_LEVELS, DURATION_UNITS, LOCATION_TYPES,
+  COURSE_DELIVERY_TYPES, COURSE_FUNDING_MODELS
+} from '~/utils/constants'
 
 const COURSE_COLLECTION_NAME = 'courses'
 const COURSE_COLLECTION_SCHEMA = Joi.object({
@@ -25,6 +28,13 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
     address: Joi.string().allow(null, ''),
     link: Joi.string().uri().allow(null, '')
   }),
+  // Hinh thuc giao duc & mo hinh tai chinh
+  delivery_type: Joi.string()
+    .valid(...Object.values(COURSE_DELIVERY_TYPES))
+    .default(COURSE_DELIVERY_TYPES.VIDEO),
+  funding_model: Joi.string()
+    .valid(...Object.values(COURSE_FUNDING_MODELS))
+    .default(COURSE_FUNDING_MODELS.FREE),
   // Hoc phi
   fee: Joi.number().min(0).default(0),
   isFree: Joi.boolean().default(false),
@@ -215,6 +225,12 @@ const searchCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, so
     }
     if (filters.skill) {
       matchStage.skills = { $in: [new RegExp(filters.skill, 'i')] }
+    }
+    if (filters.delivery_type) {
+      matchStage.delivery_type = filters.delivery_type
+    }
+    if (filters.funding_model) {
+      matchStage.funding_model = filters.funding_model
     }
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(matchStage)
@@ -560,6 +576,12 @@ const getAdminCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, 
     if (filters.isFree !== undefined) {
       matchStage.isFree = filters.isFree
     }
+    if (filters.delivery_type) {
+      matchStage.delivery_type = filters.delivery_type
+    }
+    if (filters.funding_model) {
+      matchStage.funding_model = filters.funding_model
+    }
 
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(matchStage)
@@ -567,9 +589,9 @@ const getAdminCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, 
       .skip(skip)
       .limit(limit)
       .toArray()
-    
+
     const totalCourses = await GET_DB().collection(COURSE_COLLECTION_NAME).countDocuments(matchStage)
-    
+
     return { courses, totalCourses }
   } catch (error) {
     throw new Error(error.message)
@@ -582,6 +604,8 @@ export const courseModel = {
   COURSE_LEVELS,
   DURATION_UNITS,
   LOCATION_TYPES,
+  COURSE_DELIVERY_TYPES,
+  COURSE_FUNDING_MODELS,
   // Create
   createNew,
   // Read

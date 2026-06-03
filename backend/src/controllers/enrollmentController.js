@@ -253,18 +253,90 @@ const exportEnrollments = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ============ DROP ENROLLMENT (Worker tự bỏ) ============
+const dropEnrollment = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id.toString()
+    const { id } = req.params
+    const { dropReason } = req.body
+
+    const enrollment = await enrollmentService.dropEnrollment(id, userId, dropReason)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã hủy đăng ký khóa học thành công!',
+      data: enrollment
+    })
+  } catch (error) { next(error) }
+}
+
+// ============ SUSPEND ENROLLMENT (Trainer/Admin) ============
+const suspendEnrollment = async (req, res, next) => {
+  try {
+    const trainerId = req.jwtDecoded._id.toString()
+    const { id } = req.params
+    const { reason } = req.body
+
+    const enrollment = await enrollmentService.suspendEnrollment(id, trainerId, reason)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã tạm ngưng đăng ký khóa học!',
+      data: enrollment
+    })
+  } catch (error) { next(error) }
+}
+
+// ============ COMPLETE ENROLLMENT (Trainer/Admin) ============
+const completeEnrollment = async (req, res, next) => {
+  try {
+    const trainerId = req.jwtDecoded._id.toString()
+    const { id } = req.params
+    const { score, notes } = req.body
+
+    const enrollment = await enrollmentService.completeEnrollment(id, trainerId, { score, notes })
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã hoàn thành đăng ký khóa học!',
+      data: enrollment
+    })
+  } catch (error) { next(error) }
+}
+
+// ============ FAIL ENROLLMENT (Trainer/Admin) ============
+const failEnrollment = async (req, res, next) => {
+  try {
+    const trainerId = req.jwtDecoded._id.toString()
+    const { id } = req.params
+    const { reason } = req.body
+
+    const enrollment = await enrollmentService.failEnrollment(id, trainerId, reason)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã đánh dấu học viên không đạt khóa học!',
+      data: enrollment
+    })
+  } catch (error) { next(error) }
+}
+
 export const enrollmentController = {
   // Worker
   enrollCourse,
   getMyEnrollments,
   getEnrollmentById,
   cancelEnrollment,
+  dropEnrollment,
 
   // Trainer
   updateProgress,
   updateStatus,
   getCourseEnrollments,
   getEnrollmentStats,
+  suspendEnrollment,
+  completeEnrollment,
+  failEnrollment,
 
   // Admin
   getAllEnrollments,

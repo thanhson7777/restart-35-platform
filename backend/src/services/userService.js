@@ -179,13 +179,13 @@ const update = async (userId, reqBody, reqFile) => {
   } catch (error) { throw error }
 }
 
-const getAdminUsers = async ({ page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE, role, isActive }) => {
+const getAdminUsers = async ({ page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE, role, isActive, organizationId }) => {
   try {
     const currentPage = parseInt(page, 10) || DEFAULT_PAGE
     const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
     const skip = (currentPage - 1) * recordLimit
 
-    let matchCondition = {}
+    let matchCondition = { _destroy: false }
 
     if (role && role !== 'ALL') {
       matchCondition.role = role
@@ -193,6 +193,14 @@ const getAdminUsers = async ({ page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAG
 
     if (isActive !== undefined && isActive !== 'ALL') {
       matchCondition.isActive = isActive === 'true'
+    }
+
+    if (organizationId) {
+      if (organizationId === 'null' || organizationId === 'none') {
+        matchCondition.organizationId = null
+      } else {
+        matchCondition.organizationId = organizationId
+      }
     }
 
     const { users, totalUsers } = await userModel.getUsers(matchCondition, skip, recordLimit)
@@ -268,6 +276,28 @@ const getUserStats = async () => {
   }
 }
 
+const updateOrganizationId = async (userId, organizationId) => {
+  try {
+    const existUser = await userModel.findOneById(userId)
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản không tồn tại!')
+
+    const updateData = {}
+    if (organizationId === null || organizationId === '' || organizationId === undefined) {
+      updateData.organizationId = null
+    } else {
+      const { organizationModel } = await import('~/models/organizationModel')
+      const org = await organizationModel.findOneById(organizationId)
+      if (!org) throw new ApiError(StatusCodes.NOT_FOUND, 'Tổ chức không tồn tại!')
+      updateData.organizationId = organizationId
+    }
+
+    const updatedUser = await userModel.update(userId, updateData)
+    return updatedUser
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
   createNew,
   verifyAccount,
@@ -278,5 +308,6 @@ export const userService = {
   updateUserStatus,
   changePassword,
   getMe,
-  getUserStats
+  getUserStats,
+  updateOrganizationId
 }

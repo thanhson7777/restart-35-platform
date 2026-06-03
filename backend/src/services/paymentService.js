@@ -1,0 +1,287 @@
+import { paymentModel } from '~/models/paymentModel'
+import { enrollmentModel } from '~/models/enrollmentModel'
+import { courseModel } from '~/models/courseModel'
+import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
+import {
+  DEFAULT_PAGE,
+  DEFAULT_ITEM_PER_PAGE,
+  PAYMENT_STATUS,
+  ENROLLMENT_PAYMENT_STATUS
+} from '~/utils/constants'
+
+// ============ CREATE ============
+const createPayment = async (userId, data) => {
+  try {
+    const { enrollmentId, courseId, method, amount, installments } = data
+
+    const enrollment = await enrollmentModel.findOneById(enrollmentId)
+    if (!enrollment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+    }
+
+    if (enrollment.userId.toString() !== userId.toString()) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền thanh toán đăng ký này!')
+    }
+
+    const course = await courseModel.findOneById(courseId)
+    if (!course) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Khóa học không tồn tại!')
+    }
+
+    const paymentData = {
+      enrollmentId,
+      userId,
+      courseId,
+      method,
+      amount,
+      status: PAYMENT_STATUS.PENDING,
+      installments: installments || []
+    }
+
+    const result = await paymentModel.createNew(paymentData)
+    const payment = await paymentModel.findOneById(result.insertedId)
+
+    return payment
+  } catch (error) {
+    throw error
+  }
+}
+
+// ============ READ ============
+const getPayments = async (query) => {
+  try {
+    const {
+      page = DEFAULT_PAGE,
+      item_per_page = DEFAULT_ITEM_PER_PAGE,
+      enrollmentId,
+      userId,
+      status
+    } = query
+
+    const skip = (page - 1) * item_per_page
+    const limit = parseInt(item_per_page)
+
+    const matchCondition = { _destroy: false }
+
+    if (enrollmentId) matchCondition.enrollmentId = enrollmentId
+    if (userId) matchCondition.userId = userId
+    if (status) matchCondition.status = status
+
+    const result = await paymentModel.findByPaginate(matchCondition, skip, limit)
+
+    return {
+      payments: result.payments,
+      pagination: {
+        page: parseInt(page),
+        item_per_page: limit,
+        total: result.total,
+        total_pages: Math.ceil(result.total / limit)
+      }
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+const getPaymentById = async (id) => {
+  try {
+    const payment = await paymentModel.findOneById(id)
+    if (!payment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Thanh toán không tồn tại!')
+    }
+    return payment
+  }
+  catch (error) {
+    throw error
+  }
+}
+
+const getMyPayments = async (userId, query) => {
+  try {
+    const {
+      page = DEFAULT_PAGE,
+      item_per_page = DEFAULT_ITEM_PER_PAGE,
+      status
+    } = query
+
+    const skip = (page - 1) * item_per_page
+    const limit = parseInt(item_per_page)
+
+    const matchCondition = { userId, _destroy: false }
+    if (status) matchCondition.status = status
+
+    const result = await paymentModel.findByPaginate(matchCondition, skip, limit)
+
+    return {
+      payments: result.payments,
+      pagination: {
+        page: parseInt(page),
+        item_per_page: limit,
+        total: result.total,
+        total_pages: Math.ceil(result.total / limit)
+      }
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+// ============ UPDATE ============
+const updatePaymentStatus = async (id, status, transactionId) => {
+  try {
+    const payment = await paymentModel.findOneById(id)
+    if (!payment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Thanh toán không tồn tại!')
+    }
+
+    const updated = await paymentModel.updateStatus(id, status, transactionId)
+
+    // Auto-update enrollment.payment_status
+    if (status === PAYMENT_STATUS.COMPLETED) {
+      await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
+    } else if (status === PAYMENT_STATUS.REFUNDED) {
+      await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PENDING)
+    }
+
+    return updated
+  } catch (error) {
+    throw error
+  }
+}
+
+const refundPayment = async (id, reason) => {
+  try {
+    const payment = await paymentModel.findOneById(id)
+    if (!payment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Thanh toán không tồn tại!')
+    }
+
+    if (payment.status !== PAYMENT_STATUS.COMPLETED) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Chỉ có thể hoàn tiền thanh toán đã hoàn tất!')
+    }
+
+    const updated = await paymentModel.updateStatus(id, PAYMENT_STATUS.REFUNDED, null)
+
+    await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PENDING)
+
+    return updated
+  } catch (error) {
+    throw error
+  }
+}
+
+// ============ INVOICE ============
+const generateInvoice = async (id) => {
+  try {
+    const payment = await paymentModel.findOneById(id)
+    if (!payment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Thanh toán không tồn tại!')
+    }
+
+    const course = await courseModel.findOneById(payment.courseId)
+
+    const invoiceNumber = `INV-${Date.now()}-${payment._id.toString().slice(-6).toUpperCase()}`
+    const taxAmount = Math.round(payment.amount * 0.1)
+    const totalAmount = payment.amount + taxAmount
+
+    const invoiceData = {
+      invoiceNumber,
+      issuedDate: Date.now(),
+      taxAmount,
+      totalAmount
+    }
+
+    const updated = await paymentModel.updateInvoice(id, invoiceData)
+
+    return {
+      invoice: updated.invoice,
+      payment: {
+        _id: updated._id,
+        amount: updated.amount,
+        method: updated.method,
+        status: updated.status
+      },
+      course: course ? {
+        title: course.title,
+        duration: course.duration
+      } : null
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+// ============ STATS ============
+const getPaymentStats = async (courseId) => {
+  try {
+    const db = await (await import('~/config/mongodb')).GET_DB()
+    const pipeline = [
+      { $match: { courseId, _destroy: false } },
+      {
+        $group: {
+          _id: '$status',
+          totalAmount: { $sum: '$amount' },
+          count: { $sum: 1 }
+        }
+      }
+    ]
+    const result = await db.collection('payments').aggregate(pipeline).toArray()
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+// ============ WEBHOOK ============
+const webhookHandler = async (gateway, payload) => {
+  try {
+    let status
+    let transactionId
+
+    switch (gateway) {
+      case 'momo':
+        if (payload.resultCode !== 0) {
+          status = PAYMENT_STATUS.FAILED
+        } else {
+          status = PAYMENT_STATUS.COMPLETED
+          transactionId = payload.transId
+        }
+        break
+      case 'vnpay':
+        if (payload.vnp_ResponseCode !== '00') {
+          status = PAYMENT_STATUS.FAILED
+        } else {
+          status = PAYMENT_STATUS.COMPLETED
+          transactionId = payload.vnp_TransactionNo
+        }
+        break
+      case 'zalopay':
+        if (payload.returnCode !== 1) {
+          status = PAYMENT_STATUS.FAILED
+        } else {
+          status = PAYMENT_STATUS.COMPLETED
+          transactionId = payload.transId
+        }
+        break
+      default:
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Gateway không hỗ trợ')
+    }
+
+    return { status, transactionId }
+  } catch (error) {
+    throw error
+  }
+}
+
+export const paymentService = {
+  createPayment,
+  getPayments,
+  getPaymentById,
+  getMyPayments,
+  updatePaymentStatus,
+  refundPayment,
+  generateInvoice,
+  getPaymentStats,
+  webhookHandler
+}

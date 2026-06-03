@@ -103,8 +103,8 @@ const update = async (req, res, next) => {
 
 const getUsers = async (req, res, next) => {
   try {
-    const { page, limit, role, isActive } = req.query
-    const result = await userService.getAdminUsers({ page, limit, role, isActive })
+    const { page, limit, role, isActive, organizationId } = req.query
+    const result = await userService.getAdminUsers({ page, limit, role, isActive, organizationId })
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -163,6 +163,22 @@ const changePassword = async (req, res, next) => {
   }
 }
 
+const updateOrganizationId = async (req, res, next) => {
+  try {
+    const userId = req.params.id
+    const { organizationId } = req.body
+    const result = await userService.updateOrganizationId(userId, organizationId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Cập nhật tổ chức người dùng thành công!',
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 const getUserStats = async (req, res, next) => {
   try {
     const stats = await userService.getUserStats()
@@ -188,5 +204,6 @@ export const userController = {
   updateUserStatus,
   changePassword,
   getMe,
-  getUserStats
+  getUserStats,
+  updateOrganizationId
 }
