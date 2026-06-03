@@ -52,7 +52,7 @@ const findOneById = async (id) => {
   try {
     const result = await GET_DB().collection(FUNDING_CONFIG_COLLECTION_NAME).findOne({
       _id: new ObjectId(String(id)),
-      _destroy: false
+      _destroy: { $ne: true }
     })
     return result
   } catch (error) {
@@ -64,7 +64,7 @@ const findByCourse = async (courseId) => {
   try {
     const result = await GET_DB().collection(FUNDING_CONFIG_COLLECTION_NAME).findOne({
       courseId: String(courseId),
-      _destroy: false
+      _destroy: { $ne: true }
     })
     return result
   } catch (error) {
@@ -93,7 +93,7 @@ const findByPaginate = async (matchCondition, skip, limit) => {
 const update = async (id, updateData) => {
   try {
     const result = await GET_DB().collection(FUNDING_CONFIG_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       { $set: { ...updateData, updatedAt: Date.now() } },
       { returnDocument: 'after', projection: { _destroy: 0 } }
     )
@@ -106,7 +106,7 @@ const update = async (id, updateData) => {
 const updateByCourse = async (courseId, updateData) => {
   try {
     const result = await GET_DB().collection(FUNDING_CONFIG_COLLECTION_NAME).findOneAndUpdate(
-      { courseId: String(courseId), _destroy: false },
+      { courseId: String(courseId), _destroy: { $ne: true } },
       { $set: { ...updateData, updatedAt: Date.now() } },
       { returnDocument: 'after', projection: { _destroy: 0 } }
     )
@@ -119,7 +119,7 @@ const updateByCourse = async (courseId, updateData) => {
 const softDelete = async (id) => {
   try {
     const result = await GET_DB().collection(FUNDING_CONFIG_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       { $set: { _destroy: true, updatedAt: Date.now() } },
       { returnDocument: 'after' }
     )
@@ -132,7 +132,7 @@ const softDelete = async (id) => {
 const softDeleteByCourse = async (courseId) => {
   try {
     const result = await GET_DB().collection(FUNDING_CONFIG_COLLECTION_NAME).findOneAndUpdate(
-      { courseId: String(courseId), _destroy: false },
+      { courseId: String(courseId), _destroy: { $ne: true } },
       { $set: { _destroy: true, updatedAt: Date.now() } },
       { returnDocument: 'after' }
     )

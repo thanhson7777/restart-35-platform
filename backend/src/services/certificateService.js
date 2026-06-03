@@ -1,10 +1,14 @@
 import { certificateModel } from '~/models/certificateModel'
 import { enrollmentModel } from '~/models/enrollmentModel'
+import { userModel } from '~/models/userModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
+import { BrevoProvider } from '~/providers/BrevoProvider'
 import {
   DEFAULT_PAGE,
-  DEFAULT_ITEM_PER_PAGE
+  DEFAULT_ITEM_PER_PAGE,
+  CERTIFICATE_TYPES,
+  WEBSITE_DOMAIN
 } from '~/utils/constants'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -53,7 +57,17 @@ const createCertificate = async (adminId, data) => {
     }
 
     const result = await certificateModel.createNew(certificateData)
-    const certificate = { _id: result.insertedId, ...certificateData }
+    const certificate = { _id: result.insertedId, ...certificateData, issuedDate: new Date() }
+
+    // Send email notification to user
+    try {
+      const user = await userModel.findOneById(enrollment.userId)
+      if (user?.email) {
+        await sendCertificateIssuedEmail(certificate, enrollment, user.email, user.displayName || user.username)
+      }
+    } catch (emailError) {
+      console.error('Failed to send certificate email:', emailError.message)
+    }
 
     return certificate
   } catch (error) {
@@ -225,10 +239,135 @@ const revokeCertificate = async (id, adminId) => {
   }
 }
 
+// ============ SEND CERTIFICATE ISSUED EMAIL ============
+const sendCertificateIssuedEmail = async (certificate, enrollment, userEmail, userName) => {
+  const verificationLink = `${WEBSITE_DOMAIN}/certificates/verify/${certificate.verificationCode}`
+  const courseName = enrollment?.courseId?.title || 'Khóa học đã hoàn thành'
+  const issuedDate = new Date(certificate.issuedDate).toLocaleDateString('vi-VN')
+
+  const htmlContent = `
+    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.8; color: #333333; max-width: 600px; margin: 0 auto; border: 1px solid #eaeaea; overflow: hidden; background-color: #ffffff;">
+      <div style="background-color: #059669; padding: 35px 20px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-family: 'Arial', sans-serif; letter-spacing: 2px; text-transform: uppercase;">
+          Restart-35
+        </h1>
+        <p style="color: #a7f3d0; margin: 10px 0 0 0; font-size: 14px;">Nền tảng hỗ trợ tái hòa nhập và lập nghiệp</p>
+      </div>
+      <div style="padding: 50px 30px; background-color: #ffffff; text-align: center;">
+        <h2 style="color: #059669; margin-top: 0; font-size: 22px;">
+          Chuc mung ban da hoan thanh khoa hoc!
+        </h2>
+        <p style="font-size: 15px; color: #555555; margin-bottom: 25px;">Kính chào <strong>${userName || 'bạn'}</strong>,</p>
+        <p style="font-size: 15px; color: #555555;">
+          Chúc mừng bạn đã hoàn thành khóa học <strong>${courseName}</strong>.
+          Chứng chỉ của bạn đã được cấp và sẵn sàng sử dụng.
+        </p>
+
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 24px; margin: 30px 0; text-align: left;">
+          <p style="margin: 0 0 12px 0; font-size: 14px; color: #555555;"><strong>Thông tin chứng chỉ:</strong></p>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 6px 0; font-size: 14px; color: #555555;">Mã chứng chỉ:</td>
+              <td style="padding: 6px 0; font-size: 14px; font-weight: bold; color: #059669; text-align: right;">${certificate.certificateNumber}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-size: 14px; color: #555555;">Ngày cấp:</td>
+              <td style="padding: 6px 0; font-size: 14px; font-weight: bold; text-align: right;">${issuedDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-size: 14px; color: #555555;">Điểm số:</td>
+              <td style="padding: 6px 0; font-size: 14px; font-weight: bold; text-align: right;">${certificate.score !== null ? `${certificate.score}/100` : 'N/A'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-size: 14px; color: #555555;">Mã xác thực:</td>
+              <td style="padding: 6px 0; font-size: 14px; font-weight: bold; text-align: right; color: #059669;">${certificate.verificationCode}</td>
+            </tr>
+          </table>
+        </div>
+
+        <p style="font-size: 15px; color: #555555; margin-bottom: 20px;">
+          Xác thực chứng chỉ của bạn tại đây:
+        </p>
+        <a href="${verificationLink}" style="display: inline-block; background-color: #059669; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px;">
+          Xem &amp; Xác thực chứng chỉ
+        </a>
+        <p style="font-size: 12px; color: #999999; margin-top: 20px;">
+          Hoặc copy link: ${verificationLink}
+        </p>
+      </div>
+      <div style="background-color: #f9f9f9; padding: 20px 30px; text-align: center; border-top: 1px solid #eaeaea;">
+        <p style="margin: 0; font-size: 12px; color: #999999;">
+          Email này được gửi tự động từ Restart-35. Vui lòng không reply.
+        </p>
+      </div>
+    </div>
+  `
+
+  const subject = `Chuc mung ban da hoan thanh khoa hoc ${courseName}!`
+  await BrevoProvider.sendEmail(userEmail, subject, htmlContent)
+}
+
+// ============ AUTO CREATE CERTIFICATE FOR ENROLLMENT ============
+// Called automatically when enrollment is completed
+const createCertificateForEnrollment = async (enrollmentId, issuedBy = null) => {
+  try {
+    const enrollment = await enrollmentModel.findOneById(enrollmentId)
+    if (!enrollment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+    }
+
+    const existing = await certificateModel.isCertificateExistsForEnrollment(enrollmentId)
+    if (existing) {
+      console.log(`Certificate already exists for enrollment ${enrollmentId}, skipping auto-create`)
+      return null
+    }
+
+    const score = enrollment.assessments?.length > 0
+      ? Math.round(
+          enrollment.assessments.reduce((sum, a) => sum + (a.score || 0), 0)
+          / enrollment.assessments.length
+        )
+      : null
+
+    const certificateData = {
+      enrollmentId: enrollmentId.toString(),
+      userId: enrollment.userId.toString(),
+      courseId: enrollment.courseId.toString(),
+      type: CERTIFICATE_TYPES.COMPLETION,
+      score,
+      skills: enrollment.courseId?.skills || [],
+      certificateNumber: generateCertificateNumber(),
+      verificationCode: generateVerificationCode(),
+      issuedBy: issuedBy || null,
+      status: 'active'
+    }
+
+    const result = await certificateModel.createNew(certificateData)
+    const created = { _id: result.insertedId, ...certificateData }
+    console.log(`Certificate auto-created for enrollment ${enrollmentId}: ${certificateData.certificateNumber}`)
+
+    // Send email notification to user
+    try {
+      const user = await userModel.findOneById(enrollment.userId)
+      if (user?.email) {
+        await sendCertificateIssuedEmail(created, enrollment, user.email, user.displayName || user.username)
+        console.log(`Certificate email sent for enrollment ${enrollmentId}`)
+      }
+    } catch (emailError) {
+      console.error(`Failed to send certificate email for enrollment ${enrollmentId}:`, emailError.message)
+    }
+
+    return created
+  } catch (error) {
+    throw error
+  }
+}
+
 export const certificateService = {
   generateCertificateNumber,
   generateVerificationCode,
   createCertificate,
+  createCertificateForEnrollment,
   getCertificates,
   getCertificateById,
   getMyCertificates,

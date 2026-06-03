@@ -1,10 +1,10 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import courseModel from '~/models/courseModel'
-import userModel from '~/models/userModel'
+import { courseModel } from '~/models/courseModel'
+import { userModel } from '~/models/userModel'
 import {
-  ENROLLMENT_STATUS,
+  ENROLLMENT_STATUS_V2,
   ENROLLMENT_PAYMENT_STATUS,
   COMPLETION_STATUS,
   ENROLLMENT_SOURCE,
@@ -18,8 +18,8 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
   scheduleId: Joi.string().allow(null, ''),
 
   status: Joi.string()
-    .valid(...Object.values(ENROLLMENT_STATUS))
-    .default(ENROLLMENT_STATUS.PENDING),
+    .valid(...Object.values(ENROLLMENT_STATUS_V2))
+    .default(ENROLLMENT_STATUS_V2.ACTIVE),
 
   payment_status: Joi.string()
     .valid(...Object.values(ENROLLMENT_PAYMENT_STATUS))
@@ -31,7 +31,12 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
       .valid(...Object.values(COMPLETION_STATUS))
       .default(COMPLETION_STATUS.NOT_STARTED),
     currentLesson: Joi.number().integer().min(0).default(0),
-    totalLessons: Joi.number().integer().min(0).default(0)
+    totalLessons: Joi.number().integer().min(0).default(0),
+    byDelivery: Joi.object({
+      video: Joi.number().min(0).max(100).default(0),
+      live: Joi.number().min(0).max(100).default(0),
+      offline: Joi.number().min(0).max(100).default(0)
+    }).default({ video: 0, live: 0, offline: 0 })
   }),
 
   attendance: Joi.object({
@@ -133,7 +138,7 @@ const findOneByUserAndCourse = async (userId, courseId) => {
     return await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).findOne({
       userId: userId,
       courseId: courseId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -144,7 +149,7 @@ const findByUser = async (userId, skip = 0, limit = 10, filters = {}) => {
   try {
     const query = {
       userId: userId,
-      _destroy: false,
+      _destroy: { $ne: true },
       ...filters
     }
 
@@ -167,7 +172,7 @@ const findByCourse = async (courseId, skip = 0, limit = 10, filters = {}) => {
   try {
     const query = {
       courseId: courseId,
-      _destroy: false,
+      _destroy: { $ne: true },
       ...filters
     }
 
@@ -190,8 +195,8 @@ const findCompletedByUser = async (userId) => {
   try {
     return await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).find({
       userId: userId,
-      status: ENROLLMENT_STATUS.COMPLETED,
-      _destroy: false
+      status: ENROLLMENT_STATUS_V2.COMPLETED,
+      _destroy: { $ne: true }
     }).toArray()
   } catch (error) {
     throw new Error(error.message)
@@ -201,7 +206,7 @@ const findCompletedByUser = async (userId) => {
 const findAll = async (skip = 0, limit = 10, filters = {}) => {
   try {
     const query = {
-      _destroy: false,
+      _destroy: { $ne: true },
       ...filters
     }
 
@@ -309,19 +314,19 @@ const updateStatus = async (enrollmentId, status, additionalData = {}) => {
       ...additionalData
     }
 
-    if (status === ENROLLMENT_STATUS.ENROLLED || status === ENROLLMENT_STATUS.IN_PROGRESS) {
+    if (status === ENROLLMENT_STATUS_V2.ACTIVE) {
       if (!additionalData.startDate) {
         updateData.startDate = Date.now()
       }
     }
 
-    if (status === ENROLLMENT_STATUS.COMPLETED) {
+    if (status === ENROLLMENT_STATUS_V2.COMPLETED) {
       updateData.completedAt = Date.now()
       updateData['progress.completionStatus'] = COMPLETION_STATUS.COMPLETED
       updateData['progress.percentage'] = 100
     }
 
-    if (status === ENROLLMENT_STATUS.DROPPED || status === ENROLLMENT_STATUS.CANCELLED) {
+    if (status === ENROLLMENT_STATUS_V2.DROPPED) {
       updateData.dropReason = additionalData.dropReason || null
     }
 
@@ -356,12 +361,12 @@ const promoteFromWaitlist = async (courseId) => {
     const result = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).findOneAndUpdate(
       {
         courseId: courseId,
-        status: ENROLLMENT_STATUS.WAITLIST,
-        _destroy: false
+        status: ENROLLMENT_STATUS_V2.SUSPENDED,
+        _destroy: { $ne: true }
       },
       {
         $set: {
-          status: ENROLLMENT_STATUS.ENROLLED,
+          status: ENROLLMENT_STATUS_V2.ACTIVE,
           startDate: Date.now(),
           updatedAt: Date.now()
         }
@@ -387,7 +392,7 @@ const deleteEnrollment = async (enrollmentId) => {
       {
         $set: {
           _destroy: true,
-          status: ENROLLMENT_STATUS.CANCELLED,
+          status: ENROLLMENT_STATUS_V2.DROPPED,
           updatedAt: Date.now()
         }
       }
@@ -404,7 +409,7 @@ const getStatsByCourse = async (courseId) => {
       {
         $match: {
           courseId: courseId,
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {
@@ -439,7 +444,7 @@ const getStatsByUser = async (userId) => {
       {
         $match: {
           userId: userId,
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {
@@ -462,10 +467,10 @@ const getStatsByUser = async (userId) => {
     stats.forEach(stat => {
       result.byStatus[stat._id] = stat.count
       result.total += stat.count
-      if (stat._id === ENROLLMENT_STATUS.COMPLETED) {
+      if (stat._id === ENROLLMENT_STATUS_V2.COMPLETED) {
         result.completed = stat.count
       }
-      if (stat._id === ENROLLMENT_STATUS.IN_PROGRESS) {
+      if (stat._id === ENROLLMENT_STATUS_V2.ACTIVE) {
         result.inProgress = stat.count
       }
     })
@@ -481,7 +486,7 @@ const getOverallStats = async () => {
     const pipeline = [
       {
         $match: {
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {
@@ -515,7 +520,7 @@ const getAdminStats = async () => {
   try {
     // Total by status
     const statusPipeline = [
-      { $match: { _destroy: false } },
+      { $match: { _destroy: { $ne: true } } },
       { $group: { _id: '$status', count: { $sum: 1 } } }
     ]
     const statusStats = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(statusPipeline).toArray()
@@ -529,7 +534,7 @@ const getAdminStats = async () => {
 
     // Revenue stats
     const revenuePipeline = [
-      { $match: { _destroy: false } },
+      { $match: { _destroy: { $ne: true } } },
       { $group: {
         _id: null,
         totalFee: { $sum: '$fee.total' },
@@ -542,7 +547,7 @@ const getAdminStats = async () => {
 
     // Top courses by enrollment count
     const topCoursesPipeline = [
-      { $match: { _destroy: false } },
+      { $match: { _destroy: { $ne: true } } },
       { $group: { _id: '$courseId', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 10 }
@@ -584,7 +589,7 @@ const getMonthlyTrend = async (months = 6) => {
     const pipeline = [
       {
         $match: {
-          _destroy: false,
+          _destroy: { $ne: true },
           enrolledAt: { $gte: startDate }
         }
       },
@@ -615,7 +620,7 @@ const getMonthlyTrend = async (months = 6) => {
 
 const getEnrollmentsForExport = async (filters = {}) => {
   try {
-    const query = { _destroy: false, ...filters }
+    const query = { _destroy: { $ne: true }, ...filters }
 
     const enrollments = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME)
       .find(query)

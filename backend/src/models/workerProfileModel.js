@@ -120,7 +120,7 @@ const findOneByUserId = async (userId) => {
   try {
     return await GET_DB().collection(WORKER_PROFILE_COLLECTION_NAME).findOne({
       userId: userId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -132,7 +132,7 @@ const findOneById = async (profileId) => {
     const objectId = new ObjectId(profileId)
     return await GET_DB().collection(WORKER_PROFILE_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -263,7 +263,7 @@ const completeProfile = async (userId) => {
 
 const getProfiles = async (matchCondition, skip, limit) => {
   try {
-    const query = { ...matchCondition, _destroy: false }
+    const query = { ...matchCondition, _destroy: { $ne: true } }
 
     const profiles = await GET_DB().collection(WORKER_PROFILE_COLLECTION_NAME)
       .find(query)

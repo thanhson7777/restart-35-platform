@@ -292,7 +292,7 @@ const findByUserId = async (userId, options = {}) => {
   try {
     const { action, limit = 50, skip = 0, sort = { createdAt: -1 } } = options
 
-    const query = { userId: userId, _destroy: false }
+    const query = { userId: userId, _destroy: { $ne: true } }
     if (action) {
       query.action = action
     }
@@ -314,7 +314,7 @@ const findByJobId = async (jobId, options = {}) => {
   try {
     const { action, limit = 50, skip = 0, sort = { createdAt: -1 } } = options
 
-    const query = { jobId: jobId, _destroy: false }
+    const query = { jobId: jobId, _destroy: { $ne: true } }
     if (action) {
       query.action = action
     }
@@ -338,7 +338,7 @@ const getUserJobInteractions = async (userId, jobId) => {
       .find({
         userId: userId,
         jobId: jobId,
-        _destroy: false
+        _destroy: { $ne: true }
       })
       .sort({ createdAt: -1 })
       .toArray()
@@ -350,7 +350,7 @@ const getUserJobInteractions = async (userId, jobId) => {
 const getUserEngagementScore = async (userId) => {
   try {
     const pipeline = [
-      { $match: { userId: userId, _destroy: false } },
+      { $match: { userId: userId, _destroy: { $ne: true } } },
       {
         $group: {
           _id: '$action',
@@ -384,7 +384,7 @@ const getUserEngagementScore = async (userId) => {
 const getJobPopularityScore = async (jobId) => {
   try {
     const pipeline = [
-      { $match: { jobId: jobId, _destroy: false } },
+      { $match: { jobId: jobId, _destroy: { $ne: true } } },
       {
         $group: {
           _id: null,
@@ -495,7 +495,7 @@ const getSimilarUsers = async (userId, limit = 10) => {
         $match: {
           userId: { $ne: userId },
           jobId: { $in: jobIds },
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {
@@ -570,7 +570,7 @@ const getRecommendedJobsFromCF = async (userId, limit = 10) => {
         $match: {
           userId: { $in: similarUserIds },
           action: { $in: ['click', 'bookmark', 'apply'] },
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {
@@ -638,7 +638,7 @@ const getStats = async (options = {}) => {
   try {
     const { startDate, endDate } = options
 
-    const matchStage = { _destroy: false }
+    const matchStage = { _destroy: { $ne: true } }
 
     if (startDate || endDate) {
       matchStage.createdAt = {}
@@ -683,7 +683,7 @@ const getStats = async (options = {}) => {
 const countByAction = async () => {
   try {
     return await GET_DB().collection(INTERACTION_COLLECTION_NAME).aggregate([
-      { $match: { _destroy: false } },
+      { $match: { _destroy: { $ne: true } } },
       { $group: { _id: '$action', count: { $sum: 1 } } }
     ]).toArray()
   } catch (error) {
@@ -694,7 +694,7 @@ const countByAction = async () => {
 const getTopJobs = async (action, limit = 10) => {
   try {
     const pipeline = [
-      { $match: { action: action, _destroy: false } },
+      { $match: { action: action, _destroy: { $ne: true } } },
       {
         $group: {
           _id: '$jobId',
@@ -720,7 +720,7 @@ const getActiveUsersCount = async (days = 7) => {
 
     return await GET_DB().collection(INTERACTION_COLLECTION_NAME).distinct('userId', {
       createdAt: { $gte: startDate },
-      _destroy: false
+      _destroy: { $ne: true }
     }).then(users => users.length)
   } catch (error) {
     throw new Error(error.message)

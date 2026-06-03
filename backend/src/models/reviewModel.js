@@ -80,7 +80,7 @@ const findOneById = async (reviewId) => {
     const objectId = new ObjectId(reviewId)
     return await GET_DB().collection(REVIEW_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -103,7 +103,7 @@ const findByCourse = async (courseId, queryParams = {}) => {
 
     const matchStage = {
       courseId: courseId,
-      _destroy: false
+      _destroy: { $ne: true }
     }
 
     if (status) {
@@ -178,7 +178,7 @@ const findByUser = async (userId, queryParams = {}) => {
 
     const reviews = await GET_DB().collection(REVIEW_COLLECTION_NAME)
       .aggregate([
-        { $match: { userId: userId, _destroy: false } },
+        { $match: { userId: userId, _destroy: { $ne: true } } },
         {
           $lookup: {
             from: 'courses',
@@ -214,7 +214,7 @@ const findByUser = async (userId, queryParams = {}) => {
 
     const total = await GET_DB().collection(REVIEW_COLLECTION_NAME).countDocuments({
       userId: userId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
 
     return { reviews, total }
@@ -228,7 +228,7 @@ const findByUserAndCourse = async (userId, courseId) => {
     return await GET_DB().collection(REVIEW_COLLECTION_NAME).findOne({
       userId: userId,
       courseId: courseId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -245,7 +245,7 @@ const findPending = async (queryParams = {}) => {
         {
           $match: {
             status: REVIEW_STATUS.PENDING,
-            _destroy: false
+            _destroy: { $ne: true }
           }
         },
         {
@@ -291,7 +291,7 @@ const findPending = async (queryParams = {}) => {
 
     const total = await GET_DB().collection(REVIEW_COLLECTION_NAME).countDocuments({
       status: REVIEW_STATUS.PENDING,
-      _destroy: false
+      _destroy: { $ne: true }
     })
 
     return { reviews, total }
@@ -464,7 +464,7 @@ const getCourseRatingStats = async (courseId) => {
         $match: {
           courseId: courseId,
           status: REVIEW_STATUS.APPROVED,
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {

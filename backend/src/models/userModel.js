@@ -33,6 +33,14 @@ const validateBeforeCreate = async (data) => {
 const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
+    // Check for duplicate email before insert
+    const existing = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
+      email: validData.email,
+      _destroy: { $ne: true }
+    })
+    if (existing) {
+      throw new Error('Email đã được sử dụng')
+    }
     const createdUser = await GET_DB().collection(USER_COLLECTION_NAME).insertOne(validData)
     return createdUser
   } catch (error) { throw error }
@@ -49,7 +57,7 @@ const findOneByEmail = async (emailValue) => {
   try {
     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
       email: emailValue,
-      _destroy: false
+      _destroy: { $ne: true }
     })
     return result
   } catch (error) { throw error }

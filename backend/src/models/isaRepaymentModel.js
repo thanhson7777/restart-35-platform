@@ -61,7 +61,7 @@ const findOneById = async (id) => {
   try {
     const result = await GET_DB().collection(ISA_REPAYMENT_COLLECTION_NAME).findOne({
       _id: new ObjectId(String(id)),
-      _destroy: false
+      _destroy: { $ne: true }
     })
     return result
   } catch (error) {
@@ -73,7 +73,7 @@ const findByEnrollment = async (enrollmentId) => {
   try {
     const result = await GET_DB().collection(ISA_REPAYMENT_COLLECTION_NAME).findOne({
       enrollmentId: String(enrollmentId),
-      _destroy: false
+      _destroy: { $ne: true }
     })
     return result
   } catch (error) {
@@ -102,7 +102,7 @@ const findByPaginate = async (matchCondition, skip, limit) => {
 const update = async (id, updateData) => {
   try {
     const result = await GET_DB().collection(ISA_REPAYMENT_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       { $set: { ...updateData, updatedAt: Date.now() } },
       { returnDocument: 'after', projection: { _destroy: 0 } }
     )
@@ -115,7 +115,7 @@ const update = async (id, updateData) => {
 const addMonthlyRecord = async (id, record) => {
   try {
     const result = await GET_DB().collection(ISA_REPAYMENT_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       {
         $push: { monthlyRecords: record },
         $inc: { 'repaymentPeriod.currentMonth': 1 },
@@ -134,7 +134,7 @@ const updateMonthlyRecord = async (id, month, year, updateData) => {
     const result = await GET_DB().collection(ISA_REPAYMENT_COLLECTION_NAME).findOneAndUpdate(
       {
         _id: new ObjectId(String(id)),
-        _destroy: false,
+        _destroy: { $ne: true },
         'monthlyRecords.month': month,
         'monthlyRecords.year': year
       },
@@ -159,7 +159,7 @@ const updateMonthlyRecord = async (id, month, year, updateData) => {
 const addPayment = async (id, amount) => {
   try {
     const result = await GET_DB().collection(ISA_REPAYMENT_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       {
         $inc: { totalPaidAmount: amount },
         $set: { updatedAt: Date.now() }
@@ -175,7 +175,7 @@ const addPayment = async (id, amount) => {
 const softDelete = async (id) => {
   try {
     const result = await GET_DB().collection(ISA_REPAYMENT_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       { $set: { _destroy: true, updatedAt: Date.now() } },
       { returnDocument: 'after' }
     )

@@ -137,15 +137,16 @@ const getInvoice = async (req, res, next) => {
 const handleWebhook = async (req, res, next) => {
   try {
     const { gateway } = req.params
-    const { status, transactionId } = await paymentService.webhookHandler(gateway, req.body)
+    const { status, transactionId, paymentId } = await paymentService.webhookHandler(gateway, req.body)
 
-    // Find payment by transactionId and update
-    // In production, would look up payment reference from gateway payload
-    // For now, just return success
+    if (paymentId && status) {
+      await paymentService.updatePaymentStatus(paymentId, status, transactionId)
+    }
+
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Webhook xử lý thành công!',
-      data: { status, transactionId }
+      message: 'Webhook xu ly thanh cong!',
+      data: { status, transactionId, paymentId }
     })
   } catch (error) {
     next(error)

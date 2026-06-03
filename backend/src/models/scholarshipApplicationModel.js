@@ -104,7 +104,7 @@ const findOneById = async (applicationId) => {
     const objectId = new ObjectId(applicationId)
     return await GET_DB().collection(APPLICATION_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -116,7 +116,7 @@ const findOneByUserAndScholarship = async (userId, scholarshipId) => {
     return await GET_DB().collection(APPLICATION_COLLECTION_NAME).findOne({
       userId: userId,
       scholarshipId: scholarshipId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -127,7 +127,7 @@ const findByUser = async (userId, skip = 0, limit = 10, filters = {}) => {
   try {
     const query = {
       userId: userId,
-      _destroy: false,
+      _destroy: { $ne: true },
       ...filters
     }
 
@@ -150,7 +150,7 @@ const findByScholarship = async (scholarshipId, skip = 0, limit = 10, filters = 
   try {
     const query = {
       scholarshipId: scholarshipId,
-      _destroy: false,
+      _destroy: { $ne: true },
       ...filters
     }
 
@@ -174,7 +174,7 @@ const findPendingByScholarship = async (scholarshipId, skip = 0, limit = 10) => 
     const query = {
       scholarshipId: scholarshipId,
       status: { $in: [APPLICATION_STATUS.SUBMITTED, APPLICATION_STATUS.REVIEWING] },
-      _destroy: false
+      _destroy: { $ne: true }
     }
 
     const applications = await GET_DB().collection(APPLICATION_COLLECTION_NAME)
@@ -195,7 +195,7 @@ const findPendingByScholarship = async (scholarshipId, skip = 0, limit = 10) => 
 const findAll = async (skip = 0, limit = 10, filters = {}) => {
   try {
     const query = {
-      _destroy: false,
+      _destroy: { $ne: true },
       ...filters
     }
 
@@ -439,7 +439,7 @@ const getStatsByScholarship = async (scholarshipId) => {
       {
         $match: {
           scholarshipId: scholarshipId,
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {
@@ -474,7 +474,7 @@ const getStatsByUser = async (userId) => {
       {
         $match: {
           userId: userId,
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {
@@ -508,7 +508,7 @@ const getOverallStats = async () => {
     const pipeline = [
       {
         $match: {
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {

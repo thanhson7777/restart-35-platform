@@ -2,18 +2,21 @@ import { enrollmentModel } from '~/models/enrollmentModel'
 import { courseModel } from '~/models/courseModel'
 import { userModel } from '~/models/userModel'
 import { workerProfileModel } from '~/models/workerProfileModel'
+import { fundingConfigModel } from '~/models/fundingConfigModel'
 import { applicationService } from './applicationService'
+import { isaRepaymentService } from './isaRepaymentService'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import {
   DEFAULT_PAGE,
   DEFAULT_ITEM_PER_PAGE,
-  ENROLLMENT_STATUS,
+  ENROLLMENT_STATUS_V2,
   ENROLLMENT_PAYMENT_STATUS,
   COMPLETION_STATUS,
   COURSE_STATUS,
   USER_ROLES,
-  SCHOLARSHIP_COVERAGE
+  SCHOLARSHIP_COVERAGE,
+  FUNDING_LEARNER_PAY_MODE
 } from '~/utils/constants'
 
 // ============ ENROLL COURSE ============
@@ -37,8 +40,8 @@ const enrollCourse = async (userId, courseId, data) => {
 
     const existingEnrollment = await enrollmentModel.findOneByUserAndCourse(userId, courseId)
     if (existingEnrollment) {
-      if (existingEnrollment.status === ENROLLMENT_STATUS.CANCELLED ||
-          existingEnrollment.status === ENROLLMENT_STATUS.DROPPED) {
+      if (existingEnrollment.status === ENROLLMENT_STATUS_V2.DROPPED ||
+          existingEnrollment.status === ENROLLMENT_STATUS_V2.DROPPED) {
         throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn đã hủy đăng ký khóa học này. Vui lòng liên hệ hỗ trợ.')
       }
       throw new ApiError(StatusCodes.CONFLICT, 'Bạn đã đăng ký khóa học này rồi!')
@@ -72,13 +75,13 @@ const enrollCourse = async (userId, courseId, data) => {
 
     const capacityResult = await checkCapacity(course)
 
-    let finalStatus = ENROLLMENT_STATUS.ENROLLED
+    let finalStatus = ENROLLMENT_STATUS_V2.ACTIVE
     let waitlistPosition = null
 
     if (!capacityResult.available) {
-      finalStatus = ENROLLMENT_STATUS.WAITLIST
+      finalStatus = ENROLLMENT_STATUS_V2.ACTIVE
       const waitlistCount = await enrollmentModel.findByCourse(courseId, 0, 100, {
-        status: ENROLLMENT_STATUS.WAITLIST
+        status: ENROLLMENT_STATUS_V2.ACTIVE
       })
       waitlistPosition = waitlistCount.totalEnrollments + 1
     }
@@ -107,16 +110,29 @@ const enrollCourse = async (userId, courseId, data) => {
       },
       waitlistPosition,
       enrolledAt: Date.now(),
-      startDate: finalStatus === ENROLLMENT_STATUS.ENROLLED ? Date.now() : null
+      startDate: finalStatus === ENROLLMENT_STATUS_V2.ACTIVE ? Date.now() : null
     }
 
     const result = await enrollmentModel.createNew(enrollmentData)
 
-    if (finalStatus === ENROLLMENT_STATUS.ENROLLED) {
+    if (finalStatus === ENROLLMENT_STATUS_V2.ACTIVE) {
       await courseModel.incrementEnrollmentCount(courseId)
     }
 
     const enrollment = await enrollmentModel.findOneById(result.insertedId)
+
+    // Auto-create ISA record nếu khóa học có funding_model = ISA
+    if (course.funding_model === FUNDING_LEARNER_PAY_MODE.ISA && enrollment) {
+      try {
+        const fundingConfig = await fundingConfigModel.findByCourse(courseId)
+        if (fundingConfig) {
+          await isaRepaymentService.createIsaRepayment(enrollment._id.toString(), fundingConfig.configs)
+          await enrollmentModel.updatePaymentStatus(enrollment._id.toString(), ENROLLMENT_PAYMENT_STATUS.ISA_PENDING)
+        }
+      } catch (isaError) {
+        console.error(`Failed to auto-create ISA for enrollment ${enrollment._id}:`, isaError.message)
+      }
+    }
 
     return {
       enrollment,
@@ -323,7 +339,7 @@ const updateProgress = async (enrollmentId, progressData, trainerId) => {
       }
     }
 
-    if (![ENROLLMENT_STATUS.ENROLLED, ENROLLMENT_STATUS.IN_PROGRESS].includes(enrollment.status)) {
+    if (![ENROLLMENT_STATUS_V2.ACTIVE, ENROLLMENT_STATUS_V2.IN_PROGRESS].includes(enrollment.status)) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Không thể cập nhật tiến độ ở trạng thái này!')
     }
 
@@ -338,8 +354,8 @@ const updateProgress = async (enrollmentId, progressData, trainerId) => {
     const updatedEnrollment = await enrollmentModel.updateProgress(enrollmentId, updateData)
 
     // Xử lý khi hoàn thành 100%
-    if (progressData.percentage >= 100 && enrollment.status !== ENROLLMENT_STATUS.COMPLETED) {
-      await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.COMPLETED, {
+    if (progressData.percentage >= 100 && enrollment.status !== ENROLLMENT_STATUS_V2.COMPLETED) {
+      await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.COMPLETED, {
         completedAt: Date.now()
       })
       await courseModel.decrementEnrollmentCount(enrollment.courseId)
@@ -349,8 +365,8 @@ const updateProgress = async (enrollmentId, progressData, trainerId) => {
         await applicationService.processCompletion(enrollmentId)
       }
     } else if (progressData.percentage > 0 && progressData.percentage < 100) {
-      if (enrollment.status === ENROLLMENT_STATUS.ENROLLED) {
-        await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.IN_PROGRESS)
+      if (enrollment.status === ENROLLMENT_STATUS_V2.ACTIVE) {
+        await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.IN_PROGRESS)
       }
     }
 
@@ -375,11 +391,9 @@ const updateStatus = async (enrollmentId, status, additionalData, trainerId) => 
     }
 
     const validTransitions = {
-      [ENROLLMENT_STATUS.PENDING]: [ENROLLMENT_STATUS.ENROLLED, ENROLLMENT_STATUS.CANCELLED],
-      [ENROLLMENT_STATUS.WAITLIST]: [ENROLLMENT_STATUS.ENROLLED, ENROLLMENT_STATUS.CANCELLED],
-      [ENROLLMENT_STATUS.ENROLLED]: [ENROLLMENT_STATUS.IN_PROGRESS, ENROLLMENT_STATUS.DROPPED, ENROLLMENT_STATUS.ON_HOLD],
-      [ENROLLMENT_STATUS.IN_PROGRESS]: [ENROLLMENT_STATUS.COMPLETED, ENROLLMENT_STATUS.DROPPED, ENROLLMENT_STATUS.ON_HOLD],
-      [ENROLLMENT_STATUS.ON_HOLD]: [ENROLLMENT_STATUS.ENROLLED, ENROLLMENT_STATUS.IN_PROGRESS, ENROLLMENT_STATUS.DROPPED]
+      [ENROLLMENT_STATUS_V2.ACTIVE]: [ENROLLMENT_STATUS_V2.IN_PROGRESS, ENROLLMENT_STATUS_V2.DROPPED, ENROLLMENT_STATUS_V2.SUSPENDED],
+      [ENROLLMENT_STATUS_V2.IN_PROGRESS]: [ENROLLMENT_STATUS_V2.COMPLETED, ENROLLMENT_STATUS_V2.DROPPED, ENROLLMENT_STATUS_V2.SUSPENDED],
+      [ENROLLMENT_STATUS_V2.SUSPENDED]: [ENROLLMENT_STATUS_V2.ACTIVE, ENROLLMENT_STATUS_V2.IN_PROGRESS, ENROLLMENT_STATUS_V2.DROPPED]
     }
 
     const allowedTransitions = validTransitions[enrollment.status] || []
@@ -410,11 +424,11 @@ const updateStatus = async (enrollmentId, status, additionalData, trainerId) => 
 
     const updatedEnrollment = await enrollmentModel.updateStatus(enrollmentId, status, updateData)
 
-    if (status === ENROLLMENT_STATUS.COMPLETED) {
+    if (status === ENROLLMENT_STATUS_V2.COMPLETED) {
       await courseModel.decrementEnrollmentCount(enrollment.courseId)
     }
 
-    if (status === ENROLLMENT_STATUS.ENROLLED && enrollment.status === ENROLLMENT_STATUS.WAITLIST) {
+    if (status === ENROLLMENT_STATUS_V2.ACTIVE && enrollment.status === ENROLLMENT_STATUS_V2.ACTIVE) {
       await courseModel.incrementEnrollmentCount(enrollment.courseId)
 
       const nextInWaitlist = await enrollmentModel.promoteFromWaitlist(enrollment.courseId)
@@ -423,7 +437,7 @@ const updateStatus = async (enrollmentId, status, additionalData, trainerId) => 
       }
     }
 
-    if (status === ENROLLMENT_STATUS.DROPPED || status === ENROLLMENT_STATUS.CANCELLED) {
+    if (status === ENROLLMENT_STATUS_V2.DROPPED || status === ENROLLMENT_STATUS_V2.DROPPED) {
       await courseModel.decrementEnrollmentCount(enrollment.courseId)
 
       // Xử lý clawback nếu có scholarship đã giải ngân
@@ -449,10 +463,9 @@ const cancelEnrollment = async (enrollmentId, userId, reason) => {
     }
 
     const cancellableStatuses = [
-      ENROLLMENT_STATUS.PENDING,
-      ENROLLMENT_STATUS.ENROLLED,
-      ENROLLMENT_STATUS.WAITLIST,
-      ENROLLMENT_STATUS.ON_HOLD
+      ENROLLMENT_STATUS_V2.ACTIVE,
+      ENROLLMENT_STATUS_V2.IN_PROGRESS,
+      ENROLLMENT_STATUS_V2.SUSPENDED
     ]
 
     if (!cancellableStatuses.includes(enrollment.status)) {
@@ -462,17 +475,17 @@ const cancelEnrollment = async (enrollmentId, userId, reason) => {
       )
     }
 
-    const updatedEnrollment = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.CANCELLED, {
+    const updatedEnrollment = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.DROPPED, {
       dropReason: reason,
       cancelledAt: Date.now()
     })
 
-    if (enrollment.status === ENROLLMENT_STATUS.ENROLLED ||
-        enrollment.status === ENROLLMENT_STATUS.IN_PROGRESS) {
+    if (enrollment.status === ENROLLMENT_STATUS_V2.ACTIVE ||
+        enrollment.status === ENROLLMENT_STATUS_V2.IN_PROGRESS) {
       await courseModel.decrementEnrollmentCount(enrollment.courseId)
     }
 
-    if (enrollment.status === ENROLLMENT_STATUS.ENROLLED) {
+    if (enrollment.status === ENROLLMENT_STATUS_V2.ACTIVE) {
       const nextInWaitlist = await enrollmentModel.promoteFromWaitlist(enrollment.courseId)
       if (nextInWaitlist) {
         console.log(`Promoted user ${nextInWaitlist.userId} from waitlist for course ${enrollment.courseId}`)
@@ -673,19 +686,19 @@ const dropEnrollment = async (enrollmentId, userId, dropReason) => {
       throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền hủy đăng ký này!')
     }
 
-    if (enrollment.status === ENROLLMENT_STATUS.DROPPED) {
+    if (enrollment.status === ENROLLMENT_STATUS_V2.DROPPED) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Đăng ký này đã bị hủy trước đó!')
     }
 
-    if (enrollment.status === ENROLLMENT_STATUS.COMPLETED) {
+    if (enrollment.status === ENROLLMENT_STATUS_V2.COMPLETED) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Không thể hủy đăng ký đã hoàn thành!')
     }
 
-    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.DROPPED, {
+    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.DROPPED, {
       dropReason: dropReason || null
     })
 
-    if (enrollment.status !== ENROLLMENT_STATUS.WAITLIST) {
+    if (enrollment.status !== ENROLLMENT_STATUS_V2.ACTIVE) {
       await courseModel.decrementEnrollmentCount(enrollment.courseId.toString())
     }
 
@@ -701,11 +714,11 @@ const suspendEnrollment = async (enrollmentId, trainerId, reason) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
     }
 
-    if (enrollment.status !== ENROLLMENT_STATUS.ACTIVE && enrollment.status !== ENROLLMENT_STATUS.IN_PROGRESS) {
+    if (enrollment.status !== ENROLLMENT_STATUS_V2.ACTIVE && enrollment.status !== ENROLLMENT_STATUS_V2.IN_PROGRESS) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Chỉ có thể tạm ngưng đăng ký đang hoạt động!')
     }
 
-    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.SUSPENDED, {
+    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.SUSPENDED, {
       notes: reason || null
     })
 
@@ -721,13 +734,13 @@ const completeEnrollment = async (enrollmentId, trainerId, options = {}) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
     }
 
-    if (enrollment.status === ENROLLMENT_STATUS.COMPLETED) {
+    if (enrollment.status === ENROLLMENT_STATUS_V2.COMPLETED) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Đăng ký này đã hoàn thành trước đó!')
     }
 
-    if (enrollment.status !== ENROLLMENT_STATUS.ACTIVE &&
-        enrollment.status !== ENROLLMENT_STATUS.IN_PROGRESS &&
-        enrollment.status !== ENROLLMENT_STATUS.SUSPENDED) {
+    if (enrollment.status !== ENROLLMENT_STATUS_V2.ACTIVE &&
+        enrollment.status !== ENROLLMENT_STATUS_V2.IN_PROGRESS &&
+        enrollment.status !== ENROLLMENT_STATUS_V2.SUSPENDED) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Không thể hoàn thành đăng ký ở trạng thái hiện tại!')
     }
 
@@ -739,7 +752,15 @@ const completeEnrollment = async (enrollmentId, trainerId, options = {}) => {
       ]
     }
 
-    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.COMPLETED, updateData)
+    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.COMPLETED, updateData)
+
+    // Auto-create certificate when enrollment is completed
+    try {
+      const { certificateService } = await import('./certificateService')
+      await certificateService.createCertificateForEnrollment(enrollmentId, trainerId)
+    } catch (certError) {
+      console.error(`Failed to auto-create certificate for enrollment ${enrollmentId}:`, certError.message)
+    }
 
     return updated
   } catch (error) { throw error }
@@ -753,15 +774,15 @@ const failEnrollment = async (enrollmentId, trainerId, reason) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
     }
 
-    if (enrollment.status === ENROLLMENT_STATUS.COMPLETED || enrollment.status === ENROLLMENT_STATUS.DROPPED) {
+    if (enrollment.status === ENROLLMENT_STATUS_V2.COMPLETED || enrollment.status === ENROLLMENT_STATUS_V2.DROPPED) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Không thể đánh fail đăng ký đã kết thúc!')
     }
 
-    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.FAILED, {
+    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.FAILED, {
       dropReason: reason || 'Không đạt yêu cầu khóa học'
     })
 
-    if (enrollment.status !== ENROLLMENT_STATUS.WAITLIST) {
+    if (enrollment.status !== ENROLLMENT_STATUS_V2.ACTIVE) {
       await courseModel.decrementEnrollmentCount(enrollment.courseId.toString())
     }
 

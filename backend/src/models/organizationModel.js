@@ -46,7 +46,7 @@ const findOneById = async (id) => {
   try {
     const result = await GET_DB().collection(ORGANIZATION_COLLECTION_NAME).findOne({
       _id: new ObjectId(String(id)),
-      _destroy: false
+      _destroy: { $ne: true }
     })
     return result
   } catch (error) {
@@ -75,7 +75,7 @@ const findByPaginate = async (matchCondition, skip, limit) => {
 const update = async (id, updateData) => {
   try {
     const result = await GET_DB().collection(ORGANIZATION_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       { $set: { ...updateData, updatedAt: Date.now() } },
       { returnDocument: 'after', projection: { _destroy: 0 } }
     )
@@ -88,7 +88,7 @@ const update = async (id, updateData) => {
 const softDelete = async (id) => {
   try {
     const result = await GET_DB().collection(ORGANIZATION_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       { $set: { _destroy: true, updatedAt: Date.now() } },
       { returnDocument: 'after' }
     )
@@ -103,7 +103,7 @@ const countMembers = async (organizationId) => {
     const db = await GET_DB()
     const total = await db.collection('users').countDocuments({
       organizationId: new ObjectId(String(organizationId)),
-      _destroy: false
+      _destroy: { $ne: true }
     })
     return total
   } catch (error) {
