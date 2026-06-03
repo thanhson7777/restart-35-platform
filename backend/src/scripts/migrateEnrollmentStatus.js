@@ -27,7 +27,7 @@ const args = process.argv.slice(2)
 const isDryRun = args.includes('--dry') || !args.includes('--run')
 
 const STATUS_MAP = {
-  pending: 'active',
+  pending: 'dropped',
   waitlist: 'dropped',
   enrolled: 'active',
   in_progress: 'active',

@@ -29,7 +29,10 @@ const LEARNING_RECORD_COLLECTION_SCHEMA = Joi.object({
     moduleId: Joi.string().allow('', null),
     moduleTitle: Joi.string().allow('', null),
     moduleIndex: Joi.number().integer().min(0).allow(null)
-  }).default({})
+  }).default({}),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
+  _destroy: Joi.boolean().default(false)
 })
 
 const validateBeforeCreate = async (data) => {
@@ -100,11 +103,11 @@ const findByPaginate = async (matchCondition, skip, limit) => {
 const getLastRecord = async (enrollmentId) => {
   try {
     const result = await GET_DB().collection(LEARNING_RECORD_COLLECTION_NAME)
-      .findOne(
-        { enrollmentId: String(enrollmentId) },
-        { sort: { createdAt: -1 } }
-      )
-    return result
+      .find({ enrollmentId: String(enrollmentId) })
+      .sort({ createdAt: -1 })
+      .limit(1)
+      .toArray()
+    return result[0] || null
   } catch (error) {
     throw error
   }

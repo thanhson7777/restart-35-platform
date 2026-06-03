@@ -15,7 +15,9 @@
     "production": "npm run build && cross-env BUILD_MODE=production node ./build/src/server.js",
     "dev": "cross-env BUILD_MODE=dev nodemon --exec babel-node ./src/server.js",
     "sync:esco": "cross-env BUILD_MODE=dev babel-node ./src/scripts/syncEscoData.js",
-    "sync:esco:full": "cross-env BUILD_MODE=dev babel-node ./src/scripts/syncEscoDataFull.js"
+    "sync:esco:full": "cross-env BUILD_MODE=dev babel-node ./src/scripts/syncEscoDataFull.js",
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@babel/runtime": "^7.22.10",
@@ -51,8 +53,11 @@
     "@babel/node": "^7.22.10",
     "@babel/plugin-transform-runtime": "^7.22.10",
     "@babel/preset-env": "^7.22.10",
+    "@types/jest": "^30.0.0",
     "babel-plugin-module-resolver": "^5.0.0",
     "eslint": "^8.47.0",
+    "jest": "^30.4.2",
+    "mongodb-memory-server": "^11.2.0",
     "nodemon": "^3.0.1"
   }
 }

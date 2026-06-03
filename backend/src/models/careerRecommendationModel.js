@@ -89,7 +89,7 @@ const findByUserId = async (userId) => {
     return await GET_DB().collection(CAREER_RECOMMENDATION_COLLECTION_NAME).findOne({
       userId: userId,
       status: 'active',
-      _destroy: false,
+      _destroy: { $ne: true },
       expiresAt: { $gt: new Date() }
     })
   } catch (error) {
@@ -102,7 +102,7 @@ const findOneById = async (recommendationId) => {
     const objectId = new ObjectId(recommendationId)
     return await GET_DB().collection(CAREER_RECOMMENDATION_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -277,7 +277,7 @@ const getRAGRecommendationsByUserId = async (userId) => {
     const doc = await GET_DB().collection(CAREER_RECOMMENDATION_COLLECTION_NAME).findOne(
       {
         userId: userId,
-        _destroy: false,
+        _destroy: { $ne: true },
         status: 'active'
       },
       {

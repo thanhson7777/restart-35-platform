@@ -261,7 +261,7 @@ const findByUserAndJob = async (userId, jobId) => {
     return await GET_DB().collection(JOB_OUTCOME_COLLECTION_NAME).findOne({
       userId: userId,
       jobId: jobId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -276,7 +276,7 @@ const findById = async (outcomeId) => {
     const objectId = new ObjectId(outcomeId)
     return await GET_DB().collection(JOB_OUTCOME_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -290,7 +290,7 @@ const findByUserId = async (userId, options = {}) => {
   try {
     const { status, limit = 50, skip = 0, sort = { appliedAt: -1 } } = options
 
-    const query = { userId: userId, _destroy: false }
+    const query = { userId: userId, _destroy: { $ne: true } }
     if (status) {
       query.status = status
     }
@@ -315,7 +315,7 @@ const findByJobId = async (jobId, options = {}) => {
   try {
     const { status, limit = 50, skip = 0, sort = { appliedAt: -1 } } = options
 
-    const query = { jobId: jobId, _destroy: false }
+    const query = { jobId: jobId, _destroy: { $ne: true } }
     if (status) {
       query.status = status
     }
@@ -339,7 +339,7 @@ const findByJobId = async (jobId, options = {}) => {
 const getUserSuccessRate = async (userId) => {
   try {
     const pipeline = [
-      { $match: { userId: userId, _destroy: false } },
+      { $match: { userId: userId, _destroy: { $ne: true } } },
       {
         $group: {
           _id: '$status',
@@ -442,7 +442,7 @@ const getUserPreferences = async (userId) => {
 const getJobSuccessMetrics = async (jobId) => {
   try {
     const pipeline = [
-      { $match: { jobId: jobId, _destroy: false } },
+      { $match: { jobId: jobId, _destroy: { $ne: true } } },
       {
         $group: {
           _id: '$status',
@@ -509,7 +509,7 @@ const getAggregatedStats = async (options = {}) => {
   try {
     const { startDate, endDate } = options
 
-    const matchStage = { _destroy: false }
+    const matchStage = { _destroy: { $ne: true } }
     if (startDate || endDate) {
       matchStage.appliedAt = {}
       if (startDate) matchStage.appliedAt.$gte = new Date(startDate)

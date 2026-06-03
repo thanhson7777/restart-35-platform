@@ -265,10 +265,20 @@ const webhookHandler = async (gateway, payload) => {
         }
         break
       default:
-        throw new ApiError(StatusCodes.BAD_REQUEST, 'Gateway không hỗ trợ')
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Gateway khong ho tro')
     }
 
-    return { status, transactionId }
+    // Tim payment theo transactionId
+    let paymentId = null
+    if (transactionId) {
+      const { paymentModel } = await import('~/models/paymentModel')
+      const payment = await paymentModel.findByTransactionId(transactionId)
+      if (payment) {
+        paymentId = payment._id.toString()
+      }
+    }
+
+    return { status, transactionId, paymentId }
   } catch (error) {
     throw error
   }

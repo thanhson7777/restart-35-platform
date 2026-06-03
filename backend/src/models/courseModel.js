@@ -94,7 +94,7 @@ const createUniqueSlug = async (title) => {
   let uniqueSlug = baseSlug
   let counter = 1
 
-  while (await GET_DB().collection(COURSE_COLLECTION_NAME).findOne({ slug: uniqueSlug, _destroy: false })) {
+  while (await GET_DB().collection(COURSE_COLLECTION_NAME).findOne({ slug: uniqueSlug, _destroy: { $ne: true } })) {
     uniqueSlug = `${baseSlug}-${counter}`
     counter++
   }
@@ -131,7 +131,7 @@ const findOneById = async (courseId) => {
     const objectId = new ObjectId(courseId)
     return await GET_DB().collection(COURSE_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -141,7 +141,7 @@ const findOneBySlug = async (slug) => {
   try {
     return await GET_DB().collection(COURSE_COLLECTION_NAME).findOne({
       slug: slug,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -151,7 +151,7 @@ const findByProvider = async (providerId, skip = 0, limit = 10) => {
   try {
     const query = {
       providerId: providerId,
-      _destroy: false
+      _destroy: { $ne: true }
     }
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(query)
@@ -170,7 +170,7 @@ const findByCategory = async (categoryId, skip = 0, limit = 10, additionalFilter
     const query = {
       categoryId: categoryId,
       status: COURSE_STATUS.APPROVED,
-      _destroy: false,
+      _destroy: { $ne: true },
       ...additionalFilters
     }
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
@@ -190,7 +190,7 @@ const searchCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, so
   try {
     const matchStage = {
       status: COURSE_STATUS.APPROVED,
-      _destroy: false
+      _destroy: { $ne: true }
     }
     // Search by title/description
     if (searchQuery) {
@@ -250,7 +250,7 @@ const findBySkills = async (skills, limit = 10) => {
     const query = {
       skills: { $in: skills.map(s => new RegExp(s, 'i')) },
       status: COURSE_STATUS.APPROVED,
-      _destroy: false
+      _destroy: { $ne: true }
     }
     return await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(query)
@@ -267,7 +267,7 @@ const findPopular = async (limit = 10) => {
     return await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find({
         status: COURSE_STATUS.APPROVED,
-        _destroy: false
+        _destroy: { $ne: true }
       })
       .sort({ enrollmentCount: -1, rating: -1 })
       .limit(limit)
@@ -282,7 +282,7 @@ const findNew = async (limit = 10) => {
     return await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find({
         status: COURSE_STATUS.APPROVED,
-        _destroy: false
+        _destroy: { $ne: true }
       })
       .sort({ createdAt: -1 })
       .limit(limit)
@@ -301,7 +301,7 @@ const findRelated = async (courseId, limit = 5) => {
         _id: { $ne: new ObjectId(courseId) },
         categoryId: course.categoryId,
         status: COURSE_STATUS.APPROVED,
-        _destroy: false
+        _destroy: { $ne: true }
       })
       .sort({ enrollmentCount: -1 })
       .limit(limit)
@@ -315,7 +315,7 @@ const getPendingCourses = async (skip = 0, limit = 10) => {
   try {
     const query = {
       status: COURSE_STATUS.PENDING,
-      _destroy: false
+      _destroy: { $ne: true }
     }
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(query)
@@ -470,7 +470,7 @@ const getCourseStats = async (courseId) => {
             {
               $match: {
                 $expr: { $eq: ['$courseId', '$$courseId'] },
-                _destroy: false
+                _destroy: { $ne: true }
               }
             },
             {
@@ -492,7 +492,7 @@ const getCourseStats = async (courseId) => {
               $match: {
                 $expr: { $eq: ['$courseId', '$$courseId'] },
                 status: 'approved',
-                _destroy: false
+                _destroy: { $ne: true }
               }
             },
             {
@@ -517,7 +517,7 @@ const getCourseStats = async (courseId) => {
 const getAdminCourseStats = async () => {
   try {
     const stats = await GET_DB().collection(COURSE_COLLECTION_NAME).aggregate([
-      { $match: { _destroy: false } },
+      { $match: { _destroy: { $ne: true } } },
       {
         $group: {
           _id: '$status',
@@ -549,7 +549,7 @@ const getAdminCourseStats = async () => {
 const getAdminCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, sort = { createdAt: -1 }) => {
   try {
     const matchStage = {
-      _destroy: false
+      _destroy: { $ne: true }
     }
 
     // Search by title/description

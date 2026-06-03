@@ -107,7 +107,7 @@ const findOneById = async (scheduleId) => {
     const objectId = new ObjectId(scheduleId)
     return await GET_DB().collection(SCHEDULE_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -118,7 +118,7 @@ const findByCourse = async (courseId) => {
   try {
     return await GET_DB().collection(SCHEDULE_COLLECTION_NAME).findOne({
       courseId: courseId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -130,7 +130,7 @@ const findByProvider = async (providerId, skip = 0, limit = 10) => {
     const schedules = await GET_DB().collection(SCHEDULE_COLLECTION_NAME)
       .find({
         providerId: providerId,
-        _destroy: false
+        _destroy: { $ne: true }
       })
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -139,7 +139,7 @@ const findByProvider = async (providerId, skip = 0, limit = 10) => {
 
     const total = await GET_DB().collection(SCHEDULE_COLLECTION_NAME).countDocuments({
       providerId: providerId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
 
     return { schedules, total }
@@ -155,7 +155,7 @@ const findUpcomingByUser = async (userCourseIds, fromDate = new Date(), limit = 
         {
           $match: {
             courseId: { $in: userCourseIds },
-            _destroy: false,
+            _destroy: { $ne: true },
             status: { $in: [SCHEDULE_STATUS.PUBLISHED, SCHEDULE_STATUS.IN_PROGRESS] }
           }
         },
@@ -195,7 +195,7 @@ const findMySchedules = async (userCourseIds, queryParams = {}) => {
 
     const matchStage = {
       courseId: { $in: userCourseIds },
-      _destroy: false
+      _destroy: { $ne: true }
     }
 
     if (status) {
@@ -508,7 +508,7 @@ const deleteSchedule = async (scheduleId) => {
 const getStatsByProvider = async (providerId) => {
   try {
     const pipeline = [
-      { $match: { providerId: providerId, _destroy: false } },
+      { $match: { providerId: providerId, _destroy: { $ne: true } } },
       {
         $group: {
           _id: '$status',

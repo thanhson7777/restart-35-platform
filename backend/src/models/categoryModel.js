@@ -57,7 +57,7 @@ const createNew = async (data, skipValidation = false) => {
 
     const slugExists = await GET_DB().collection(CATEGORY_COLLECTION_NAME).findOne({
       slug: validData.slug,
-      _destroy: false
+      _destroy: { $ne: true }
     })
 
     if (slugExists) {
@@ -76,7 +76,7 @@ const findOneById = async (categoryId) => {
     const objectId = new ObjectId(categoryId)
     return await GET_DB().collection(CATEGORY_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -87,7 +87,7 @@ const findBySlug = async (slug) => {
   try {
     return await GET_DB().collection(CATEGORY_COLLECTION_NAME).findOne({
       slug: slug,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -96,7 +96,7 @@ const findBySlug = async (slug) => {
 
 const findAll = async (includeInactive = false) => {
   try {
-    const query = { _destroy: false }
+    const query = { _destroy: { $ne: true } }
     if (!includeInactive) {
       query.isActive = true
     }
@@ -116,7 +116,7 @@ const findRootCategories = async () => {
       .find({
         parentId: null,
         isActive: true,
-        _destroy: false
+        _destroy: { $ne: true }
       })
       .sort({ order: 1 })
       .toArray()
@@ -131,7 +131,7 @@ const findByParent = async (parentId) => {
       .find({
         parentId: parentId,
         isActive: true,
-        _destroy: false
+        _destroy: { $ne: true }
       })
       .sort({ order: 1 })
       .toArray()
@@ -146,7 +146,7 @@ const findFeatured = async () => {
       .find({
         isFeatured: true,
         isActive: true,
-        _destroy: false
+        _destroy: { $ne: true }
       })
       .sort({ order: 1 })
       .toArray()
@@ -158,7 +158,7 @@ const findFeatured = async () => {
 const findAllForAdmin = async () => {
   try {
     return await GET_DB().collection(CATEGORY_COLLECTION_NAME)
-      .find({ _destroy: false })
+      .find({ _destroy: { $ne: true } })
       .sort({ level: 1, order: 1 })
       .toArray()
   } catch (error) {
@@ -209,7 +209,7 @@ const update = async (categoryId, data) => {
     const slugExists = await GET_DB().collection(CATEGORY_COLLECTION_NAME).findOne({
       slug: data.slug,
       _id: { $ne: objectId },
-      _destroy: false
+      _destroy: { $ne: true }
     })
 
     if (slugExists) {
@@ -271,7 +271,7 @@ const deleteCategory = async (categoryId) => {
 
     const hasChildren = await GET_DB().collection(CATEGORY_COLLECTION_NAME).findOne({
       parentId: categoryId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
 
     if (hasChildren) {

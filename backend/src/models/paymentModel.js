@@ -64,7 +64,7 @@ const findOneById = async (id) => {
   try {
     const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOne({
       _id: new ObjectId(String(id)),
-      _destroy: false
+      _destroy: { $ne: true }
     })
     return result
   } catch (error) {
@@ -75,7 +75,7 @@ const findOneById = async (id) => {
 const findByEnrollment = async (enrollmentId) => {
   try {
     const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME)
-      .find({ enrollmentId: String(enrollmentId), _destroy: false })
+      .find({ enrollmentId: String(enrollmentId), _destroy: { $ne: true } })
       .sort({ createdAt: -1 })
       .toArray()
     return result
@@ -105,7 +105,7 @@ const findByPaginate = async (matchCondition, skip, limit) => {
 const update = async (id, updateData) => {
   try {
     const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       { $set: { ...updateData, updatedAt: Date.now() } },
       { returnDocument: 'after', projection: { _destroy: 0 } }
     )
@@ -122,7 +122,7 @@ const updateStatus = async (id, status, transactionId) => {
     if (status === PAYMENT_STATUS.COMPLETED) updateData.completedAt = Date.now()
 
     const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       { $set: { ...updateData, updatedAt: Date.now() } },
       { returnDocument: 'after', projection: { _destroy: 0 } }
     )
@@ -135,7 +135,7 @@ const updateStatus = async (id, status, transactionId) => {
 const addInstallment = async (id, installment) => {
   try {
     const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       {
         $push: { installments: installment },
         $set: { updatedAt: Date.now() }
@@ -151,7 +151,7 @@ const addInstallment = async (id, installment) => {
 const updateInvoice = async (id, invoiceData) => {
   try {
     const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       {
         $set: {
           invoice: invoiceData,
@@ -166,10 +166,22 @@ const updateInvoice = async (id, invoiceData) => {
   }
 }
 
+const findByTransactionId = async (transactionId) => {
+  try {
+    const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOne({
+      transactionId: String(transactionId),
+      _destroy: { $ne: true }
+    })
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 const softDelete = async (id) => {
   try {
     const result = await GET_DB().collection(PAYMENT_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(String(id)), _destroy: false },
+      { _id: new ObjectId(String(id)), _destroy: { $ne: true } },
       { $set: { _destroy: true, updatedAt: Date.now() } },
       { returnDocument: 'after' }
     )
@@ -183,7 +195,7 @@ const getStatsByEnrollment = async (enrollmentId) => {
   try {
     const db = await GET_DB()
     const pipeline = [
-      { $match: { enrollmentId: String(enrollmentId), _destroy: false } },
+      { $match: { enrollmentId: String(enrollmentId), _destroy: { $ne: true } } },
       {
         $group: {
           _id: '$status',
@@ -208,6 +220,7 @@ export const paymentModel = {
   findOneById,
   findByEnrollment,
   findByPaginate,
+  findByTransactionId,
   update,
   updateStatus,
   addInstallment,

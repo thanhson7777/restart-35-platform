@@ -102,7 +102,7 @@ const findOneById = async (scholarshipId) => {
     const objectId = new ObjectId(scholarshipId)
     return await GET_DB().collection(SCHOLARSHIP_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -115,7 +115,7 @@ const findOneByIdAndNgo = async (scholarshipId, ngoId) => {
     return await GET_DB().collection(SCHOLARSHIP_COLLECTION_NAME).findOne({
       _id: objectId,
       ngoId: ngoId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -126,7 +126,7 @@ const findByNgo = async (ngoId, skip = 0, limit = 10, filters = {}) => {
   try {
     const query = {
       ngoId: ngoId,
-      _destroy: false,
+      _destroy: { $ne: true },
       ...filters
     }
 
@@ -149,7 +149,7 @@ const findActive = async (skip = 0, limit = 10, filters = {}) => {
   try {
     const query = {
       status: SCHOLARSHIP_STATUS.ACTIVE,
-      _destroy: false,
+      _destroy: { $ne: true },
       ...filters
     }
 
@@ -175,7 +175,7 @@ const findEligibleForUser = async (userProfile, skip = 0, limit = 10) => {
     const scholarships = await GET_DB().collection(SCHOLARSHIP_COLLECTION_NAME)
       .find({
         status: SCHOLARSHIP_STATUS.ACTIVE,
-        _destroy: false,
+        _destroy: { $ne: true },
         $expr: {
           $and: [
             { $lte: ['$eligibilityCriteria.ageMin', basicInfo.age] },
@@ -196,7 +196,7 @@ const findEligibleForUser = async (userProfile, skip = 0, limit = 10) => {
 
     const totalScholarships = await GET_DB().collection(SCHOLARSHIP_COLLECTION_NAME).countDocuments({
       status: SCHOLARSHIP_STATUS.ACTIVE,
-      _destroy: false
+      _destroy: { $ne: true }
     })
 
     return { scholarships, totalScholarships }
@@ -208,7 +208,7 @@ const findEligibleForUser = async (userProfile, skip = 0, limit = 10) => {
 const findAll = async (skip = 0, limit = 10, filters = {}) => {
   try {
     const query = {
-      _destroy: false,
+      _destroy: { $ne: true },
       ...filters
     }
 
@@ -391,7 +391,7 @@ const getStatsByNgo = async (ngoId) => {
       {
         $match: {
           ngoId: ngoId,
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {
@@ -440,7 +440,7 @@ const getOverallStats = async () => {
     const pipeline = [
       {
         $match: {
-          _destroy: false
+          _destroy: { $ne: true }
         }
       },
       {
@@ -464,7 +464,7 @@ const getOverallStats = async () => {
     }
 
     const totalScholarships = await GET_DB().collection(SCHOLARSHIP_COLLECTION_NAME).countDocuments({
-      _destroy: false
+      _destroy: { $ne: true }
     })
     result.total = totalScholarships
 

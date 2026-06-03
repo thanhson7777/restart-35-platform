@@ -21,6 +21,11 @@ export const CLOSE_DB = async () => {
 }
 
 export const GET_DB = () => {
+  if (globalThis.__TEST_DB__) return globalThis.__TEST_DB__
   if (!buildMaterialDatabaseInstance) throw new Error('Bạn cần kết nối với database trước')
   return buildMaterialDatabaseInstance
+}
+
+export const SET_DB = (db) => {
+  globalThis.__TEST_DB__ = db
 }
