@@ -242,6 +242,122 @@ export const STATUS_REVIEW = {
   HIDDEN: 'hidden'
 }
 
+// ============ ORGANIZATION TYPES ============
+export const ORGANIZATION_TYPES = {
+  ENTERPRISE: 'enterprise',
+  NGO: 'ngo',
+  GOVERNMENT: 'government',
+  TRAINING_CENTER: 'training_center'
+}
+
+// ============ COURSE DELIVERY TYPES ============
+export const COURSE_DELIVERY_TYPES = {
+  VIDEO: 'video',
+  LIVE: 'live',
+  OFFLINE: 'offline',
+  BLENDED: 'blended'
+}
+
+// ============ COURSE FUNDING MODELS ============
+export const COURSE_FUNDING_MODELS = {
+  FREE: 'free',
+  ENTERPRISE_FUNDED: 'enterprise_funded',
+  LEARNER_PAID: 'learner_paid',
+  ISA: 'isa',
+  BATCH: 'batch',
+  MIXED: 'mixed'
+}
+
+// ============ ENROLLMENT STATUS V2 ============
+// Chuẩn hóa: 8 status cũ → 5 status mới (xem migration ở Task 1.5)
+export const ENROLLMENT_STATUS_V2 = {
+  ACTIVE: 'active',
+  COMPLETED: 'completed',
+  DROPPED: 'dropped',
+  FAILED: 'failed',
+  SUSPENDED: 'suspended'
+}
+
+// ============ ENROLLMENT PAYMENT STATUS ============
+export const ENROLLMENT_PAYMENT_STATUS = {
+  PENDING: 'pending',
+  PAID: 'paid',
+  WAIVED: 'waived',
+  ISA_PENDING: 'isa_pending',
+  INSTALLMENT_ACTIVE: 'installment_active'
+}
+
+// ============ FUNDING LEARNER PAY MODE ============
+export const FUNDING_LEARNER_PAY_MODE = {
+  NONE: 'none',
+  UPFRONT: 'upfront',
+  DEPOSIT: 'deposit',
+  INSTALLMENT: 'installment',
+  ISA: 'isa'
+}
+
+// ============ PAYMENT METHOD ============
+export const PAYMENT_METHOD = {
+  CASH: 'cash',
+  BANK_TRANSFER: 'bank_transfer',
+  MOMO: 'momo',
+  ZALOPAY: 'zalopay',
+  VNPAY: 'vnpay',
+  INVOICE: 'invoice'
+}
+
+// ============ PAYMENT STATUS ============
+export const PAYMENT_STATUS = {
+  PENDING: 'pending',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  REFUNDED: 'refunded',
+  CANCELLED: 'cancelled'
+}
+
+// ============ ISA REPAYMENT STATUS ============
+export const ISA_REPAYMENT_STATUS = {
+  PENDING: 'pending',
+  PAID: 'paid',
+  SKIPPED: 'skipped',
+  CAPPED: 'capped',
+  WAIVED: 'waived'
+}
+
+// ============ LEARNING EVENT TYPES ============
+export const LEARNING_EVENT_TYPES = {
+  VIDEO_STARTED: 'video_started',
+  VIDEO_PAUSED: 'video_paused',
+  VIDEO_COMPLETED: 'video_completed',
+  VIDEO_SEEKED: 'video_seeked',
+  QUIZ_STARTED: 'quiz_started',
+  QUIZ_SUBMITTED: 'quiz_submitted',
+  LIVE_JOINED: 'live_joined',
+  LIVE_LEFT: 'live_left',
+  CHECKED_IN: 'checked_in',
+  CHECKED_OUT: 'checked_out',
+  ASSIGNMENT_SUBMITTED: 'assignment_submitted',
+  MODULE_COMPLETED: 'module_completed'
+}
+
+// ============ CERTIFICATE TYPES ============
+export const CERTIFICATE_TYPES = {
+  COMPLETION: 'completion',
+  SKILL: 'skill',
+  JOB_READY: 'job_ready'
+}
+
+// ============ PLACEMENT STATUS ============
+export const PLACEMENT_STATUS = {
+  REFERRED: 'referred',
+  INTERVIEWING: 'interviewing',
+  OFFERED: 'offered',
+  ACCEPTED: 'accepted',
+  REJECTED: 'rejected',
+  STARTED: 'started',
+  RESIGNED: 'resigned'
+}
+
 // ============ MAX LIMITS ============
 export const MAX_EMPLOYMENT_HISTORY = 3
 export const MAX_SKILLS = 10

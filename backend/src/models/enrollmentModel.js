@@ -1,8 +1,11 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
+import courseModel from '~/models/courseModel'
+import userModel from '~/models/userModel'
 import {
   ENROLLMENT_STATUS,
+  ENROLLMENT_PAYMENT_STATUS,
   COMPLETION_STATUS,
   ENROLLMENT_SOURCE,
   SCHOLARSHIP_COVERAGE
@@ -17,6 +20,10 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
   status: Joi.string()
     .valid(...Object.values(ENROLLMENT_STATUS))
     .default(ENROLLMENT_STATUS.PENDING),
+
+  payment_status: Joi.string()
+    .valid(...Object.values(ENROLLMENT_PAYMENT_STATUS))
+    .default(ENROLLMENT_PAYMENT_STATUS.PENDING),
 
   progress: Joi.object({
     percentage: Joi.number().min(0).max(100).default(0),
@@ -114,7 +121,7 @@ const findOneById = async (enrollmentId) => {
     const objectId = new ObjectId(enrollmentId)
     return await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).findOne({
       _id: objectId,
-      _destroy: false
+      _destroy: { $ne: true }
     })
   } catch (error) {
     throw new Error(error.message)
@@ -330,6 +337,20 @@ const updateStatus = async (enrollmentId, status, additionalData = {}) => {
   }
 }
 
+const updatePaymentStatus = async (enrollmentId, payment_status) => {
+  try {
+    const objectId = new ObjectId(enrollmentId)
+    const result = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).findOneAndUpdate(
+      { _id: objectId },
+      { $set: { payment_status, updatedAt: Date.now() } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 const promoteFromWaitlist = async (courseId) => {
   try {
     const result = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).findOneAndUpdate(
@@ -514,7 +535,7 @@ const getAdminStats = async () => {
         totalFee: { $sum: '$fee.total' },
         totalPaid: { $sum: '$fee.paid' },
         totalPending: { $sum: '$fee.pending' }
-      }}
+      } }
     ]
     const revenueStats = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(revenuePipeline).toArray()
     const revenue = revenueStats[0] || { totalFee: 0, totalPaid: 0, totalPending: 0 }
@@ -634,6 +655,7 @@ const getEnrollmentsForExport = async (filters = {}) => {
 export const enrollmentModel = {
   ENROLLMENT_COLLECTION_NAME,
   ENROLLMENT_COLLECTION_SCHEMA,
+  ENROLLMENT_PAYMENT_STATUS,
 
   // Create
   createNew,
@@ -651,6 +673,7 @@ export const enrollmentModel = {
   updateProgress,
   updateAttendance,
   updateStatus,
+  updatePaymentStatus,
   promoteFromWaitlist,
 
   // Delete

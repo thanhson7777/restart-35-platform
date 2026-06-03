@@ -74,6 +74,24 @@ const update = async (req, res, next) => {
   }
 }
 
+// ============ Update Organization ID (Admin Only) ============
+const updateOrganizationId = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    organizationId: Joi.string().pattern(/^[a-f\d]{24}$/i).allow(null, '').required()
+      .messages({
+        'string.pattern.base': 'ID tổ chức không hợp lệ',
+        'any.required': 'organizationId là bắt buộc (hoặc null để xóa liên kết)'
+      })
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, stripUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details?.[0]?.message || error.message))
+  }
+}
+
 const updateUserStatus = async (req, res, next) => {
   const correctCondition = Joi.object({
     isActive: Joi.boolean().strict(),
@@ -121,6 +139,7 @@ export const userValidation = {
   login,
   update,
   updateUserStatus,
+  updateOrganizationId,
   checkProductId,
   checkId
 }

@@ -16,6 +16,13 @@ import { scholarshipRoute } from './scholarshipRoute'
 import { applicationRoute } from './applicationRoute'
 import { escoRoute } from './escoRoute'
 import { jobRoute } from './jobRoute'
+import { organizationRoute } from './organizationRoute'
+import { fundingConfigRoute } from './fundingConfigRoute'
+import { paymentRoute } from './paymentRoute'
+import { isaRepaymentRoute } from './isaRepaymentRoute'
+import { learningRecordRoute } from './learningRecordRoute'
+import { certificateRoute } from './certificateRoute'
+import { placementRoute } from './placementRoute'
 
 const Router = express.Router()
 
@@ -37,7 +44,14 @@ Router.get('/', (req, res) => {
       scholarships: '/v1/scholarships',
       applications: '/v1/applications',
       esco: '/v1/esco',
-      jobs: '/v1/jobs'
+      jobs: '/v1/jobs',
+      organizations: '/v1/organizations',
+      fundingConfigs: '/v1/funding-configs',
+      payments: '/v1/payments',
+      isaRepayments: '/v1/isa-repayments',
+      learningRecords: '/v1/learning-records',
+      certificates: '/v1/certificates',
+      placements: '/v1/placements'
     }
   })
 })
@@ -57,5 +71,12 @@ Router.use('/scholarships', scholarshipRoute)
 Router.use('/applications', applicationRoute)
 Router.use('/esco', escoRoute)
 Router.use('/jobs', jobRoute)
+Router.use('/organizations', organizationRoute)
+Router.use('/funding-configs', fundingConfigRoute)
+Router.use('/payments', paymentRoute)
+Router.use('/isa-repayments', isaRepaymentRoute)
+Router.use('/learning-records', learningRecordRoute)
+Router.use('/certificates', certificateRoute)
+Router.use('/placements', placementRoute)
 
 export const APIS_V1 = Router

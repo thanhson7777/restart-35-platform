@@ -113,6 +113,8 @@ const getCourses = async (queryParams) => {
       isFree,
       hasScholarship,
       skill,
+      delivery_type,
+      funding_model,
       sortBy = 'createdAt',
       order = 'desc'
     } = queryParams
@@ -133,6 +135,8 @@ const getCourses = async (queryParams) => {
     if (isFree !== undefined) filters.isFree = isFree
     if (hasScholarship) filters.hasScholarship = hasScholarship
     if (skill) filters.skill = skill
+    if (delivery_type) filters.delivery_type = delivery_type
+    if (funding_model) filters.funding_model = funding_model
     if (minFee !== undefined || maxFee !== undefined) {
       filters.minFee = minFee
       filters.maxFee = maxFee
@@ -266,7 +270,15 @@ const getRelatedCourses = async (courseId, limit = 5) => {
 
 const getCoursesByCategory = async (categoryId, queryParams) => {
   try {
-    const { page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE, level, minFee, maxFee } = queryParams
+    const {
+      page = DEFAULT_PAGE,
+      limit = DEFAULT_ITEM_PER_PAGE,
+      level,
+      minFee,
+      maxFee,
+      delivery_type,
+      funding_model
+    } = queryParams
 
     const currentPage = parseInt(page, 10) || DEFAULT_PAGE
     const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
@@ -276,6 +288,8 @@ const getCoursesByCategory = async (categoryId, queryParams) => {
     if (level) filters.level = level
     if (minFee !== undefined) filters.minFee = minFee
     if (maxFee !== undefined) filters.maxFee = maxFee
+    if (delivery_type) filters.delivery_type = delivery_type
+    if (funding_model) filters.funding_model = funding_model
 
     const { courses, totalCourses } = await courseModel.findByCategory(
       categoryId,

@@ -19,6 +19,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   verifyToken: Joi.string(),
 
   address: Joi.string().optional().allow(null, ''),
+  organizationId: Joi.string().pattern(/^[a-f\d]{24}$/i).allow(null, ''),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),

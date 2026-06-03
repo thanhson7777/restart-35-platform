@@ -9,6 +9,7 @@ import {
   DEFAULT_PAGE,
   DEFAULT_ITEM_PER_PAGE,
   ENROLLMENT_STATUS,
+  ENROLLMENT_PAYMENT_STATUS,
   COMPLETION_STATUS,
   COURSE_STATUS,
   USER_ROLES,
@@ -87,6 +88,7 @@ const enrollCourse = async (userId, courseId, data) => {
       courseId: courseId,
       scheduleId: scheduleId || null,
       status: finalStatus,
+      payment_status: ENROLLMENT_PAYMENT_STATUS.PENDING,
       motivation: motivation || null,
       source: source || 'direct',
       scholarship: {
@@ -659,6 +661,114 @@ const getEnrollmentsForExport = async (filters = {}) => {
   return await enrollmentModel.getEnrollmentsForExport(filters)
 }
 
+// ============ DROP ENROLLMENT (Worker tự bỏ) ============
+const dropEnrollment = async (enrollmentId, userId, dropReason) => {
+  try {
+    const enrollment = await enrollmentModel.findOneById(enrollmentId)
+    if (!enrollment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+    }
+
+    if (enrollment.userId.toString() !== userId.toString()) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền hủy đăng ký này!')
+    }
+
+    if (enrollment.status === ENROLLMENT_STATUS.DROPPED) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Đăng ký này đã bị hủy trước đó!')
+    }
+
+    if (enrollment.status === ENROLLMENT_STATUS.COMPLETED) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Không thể hủy đăng ký đã hoàn thành!')
+    }
+
+    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.DROPPED, {
+      dropReason: dropReason || null
+    })
+
+    if (enrollment.status !== ENROLLMENT_STATUS.WAITLIST) {
+      await courseModel.decrementEnrollmentCount(enrollment.courseId.toString())
+    }
+
+    return updated
+  } catch (error) { throw error }
+}
+
+// ============ SUSPEND ENROLLMENT (Trainer/Admin tạm ngưng) ============
+const suspendEnrollment = async (enrollmentId, trainerId, reason) => {
+  try {
+    const enrollment = await enrollmentModel.findOneById(enrollmentId)
+    if (!enrollment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+    }
+
+    if (enrollment.status !== ENROLLMENT_STATUS.ACTIVE && enrollment.status !== ENROLLMENT_STATUS.IN_PROGRESS) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Chỉ có thể tạm ngưng đăng ký đang hoạt động!')
+    }
+
+    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.SUSPENDED, {
+      notes: reason || null
+    })
+
+    return updated
+  } catch (error) { throw error }
+}
+
+// ============ COMPLETE ENROLLMENT (Trainer/Admin hoàn thành) ============
+const completeEnrollment = async (enrollmentId, trainerId, options = {}) => {
+  try {
+    const enrollment = await enrollmentModel.findOneById(enrollmentId)
+    if (!enrollment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+    }
+
+    if (enrollment.status === ENROLLMENT_STATUS.COMPLETED) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Đăng ký này đã hoàn thành trước đó!')
+    }
+
+    if (enrollment.status !== ENROLLMENT_STATUS.ACTIVE &&
+        enrollment.status !== ENROLLMENT_STATUS.IN_PROGRESS &&
+        enrollment.status !== ENROLLMENT_STATUS.SUSPENDED) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Không thể hoàn thành đăng ký ở trạng thái hiện tại!')
+    }
+
+    const updateData = {}
+    if (options.score !== undefined && options.score !== null) {
+      updateData.assessments = [
+        ...(enrollment.assessments || []),
+        { name: 'Kết thúc khóa học', score: options.score, passed: options.score >= 60, date: Date.now() }
+      ]
+    }
+
+    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.COMPLETED, updateData)
+
+    return updated
+  } catch (error) { throw error }
+}
+
+// ============ FAIL ENROLLMENT (Trainer/Admin fail) ============
+const failEnrollment = async (enrollmentId, trainerId, reason) => {
+  try {
+    const enrollment = await enrollmentModel.findOneById(enrollmentId)
+    if (!enrollment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+    }
+
+    if (enrollment.status === ENROLLMENT_STATUS.COMPLETED || enrollment.status === ENROLLMENT_STATUS.DROPPED) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Không thể đánh fail đăng ký đã kết thúc!')
+    }
+
+    const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS.FAILED, {
+      dropReason: reason || 'Không đạt yêu cầu khóa học'
+    })
+
+    if (enrollment.status !== ENROLLMENT_STATUS.WAITLIST) {
+      await courseModel.decrementEnrollmentCount(enrollment.courseId.toString())
+    }
+
+    return updated
+  } catch (error) { throw error }
+}
+
 export const enrollmentService = {
   // Core
   enrollCourse,
@@ -671,6 +781,10 @@ export const enrollmentService = {
   updateProgress,
   updateStatus,
   cancelEnrollment,
+  dropEnrollment,
+  suspendEnrollment,
+  completeEnrollment,
+  failEnrollment,
 
   // Stats
   getEnrollmentStats,

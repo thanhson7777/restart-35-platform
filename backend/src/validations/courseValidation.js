@@ -10,7 +10,9 @@ import {
   COURSE_LEVELS,
   DURATION_UNITS,
   LOCATION_TYPES,
-  MAX_ITEM_PER_PAGE
+  MAX_ITEM_PER_PAGE,
+  COURSE_DELIVERY_TYPES,
+  COURSE_FUNDING_MODELS
 } from '~/utils/constants'
 
 // ============ Create Course Validation ============
@@ -48,6 +50,8 @@ const createCourse = async (req, res, next) => {
     maxStudents: Joi.number().integer().min(1).default(30),
     enrollmentStartDate: Joi.date().timestamp().allow(null, ''),
     level: Joi.string().valid(...Object.values(COURSE_LEVELS)).default(COURSE_LEVELS.BEGINNER),
+    delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)).default(COURSE_DELIVERY_TYPES.VIDEO),
+    funding_model: Joi.string().valid(...Object.values(COURSE_FUNDING_MODELS)).default(COURSE_FUNDING_MODELS.FREE),
     skills: Joi.array().items(Joi.string()).max(20).default([]),
     prerequisites: Joi.array().items(Joi.string()).max(10).default([]),
     requirements: Joi.array().items(Joi.string()).max(10).default([]),
@@ -96,6 +100,8 @@ const updateCourse = async (req, res, next) => {
     maxStudents: Joi.number().integer().min(1),
     enrollmentStartDate: Joi.date().timestamp().allow(null, ''),
     level: Joi.string().valid(...Object.values(COURSE_LEVELS)),
+    delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)),
+    funding_model: Joi.string().valid(...Object.values(COURSE_FUNDING_MODELS)),
     skills: Joi.array().items(Joi.string()).max(20),
     prerequisites: Joi.array().items(Joi.string()).max(10),
     requirements: Joi.array().items(Joi.string()).max(10),
@@ -152,6 +158,8 @@ const queryCourses = async (req, res, next) => {
     isFree: Joi.boolean(),
     hasScholarship: Joi.boolean(),
     skill: Joi.string().max(100),
+    delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)),
+    funding_model: Joi.string().valid(...Object.values(COURSE_FUNDING_MODELS)),
     sortBy: Joi.string().valid('createdAt', 'title', 'fee', 'rating', 'enrollmentCount').default('createdAt'),
     order: Joi.string().valid('asc', 'desc').default('desc')
   })

@@ -7,6 +7,7 @@ import {
 } from '~/utils/validator'
 import {
   ENROLLMENT_STATUS,
+  ENROLLMENT_PAYMENT_STATUS,
   ENROLLMENT_SOURCE,
   COMPLETION_STATUS,
   MAX_ITEM_PER_PAGE
@@ -167,6 +168,83 @@ const checkCourseId = async (req, res, next) => {
   }
 }
 
+// ============ Drop Enrollment Validation ============
+const dropEnrollment = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    dropReason: Joi.string().max(1000).allow('', null)
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, stripUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details?.[0]?.message || error.message))
+  }
+}
+
+// ============ Suspend Enrollment Validation ============
+const suspendEnrollment = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    reason: Joi.string().max(1000).allow('', null)
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, stripUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details?.[0]?.message || error.message))
+  }
+}
+
+// ============ Complete Enrollment Validation ============
+const completeEnrollment = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    score: Joi.number().min(0).max(100).allow(null),
+    notes: Joi.string().max(2000).allow('', null)
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, stripUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details?.[0]?.message || error.message))
+  }
+}
+
+// ============ Fail Enrollment Validation ============
+const failEnrollment = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    reason: Joi.string().max(1000).allow('', null)
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, stripUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details?.[0]?.message || error.message))
+  }
+}
+
+// ============ Update Payment Status Validation ============
+const updatePaymentStatus = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    payment_status: Joi.string()
+      .valid(...Object.values(ENROLLMENT_PAYMENT_STATUS))
+      .required()
+      .messages({
+        'any.only': 'Trạng thái thanh toán không hợp lệ',
+        'any.required': 'Trạng thái thanh toán là bắt buộc'
+      })
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, stripUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details?.[0]?.message || error.message))
+  }
+}
+
 export const enrollmentValidation = {
   createEnrollment,
   updateProgress,
@@ -175,5 +253,10 @@ export const enrollmentValidation = {
   updateAttendance,
   queryEnrollments,
   checkId,
-  checkCourseId
+  checkCourseId,
+  dropEnrollment,
+  suspendEnrollment,
+  completeEnrollment,
+  failEnrollment,
+  updatePaymentStatus
 }

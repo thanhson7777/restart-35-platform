@@ -30,6 +30,14 @@ Desktop.ini
 scraping_*.log
 *.html  # debug HTML files
 
+# Skill gap plan & debug logs
+SKILL_GAP_MULTI_OCCUPATION_PLAN.md
+groq_debug.txt
+
+# ai-service data (generated artifacts, can be regenerated via scripts)
+ai-service/data/
+!ai-service/data/.gitkeep
+
 # Backups
 *_backup_*.csv
 *_backup_*.json
@@ -67,4 +75,5 @@ docs/
 
 
 # HTML files in ai-service
-ai-service/**/*.htmlai-service/.env
+ai-service/**/*.html
+ai-service/.env

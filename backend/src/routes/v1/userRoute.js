@@ -51,6 +51,15 @@ Router.route('/')
     userController.getUsers
   )
 
+Router.route('/:id/organization')
+  .put(
+    authMiddleware.isAuthorized,
+    authMiddleware.isAuthorizedAdmin,
+    userValidation.checkProductId,
+    userValidation.updateOrganizationId,
+    userController.updateOrganizationId
+  )
+
 Router.route('/stats')
   .get(
     authMiddleware.isAuthorized,

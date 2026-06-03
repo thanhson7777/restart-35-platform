@@ -31,13 +31,51 @@ Router.get(
   enrollmentController.getEnrollmentById
 )
 
-// Hủy đăng ký
+// Hủy đăng ký (legacy)
 Router.put(
   '/:id/cancel',
   authMiddleware.isAuthorized,
   enrollmentValidation.checkId,
   enrollmentValidation.cancelEnrollment,
   enrollmentController.cancelEnrollment
+)
+
+// DROP — Worker tự bỏ (phải đặt TRƯỚC /:id)
+Router.put(
+  '/:id/drop',
+  authMiddleware.isAuthorized,
+  enrollmentValidation.checkId,
+  enrollmentValidation.dropEnrollment,
+  enrollmentController.dropEnrollment
+)
+
+// ============ TRAINER/ADMIN ROUTES ============
+
+// Tạm ngưng enrollment
+Router.put(
+  '/:id/suspend',
+  authMiddleware.isAuthorized,
+  enrollmentValidation.checkId,
+  enrollmentValidation.suspendEnrollment,
+  enrollmentController.suspendEnrollment
+)
+
+// Hoàn thành enrollment
+Router.put(
+  '/:id/complete',
+  authMiddleware.isAuthorized,
+  enrollmentValidation.checkId,
+  enrollmentValidation.completeEnrollment,
+  enrollmentController.completeEnrollment
+)
+
+// Fail enrollment
+Router.put(
+  '/:id/fail',
+  authMiddleware.isAuthorized,
+  enrollmentValidation.checkId,
+  enrollmentValidation.failEnrollment,
+  enrollmentController.failEnrollment
 )
 
 // ============ TRAINER ROUTES (Auth Required) ============
