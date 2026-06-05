@@ -1,0 +1,261 @@
+import React from 'react';
+import { 
+  Calendar, 
+  Clock, 
+  MapPin, 
+  UserCheck, 
+  BookOpen, 
+  ExternalLink, 
+  FileText, 
+  Info,
+  ChevronRight
+} from 'lucide-react';
+import { Button, Card, CardContent, Badge } from '@/components/ui';
+
+export const TrainerSessionCard = ({ 
+  selectedSession = null, 
+  allSchedules = [],
+  onTakeAttendance, 
+  onSessionSelect 
+}) => {
+  // Format date to local Vietnamese
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    return new Date(timestamp).toLocaleDateString('vi-VN', {
+      weekday: 'long',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  // Check if timestamp is today
+  const isToday = (timestamp) => {
+    const sessionDate = new Date(timestamp);
+    const today = new Date();
+    return (
+      sessionDate.getDate() === today.getDate() &&
+      sessionDate.getMonth() === today.getMonth() &&
+      sessionDate.getFullYear() === today.getFullYear()
+    );
+  };
+
+  // Get today's sessions from all schedules
+  const getTodaySessions = () => {
+    const list = [];
+    allSchedules.forEach((schedule) => {
+      if (schedule.sessions && schedule.sessions.length > 0) {
+        schedule.sessions.forEach((sess) => {
+          if (isToday(sess.date)) {
+            list.push({
+              scheduleId: schedule._id,
+              sessionNumber: sess.sessionNumber,
+              courseId: schedule.courseId,
+              courseTitle: schedule.course?.title || schedule.title || 'Khóa học',
+              session: sess
+            });
+          }
+        });
+      }
+    });
+    return list.sort((a, b) => a.session.startTime.localeCompare(b.session.startTime));
+  };
+
+  const todaySessions = getTodaySessions();
+
+  // Status mappings
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'completed':
+        return <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">Đã hoàn thành</Badge>;
+      case 'cancelled':
+        return <Badge className="bg-red-500/10 text-red-400 border border-red-500/20 font-medium">Đã hủy</Badge>;
+      case 'in_progress':
+        return <Badge className="bg-purple-500/10 text-purple-400 border border-purple-500/20 font-medium">Đang học</Badge>;
+      case 'rescheduled':
+        return <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">Đổi lịch</Badge>;
+      case 'scheduled':
+      default:
+        return <Badge className="bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">Chờ diễn ra</Badge>;
+    }
+  };
+
+  // Render when no session is selected
+  if (!selectedSession) {
+    return (
+      <Card className="bg-[#111827] border-slate-800 shadow-xl h-full flex flex-col justify-between min-h-[400px]">
+        <CardContent className="p-6 flex flex-col h-full">
+          <div className="flex items-center gap-2 border-b border-slate-800 pb-4 mb-4">
+            <BookOpen className="h-5 w-5 text-purple-500" />
+            <h3 className="font-bold text-white text-base">Buổi học trong ngày</h3>
+          </div>
+
+          {todaySessions.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-10 text-slate-500 space-y-3">
+              <Calendar className="h-12 w-12 text-slate-700 animate-pulse" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-400">Không có buổi dạy nào hôm nay</p>
+                <p className="text-xs text-slate-500">Nhấp chọn sự kiện trên lịch để xem chi tiết hoặc điểm danh.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+              <p className="text-xs text-emerald-400 font-semibold mb-2 flex items-center gap-1.5">
+                <Info className="h-3.5 w-3.5" />
+                Hôm nay bạn có {todaySessions.length} buổi dạy:
+              </p>
+              {todaySessions.map((item, idx) => (
+                <div 
+                  key={idx}
+                  onClick={() => onSessionSelect(item)}
+                  className="p-3 bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl cursor-pointer transition-all duration-150 flex items-center justify-between group"
+                >
+                  <div className="space-y-1.5 flex-1 min-w-0 pr-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">
+                        Buổi {item.session.sessionNumber}
+                      </span>
+                      {getStatusBadge(item.session.status)}
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-200 truncate group-hover:text-white transition-colors">
+                      {item.courseTitle}
+                    </h4>
+                    <div className="flex items-center gap-1 text-[10px] text-slate-400">
+                      <Clock className="h-3 w-3 text-slate-500" />
+                      <span>{item.session.startTime} - {item.session.endTime}</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const { session, courseTitle, scheduleId, sessionNumber } = selectedSession;
+  const isCancelled = session.status === 'cancelled';
+  const attendanceCount = session.attendance?.length || 0;
+  const presentCount = session.attendance?.filter(a => a.status === 'present').length || 0;
+
+  return (
+    <Card className="bg-[#111827] border-slate-800 shadow-xl h-full min-h-[400px]">
+      <CardContent className="p-6 flex flex-col justify-between h-full space-y-6">
+        {/* Header Section */}
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-4">
+            <div className="space-y-1 min-w-0">
+              <span className="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
+                Buổi {sessionNumber}
+              </span>
+              <h3 className="font-bold text-white text-base truncate mt-1.5" title={session.title}>
+                {session.title}
+              </h3>
+              <p className="text-xs text-slate-400 truncate" title={courseTitle}>
+                {courseTitle}
+              </p>
+            </div>
+            {getStatusBadge(session.status)}
+          </div>
+
+          {/* Time & Location details */}
+          <div className="space-y-3 text-slate-300 text-sm">
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 bg-slate-900 rounded-lg border border-slate-800">
+                <Calendar className="h-4 w-4 text-slate-400" />
+              </div>
+              <span className="text-xs">{formatDate(session.date)}</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 bg-slate-900 rounded-lg border border-slate-800">
+                <Clock className="h-4 w-4 text-slate-400" />
+              </div>
+              <span className="text-xs">
+                {session.startTime} - {session.endTime} ({session.duration} phút)
+              </span>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="p-1.5 bg-slate-900 rounded-lg border border-slate-800 mt-0.5">
+                <MapPin className="h-4 w-4 text-slate-400" />
+              </div>
+              <div className="text-xs flex-1 min-w-0">
+                <span className="font-semibold block capitalize text-slate-400">
+                  {session.location?.type === 'online' ? 'Trực tuyến (Online)' : 'Trực tiếp (Offline)'}
+                </span>
+                {session.location?.type === 'online' ? (
+                  session.location?.link ? (
+                    <a 
+                      href={session.location.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-blue-400 hover:underline inline-flex items-center gap-1 truncate max-w-full mt-0.5"
+                    >
+                      Vào lớp học <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : (
+                    <span className="text-slate-500">Chưa cung cấp link phòng học</span>
+                  )
+                ) : (
+                  <span className="text-slate-300 block truncate" title={session.location?.address}>
+                    {session.location?.address || 'Chưa cung cấp địa chỉ'}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Attendance Stat */}
+            <div className="flex items-center gap-3 border-t border-slate-800 pt-3 mt-1">
+              <div className="p-1.5 bg-slate-900 rounded-lg border border-slate-800">
+                <UserCheck className="h-4 w-4 text-emerald-400" />
+              </div>
+              <span className="text-xs">
+                Điểm danh: <strong className="text-white">{presentCount}</strong> / {attendanceCount} có mặt
+              </span>
+            </div>
+          </div>
+
+          {/* Topic & Notes */}
+          <div className="space-y-3 pt-3 border-t border-slate-800">
+            {session.topic && (
+              <div className="space-y-1">
+                <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider block">Chủ đề bài học</span>
+                <p className="text-xs text-slate-300 leading-relaxed bg-slate-950 p-2.5 rounded-lg border border-slate-900">
+                  {session.topic}
+                </p>
+              </div>
+            )}
+
+            {session.notes && (
+              <div className="space-y-1">
+                <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider block">Ghi chú dạy học</span>
+                <p className="text-xs text-slate-300 leading-relaxed bg-slate-950 p-2.5 rounded-lg border border-slate-900">
+                  {session.notes}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="pt-2 border-t border-slate-800">
+          <Button
+            onClick={() => onTakeAttendance(selectedSession)}
+            disabled={isCancelled}
+            className={`w-full py-2.5 rounded-xl border-none font-bold text-xs flex items-center justify-center gap-2 ${
+              isCancelled 
+                ? 'bg-slate-800 text-slate-600 cursor-not-allowed' 
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+            }`}
+          >
+            <UserCheck className="h-4 w-4" />
+            {attendanceCount > 0 ? 'Cập nhật điểm danh' : 'Điểm danh học viên'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

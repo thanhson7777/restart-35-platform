@@ -210,17 +210,24 @@ const calculateProgress = async (enrollmentId) => {
 // ============ DROPOUT RISK ANALYSIS ============
 const getDropoutRisk = async (query) => {
   try {
-    const { courseId, minDaysInactive = 7 } = query
+    const { courseId, trainerId, minDaysInactive = 7 } = query
 
-    const matchCondition = {}
-    if (courseId) matchCondition.courseId = courseId
+    const db = await (await import('~/config/mongodb')).GET_DB()
+
+    const matchStage = { _destroy: { $ne: true } }
+    if (courseId) {
+      matchStage.courseId = courseId
+    } else if (trainerId) {
+      const courses = await db.collection('courses').find({ providerId: trainerId, _destroy: { $ne: true } }).toArray()
+      const courseIds = courses.map(c => c._id.toString())
+      matchStage.courseId = { $in: courseIds }
+    }
 
     const inactiveThreshold = new Date()
     inactiveThreshold.setDate(inactiveThreshold.getDate() - minDaysInactive)
 
-    const db = await (await import('~/config/mongodb')).GET_DB()
-
     const pipeline = [
+      { $match: matchStage },
       { $sort: { createdAt: -1 } },
       {
         $group: {

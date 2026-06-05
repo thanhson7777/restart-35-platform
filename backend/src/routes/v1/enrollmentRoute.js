@@ -24,6 +24,22 @@ Router.get(
   enrollmentController.getMyEnrollments
 )
 
+// Lấy thống kê enrollment (đặt trước :id để tránh trùng khớp)
+Router.get(
+  '/stats',
+  authMiddleware.isAuthorized,
+  enrollmentController.getEnrollmentStats
+)
+
+// Lấy danh sách học viên của trainer (đặt trước :id để tránh trùng khớp)
+Router.get(
+  '/trainer/list',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedTrainerOrAdmin,
+  enrollmentValidation.queryEnrollments,
+  enrollmentController.getTrainerEnrollments
+)
+
 // Lấy chi tiết enrollment
 Router.get(
   '/:id',
@@ -132,12 +148,7 @@ Router.post(
   enrollmentController.triggerManualIntervention
 )
 
-// Lấy thống kê enrollment
-Router.get(
-  '/stats',
-  authMiddleware.isAuthorized,
-  enrollmentController.getEnrollmentStats
-)
+// Thống kê đã được di chuyển lên trên tránh trùng route :id
 
 // ============ ADMIN ROUTES (Auth + Admin Required) ============
 

@@ -137,6 +137,21 @@ const getCourseEnrollments = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ============ GET TRAINER ENROLLMENTS (Trainer/Admin) ============
+const getTrainerEnrollments = async (req, res, next) => {
+  try {
+    const trainerId = req.user._id.toString()
+    const result = await enrollmentService.getTrainerEnrollments(req.query, trainerId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách học viên của giảng viên thành công!',
+      data: result.enrollments,
+      pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
 // ============ GET ALL ENROLLMENTS (Admin) ============
 const getAllEnrollments = async (req, res, next) => {
   try {
@@ -377,6 +392,7 @@ export const enrollmentController = {
   updateProgress,
   updateStatus,
   getCourseEnrollments,
+  getTrainerEnrollments,
   getEnrollmentStats,
   suspendEnrollment,
   completeEnrollment,

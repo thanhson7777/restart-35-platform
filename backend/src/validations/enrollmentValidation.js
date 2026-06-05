@@ -129,7 +129,9 @@ const queryEnrollments = async (req, res, next) => {
     startDate: Joi.date().timestamp(),
     endDate: Joi.date().timestamp(),
     sortBy: Joi.string().valid('enrolledAt', 'progress', 'status').default('enrolledAt'),
-    order: Joi.string().valid('asc', 'desc').default('desc')
+    order: Joi.string().valid('asc', 'desc').default('desc'),
+    search: Joi.string().allow('', null),
+    riskLevel: Joi.string().valid('low', 'medium', 'high', 'critical').allow('', null)
   })
 
   try {

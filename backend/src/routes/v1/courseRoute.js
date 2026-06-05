@@ -21,6 +21,33 @@ const upload = multer({
   }
 })
 
+const parseMultipartBody = (req, res, next) => {
+  const jsonFields = ['duration', 'location', 'skills', 'prerequisites', 'requirements', 'syllabus', 'outcomes']
+  const booleanFields = ['isFree', 'scholarshipEligibility']
+  const numberFields = ['fee', 'maxStudents']
+  
+  jsonFields.forEach(field => {
+    if (typeof req.body[field] === 'string' && req.body[field].trim() !== '') {
+      try {
+        req.body[field] = JSON.parse(req.body[field])
+      } catch (e) { /* Let validation handle it */ }
+    }
+  })
+
+  booleanFields.forEach(field => {
+    if (req.body[field] === 'true') req.body[field] = true
+    if (req.body[field] === 'false') req.body[field] = false
+  })
+
+  numberFields.forEach(field => {
+    if (typeof req.body[field] === 'string' && req.body[field].trim() !== '') {
+      const parsed = Number(req.body[field])
+      if (!isNaN(parsed)) req.body[field] = parsed
+    }
+  })
+  next()
+}
+
 // ============ PUBLIC ROUTES (No Auth Required) ============
 
 // Danh sách khóa học với filter
@@ -94,6 +121,7 @@ Router.post(
   '/',
   authMiddleware.isAuthorized,
   upload.single('thumbnail'),
+  parseMultipartBody,
   courseValidation.createCourse,
   courseController.createCourse
 )
@@ -111,6 +139,7 @@ Router.put(
   '/:id',
   authMiddleware.isAuthorized,
   upload.single('thumbnail'),
+  parseMultipartBody,
   courseValidation.checkId,
   courseValidation.updateCourse,
   courseController.updateCourse
@@ -180,3 +209,4 @@ Router.delete(
 )
 
 export const courseRoute = Router
+export { parseMultipartBody }

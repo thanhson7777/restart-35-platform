@@ -113,12 +113,12 @@ const validateBeforeCreate = async (data) => {
 // ============ CREATE ============
 const createNew = async (data, skipValidation = false) => {
   try {
+    if (!data.slug && data.title) {
+      data.slug = await createUniqueSlug(data.title)
+    }
     const validData = skipValidation
       ? data
       : await validateBeforeCreate(data)
-    if (!validData.slug) {
-      validData.slug = await createUniqueSlug(validData.title)
-    }
     return await GET_DB().collection(COURSE_COLLECTION_NAME).insertOne(validData)
   } catch (error) {
     throw new Error(error.message)

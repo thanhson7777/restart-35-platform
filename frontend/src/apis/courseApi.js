@@ -237,6 +237,76 @@ export const studentCheckin = (scheduleId, sessionNumber, data) =>
 export const getScheduleById = (id) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/${id}`);
 
+// ─── Trainer Courses (NEW) ──────────────────────────────────────────
+export const getMyCourses = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/me/my-courses`, { params });
+
+export const createCourse = (data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/courses`, data);
+
+export const updateCourse = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/courses/${id}`, data);
+
+export const deleteCourse = (id) =>
+  authorizeAxiosInstance.delete(`${API_ROOT}/v1/courses/${id}`);
+
+export const submitCourse = (id) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/courses/${id}/submit`);
+
+// ─── Trainer Enrollments (NEW) ──────────────────────────────────────
+export const getTrainerEnrollments = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/trainer/list`, { params });
+
+export const suspendEnrollment = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/suspend`, data);
+
+export const completeEnrollmentTrainer = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/complete`, data);
+
+export const failEnrollment = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/fail`, data);
+
+// ─── Trainer Schedules (NEW) ────────────────────────────────────────
+export const getTrainerSchedules = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/trainer/list`, { params });
+
+export const getTrainerScheduleStats = () =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/trainer/stats`);
+
+// ─── Trainer Reviews (NEW) ─────────────────────────────────────────
+export const respondToReview = (id, data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/reviews/${id}/response`, {
+    content: data.responseText || data.content,
+    courseId: data.courseId
+  });
+
+export const getReviewsByCourse = (courseId, params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/reviews/course/${courseId}`, { params });
+
+export const getReviewById = (id) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/reviews/${id}`);
+
+// ─── Trainer Placements (NEW) ───────────────────────────────────────
+export const getPlacements = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/placements`, { params });
+
+export const createPlacement = (data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/placements`, data);
+
+export const updatePlacement = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/placements/${id}`, data);
+
+export const updatePlacementStatus = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/placements/${id}/status`, data);
+
+export const getPlacementById = (id) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/placements/${id}`);
+
+// ─── Trainer Learning Records / Dropout Risk (NEW) ──────────────────
+export const getDropoutRisk = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/learning-records/analytics/dropout-risk`, { params });
+
+
 
 
 
