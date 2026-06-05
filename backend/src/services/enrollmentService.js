@@ -618,6 +618,14 @@ const getEnrollmentStats = async (courseId = null, trainerId = null) => {
       return await enrollmentModel.getStatsByCourse(courseId)
     }
 
+    if (trainerId) {
+      const user = await userModel.findOneById(trainerId)
+      if (user && user.role === USER_ROLES.ADMIN) {
+        return await enrollmentModel.getOverallStats()
+      }
+      return await enrollmentModel.getOverallStats(trainerId)
+    }
+
     return await enrollmentModel.getOverallStats()
   } catch (error) { throw error }
 }
@@ -954,6 +962,141 @@ const triggerManualIntervention = async (enrollmentId, type, trainerId) => {
   } catch (error) { throw error }
 }
 
+// ============ GET TRAINER ENROLLMENTS ============
+const getTrainerEnrollments = async (queryParams, trainerId) => {
+  try {
+    const {
+      page = DEFAULT_PAGE,
+      limit = DEFAULT_ITEM_PER_PAGE,
+      status,
+      courseId,
+      riskLevel,
+      search
+    } = queryParams
+
+    const currentPage = parseInt(page, 10) || DEFAULT_PAGE
+    const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
+    const skip = (currentPage - 1) * recordLimit
+
+    const db = GET_DB()
+
+    // 1. Get all courses owned by the trainer
+    const courses = await db.collection(courseModel.COURSE_COLLECTION_NAME).find({
+      providerId: trainerId,
+      _destroy: { $ne: true }
+    }).toArray()
+    const ownedCourseIds = courses.map(c => c._id.toString())
+
+    // If no courses, return empty
+    if (ownedCourseIds.length === 0) {
+      return {
+        enrollments: [],
+        pagination: {
+          totalRecords: 0,
+          totalPages: 0,
+          currentPage,
+          limit: recordLimit
+        }
+      }
+    }
+
+    const filters = {
+      _destroy: { $ne: true }
+    }
+
+    // 2. Filter by courseId
+    if (courseId) {
+      if (!ownedCourseIds.includes(courseId)) {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền xem thông tin khóa học này!')
+      }
+      filters.courseId = courseId
+    } else {
+      filters.courseId = { $in: ownedCourseIds }
+    }
+
+    // 3. Filter by status
+    if (status) {
+      filters.status = status
+    }
+
+    // 4. Filter by risk level (dropout_risk.level)
+    if (riskLevel) {
+      filters['dropout_risk.level'] = riskLevel
+    }
+
+    // 5. Filter by search (name or email)
+    if (search) {
+      const users = await db.collection(userModel.USER_COLLECTION_NAME).find({
+        role: USER_ROLES.WORKER,
+        _destroy: { $ne: true },
+        $or: [
+          { displayName: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } }
+        ]
+      }).toArray()
+      
+      const userIds = users.map(u => u._id.toString())
+      if (userIds.length === 0) {
+        return {
+          enrollments: [],
+          pagination: {
+            totalRecords: 0,
+            totalPages: 0,
+            currentPage,
+            limit: recordLimit
+          }
+        }
+      }
+      filters.userId = { $in: userIds }
+    }
+
+    // 6. Query enrollments using enrollmentModel.findAll
+    const { enrollments, totalEnrollments } = await enrollmentModel.findAll(skip, recordLimit, filters)
+
+    // 7. Enrich enrollments with course details, user details, and profiles
+    const enrichedEnrollments = await Promise.all(
+      enrollments.map(async (enrollment) => {
+        const course = await courseModel.findOneById(enrollment.courseId)
+        const userInfo = await userModel.findOneById(enrollment.userId)
+        const profile = await workerProfileModel.findOneByUserId(enrollment.userId)
+        return {
+          ...enrollment,
+          course: course ? {
+            _id: course._id,
+            title: course.title,
+            slug: course.slug,
+            thumbnail: course.thumbnail,
+            duration: course.duration,
+            schedule: course.schedule,
+            location: course.location,
+            providerId: course.providerId
+          } : null,
+          user: userInfo ? {
+            _id: userInfo._id,
+            displayName: userInfo.displayName,
+            email: userInfo.email,
+            avatar: userInfo.avatar,
+            phone: userInfo.phone
+          } : null,
+          profile: profile || null
+        }
+      })
+    )
+
+    return {
+      enrollments: enrichedEnrollments,
+      pagination: {
+        totalRecords: totalEnrollments,
+        totalPages: Math.ceil(totalEnrollments / recordLimit),
+        currentPage,
+        limit: recordLimit
+      }
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const enrollmentService = {
   // Core
   enrollCourse,
@@ -961,6 +1104,7 @@ export const enrollmentService = {
   getEnrollmentsByCourse,
   getEnrollmentById,
   getAllEnrollments,
+  getTrainerEnrollments,
 
   // Update
   updateProgress,

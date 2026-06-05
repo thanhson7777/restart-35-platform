@@ -32,6 +32,20 @@ import AttendancePage from '@/pages/admin/AttendancePage';
 import CheckinPage from '@/pages/my-enrollments/CheckinPage';
 import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
 
+// Trainer Dashboard Imports
+import TrainerLayout from '@/components/trainer/TrainerLayout';
+import TrainerDashboardPage from '@/pages/trainer/TrainerDashboardPage';
+import TrainerCoursesPage from '@/pages/trainer/TrainerCoursesPage';
+import TrainerCourseFormPage from '@/pages/trainer/TrainerCourseFormPage';
+import TrainerCourseStudentsPage from '@/pages/trainer/TrainerCourseStudentsPage';
+import TrainerCourseSchedulePage from '@/pages/trainer/TrainerCourseSchedulePage';
+import TrainerEnrollmentsPage from '@/pages/trainer/TrainerEnrollmentsPage';
+import TrainerEnrollmentDetailPage from '@/pages/trainer/TrainerEnrollmentDetailPage';
+import TrainerSchedulePage from '@/pages/trainer/TrainerSchedulePage';
+import TrainerPlacementsPage from '@/pages/trainer/TrainerPlacementsPage';
+import TrainerReviewsPage from '@/pages/trainer/TrainerReviewsPage';
+
+
 function App() {
   const dispatch = useDispatch();
   const currentUser = useSelector(selectCurrentUser);
@@ -83,6 +97,20 @@ function App() {
         <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
         <Route path="/admin/applications" element={<AdminDashboardPage />} />
         <Route path="/admin/scholarships" element={<AdminScholarshipsPage />} />
+
+        {/* Trainer Routes */}
+        <Route path="/trainer" element={<TrainerLayout><TrainerDashboardPage /></TrainerLayout>} />
+        <Route path="/trainer/courses" element={<TrainerLayout><TrainerCoursesPage /></TrainerLayout>} />
+        <Route path="/trainer/courses/new" element={<TrainerLayout><TrainerCourseFormPage /></TrainerLayout>} />
+        <Route path="/trainer/courses/:id/edit" element={<TrainerLayout><TrainerCourseFormPage /></TrainerLayout>} />
+        <Route path="/trainer/courses/:id/students" element={<TrainerLayout><TrainerCourseStudentsPage /></TrainerLayout>} />
+        <Route path="/trainer/courses/:id/schedule" element={<TrainerLayout><TrainerCourseSchedulePage /></TrainerLayout>} />
+        <Route path="/trainer/enrollments" element={<TrainerLayout><TrainerEnrollmentsPage /></TrainerLayout>} />
+        <Route path="/trainer/enrollments/:id" element={<TrainerLayout><TrainerEnrollmentDetailPage /></TrainerLayout>} />
+        <Route path="/trainer/schedule" element={<TrainerLayout><TrainerSchedulePage /></TrainerLayout>} />
+        <Route path="/trainer/placements" element={<TrainerLayout><TrainerPlacementsPage /></TrainerLayout>} />
+        <Route path="/trainer/reviews" element={<TrainerLayout><TrainerReviewsPage /></TrainerLayout>} />
+
         {/* Worker Profile Page */}
         <Route path="/worker-profile" element={<WorkerProfilePage />} />
         {/* Jobs Page */}

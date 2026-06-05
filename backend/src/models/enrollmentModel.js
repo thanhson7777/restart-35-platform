@@ -525,23 +525,42 @@ const getStatsByUser = async (userId) => {
   }
 }
 
-const getOverallStats = async () => {
+const getOverallStats = async (trainerId = null) => {
   try {
-    const pipeline = [
-      {
+    const db = GET_DB()
+    const pipeline = []
+
+    let courseIds = null
+    if (trainerId) {
+      // Find all courses owned by this trainer
+      const courses = await db.collection(courseModel.COURSE_COLLECTION_NAME).find({
+        providerId: trainerId,
+        _destroy: { $ne: true }
+      }).toArray()
+      courseIds = courses.map(c => c._id.toString())
+
+      pipeline.push({
+        $match: {
+          courseId: { $in: courseIds },
+          _destroy: { $ne: true }
+        }
+      })
+    } else {
+      pipeline.push({
         $match: {
           _destroy: { $ne: true }
         }
-      },
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
-    ]
+      })
+    }
 
-    const stats = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(pipeline).toArray()
+    pipeline.push({
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 }
+      }
+    })
+
+    const stats = await db.collection(ENROLLMENT_COLLECTION_NAME).aggregate(pipeline).toArray()
 
     const result = {
       total: 0,
@@ -552,6 +571,74 @@ const getOverallStats = async () => {
       result.byStatus[stat._id] = stat.count
       result.total += stat.count
     })
+
+    // Retrieve recent enrollments for dashboard compatibility
+    const matchQuery = { _destroy: { $ne: true } }
+    if (courseIds) {
+      matchQuery.courseId = { $in: courseIds }
+    }
+
+    const enrollments = await db.collection(ENROLLMENT_COLLECTION_NAME)
+      .find(matchQuery)
+      .sort({ enrolledAt: -1 })
+      .limit(5)
+      .toArray()
+
+    const recentEnrollments = await Promise.all(
+      enrollments.map(async (enrollment) => {
+        const course = await courseModel.findOneById(enrollment.courseId)
+        const user = await userModel.findOneById(enrollment.userId)
+        return {
+          enrollmentId: enrollment._id,
+          userId: enrollment.userId,
+          userName: user?.displayName || 'N/A',
+          userEmail: user?.email || 'N/A',
+          userAvatar: user?.avatar || null,
+          courseId: enrollment.courseId,
+          courseTitle: course?.title || 'N/A',
+          enrolledAt: enrollment.enrolledAt,
+          status: enrollment.status,
+          progress: enrollment.progress?.percentage || 0
+        }
+      })
+    )
+
+    // Retrieve monthly enrollment trend (last 12 months)
+    const startDate = new Date()
+    startDate.setMonth(startDate.getMonth() - 12)
+    const trendMatchQuery = {
+      _destroy: { $ne: true },
+      enrolledAt: { $gte: startDate }
+    }
+    if (courseIds) {
+      trendMatchQuery.courseId = { $in: courseIds }
+    }
+
+    const monthlyTrend = await db.collection(ENROLLMENT_COLLECTION_NAME).aggregate([
+      { $match: trendMatchQuery },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$enrolledAt' },
+            month: { $month: '$enrolledAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1 } }
+    ]).toArray()
+
+    const trendData = monthlyTrend.map(item => {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const label = `${monthNames[item._id.month - 1]} ${item._id.year}`
+      return {
+        month: label,
+        count: item.count
+      }
+    })
+
+    result.recentEnrollments = recentEnrollments
+    result.monthlyTrend = trendData
 
     return result
   } catch (error) {

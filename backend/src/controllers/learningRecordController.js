@@ -89,7 +89,11 @@ const calculateProgress = async (req, res, next) => {
 // ============ ANALYTICS ============
 const getDropoutRisk = async (req, res, next) => {
   try {
-    const result = await learningRecordService.getDropoutRisk(req.query)
+    const query = { ...req.query }
+    if (req.user && req.user.role === 'trainer') {
+      query.trainerId = req.user._id.toString()
+    }
+    const result = await learningRecordService.getDropoutRisk(query)
 
     res.status(StatusCodes.OK).json({
       success: true,
