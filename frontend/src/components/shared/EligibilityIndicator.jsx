@@ -1,5 +1,5 @@
 import { Alert, AlertDescription } from '@/components/ui';
-import { CheckCircle2, AlertTriangle, XCircle, Clock } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, Clock, BookOpen } from 'lucide-react';
 
 export const EligibilityIndicator = ({ eligibility }) => {
   if (!eligibility) return null;
@@ -10,11 +10,31 @@ export const EligibilityIndicator = ({ eligibility }) => {
         <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
         <div>
           <p className="font-medium text-red-700">{eligibility.reason}</p>
-          {eligibility.missingPrerequisites?.length > 0 && (
+          {(eligibility.missingPrerequisites || eligibility.prerequisiteWarnings)?.length > 0 && (
             <p className="text-sm text-red-600 mt-1">
-              Cần hoàn thành: {eligibility.missingPrerequisites.join(', ')}
+              Cần hoàn thành: {(eligibility.missingPrerequisites || eligibility.prerequisiteWarnings).join(', ')}
             </p>
           )}
+        </div>
+      </div>
+    );
+  }
+
+  // Prerequisite warnings — amber, non-blocking
+  if (eligibility.prerequisiteWarnings?.length > 0) {
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
+        <BookOpen className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+        <div>
+          <p className="font-medium text-amber-700">
+            Bạn chưa hoàn thành khóa tiên quyết
+          </p>
+          <p className="text-sm text-amber-600 mt-1">
+            Nên hoàn thành trước: {eligibility.prerequisiteWarnings.join(', ')}
+          </p>
+          <p className="text-sm text-amber-500 mt-1">
+            Bạn vẫn có thể đăng ký, nhưng nền tảng có thể khó hơn.
+          </p>
         </div>
       </div>
     );

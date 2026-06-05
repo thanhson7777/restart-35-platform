@@ -29,6 +29,19 @@ const getScheduleByCourse = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ============ GET SCHEDULE BY COURSE (Public - no auth) ============
+const getScheduleByCoursePublic = async (req, res, next) => {
+  try {
+    const schedule = await scheduleService.getScheduleByCoursePublic(req.params.courseId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy lịch học thành công!',
+      data: schedule
+    })
+  } catch (error) { next(error) }
+}
+
 // ============ GET MY SCHEDULES ============
 const getMySchedules = async (req, res, next) => {
   try {
@@ -234,6 +247,23 @@ const getSessionAttendance = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ============ STUDENT CHECK-IN ============
+const studentCheckin = async (req, res, next) => {
+  try {
+    const studentId = req.user._id.toString()
+    const { id: scheduleId, sessionNumber } = req.params
+    const { pin } = req.body
+
+    const schedule = await scheduleService.studentCheckin(scheduleId, parseInt(sessionNumber), studentId, pin)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Điểm danh thành công!',
+      data: schedule
+    })
+  } catch (error) { next(error) }
+}
+
 // ============ GET TRAINER SCHEDULES ============
 const getTrainerSchedules = async (req, res, next) => {
   try {
@@ -268,8 +298,10 @@ export const scheduleController = {
   getMySchedules,
   getUpcomingSchedule,
   getScheduleByCourse,
+  getScheduleByCoursePublic,
   getScheduleById,
   getSessionAttendance,
+  studentCheckin,
 
   // Trainer
   createSchedule,

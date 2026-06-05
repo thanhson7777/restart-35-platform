@@ -94,7 +94,7 @@ const checkPaymentId = async (req, res, next) => {
 // ============ Check Gateway Validation ============
 const checkGateway = async (req, res, next) => {
   const { gateway } = req.params
-  const validGateways = ['momo', 'vnpay', 'zalopay']
+  const validGateways = ['momo', 'vnpay', 'zalopay', 'casso', 'payos']
   if (!validGateways.includes(gateway)) {
     next(new ApiError(StatusCodes.BAD_REQUEST, 'Payment gateway không hợp lệ'))
     return

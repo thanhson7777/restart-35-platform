@@ -59,7 +59,8 @@ const getIsaRepayments = async (query) => {
       page = DEFAULT_PAGE,
       item_per_page = DEFAULT_ITEM_PER_PAGE,
       userId,
-      status
+      status,
+      enrollmentId
     } = query
 
     const skip = (page - 1) * item_per_page
@@ -69,6 +70,7 @@ const getIsaRepayments = async (query) => {
 
     if (userId) matchCondition.userId = userId
     if (status) matchCondition.status = status
+    if (enrollmentId) matchCondition.enrollmentId = enrollmentId
 
     const result = await isaRepaymentModel.findByPaginate(matchCondition, skip, limit)
 

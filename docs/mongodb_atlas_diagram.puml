@@ -1,0 +1,309 @@
+@startuml ReStart35_MongoDB_Atlas
+!theme plain
+
+title Re-Start 35+ - MongoDB Atlas Deployment Evidence
+
+' ============================================================
+' MONGODB ATLAS CLUSTER
+' ============================================================
+
+package "MongoDB Atlas Cluster" <<Frame>> {
+  
+  database "cluster0.axntlfn.mongodb.net" as CLUSTER {
+    
+    database "restart-35-platform" as DB {
+      
+      ' ============================================================
+      ' COLLECTIONS - Theo thứ tự ưu tiên
+      ' ============================================================
+      
+      package "📦 CORE COLLECTIONS" <<Group>> {
+        
+        collection "users" as users {
+          field "_id: ObjectId" as id
+          field "email: String (unique)" as email
+          field "password: String (bcrypt)" as password
+          field "role: String\n(worker/employer/admin/trainer)" as role
+          field "fullname: String" as fullname
+          field "phone: String" as phone
+          field "avatar_url: String" as avatar
+          field "is_active: Boolean" as active
+          field "email_verified: Boolean" as verified
+          field "created_at: DateTime" as created
+          field "updated_at: DateTime" as updated
+          
+          index "{ email: 1 }" as email_idx
+          index "{ role: 1 }" as role_idx
+        }
+        
+        collection "worker_profiles" as profiles {
+          field "_id: ObjectId" as pid
+          field "user_id: ObjectId (FK)" as uid
+          field "age: Number (35-65)" as age
+          field "gender: String" as gender
+          field "education: String" as edu
+          field "employment_status: String" as emp_status
+          field "marital_status: String" as marital
+          field "region: String" as region
+          field "target_salary: Number" as salary
+          field "preferred_job_type: String" as job_type
+          field "current_industry: String" as industry
+          field "current_role: String" as role
+          field "years_experience: Number" as years_exp
+          field "cv_url: String" as cv
+          field "employment_history: Array" as history
+          field "skills: Array[ESCO codes]" as skills
+          field "barriers: Object\n(health/family/techGab)" as barriers
+          field "risk_level: String" as risk
+          field "risk_score: Number" as risk_score
+          field "last_assessed: DateTime" as assessed
+          
+          index "{ user_id: 1 }" as uid_idx
+          index "{ age: 1 }" as age_idx
+          index "{ risk_level: 1 }" as risk_idx
+        }
+        
+        collection "interactions" as interactions {
+          field "_id: ObjectId"
+          field "user_id: ObjectId (FK)"
+          field "interaction_type: String"
+          field "resource_type: String"
+          field "resource_id: ObjectId"
+          field "metadata: Object"
+          field "session_id: String"
+          field "created_at: DateTime"
+          
+          index "{ user_id: 1, created_at: -1 }" as inter_idx
+        }
+      }
+      
+      package "📚 COURSE MANAGEMENT" <<Group>> {
+        
+        collection "categories" as categories {
+          field "_id: ObjectId"
+          field "name: String"
+          field "slug: String"
+          field "description: String"
+          field "icon: String"
+          field "parent_id: ObjectId (self-ref)"
+          field "sort_order: Number"
+          field "is_active: Boolean"
+          
+          index "{ slug: 1 }" as slug_idx
+        }
+        
+        collection "courses" as courses {
+          field "_id: ObjectId"
+          field "title: String"
+          field "description: String"
+          field "category_id: ObjectId (FK)"
+          field "trainer_id: ObjectId (FK → users)"
+          field "thumbnail_url: String"
+          field "duration_hours: Number"
+          field "level: String"
+          field "price: Number"
+          field "is_free: Boolean"
+          field "syllabus: Array"
+          field "requirements: Array"
+          field "target_audience: Array"
+          field "outcomes: Array"
+          field "is_published: Boolean"
+          
+          index "{ category_id: 1 }" as cat_idx
+          index "{ trainer_id: 1 }" as trainer_idx
+        }
+        
+        collection "enrollments" as enrollments {
+          field "_id: ObjectId"
+          field "user_id: ObjectId (FK)"
+          field "course_id: ObjectId (FK)"
+          field "enrolled_at: DateTime"
+          field "progress_percent: Number"
+          field "status: String"
+          field "completed_at: DateTime"
+          field "certificate_url: String"
+          
+          index "{ user_id: 1, course_id: 1 }" as enroll_idx
+        }
+        
+        collection "schedules" as schedules {
+          field "_id: ObjectId"
+          field "course_id: ObjectId (FK)"
+          field "title: String"
+          field "description: String"
+          field "start_time: DateTime"
+          field "end_time: DateTime"
+          field "location: String"
+          field "meeting_link: String"
+          field "max_participants: Number"
+          field "is_online: Boolean"
+          
+          index "{ course_id: 1, start_time: 1 }" as sched_idx
+        }
+        
+        collection "reviews" as reviews {
+          field "_id: ObjectId"
+          field "user_id: ObjectId (FK)"
+          field "course_id: ObjectId (FK)"
+          field "rating: Number (1-5)"
+          field "comment: String"
+          field "pros: String"
+          field "cons: String"
+          field "is_verified_purchase: Boolean"
+          field "helpful_count: Number"
+          
+          index "{ course_id: 1 }" as review_idx
+        }
+      }
+      
+      package "💼 JOB & OUTCOMES" <<Group>> {
+        
+        collection "applications" as applications {
+          field "_id: ObjectId"
+          field "user_id: ObjectId (FK)"
+          field "job_id: String (external)"
+          field "job_title: String"
+          field "company_name: String"
+          field "status: String"
+          field "applied_at: DateTime"
+          field "notes: String"
+          
+          index "{ user_id: 1 }" as app_idx
+        }
+        
+        collection "job_outcomes" as outcomes {
+          field "_id: ObjectId"
+          field "user_id: ObjectId (FK)"
+          field "job_title: String"
+          field "company_name: String"
+          field "salary: Number"
+          field "job_type: String"
+          field "location: String"
+          field "source: String"
+          field "hired_at: DateTime"
+          field "is_still_employed: Boolean"
+          
+          index "{ user_id: 1 }" as out_idx
+        }
+        
+        collection "career_recommendations" as recs {
+          field "_id: ObjectId"
+          field "user_id: ObjectId (FK)"
+          field "recommendation_type: String"
+          field "input_profile: Object"
+          field "results: Object"
+          field "sources: Array"
+          field "model_version: String"
+          field "generated_at: DateTime"
+          
+          index "{ user_id: 1, generated_at: -1 }" as rec_idx
+        }
+      }
+      
+      package "🎓 SCHOLARSHIP & SUPPORT" <<Group>> {
+        
+        collection "scholarships" as scholarships {
+          field "_id: ObjectId"
+          field "title: String"
+          field "description: String"
+          field "provider: String"
+          field "amount: Number"
+          field "deadline: DateTime"
+          field "requirements: Array"
+          field "benefits: Array"
+          field "application_url: String"
+          field "is_active: Boolean"
+          
+          index "{ is_active: 1, deadline: 1 }" as schol_idx
+        }
+        
+        collection "scholarship_applications" as schol_apps {
+          field "_id: ObjectId"
+          field "user_id: ObjectId (FK)"
+          field "scholarship_id: ObjectId (FK)"
+          field "status: String"
+          field "documents: Array"
+          field "notes: String"
+          field "reviewed_by: ObjectId (FK)"
+          field "reviewed_at: DateTime"
+          
+          index "{ user_id: 1, scholarship_id: 1 }" as schol_app_idx
+        }
+      }
+      
+      package "🏢 ESCO TAXONOMY" <<Group>> {
+        
+        collection "esco_occupations" as esco_occ {
+          field "_id: ObjectId"
+          field "esco_code: String (unique)"
+          field "title_vi: String"
+          field "title_en: String"
+          field "description_vi: String"
+          field "description_en: String"
+          field "iscocode: String"
+          field "category: String"
+          field "skills: Array[ESCode refs]"
+          field "alternative_labels: Array"
+          
+          index "{ esco_code: 1 }" as occ_idx
+          index "{ title_vi: 'text' }" as occ_text_idx
+        }
+        
+        collection "esco_skills" as esco_skills {
+          field "_id: ObjectId"
+          field "esco_code: String (unique)"
+          field "title_vi: String"
+          field "title_en: String"
+          field "skill_type: String"
+          field "category: String"
+          field "description: String"
+          
+          index "{ esco_code: 1 }" as skill_idx
+          index "{ title_vi: 'text' }" as skill_text_idx
+        }
+      }
+    }
+  }
+}
+
+' ============================================================
+' CONNECTIONS (Relationships)
+' ============================================================
+
+users::id --o{ profiles::uid : "1:N"
+users::id --o{ enrollments::uid : "1:N"
+users::id --o{ reviews::uid : "1:N"
+users::id --o{ applications::uid : "1:N"
+users::id --o{ outcomes::uid : "1:N"
+users::id --o{ recs::uid : "1:N"
+users::id --o{ schol_apps::uid : "1:N"
+
+categories::id --o{ courses::cat_id : "1:N"
+users::id --o{ courses::trainer_id : "1:N"
+courses::id --o{ enrollments::course_id : "1:N"
+courses::id --o{ schedules::course_id : "1:N"
+courses::id --o{ reviews::course_id : "1:N"
+
+scholarships::id --o{ schol_apps::scholarship_id : "1:N"
+users::id --o{ schol_apps::reviewed_by : "1:N"
+
+' ============================================================
+' DEPLOYMENT INFO
+' ============================================================
+
+legend right
+  |= MongoDB Atlas Evidence |= |
+  | **Cluster URL** | cluster0.axntlfn.mongodb.net |
+  | **Database** | restart-35-platform |
+  | **Database User** | thanhson11052003_db_user |
+  | **Cluster Tier** | M0 (Shared Sandbox - Free) |
+  | **MongoDB Version** | 7.0+ |
+  | **Storage Engine** | WiredTiger |
+  | **Total Collections** | 13 |
+  | **Total Documents** | Đang chạy thực tế |
+  | **Replica Set** | cluster0-shard-00-00-xxxx |
+  | **Atlas Search** | Enabled |
+  | **Atlas Vector Search** | Enabled |
+endlegend
+
+@enduml

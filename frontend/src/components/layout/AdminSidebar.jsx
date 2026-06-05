@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  CheckSquare,
 } from 'lucide-react';
 import { Avatar, Badge } from '@/components/ui';
 
@@ -32,6 +33,11 @@ const adminNavItems = [
     title: 'Quản lý khóa học',
     href: '/admin/courses',
     icon: BookOpen,
+  },
+  {
+    title: 'Duyệt khóa học',
+    href: '/admin/courses/approval',
+    icon: CheckSquare,
   },
   {
     title: 'Quản lý tuyển sinh',

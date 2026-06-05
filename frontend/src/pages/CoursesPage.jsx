@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CourseCard } from '@/components/course/CourseCard';
 import { CourseFilters } from '@/components/course/CourseFilters';
 import { CourseGrid } from '@/components/course/CourseGrid';
-import { Skeleton } from '@/components/ui';
+import { ViewModeToggle } from '@/components/course/ViewModeToggle';
 import { getCourses, getRecommendedCourses } from '@/apis/courseApi';
+import { getCategoriesAPI } from '@/apis';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
-import { BookOpen } from 'lucide-react';
 
 const DEFAULT_FILTERS = {
   search: '',
@@ -15,6 +15,8 @@ const DEFAULT_FILTERS = {
   level: '',
   isFree: false,
   hasScholarship: false,
+  delivery_type: '',
+  funding_model: '',
   sortBy: 'enrollmentCount',
   order: 'desc',
   page: 1,
@@ -27,11 +29,22 @@ export default function CoursesPage() {
   const currentUser = useSelector(selectCurrentUser);
 
   const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [recommendedCourses, setRecommendedCourses] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recommendedLoading, setRecommendedLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Initialize viewMode from localStorage (default to 'grid')
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('courseViewMode') || 'grid';
+  });
+
+  // Sync viewMode to localStorage when changed
+  useEffect(() => {
+    localStorage.setItem('courseViewMode', viewMode);
+  }, [viewMode]);
 
   // Initialize filters from URL params
   const [filters, setFilters] = useState(() => ({
@@ -41,6 +54,8 @@ export default function CoursesPage() {
     level: searchParams.get('level') || '',
     isFree: searchParams.get('isFree') === 'true',
     hasScholarship: searchParams.get('hasScholarship') === 'true',
+    delivery_type: searchParams.get('delivery_type') || '',
+    funding_model: searchParams.get('funding_model') || '',
     sortBy: searchParams.get('sortBy') || 'enrollmentCount',
     order: searchParams.get('order') || 'desc',
     page: parseInt(searchParams.get('page') || '1'),
@@ -54,13 +69,15 @@ export default function CoursesPage() {
     if (f.level) params.level = f.level;
     if (f.isFree) params.isFree = 'true';
     if (f.hasScholarship) params.hasScholarship = 'true';
+    if (f.delivery_type) params.delivery_type = f.delivery_type;
+    if (f.funding_model) params.funding_model = f.funding_model;
     if (f.sortBy && f.sortBy !== 'enrollmentCount') params.sortBy = f.sortBy;
     if (f.order && f.order !== 'desc') params.order = f.order;
     if (f.page && f.page > 1) params.page = String(f.page);
     setSearchParams(params, { replace: true });
   }, [setSearchParams]);
 
-  // Fetch courses
+  // Fetch courses list
   const fetchCourses = useCallback(async (f) => {
     setLoading(true);
     setError(null);
@@ -82,6 +99,17 @@ export default function CoursesPage() {
       setCourses([]);
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  // Fetch categories list
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await getCategoriesAPI();
+      const list = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
+      setCategories(list);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
     }
   }, []);
 
@@ -113,6 +141,7 @@ export default function CoursesPage() {
   // Initial load
   useEffect(() => {
     fetchCourses(filters);
+    fetchCategories();
   }, []);
 
   // Fetch recommended when user changes
@@ -148,30 +177,43 @@ export default function CoursesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-primary text-white py-10">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-2">Khóa học</h1>
-          <p className="text-primary-foreground/80">
-            Khám phá hơn {pagination?.totalItems || '...'} khóa học chất lượng cho người lao động 35+
+      {/* Premium Dark Theme Header with Grid & Mesh Background */}
+      <div className="relative overflow-hidden bg-zinc-950 text-white py-16 border-b border-zinc-900">
+        {/* Glowing emerald accent orb in the top right corner */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.08),transparent_45%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase font-semibold tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4">
+            Khóa học & Kỹ năng
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
+            Nâng tầm Kỹ năng & Sự nghiệp
+          </h1>
+          <p className="text-zinc-400 text-sm sm:text-base max-w-xl leading-relaxed">
+            Khám phá hơn {pagination?.totalItems || '...'} khóa học chất lượng được thiết kế riêng giúp người lao động 35+ vững vàng kỹ năng, tự tin mở rộng cơ hội mới.
           </p>
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Filters */}
         <div className="mb-8">
-          <CourseFilters filters={filters} onChange={handleFiltersChange} />
+          <CourseFilters 
+            filters={filters} 
+            onChange={handleFiltersChange} 
+            categories={categories}
+          />
         </div>
 
         {/* Recommended section (logged-in users) */}
         {currentUser && recommendedList.length > 0 && !loading && (
-          <section className="mb-10">
+          <section className="mb-10 p-6 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/15 border border-zinc-200/50 dark:border-zinc-850">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-xl">🎯</span>
-              <h2 className="text-xl font-semibold">Gợi ý cho bạn</h2>
-              <span className="text-sm text-muted-foreground">
-                (dựa trên hồ sơ & kỹ năng của bạn)
+              <span className="text-lg">🎯</span>
+              <h2 className="text-base font-bold tracking-tight text-zinc-900 dark:text-white">Gợi ý cho bạn</h2>
+              <span className="text-xs text-muted-foreground font-medium">
+                (Dựa trên hồ sơ & kỹ năng cá nhân)
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -188,26 +230,27 @@ export default function CoursesPage() {
         )}
 
         {/* All courses header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">
+        <div className="flex items-center justify-between mb-6 pb-2 border-b border-zinc-100 dark:border-zinc-900">
+          <h2 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
             Tất cả khóa học
             {pagination && (
-              <span className="text-muted-foreground font-normal text-base ml-2">
-                ({pagination.totalItems} khóa)
+              <span className="text-zinc-400 font-semibold text-xs px-2.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/30 dark:border-zinc-800">
+                {pagination.totalItems} khóa
               </span>
             )}
           </h2>
+          <ViewModeToggle mode={viewMode} onChange={setViewMode} />
         </div>
 
-        {/* Course grid */}
+        {/* Course Grid / List */}
         {error ? (
-          <div className="flex flex-col items-center py-16">
-            <p className="text-destructive font-medium mb-2">{error}</p>
+          <div className="flex flex-col items-center py-20 text-center">
+            <p className="text-destructive font-medium mb-3">{error}</p>
             <button
               onClick={() => fetchCourses(filters)}
-              className="text-primary underline text-sm"
+              className="px-4 py-2 text-xs font-semibold bg-primary text-white rounded-xl hover:bg-primary/95 transition-colors shadow-sm"
             >
-              Thử lại
+              Thử tải lại trang
             </button>
           </div>
         ) : (
@@ -216,28 +259,30 @@ export default function CoursesPage() {
             loading={loading}
             matchScores={matchScores}
             onCourseClick={handleCourseClick}
+            viewMode={viewMode}
             emptyMessage={
               filters.search
-                ? `Không tìm thấy khóa học với từ khóa "${filters.search}"`
+                ? `Không tìm thấy khóa học nào phù hợp với từ khóa "${filters.search}"`
                 : 'Không tìm thấy khóa học phù hợp'
             }
           />
         )}
 
-        {/* Pagination */}
+        {/* Premium Styled Pagination */}
         {pagination && pagination.totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-8">
+          <div className="flex justify-center gap-2 mt-12 pt-6 border-t border-zinc-100 dark:border-zinc-900">
             {Array.from({ length: pagination.totalPages }).map((_, i) => {
               const page = i + 1;
               const isCurrent = page === pagination.currentPage;
+              
               return (
                 <button
                   key={page}
                   onClick={() => handleFiltersChange({ ...filters, page })}
-                  className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                  className={`w-10 h-10 rounded-xl text-xs font-bold border transition-all duration-300 ${
                     isCurrent
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted hover:bg-muted/80'
+                      ? 'bg-zinc-900 border-zinc-900 text-white dark:bg-white dark:border-white dark:text-zinc-950 shadow-sm'
+                      : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
                   }`}
                 >
                   {page}

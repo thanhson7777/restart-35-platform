@@ -178,10 +178,17 @@ const checkId = async (req, res, next) => {
     id: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   })
 
+  // #region agent debug log
+  fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1e17d2'},body:JSON.stringify({sessionId:'1e17d2',location:'courseValidation.js:checkId',message:'checkId params',data:{id:req.params.id,path:req.path,method:req.method},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
+
   try {
     await condition.validateAsync(req.params)
     next()
   } catch (error) {
+    // #region agent debug log
+    fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1e17d2'},body:JSON.stringify({sessionId:'1e17d2',location:'courseValidation.js:checkId',message:'checkId validation FAILED',data:{id:req.params.id,error:error.message,path:req.path},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     next(new ApiError(StatusCodes.BAD_REQUEST, error.message))
   }
 }

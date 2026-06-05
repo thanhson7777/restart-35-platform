@@ -1,0 +1,255 @@
+@startuml ReStart35_Component
+!theme plain
+
+title Re-Start 35+ - Component & Deployment Diagram
+
+' ============================================================
+' CLIENT LAYER
+' ============================================================
+
+node "Client Layer" <<client>> {
+  node "Web Browser" {
+    component [React SPA\n(Vite)] as REACT
+    component [Browser Router] as ROUTER
+    component [Redux Store] as STORE
+    component [HTTP Client\n(Axios)] as AXIOS
+  }
+}
+
+' ============================================================
+' PRESENTATION TIER
+' ============================================================
+
+node "Presentation Tier\n(Web Server)" <<presentation>> {
+  component [Nginx\n(Reverse Proxy)]\n<<Docker Container>> as NGINX
+  component [Static Assets\n(JS/CSS/Images)]\n<<Build Output>> as STATIC
+}
+
+' ============================================================
+' APPLICATION TIER - BACKEND
+' ============================================================
+
+node "Application Tier\n(Backend API)" <<app>> {
+  
+  component [Express.js API]\n<<Docker Container>> as EXPRESS
+  
+  package "Controllers" {
+    component [Auth Controller] as AUTH_CTRL
+    component [User Controller] as USER_CTRL
+    component [AI Controller] as AI_CTRL
+    component [Course Controller] as COURSE_CTRL
+    component [Worker Profile Controller] as WORKER_CTRL
+    component [Scholarship Controller] as SCHOLAR_CTRL
+    component [Enrollment Controller] as ENROLL_CTRL
+    component [Interaction Controller] as INTER_CTRL
+    component [Outcome Controller] as OUTCOME_CTRL
+    component [Review Controller] as REVIEW_CTRL
+    component [Application Controller] as APP_CTRL
+    component [Schedule Controller] as SCHEDULE_CTRL
+    component [Dashboard Controller] as DASH_CTRL
+    component [ESCO Controller] as ESCO_CTRL
+  }
+  
+  package "Services" {
+    component [User Service] as USER_SVC
+    component [AI Service] as AI_SVC
+    component [Course Service] as COURSE_SVC
+    component [Worker Profile Service] as WORKER_SVC
+    component [Scholarship Service] as SCHOLAR_SVC
+    component [Application Service] as APP_SVC
+    component [Enrollment Service] as ENROLL_SVC
+    component [Interaction Service] as INTER_SVC
+    component [Review Service] as REVIEW_SVC
+    component [Translation Service] as TRANS_SVC
+  }
+  
+  package "Middleware" {
+    component [JWT Auth\nMiddleware] as JWT_MID
+    component [Validation\nMiddleware] as VALID_MID
+    component [Error Handler] as ERR_MID
+    component [Rate Limiter] as RATE_MID
+    component [CORS Handler] as CORS_MID
+    component [Multer Upload] as UPLOAD_MID
+  }
+}
+
+' ============================================================
+' AI SERVICE TIER
+' ============================================================
+
+node "AI Service Tier\n(ML/AI Engine)" <<ai>> {
+  
+  component [FastAPI Server]\n<<Docker Container>> as FASTAPI
+  
+  package "API Routers" {
+    component [AI Router\n(Recommendations)] as AI_ROUTER
+    component [RAG Router\n(Career Paths)] as RAG_ROUTER
+    component [Career Path Router] as PATH_ROUTER
+    component [Career Transition Router] as TRANS_ROUTER
+  }
+  
+  package "ML Services" {
+    component [Hybrid Recommender] as HYBRID_SVC
+    component [Semantic Search\n(Sentence-BERT)] as SEMANTIC_SVC
+    component [Risk Predictor\n(XGBoost)] as RISK_SVC
+    component [Skill Matcher] as SKILL_SVC
+    component [Career Path Generator] as PATH_SVC
+    component [Career Transition Discoverer] as TRANS_SVC
+  }
+  
+  package "RAG System" {
+    component [RAG Engine] as RAG_ENGINE
+    component [Embedding Generator] as EMBED_SVC
+    component [Vector Store\n(FAISS)] as FAISS
+  }
+  
+  package "LLM Integration" {
+    component [GROQ Client] as GROQ_CLIENT
+    component [Translation Service] as VI_SVC
+  }
+}
+
+' ============================================================
+' DATA TIER
+' ============================================================
+
+node "Data Tier" <<database>> {
+  
+  database "MongoDB Atlas\n(Primary DB)" as MONGO {
+    note right: Collections:\n• users\n• worker_profiles\n• courses\n• enrollments\n• scholarships\n• applications\n• interactions\n• job_outcomes\n• reviews\n• esco_*
+  }
+  
+  database "Redis\n(Cache & Session)" as REDIS {
+    note right: Keys:\n• session:*\n• career_path:*\n• job_rec:*\n• user:*:profile
+  }
+  
+  database "FAISS Index\n(Vector DB)" as FAISS_DB {
+    note right: Indices:\n• job_embeddings\n• skill_embeddings\n• user_embeddings
+  }
+}
+
+' ============================================================
+' EXTERNAL SERVICES
+' ============================================================
+
+node "External Services" <<external>> {
+  
+  component [VietnamWorks API] as VW_API
+  component [ITViec API] as ITV_API
+  component [TopCV API] as TC_API
+  component [Vieclam24h API] as V24_API
+  component [Timviec365 API] as TV_API
+  
+  cloud "GROQ Cloud\n(LLM API)" as GROQ_CLOUD {
+    note bottom: Models:\n• llama-3.3-70b-versatile\n• llama-3.1-8b-instant
+  }
+  
+  component [Cloudinary\n(CDN Storage)] as CLOUD
+  component [Brevo\n(Email Service)] as BREVO
+  component [ESCO API\n(European Taxonomy)] as ESCO_API
+}
+
+' ============================================================
+' CONNECTIONS
+' ============================================================
+
+' Client to Backend
+REACT --> AXIOS
+AXIOS --> NGINX : HTTPS
+NGINX --> EXPRESS : HTTP :8017
+
+' Backend Internal
+EXPRESS --> AUTH_CTRL
+EXPRESS --> USER_CTRL
+EXPRESS --> AI_CTRL
+EXPRESS --> COURSE_CTRL
+
+AUTH_CTRL --> JWT_MID
+JWT_MID --> USER_SVC
+USER_CTRL --> USER_SVC
+AI_CTRL --> AI_SVC
+COURSE_CTRL --> COURSE_SVC
+
+USER_SVC --> MONGO
+AI_SVC --> MONGO
+COURSE_SVC --> MONGO
+
+' Backend to AI Service
+AI_SVC --> FASTAPI : HTTP :8000
+FASTAPI --> AI_ROUTER
+FASTAPI --> RAG_ROUTER
+FASTAPI --> PATH_ROUTER
+
+AI_ROUTER --> HYBRID_SVC
+AI_ROUTER --> RISK_SVC
+RAG_ROUTER --> RAG_ENGINE
+RAG_ROUTER --> GROQ_CLIENT
+PATH_ROUTER --> PATH_SVC
+
+HYBRID_SVC --> SEMANTIC_SVC
+SEMANTIC_SVC --> FAISS
+RAG_ENGINE --> EMBED_SVC
+EMBED_SVC --> FAISS
+GROQ_CLIENT --> GROQ_CLOUD
+
+' Data Layer
+AI_SVC --> REDIS
+FASTAPI --> FAISS_DB
+FASTAPI --> REDIS
+
+' External Integrations
+AI_SVC --> VW_API
+AI_SVC --> ITV_API
+AI_SVC --> TC_API
+AI_SVC --> V24_API
+AI_SVC --> TV_API
+
+AI_SVC --> CLOUD
+APP_SVC --> BREVO
+
+ESCO_CTRL --> ESCO_API
+FAISS --> ESCO_API : Skill Mapping
+
+' Static Files
+NGINX --> STATIC : Serve static assets
+
+' ============================================================
+' DEPLOYMENT NOTES
+' ============================================================
+
+note top of NGINX
+  Nginx Configuration:
+  • Load balancing
+  • SSL termination
+  • Static file caching
+  • WebSocket proxy
+end note
+
+note top of EXPRESS
+  Backend Stack:
+  • Node.js 18+
+  • Express.js 4.x
+  • Babel (ES6+)
+  • JWT Authentication
+end note
+
+note top of FASTAPI
+  AI Service Stack:
+  • Python 3.11+
+  • FastAPI
+  • PyTorch/TensorFlow
+  • Sentence-Transformers
+  • XGBoost
+end note
+
+legend right
+  |= Symbol |= Meaning |
+  | <<client>> | Client Layer |
+  | <<presentation>> | Web Server |
+  | <<app>> | Application Server |
+  | <<ai>> | AI/ML Service |
+  | <<database>> | Data Storage |
+  | <<external>> | External Services |
+endlegend
+
+@enduml

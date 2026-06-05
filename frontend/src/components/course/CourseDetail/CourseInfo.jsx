@@ -1,6 +1,7 @@
 import { Card, Badge } from '@/components/ui';
 import { formatDuration } from '@/utils/formatter';
 import { CheckCircle2 } from 'lucide-react';
+import { SyllabusAccordion } from './SyllabusAccordion';
 
 const LEVEL_LABELS = {
   beginner: 'Người mới',
@@ -8,7 +9,7 @@ const LEVEL_LABELS = {
   advanced: 'Nâng cao',
 };
 
-export const CourseInfo = ({ course }) => {
+export const CourseInfo = ({ course, isEnrolled = false, lessons = [] }) => {
   if (!course) return null;
 
   const {
@@ -82,24 +83,13 @@ export const CourseInfo = ({ course }) => {
       {/* Syllabus */}
       {syllabus?.length > 0 && (
         <section>
-          <h3 className="font-semibold text-lg mb-3">Nội dung khóa học</h3>
-          <div className="space-y-3">
-            {syllabus.map((week, i) => (
-              <Card key={i} className="overflow-hidden">
-                <div className="px-4 py-3 bg-muted font-medium text-sm">
-                  Tuần {week.week}: {week.title}
-                  {week.duration && (
-                    <span className="text-muted-foreground font-normal ml-2">
-                      ({week.duration})
-                    </span>
-                  )}
-                </div>
-                <div className="p-4 text-sm text-muted-foreground">
-                  {week.content}
-                </div>
-              </Card>
-            ))}
-          </div>
+          <SyllabusAccordion
+            syllabus={syllabus}
+            delivery_type={course.delivery_type}
+            courseId={course._id}
+            isEnrolled={isEnrolled}
+            lessons={lessons}
+          />
         </section>
       )}
 

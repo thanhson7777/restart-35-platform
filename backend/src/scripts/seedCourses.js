@@ -10,11 +10,12 @@
  *   [3/5] Courses  - 6 courses (5 approved, 1 pending)
  *   [4/5] Schedules - Lịch học chi tiết với sessions
  *   [5/5] Worker Profiles - 2 hồ sơ worker mẫu
+ *   [6/6] Video Lessons - Chi tiết video lessons cho khóa học video
  */
 
 import 'dotenv/config'
-import mongoose from 'mongoose'
-import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
+import { MongoClient, ServerApiVersion } from 'mongodb'
+import { env } from '~/config/enviroment'
 import {
   COURSE_STATUS,
   COURSE_LEVELS,
@@ -27,7 +28,22 @@ import {
 } from '~/utils/constants'
 import bcryptjs from 'bcryptjs'
 
-const DB = () => mongoose.connection.db
+let mongoClientInstance = null
+let dbInstance = null
+
+const CONNECT_DB = async () => {
+  mongoClientInstance = new MongoClient(env.MONGODB_URI, {
+    serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
+  })
+  await mongoClientInstance.connect()
+  dbInstance = mongoClientInstance.db(env.DATABASE_NAME)
+}
+
+const CLOSE_DB = async () => {
+  if (mongoClientInstance) await mongoClientInstance.close()
+}
+
+const DB = () => dbInstance
 
 // ============ 1. TẠO USER MẪU ============
 async function seedUsers() {
@@ -223,7 +239,7 @@ Học viên có thể tự xây dựng một website cá nhân hoàn chỉnh và
       outcomes: ['Tự xây dựng website responsive', 'Gọi API và xử lý dữ liệu', 'Deploy ứng dụng lên server', 'Tạo portfolio cá nhân'],
       rating: { average: 4.7, count: 48 },
       status: COURSE_STATUS.APPROVED,
-      approvedBy: trainers[2]._id.toString(),
+      approvedBy: trainers[1]._id.toString(),
       approvedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       viewCount: 234,
       enrollmentCount: 12,
@@ -285,7 +301,7 @@ Học viên có thể tự xây dựng một website cá nhân hoàn chỉnh và
       outcomes: ['Phân tích dataset thực tế với Python', 'Trực quan hóa dữ liệu chuyên nghiệp', 'Viết báo cáo phân tích', 'Sử dụng SQL cho truy vấn dữ liệu'],
       rating: { average: 4.9, count: 31 },
       status: COURSE_STATUS.APPROVED,
-      approvedBy: trainers[2]._id.toString(),
+      approvedBy: trainers[1]._id.toString(),
       approvedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       viewCount: 187,
       enrollmentCount: 8,
@@ -343,7 +359,7 @@ Học viên có thể tự xây dựng một website cá nhân hoàn chỉnh và
       outcomes: ['Chạy quảng cáo Google/Facebook hiệu quả', 'Tối ưu SEO website', 'Xây dựng chiến lược content', 'Đo lường ROI marketing'],
       rating: { average: 4.5, count: 62 },
       status: COURSE_STATUS.APPROVED,
-      approvedBy: trainers[2]._id.toString(),
+      approvedBy: trainers[1]._id.toString(),
       approvedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
       viewCount: 412,
       enrollmentCount: 22,
@@ -407,7 +423,7 @@ Học viên có thể tự xây dựng một website cá nhân hoàn chỉnh và
       outcomes: ['Trồng rau hữu cơ đạt chuẩn VietGAP', 'Ứng dụng IoT trong canh tác', 'Xây dựng trang trại nhỏ có thu nhập', 'Kết nối thị trường tiêu thụ'],
       rating: { average: 4.8, count: 27 },
       status: COURSE_STATUS.APPROVED,
-      approvedBy: trainers[2]._id.toString(),
+      approvedBy: trainers[1]._id.toString(),
       approvedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
       viewCount: 156,
       enrollmentCount: 15,
@@ -458,7 +474,7 @@ Học viên có thể tự xây dựng một website cá nhân hoàn chỉnh và
       outcomes: ['Giao tiếp hiệu quả trong công việc', 'Thuyết trình thuyết phục', 'Quản lý thời gian khoa học', 'Lập kế hoạch kinh doanh cơ bản'],
       rating: { average: 4.6, count: 89 },
       status: COURSE_STATUS.APPROVED,
-      approvedBy: trainers[2]._id.toString(),
+      approvedBy: trainers[1]._id.toString(),
       approvedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
       viewCount: 523,
       enrollmentCount: 33,
@@ -917,7 +933,7 @@ async function seedWorkerProfiles(workers) {
 
   const profiles = [
     {
-      userId: workers[3]._id.toString(),
+      userId: workers[0]._id.toString(),
       currentStep: 10,
       isCompleted: true,
       basicInfo: {
@@ -950,7 +966,7 @@ async function seedWorkerProfiles(workers) {
       updatedAt: new Date()
     },
     {
-      userId: workers[4]._id.toString(),
+      userId: workers[1]._id.toString(),
       currentStep: 10,
       isCompleted: true,
       basicInfo: {
@@ -993,6 +1009,122 @@ async function seedWorkerProfiles(workers) {
   }
 }
 
+// ============ 6. TẠO VIDEO LESSONS ============
+async function seedVideoLessons(courses) {
+  console.log('\n[6/6] Đang tạo chi tiết video lessons...')
+
+  // Lấy khóa học video (Python - khóa 2, delivery_type = video)
+  const pythonCourse = courses.find(c =>
+    c.delivery_type === COURSE_DELIVERY_TYPES.VIDEO && c.status === COURSE_STATUS.APPROVED
+  )
+
+  if (!pythonCourse) {
+    console.log('  ⚠ Không tìm thấy khóa học video, bỏ qua video lessons')
+    return
+  }
+
+  // Video lessons cho khóa Python Data Science (10 tuần, ~25 videos)
+  const pythonLessons = [
+    // Week 1: Python cơ bản
+    { week: 1, module: 'Tuần 1: Python cơ bản', order: 0, title: 'Giới thiệu Python - Cài đặt môi trường Anaconda', duration: 720, description: 'Hướng dẫn cài đặt Anaconda, Jupyter Notebook, và chạy chương trình Python đầu tiên' },
+    { week: 1, module: 'Tuần 1: Python cơ bản', order: 1, title: 'Biến, kiểu dữ liệu và toán tử', duration: 960, description: 'Tìm hiểu các kiểu dữ liệu cơ bản: int, float, str, bool. Toán tử số học và so sánh' },
+    { week: 1, module: 'Tuần 1: Python cơ bản', order: 2, title: 'Câu lệnh điều kiện if/else', duration: 840, description: 'Rẽ nhánh logic với if, elif, else. Ví dụ thực tế về điều kiện trong kinh doanh' },
+    { week: 1, module: 'Tuần 1: Python cơ bản', order: 3, title: 'Vòng lặp for và while', duration: 900, description: 'Lặp với for (duyệt danh sách) và while (điều kiện). Break và continue' },
+    { week: 1, module: 'Tuần 1: Python cơ bản', order: 4, title: '[Thực hành] Bài tập Python cơ bản', duration: 1200, description: 'Giải 5 bài tập tổng hợp: tính tiền điện, phân loại học sinh, đếm số' },
+
+    // Week 2: Hàm & Module
+    { week: 2, module: 'Tuần 2: Hàm & Module', order: 0, title: 'Định nghĩa và gọi hàm', duration: 780, description: 'Cú pháp def, tham số, giá trị trả về. Hàm không trả về vs có trả về' },
+    { week: 2, module: 'Tuần 2: Hàm & Module', order: 1, title: 'Tham số mặc định và *args, **kwargs', duration: 900, description: 'Default arguments, *args (tuple), **kwargs (dict). Khi nào dùng gì' },
+    { week: 2, module: 'Tuần 2: Hàm & Module', order: 2, title: 'Scope và Closure', duration: 720, description: 'Local, global, nonlocal. Khái niệm closure và ứng dụng thực tế' },
+    { week: 2, module: 'Tuần 2: Hàm & Module', order: 3, title: 'Module và import', duration: 660, description: 'Tạo module .py, import, from...import. Tổ chức code theo package' },
+    { week: 2, module: 'Tuần 2: Hàm & Module', order: 4, title: '[Thực hành] Viết hàm phân tích doanh thu', duration: 1080, description: 'Áp dụng: viết hàm tính doanh thu, lợi nhuận, tăng trưởng theo tháng' },
+
+    // Week 3: NumPy & Arrays
+    { week: 3, module: 'Tuần 3: NumPy & Arrays', order: 0, title: 'Giới thiệu NumPy - Tại sao cần mảng số', duration: 600, description: 'So sánh list Python với NumPy array. Hiệu năng vectorization' },
+    { week: 3, module: 'Tuần 3: NumPy & Arrays', order: 1, title: 'Tạo mảng và indexing', duration: 1020, description: 'np.array, np.arange, np.linspace. Truy cập phần tử, slicing 1D và 2D' },
+    { week: 3, module: 'Tuần 3: NumPy & Arrays', order: 2, title: 'Phép toán vectorization', duration: 900, description: 'Broadcasting, phép toán element-wise. So sánh, logic, toán học trên mảng' },
+    { week: 3, module: 'Tuần 3: NumPy & Arrays', order: 3, title: 'Thống kê cơ bản với NumPy', duration: 840, description: 'np.mean, np.median, np.std, np.sum. Axis và reshape' },
+    { week: 3, module: 'Tuần 3: NumPy & Arrays', order: 4, title: '[Thực hành] Xử lý dữ liệu bán lẻ', duration: 1200, description: 'Dùng NumPy phân tích doanh số 12 tháng: tổng, trung bình, xu hướng' },
+
+    // Week 4: Pandas Series & DataFrame
+    { week: 4, module: 'Tuần 4: Pandas Series & DataFrame', order: 0, title: 'Giới thiệu Pandas - DataFrame là gì', duration: 660, description: 'Series vs DataFrame. Đọc dữ liệu từ CSV, Excel, JSON' },
+    { week: 4, module: 'Tuần 4: Pandas Series & DataFrame', order: 1, title: 'Khám phá DataFrame', duration: 960, description: '.head(), .tail(), .info(), .describe(). Kiểm tra kiểu dữ liệu, missing values' },
+    { week: 4, module: 'Tuần 4: Pandas Series & DataFrame', order: 2, title: 'Chọn cột và lọc hàng', duration: 1020, description: 'df[column], df.loc, df.iloc. Boolean indexing, query() method' },
+    { week: 4, module: 'Tuần 4: Pandas Series & DataFrame', order: 3, title: 'Sắp xếp và nhóm dữ liệu - groupby', duration: 1080, description: '.sort_values(), .groupby().agg(). Tính sum, mean, count theo nhóm' },
+    { week: 4, module: 'Tuần 4: Pandas Series & DataFrame', order: 4, title: '[Thực hành] Phân tích khách hàng', duration: 1200, description: 'Dataset khách hàng: lọc theo độ tuổi, nhóm theo khu vực, tính tổng chi tiêu' },
+
+    // Week 5: Làm sạch dữ liệu
+    { week: 5, module: 'Tuần 5: Làm sạch dữ liệu', order: 0, title: 'Xử lý missing values', duration: 900, description: '.isnull(), .fillna(), .dropna(). Imputation strategies: mean, median, mode' },
+    { week: 5, module: 'Tuần 5: Làm sạch dữ liệu', order: 1, title: 'Xử lý duplicates và outliers', duration: 840, description: '.duplicated(), .drop_duplicates(). Phát hiện outliers bằng IQR và Z-score' },
+    { week: 5, module: 'Tuần 5: Làm sạch dữ liệu', order: 2, title: 'Chuyển đổi kiểu dữ liệu', duration: 720, description: '.astype(), pd.to_datetime(). Parse ngày tháng, chuẩn hóa chuỗi' },
+    { week: 5, module: 'Tuần 5: Làm sạch dữ liệu', order: 3, title: 'Chuẩn hóa và mã hóa dữ liệu', duration: 960, description: 'MinMaxScaler, StandardScaler. Label encoding, one-hot encoding với Pandas' },
+    { week: 5, module: 'Tuần 5: Làm sạch dữ liệu', order: 4, title: '[Thực hành] Làm sạch dataset HR', duration: 1200, description: 'Dataset nhân viên: xử lý 50+ dòng dirty data, outliers, missing values' },
+
+    // Week 6: Trực quan hóa
+    { week: 6, module: 'Tuần 6: Trực quan hóa dữ liệu', order: 0, title: 'Giới thiệu Matplotlib', duration: 720, description: 'Figure, axes, subplots. Line, bar, scatter plots. Custom màu, label, legend' },
+    { week: 6, module: 'Tuần 6: Trực quan hóa dữ liệu', order: 1, title: 'Biểu đồ tần suất và phân bố', duration: 900, description: 'Histogram, boxplot, KDE. Hiểu phân bố dữ liệu và outliers trên biểu đồ' },
+    { week: 6, module: 'Tuần 6: Trực quan hóa dữ liệu', order: 2, title: 'Biểu đồ tương quan và heatmap', duration: 840, description: 'Correlation matrix, heatmap với Seaborn. Nhận diện features quan trọng' },
+    { week: 6, module: 'Tuần 6: Trực quan hóa dữ liệu', order: 3, title: 'Dashboard với nhiều biểu đồ', duration: 1080, description: 'GridSpec, subplot2grid. Tạo dashboard 2x2 với nhiều loại biểu đồ' },
+    { week: 6, module: 'Tuần 6: Trực quan hóa dữ liệu', order: 4, title: '[Thực hành] Dashboard phân tích bán hàng', duration: 1200, description: 'Tạo dashboard 4 biểu đồ: doanh thu theo tháng, top sản phẩm, heatmap, trend' },
+
+    // Week 7: Phân tích thống kê
+    { week: 7, module: 'Tuần 7: Phân tích thống kê', order: 0, title: 'Thống kê mô tả nâng cao', duration: 960, description: 'Phân vị (quartile), skewness, kurtosis. Interpreting dữ liệu thực tế' },
+    { week: 7, module: 'Tuần 7: Phân tích thống kê', order: 1, title: 'Correlation và Regression', duration: 1080, description: 'Pearson vs Spearman. Linear regression đơn giản với Scikit-learn' },
+    { week: 7, module: 'Tuần 7: Phân tích thống kê', order: 2, title: 'Kiểm định giả thuyết', duration: 840, description: 'T-test, Chi-square. P-value và ý nghĩa thống kê trong kinh doanh' },
+    { week: 7, module: 'Tuần 7: Phân tích thống kê', order: 3, title: 'Time series analysis cơ bản', duration: 900, description: 'DatetimeIndex, resampling, rolling average. Phát hiện xu hướng mùa vụ' },
+
+    // Week 8: SQL cho Data Analyst
+    { week: 8, module: 'Tuần 8: SQL cho Data Analyst', order: 0, title: 'SQL cơ bản - SELECT, WHERE, ORDER', duration: 840, description: 'Giới thiệu SQL. Truy vấn cơ bản với SQLite trong Python' },
+    { week: 8, module: 'Tuần 8: SQL cho Data Analyst', order: 1, title: 'JOIN và GROUP BY', duration: 1020, description: 'INNER, LEFT JOIN. Aggregation với GROUP BY, HAVING' },
+    { week: 8, module: 'Tuần 8: SQL cho Data Analyst', order: 2, title: 'Subquery và CTE', duration: 900, description: 'Nested queries, Common Table Expressions (WITH). Tối ưu truy vấn phức tạp' },
+
+    // Week 9: Project thực tế
+    { week: 9, module: 'Tuần 9: Project Phân tích Doanh thu', order: 0, title: 'Giới thiệu project - Bộ dữ liệu thực tế', duration: 480, description: 'Mô tả dataset bán hàng 3 năm: 50,000 dòng, 15 cột. Mục tiêu phân tích' },
+    { week: 9, module: 'Tuần 9: Project Phân tích Doanh thu', order: 1, title: 'Bước 1: Khám phá và làm sạch dữ liệu', duration: 1200, description: 'Import, EDA, xử lý missing/duplicates. Tạo báo cáo chất lượng dữ liệu' },
+    { week: 9, module: 'Tuần 9: Project Phân tích Doanh thu', order: 2, title: 'Bước 2: Phân tích chuyên sâu', duration: 1200, description: 'RFM analysis, cohort analysis. Segmentation khách hàng' },
+    { week: 9, module: 'Tuần 9: Project Phân tích Doanh thu', order: 3, title: 'Bước 3: Trực quan hóa nâng cao', duration: 1080, description: 'Tạo 6 biểu đồ chuyên nghiệp: waterfall, treemap, sunburst' },
+
+    // Week 10: Báo cáo & Dashboard
+    { week: 10, module: 'Tuần 10: Báo cáo & Dashboard', order: 0, title: 'Tạo báo cáo với Pandas & Matplotlib', duration: 900, description: 'Pivot tables, summary statistics. Xuất báo cáo tự động ra PDF/Excel' },
+    { week: 10, module: 'Tuần 10: Báo cáo & Dashboard', order: 1, title: 'Giới thiệu Dashboard với Python', duration: 1080, description: 'Streamlit cơ bản: tạo web app tương tác. Filters, charts, metrics' },
+    { week: 10, module: 'Tuần 10: Báo cáo & Dashboard', order: 2, title: '[Final] Trình bày và tổng kết khóa học', duration: 900, description: 'Hướng dẫn trình bày kết quả phân tích. Checklist project cuối khóa. Tài liệu tham khảo' }
+  ]
+
+  // Tạo document lessons
+  const videoDocs = pythonLessons.map(l => ({
+    courseId: pythonCourse._id.toString(),
+    weekNumber: l.week,
+    moduleTitle: l.module,
+    title: l.title,
+    description: l.description,
+    videoUrl: `https://www.youtube.com/watch?v=placeholder_${l.week}_${l.order}`,
+    videoId: `py_${l.week}_${l.order}`,
+    duration: l.duration,
+    thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=225&fit=crop',
+    order: l.order,
+    transcript: '',
+    slides: [],
+    resources: [
+      { title: 'Slide bài giảng', url: `https://docs.google.com/presentation/d/slides_${l.week}_${l.order}` },
+      { title: 'Dataset thực hành', url: `https://github.com/restart35/datasets/raw/main/week${l.week}.csv` }
+    ],
+    status: 'published',
+    createdBy: pythonCourse.providerId,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    _destroy: false
+  }))
+
+  await DB().collection('course_video_lessons').insertMany(videoDocs)
+
+  const totalDuration = pythonLessons.reduce((sum, l) => sum + l.duration, 0)
+  const hours = Math.floor(totalDuration / 3600)
+  const mins = Math.floor((totalDuration % 3600) / 60)
+
+  console.log(`  ✓ Video lessons: ${videoDocs.length} videos (${hours}h ${mins}m) cho khóa "Python..."`)
+  console.log(`     Phân bố: ${[1,2,3,4,5,6,7,8,9,10].map(w => `${pythonLessons.filter(l => l.week === w).length}v`).join(' | ')}`)
+}
+
 // ============ CHẠY SEED ============
 async function main() {
   try {
@@ -1009,6 +1141,7 @@ async function main() {
     await seedSchedules(courses)
     const workers = users.filter(u => u.role === 'WORKER')
     await seedWorkerProfiles(workers)
+    await seedVideoLessons(courses)
 
     console.log('\n' + '='.repeat(70))
     console.log('✅ SEED HOÀN TẤT!')
@@ -1018,6 +1151,7 @@ async function main() {
     console.log(`  • ${courses.length} courses (5 approved, 1 pending)`)
     console.log('  • 4 schedules với chi tiết sessions')
     console.log(`  • ${workers.length} worker profiles`)
+    console.log('  • 33 video lessons cho khóa Python Data Science (10 tuần)')
     console.log('')
     console.log('📋 Mẫu dữ liệu khóa học:')
     console.log('')

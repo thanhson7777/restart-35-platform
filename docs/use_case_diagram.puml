@@ -1,0 +1,207 @@
+@startuml ReStart35_UseCase
+!theme plain
+
+title Re-Start 35+ - Use Case Diagram
+
+' ============================================================
+' ACTORS
+' ============================================================
+
+left to right direction
+
+package "Actors" {
+  actor "Người Lao Động 35+" as WORKER
+  actor "Doanh Nghiệp" as EMPLOYER
+  actor "Quản Trị Viên" as ADMIN
+  actor "NGOs/Trainer" as TRAINER
+}
+
+' ============================================================
+' USE CASES - NGƯỜI LAO ĐỘNG
+' ============================================================
+
+package "UC1: Quản lý Hồ sơ" {
+  usecase "UC1.1: Đăng ký tài khoản" as UC11
+  usecase "UC1.2: Cập nhật hồ sơ cá nhân" as UC12
+  usecase "UC1.3: Tải lên CV" as UC13
+  usecase "UC1.4: Cập nhật kỹ năng (ESCO)" as UC14
+  usecase "UC1.5: Khai báo rào cản" as UC15
+}
+
+' ============================================================
+' USE CASES - TÌM VIỆC & GỢI Ý
+' ============================================================
+
+package "UC2: Tìm kiếm việc làm" {
+  usecase "UC2.1: Tìm kiếm việc theo kỹ năng" as UC21
+  usecase "UC2.2: Tìm kiếm theo vị trí địa lý" as UC22
+  usecase "UC2.3: Lọc theo mức lương" as UC23
+  usecase "UC2.4: Xem việc làm tương tự" as UC24
+}
+
+package "UC3: AI Career Recommendation" {
+  usecase "UC3.1: Gợi ý việc làm phù hợp\n(Hybrid Recommender)" as UC31
+  usecase "UC3.2: Dự đoán mức độ rủi ro thất nghiệp" as UC32
+  usecase "UC3.3: Phân tích người lao động\n(Risk + Jobs)" as UC33
+  usecase "UC3.4: Gợi ý lộ trình nghề nghiệp\n(RAG-based)" as UC34
+  usecase "UC3.5: Khám phá chuyển đổi nghề nghiệp" as UC35
+  usecase "UC3.6: Phân tích khoảng trống kỹ năng" as UC36
+  usecase "UC3.7: Gợi ý khởi nghiệp" as UC37
+}
+
+' ============================================================
+' USE CASES - KHÓA HỌC & HỌC VỤ
+' ============================================================
+
+package "UC4: Quản lý Khóa học" {
+  usecase "UC4.1: Xem danh sách khóa học" as UC41
+  usecase "UC4.2: Đăng ký khóa học" as UC42
+  usecase "UC4.3: Xem lịch học" as UC43
+  usecase "UC4.4: Đánh giá khóa học" as UC44
+}
+
+package "UC5: Quản lý Học vụ" {
+  usecase "UC5.1: Ghi danh khóa học" as UC51
+  usecase "UC5.2: Theo dõi tiến độ học tập" as UC52
+  usecase "UC5.3: Cập nhật kết quả học tập" as UC53
+}
+
+' ============================================================
+' USE CASES - HỖ TRỢ TÀI CHÍNH
+' ============================================================
+
+package "UC6: Học bổng & Hỗ trợ" {
+  usecase "UC6.1: Xem danh sách học bổng" as UC61
+  usecase "UC6.2: Nộp đơn xin hỗ trợ" as UC62
+  usecase "UC6.3: Theo dõi trạng thái đơn" as UC63
+}
+
+' ============================================================
+' USE CASES - VIỆC LÀM & TUYỂN DỤNG
+' ============================================================
+
+package "UC7: Việc làm & Tuyển dụng" {
+  usecase "UC7.1: Ứng tuyển việc làm" as UC71
+  usecase "UC7.2: Lưu việc làm quan tâm" as UC72
+  usecase "UC7.3: Theo dõi đơn ứng tuyển" as UC73
+  usecase "UC7.4: Ghi nhận kết quả việc làm" as UC74
+}
+
+' ============================================================
+' USE CASES - DOANH NGHIỆP
+' ============================================================
+
+package "UC8: Quản lý Doanh nghiệp" {
+  usecase "UC8.1: Đăng tin tuyển dụng" as UC81
+  usecase "UC8.2: Quản lý tin tuyển dụng" as UC82
+  usecase "UC8.3: Xem hồ sơ ứng viên" as UC83
+  usecase "UC8.4: Cập nhật trạng thái tuyển dụng" as UC84
+}
+
+' ============================================================
+' USE CASES - ADMIN/NGOs
+' ============================================================
+
+package "UC9: Quản trị Hệ thống" {
+  usecase "UC9.1: Quản lý người dùng" as UC91
+  usecase "UC9.2: Quản lý danh mục" as UC92
+  usecase "UC9.3: Xem Dashboard thống kê" as UC93
+  usecase "UC9.4: Quản lý dữ liệu ESCO" as UC94
+}
+
+package "UC10: Quản lý Nội dung" {
+  usecase "UC10.1: Tạo/Sửa khóa học" as UC101
+  usecase "UC10.2: Quản lý lịch học" as UC102
+  usecase "UC10.3: Tạo chương trình đào tạo" as UC103
+  usecase "UC10.4: Quản lý học bổng" as UC104
+}
+
+' ============================================================
+' USE CASES - TƯƠNG TÁC & ĐÁNH GIÁ
+' ============================================================
+
+package "UC11: Tương tác & Đánh giá" {
+  usecase "UC11.1: Ghi nhận tương tác người dùng" as UC111
+  usecase "UC11.2: Quản lý đánh giá" as UC112
+  usecase "UC11.3: Xem thống kê tương tác" as UC113
+}
+
+' ============================================================
+' RELATIONSHIPS
+' ============================================================
+
+' Worker relationships
+WORKER --> UC11
+WORKER --> UC12
+WORKER --> UC13
+WORKER --> UC14
+WORKER --> UC15
+WORKER --> UC21
+WORKER --> UC22
+WORKER --> UC23
+WORKER --> UC24
+WORKER --> UC31
+WORKER --> UC32
+WORKER --> UC33
+WORKER --> UC34
+WORKER --> UC35
+WORKER --> UC36
+WORKER --> UC37
+WORKER --> UC41
+WORKER --> UC42
+WORKER --> UC43
+WORKER --> UC44
+WORKER --> UC61
+WORKER --> UC62
+WORKER --> UC63
+WORKER --> UC71
+WORKER --> UC72
+WORKER --> UC73
+WORKER --> UC74
+
+' Employer relationships
+EMPLOYER --> UC11
+EMPLOYER --> UC12
+EMPLOYER --> UC81
+EMPLOYER --> UC82
+EMPLOYER --> UC83
+EMPLOYER --> UC84
+
+' Admin relationships
+ADMIN --> UC91
+ADMIN --> UC92
+ADMIN --> UC93
+ADMIN --> UC94
+ADMIN --> UC101
+ADMIN --> UC102
+ADMIN --> UC103
+ADMIN --> UC104
+ADMIN --> UC111
+ADMIN --> UC112
+ADMIN --> UC113
+
+' Trainer relationships
+TRAINER --> UC101
+TRAINER --> UC102
+TRAINER --> UC103
+TRAINER --> UC104
+
+' UC relationships
+UC31 ..> UC32 : <<extends>>
+UC33 ..> UC32 : <<includes>>
+UC34 ..> UC3 : <<includes>>
+UC35 ..> UC3 : <<includes>>
+UC44 ..> UC111 : <<includes>>
+UC51 ..> UC42 : <<includes>>
+
+' ============================================================
+' LEGEND
+' ============================================================
+
+legend right
+  |= Symbol |= Meaning |
+  | --> | Actor to Use Case |
+  | ..> | Include/Extend relationship |
+endlegend
+
+@enduml

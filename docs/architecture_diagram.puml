@@ -1,0 +1,259 @@
+@startuml ReStart35_Architecture
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+
+' ============================================================
+' RE-START 35+ PLATFORM - SYSTEM ARCHITECTURE DIAGRAM
+' ============================================================
+
+title Re-Start 35+ Platform - Kiến trúc 3-Tier kết hợp AI Service
+
+' ============================================================
+' ACTORS
+' ============================================================
+
+package "Actors" {
+  actor "Người Lao Động 35+" as WORKER
+  actor "Doanh Nghiệp" as EMPLOYER
+  actor "Quản Trị Viên" as ADMIN
+  actor "NGOs/Trainer" as TRAINER
+}
+
+' ============================================================
+' PRESENTATION TIER - FRONTEND
+' ============================================================
+
+package "Presentation Tier" <<Frame>> {
+  [React 18 SPA\n(Vite + TailwindCSS)] as FRONTEND
+  [Redux Toolkit\n(State Management)] as REDUX
+  [React Router\n(Routing)] as ROUTER
+  
+  FRONTEND --> REDUX
+  FRONTEND --> ROUTER
+}
+
+' ============================================================
+' BUSINESS LOGIC TIER - BACKEND API
+' ============================================================
+
+package "Business Logic Tier - Backend API" <<Frame>> {
+  package "Express.js REST API" {
+    [Auth Controller\n(JWT/Bcrypt)] as AUTH
+    [User Controller\n(CRUD)] as USER_CTRL
+    [Worker Profile Controller] as WORKER_CTRL
+    [AI Controller] as AI_CTRL
+    [Course Controller] as COURSE_CTRL
+    [Scholarship Controller] as SCHOLAR_CTRL
+    [Interaction Controller] as INTER_CTRL
+    [Outcome Controller] as OUTCOME_CTRL
+    [Dashboard Controller] as DASH_CTRL
+    [Review Controller] as REVIEW_CTRL
+    [ESCO Controller] as ESCO_CTRL
+    [Application Controller] as APP_CTRL
+    [Enrollment Controller] as ENROLL_CTRL
+    [Schedule Controller] as SCHEDULE_CTRL
+  }
+  
+  package "Services Layer" {
+    [User Service] as USER_SVC
+    [Worker Profile Service] as WORKER_SVC
+    [AI Service] as AI_SVC
+    [Application Service] as APP_SVC
+    [Enrollment Service] as ENROLL_SVC
+    [Interaction Service] as INTER_SVC
+    [Scholarship Service] as SCHOLAR_SVC
+    [Review Service] as REVIEW_SVC
+    [Translation Service] as TRANS_SVC
+  }
+  
+  package "Validation & Middleware" {
+    [Auth Middleware] as AUTH_MID
+    [Validation Middleware] as VALID_MID
+    [Error Handler] as ERR_MID
+    [Multer Upload\n(Cloudinary)] as UPLOAD_MID
+  }
+  
+  package "Data Models" {
+    database "MongoDB Atlas" as MONGO {
+      [users] as USER_MODEL
+      [worker_profiles] as WORKER_MODEL
+      [courses] as COURSE_MODEL
+      [enrollments] as ENROLL_MODEL
+      [scholarships] as SCHOLAR_MODEL
+      [scholarship_applications] as APP_MODEL
+      [interactions] as INTER_MODEL
+      [job_outcomes] as OUTCOME_MODEL
+      [reviews] as REVIEW_MODEL
+      [categories] as CATEGORY_MODEL
+      [schedules] as SCHEDULE_MODEL
+      [esco_occupations] as ESCO_OCC
+      [esco_skills] as ESCO_SKILL
+      [career_recommendations] as CAREER_REC
+    }
+  }
+}
+
+' ============================================================
+' DATA TIER - AI SERVICE
+' ============================================================
+
+package "AI Service Layer" <<Frame>> {
+  package "FastAPI AI Engine" {
+    [AI Router\n(Job Recommendation,\nRisk Prediction)] as AI_ROUTER
+    [RAG Career Router\n(Career Recommendation\nwith Context)] as RAG_ROUTER
+    [Career Path Router\n(Path Discovery)] as PATH_ROUTER
+    [Career Transition Router] as TRANS_ROUTER
+  }
+  
+  package "AI/ML Services" {
+    [Hybrid Recommender\n(TF-IDF + Semantic)] as HYBRID_REC
+    [Job Recommender\n(TF-IDF)] as JOB_REC
+    [Semantic Search\n(Sentence-BERT)] as SEMANTIC
+    [Risk Predictor\n(XGBoost ML)] as RISK_PRED
+    [Skill Matcher] as SKILL_MATCH
+    [Career Path Generator] as PATH_GEN
+    [Career Transition Discoverer] as TRANS_DISC
+  }
+  
+  package "RAG System" {
+    [RAG Engine\n(Context Retrieval)] as RAG_ENGINE
+    [Embedding Generator\n(Sentence-BERT)] as EMBEDDING
+    [FAISS Vector Index\n(Similarity Search)] as FAISS
+  }
+  
+  package "LLM Integration" {
+    [GROQ Client\n(Llama-3/Llama-4)] as GROQ_LLM
+    [Career LLM Scorer] as LLM_SCORER
+    [Translation Service\n(Vietnamese)] as VI_TRANS
+  }
+}
+
+' ============================================================
+' EXTERNAL SERVICES
+' ============================================================
+
+package "External Services" <<Frame>> {
+  database "External Job APIs" as JOB_APIS {
+    [VietnamWorks API] as VW_API
+    [ITViec API] as ITV_API
+    [TopCV API] as TC_API
+    [Vieclam24h API] as V24_API
+    [Timviec365 API] as TV_API
+    [MyWork API] as MW_API
+  }
+  
+  [ESCO European\nTaxonomy] as ESCO_EXT
+  
+  database "Redis Cache" as REDIS {
+    [Session Cache] as SESSION
+    [Career Path Cache] as CACHE_PATH
+  }
+  
+  [Cloudinary\n(File Storage)] as CLOUD
+  [Brevo Email\n(Notifications)] as BREVO
+}
+
+' ============================================================
+' RELATIONSHIPS
+' ============================================================
+
+' Actors to Frontend
+WORKER --> FRONTEND : "Đăng ký, Tìm việc,\nĐánh giá khóa học"
+EMPLOYER --> FRONTEND : "Đăng tin tuyển dụng,\nQuản lý tuyển dụng"
+ADMIN --> FRONTEND : "Quản lý hệ thống"
+TRAINER --> FRONTEND : "Quản lý khóa học,\nTạo học liệu"
+
+' Frontend to Backend
+FRONTEND -right-> AUTH : "HTTP/REST API\n:5173 → :8017"
+FRONTEND -right-> USER_CTRL
+FRONTEND -right-> WORKER_CTRL
+FRONTEND -right-> AI_CTRL
+FRONTEND -right-> COURSE_CTRL
+FRONTEND -right-> SCHOLAR_CTRL
+FRONTEND -right-> ESCO_CTRL
+
+' Backend Controllers to Services
+AUTH_MID --> AUTH
+AUTH --> USER_SVC
+WORKER_CTRL --> WORKER_SVC
+AI_CTRL --> AI_SVC
+COURSE_CTRL --> COURSE_CTRL
+ENROLL_CTRL --> ENROLL_SVC
+SCHOLAR_CTRL --> SCHOLAR_SVC
+APP_CTRL --> APP_SVC
+INTER_CTRL --> INTER_SVC
+REVIEW_CTRL --> REVIEW_SVC
+ESCO_CTRL --> TRANS_SVC
+
+' Services to MongoDB
+USER_SVC --> USER_MODEL
+WORKER_SVC --> WORKER_MODEL
+COURSE_SVC --> COURSE_MODEL
+ENROLL_SVC --> ENROLL_MODEL
+SCHOLAR_SVC --> SCHOLAR_MODEL
+APP_SVC --> APP_MODEL
+INTER_SVC --> INTER_MODEL
+REVIEW_SVC --> REVIEW_MODEL
+ESCO_CTRL --> ESCO_OCC
+ESCO_CTRL --> ESCO_SKILL
+
+' Backend to AI Service
+AI_SVC -right-> AI_ROUTER : "HTTP\n:8017 → :8000"
+AI_SVC -right-> RAG_ROUTER
+AI_SVC -right-> PATH_ROUTER
+AI_SVC -right-> TRANS_ROUTER
+
+' AI Routers to Services
+AI_ROUTER --> HYBRID_REC
+AI_ROUTER --> RISK_PRED
+RAG_ROUTER --> RAG_ENGINE
+RAG_ROUTER --> LLM_SCORER
+PATH_ROUTER --> PATH_GEN
+TRANS_ROUTER --> TRANS_DISC
+
+' RAG System
+RAG_ENGINE --> EMBEDDING
+EMBEDDING --> FAISS
+RAG_ENGINE --> LLM_SCORER
+
+' LLM Integration
+LLM_SCORER --> GROQ_LLM
+RAG_ROUTER --> VI_TRANS
+
+' Job Scrapers to System
+VW_API -up-> MONGO : "Scraped Jobs"
+ITV_API -up-> MONGO
+TC_API -up-> MONGO
+V24_API -up-> MONGO
+TV_API -up-> MONGO
+MW_API -up-> MONGO
+
+' ESCO to System
+ESCO_EXT -up-> ESCO_OCC : "Skills & Occupations\nTaxonomy"
+ESCO_EXT -up-> ESCO_SKILL
+
+' Caching
+AI_SVC --> REDIS : "Cache Results"
+SESSION --> REDIS
+
+' Storage & Notifications
+AI_SVC --> CLOUD : "Upload CVs"
+APP_SVC --> BREVO : "Email Notifications"
+
+' ============================================================
+' LEGEND
+' ============================================================
+
+legend right
+  |= Component |= Technology |= Purpose |
+  | FRONTEND | React 18 + Vite | User Interface |
+  | BACKEND | Express.js + Babel | REST API Server |
+  | AI SERVICE | FastAPI + Python | ML/AI Processing |
+  | DATABASE | MongoDB Atlas | Primary Data Store |
+  | CACHE | Redis | Session & Result Caching |
+  | VECTOR DB | FAISS | Semantic Search |
+  | LLM | GROQ (Llama) | Career Path Generation |
+endlegend
+
+@enduml

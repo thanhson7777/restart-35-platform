@@ -40,6 +40,36 @@ export const formatDuration = (duration) => {
   return `${duration.value} ${unitLabels[duration.unit] || duration.unit}`;
 };
 
+export const formatVideoDuration = (duration) => {
+  if (!duration) return '';
+
+  // String format: "HH:MM" or "HH:MM:SS"
+  if (typeof duration === 'string' && /^\d+(:\d+)+$/.test(duration)) {
+    return duration;
+  }
+
+  // Number: seconds
+  if (typeof duration === 'number') {
+    const mins = Math.floor(duration / 60);
+    const secs = duration % 60;
+    return `${mins}:${String(secs).padStart(2, '0')}`;
+  }
+
+  // Object: { value, unit }
+  if (typeof duration === 'object' && duration.value != null) {
+    const unitLabels = {
+      hours: 'giờ',
+      weeks: 'tuần',
+      months: 'tháng',
+      days: 'ngày',
+    };
+    const label = unitLabels[duration.unit] || duration.unit;
+    return `${duration.value} ${label}`;
+  }
+
+  return String(duration);
+};
+
 export const formatDate = (date) => {
   if (!date) return '';
   return new Date(date).toLocaleDateString('vi-VN', {

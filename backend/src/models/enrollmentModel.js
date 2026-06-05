@@ -94,6 +94,46 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
 
   waitlistPosition: Joi.number().integer().min(1).allow(null),
 
+  dropout_risk: Joi.object({
+    score: Joi.number().min(0).max(100).default(0),
+    level: Joi.string().valid('low', 'medium', 'high').default('low'),
+    reasons: Joi.array().items(Joi.string()).default([]),
+    last_calculated_at: Joi.date().timestamp('javascript').allow(null),
+    interventions_sent: Joi.array().items(
+      Joi.object({
+        type: Joi.string().required(),
+        sent_at: Joi.date().timestamp('javascript').default(Date.now)
+      })
+    ).default([])
+  }).default({
+    score: 0,
+    level: 'low',
+    reasons: [],
+    last_calculated_at: null,
+    interventions_sent: []
+  }),
+
+  isa: Joi.object({
+    contract_signed_at: Joi.date().timestamp('javascript').allow(null),
+    income_threshold: Joi.number().integer().min(0).default(0),
+    repayment_rate: Joi.number().min(0).max(1).default(0.10),
+    max_repayment: Joi.number().integer().min(0).default(0),
+    total_repaid: Joi.number().integer().min(0).default(0),
+    current_status: Joi.string().valid('active', 'completed', 'defaulted').default('active'),
+    installments: Joi.array().items(
+      Joi.object({
+        period: Joi.string().required(),
+        income_reported: Joi.number().integer().min(0).required(),
+        repayment_amount: Joi.number().integer().min(0).required(),
+        status: Joi.string().valid('pending', 'paid', 'skipped', 'waived').default('pending'),
+        due_date: Joi.date().timestamp('javascript').required(),
+        paid_at: Joi.date().timestamp('javascript').allow(null)
+      })
+    ).default([])
+  }).allow(null),
+
+  certificateId: Joi.string().allow(null, ''),
+
   updatedBy: Joi.string().allow(null),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
@@ -159,6 +199,10 @@ const findByUser = async (userId, skip = 0, limit = 10, filters = {}) => {
       .skip(skip)
       .limit(limit)
       .toArray()
+
+    // #region agent debug log
+    fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1e17d2'},body:JSON.stringify({sessionId:'1e17d2',location:'enrollmentModel.js:findByUser',message:'findByUser raw courseIds',data:{userId,total:enrollments.length,courseIds:enrollments.map(e=>e.courseId)},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     const totalEnrollments = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).countDocuments(query)
 
@@ -518,63 +562,139 @@ const getOverallStats = async () => {
 // ============ ADMIN STATS ============
 const getAdminStats = async () => {
   try {
-    // Total by status
-    const statusPipeline = [
-      { $match: { _destroy: { $ne: true } } },
-      { $group: { _id: '$status', count: { $sum: 1 } } }
-    ]
-    const statusStats = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(statusPipeline).toArray()
+    const db = GET_DB()
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
-    const byStatus = {}
-    let total = 0
-    statusStats.forEach(stat => {
-      byStatus[stat._id] = stat.count
-      total += stat.count
+    // Total enrollments
+    const totalEnrollments = await db.collection(ENROLLMENT_COLLECTION_NAME).countDocuments({ _destroy: { $ne: true } })
+
+    // Revenue this month
+    const monthlyRevenueResult = await db.collection(ENROLLMENT_COLLECTION_NAME).aggregate([
+      {
+        $match: {
+          _destroy: { $ne: true },
+          enrolledAt: { $gte: startOfMonth }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$fee.paid' }
+        }
+      }
+    ]).toArray()
+    const revenueThisMonth = monthlyRevenueResult[0]?.total || 0
+
+    // Dropout rate
+    const droppedCount = await db.collection(ENROLLMENT_COLLECTION_NAME).countDocuments({
+      status: 'dropped',
+      _destroy: { $ne: true }
+    })
+    const dropoutRate = totalEnrollments > 0 ? Math.round((droppedCount / totalEnrollments) * 1000) / 10 : 0
+
+    // Pending courses count
+    const pendingCourses = await db.collection('courses').countDocuments({
+      status: 'pending',
+      _destroy: { $ne: true }
     })
 
-    // Revenue stats
-    const revenuePipeline = [
-      { $match: { _destroy: { $ne: true } } },
-      { $group: {
-        _id: null,
-        totalFee: { $sum: '$fee.total' },
-        totalPaid: { $sum: '$fee.paid' },
-        totalPending: { $sum: '$fee.pending' }
-      } }
-    ]
-    const revenueStats = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(revenuePipeline).toArray()
-    const revenue = revenueStats[0] || { totalFee: 0, totalPaid: 0, totalPending: 0 }
-
-    // Top courses by enrollment count
+    // Top courses
     const topCoursesPipeline = [
       { $match: { _destroy: { $ne: true } } },
       { $group: { _id: '$courseId', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
-      { $limit: 10 }
+      { $limit: 5 }
     ]
-    const topCourses = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).aggregate(topCoursesPipeline).toArray()
-
-    // Get course details for top courses
+    const topCourses = await db.collection(ENROLLMENT_COLLECTION_NAME).aggregate(topCoursesPipeline).toArray()
     const topCoursesWithDetails = await Promise.all(
       topCourses.map(async (item) => {
-        const course = await courseModel.findOneById(item._id)
+        const course = await db.collection('courses').findOne({ _id: new ObjectId(item._id) })
         return {
           courseId: item._id,
           title: course?.title || 'Unknown',
-          count: item.count
+          enrollments: item.count
         }
       })
     )
 
-    return {
-      total,
-      byStatus,
-      revenue: {
-        total: revenue.totalFee,
-        paid: revenue.totalPaid,
-        pending: revenue.totalPending
+    // Recent enrollments
+    const recentEnrollmentsRaw = await db.collection(ENROLLMENT_COLLECTION_NAME)
+      .find({ _destroy: { $ne: true } })
+      .sort({ enrolledAt: -1 })
+      .limit(5)
+      .toArray()
+    const recentEnrollments = await Promise.all(
+      recentEnrollmentsRaw.map(async (item) => {
+        const user = await db.collection('users').findOne({ _id: new ObjectId(item.userId) })
+        const course = await db.collection('courses').findOne({ _id: new ObjectId(item.courseId) })
+        return {
+          _id: item._id,
+          userId: item.userId,
+          userName: user?.displayName || 'N/A',
+          userEmail: user?.email || 'N/A',
+          userAvatar: user?.avatar || null,
+          courseId: item.courseId,
+          courseTitle: course?.title || 'N/A',
+          enrolledAt: item.enrolledAt,
+          status: item.status,
+          progress: item.progress?.percentage || 0
+        }
+      })
+    )
+
+    // Revenue by month (12 months)
+    const twelveMonthsAgo = new Date()
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12)
+    const monthlyRevenueTrend = await db.collection(ENROLLMENT_COLLECTION_NAME).aggregate([
+      {
+        $match: {
+          _destroy: { $ne: true },
+          enrolledAt: { $gte: twelveMonthsAgo }
+        }
       },
-      topCourses: topCoursesWithDetails
+      {
+        $group: {
+          _id: {
+            year: { $year: '$enrolledAt' },
+            month: { $month: '$enrolledAt' }
+          },
+          amount: { $sum: '$fee.paid' }
+        }
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1 } }
+    ]).toArray()
+
+    const revenueByMonth = monthlyRevenueTrend.map(item => {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const label = `${monthNames[item._id.month - 1]} ${item._id.year}`
+      return {
+        month: label,
+        amount: item.amount
+      }
+    })
+
+    // For compatibility with Phase 2 tests
+    const statusCounts = await db.collection(ENROLLMENT_COLLECTION_NAME).aggregate([
+      { $match: { _destroy: { $ne: true } } },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).toArray()
+    const byStatus = {}
+    statusCounts.forEach(item => {
+      byStatus[item._id] = item.count
+    })
+
+    return {
+      totalEnrollments,
+      revenueThisMonth,
+      dropoutRate,
+      pendingCourses,
+      recentEnrollments,
+      topCourses: topCoursesWithDetails,
+      revenueByMonth,
+      // Compatibility fields
+      total: totalEnrollments,
+      byStatus
     }
   } catch (error) {
     throw new Error(error.message)

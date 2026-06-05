@@ -14,6 +14,9 @@ import JobsPage from '@/pages/JobsPage';
 import CoursesPage from '@/pages/CoursesPage';
 import CourseDetailPage from '@/pages/CourseDetailPage';
 import MyEnrollmentsPage from '@/pages/MyEnrollmentsPage';
+import MyEnrollmentDetailPage from '@/pages/MyEnrollmentDetailPage';
+import VideoLearningPage from '@/pages/VideoLearningPage';
+import CertificatePage from '@/pages/my-enrollments/CertificatePage';
 import ScholarshipPage from '@/pages/ScholarshipPage';
 import ScholarshipDetailPage from '@/pages/ScholarshipDetailPage';
 import MyApplicationsPage from '@/pages/MyApplicationsPage';
@@ -21,8 +24,12 @@ import ApplicationDetailPage from '@/pages/ApplicationDetailPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
 import AdminCoursesPage from '@/pages/AdminCoursesPage';
+import AdminCourseApprovalPage from '@/pages/admin/AdminCourseApprovalPage';
 import AdminEnrollmentsPage from '@/pages/admin/AdminEnrollmentsPage';
+import ScheduleBuilderPage from '@/pages/admin/ScheduleBuilderPage';
 import AdminScholarshipsPage from '@/pages/AdminScholarshipsPage';
+import AttendancePage from '@/pages/admin/AttendancePage';
+import CheckinPage from '@/pages/my-enrollments/CheckinPage';
 import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
 
 function App() {
@@ -70,6 +77,9 @@ function App() {
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/courses" element={<AdminCoursesPage />} />
+        <Route path="/admin/courses/approval" element={<AdminCourseApprovalPage />} />
+        <Route path="/admin/courses/:id/schedule" element={<ScheduleBuilderPage />} />
+        <Route path="/admin/courses/:id/schedule/session/:sessionNumber/attendance" element={<AttendancePage />} />
         <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
         <Route path="/admin/applications" element={<AdminDashboardPage />} />
         <Route path="/admin/scholarships" element={<AdminScholarshipsPage />} />
@@ -82,6 +92,12 @@ function App() {
         <Route path="/courses/:id" element={<CourseDetailPage />} />
         {/* My Enrollments */}
         <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
+        <Route path="/my-enrollments/:id" element={<MyEnrollmentDetailPage />} />
+        <Route path="/my-enrollments/:id/checkin" element={<CheckinPage />} />
+        <Route path="/my-enrollments/:id/learn" element={<VideoLearningPage />} />
+        <Route path="/my-enrollments/:id/certificate" element={<CertificatePage />} />
+        <Route path="/verify/:code" element={<CertificatePage />} />
+        <Route path="/certificates/verify/:code" element={<CertificatePage />} />
         {/* Scholarships */}
         <Route path="/scholarships" element={<ScholarshipPage />} />
         <Route path="/scholarships/:id" element={<ScholarshipDetailPage />} />

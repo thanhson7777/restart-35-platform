@@ -1,6 +1,7 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
+import React from 'react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import AdminEnrollmentRow from './AdminEnrollmentRow';
+import { motion } from 'framer-motion';
 
 const AdminEnrollmentTable = ({
   enrollments,
@@ -13,66 +14,42 @@ const AdminEnrollmentTable = ({
 }) => {
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+      <div className="bg-slate-950/20 border border-slate-900 rounded-2xl overflow-hidden backdrop-blur-md">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Học viên
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Khóa học
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Tiến độ
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Học phí
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Ngày đăng ký
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Thao tác
-                </th>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-slate-950/60 border-b border-slate-800/80 text-left">
+                <th className="px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Học viên</th>
+                <th className="px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Khóa học</th>
+                <th className="px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Tiến độ</th>
+                <th className="px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Trạng thái</th>
+                <th className="px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Học phí</th>
+                <th className="px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Ngày đăng ký</th>
+                <th className="px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {[1, 2, 3, 4, 5].map((i) => (
-                <tr key={i} className="border-b border-slate-100">
-                  <td className="px-4 py-4">
+                <tr key={i} className="border-b border-slate-900/60 bg-slate-900/10">
+                  <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <Skeleton className="w-10 h-10 rounded-full" />
-                      <div>
-                        <Skeleton className="w-32 h-4 mb-1" />
-                        <Skeleton className="w-40 h-3" />
+                      <Skeleton className="w-9 h-9 rounded-full bg-slate-800" />
+                      <div className="space-y-1">
+                        <Skeleton className="w-24 h-4 bg-slate-800" />
+                        <Skeleton className="w-32 h-3 bg-slate-800" />
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-4">
-                    <Skeleton className="w-40 h-4" />
-                  </td>
-                  <td className="px-4 py-4">
-                    <Skeleton className="w-32 h-6" />
-                  </td>
-                  <td className="px-4 py-4">
-                    <Skeleton className="w-24 h-6 rounded-full" />
-                  </td>
-                  <td className="px-4 py-4">
-                    <Skeleton className="w-20 h-4" />
-                  </td>
-                  <td className="px-4 py-4">
-                    <Skeleton className="w-24 h-4" />
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex gap-2">
-                      <Skeleton className="w-10 h-10 rounded-lg" />
-                      <Skeleton className="w-10 h-10 rounded-lg" />
-                      <Skeleton className="w-10 h-10 rounded-lg" />
+                  <td className="px-5 py-4"><Skeleton className="w-36 h-4 bg-slate-800" /></td>
+                  <td className="px-5 py-4"><Skeleton className="w-24 h-6 bg-slate-800 rounded-full" /></td>
+                  <td className="px-5 py-4"><Skeleton className="w-20 h-5 bg-slate-800 rounded-full" /></td>
+                  <td className="px-5 py-4"><Skeleton className="w-16 h-4 bg-slate-800" /></td>
+                  <td className="px-5 py-4"><Skeleton className="w-20 h-4 bg-slate-800" /></td>
+                  <td className="px-5 py-4">
+                    <div className="flex gap-1">
+                      <Skeleton className="w-8 h-8 rounded-lg bg-slate-800" />
+                      <Skeleton className="w-8 h-8 rounded-lg bg-slate-800" />
+                      <Skeleton className="w-8 h-8 rounded-lg bg-slate-800" />
                     </div>
                   </td>
                 </tr>
@@ -86,13 +63,11 @@ const AdminEnrollmentTable = ({
 
   if (!enrollments || enrollments.length === 0) {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 p-12 text-center">
-        <div className="text-6xl mb-4">📋</div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">
-          Chưa có đăng ký nào
-        </h3>
-        <p className="text-slate-500">
-          Không tìm thấy đăng ký nào phù hợp với bộ lọc của bạn.
+      <div className="bg-slate-950/20 border border-slate-900 rounded-2xl p-16 text-center backdrop-blur-md">
+        <div className="text-5xl mb-4 opacity-60">📋</div>
+        <h3 className="text-base font-bold text-white mb-2">Chưa có đăng ký nào</h3>
+        <p className="text-slate-400 text-sm max-w-sm mx-auto">
+          Không tìm thấy lượt ghi danh học tập nào phù hợp với bộ lọc hiện tại của bạn.
         </p>
       </div>
     );
@@ -102,35 +77,21 @@ const AdminEnrollmentTable = ({
   const currentPage = pagination.page;
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div className="bg-slate-950/20 border border-slate-900/60 rounded-2xl overflow-hidden backdrop-blur-md">
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-slate-50 border-b border-slate-200">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Học viên
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Khóa học
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Tiến độ
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Trạng thái
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Học phí
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Ngày đăng ký
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Thao tác
-              </th>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-slate-950/40 border-b border-slate-850 text-left">
+              <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Học viên</th>
+              <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Khóa học</th>
+              <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Tiến độ</th>
+              <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Trạng thái</th>
+              <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Học phí</th>
+              <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Ngày đăng ký</th>
+              <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Thao tác</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-850">
             {enrollments.map((enrollment) => (
               <AdminEnrollmentRow
                 key={enrollment._id}
@@ -146,18 +107,17 @@ const AdminEnrollmentTable = ({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between">
-          <p className="text-sm text-slate-500">
-            Hiển thị {(currentPage - 1) * pagination.limit + 1} -{' '}
-            {Math.min(currentPage * pagination.limit, pagination.total)} trong{' '}
-            {pagination.total} đăng ký
+        <div className="px-5 py-4 border-t border-slate-850 bg-slate-950/25 flex items-center justify-between flex-wrap gap-4">
+          <p className="text-xs font-medium text-slate-400 font-mono">
+            Hiển thị <span className="text-white">{(currentPage - 1) * pagination.limit + 1}</span> -{' '}
+            <span className="text-white">{Math.min(currentPage * pagination.limit, pagination.total)}</span> trong{' '}
+            <span className="text-white">{pagination.total}</span> đăng ký
           </p>
           <div className="flex gap-1">
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-1 text-sm border border-slate-200 rounded hover:bg-slate-50 
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3.5 py-1.5 text-xs font-semibold bg-slate-900 border border-slate-800 text-slate-300 rounded-full hover:bg-slate-800 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               Trước
             </button>
@@ -176,10 +136,10 @@ const AdminEnrollmentTable = ({
                 <button
                   key={pageNum}
                   onClick={() => onPageChange(pageNum)}
-                  className={`px-3 py-1 text-sm border rounded ${
+                  className={`w-8 h-8 text-xs font-extrabold rounded-full flex items-center justify-center border transition-all ${
                     currentPage === pageNum
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'border-slate-200 hover:bg-slate-50'
+                      ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_12px_rgba(37,99,235,0.4)]'
+                      : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white'
                   }`}
                 >
                   {pageNum}
@@ -189,8 +149,7 @@ const AdminEnrollmentTable = ({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 text-sm border border-slate-200 rounded hover:bg-slate-50 
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3.5 py-1.5 text-xs font-semibold bg-slate-900 border border-slate-800 text-slate-300 rounded-full hover:bg-slate-800 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               Sau
             </button>
