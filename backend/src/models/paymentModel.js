@@ -42,6 +42,7 @@ const PAYMENT_COLLECTION_SCHEMA = Joi.object({
     totalAmount: Joi.number().integer().min(0).default(0)
   }).default(null),
   transactionId: Joi.string().allow('', null),
+  qrUrl: Joi.string().allow('', null),
   notes: Joi.string().max(1000).allow('', null),
   _destroy: Joi.boolean().default(false)
 })

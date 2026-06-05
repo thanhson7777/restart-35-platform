@@ -65,8 +65,6 @@ debug_*.html
 # Cursor settings
 .cursor/
 
-# Docs folder
-docs/
 
 # Environment files (contain secrets)
 .env

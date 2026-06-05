@@ -1,4 +1,4 @@
-import { Eye, Check, X, Clock, CheckCircle, XCircle, Archive } from 'lucide-react';
+import { Eye, Check, X, Clock, CheckCircle, XCircle, Archive, Calendar } from 'lucide-react';
 import { Badge, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui';
 import { formatPrice, formatDuration } from '@/utils/formatter';
 
@@ -184,6 +184,22 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
               </TooltipTrigger>
               <TooltipContent>
                 <p>Xem chi tiết</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => window.location.href = `/admin/courses/${course._id}/schedule`}
+                  className="h-10 w-10 p-0 rounded-lg hover:bg-slate-100"
+                >
+                  <Calendar className="w-5 h-5 text-slate-650" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Lập lịch học</p>
               </TooltipContent>
             </Tooltip>
 

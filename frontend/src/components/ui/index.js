@@ -12,3 +12,5 @@ export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
 export { SelectField } from './SelectField';
 export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from './Table';
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './Tooltip';
+export { BezelCard } from './BezelCard';
+

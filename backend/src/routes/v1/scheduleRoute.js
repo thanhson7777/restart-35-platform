@@ -22,12 +22,18 @@ Router.get(
   scheduleController.getUpcomingSchedule
 )
 
-// Lấy lịch theo khóa học (Worker cũng có thể xem)
+// Lấy lịch theo khóa học (Public - Worker cũng có thể xem)
 Router.get(
   '/course/:courseId',
   authMiddleware.isAuthorized,
   scheduleValidation.checkCourseId,
   scheduleController.getScheduleByCourse
+)
+
+// Lấy lịch theo khóa học (Public - không cần auth)
+Router.get(
+  '/public/course/:courseId',
+  scheduleController.getScheduleByCoursePublic
 )
 
 // Lấy chi tiết lịch học
@@ -45,6 +51,15 @@ Router.get(
   scheduleValidation.checkId,
   scheduleValidation.checkSessionNumber,
   scheduleController.getSessionAttendance
+)
+
+// Học viên tự check-in bằng PIN/QR
+Router.post(
+  '/:id/sessions/:sessionNumber/checkin',
+  authMiddleware.isAuthorized,
+  scheduleValidation.checkId,
+  scheduleValidation.checkSessionNumber,
+  scheduleController.studentCheckin
 )
 
 // ============ TRAINER ROUTES (Auth Required) ============

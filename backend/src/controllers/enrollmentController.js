@@ -172,15 +172,11 @@ const getEnrollmentStats = async (req, res, next) => {
 const getAdminStats = async (req, res, next) => {
   try {
     const stats = await enrollmentService.getAdminStats()
-    const monthlyTrend = await enrollmentService.getMonthlyTrend(6)
 
     res.status(StatusCodes.OK).json({
       success: true,
       message: 'Lấy thống kê thành công!',
-      data: {
-        ...stats,
-        monthlyTrend
-      }
+      data: stats
     })
   } catch (error) { next(error) }
 }
@@ -321,6 +317,53 @@ const failEnrollment = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ============ GET RISK LIST (Admin) ============
+const getRiskList = async (req, res, next) => {
+  try {
+    const result = await enrollmentService.getRiskList(req.query)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách nguy cơ bỏ học thành công!',
+      data: result.enrollments,
+      pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
+// ============ GET RISK DETAIL ============
+const getEnrollmentRiskDetail = async (req, res, next) => {
+  try {
+    const enrollmentId = req.params.id
+    const userId = req.user._id.toString()
+    const userRole = req.user.role
+
+    const risk = await enrollmentService.getEnrollmentRiskDetail(enrollmentId, userId, userRole)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thông tin nguy cơ bỏ học thành công!',
+      data: risk
+    })
+  } catch (error) { next(error) }
+}
+
+// ============ TRIGGER MANUAL INTERVENTION ============
+const triggerManualIntervention = async (req, res, next) => {
+  try {
+    const enrollmentId = req.params.id
+    const trainerId = req.user._id.toString()
+    const { type } = req.body
+
+    const result = await enrollmentService.triggerManualIntervention(enrollmentId, type, trainerId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Kích hoạt biện pháp can thiệp thành công!',
+      data: result
+    })
+  } catch (error) { next(error) }
+}
+
 export const enrollmentController = {
   // Worker
   enrollCourse,
@@ -328,6 +371,7 @@ export const enrollmentController = {
   getEnrollmentById,
   cancelEnrollment,
   dropEnrollment,
+  getEnrollmentRiskDetail,
 
   // Trainer
   updateProgress,
@@ -337,9 +381,11 @@ export const enrollmentController = {
   suspendEnrollment,
   completeEnrollment,
   failEnrollment,
+  triggerManualIntervention,
 
   // Admin
   getAllEnrollments,
   getAdminStats,
-  exportEnrollments
+  exportEnrollments,
+  getRiskList
 }

@@ -23,6 +23,8 @@ import { isaRepaymentRoute } from './isaRepaymentRoute'
 import { learningRecordRoute } from './learningRecordRoute'
 import { certificateRoute } from './certificateRoute'
 import { placementRoute } from './placementRoute'
+import { lessonProgressRoute } from './lessonProgressRoute'
+import { videoNoteRoute } from './videoNoteRoute'
 
 const Router = express.Router()
 
@@ -78,5 +80,7 @@ Router.use('/isa-repayments', isaRepaymentRoute)
 Router.use('/learning-records', learningRecordRoute)
 Router.use('/certificates', certificateRoute)
 Router.use('/placements', placementRoute)
+Router.use('/lesson-progress', lessonProgressRoute)
+Router.use('/video-notes', videoNoteRoute)
 
 export const APIS_V1 = Router

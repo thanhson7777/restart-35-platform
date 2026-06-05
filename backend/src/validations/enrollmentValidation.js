@@ -140,7 +140,6 @@ const queryEnrollments = async (req, res, next) => {
   }
 }
 
-// ============ Check ID Validation ============
 const checkId = async (req, res, next) => {
   const condition = Joi.object({
     id: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)

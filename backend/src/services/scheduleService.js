@@ -94,6 +94,46 @@ const getScheduleByCourse = async (courseId, trainerId = null) => {
   } catch (error) { throw error }
 }
 
+// ============ GET SCHEDULE BY COURSE (Public) ============
+const getScheduleByCoursePublic = async (courseId) => {
+  try {
+    const schedule = await scheduleModel.findByCourse(courseId)
+    if (!schedule || !schedule.sessions || schedule.sessions.length === 0) {
+      return []
+    }
+
+    // Map sessions and resolve instructor names
+    const sessionsWithNames = await Promise.all(
+      schedule.sessions.map(async (session) => {
+        let instructorName = 'Đang cập nhật'
+        if (session.instructorId) {
+          try {
+            const instructor = await userModel.findOneById(session.instructorId)
+            if (instructor) {
+              instructorName = instructor.displayName || instructor.fullName || instructor.email
+            }
+          } catch (_) {}
+        }
+        return {
+          _id: session._id?.toString() || `sess-${session.sessionNumber}`,
+          sessionNumber: session.sessionNumber,
+          title: session.title,
+          date: session.date,
+          startTime: session.startTime,
+          endTime: session.endTime,
+          duration: session.duration,
+          topic: session.topic,
+          instructorName,
+          location: session.location,
+          status: session.status,
+        }
+      })
+    )
+
+    return sessionsWithNames
+  } catch (error) { throw error }
+}
+
 // ============ GET MY SCHEDULES ============
 const getMySchedules = async (userId, queryParams) => {
   try {
@@ -406,6 +446,46 @@ const cancelSession = async (scheduleId, sessionNumber, reason, trainerId) => {
   } catch (error) { throw error }
 }
 
+// Helper: Sync attendance stats from schedule sessions to learner's enrollment document
+const syncEnrollmentAttendance = async (enrollmentId, courseId, userId, schedule = null) => {
+  try {
+    if (!schedule) {
+      schedule = await scheduleModel.findByCourse(courseId)
+    }
+    if (!schedule || !schedule.sessions) return
+
+    let present = 0
+    let absent = 0
+    let late = 0
+    let totalSessions = 0
+
+    for (const session of schedule.sessions) {
+      if (session.status === SESSION_STATUS.COMPLETED || (session.attendance && session.attendance.length > 0)) {
+        totalSessions++
+        const record = session.attendance?.find(a => a.userId === userId)
+        if (record) {
+          if (record.status === 'present') present++
+          else if (record.status === 'absent') absent++
+          else if (record.status === 'late') late++
+        } else {
+          if (session.status === SESSION_STATUS.COMPLETED) {
+            absent++
+          }
+        }
+      }
+    }
+
+    await enrollmentModel.updateAttendance(enrollmentId, {
+      present,
+      absent,
+      late,
+      totalSessions
+    })
+  } catch (error) {
+    console.error(`Failed to sync enrollment attendance for user ${userId}:`, error)
+  }
+}
+
 // ============ MARK SESSION COMPLETE ============
 const markSessionComplete = async (scheduleId, sessionNumber, trainerId) => {
   try {
@@ -430,7 +510,19 @@ const markSessionComplete = async (scheduleId, sessionNumber, trainerId) => {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Buổi học đã được đánh dấu hoàn thành!')
     }
 
-    return await scheduleModel.markSessionComplete(scheduleId, sessionNumber)
+    const updated = await scheduleModel.markSessionComplete(scheduleId, sessionNumber)
+
+    // Sync stats for all enrolled students
+    const enrolls = await enrollmentModel.findByCourse(schedule.courseId, 0, 1000, {
+      status: { $in: [ENROLLMENT_STATUS.ENROLLED, ENROLLMENT_STATUS.IN_PROGRESS] }
+    })
+    if (enrolls && enrolls.enrollments) {
+      for (const enroll of enrolls.enrollments) {
+        await syncEnrollmentAttendance(enroll._id, schedule.courseId, enroll.userId, updated)
+      }
+    }
+
+    return updated
   } catch (error) { throw error }
 }
 
@@ -465,7 +557,65 @@ const recordAttendance = async (scheduleId, sessionNumber, attendanceData, train
       }
     }
 
-    return await scheduleModel.recordAttendance(scheduleId, sessionNumber, attendanceData)
+    const updated = await scheduleModel.recordAttendance(scheduleId, sessionNumber, attendanceData)
+
+    // Sync stats into enrollment for each updated student
+    for (const record of attendanceData) {
+      const studentEnroll = await enrollmentModel.findOneByUserAndCourse(record.userId, schedule.courseId)
+      if (studentEnroll) {
+        await syncEnrollmentAttendance(studentEnroll._id, schedule.courseId, record.userId, updated)
+      }
+    }
+
+    return updated
+  } catch (error) { throw error }
+}
+
+// ============ STUDENT SELF CHECK-IN ============
+const studentCheckin = async (scheduleId, sessionNumber, studentId, pin) => {
+  try {
+    const schedule = await scheduleModel.findOneById(scheduleId)
+    if (!schedule) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy lịch học!')
+    }
+
+    const session = schedule.sessions.find(s => s.sessionNumber === sessionNumber)
+    if (!session) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Không tìm thấy buổi học số ${sessionNumber}!`)
+    }
+
+    if (session.status === SESSION_STATUS.CANCELLED) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Buổi học này đã bị hủy!')
+    }
+
+    // Verify PIN code (case-insensitive, last 6 chars of session._id)
+    const expectedPin = session._id.toString().substring(18).toUpperCase()
+    if (!pin || pin.trim().toUpperCase() !== expectedPin) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Mã PIN điểm danh không chính xác!')
+    }
+
+    // Verify student enrollment
+    const studentEnrollment = await enrollmentModel.findOneByUserAndCourse(studentId, schedule.courseId)
+    if (!studentEnrollment) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn không đăng ký khóa học này!')
+    }
+
+    if ([ENROLLMENT_STATUS.CANCELLED, ENROLLMENT_STATUS.DROPPED].includes(studentEnrollment.status)) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Đăng ký học của bạn đã bị hủy hoặc bạn đã rút lui!')
+    }
+
+    const attendanceRecord = {
+      userId: studentId,
+      status: 'present',
+      checkedAt: Date.now()
+    }
+
+    const updatedSchedule = await scheduleModel.recordAttendance(scheduleId, sessionNumber, [attendanceRecord])
+
+    // Sync stats into enrollment
+    await syncEnrollmentAttendance(studentEnrollment._id, schedule.courseId, studentId, updatedSchedule)
+
+    return updatedSchedule
   } catch (error) { throw error }
 }
 
@@ -559,6 +709,7 @@ export const scheduleService = {
 
   // Read
   getScheduleByCourse,
+  getScheduleByCoursePublic,
   getMySchedules,
   getUpcomingSchedule,
   getScheduleById,
@@ -581,5 +732,6 @@ export const scheduleService = {
 
   // Attendance
   recordAttendance,
-  getSessionAttendance
+  getSessionAttendance,
+  studentCheckin
 }

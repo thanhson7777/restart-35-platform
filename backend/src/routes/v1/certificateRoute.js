@@ -50,7 +50,7 @@ Router.get(
 // Certificate theo enrollment
 Router.get(
   '/enrollment/:enrollmentId',
-  authMiddleware.isAuthorizedAdmin,
+  authMiddleware.isAuthorized,
   certificateController.getCertificateByEnrollment
 )
 

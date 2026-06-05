@@ -49,18 +49,32 @@ Router.get(
   courseController.getCoursesByCategory
 )
 
-// Chi tiết khóa học
-Router.get(
-  '/:id',
-  courseValidation.checkId,
-  courseController.getCourseById
-)
-
 // Khóa học liên quan
 Router.get(
   '/:id/related',
   courseValidation.checkId,
   courseController.getRelatedCourses
+)
+
+// Bài học xem trước
+Router.get(
+  '/:id/preview-lessons',
+  courseValidation.checkId,
+  courseController.getPreviewLessons
+)
+
+// Bài học của khóa
+Router.get(
+  '/:id/lessons',
+  courseValidation.checkId,
+  courseController.getCourseLessons
+)
+
+// Chi tiết khóa học
+Router.get(
+  '/:id',
+  courseValidation.checkId,
+  courseController.getCourseById
 )
 
 // ============ WORKER ROUTES (Auth Required) ============

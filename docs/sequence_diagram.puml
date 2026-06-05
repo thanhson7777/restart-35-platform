@@ -1,0 +1,148 @@
+@startuml ReStart35_Sequence
+!theme plain
+
+title Re-Start 35+ - Sequence Diagram: AI Career Recommendation
+
+' ============================================================
+' PARTICIPANTS
+' ============================================================
+
+actor "Worker" as WORKER
+participant "Frontend\n(React SPA)" as FE
+participant "Backend API\n(Express :8017)" as BE
+participant "AI Service\n(FastAPI :8000)" as AI
+participant "MongoDB" as MONGO
+participant "Redis" as REDIS
+participant "GROQ LLM" as GROQ
+participant "FAISS\nVector Index" as FAISS
+
+' ============================================================
+' MAIN FLOW
+' ============================================================
+
+== 1. User Submits Career Profile ==
+
+WORKER -> FE : 1. Submit career profile\n(age, skills, experience, barriers)
+activate FE
+
+FE -> BE : 2. POST /v1/worker-profiles\n{profile data}
+activate BE
+
+BE -> MONGO : 3. Save worker profile
+activate MONGO
+MONGO --> BE : 4. Profile saved (worker_id)
+deactivate MONGO
+
+BE --> FE : 5. Profile created\n{worker_id}
+deactivate BE
+
+FE --> WORKER : 6. Show profile created\nmessage
+deactivate FE
+
+== 2. Request Career Recommendation ==
+
+WORKER -> FE : 7. Request career recommendation
+activate FE
+
+FE -> BE : 8. POST /v1/ai/rag/career-recommendation\n{profile, options}
+activate BE
+
+BE -> AI : 9. Forward to AI Service\nPOST /api/v1/ai/rag/career-recommendation
+activate AI
+
+== 3. RAG Context Retrieval ==
+
+AI -> FAISS : 10. Query vector index\n(embed user profile)
+activate FAISS
+
+FAISS --> AI : 11. Return relevant documents\n(salary, trends, requirements)
+deactivate FAISS
+
+AI -> AI : 12. Build prompt with context\n(system + user + retrieved context)
+
+== 4. LLM Generation ==
+
+AI -> GROQ : 13. Call GROQ API\n(prompt with RAG context)
+activate GROQ
+
+GROQ --> AI : 14. Return generated\nrecommendation (JSON)
+deactivate GROQ
+
+AI -> AI : 15. Parse & validate response\nJSON
+
+AI -> AI : 16. Translate job titles\nto Vietnamese
+
+== 5. Caching & Response ==
+
+alt Cache miss (first request)
+  AI -> AI : 17. Process recommendation
+else Cache hit
+  AI -> REDIS : Check cache
+  activate REDIS
+  REDIS --> AI : Return cached result
+  deactivate REDIS
+end
+
+AI --> BE : 18. Return recommendation\n{career_paths, sources}
+deactivate AI
+
+BE -> REDIS : 19. Cache result\n(TTL: 24h)
+activate REDIS
+REDIS --> BE : Cache saved
+deactivate REDIS
+
+BE --> FE : 20. Response to frontend
+deactivate BE
+
+FE --> WORKER : 21. Display career\nrecommendations
+deactivate FE
+
+== 6. Job Recommendation (Hybrid) ==
+
+WORKER -> FE : 22. Request job matches
+FE -> BE : 23. POST /v1/ai/recommend-jobs\n{skills, location, preferences}
+
+BE -> AI : 24. POST /api/v1/ai/recommend-jobs
+AI -> AI : 25. Hybrid Recommender:\n- TF-IDF matching\n- Semantic search\n- Collaborative filtering
+
+alt Semantic Search Available
+  AI -> FAISS : 26. Query vector DB
+  FAISS --> AI : 27. Semantic matches
+end
+
+AI -> AI : 28. Combine scores\n(TF-IDF 25% + Semantic 25%\n+ CF 30% + Location 20%)
+
+AI -> MONGO : 29. Fetch job details\n(jobs collection)
+MONGO --> AI : 30. Job data
+
+AI --> BE : 31. Ranked jobs
+BE --> FE : 32. Job recommendations
+FE --> WORKER : 33. Display jobs
+
+== 7. Risk Assessment ==
+
+WORKER -> FE : 34. Request risk assessment
+FE -> BE : 35. POST /v1/ai/predict-risk\n{worker_features}
+
+BE -> AI : 36. POST /api/v1/ai/predict-risk
+activate AI
+
+AI -> AI : 37. Load XGBoost model\n(features: age, skills,\nbarriers, etc.)
+
+AI -> AI : 38. Run prediction\n(threshold: 0.15)
+
+alt HIGH RISK detected
+  AI -> AI : 39. Generate urgent\nintervention recommendations
+else MEDIUM RISK
+  AI -> AI : 40. Generate moderate\nsupport recommendations
+else LOW RISK
+  AI -> AI : 41. Generate growth\nrecommendations
+end
+
+AI --> BE : 42. Risk assessment\n{risk_level, score, recommendations}
+deactivate AI
+
+BE --> FE : 43. Response
+FE --> WORKER : 44. Display risk assessment\nwith personalized recommendations
+
+@enduml

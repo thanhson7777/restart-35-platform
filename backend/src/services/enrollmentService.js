@@ -3,6 +3,7 @@ import { courseModel } from '~/models/courseModel'
 import { userModel } from '~/models/userModel'
 import { workerProfileModel } from '~/models/workerProfileModel'
 import { fundingConfigModel } from '~/models/fundingConfigModel'
+import { GET_DB } from '~/config/mongodb'
 import { applicationService } from './applicationService'
 import { isaRepaymentService } from './isaRepaymentService'
 import { StatusCodes } from 'http-status-codes'
@@ -66,12 +67,6 @@ const enrollCourse = async (userId, courseId, data) => {
     }
 
     const prereqResult = await checkPrerequisites(userId, course)
-    if (!prereqResult.passed) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        `Chưa hoàn thành khóa tiên quyết: ${prereqResult.missing.join(', ')}`
-      )
-    }
 
     const capacityResult = await checkCapacity(course)
 
@@ -110,7 +105,8 @@ const enrollCourse = async (userId, courseId, data) => {
       },
       waitlistPosition,
       enrolledAt: Date.now(),
-      startDate: finalStatus === ENROLLMENT_STATUS_V2.ACTIVE ? Date.now() : null
+      startDate: finalStatus === ENROLLMENT_STATUS_V2.ACTIVE ? Date.now() : null,
+      prerequisiteWarnings: prereqResult.passed ? [] : prereqResult.missing
     }
 
     const result = await enrollmentModel.createNew(enrollmentData)
@@ -140,7 +136,8 @@ const enrollCourse = async (userId, courseId, data) => {
         status: finalStatus,
         waitlistPosition,
         eligibility,
-        capacity: capacityResult
+        capacity: capacityResult,
+        prerequisiteWarnings: prereqResult.passed ? [] : prereqResult.missing
       }
     }
   } catch (error) { throw error }
@@ -175,7 +172,11 @@ const getMyEnrollments = async (userId, queryParams) => {
 
     const enrichedEnrollments = await Promise.all(
       enrollments.map(async (enrollment) => {
+        // #region agent debug log
+        fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1e17d2'},body:JSON.stringify({sessionId:'1e17d2',location:'enrollmentService.js:getMyEnrollments',message:'raw enrollment.courseId',data:{userId,enrollmentId:String(enrollment._id),courseId:enrollment.courseId,typeof:typeof enrollment.courseId},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         const course = await courseModel.findOneById(enrollment.courseId)
+        const installments = await getInstallmentsForEnrollment(enrollment._id, course, enrollment)
         return {
           ...enrollment,
           course: course ? {
@@ -187,7 +188,8 @@ const getMyEnrollments = async (userId, queryParams) => {
             schedule: course.schedule,
             location: course.location,
             providerId: course.providerId
-          } : null
+          } : null,
+          installments
         }
       })
     )
@@ -273,6 +275,41 @@ const getEnrollmentsByCourse = async (courseId, queryParams, trainerId = null) =
   } catch (error) { throw error }
 }
 
+const getInstallmentsForEnrollment = async (enrollmentId, course, enrollment) => {
+  if (!course || course.funding_model !== 'learner_paid') {
+    return []
+  }
+
+  const db = GET_DB()
+  const payments = await db.collection('payments').find({
+    enrollmentId: enrollmentId.toString(),
+    _destroy: { $ne: true }
+  }).toArray()
+
+  const totalFee = enrollment.fee?.total || course.fee || 0
+  const installmentCount = 4
+  const installmentAmount = Math.round(totalFee / installmentCount)
+
+  return Array.from({ length: installmentCount }).map((_, idx) => {
+    const instNum = idx + 1
+    const amount = installmentAmount
+
+    const payment = payments[idx]
+    const dueDate = new Date(enrollment.enrolledAt)
+    dueDate.setDate(dueDate.getDate() + (idx * 30))
+
+    return {
+      installmentNumber: instNum,
+      amount,
+      dueDate: dueDate.getTime(),
+      paidAt: payment && payment.status === 'completed' ? payment.completedAt || payment.updatedAt : null,
+      status: payment ? (payment.status === 'completed' ? 'paid' : payment.status) : 'upcoming',
+      paymentId: payment ? payment._id.toString() : null,
+      qrUrl: payment ? payment.qrUrl : null
+    }
+  })
+}
+
 // ============ GET ENROLLMENT BY ID ============
 const getEnrollmentById = async (enrollmentId, userId = null, userRole = null) => {
   try {
@@ -296,6 +333,8 @@ const getEnrollmentById = async (enrollmentId, userId = null, userRole = null) =
     const userInfo = await userModel.findOneById(enrollment.userId)
     const profile = await workerProfileModel.findOneByUserId(enrollment.userId)
 
+    const installments = await getInstallmentsForEnrollment(enrollmentId, course, enrollment)
+
     return {
       ...enrollment,
       course: course ? {
@@ -318,7 +357,8 @@ const getEnrollmentById = async (enrollmentId, userId = null, userRole = null) =
         avatar: userInfo.avatar,
         phone: userInfo.phone
       } : null,
-      profile: profile || null
+      profile: profile || null,
+      installments
     }
   } catch (error) { throw error }
 }
@@ -529,6 +569,7 @@ const getAllEnrollments = async (queryParams) => {
       enrollments.map(async (enrollment) => {
         const course = await courseModel.findOneById(enrollment.courseId)
         const userInfo = await userModel.findOneById(enrollment.userId)
+        const installments = await getInstallmentsForEnrollment(enrollment._id, course, enrollment)
         return {
           ...enrollment,
           course: course ? {
@@ -540,7 +581,8 @@ const getAllEnrollments = async (queryParams) => {
             _id: userInfo._id,
             displayName: userInfo.displayName,
             email: userInfo.email
-          } : null
+          } : null,
+          installments
         }
       })
     )
@@ -790,6 +832,128 @@ const failEnrollment = async (enrollmentId, trainerId, reason) => {
   } catch (error) { throw error }
 }
 
+// ============ GET RISK LIST ============
+const getRiskList = async (queryParams) => {
+  try {
+    const {
+      page = DEFAULT_PAGE,
+      limit = DEFAULT_ITEM_PER_PAGE,
+      level
+    } = queryParams
+
+    const currentPage = parseInt(page, 10) || DEFAULT_PAGE
+    const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
+    const skip = (currentPage - 1) * recordLimit
+
+    const filters = {}
+    if (level) {
+      filters['dropout_risk.level'] = level
+    } else {
+      filters['dropout_risk.level'] = { $in: ['medium', 'high'] }
+    }
+
+    const { enrollments, totalEnrollments } = await enrollmentModel.findAll(skip, recordLimit, filters)
+
+    const enrichedEnrollments = await Promise.all(
+      enrollments.map(async (enrollment) => {
+        const course = await courseModel.findOneById(enrollment.courseId)
+        const userInfo = await userModel.findOneById(enrollment.userId)
+        return {
+          ...enrollment,
+          course: course ? {
+            _id: course._id,
+            title: course.title,
+            slug: course.slug
+          } : null,
+          user: userInfo ? {
+            _id: userInfo._id,
+            displayName: userInfo.displayName,
+            email: userInfo.email,
+            phone: userInfo.phone
+          } : null
+        }
+      })
+    )
+
+    return {
+      enrollments: enrichedEnrollments,
+      pagination: {
+        totalRecords: totalEnrollments,
+        totalPages: Math.ceil(totalEnrollments / recordLimit),
+        currentPage,
+        limit: recordLimit
+      }
+    }
+  } catch (error) { throw error }
+}
+
+// ============ GET RISK DETAIL ============
+const getEnrollmentRiskDetail = async (enrollmentId, userId, userRole) => {
+  try {
+    const enrollment = await enrollmentModel.findOneById(enrollmentId)
+    if (!enrollment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+    }
+
+    const course = await courseModel.findOneById(enrollment.courseId)
+    const isOwner = enrollment.userId.toString() === userId
+    const isTrainer = course && course.providerId.toString() === userId
+    const isAdmin = userRole === USER_ROLES.ADMIN
+
+    if (!isOwner && !isTrainer && !isAdmin) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền xem thông tin này!')
+    }
+
+    return enrollment.dropout_risk || { score: 0, level: 'low', reasons: [], last_calculated_at: null, interventions_sent: [] }
+  } catch (error) { throw error }
+}
+
+// ============ TRIGGER INTERVENTION ============
+const triggerManualIntervention = async (enrollmentId, type, trainerId) => {
+  try {
+    const enrollment = await enrollmentModel.findOneById(enrollmentId)
+    if (!enrollment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+    }
+
+    const course = await courseModel.findOneById(enrollment.courseId)
+    const isTrainer = course && course.providerId.toString() === trainerId
+    const user = await userModel.findOneById(trainerId)
+    const isAdmin = user.role === USER_ROLES.ADMIN
+
+    if (!isTrainer && !isAdmin) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền thực hiện can thiệp cho học viên này!')
+    }
+
+    const userId = enrollment.userId.toString()
+    let success = false
+
+    if (type === 'zalo_reminder') {
+      const { interventionService } = await import('./interventionService')
+      success = await interventionService.sendZaloReminder(userId)
+      if (success) {
+        await interventionService.logIntervention(enrollmentId, 'zalo_reminder')
+      }
+    } else if (type === 'email_alert') {
+      const { interventionService } = await import('./interventionService')
+      success = await interventionService.sendEmailAlert(userId)
+      if (success) {
+        await interventionService.logIntervention(enrollmentId, 'email_alert')
+      }
+    } else if (type === 'trainer_notified') {
+      const { interventionService } = await import('./interventionService')
+      success = await interventionService.notifyTrainer(enrollment.courseId.toString(), userId)
+      if (success) {
+        await interventionService.logIntervention(enrollmentId, 'trainer_notified')
+      }
+    } else {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Loại can thiệp không hợp lệ!')
+    }
+
+    return { success }
+  } catch (error) { throw error }
+}
+
 export const enrollmentService = {
   // Core
   enrollCourse,
@@ -814,6 +978,9 @@ export const enrollmentService = {
   getAdminStats,
   getMonthlyTrend,
   getEnrollmentsForExport,
+  getRiskList,
+  getEnrollmentRiskDetail,
+  triggerManualIntervention,
 
   // Helpers
   checkEligibility,

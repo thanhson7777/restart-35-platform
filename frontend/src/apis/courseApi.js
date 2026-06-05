@@ -89,3 +89,154 @@ export const exportEnrollments = (params) =>
     params,
     responseType: 'blob'
   });
+
+// ─── Preview Lessons ───────────────────────────────────────────────────
+export const getPreviewLessons = (courseId) =>
+  publicAxiosInstance.get(`${API_ROOT}/v1/courses/${courseId}/preview-lessons`);
+
+// ─── Course Sessions (Schedule) ───────────────────────────────────────
+export const getCourseSchedule = (courseId) =>
+  publicAxiosInstance.get(`${API_ROOT}/v1/schedules/public/course/${courseId}`);
+
+// ─── Course Lessons ───────────────────────────────────────────────────
+export const getCourseLessons = (courseId) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/${courseId}/lessons`);
+
+// ─── Enrollment Progress ───────────────────────────────────────────────
+export const recordVideoProgress = (lessonId, data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/lesson-progress/lessons/${lessonId}/progress`, data);
+
+export const getLessonProgress = (enrollmentId) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/lesson-progress/enrollments/${enrollmentId}/progress`);
+
+export const markLessonComplete = (lessonId) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/lessons/${lessonId}/complete`);
+
+// ─── Video Notes ──────────────────────────────────────────────────────
+export const createVideoNote = (data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/video-notes`, data);
+
+export const getVideoNotes = (enrollmentId) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/${enrollmentId}/notes`);
+
+export const updateVideoNote = (noteId, data) =>
+  authorizeAxiosInstance.patch(`${API_ROOT}/v1/video-notes/${noteId}`, data);
+
+export const deleteVideoNote = (noteId) =>
+  authorizeAxiosInstance.delete(`${API_ROOT}/v1/video-notes/${noteId}`);
+
+// ─── Video Bookmarks ──────────────────────────────────────────────────
+export const toggleVideoBookmark = (lessonId, data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/lessons/${lessonId}/bookmark`, data);
+
+// ─── Admin Dropout Risk & Interventions ──────────────────────────────────
+export const getRiskList = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/admin/risk-list`, { params });
+
+export const getEnrollmentRiskDetail = (id) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/${id}/risk`);
+
+export const triggerManualIntervention = (id, data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/enrollments/${id}/intervention`, data);
+
+// ─── Admin Schedule Builder ───────────────────────────────────────────
+export const getAdminCourseSchedule = (courseId) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/course/${courseId}`);
+
+export const createSchedule = (data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/schedules`, data);
+
+export const updateSchedule = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/schedules/${id}`, data);
+
+export const publishSchedule = (id) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/schedules/${id}/publish`);
+
+export const deleteSchedule = (id) =>
+  authorizeAxiosInstance.delete(`${API_ROOT}/v1/schedules/${id}`);
+
+export const addScheduleSession = (id, data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/schedules/${id}/sessions`, data);
+
+export const updateScheduleSession = (id, sessionNumber, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/schedules/${id}/sessions/${sessionNumber}`, data);
+
+export const cancelScheduleSession = (id, sessionNumber, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/schedules/${id}/sessions/${sessionNumber}/cancel`, data);
+
+// ─── Certificates ─────────────────────────────────────────────────────
+export const getMyCertificates = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/certificates/my`, { params });
+
+export const getCertificateByEnrollment = (enrollmentId) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/certificates/enrollment/${enrollmentId}`);
+
+export const verifyCertificate = (code) =>
+  publicAxiosInstance.get(`${API_ROOT}/v1/certificates/verify/${code}`);
+
+// ─── Payments & Transactions ───────────────────────────────────────────
+export const createPayment = (data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/payments`, data);
+
+export const getMyPayments = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/payments/my`, { params });
+
+export const getAllPayments = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/payments`, { params });
+
+export const getPaymentById = (id) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/payments/${id}`);
+
+export const updatePaymentStatus = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/payments/${id}/status`, data);
+
+export const refundPayment = (id, data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/payments/${id}/refund`, data);
+
+export const getInvoice = (id) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/payments/${id}/invoice`);
+
+// ─── ISA Repayments ───────────────────────────────────────────────────
+export const getMyIsaRepayments = () =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/isa-repayments/my`);
+
+export const submitIncome = (id, data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/isa-repayments/${id}/submit-income`, data);
+
+export const createIsaRepayment = (data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/isa-repayments`, data);
+
+export const getAllIsaRepayments = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/isa-repayments`, { params });
+
+export const activateIsaRepayment = (id) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/isa-repayments/${id}/activate`);
+
+export const getIsaRepaymentById = (id) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/isa-repayments/${id}`);
+
+export const calculateMonthlyPayment = (id, month) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/isa-repayments/${id}/calculate/${month}`);
+
+export const updateMonthlyRecord = (id, month, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/isa-repayments/${id}/monthly-record/${month}`, data);
+
+export const getIsaStatus = (id) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/isa-repayments/${id}/status`);
+
+// ─── Attendance ───────────────────────────────────────────────────────
+export const getSessionAttendance = (scheduleId, sessionNumber) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/${scheduleId}/sessions/${sessionNumber}/attendance`);
+
+export const recordAttendance = (scheduleId, sessionNumber, data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/schedules/${scheduleId}/sessions/${sessionNumber}/attendance`, data);
+
+export const studentCheckin = (scheduleId, sessionNumber, data) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/schedules/${scheduleId}/sessions/${sessionNumber}/checkin`, data);
+
+export const getScheduleById = (id) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/${id}`);
+
+
+
+

@@ -71,6 +71,11 @@ const submitIncome = async (req, res, next) => {
 // ============ Update Monthly Record Validation ============
 const updateMonthlyRecord = async (req, res, next) => {
   const correctCondition = Joi.object({
+    year: Joi.number().integer().min(2020).required()
+      .messages({
+        'number.base': 'Năm phải là số',
+        'any.required': 'Năm là bắt buộc để cập nhật bản ghi tháng'
+      }),
     income: Joi.number().integer().min(0).optional(),
     paymentAmount: Joi.number().integer().min(0).optional(),
     status: Joi.string()

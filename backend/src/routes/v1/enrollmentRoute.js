@@ -1,6 +1,7 @@
 import express from 'express'
 import { enrollmentValidation } from '~/validations/enrollmentValidation'
 import { enrollmentController } from '~/controllers/enrollmentController'
+import { videoNoteController } from '~/controllers/videoNoteController'
 import { authMiddleware } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
@@ -29,6 +30,22 @@ Router.get(
   authMiddleware.isAuthorized,
   enrollmentValidation.checkId,
   enrollmentController.getEnrollmentById
+)
+
+// Lấy nguy cơ bỏ học của enrollment
+Router.get(
+  '/:id/risk',
+  authMiddleware.isAuthorized,
+  enrollmentValidation.checkId,
+  enrollmentController.getEnrollmentRiskDetail
+)
+
+// Lấy danh sách ghi chú video của enrollment
+Router.get(
+  '/:id/notes',
+  authMiddleware.isAuthorized,
+  enrollmentValidation.checkId,
+  videoNoteController.getNotesByEnrollment
 )
 
 // Hủy đăng ký (legacy)
@@ -107,6 +124,14 @@ Router.put(
   enrollmentController.updateStatus
 )
 
+// Yêu cầu can thiệp thủ công
+Router.post(
+  '/:id/intervention',
+  authMiddleware.isAuthorized,
+  enrollmentValidation.checkId,
+  enrollmentController.triggerManualIntervention
+)
+
 // Lấy thống kê enrollment
 Router.get(
   '/stats',
@@ -139,6 +164,14 @@ Router.get(
   authMiddleware.isAuthorized,
   authMiddleware.isAuthorizedAdmin,
   enrollmentController.exportEnrollments
+)
+
+// Lấy danh sách nguy cơ bỏ học
+Router.get(
+  '/admin/risk-list',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  enrollmentController.getRiskList
 )
 
 export const enrollmentRoute = Router

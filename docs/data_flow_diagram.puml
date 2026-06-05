@@ -1,0 +1,168 @@
+@startuml ReStart35_DataFlow
+!theme plain
+skinparam backgroundColor #FFFFFF
+
+title Re-Start 35+ - AI Recommendation Data Flow
+
+' ============================================================
+' FLOW 1: USER REGISTRATION & PROFILE CREATION
+' ============================================================
+
+|#AntiqueWhite|FLOW 1: User Registration|
+
+start
+
+:User submits registration form;
+:Frontend validates input;
+:Backend creates user account\n(JWT token issued);
+:Store user in MongoDB\n(users collection);
+:MongoDB returns user_id;
+
+:Redirect to profile setup;
+:User enters profile data\n(Age, Skills, Experience, Barriers);
+:Validate ESCO skills mapping;
+:Store worker_profile in MongoDB;
+:Profile creation complete;
+
+stop
+
+' ============================================================
+' FLOW 2: JOB RECOMMENDATION FLOW
+' ============================================================
+
+|#LightBlue|FLOW 2: AI Job Recommendation|
+
+start
+
+:User requests job recommendations;
+
+:Frontend sends request\nto Backend AI Controller;
+
+:Backend AI Controller\nforwards to AI Service\n(via HTTP :8000);
+
+:AI Service receives request;
+
+if (Use Semantic Search?) then (Yes)
+  :Load Sentence-BERT model;
+  :Generate embeddings for\nuser skills & job requirements;
+  :Query FAISS vector index;
+else (No - TF-IDF only)
+  :Load TF-IDF vectorizer;
+  :Compute TF-IDF similarity;
+endif
+
+:Hybrid Recommender combines:\n- TF-IDF scores (25%)\n- Semantic scores (25%)\n- Collaborative Filtering (30%);
+
+:Filter by:\n- Location\n- Salary range\n- Job type\n- Experience level;
+
+:Rank jobs by combined score;
+
+:Return top N recommended jobs;
+
+:Backend caches result in Redis\n(TTL: 24 hours);
+
+:Frontend displays\njob recommendations;
+
+stop
+
+' ============================================================
+' FLOW 3: RISK PREDICTION FLOW
+' ============================================================
+
+|#LightYellow|FLOW 3: Risk Prediction|
+
+start
+
+:User completes profile\nor requests assessment;
+
+:Extract worker features:\n- Demographics (age, gender)\n- Education level\n- Employment status\n- Skills (ESCO mapped)\n- Barriers (health, family, tech)\n- Geographic factors;
+
+:Backend sends to\nAI Risk Predictor;
+
+:Load XGBoost model\n(pre-trained on labor market data);
+
+:Encode features\n(one-hot encoding);
+
+:Run inference:\n- Predict probability of\nunemployment risk\n- Classify risk level\n(HIGH/MEDIUM/LOW);
+
+:Apply threshold optimization\n(threshold = 0.15 for\n"humanitarian recall");
+
+:Calculate feature importance\n(SHAP values);
+
+:Generate recommendations\nbased on risk level;
+
+:Return risk assessment\n+ recommendations;
+
+:Store in MongoDB\n(interactions collection);
+
+stop
+
+' ============================================================
+' FLOW 4: CAREER PATH RECOMMENDATION (RAG)
+' ============================================================
+
+|#LightGreen|FLOW 4: RAG Career Path|
+
+start
+
+:User requests career guidance;
+
+:Frontend sends profile\nto RAG Career Router;
+
+:AI Service retrieves\nRAG context:
+
+partition "RAG Context Retrieval" {
+  :Query FAISS index with\nuser profile embedding;
+  :Retrieve relevant documents:\n  - Salary benchmarks\n  - Industry trends\n  - Job requirements\n  - Skill transferability;
+}
+
+:Build prompt with:\n- User profile data\n- Retrieved context\n- System instructions;
+
+:Call GROQ LLM API\n(Llama-3-70B);
+
+:Generate career recommendations:\n- Best-fit jobs\n- Income boost opportunities\n- Career progression paths;
+
+:Translate job titles\nto Vietnamese;
+
+:Cache in Redis;
+
+:Return structured response;
+
+:Frontend displays\ncareer recommendations\nwith sources;
+
+stop
+
+' ============================================================
+' FLOW 5: JOB SCRAPING PIPELINE
+' ============================================================
+
+|#LightPink|FLOW 5: External Job Data|
+
+start
+
+:Scheduled Job Trigger\n(daily/hourly);
+
+:Scraper Service activates;
+
+repeat for each job site:
+  :Call Job API:\n  - VietnamWorks\n  - ITViec\n  - TopCV\n  - Vieclam24h\n  - Timviec365;
+  
+  :Parse HTML/API response;
+  :Extract job data:\n  - Title, Company\n  - Salary, Location\n  - Requirements, Skills;
+  
+  :Normalize skills\nto ESCO taxonomy;
+  
+  :Clean and validate data;
+  
+  :Store in MongoDB\n(jobs collection);
+  
+  :Update FAISS index\n(new embeddings);
+  
+  :Invalidate Redis cache;
+end repeat
+
+:Scraping complete\n(log to monitoring);
+
+stop
+
+@enduml

@@ -1,6 +1,7 @@
 import { courseService } from '~/services/courseService'
 import { StatusCodes } from 'http-status-codes'
 import { USER_ROLES } from '~/utils/constants'
+import { courseVideoLessonModel } from '~/models/courseVideoLessonModel'
 
 // ============ CREATE ============
 const createCourse = async (req, res, next) => {
@@ -227,6 +228,33 @@ const deleteCourse = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ============ LESSONS ============
+const getCourseLessons = async (req, res, next) => {
+  try {
+    const lessons = await courseVideoLessonModel.findByCourse(req.params.id)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách bài học thành công!',
+      data: lessons
+    })
+  } catch (error) { next(error) }
+}
+
+// ============ PREVIEW LESSONS ============
+const getPreviewLessons = async (req, res, next) => {
+  try {
+    const lessons = await courseVideoLessonModel.findByCourse(req.params.id)
+    const previewLessons = lessons.filter(l => l.isPreview === true).slice(0, 3)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách bài học xem trước thành công!',
+      data: previewLessons
+    })
+  } catch (error) { next(error) }
+}
+
 export const courseController = {
   // Create
   createCourse,
@@ -240,6 +268,8 @@ export const courseController = {
   getNewCourses,
   getRelatedCourses,
   getCoursesByCategory,
+  getCourseLessons,
+  getPreviewLessons,
 
   // Update
   updateCourse,

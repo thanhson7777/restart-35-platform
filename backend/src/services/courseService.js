@@ -562,9 +562,9 @@ const checkEligibility = async (userId, courseId) => {
 
       if (missingPrereqs.length > 0) {
         return {
-          eligible: false,
-          reason: 'Chưa hoàn thành khóa tiên quyết',
-          missingPrerequisites: missingPrereqs
+          eligible: true,
+          prerequisiteWarnings: missingPrereqs,
+          reason: 'Chưa hoàn thành khóa tiên quyết. Bạn vẫn có thể đăng ký nhưng nên hoàn thành trước.'
         }
       }
     }

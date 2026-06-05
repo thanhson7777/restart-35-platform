@@ -505,6 +505,13 @@ const getCourseStats = async (courseId) => {
           ],
           as: 'reviewStats'
         }
+      },
+      {
+        $project: {
+          _id: 1,
+          enrollmentStats: 1,
+          reviewStats: 1
+        }
       }
     ]).toArray()
     return stats[0] || null

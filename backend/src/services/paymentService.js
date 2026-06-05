@@ -3,6 +3,7 @@ import { enrollmentModel } from '~/models/enrollmentModel'
 import { courseModel } from '~/models/courseModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
+import { GET_DB } from '~/config/mongodb'
 import {
   DEFAULT_PAGE,
   DEFAULT_ITEM_PER_PAGE,
@@ -29,6 +30,18 @@ const createPayment = async (userId, data) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Khóa học không tồn tại!')
     }
 
+    // Tái sử dụng giao dịch đang chờ thanh toán có cùng số tiền
+    const db = await GET_DB()
+    const existingPending = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+      enrollmentId: enrollmentId.toString(),
+      amount: parseInt(amount),
+      status: PAYMENT_STATUS.PENDING,
+      _destroy: { $ne: true }
+    })
+    if (existingPending) {
+      return existingPending
+    }
+
     const paymentData = {
       enrollmentId,
       userId,
@@ -37,6 +50,10 @@ const createPayment = async (userId, data) => {
       amount,
       status: PAYMENT_STATUS.PENDING,
       installments: installments || []
+    }
+
+    if (method === 'bank_transfer') {
+      paymentData.qrUrl = `https://img.vietqr.io/image/VCB-1234567890-compact.png?amount=${amount}&addInfo=RESTART35-${enrollmentId.toString().toUpperCase()}&accountName=RESTART35%20PROJECT`
     }
 
     const result = await paymentModel.createNew(paymentData)
@@ -102,7 +119,8 @@ const getMyPayments = async (userId, query) => {
     const {
       page = DEFAULT_PAGE,
       item_per_page = DEFAULT_ITEM_PER_PAGE,
-      status
+      status,
+      enrollmentId
     } = query
 
     const skip = (page - 1) * item_per_page
@@ -110,6 +128,7 @@ const getMyPayments = async (userId, query) => {
 
     const matchCondition = { userId, _destroy: false }
     if (status) matchCondition.status = status
+    if (enrollmentId) matchCondition.enrollmentId = enrollmentId
 
     const result = await paymentModel.findByPaginate(matchCondition, skip, limit)
 
@@ -139,7 +158,53 @@ const updatePaymentStatus = async (id, status, transactionId) => {
 
     // Auto-update enrollment.payment_status
     if (status === PAYMENT_STATUS.COMPLETED) {
-      await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
+      const enrollment = await enrollmentModel.findOneById(payment.enrollmentId)
+      if (enrollment) {
+        const course = await courseModel.findOneById(enrollment.courseId)
+        const fundingModel = course?.funding_model || 'free'
+        
+        if (fundingModel === 'learner_paid') {
+          const allPayments = await paymentModel.findByEnrollment(payment.enrollmentId)
+          const completedAmount = allPayments
+            .filter(p => p.status === PAYMENT_STATUS.COMPLETED)
+            .reduce((sum, p) => sum + p.amount, 0)
+          
+          const totalFee = enrollment.fee?.total || course?.fee || 0
+          if (completedAmount >= totalFee) {
+            await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
+          } else {
+            await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.INSTALLMENT_ACTIVE)
+          }
+        } else if (fundingModel === 'isa') {
+          try {
+            const { isaRepaymentModel } = await import('~/models/isaRepaymentModel')
+            const { isaRepaymentService } = await import('./isaRepaymentService')
+            const isa = await isaRepaymentModel.findByEnrollment(payment.enrollmentId)
+            if (isa && isa.status === 'active') {
+              const pendingRecord = isa.monthlyRecords?.find(r => r.status === 'pending')
+              if (pendingRecord) {
+                const updatedIsa = await isaRepaymentService.updateMonthlyRecord(
+                  isa._id.toString(),
+                  pendingRecord.month,
+                  pendingRecord.year,
+                  {
+                    status: 'paid',
+                    paymentAmount: payment.amount,
+                    paidDate: Date.now()
+                  }
+                )
+                if (updatedIsa && updatedIsa.totalPaidAmount >= updatedIsa.maxCap) {
+                  await isaRepaymentService.capIsaRepayment(updatedIsa._id.toString())
+                }
+              }
+            }
+          } catch (isaError) {
+            console.warn('Failed to auto-update ISA status:', isaError.message)
+          }
+        } else {
+          await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
+        }
+      }
     } else if (status === PAYMENT_STATUS.REFUNDED) {
       await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PENDING)
     }
@@ -238,6 +303,52 @@ const webhookHandler = async (gateway, payload) => {
   try {
     let status
     let transactionId
+    let paymentId = null
+
+    if (gateway === 'casso') {
+      const transactions = payload.data || []
+      for (const trans of transactions) {
+        const desc = trans.description || ''
+        const match = desc.match(/RESTART35-([A-Fa-f0-9]{24})/)
+        if (match) {
+          const enrollmentId = match[1]
+          const db = await GET_DB()
+          const payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+            enrollmentId,
+            status: PAYMENT_STATUS.PENDING,
+            _destroy: { $ne: true }
+          })
+          if (payment) {
+            status = PAYMENT_STATUS.COMPLETED
+            transactionId = trans.id.toString()
+            paymentId = payment._id.toString()
+            break
+          }
+        }
+      }
+      return { status, transactionId, paymentId }
+    }
+
+    if (gateway === 'payos') {
+      const { orderCode, amount, description, reference } = payload.data || {}
+      const desc = description || ''
+      const match = desc.match(/RESTART35-([A-Fa-f0-9]{24})/)
+      if (match) {
+        const enrollmentId = match[1]
+        const db = await GET_DB()
+        const payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+          enrollmentId,
+          status: PAYMENT_STATUS.PENDING,
+          _destroy: { $ne: true }
+        })
+        if (payment) {
+          status = PAYMENT_STATUS.COMPLETED
+          transactionId = reference || orderCode.toString()
+          paymentId = payment._id.toString()
+        }
+      }
+      return { status, transactionId, paymentId }
+    }
 
     switch (gateway) {
       case 'momo':
@@ -269,7 +380,6 @@ const webhookHandler = async (gateway, payload) => {
     }
 
     // Tim payment theo transactionId
-    let paymentId = null
     if (transactionId) {
       const { paymentModel } = await import('~/models/paymentModel')
       const payment = await paymentModel.findByTransactionId(transactionId)

@@ -1,0 +1,296 @@
+@startuml ReStart35_Architecture_Final
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+
+' ============================================================
+' RE-START 35+ PLATFORM - SYSTEM ARCHITECTURE DIAGRAM
+' FINAL VERSION - WITH MONGODB ATLAS EVIDENCE
+' ============================================================
+
+header
+<font color=red size=20>**⚠️ MONGODB ATLAS - PRODUCTION DEPLOYMENT EVIDENCE**</font>
+</header>
+
+title Re-Start 35+ Platform - 3-Tier Architecture with MongoDB Atlas
+
+' ============================================================
+' ACTORS
+' ============================================================
+
+package "Actors" {
+  actor "👤 Người Lao Động 35+" as WORKER
+  actor "🏢 Doanh Nghiệp" as EMPLOYER
+  actor "👨‍💼 Quản Trị Viên" as ADMIN
+  actor "🎓 NGOs/Trainer" as TRAINER
+}
+
+' ============================================================
+' PRESENTATION TIER - FRONTEND
+' ============================================================
+
+package "🖥️ Presentation Tier" <<Frame>> #LightBlue {
+  [React 18 SPA\n(Vite + TailwindCSS)] as FRONTEND
+  [Redux Toolkit\n(State Management)] as REDUX
+  [React Router\n(Routing)] as ROUTER
+  
+  FRONTEND --> REDUX
+  FRONTEND --> ROUTER
+}
+
+' ============================================================
+' BUSINESS LOGIC TIER - BACKEND API
+' ============================================================
+
+package "⚙️ Business Logic Tier - Backend API" <<Frame>> #LightYellow {
+  package "Express.js REST API (:8017)" {
+    [Auth Controller\nJWT/Bcrypt] as AUTH
+    [User Controller] as USER_CTRL
+    [Worker Profile Controller] as WORKER_CTRL
+    [AI Controller] as AI_CTRL
+    [Course Controller] as COURSE_CTRL
+    [Scholarship Controller] as SCHOLAR_CTRL
+    [Interaction Controller] as INTER_CTRL
+    [Outcome Controller] as OUTCOME_CTRL
+    [Dashboard Controller] as DASH_CTRL
+    [Review Controller] as REVIEW_CTRL
+    [ESCO Controller] as ESCO_CTRL
+    [Application Controller] as APP_CTRL
+    [Enrollment Controller] as ENROLL_CTRL
+    [Schedule Controller] as SCHEDULE_CTRL
+  }
+  
+  package "Services Layer" {
+    [User Service] as USER_SVC
+    [Worker Profile Service] as WORKER_SVC
+    [AI Service] as AI_SVC
+    [Application Service] as APP_SVC
+    [Enrollment Service] as ENROLL_SVC
+    [Interaction Service] as INTER_SVC
+    [Scholarship Service] as SCHOLAR_SVC
+    [Review Service] as REVIEW_SVC
+    [Translation Service] as TRANS_SVC
+  }
+  
+  package "Middleware & Config" {
+    [Auth Middleware] as AUTH_MID
+    [Validation Middleware] as VALID_MID
+    [Error Handler] as ERR_MID
+    [Multer Upload\n(Cloudinary)] as UPLOAD_MID
+  }
+}
+
+' ============================================================
+' DATA TIER - MONGODB ATLAS (PRODUCTION)
+' ============================================================
+
+package "🗄️ Data Tier - MongoDB Atlas" <<Frame>> #LightGreen {
+  
+  cloud "☁️ MongoDB Atlas Cluster\ncluster0.axntlfn.mongodb.net" as MONGO_CLOUD {
+    
+    database "📦 Database: restart-35-platform" as MONGO {
+      
+      package "CORE COLLECTIONS" #Palegreen {
+        [users] as USER_MODEL
+        [worker_profiles] as WORKER_MODEL
+        [interactions] as INTER_MODEL
+      }
+      
+      package "COURSE MANAGEMENT" #LightYellow {
+        [categories] as CATEGORY_MODEL
+        [courses] as COURSE_MODEL
+        [enrollments] as ENROLL_MODEL
+        [schedules] as SCHEDULE_MODEL
+        [reviews] as REVIEW_MODEL
+      }
+      
+      package "JOB & OUTCOMES" #LightBlue {
+        [applications] as APP_MODEL
+        [job_outcomes] as OUTCOME_MODEL
+        [career_recommendations] as REC_MODEL
+      }
+      
+      package "SUPPORT & SCHOLARSHIP" #Lavender {
+        [scholarships] as SCHOLAR_MODEL
+        [scholarship_applications] as SCHOLAR_APP_MODEL
+      }
+      
+      package "ESCO TAXONOMY" #MistyRose {
+        [esco_occupations] as ESCO_OCC
+        [esco_skills] as ESCO_SKILL
+      }
+    }
+    
+    note bottom of MONGO
+      ┌─────────────────────────────────────────────────┐
+      │ **📋 MONGODB ATLAS EVIDENCE**                 │
+      │                                                 │
+      │ 🔗 Cluster: cluster0.axntlfn.mongodb.net      │
+      │ 👤 User: thanhson11052003_db_user             │
+      │ 📦 DB: restart-35-platform                    │
+      │ 🏷️  Tier: M0 (Shared Sandbox - Free)         │
+      │ 📍 Region: ap-southeast-1 (Singapore)        │
+      │ 🔄 Replica Set: cluster0-shard-00-00         │
+      │ ⚙️  Engine: WiredTiger                        │
+      │ 📊 Version: MongoDB 7.0+                     │
+      │ ✅ Encryption: AES-256                         │
+      │ 🔒 Auth: SCRAM-SHA-256                        │
+      └─────────────────────────────────────────────────┘
+    end note
+  }
+  
+  database "⚡ Redis Cache\n(localhost:6379)" as REDIS {
+    [Session Cache] as SESSION
+    [Career Path Cache] as CACHE_PATH
+    [Job Recommendations] as JOB_CACHE
+  }
+}
+
+' ============================================================
+' AI SERVICE TIER
+' ============================================================
+
+package "🤖 AI Service Layer" <<Frame>> #MistyRose {
+  package "FastAPI AI Engine (:8000)" {
+    [AI Router\n(Job Recommendation, Risk)] as AI_ROUTER
+    [RAG Career Router] as RAG_ROUTER
+    [Career Path Router] as PATH_ROUTER
+    [Career Transition Router] as TRANS_ROUTER
+  }
+  
+  package "ML/AI Services" {
+    [Hybrid Recommender\n(TF-IDF + Semantic)] as HYBRID_REC
+    [Semantic Search\n(Sentence-BERT)] as SEMANTIC
+    [Risk Predictor\n(XGBoost)] as RISK_PRED
+    [Skill Matcher] as SKILL_MATCH
+    [Career Path Generator] as PATH_GEN
+  }
+  
+  package "RAG System" {
+    [RAG Engine] as RAG_ENGINE
+    [Embedding Generator] as EMBEDDING
+    [FAISS Vector Index] as FAISS
+  }
+  
+  package "LLM Integration" {
+    [GROQ Client\n(Llama-3)] as GROQ_LLM
+    [Career LLM Scorer] as LLM_SCORER
+    [Translation Service\n(Vietnamese)] as VI_TRANS
+  }
+}
+
+' ============================================================
+' EXTERNAL SERVICES
+' ============================================================
+
+package "🌐 External Services" <<Frame>> {
+  database "📋 Job APIs" as JOB_APIS {
+    [VietnamWorks] as VW_API
+    [ITViec] as ITV_API
+    [TopCV] as TC_API
+    [Vieclam24h] as V24_API
+  }
+  
+  [ESCO European\nTaxonomy API] as ESCO_EXT
+  [Cloudinary CDN] as CLOUD
+  [Brevo Email] as BREVO
+}
+
+' ============================================================
+' RELATIONSHIPS
+' ============================================================
+
+' Actors to Frontend
+WORKER --> FRONTEND : "Đăng ký, Tìm việc"
+EMPLOYER --> FRONTEND : "Đăng tin tuyển dụng"
+ADMIN --> FRONTEND : "Quản lý hệ thống"
+TRAINER --> FRONTEND : "Quản lý khóa học"
+
+' Frontend to Backend
+FRONTEND -right-> AUTH : ":5173 → :8017"
+FRONTEND -right-> USER_CTRL
+FRONTEND -right-> WORKER_CTRL
+FRONTEND -right-> AI_CTRL
+FRONTEND -right-> COURSE_CTRL
+FRONTEND -right-> SCHOLAR_CTRL
+
+' Backend Controllers to Services
+AUTH --> USER_SVC
+WORKER_CTRL --> WORKER_SVC
+AI_CTRL --> AI_SVC
+COURSE_CTRL --> COURSE_CTRL
+SCHOLAR_CTRL --> SCHOLAR_SVC
+ENROLL_CTRL --> ENROLL_SVC
+APP_CTRL --> APP_SVC
+INTER_CTRL --> INTER_SVC
+REVIEW_CTRL --> REVIEW_SVC
+ESCO_CTRL --> TRANS_SVC
+
+' Services to MongoDB Atlas
+USER_SVC -down-> USER_MODEL : "📝 CRUD"
+WORKER_SVC -down-> WORKER_MODEL : "📝 CRUD"
+COURSE_SVC -down-> COURSE_MODEL : "📝 CRUD"
+ENROLL_SVC -down-> ENROLL_MODEL : "📝 CRUD"
+SCHOLAR_SVC -down-> SCHOLAR_MODEL : "📝 CRUD"
+APP_SVC -down-> APP_MODEL : "📝 CRUD"
+INTER_SVC -down-> INTER_MODEL : "📝 CRUD"
+REVIEW_SVC -down-> REVIEW_MODEL : "📝 CRUD"
+ESCO_CTRL -down-> ESCO_OCC : "📝 CRUD"
+ESCO_CTRL -down-> ESCO_SKILL : "📝 CRUD"
+
+' Backend to AI Service
+AI_SVC -right-> AI_ROUTER : ":8017 → :8000"
+AI_SVC -right-> RAG_ROUTER
+AI_SVC -right-> PATH_ROUTER
+
+' AI Service connections
+AI_ROUTER --> HYBRID_REC
+AI_ROUTER --> RISK_PRED
+RAG_ROUTER --> RAG_ENGINE
+RAG_ROUTER --> GROQ_LLM
+PATH_ROUTER --> PATH_GEN
+
+' RAG System
+RAG_ENGINE --> EMBEDDING
+EMBEDDING --> FAISS
+RAG_ENGINE --> LLM_SCORER
+
+' LLM
+LLM_SCORER --> GROQ_LLM
+
+' Caching
+AI_SVC --> REDIS : "⚡ Cache"
+WORKER_SVC --> REDIS
+
+' Job Scrapers to MongoDB
+VW_API -up-> WORKER_MODEL : "📥 Scraper"
+ITV_API -up-> WORKER_MODEL
+TC_API -up-> WORKER_MODEL
+V24_API -up-> WORKER_MODEL
+
+' ESCO
+ESCO_EXT -up-> ESCO_OCC : "🔄 Sync"
+ESCO_EXT -up-> ESCO_SKILL : "🔄 Sync"
+
+' Storage & Notifications
+AI_SVC --> CLOUD : "📤 Upload CV"
+APP_SVC --> BREVO : "📧 Notifications"
+
+' ============================================================
+' LEGEND
+' ============================================================
+
+legend right
+  |= Tier |= Technology |= Evidence |
+  | 🖥️ Frontend | React 18 + Vite | Local Dev |
+  | ⚙️ Backend | Express.js + Babel | Port :8017 |
+  | 🗄️ **MongoDB Atlas** | **cluster0.axntlfn** | **✅ REAL DEPLOYED** |
+  | 🤖 AI Service | FastAPI + Python | Port :8000 |
+  | ⚡ Cache | Redis | localhost |
+endlegend
+
+footer
+**Re-Start 35+ Platform** | MongoDB Atlas Deployment Evidence | cluster0.axntlfn.mongodb.net
+endfooter
+
+@enduml

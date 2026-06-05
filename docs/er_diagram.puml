@@ -1,0 +1,268 @@
+@startuml ReStart35_ERDiagram
+!theme plain
+
+title Re-Start 35+ - Entity Relationship Diagram
+
+skinparam linetype ortho
+
+' ============================================================
+' ENTITIES
+' ============================================================
+
+entity "users" as users {
+  * _id: ObjectId PK
+  --
+  email: String UQ
+  password: String (hashed)
+  role: Enum (worker/employer/admin/trainer)
+  fullname: String
+  phone: String
+  avatar_url: String
+  is_active: Boolean
+  email_verified: Boolean
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+entity "worker_profiles" as worker_profiles {
+  * _id: ObjectId PK
+  --
+  * user_id: ObjectId FK → users
+  * age: Number (35-65)
+  gender: String
+  education: String
+  employment_status: String
+  marital_status: String
+  region: String
+  target_salary: Number
+  preferred_job_type: String
+  current_industry: String
+  current_role: String
+  years_experience: Number
+  cv_url: String
+  employment_history: Array
+  skills: Array (ESCO codes)
+  barriers: Object
+  risk_level: String
+  risk_score: Number
+  last_assessed: DateTime
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+entity "courses" as courses {
+  * _id: ObjectId PK
+  --
+  title: String
+  description: String
+  category_id: ObjectId FK → categories
+  trainer_id: ObjectId FK → users
+  thumbnail_url: String
+  duration_hours: Number
+  level: String (beginner/intermediate/advanced)
+  price: Number
+  is_free: Boolean
+  syllabus: Array
+  requirements: Array
+  target_audience: Array
+  outcomes: Array
+  is_published: Boolean
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+entity "enrollments" as enrollments {
+  * _id: ObjectId PK
+  --
+  * user_id: ObjectId FK → users
+  * course_id: ObjectId FK → courses
+  enrolled_at: DateTime
+  progress_percent: Number
+  status: String (active/completed/dropped)
+  completed_at: DateTime
+  certificate_url: String
+}
+
+entity "schedules" as schedules {
+  * _id: ObjectId PK
+  --
+  * course_id: ObjectId FK → courses
+  title: String
+  description: String
+  start_time: DateTime
+  end_time: DateTime
+  location: String
+  meeting_link: String
+  max_participants: Number
+  current_participants: Number
+  is_online: Boolean
+  created_at: DateTime
+}
+
+entity "reviews" as reviews {
+  * _id: ObjectId PK
+  --
+  * user_id: ObjectId FK → users
+  * course_id: ObjectId FK → courses
+  rating: Number (1-5)
+  comment: String
+  pros: String
+  cons: String
+  is_verified_purchase: Boolean
+  helpful_count: Number
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+entity "categories" as categories {
+  * _id: ObjectId PK
+  --
+  name: String
+  slug: String
+  description: String
+  icon: String
+  parent_id: ObjectId FK (self)
+  sort_order: Number
+  is_active: Boolean
+}
+
+entity "scholarships" as scholarships {
+  * _id: ObjectId PK
+  --
+  title: String
+  description: String
+  provider: String
+  amount: Number
+  deadline: DateTime
+  requirements: Array
+  benefits: Array
+  application_url: String
+  is_active: Boolean
+  created_at: DateTime
+}
+
+entity "scholarship_applications" as scholar_apps {
+  * _id: ObjectId PK
+  --
+  * user_id: ObjectId FK → users
+  * scholarship_id: ObjectId FK → scholarships
+  status: String (pending/approved/rejected)
+  documents: Array
+  notes: String
+  reviewed_by: ObjectId FK → users
+  reviewed_at: DateTime
+  created_at: DateTime
+}
+
+entity "interactions" as interactions {
+  * _id: ObjectId PK
+  --
+  * user_id: ObjectId FK → users
+  interaction_type: String
+  resource_type: String
+  resource_id: ObjectId
+  metadata: Object
+  session_id: String
+  created_at: DateTime
+}
+
+entity "job_outcomes" as job_outcomes {
+  * _id: ObjectId PK
+  --
+  * user_id: ObjectId FK → users
+  job_title: String
+  company_name: String
+  salary: Number
+  job_type: String
+  location: String
+  source: String (direct/application/referral)
+  hired_at: DateTime
+  is_still_employed: Boolean
+  left_at: DateTime
+  notes: String
+  created_at: DateTime
+}
+
+entity "applications" as applications {
+  * _id: ObjectId PK
+  --
+  * user_id: ObjectId FK → users
+  job_id: String (external)
+  job_title: String
+  company_name: String
+  status: String (applied/screening/interview/offered/rejected/withdrawn)
+  applied_at: DateTime
+  notes: String
+  created_at: DateTime
+}
+
+entity "career_recommendations" as career_recs {
+  * _id: ObjectId PK
+  --
+  * user_id: ObjectId FK → users
+  recommendation_type: String
+  input_profile: Object
+  results: Object
+  sources: Array
+  model_version: String
+  generated_at: DateTime
+}
+
+entity "esco_occupations" as esco_occ {
+  * _id: ObjectId PK
+  --
+  * esco_code: String UQ
+  title_vi: String
+  title_en: String
+  description_vi: String
+  description_en: String
+  iscocode: String
+  category: String
+  skills: Array (refs to esco_skills)
+  alternative_labels: Array
+  created_at: DateTime
+}
+
+entity "esco_skills" as esco_skills {
+  * _id: ObjectId PK
+  --
+  * esco_code: String UQ
+  title_vi: String
+  title_en: String
+  skill_type: String (knowledge/skill)
+  category: String
+  description: String
+  created_at: DateTime
+}
+
+' ============================================================
+' RELATIONSHIPS
+' ============================================================
+
+users ||--o{ worker_profiles : "has"
+users ||--o{ enrollments : "enrolls"
+users ||--o{ reviews : "writes"
+users ||--o{ scholarship_applications : "applies"
+users ||--o{ interactions : "generates"
+users ||--o{ job_outcomes : "achieves"
+users ||--o{ applications : "submits"
+users ||--o{ career_recs : "receives"
+
+users ||--o{ courses : "creates/teaches"
+users ||--o{ scholarships : "manages"
+users ||--o{ scholar_apps : "reviews"
+
+courses ||--o{ enrollments : "enrolled_by"
+courses ||--o{ schedules : "scheduled_for"
+courses ||--o{ reviews : "reviewed_by"
+courses ||--o{ categories : "belongs_to"
+
+categories ||--o{ categories : "parent_of"
+categories ||--o{ courses : "contains"
+
+scholarships ||--o{ scholar_apps : "applied_by"
+
+esco_occupations ||--o{ esco_skills : "requires"
+esco_skills ||--o{ worker_profiles : "mapped_to"
+
+@enduml
