@@ -36,9 +36,8 @@ const isAuthorized = async (req, res, next) => {
   }
 }
 
-const isAuthorizedAdmin = async (req, res, next) => {
+const verifyRoleAccess = async (allowedRoles, req, next) => {
   const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
-
   if (!clientAccessToken) {
     next(new ApiError(StatusCodes.UNAUTHORIZED, 'Không tồn tại token này!'))
     return
@@ -47,10 +46,11 @@ const isAuthorizedAdmin = async (req, res, next) => {
   try {
     const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
 
-    if (!accessTokenDecoded || accessTokenDecoded.role !== USER_ROLES.ADMIN) {
+    if (!accessTokenDecoded || !allowedRoles.includes(accessTokenDecoded.role)) {
       next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
       return
     }
+
     req.user = accessTokenDecoded
     req.jwtDecoded = accessTokenDecoded
     next()
@@ -61,97 +61,43 @@ const isAuthorizedAdmin = async (req, res, next) => {
     }
     next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized!'))
   }
+}
+
+const isAuthorizedAdmin = async (req, res, next) => {
+  return await verifyRoleAccess([USER_ROLES.ADMIN], req, next)
 }
 
 const isAuthorizedNGO = async (req, res, next) => {
-  const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
-  if (!clientAccessToken) {
-    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Không tồn tại token này!'))
-    return
-  }
+  return await verifyRoleAccess([USER_ROLES.NGO], req, next)
+}
 
-  try {
-    const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
-
-    if (!accessTokenDecoded || accessTokenDecoded.role !== USER_ROLES.NGO) {
-      next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
-      return
-    }
-    req.user = accessTokenDecoded
-    req.jwtDecoded = accessTokenDecoded
-    next()
-  } catch (error) {
-    if (error?.message?.includes('jwt expired')) {
-      next(new ApiError(StatusCodes.GONE, 'Cần làm mới token!'))
-      return
-    }
-    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized!'))
-  }
+const isAuthorizedEnterprise = async (req, res, next) => {
+  return await verifyRoleAccess([USER_ROLES.ENTERPRISE], req, next)
 }
 
 const isAuthorizedTrainer = async (req, res, next) => {
-  const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
-  if (!clientAccessToken) {
-    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Không tồn tại token này!'))
-    return
-  }
-
-  try {
-    const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
-
-    if (!accessTokenDecoded || accessTokenDecoded.role !== USER_ROLES.TRAINER) {
-      next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
-      return
-    }
-    req.user = accessTokenDecoded
-    req.jwtDecoded = accessTokenDecoded
-    next()
-  } catch (error) {
-    if (error?.message?.includes('jwt expired')) {
-      next(new ApiError(StatusCodes.GONE, 'Cần làm mới token!'))
-      return
-    }
-    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized!'))
-  }
+  return await verifyRoleAccess([USER_ROLES.TRAINER], req, next)
 }
 
 const isAuthorizedTrainerOrAdmin = async (req, res, next) => {
-  const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
-  if (!clientAccessToken) {
-    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Không tồn tại token này!'))
-    return
-  }
+  return await verifyRoleAccess([USER_ROLES.TRAINER, USER_ROLES.ADMIN], req, next)
+}
 
-  try {
-    const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
+const isAuthorizedEnterpriseOrAdmin = async (req, res, next) => {
+  return await verifyRoleAccess([USER_ROLES.ENTERPRISE, USER_ROLES.ADMIN], req, next)
+}
 
-    if (!accessTokenDecoded) {
-      next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
-      return
-    }
-
-    const validRoles = [USER_ROLES.TRAINER, USER_ROLES.ADMIN]
-    if (!validRoles.includes(accessTokenDecoded.role)) {
-      next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
-      return
-    }
-
-    req.user = accessTokenDecoded
-    req.jwtDecoded = accessTokenDecoded
-    next()
-  } catch (error) {
-    if (error?.message?.includes('jwt expired')) {
-      next(new ApiError(StatusCodes.GONE, 'Cần làm mới token!'))
-      return
-    }
-    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized!'))
-  }
+const isAuthorizedEnterpriseOrNGOOrAdmin = async (req, res, next) => {
+  return await verifyRoleAccess([USER_ROLES.ENTERPRISE, USER_ROLES.NGO, USER_ROLES.ADMIN], req, next)
 }
 
 export const authMiddleware = {
   isAuthorized,
   isAuthorizedAdmin,
   isAuthorizedNGO,
+  isAuthorizedEnterprise,
   isAuthorizedTrainer,
-  isAuthorizedTrainerOrAdmin
+  isAuthorizedTrainerOrAdmin,
+  isAuthorizedEnterpriseOrAdmin,
+  isAuthorizedEnterpriseOrNGOOrAdmin
 }

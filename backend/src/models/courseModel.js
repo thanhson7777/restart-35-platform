@@ -39,6 +39,21 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   fee: Joi.number().min(0).default(0),
   isFree: Joi.boolean().default(false),
   scholarshipEligibility: Joi.boolean().default(false),
+  linkedPartnershipId: Joi.string().allow(null, ''),
+  linkedEnterpriseId: Joi.string().allow(null, ''),
+  sponsorship: Joi.object({
+    hasSponsorship: Joi.boolean().default(false),
+    sponsorTypes: Joi.array().items(Joi.string()).default([]),
+    activeSponsorshipIds: Joi.array().items(Joi.string()).default([]),
+    priorityRecruitment: Joi.boolean().default(false),
+    badgeLabel: Joi.string().allow('', null).default(null)
+  }).default({
+    hasSponsorship: false,
+    sponsorTypes: [],
+    activeSponsorshipIds: [],
+    priorityRecruitment: false,
+    badgeLabel: null
+  }),
   // Tuyen sinh
   maxStudents: Joi.number().integer().min(1).default(30),
   currentStudents: Joi.number().integer().min(0).default(0),
@@ -231,6 +246,17 @@ const searchCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, so
     }
     if (filters.funding_model) {
       matchStage.funding_model = filters.funding_model
+    }
+    if (filters.linkedPartnershipId) {
+      matchStage.linkedPartnershipId = filters.linkedPartnershipId
+    }
+    if (filters.linkedEnterpriseId) {
+      matchStage.linkedEnterpriseId = filters.linkedEnterpriseId
+    }
+    if (filters.hasSponsorship === true) {
+      matchStage['sponsorship.hasSponsorship'] = true
+    } else if (filters.hasSponsorship === false) {
+      matchStage['sponsorship.hasSponsorship'] = false
     }
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(matchStage)

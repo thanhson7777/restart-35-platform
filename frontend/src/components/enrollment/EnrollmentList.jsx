@@ -5,6 +5,7 @@ import { Card } from '@/components/ui';
 import { BookOpen, Award, GraduationCap, DollarSign, Play } from 'lucide-react';
 import { ENROLLMENT_STATUS } from '@/utils/constants';
 import { formatPrice } from '@/utils/formatter';
+import { EnrollmentSourceBadge, EnrollmentFundingSummary } from './EnrollmentSourceBadge';
 
 const STATUS_TABS = [
   { key: 'all', label: 'Tất cả' },
@@ -194,13 +195,25 @@ export const EnrollmentList = ({
       ) : (
         <div className="space-y-4">
           {filtered.map((enrollment) => (
-            <EnrollmentCard
-              key={enrollment._id}
-              enrollment={enrollment}
-              onCancel={onCancel}
-              onViewProgress={onViewProgress}
-              onViewDetail={onViewDetail}
-            />
+            <div key={enrollment._id} className="space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <EnrollmentSourceBadge source={enrollment.source} />
+                {(enrollment.sponsorships || []).slice(0, 2).map((item) => (
+                  <EnrollmentSourceBadge
+                    key={item.sponsorshipId || item._id}
+                    source={item.source || enrollment.source}
+                    compact
+                  />
+                ))}
+              </div>
+              <EnrollmentCard
+                enrollment={enrollment}
+                onCancel={onCancel}
+                onViewProgress={onViewProgress}
+                onViewDetail={onViewDetail}
+              />
+              <EnrollmentFundingSummary enrollment={enrollment} />
+            </div>
           ))}
         </div>
       )}

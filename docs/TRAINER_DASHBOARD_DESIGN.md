@@ -1189,18 +1189,74 @@ API: respondToReview(reviewId, {responseText})
 
 ---
 
-### Phase 7: Partnership (Tương lai — Cần backend hỗ trợ)
+### Phase 7: Partnership (Trainer Dashboard — Có thể triển khai ngay)
 
-> **Phụ thuộc:** Backend tạo model Partnership + API endpoints.
+> **Trạng thái:** Backend partnership core đã có, cần mở rộng query/enrichment và xây UI Trainer.
+
+**Mục tiêu Phase 7:**
+- Trainer xem toàn bộ partnership liên quan theo trạng thái
+- Xem chi tiết từng partnership với enterprise, khóa học liên kết, learners, graduates
+- Phản hồi / đàm phán / xác nhận / hủy partnership ngay trong dashboard
+- Theo dõi learner enterprise-linked và outcome của partnership
 
 ```
-P7.1  → Đọc chi tiết docs/LUONG_DOANH_NGHIEP_TRAINER_KHOA_HOC.md
-P7.2  → Tạo Partnership model ở backend (backend team)
-P7.3  → Wrap Partnership APIs
-P7.4  → Tạo TrainerPartnershipsPage.jsx
-P7.5  → Tạo TrainerPartnershipDetailPage.jsx
-P7.6  → Tạo PartnershipResponseModal.jsx
+P7.1  → Cập nhật docs theo backend partnership hiện có
+P7.2  → Mở rộng backend query layer cho list/detail/stats/learners/graduates
+P7.3  → Viết test phase7-trainer-partnerships để chốt contract
+P7.4  → Tạo frontend/src/apis/partnershipApi.js
+P7.5  → Tạo /trainer/partnerships (list + filters + summary cards)
+P7.6  → Tạo /trainer/partnerships/:id (detail + tabs + actions)
+P7.7  → Tạo PartnershipResponseModal.jsx và các component phụ trợ
+P7.8  → Smoke test toàn bộ flow partnership trong trainer dashboard
 ```
+
+**Frontend routes mới:**
+```
+/trainer/partnerships              → TrainerPartnershipsPage
+/trainer/partnerships/:id          → TrainerPartnershipDetailPage
+```
+
+**Frontend APIs cần wrap:**
+```javascript
+getTrainerPartnerships(params)
+getPartnershipDetail(id)
+respondPartnership(id, data)
+negotiatePartnership(id, data)
+confirmPartnership(id, data)
+cancelPartnership(id, data)
+getPartnershipLearners(id, params)
+getPartnershipGraduates(id, params)
+getPartnershipStats(id)
+```
+
+**Các file FE cần tạo:**
+```
+frontend/src/apis/partnershipApi.js
+frontend/src/pages/trainer/TrainerPartnershipsPage.jsx
+frontend/src/pages/trainer/TrainerPartnershipDetailPage.jsx
+frontend/src/components/trainer/TrainerPartnershipCard.jsx
+frontend/src/components/trainer/TrainerPartnershipStats.jsx
+frontend/src/components/trainer/PartnershipResponseModal.jsx
+frontend/src/components/trainer/PartnershipLearnersTable.jsx
+frontend/src/components/trainer/PartnershipTermsPanel.jsx
+```
+
+**Backend files trọng tâm:**
+```
+backend/src/services/partnershipService.js
+backend/src/controllers/partnershipController.js
+backend/src/controllers/trainerDashboardController.js
+backend/src/routes/v1/trainerDashboardRoute.js
+backend/src/__tests__/phase7-trainer-partnerships.test.js
+```
+
+**Checklist output Phase 7:**
+- [ ] Trainer xem được partnership `pending`, `negotiating`, `active`, `cancelled`, `expired`
+- [ ] Trang danh sách partnership có filter/trạng thái/summary cards
+- [ ] Trang chi tiết partnership hiển thị enterprise info, recruitment needs, agreed terms, linked courses
+- [ ] Trainer phản hồi / đàm phán / xác nhận / hủy partnership thành công
+- [ ] Learners/graduates theo partnership hiển thị đúng dữ liệu
+- [ ] Không bị đếm enterprise students ngoài phạm vi partnership của trainer
 
 ---
 
@@ -1215,9 +1271,9 @@ P7.6  → Tạo PartnershipResponseModal.jsx
 | **Phase 4** | Courses (CRUD + Students) | 2 ngày | Form phức tạp nhất |
 | **Phase 5** | Schedule (FullCalendar) | 1.5 ngày | FullCalendar + Attendance |
 | **Phase 6** | Placements + Reviews | 1 ngày | Tương đối đơn giản |
-| **Phase 7** | Partnership | TBD | Chờ backend |
+| **Phase 7** | Partnership | ~3.5 ngày | Backend core đã có, cần mở rộng + UI |
 | **QA** | Testing + Bug fix | 1 ngày | Toàn bộ dashboard |
-| | **Tổng (P0-P6)** | **~10 ngày** | |
+| | **Tổng (P0-P7)** | **~13.5 ngày** | |
 
 ---
 

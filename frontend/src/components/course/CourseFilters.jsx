@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui';
-import { Search, SlidersHorizontal, X, Play, Video, MapPin, Layers } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Play, Video, MapPin, Layers, Building2, Handshake, HeartHandshake } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LEVEL_OPTIONS = [
@@ -24,6 +24,9 @@ const FUNDING_OPTIONS = [
   { value: 'isa', label: 'ISA - Học trước trả sau' },
   { value: 'enterprise_funded', label: 'Doanh nghiệp chi trả' },
   { value: 'batch', label: 'Đóng phí theo đợt' },
+  { value: 'partnership_linked', label: 'Partnership liên kết' },
+  { value: 'ngo_funded', label: 'NGO tài trợ' },
+  { value: 'co_funded', label: 'Đồng tài trợ' },
 ];
 
 const DELIVERY_TYPES = [
@@ -32,6 +35,14 @@ const DELIVERY_TYPES = [
   { value: 'live', label: 'Live trực tuyến', icon: Video },
   { value: 'offline', label: 'Tại lớp (Offline)', icon: MapPin },
   { value: 'blended', label: 'Học kết hợp (Blended)', icon: Layers },
+];
+
+const FUNDING_CHIPS = [
+  { value: '', label: 'Tất cả', icon: null },
+  { value: 'enterprise_funded', label: 'DN tài trợ', icon: Building2 },
+  { value: 'ngo_funded', label: 'NGO tài trợ', icon: HeartHandshake },
+  { value: 'co_funded', label: 'Đồng tài trợ', icon: Handshake },
+  { value: 'partnership_linked', label: 'Partnership linked', icon: Layers }
 ];
 
 export const CourseFilters = ({ filters, onChange, categories = [] }) => {
@@ -224,6 +235,29 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
             >
               {Icon && <Icon className="w-3 h-3" strokeWidth={2.0} />}
               <span>{dt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="hidden md:flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-900">
+        <span className="text-[11px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-semibold mr-2">Nguồn tài trợ:</span>
+        {FUNDING_CHIPS.map((chip) => {
+          const Icon = chip.icon;
+          const isActive = filters.funding_model === chip.value || (chip.value === '' && !filters.funding_model);
+
+          return (
+            <button
+              key={chip.value}
+              onClick={() => handleChange('funding_model', chip.value)}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all duration-300 select-none ${
+                isActive
+                  ? 'bg-zinc-900 border-zinc-900 text-white shadow-sm dark:bg-white dark:border-white dark:text-zinc-900'
+                  : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
+              }`}
+            >
+              {Icon ? <Icon className="w-3 h-3" strokeWidth={2.0} /> : null}
+              <span>{chip.label}</span>
             </button>
           );
         })}

@@ -5,7 +5,7 @@ import {
   OBJECT_ID_RULE,
   OBJECT_ID_RULE_MESSAGE
 } from '~/utils/validator'
-import { PLACEMENT_STATUS } from '~/utils/constants'
+import { PLACEMENT_STATUS, PLACEMENT_REFERRAL_SOURCE } from '~/utils/constants'
 
 // ============ Create Placement Validation ============
 const createPlacement = async (req, res, next) => {
@@ -27,7 +27,9 @@ const createPlacement = async (req, res, next) => {
       currency: Joi.string().default('VND'),
       employmentType: Joi.string().allow('', null)
     }).required(),
-    referralSource: Joi.string().allow('', null)
+    referralSource: Joi.string().valid(...Object.values(PLACEMENT_REFERRAL_SOURCE)).allow('', null),
+    partnershipId: Joi.string().allow(null, ''),
+    sponsorshipId: Joi.string().allow(null, '')
   })
 
   try {
@@ -54,7 +56,9 @@ const updatePlacement = async (req, res, next) => {
       currency: Joi.string().default('VND'),
       employmentType: Joi.string().allow('', null)
     }),
-    referralSource: Joi.string().allow('', null),
+    referralSource: Joi.string().valid(...Object.values(PLACEMENT_REFERRAL_SOURCE)).allow('', null),
+    partnershipId: Joi.string().allow(null, ''),
+    sponsorshipId: Joi.string().allow(null, ''),
     interviewDate: Joi.date().timestamp('javascript').allow(null),
     notes: Joi.string().allow('', null)
   })

@@ -7,6 +7,9 @@ import { aiRoute } from './aiRoute'
 import { interactionRoute } from './interactionRoute'
 import { outcomeRoute } from './outcomeRoute'
 import { dashboardRoute } from './dashboardRoute'
+import { enterpriseDashboardRoute } from './enterpriseDashboardRoute'
+import { ngoDashboardRoute } from './ngoDashboardRoute'
+import { trainerDashboardRoute } from './trainerDashboardRoute'
 import { courseRoute } from './courseRoute'
 import { enrollmentRoute } from './enrollmentRoute'
 import { scheduleRoute } from './scheduleRoute'
@@ -23,6 +26,8 @@ import { isaRepaymentRoute } from './isaRepaymentRoute'
 import { learningRecordRoute } from './learningRecordRoute'
 import { certificateRoute } from './certificateRoute'
 import { placementRoute } from './placementRoute'
+import { partnershipRoute } from './partnershipRoute'
+import { courseSponsorshipRoute } from './courseSponsorshipRoute'
 import { lessonProgressRoute } from './lessonProgressRoute'
 import { videoNoteRoute } from './videoNoteRoute'
 
@@ -38,6 +43,9 @@ Router.get('/', (req, res) => {
       interactions: '/v1/interactions',
       outcomes: '/v1/outcomes',
       dashboard: '/v1/dashboard',
+      enterpriseDashboard: '/v1/enterprise/dashboard',
+      ngoDashboard: '/v1/ngo/dashboard',
+      trainerDashboard: '/v1/trainer/dashboard',
       courses: '/v1/courses',
       enrollments: '/v1/enrollments',
       schedules: '/v1/schedules',
@@ -53,7 +61,9 @@ Router.get('/', (req, res) => {
       isaRepayments: '/v1/isa-repayments',
       learningRecords: '/v1/learning-records',
       certificates: '/v1/certificates',
-      placements: '/v1/placements'
+      placements: '/v1/placements',
+      partnerships: '/v1/partnerships',
+      courseSponsorships: '/v1/course-sponsorships'
     }
   })
 })
@@ -64,6 +74,9 @@ Router.use('/ai', aiRoute)
 Router.use('/interactions', interactionRoute)
 Router.use('/outcomes', outcomeRoute)
 Router.use('/dashboard', dashboardRoute)
+Router.use('/enterprise/dashboard', enterpriseDashboardRoute)
+Router.use('/ngo/dashboard', ngoDashboardRoute)
+Router.use('/trainer/dashboard', trainerDashboardRoute)
 Router.use('/courses', courseRoute)
 Router.use('/enrollments', enrollmentRoute)
 Router.use('/schedules', scheduleRoute)
@@ -80,6 +93,8 @@ Router.use('/isa-repayments', isaRepaymentRoute)
 Router.use('/learning-records', learningRecordRoute)
 Router.use('/certificates', certificateRoute)
 Router.use('/placements', placementRoute)
+Router.use('/partnerships', partnershipRoute)
+Router.use('/course-sponsorships', courseSponsorshipRoute)
 Router.use('/lesson-progress', lessonProgressRoute)
 Router.use('/video-notes', videoNoteRoute)
 

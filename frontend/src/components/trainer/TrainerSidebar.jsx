@@ -7,6 +7,7 @@ import {
   Calendar,
   Briefcase,
   Star,
+  Handshake,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -33,6 +34,11 @@ const trainerNavItems = [
     title: 'Lịch dạy',
     href: '/trainer/schedule',
     icon: Calendar,
+  },
+  {
+    title: 'Partnership',
+    href: '/trainer/partnerships',
+    icon: Handshake,
   },
   {
     title: 'Việc làm',

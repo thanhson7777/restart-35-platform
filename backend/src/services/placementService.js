@@ -1,11 +1,14 @@
 import { placementModel } from '~/models/placementModel'
 import { enrollmentModel } from '~/models/enrollmentModel'
+import { partnershipModel } from '~/models/partnershipModel'
+import { notificationService } from './notificationService'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import {
   DEFAULT_PAGE,
   DEFAULT_ITEM_PER_PAGE,
-  PLACEMENT_STATUS
+  PLACEMENT_STATUS,
+  PLACEMENT_REFERRAL_SOURCE
 } from '~/utils/constants'
 
 // ============ VALID STATUS TRANSITIONS ============
@@ -19,7 +22,63 @@ const VALID_STATUS_TRANSITIONS = {
   [PLACEMENT_STATUS.RESIGNED]: []
 }
 
-// ============ CREATE PLACEMENT ============
+const detectReferralSourceFromEnrollment = (enrollment) => {
+  const hasPartnership = !!enrollment?.partnershipId
+  const sponsorTypes = new Set((enrollment?.sponsorships || []).map(item => item.sponsorType))
+  const hasEnterpriseSponsorship = sponsorTypes.has('enterprise')
+  const hasNgoSponsorship = sponsorTypes.has('ngo')
+
+  if ((hasPartnership && hasEnterpriseSponsorship) || (hasEnterpriseSponsorship && hasNgoSponsorship)) {
+    return PLACEMENT_REFERRAL_SOURCE.MIXED
+  }
+  if (hasPartnership) {
+    return PLACEMENT_REFERRAL_SOURCE.PARTNERSHIP
+  }
+  if (hasEnterpriseSponsorship) {
+    return PLACEMENT_REFERRAL_SOURCE.ENTERPRISE_SPONSORSHIP
+  }
+  if (hasNgoSponsorship) {
+    return PLACEMENT_REFERRAL_SOURCE.NGO_SPONSORSHIP
+  }
+  return null
+}
+
+const calculateReferralBonus = async (placement, partnership) => {
+  const amount = partnership?.agreedTerms?.referralBonus || partnership?.referralBonus || 0
+  if (!amount || amount <= 0) return null
+
+  return {
+    partnershipId: partnership._id.toString(),
+    placementId: placement._id?.toString?.() || placement._id,
+    enrollmentId: placement.enrollmentId,
+    amount,
+    currency: partnership?.recruitmentNeeds?.salaryRange?.currency || 'VND',
+    createdAt: Date.now(),
+    status: 'pending'
+  }
+}
+
+const recordReferralBonusEvent = async (placement, partnership) => {
+  const bonus = await calculateReferralBonus(placement, partnership)
+  if (!bonus) return null
+
+  return await notificationService.queueNotification(
+    notificationService.buildNotification(
+      notificationService.NOTIFICATION_EVENT_TYPES.REFERRAL_BONUS_CREATED,
+      {
+        placementId: bonus.placementId,
+        partnershipId: bonus.partnershipId,
+        amount: bonus.amount,
+        recipients: [partnership.enterpriseId, partnership.trainerId].filter(Boolean),
+        entityType: 'partnership',
+        entityId: bonus.partnershipId,
+        bonus
+      }
+    )
+  )
+}
+
+// ============ CREATE PLACEMENT ==========
 const createPlacement = async (adminId, data) => {
   try {
     const { enrollmentId, courseId } = data
@@ -41,8 +100,12 @@ const createPlacement = async (adminId, data) => {
       status: PLACEMENT_STATUS.REFERRED,
       employer: data.employer,
       job: data.job,
-      referralSource: data.referralSource || null,
-      createdBy: adminId
+      referralSource: data.referralSource || detectReferralSourceFromEnrollment(enrollment),
+      partnershipId: data.partnershipId || enrollment.partnershipId || null,
+      sponsorshipId: data.sponsorshipId || enrollment.sponsorships?.[0]?.sponsorshipId || null,
+      createdBy: adminId,
+      partnershipStatsUpdated: false,
+      referralBonusRecorded: false
     }
 
     const result = await placementModel.createNew(placementData)
@@ -174,6 +237,34 @@ const updatePlacementStatus = async (id, newStatus, extraData, adminId) => {
     }
 
     const updated = await placementModel.update(id, updateData)
+
+    if ((newStatus === PLACEMENT_STATUS.ACCEPTED || newStatus === PLACEMENT_STATUS.STARTED) && placement.partnershipId) {
+      const latestPlacement = updated?.value || updated
+      const alreadyUpdated = placement.partnershipStatsUpdated === true
+      const partnership = await partnershipModel.findOneById(placement.partnershipId)
+
+      if (partnership && !alreadyUpdated) {
+        await partnershipModel.incrementStat(placement.partnershipId, 'placedLearners', 1)
+        await placementModel.update(id, { partnershipStatsUpdated: true })
+
+        await notificationService.notifyPartnershipParticipants(
+          partnership,
+          notificationService.NOTIFICATION_EVENT_TYPES.ENROLLMENT_PLACED_FOR_PARTNERSHIP,
+          {
+            placementId: latestPlacement?._id?.toString?.() || id,
+            enrollmentId: placement.enrollmentId,
+            entityType: 'placement',
+            entityId: latestPlacement?._id?.toString?.() || id
+          }
+        )
+      }
+
+      if (partnership && placement.referralBonusRecorded !== true) {
+        await recordReferralBonusEvent(latestPlacement || { ...placement, _id: id }, partnership)
+        await placementModel.update(id, { referralBonusRecorded: true })
+      }
+    }
+
     return updated
   } catch (error) {
     throw error

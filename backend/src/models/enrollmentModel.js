@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { courseModel } from '~/models/courseModel'
+import { partnershipModel } from '~/models/partnershipModel'
 import { userModel } from '~/models/userModel'
 import {
   ENROLLMENT_STATUS_V2,
@@ -91,6 +92,24 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
   source: Joi.string()
     .valid(...Object.values(ENROLLMENT_SOURCE))
     .default(ENROLLMENT_SOURCE.DIRECT),
+
+  partnershipId: Joi.string().allow(null, ''),
+  enterpriseId: Joi.string().allow(null, ''),
+  sponsorships: Joi.array().items(
+    Joi.object({
+      sponsorshipId: Joi.string().required(),
+      sponsorType: Joi.string().required(),
+      fundedAmount: Joi.number().integer().min(0).default(0),
+      disbursedAmount: Joi.number().integer().min(0).default(0),
+      clawbackAmount: Joi.number().integer().min(0).default(0),
+      coverage: Joi.string()
+        .valid(...Object.values(SCHOLARSHIP_COVERAGE))
+        .default(SCHOLARSHIP_COVERAGE.PARTIAL),
+      status: Joi.string().valid('matched', 'approved', 'disbursed', 'clawback').default('matched'),
+      disbursements: Joi.array().items(Joi.object()).default([]),
+      matchedAt: Joi.date().timestamp('javascript').default(Date.now)
+    })
+  ).default([]),
 
   waitlistPosition: Joi.number().integer().min(1).allow(null),
 
@@ -264,6 +283,28 @@ const findAll = async (skip = 0, limit = 10, filters = {}) => {
     const totalEnrollments = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).countDocuments(query)
 
     return { enrollments, totalEnrollments }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const findActivePartnershipByEnterpriseAndCourse = async (enterpriseId, courseId) => {
+  try {
+    return await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).findOne({
+      enterpriseId,
+      courseId,
+      status: { $in: [ENROLLMENT_STATUS_V2.ACTIVE, ENROLLMENT_STATUS_V2.IN_PROGRESS, ENROLLMENT_STATUS_V2.COMPLETED] },
+      partnershipId: { $ne: null },
+      _destroy: { $ne: true }
+    })
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const resolveActivePartnershipForCourse = async (courseId) => {
+  try {
+    return await partnershipModel.findActiveByCourse(courseId)
   } catch (error) {
     throw new Error(error.message)
   }
@@ -879,6 +920,8 @@ export const enrollmentModel = {
   findByCourse,
   findCompletedByUser,
   findAll,
+  findActivePartnershipByEnterpriseAndCourse,
+  resolveActivePartnershipForCourse,
 
   // Update
   update,
