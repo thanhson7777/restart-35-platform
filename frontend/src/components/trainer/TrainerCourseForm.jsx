@@ -288,7 +288,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Navigation Sidebar (Desktop) */}
       <div className="lg:col-span-1 space-y-2">
-        <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-1">
+        <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-4 space-y-1">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -298,8 +298,8 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex w-full items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                   activeTab === tab.id
-                    ? 'bg-[#001D4A] text-white'
-                    : 'text-gray-400 hover:bg-slate-800 hover:text-white'
+                    ? 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))]'
+                    : 'text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -310,9 +310,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
         </div>
 
         {/* Thumbnail Preview Card */}
-        <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4 space-y-4">
-          <Label className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Ảnh đại diện khóa học</Label>
-          <div className="relative aspect-video w-full overflow-hidden bg-slate-800 rounded-lg border border-dashed border-[#1f2937] flex items-center justify-center">
+        <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-4 space-y-4">
+          <Label className="text-[hsl(var(--admin-text-muted))] text-xs font-semibold uppercase tracking-wider">Ảnh đại diện khóa học</Label>
+          <div className="relative aspect-video w-full overflow-hidden bg-[hsl(var(--admin-surface-elevated))] rounded-lg border border-dashed border-[hsl(var(--admin-border))] flex items-center justify-center">
             {thumbnailPreview ? (
               <img
                 src={thumbnailPreview}
@@ -321,8 +321,8 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               />
             ) : (
               <div className="text-center p-4">
-                <Upload className="h-8 w-8 text-gray-500 mx-auto mb-2" />
-                <span className="text-xs text-gray-500">Chưa có ảnh</span>
+                <Upload className="h-8 w-8 text-[hsl(var(--admin-text-faint))] mx-auto mb-2" />
+                <span className="text-xs text-[hsl(var(--admin-text-faint))]">Chưa có ảnh</span>
               </div>
             )}
           </div>
@@ -338,7 +338,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               type="button"
               asChild
               variant="outline"
-              className="w-full border-[#1f2937] bg-slate-800/50 text-gray-300 hover:bg-slate-800"
+              className="w-full border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))]/50 text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))]"
             >
               <label htmlFor="thumbnail-upload" className="cursor-pointer flex items-center justify-center gap-2">
                 <Upload className="h-4 w-4" />
@@ -346,7 +346,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               </label>
             </Button>
             {errors.thumbnail && (
-              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+              <p className="text-[hsl(var(--admin-danger))] text-xs mt-1 flex items-center gap-1">
                 <AlertCircle className="h-3.5 w-3.5" />
                 {errors.thumbnail}
               </p>
@@ -357,27 +357,27 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
       {/* Form Content */}
       <div className="lg:col-span-3 space-y-6">
-        <form onSubmit={(e) => e.preventDefault()} className="bg-[#111827] border border-[#1f2937] rounded-xl p-6 space-y-6">
+        <form onSubmit={(e) => e.preventDefault()} className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-6 space-y-6">
           
           {/* TAB 1: BASIC INFO */}
           {activeTab === 'basic' && (
             <div className="space-y-6">
-              <div className="border-b border-[#1f2937] pb-4">
-                <h3 className="text-lg font-semibold text-white">Thông tin cơ bản</h3>
-                <p className="text-gray-400 text-xs">Điền các thông tin định dạng cơ bản của khóa học.</p>
+              <div className="border-b border-[hsl(var(--admin-border))] pb-4">
+                <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Thông tin cơ bản</h3>
+                <p className="text-[hsl(var(--admin-text-muted))] text-xs">Điền các thông tin định dạng cơ bản của khóa học.</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-gray-200">Tiêu đề khóa học <span className="text-red-500">*</span></Label>
+                <Label htmlFor="title" className="text-[hsl(var(--admin-text-secondary))]">Tiêu đề khóa học <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                 <Input
                   id="title"
                   placeholder="Ví dụ: Lập trình Web Frontend ReactJS nâng cao cho người 35+"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500"
+                  className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                 />
                 {errors.title && (
-                  <p className="text-red-500 text-xs flex items-center gap-1">
+                  <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
                     <AlertCircle className="h-3.5 w-3.5" />
                     {errors.title}
                   </p>
@@ -386,12 +386,12 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2 md:col-span-1">
-                  <Label htmlFor="category" className="text-gray-200">Danh mục <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="category" className="text-[hsl(var(--admin-text-secondary))]">Danh mục <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                   <select
                     id="category"
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="w-full rounded-md border border-[#1f2937] bg-slate-900 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
                   >
                     <option value="">Chọn danh mục</option>
                     {categories.map((cat) => (
@@ -401,7 +401,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     ))}
                   </select>
                   {errors.categoryId && (
-                    <p className="text-red-500 text-xs flex items-center gap-1">
+                    <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
                       <AlertCircle className="h-3.5 w-3.5" />
                       {errors.categoryId}
                     </p>
@@ -409,12 +409,12 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
 
                 <div className="space-y-2 md:col-span-1">
-                  <Label htmlFor="level" className="text-gray-200">Trình độ</Label>
+                  <Label htmlFor="level" className="text-[hsl(var(--admin-text-secondary))]">Trình độ</Label>
                   <select
                     id="level"
                     value={level}
                     onChange={(e) => setLevel(e.target.value)}
-                    className="w-full rounded-md border border-[#1f2937] bg-slate-900 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
                   >
                     <option value="beginner">Cơ bản (Beginner)</option>
                     <option value="intermediate">Trung cấp (Intermediate)</option>
@@ -423,12 +423,12 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
 
                 <div className="space-y-2 md:col-span-1">
-                  <Label htmlFor="deliveryType" className="text-gray-200">Hình thức giảng dạy</Label>
+                  <Label htmlFor="deliveryType" className="text-[hsl(var(--admin-text-secondary))]">Hình thức giảng dạy</Label>
                   <select
                     id="deliveryType"
                     value={deliveryType}
                     onChange={(e) => setDeliveryType(e.target.value)}
-                    className="w-full rounded-md border border-[#1f2937] bg-slate-900 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
                   >
                     <option value="video">Học qua Video</option>
                     <option value="online">Học Online (Zoom/Meet)</option>
@@ -439,20 +439,20 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="shortDescription" className="text-gray-200">Mô tả ngắn (Hiển thị ở trang danh sách)</Label>
+                <Label htmlFor="shortDescription" className="text-[hsl(var(--admin-text-secondary))]">Mô tả ngắn (Hiển thị ở trang danh sách)</Label>
                 <Textarea
                   id="shortDescription"
                   placeholder="Tóm tắt nhanh nội dung chính của khóa học trong vòng 2-3 câu..."
                   value={shortDescription}
                   onChange={(e) => setShortDescription(e.target.value)}
-                  className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500"
+                  className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-200">Mô tả chi tiết khóa học <span className="text-red-500">*</span></Label>
-                <div className="bg-slate-900 border border-[#1f2937] rounded-md overflow-hidden text-white">
+                <Label className="text-[hsl(var(--admin-text-secondary))]">Mô tả chi tiết khóa học <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
+                <div className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-md overflow-hidden text-[hsl(var(--admin-text-primary))]">
                   <ReactQuill
                     theme="snow"
                     value={description}
@@ -462,7 +462,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                   />
                 </div>
                 {errors.description && (
-                  <p className="text-red-500 text-xs flex items-center gap-1">
+                  <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
                     <AlertCircle className="h-3.5 w-3.5" />
                     {errors.description}
                   </p>
@@ -474,14 +474,14 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
           {/* TAB 2: TIME & LOCATION */}
           {activeTab === 'schedule' && (
             <div className="space-y-6">
-              <div className="border-b border-[#1f2937] pb-4">
-                <h3 className="text-lg font-semibold text-white">Thời gian & Địa điểm học</h3>
-                <p className="text-gray-400 text-xs">Cấu hình thời lượng khóa học, địa chỉ học trực tiếp và thời gian mở tuyển sinh.</p>
+              <div className="border-b border-[hsl(var(--admin-border))] pb-4">
+                <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Thời gian & Địa điểm học</h3>
+                <p className="text-[hsl(var(--admin-text-muted))] text-xs">Cấu hình thời lượng khóa học, địa chỉ học trực tiếp và thời gian mở tuyển sinh.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="durationValue" className="text-gray-200">Thời lượng khóa học <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="durationValue" className="text-[hsl(var(--admin-text-secondary))]">Thời lượng khóa học <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                   <div className="flex gap-2">
                     <Input
                       id="durationValue"
@@ -489,12 +489,12 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                       min="1"
                       value={durationValue}
                       onChange={(e) => setDurationValue(Number(e.target.value))}
-                      className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500 w-2/3"
+                      className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] w-2/3"
                     />
                     <select
                       value={durationUnit}
                       onChange={(e) => setDurationUnit(e.target.value)}
-                      className="rounded-md border border-[#1f2937] bg-slate-900 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none w-1/3"
+                      className="rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none w-1/3"
                     >
                       <option value="days">Ngày</option>
                       <option value="weeks">Tuần</option>
@@ -502,7 +502,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     </select>
                   </div>
                   {errors.duration && (
-                    <p className="text-red-500 text-xs flex items-center gap-1">
+                    <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
                       <AlertCircle className="h-3.5 w-3.5" />
                       {errors.duration}
                     </p>
@@ -510,25 +510,25 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="enrollmentStartDate" className="text-gray-200">Ngày bắt đầu đăng ký</Label>
+                  <Label htmlFor="enrollmentStartDate" className="text-[hsl(var(--admin-text-secondary))]">Ngày bắt đầu đăng ký</Label>
                   <Input
                     id="enrollmentStartDate"
                     type="date"
                     value={enrollmentStartDate}
                     onChange={(e) => setEnrollmentStartDate(e.target.value)}
-                    className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500"
+                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                   />
                 </div>
               </div>
 
-              <div className="border-t border-[#1f2937] pt-4 space-y-4">
+              <div className="border-t border-[hsl(var(--admin-border))] pt-4 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="locationType" className="text-gray-200">Loại địa điểm</Label>
+                  <Label htmlFor="locationType" className="text-[hsl(var(--admin-text-secondary))]">Loại địa điểm</Label>
                   <select
                     id="locationType"
                     value={locationType}
                     onChange={(e) => setLocationType(e.target.value)}
-                    className="w-full md:w-1/3 rounded-md border border-[#1f2937] bg-slate-900 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full md:w-1/3 rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
                   >
                     <option value="online">Trực tuyến (Online)</option>
                     <option value="offline">Trực tiếp tại Trung tâm (Offline)</option>
@@ -539,23 +539,23 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 {locationType !== 'online' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="locationAddress" className="text-gray-200">Địa chỉ cụ thể</Label>
+                      <Label htmlFor="locationAddress" className="text-[hsl(var(--admin-text-secondary))]">Địa chỉ cụ thể</Label>
                       <Input
                         id="locationAddress"
                         placeholder="Số 123 Đường ABC, Quận X, TP. HCM"
                         value={locationAddress}
                         onChange={(e) => setLocationAddress(e.target.value)}
-                        className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500"
+                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="locationLink" className="text-gray-200">Link bản đồ (Google Maps URL)</Label>
+                      <Label htmlFor="locationLink" className="text-[hsl(var(--admin-text-secondary))]">Link bản đồ (Google Maps URL)</Label>
                       <Input
                         id="locationLink"
                         placeholder="https://maps.google.com/..."
                         value={locationLink}
                         onChange={(e) => setLocationLink(e.target.value)}
-                        className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500"
+                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                       />
                     </div>
                   </div>
@@ -563,13 +563,13 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="scheduleText" className="text-gray-200">Lịch học dự kiến (Hiển thị giới thiệu)</Label>
+                <Label htmlFor="scheduleText" className="text-[hsl(var(--admin-text-secondary))]">Lịch học dự kiến (Hiển thị giới thiệu)</Label>
                 <Textarea
                   id="scheduleText"
                   placeholder="Ví dụ: Tối thứ 2 - 4 - 6 từ 19:30 đến 21:30"
                   value={scheduleText}
                   onChange={(e) => setScheduleText(e.target.value)}
-                  className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500"
+                  className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                   rows={2}
                 />
               </div>
@@ -579,19 +579,19 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
           {/* TAB 3: FINANCIAL & CAPACITY */}
           {activeTab === 'financial' && (
             <div className="space-y-6">
-              <div className="border-b border-[#1f2937] pb-4">
-                <h3 className="text-lg font-semibold text-white">Học phí & Chỉ tiêu tuyển sinh</h3>
-                <p className="text-gray-400 text-xs">Cấu hình mô hình tài chính, mức giá học phí và quy mô lớp học tối đa.</p>
+              <div className="border-b border-[hsl(var(--admin-border))] pb-4">
+                <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Học phí & Chỉ tiêu tuyển sinh</h3>
+                <p className="text-[hsl(var(--admin-text-muted))] text-xs">Cấu hình mô hình tài chính, mức giá học phí và quy mô lớp học tối đa.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="fundingModel" className="text-gray-200">Mô hình tài trợ học phí</Label>
+                  <Label htmlFor="fundingModel" className="text-[hsl(var(--admin-text-secondary))]">Mô hình tài trợ học phí</Label>
                   <select
                     id="fundingModel"
                     value={fundingModel}
                     onChange={(e) => setFundingModel(e.target.value)}
-                    className="w-full rounded-md border border-[#1f2937] bg-slate-900 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
                   >
                     <option value="free">Miễn phí hoàn toàn (Free)</option>
                     <option value="upfront">Thanh toán trả trước (Upfront)</option>
@@ -602,17 +602,17 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="maxStudents" className="text-gray-200">Quy mô lớp học (Sĩ số học viên tối đa) <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="maxStudents" className="text-[hsl(var(--admin-text-secondary))]">Quy mô lớp học (Sĩ số học viên tối đa) <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                   <Input
                     id="maxStudents"
                     type="number"
                     min="1"
                     value={maxStudents}
                     onChange={(e) => setMaxStudents(Number(e.target.value))}
-                    className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500"
+                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                   />
                   {errors.maxStudents && (
-                    <p className="text-red-500 text-xs flex items-center gap-1">
+                    <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
                       <AlertCircle className="h-3.5 w-3.5" />
                       {errors.maxStudents}
                     </p>
@@ -622,20 +622,20 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
               {fundingModel !== 'free' && (
                 <div className="space-y-2 md:w-1/2">
-                  <Label htmlFor="fee" className="text-gray-200">Học phí (VND) <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="fee" className="text-[hsl(var(--admin-text-secondary))]">Học phí (VND) <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-gray-500 text-sm">VND</span>
+                    <span className="absolute left-3 top-2.5 text-[hsl(var(--admin-text-faint))] text-sm">VND</span>
                     <Input
                       id="fee"
                       type="number"
                       min="0"
                       value={fee}
                       onChange={(e) => setFee(Number(e.target.value))}
-                      className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500 pl-12"
+                      className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] pl-12"
                     />
                   </div>
                   {errors.fee && (
-                    <p className="text-red-500 text-xs flex items-center gap-1">
+                    <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
                       <AlertCircle className="h-3.5 w-3.5" />
                       {errors.fee}
                     </p>
@@ -643,16 +643,16 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
               )}
 
-              <div className="border-t border-[#1f2937] pt-4 space-y-4">
+              <div className="border-t border-[hsl(var(--admin-border))] pt-4 space-y-4">
                 <div className="flex items-center space-x-3">
                   <input
                     type="checkbox"
                     id="scholarshipEligibility"
                     checked={scholarshipEligibility}
                     onChange={(e) => setScholarshipEligibility(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))]"
                   />
-                  <Label htmlFor="scholarshipEligibility" className="text-gray-300 cursor-pointer">
+                  <Label htmlFor="scholarshipEligibility" className="text-[hsl(var(--admin-text-secondary))] cursor-pointer">
                     Hỗ trợ tài trợ học bổng học phí (từ quỹ NGO hoặc Chính phủ)
                   </Label>
                 </div>
@@ -663,21 +663,21 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
           {/* TAB 4: SYLLABUS & OTHERS */}
           {activeTab === 'syllabus' && (
             <div className="space-y-6">
-              <div className="border-b border-[#1f2937] pb-4">
-                <h3 className="text-lg font-semibold text-white">Giáo trình chi tiết & Yêu cầu học</h3>
-                <p className="text-gray-400 text-xs">Xây dựng giáo trình giảng dạy chi tiết theo tuần học và thiết lập các điều kiện đầu vào/kỹ năng đạt được.</p>
+              <div className="border-b border-[hsl(var(--admin-border))] pb-4">
+                <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Giáo trình chi tiết & Yêu cầu học</h3>
+                <p className="text-[hsl(var(--admin-text-muted))] text-xs">Xây dựng giáo trình giảng dạy chi tiết theo tuần học và thiết lập các điều kiện đầu vào/kỹ năng đạt được.</p>
               </div>
 
               {/* Syllabus Builder */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="text-gray-200 font-semibold text-base">Nội dung giáo trình bài dạy</Label>
+                  <Label className="text-[hsl(var(--admin-text-secondary))] font-semibold text-base">Nội dung giáo trình bài dạy</Label>
                   <Button
                     type="button"
                     variant="outline"
                     onClick={addSyllabusWeek}
                     size="sm"
-                    className="border-dashed border-blue-500 text-blue-400 hover:bg-blue-500/10"
+                    className="border-dashed border-[hsl(var(--admin-accent))] text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent)/10%)]"
                   >
                     <Plus className="mr-1 h-4 w-4" />
                     Thêm tuần học mới
@@ -685,17 +685,17 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
 
                 {syllabus.length === 0 ? (
-                  <div className="border border-dashed border-[#1f2937] rounded-lg p-6 text-center text-gray-500">
+                  <div className="border border-dashed border-[hsl(var(--admin-border))] rounded-lg p-6 text-center text-[hsl(var(--admin-text-faint))]">
                     Chưa có giáo trình nào. Hãy nhấn nút để thêm bài học.
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {syllabus.map((item, index) => (
-                      <div key={index} className="border border-[#1f2937] rounded-lg p-4 bg-slate-900/40 space-y-3 relative">
+                      <div key={index} className="border border-[hsl(var(--admin-border))] rounded-lg p-4 bg-[hsl(var(--admin-surface-elevated))]/40 space-y-3 relative">
                         <button
                           type="button"
                           onClick={() => removeSyllabusWeek(index)}
-                          className="absolute right-4 top-4 text-gray-500 hover:text-red-400 transition-colors"
+                          className="absolute right-4 top-4 text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))] transition-colors"
                           title="Xóa tuần này"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -703,43 +703,43 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                         
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pr-8">
                           <div className="md:col-span-1 space-y-2">
-                            <Label className="text-gray-400 text-xs">Tuần học</Label>
+                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Tuần học</Label>
                             <Input
                               type="number"
                               value={item.week}
                               onChange={(e) => updateSyllabusItem(index, 'week', Number(e.target.value))}
-                              className="bg-slate-900 border-[#1f2937] text-white"
+                              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                             />
                           </div>
                           
                           <div className="md:col-span-2 space-y-2">
-                            <Label className="text-gray-400 text-xs">Tiêu đề buổi/chương học</Label>
+                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Tiêu đề buổi/chương học</Label>
                             <Input
                               placeholder="Ví dụ: Giới thiệu về React component và Props"
                               value={item.title}
                               onChange={(e) => updateSyllabusItem(index, 'title', e.target.value)}
-                              className="bg-slate-900 border-[#1f2937] text-white"
+                              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                             />
                           </div>
 
                           <div className="md:col-span-1 space-y-2">
-                            <Label className="text-gray-400 text-xs">Thời lượng ước tính</Label>
+                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Thời lượng ước tính</Label>
                             <Input
                               placeholder="Ví dụ: 3 giờ"
                               value={item.duration}
                               onChange={(e) => updateSyllabusItem(index, 'duration', e.target.value)}
-                              className="bg-slate-900 border-[#1f2937] text-white"
+                              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-gray-400 text-xs">Nội dung chi tiết bài giảng</Label>
+                          <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Nội dung chi tiết bài giảng</Label>
                           <Textarea
                             placeholder="Mô tả tóm tắt nội dung học viên sẽ học trong tuần/chương này..."
                             value={item.content}
                             onChange={(e) => updateSyllabusItem(index, 'content', e.target.value)}
-                            className="bg-slate-900 border-[#1f2937] text-white"
+                            className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                             rows={2}
                           />
                         </div>
@@ -750,32 +750,32 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               </div>
 
               {/* Tags & Lists section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-[#1f2937] pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-[hsl(var(--admin-border))] pt-6">
                 {/* Outbound Skills */}
                 <div className="space-y-3">
-                  <Label className="text-gray-200">Kỹ năng đầu ra (Skills)</Label>
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Kỹ năng đầu ra (Skills)</Label>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Nhấn Enter hoặc nút thêm"
                       value={skillInput}
                       onChange={(e) => setSkillInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem(skills, setSkills, skillInput, setSkillInput))}
-                      className="bg-slate-900 border-[#1f2937] text-white"
+                      className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => addArrayItem(skills, setSkills, skillInput, setSkillInput)}
-                      className="border-[#1f2937] hover:bg-slate-800"
+                      className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))]"
                     >
                       Thêm
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {skills.map((item, idx) => (
-                      <span key={idx} className="flex items-center gap-1 bg-blue-500/10 text-blue-400 text-xs border border-blue-500/20 px-2 py-1 rounded-md">
+                      <span key={idx} className="flex items-center gap-1 bg-[hsl(var(--admin-accent)/10%)] text-[hsl(var(--admin-accent))] text-xs border border-[hsl(var(--admin-accent)/20%)] px-2 py-1 rounded-md">
                         {item}
-                        <button type="button" onClick={() => removeArrayItem(skills, setSkills, idx)} className="text-gray-500 hover:text-red-400">×</button>
+                        <button type="button" onClick={() => removeArrayItem(skills, setSkills, idx)} className="text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))]">×</button>
                       </span>
                     ))}
                   </div>
@@ -783,20 +783,20 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
                 {/* Outcomes */}
                 <div className="space-y-3">
-                  <Label className="text-gray-200">Kết quả đạt được (Outcomes)</Label>
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Kết quả đạt được (Outcomes)</Label>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Nhấn Enter hoặc nút thêm"
                       value={outcomeInput}
                       onChange={(e) => setOutcomeInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem(outcomes, setOutcomes, outcomeInput, setOutcomeInput))}
-                      className="bg-slate-900 border-[#1f2937] text-white"
+                      className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => addArrayItem(outcomes, setOutcomes, outcomeInput, setOutcomeInput)}
-                      className="border-[#1f2937] hover:bg-slate-800"
+                      className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))]"
                     >
                       Thêm
                     </Button>
@@ -805,7 +805,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     {outcomes.map((item, idx) => (
                       <span key={idx} className="flex items-center gap-1 bg-purple-500/10 text-purple-400 text-xs border border-purple-500/20 px-2 py-1 rounded-md">
                         {item}
-                        <button type="button" onClick={() => removeArrayItem(outcomes, setOutcomes, idx)} className="text-gray-500 hover:text-red-400">×</button>
+                        <button type="button" onClick={() => removeArrayItem(outcomes, setOutcomes, idx)} className="text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))]">×</button>
                       </span>
                     ))}
                   </div>
@@ -813,29 +813,29 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
                 {/* Prerequisites */}
                 <div className="space-y-3">
-                  <Label className="text-gray-200">Điều kiện tiên quyết (Prerequisites)</Label>
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Điều kiện tiên quyết (Prerequisites)</Label>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Nhấn Enter hoặc nút thêm"
                       value={prereqInput}
                       onChange={(e) => setPrereqInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem(prerequisites, setPrerequisites, prereqInput, setPrereqInput))}
-                      className="bg-slate-900 border-[#1f2937] text-white"
+                      className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => addArrayItem(prerequisites, setPrerequisites, prereqInput, setPrereqInput)}
-                      className="border-[#1f2937] hover:bg-slate-800"
+                      className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))]"
                     >
                       Thêm
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {prerequisites.map((item, idx) => (
-                      <span key={idx} className="flex items-center gap-1 bg-amber-500/10 text-amber-400 text-xs border border-amber-500/20 px-2 py-1 rounded-md">
+                      <span key={idx} className="flex items-center gap-1 bg-[hsl(var(--admin-warning)/10%)] text-[hsl(var(--admin-warning))] text-xs border border-[hsl(var(--admin-warning)/20%)] px-2 py-1 rounded-md">
                         {item}
-                        <button type="button" onClick={() => removeArrayItem(prerequisites, setPrerequisites, idx)} className="text-gray-500 hover:text-red-400">×</button>
+                        <button type="button" onClick={() => removeArrayItem(prerequisites, setPrerequisites, idx)} className="text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))]">×</button>
                       </span>
                     ))}
                   </div>
@@ -843,29 +843,29 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
                 {/* Requirements */}
                 <div className="space-y-3">
-                  <Label className="text-gray-200">Yêu cầu đầu vào (Requirements)</Label>
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Yêu cầu đầu vào (Requirements)</Label>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Nhấn Enter hoặc nút thêm"
                       value={reqInput}
                       onChange={(e) => setReqInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem(requirements, setRequirements, reqInput, setReqInput))}
-                      className="bg-slate-900 border-[#1f2937] text-white"
+                      className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                     />
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => addArrayItem(requirements, setRequirements, reqInput, setReqInput)}
-                      className="border-[#1f2937] hover:bg-slate-800"
+                      className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))]"
                     >
                       Thêm
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {requirements.map((item, idx) => (
-                      <span key={idx} className="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 text-xs border border-emerald-500/20 px-2 py-1 rounded-md">
+                      <span key={idx} className="flex items-center gap-1 bg-[hsl(var(--admin-success)/10%)] text-[hsl(var(--admin-success))] text-xs border border-[hsl(var(--admin-success)/20%)] px-2 py-1 rounded-md">
                         {item}
-                        <button type="button" onClick={() => removeArrayItem(requirements, setRequirements, idx)} className="text-gray-500 hover:text-red-400">×</button>
+                        <button type="button" onClick={() => removeArrayItem(requirements, setRequirements, idx)} className="text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))]">×</button>
                       </span>
                     ))}
                   </div>
@@ -873,26 +873,26 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               </div>
 
               {/* Certificate */}
-              <div className="space-y-2 border-t border-[#1f2937] pt-6">
-                <Label htmlFor="certificate" className="text-gray-200">Thông tin chứng chỉ đầu ra</Label>
+              <div className="space-y-2 border-t border-[hsl(var(--admin-border))] pt-6">
+                <Label htmlFor="certificate" className="text-[hsl(var(--admin-text-secondary))]">Thông tin chứng chỉ đầu ra</Label>
                 <Input
                   id="certificate"
                   placeholder="Ví dụ: Chứng chỉ lập trình viên Frontend ReactJS chuyên nghiệp từ Restart-35"
                   value={certificate}
                   onChange={(e) => setCertificate(e.target.value)}
-                  className="bg-slate-900 border-[#1f2937] text-white focus:border-blue-500"
+                  className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                 />
               </div>
             </div>
           )}
 
           {/* Form Actions footer */}
-          <div className="flex items-center justify-end gap-3 border-t border-[#1f2937] pt-6">
+          <div className="flex items-center justify-end gap-3 border-t border-[hsl(var(--admin-border))] pt-6">
             <Button
               type="button"
               variant="outline"
               disabled={isSubmitting}
-              className="border-[#1f2937] text-gray-300 hover:bg-slate-800"
+              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))]"
               onClick={() => window.history.back()}
             >
               Hủy bỏ
@@ -902,7 +902,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               type="button"
               variant="outline"
               disabled={isSubmitting}
-              className="border-[#1f2937] bg-slate-800 text-white hover:bg-slate-700"
+              className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]"
               onClick={() => handleSave('draft')}
             >
               Lưu nháp
@@ -911,7 +911,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
             <Button
               type="button"
               disabled={isSubmitting}
-              className="bg-blue-600 text-white hover:bg-blue-700 font-semibold px-6"
+              className="bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent))] font-semibold px-6"
               onClick={() => handleSave('pending')}
             >
               {isSubmitting ? 'Đang xử lý...' : 'Gửi duyệt khóa học'}

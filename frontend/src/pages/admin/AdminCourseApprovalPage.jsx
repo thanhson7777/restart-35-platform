@@ -92,7 +92,7 @@ const AdminCourseApprovalPage = () => {
     setSelectedCourse(course);
     setShowRejectModal(true);
     if (showDetailModal) {
-      setShowDetailModal(false);
+      setShowRejectModal(false);
     }
   };
 
@@ -107,7 +107,7 @@ const AdminCourseApprovalPage = () => {
       if (response.data?.success !== false) {
         toast.success(
           <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-emerald-400" />
+            <CheckCircle className="w-5 h-5 text-emerald-500" />
             <span>Đã từ chối và gửi lý do cho giảng viên khóa "{selectedCourse.title}"</span>
           </div>
         );
@@ -125,13 +125,13 @@ const AdminCourseApprovalPage = () => {
   };
 
   return (
-    <AdminLayout className="bg-[#0b0f19] text-slate-100 min-h-screen">
+    <AdminLayout>
       {/* Header */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/admin/courses')}
-            className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-slate-700 transition-colors duration-200 active:scale-95"
+            className="w-10 h-10 rounded-full bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] flex items-center justify-center text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] hover:border-[hsl(var(--admin-border-strong))] transition-colors duration-200 active:scale-95"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -141,9 +141,9 @@ const AdminCourseApprovalPage = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2 bg-[#3B82F6]/10 border border-[#3B82F6]/20 px-4 py-2 rounded-full self-start sm:self-center">
-          <ShieldCheck className="w-4 h-4 text-[#3B82F6]" />
-          <span className="text-xs font-mono text-[#3B82F6] font-bold">
+        <div className="flex items-center gap-2 bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))]/30 px-4 py-2 rounded-full self-start sm:self-center">
+          <ShieldCheck className="w-4 h-4 text-[hsl(var(--admin-accent))]" />
+          <span className="text-xs font-mono text-[hsl(var(--admin-accent))] font-bold">
             {courses.length} Khóa học chờ duyệt
           </span>
         </div>
@@ -152,9 +152,9 @@ const AdminCourseApprovalPage = () => {
       {/* Main List */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
-          <div className="h-96 bg-slate-900 border border-slate-800 rounded-2xl" />
-          <div className="h-96 bg-slate-900 border border-slate-800 rounded-2xl" />
-          <div className="h-96 bg-slate-900 border border-slate-800 rounded-2xl" />
+          <div className="h-96 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-2xl" />
+          <div className="h-96 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-2xl" />
+          <div className="h-96 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-2xl" />
         </div>
       ) : (
         <AdminApprovalList

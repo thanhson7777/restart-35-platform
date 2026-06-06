@@ -1146,6 +1146,64 @@ const getSkillGapHealth = async () => {
   }
 }
 
+// ============================================================================
+// COURSE RECOMMENDATION SERVICE
+// ============================================================================
+
+/**
+ * Get course recommendations based on skill gaps
+ * @param {Object} params - { skill_gaps, constraints, limit }
+ * @returns {Promise<Object>} - Course recommendations
+ */
+const getCourseRecommendations = async ({ skill_gaps, constraints = {}, limit = 10 }) => {
+  try {
+    if (!skill_gaps || skill_gaps.length === 0) {
+      return { success: true, courses: [] }
+    }
+
+    const response = await axios.post(
+      `${env.AI_SERVICE_URL}/api/v1/ai/course-recommendations`,
+      { skill_gaps, constraints, limit },
+      { headers: { 'Content-Type': 'application/json' }, timeout: 60000 }
+    )
+
+    return response.data
+  } catch (error) {
+    console.error('[AIService] getCourseRecommendations error:', error.message)
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể lấy gợi ý khóa học'
+    )
+  }
+}
+
+/**
+ * Get learning path with LLM explanations
+ * @param {Object} params - { skill_gaps, courses, job_title, max_steps }
+ * @returns {Promise<Object>} - Learning path with steps + LLM explanations
+ */
+const getLearningPath = async ({ skill_gaps, courses = [], job_title = '', max_steps = 5 }) => {
+  try {
+    if (!skill_gaps || skill_gaps.length === 0) {
+      return { success: true, learning_path: null, courses_with_explanations: [] }
+    }
+
+    const response = await axios.post(
+      `${env.AI_SERVICE_URL}/api/v1/ai/learning-path`,
+      { skill_gaps, courses, job_title, max_steps },
+      { headers: { 'Content-Type': 'application/json' }, timeout: 90000 }
+    )
+
+    return response.data
+  } catch (error) {
+    console.error('[AIService] getLearningPath error:', error.message)
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Không thể tạo lộ trình học'
+    )
+  }
+}
+
 // Export các functions
 export const aiService = {
   getRecommendedJobs,
@@ -1177,5 +1235,9 @@ export const aiService = {
   getRAGSkillsGap,
   // ESCO Skill Gap
   analyzeEscoSkillGaps,
-  getSkillGapHealth
+  getSkillGapHealth,
+  // Course Recommendations
+  getCourseRecommendations,
+  // Learning Path
+  getLearningPath
 }

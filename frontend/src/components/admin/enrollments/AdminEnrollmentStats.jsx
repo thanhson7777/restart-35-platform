@@ -8,38 +8,38 @@ import { motion } from 'framer-motion';
 const STATUS_CONFIG = {
   total: {
     icon: Users,
-    iconColor: 'text-[#3B82F6]',
-    bgGlow: 'from-[#3B82F6]/10 to-transparent',
+    iconColor: 'text-[hsl(var(--admin-accent))]',
+    bgGlow: 'from-[hsl(var(--admin-accent))]/10 to-transparent',
     label: 'Tổng đăng ký',
   },
   enrolled: {
     icon: BookOpen,
-    iconColor: 'text-[#8B5CF6]',
-    bgGlow: 'from-[#8B5CF6]/10 to-transparent',
+    iconColor: 'text-purple-500',
+    bgGlow: 'from-purple-500/10 to-transparent',
     label: 'Đang học',
   },
   in_progress: {
     icon: Clock,
-    iconColor: 'text-[#F59E0B]',
-    bgGlow: 'from-[#F59E0B]/10 to-transparent',
+    iconColor: 'text-amber-500',
+    bgGlow: 'from-amber-500/10 to-transparent',
     label: 'Đang tiến hành',
   },
   completed: {
     icon: CheckCircle,
-    iconColor: 'text-[#10B981]',
-    bgGlow: 'from-[#10B981]/10 to-transparent',
+    iconColor: 'text-[hsl(var(--admin-success))]',
+    bgGlow: 'from-[hsl(var(--admin-success))]/10 to-transparent',
     label: 'Hoàn thành',
   },
   waitlist: {
     icon: Clock,
-    iconColor: 'text-[#06B6D4]',
-    bgGlow: 'from-[#06B6D4]/10 to-transparent',
+    iconColor: 'text-cyan-500',
+    bgGlow: 'from-cyan-500/10 to-transparent',
     label: 'Chờ xếp lớp',
   },
   revenue: {
     icon: DollarSign,
-    iconColor: 'text-[#10B981]',
-    bgGlow: 'from-[#10B981]/10 to-transparent',
+    iconColor: 'text-[hsl(var(--admin-success))]',
+    bgGlow: 'from-[hsl(var(--admin-success))]/10 to-transparent',
     label: 'Tổng doanh thu',
   },
 };
@@ -72,12 +72,12 @@ const AdminEnrollmentStats = ({ stats, loading }) => {
       <div className="space-y-6">
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-32 bg-slate-900/50 border border-slate-800 animate-pulse rounded-2xl" />
+            <div key={i} className="h-32 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] animate-pulse rounded-2xl" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-80 bg-slate-900/50 border border-slate-800 animate-pulse rounded-2xl" />
-          <div className="h-80 bg-slate-900/50 border border-slate-800 animate-pulse rounded-2xl" />
+          <div className="h-80 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] animate-pulse rounded-2xl" />
+          <div className="h-80 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] animate-pulse rounded-2xl" />
         </div>
       </div>
     );
@@ -89,7 +89,6 @@ const AdminEnrollmentStats = ({ stats, loading }) => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         {statItems.map((item, index) => {
           const config = STATUS_CONFIG[item.key];
@@ -105,29 +104,28 @@ const AdminEnrollmentStats = ({ stats, loading }) => {
               className={item.key === 'revenue' ? 'col-span-2' : ''}
             >
               <BezelCard
-                outerClassName="h-full hover:border-slate-700/60 transition-all duration-300"
+                outerClassName="h-full hover:border-[hsl(var(--admin-accent))]/30 transition-all duration-300"
                 innerClassName="flex flex-col justify-between p-4 h-full"
               >
-                {/* Background Glow */}
-                <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${config.bgGlow} rounded-bl-full pointer-events-none blur-lg opacity-60`} />
+                <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${config.bgGlow} rounded-bl-full pointer-events-none opacity-70`} />
 
                 <div className="flex items-center justify-between mb-3 relative z-10">
-                  <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-slate-400 font-mono">
+                  <span className="text-[10px] uppercase tracking-[0.12em] font-bold text-[hsl(var(--admin-text-muted))]">
                     {config.label}
                   </span>
-                  <div className="p-1.5 rounded-full bg-slate-950 border border-slate-800/80 shadow-inner">
+                  <div className="p-1.5 rounded-full bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))]">
                     <Icon className={`w-4 h-4 ${config.iconColor}`} />
                   </div>
                 </div>
 
                 <div className="relative z-10 mt-1">
-                  <h3 className="text-xl font-extrabold tracking-tight text-white font-mono truncate">
+                  <h3 className="text-xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] tabular-nums truncate">
                     {item.isPrice
                       ? formatPrice(item.value)
                       : item.value.toLocaleString('vi-VN')}
                   </h3>
                   {item.key === 'completed' && item.value > 0 && (
-                    <div className="flex items-center gap-1 mt-1 text-[10px] text-emerald-400 font-semibold">
+                    <div className="flex items-center gap-1 mt-1 text-[10px] text-[hsl(var(--admin-success))] font-semibold">
                       <TrendingUp className="w-3 h-3" />
                       <span>Đầu ra tốt</span>
                     </div>
@@ -139,41 +137,38 @@ const AdminEnrollmentStats = ({ stats, loading }) => {
         })}
       </div>
 
-      {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Trend Chart */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
           <BezelCard className="p-6">
-            <h3 className="text-sm font-bold text-white tracking-tight mb-6">
+            <h3 className="text-sm font-bold text-[hsl(var(--admin-text-primary))] tracking-tight mb-6">
               Xu hướng đăng ký (6 tháng gần nhất)
             </h3>
             {monthlyTrend.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={monthlyTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.4} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--admin-border))" opacity={0.15} />
                   <XAxis
                     dataKey="label"
                     tickFormatter={formatMonthLabel}
-                    tick={{ fontSize: 10, fill: '#94a3b8', fontFamily: 'JetBrains Mono' }}
-                    stroke="#334155"
+                    tick={{ fontSize: 10, fill: 'hsl(var(--admin-text-muted))' }}
+                    stroke="hsl(var(--admin-border))"
                   />
                   <YAxis
-                    tick={{ fontSize: 10, fill: '#94a3b8', fontFamily: 'JetBrains Mono' }}
-                    stroke="#334155"
+                    tick={{ fontSize: 10, fill: 'hsl(var(--admin-text-muted))' }}
+                    stroke="hsl(var(--admin-border))"
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#090d16',
-                      borderColor: '#1e293b',
+                      backgroundColor: 'hsl(var(--admin-surface))',
+                      borderColor: 'hsl(var(--admin-border))',
                       borderRadius: '12px',
-                      color: '#f8fafc',
-                      fontFamily: 'Plus Jakarta Sans',
+                      color: 'hsl(var(--admin-text-primary))',
                       fontSize: '12px',
-                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
                     }}
                     formatter={(value) => [`${value} đăng ký`, 'Số lượng']}
                     labelFormatter={(label) => {
@@ -185,59 +180,57 @@ const AdminEnrollmentStats = ({ stats, loading }) => {
                   <Line
                     type="monotone"
                     dataKey="count"
-                    stroke="#3b82f6"
+                    stroke="hsl(var(--admin-accent))"
                     strokeWidth={3}
-                    dot={{ fill: '#0b0f19', stroke: '#3b82f6', strokeWidth: 2, r: 4 }}
-                    activeDot={{ fill: '#3b82f6', r: 6 }}
+                    dot={{ fill: 'hsl(var(--admin-surface))', stroke: 'hsl(var(--admin-accent))', strokeWidth: 2, r: 4 }}
+                    activeDot={{ fill: 'hsl(var(--admin-accent))', r: 6 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-[220px] text-slate-500 text-sm">
+              <div className="flex items-center justify-center h-[200px] text-[hsl(var(--admin-text-muted))] text-sm">
                 Chưa có dữ liệu xu hướng
               </div>
             )}
           </BezelCard>
         </motion.div>
 
-        {/* Top Courses Chart */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
           <BezelCard className="p-6">
-            <h3 className="text-sm font-bold text-white tracking-tight mb-6">
+            <h3 className="text-sm font-bold text-[hsl(var(--admin-text-primary))] tracking-tight mb-6">
               Khóa học được đăng ký nhiều nhất
             </h3>
             {topCourses.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={topCourses.slice(0, 5)} layout="vertical" margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                   <defs>
                     <linearGradient id="barGlow" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity={1} />
+                      <stop offset="0%" stopColor="hsl(var(--admin-accent))" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="hsl(var(--admin-accent))" stopOpacity={1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.4} />
-                  <XAxis type="number" tick={{ fontSize: 10, fill: '#94a3b8', fontFamily: 'JetBrains Mono' }} stroke="#334155" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--admin-border))" opacity={0.15} />
+                  <XAxis type="number" tick={{ fontSize: 10, fill: 'hsl(var(--admin-text-muted))' }} stroke="hsl(var(--admin-border))" />
                   <YAxis
                     type="category"
                     dataKey="title"
                     width={100}
-                    tick={{ fontSize: 10, fill: '#94a3b8' }}
+                    tick={{ fontSize: 10, fill: 'hsl(var(--admin-text-muted))' }}
                     tickFormatter={(value) => value.length > 12 ? value.substring(0, 12) + '...' : value}
-                    stroke="#334155"
+                    stroke="hsl(var(--admin-border))"
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#090d16',
-                      borderColor: '#1e293b',
+                      backgroundColor: 'hsl(var(--admin-surface))',
+                      borderColor: 'hsl(var(--admin-border))',
                       borderRadius: '12px',
-                      color: '#f8fafc',
-                      fontFamily: 'Plus Jakarta Sans',
+                      color: 'hsl(var(--admin-text-primary))',
                       fontSize: '12px',
-                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
                     }}
                     formatter={(value) => [`${value} học viên`, 'Số lượng']}
                   />
@@ -245,7 +238,7 @@ const AdminEnrollmentStats = ({ stats, loading }) => {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-[220px] text-slate-500 text-sm">
+              <div className="flex items-center justify-center h-[200px] text-[hsl(var(--admin-text-muted))] text-sm">
                 Chưa có dữ liệu khóa học
               </div>
             )}

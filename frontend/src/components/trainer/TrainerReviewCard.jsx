@@ -17,7 +17,7 @@ const StarRating = ({ rating, maxStars = 5 }) => {
           className={`${
             i < actualRating
               ? 'fill-yellow-400 text-yellow-400'
-              : 'fill-transparent text-slate-600'
+              : 'fill-transparent text-[hsl(var(--admin-text-faint))]'
           }`}
         />
       ))}
@@ -69,9 +69,9 @@ export const TrainerReviewCard = ({ review, onResponse, loading = false }) => {
   };
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-[#111827] overflow-hidden flex flex-col transition-all duration-200 hover:border-slate-700">
+    <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] overflow-hidden flex flex-col transition-all duration-200 hover:border-[hsl(var(--admin-border-strong))]">
       {/* Card Header */}
-      <div className="p-5 border-b border-slate-800">
+      <div className="p-5 border-b border-[hsl(var(--admin-border))]">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             {/* Stars + Rating */}
@@ -85,22 +85,22 @@ export const TrainerReviewCard = ({ review, onResponse, loading = false }) => {
             {/* Course + Date */}
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-xs font-semibold px-2 py-0.5 rounded-md">
+                <Badge className="bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))]/30 text-xs font-semibold px-2 py-0.5 rounded-md">
                   {review.course?.title || 'Khóa học'}
                 </Badge>
                 {hasResponse ? (
-                  <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-xs font-semibold px-2 py-0.5 rounded-md gap-1">
+                  <Badge className="bg-[hsl(var(--admin-success-subtle))] text-[hsl(var(--admin-success))] border-[hsl(var(--admin-success))]/30 text-xs font-semibold px-2 py-0.5 rounded-md gap-1">
                     <CheckCircle2 size={11} />
                     Đã phản hồi
                   </Badge>
                 ) : (
-                  <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-xs font-semibold px-2 py-0.5 rounded-md gap-1">
+                  <Badge className="bg-amber-500/15 text-[hsl(var(--admin-warning))] border-amber-500/30 text-xs font-semibold px-2 py-0.5 rounded-md gap-1">
                     <Clock size={11} />
                     Chưa phản hồi
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <div className="flex items-center gap-1.5 text-xs text-[hsl(var(--admin-text-muted))]">
                 <Clock size={12} />
                 {formatDate(review.createdAt)}
               </div>
@@ -111,7 +111,7 @@ export const TrainerReviewCard = ({ review, onResponse, loading = false }) => {
 
       {/* Review Text */}
       <div className="px-5 pt-4 pb-3">
-        <blockquote className="text-sm text-slate-300 leading-relaxed italic border-l-2 border-blue-500/40 pl-3">
+        <blockquote className="text-sm text-[hsl(var(--admin-text-secondary))] leading-relaxed italic border-l-2 border-[hsl(var(--admin-accent))]/40 pl-3">
           "{review.content || review.text || 'Không có nội dung đánh giá.'}"
         </blockquote>
       </div>
@@ -124,41 +124,41 @@ export const TrainerReviewCard = ({ review, onResponse, loading = false }) => {
             alt={review.user?.displayName}
             fallback={review.user?.displayName?.charAt(0)?.toUpperCase() || '?'}
             size="sm"
-            className="bg-slate-800 text-slate-300 ring-1 ring-slate-700"
+            className="bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] ring-1 ring-[hsl(var(--admin-border))]"
           />
           <div>
-            <p className="text-sm font-semibold text-white">
+            <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">
               {review.user?.displayName || 'Học viên'}
             </p>
             {review.user?.email && (
-              <p className="text-xs text-slate-500">{review.user.email}</p>
+              <p className="text-xs text-[hsl(var(--admin-text-muted))]">{review.user.email}</p>
             )}
           </div>
         </div>
       </div>
 
       {/* Trainer Response Section */}
-      <div className="border-t border-slate-800 px-5 py-4 bg-slate-900/30">
+      <div className="border-t border-[hsl(var(--admin-border))] px-5 py-4 bg-[hsl(var(--admin-surface-elevated))]/30">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="h-px flex-1 bg-slate-800" />
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Phản hồi của Trainer</span>
-            <div className="h-px flex-1 bg-slate-800" />
+            <div className="h-px flex-1 bg-[hsl(var(--admin-border))]" />
+            <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-wide">Phản hồi của Trainer</span>
+            <div className="h-px flex-1 bg-[hsl(var(--admin-border))]" />
           </div>
 
           {hasResponse ? (
             /* Already responded */
             <div className="space-y-2">
-              <div className="text-sm text-slate-300 leading-relaxed border-l-2 border-emerald-500/40 pl-3 py-1 bg-emerald-500/5 rounded-r-lg">
+              <div className="text-sm text-[hsl(var(--admin-text-secondary))] leading-relaxed border-l-2 border-[hsl(var(--admin-success))]/40 pl-3 py-1 bg-[hsl(var(--admin-success-subtle))] rounded-r-lg">
                 {review.trainerResponse.text}
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[hsl(var(--admin-text-muted))]">
                   Phản hồi ngày: {formatDate(review.trainerResponse.createdAt)}
                 </p>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                  className="text-xs text-[hsl(var(--admin-accent))] hover:text-[hsl(var(--admin-accent))]/80 underline underline-offset-2"
                 >
                   Sửa phản hồi
                 </button>
@@ -173,10 +173,10 @@ export const TrainerReviewCard = ({ review, onResponse, loading = false }) => {
                 placeholder="Viết phản hồi của bạn cho đánh giá này..."
                 rows={3}
                 maxLength={MAX_RESPONSE_LENGTH + 50}
-                className="bg-slate-900/60 border-slate-800 text-slate-200 placeholder:text-slate-600 resize-none text-sm"
+                className="bg-[hsl(var(--admin-surface-elevated))]/60 border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] placeholder:text-[hsl(var(--admin-text-muted))] resize-none text-sm"
               />
               <div className="flex items-center justify-between">
-                <p className={`text-xs ${isOverLimit ? 'text-red-400' : remainingChars < 50 ? 'text-amber-400' : 'text-slate-500'}`}>
+                <p className={`text-xs ${isOverLimit ? 'text-[hsl(var(--admin-danger))]' : remainingChars < 50 ? 'text-[hsl(var(--admin-warning))]' : 'text-[hsl(var(--admin-text-muted))]'}`}>
                   {remainingChars < 0
                     ? `Vượt quá ${Math.abs(remainingChars)} ký tự`
                     : `${remainingChars} ký tự còn lại`}

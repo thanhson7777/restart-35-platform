@@ -44,29 +44,29 @@ export default function EnterprisePartnershipsPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold text-white">Danh sách Partnership</h1>
-            <p className="text-slate-400 text-sm mt-1">
+            <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Danh sách Partnership</h1>
+            <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">
               Theo dõi các yêu cầu hợp tác đã gửi và trạng thái phản hồi từ trainer.
             </p>
           </div>
-          <Button onClick={() => navigate('/enterprise/partnerships/create')} className="gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button onClick={() => navigate('/enterprise/partnerships/create')} className="gap-2 bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white">
             <Plus size={14} /> Tạo Partnership
           </Button>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex bg-slate-900/60 border border-slate-800 rounded-xl p-1 gap-1">
+          <div className="flex bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl p-1 gap-1">
             {statusFilters.map(f => (
               <button
                 key={f.value}
                 onClick={() => setStatusFilter(f.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${statusFilter === f.value ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${statusFilter === f.value ? 'bg-[hsl(var(--admin-accent))] text-white' : 'text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]'}`}
               >
                 {f.label}
               </button>
             ))}
           </div>
-          <Button variant="outline" onClick={() => fetchPartnerships(1)} className="border-slate-800 text-slate-300 hover:bg-slate-800 gap-2 ml-auto">
+          <Button variant="outline" onClick={() => fetchPartnerships(1)} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] gap-2 ml-auto">
             <RefreshCw size={13} /> Làm mới
           </Button>
         </div>
@@ -74,14 +74,14 @@ export default function EnterprisePartnershipsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-44 bg-slate-800 rounded-2xl animate-pulse" />
+              <div key={i} className="h-44 bg-[hsl(var(--admin-surface-elevated))] rounded-2xl animate-pulse" />
             ))}
           </div>
         ) : partnerships.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-center">
-            <Handshake size={40} className="text-slate-600 mb-4" />
-            <p className="text-slate-400 font-medium">Chưa có partnership nào.</p>
-            <Button onClick={() => navigate('/enterprise/partnerships/create')} className="mt-4 gap-2 bg-blue-600 hover:bg-blue-700">
+            <Handshake size={40} className="text-[hsl(var(--admin-text-faint))] mb-4" />
+            <p className="text-[hsl(var(--admin-text-muted))] font-medium">Chưa có partnership nào.</p>
+            <Button onClick={() => navigate('/enterprise/partnerships/create')} className="mt-4 gap-2 bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white">
               <Plus size={14} /> Tạo partnership đầu tiên
             </Button>
           </div>

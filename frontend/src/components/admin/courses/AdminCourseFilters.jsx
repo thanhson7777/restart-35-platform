@@ -52,8 +52,7 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
     onSearch();
   };
 
-  const hasActiveFilters =
-    filters.category || filters.level || filters.location || filters.fee;
+  const hasActiveFilters = filters.category || filters.level || filters.location || filters.fee;
 
   const getCount = (key) => {
     if (!stats) return null;
@@ -62,29 +61,25 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 p-4 mb-6">
-      {/* Search Bar */}
+    <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-4 mb-6">
       <div className="flex gap-3 mb-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
           <input
             type="text"
             placeholder="Tìm kiếm khóa học..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
-                       text-sm"
+            className="w-full pl-10 pr-4 py-2.5 border border-[hsl(var(--admin-border))] rounded-xl bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] placeholder-[hsl(var(--admin-text-muted))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]/30 focus:border-[hsl(var(--admin-accent))]/50 text-sm"
           />
         </div>
-        <Button onClick={handleSearch} size="sm">
+        <Button onClick={handleSearch} size="sm" className="h-10">
           Tìm kiếm
         </Button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-100 pb-4">
+      <div className="flex flex-wrap gap-2 border-b border-[hsl(var(--admin-border))] pb-4">
         {TABS.map((tab) => {
           const count = getCount(tab.key);
           const isActive = filters.status === tab.key;
@@ -93,21 +88,19 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+              className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                 isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  ? 'bg-[hsl(var(--admin-accent))] text-white'
+                  : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]'
               }`}
             >
               {tab.label}
               {count !== null && (
-                <span
-                  className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                    isActive
-                      ? 'bg-primary-foreground/20'
-                      : 'bg-slate-100 text-slate-600'
-                  }`}
-                >
+                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  isActive
+                    ? 'bg-white/20'
+                    : 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))]'
+                }`}>
                   {count}
                 </span>
               )}
@@ -116,9 +109,8 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
         })}
       </div>
 
-      {/* Filter Row */}
       <div className="flex flex-wrap items-center gap-3 pt-4">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+        <div className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text-muted))]">
           <Filter className="w-4 h-4" />
           <span>Bộ lọc:</span>
         </div>
@@ -126,8 +118,7 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
         <select
           value={filters.category || ''}
           onChange={(e) => handleFilterChange('category', e.target.value)}
-          className="px-3 py-2 border border-slate-200 rounded-lg text-sm
-                     focus:outline-none focus:ring-2 focus:ring-primary"
+          className="px-3 py-2 border border-[hsl(var(--admin-border))] rounded-xl bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]/30 h-10"
         >
           <option value="">Tất cả danh mục</option>
           <option value="tech">Công nghệ thông tin</option>
@@ -140,8 +131,7 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
         <select
           value={filters.level || ''}
           onChange={(e) => handleFilterChange('level', e.target.value)}
-          className="px-3 py-2 border border-slate-200 rounded-lg text-sm
-                     focus:outline-none focus:ring-2 focus:ring-primary"
+          className="px-3 py-2 border border-[hsl(var(--admin-border))] rounded-xl bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]/30 h-10"
         >
           <option value="">Tất cả cấp độ</option>
           <option value="beginner">Người mới bắt đầu</option>
@@ -152,8 +142,7 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
         <select
           value={filters.location || ''}
           onChange={(e) => handleFilterChange('location', e.target.value)}
-          className="px-3 py-2 border border-slate-200 rounded-lg text-sm
-                     focus:outline-none focus:ring-2 focus:ring-primary"
+          className="px-3 py-2 border border-[hsl(var(--admin-border))] rounded-xl bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]/30 h-10"
         >
           <option value="">Tất cả hình thức</option>
           <option value="online">Online</option>
@@ -164,30 +153,11 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
         <select
           value={filters.fee || ''}
           onChange={(e) => handleFilterChange('fee', e.target.value)}
-          className="px-3 py-2 border border-slate-200 rounded-lg text-sm
-                     focus:outline-none focus:ring-2 focus:ring-primary"
+          className="px-3 py-2 border border-[hsl(var(--admin-border))] rounded-xl bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]/30 h-10"
         >
           <option value="">Tất cả học phí</option>
           <option value="free">Miễn phí</option>
           <option value="paid">Có phí</option>
-        </select>
-
-        <select
-          value={`${filters.sortBy || 'createdAt'}-${filters.sortOrder || 'desc'}`}
-          onChange={(e) => {
-            const [sortBy, sortOrder] = e.target.value.split('-');
-            handleFilterChange('sortBy', sortBy);
-            handleFilterChange('sortOrder', sortOrder);
-          }}
-          className="px-3 py-2 border border-slate-200 rounded-lg text-sm
-                     focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <option value="createdAt-desc">Mới nhất</option>
-          <option value="createdAt-asc">Cũ nhất</option>
-          <option value="enrollmentCount-desc">Nhiều đăng ký nhất</option>
-          <option value="rating-average-desc">Đánh giá cao nhất</option>
-          <option value="fee-desc">Học phí cao nhất</option>
-          <option value="fee-asc">Học phí thấp nhất</option>
         </select>
 
         {hasActiveFilters && (
@@ -195,7 +165,7 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
             variant="ghost"
             size="sm"
             onClick={clearFilters}
-            className="text-slate-500 hover:text-slate-700"
+            className="text-[hsl(var(--admin-text-muted))] hover:text-rose-500"
           >
             <X className="w-4 h-4 mr-1" />
             Xóa lọc
@@ -203,49 +173,36 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
         )}
       </div>
 
-      {/* Active Filters Tags */}
       {hasActiveFilters && (
-        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-100">
+        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-[hsl(var(--admin-border))]">
           {filters.category && (
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="gap-1 bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] border-[hsl(var(--admin-border))]">
               Danh mục: {filters.category}
-              <button
-                onClick={() => handleFilterChange('category', '')}
-                className="ml-1 hover:text-destructive"
-              >
+              <button onClick={() => handleFilterChange('category', '')} className="ml-1 hover:text-rose-500">
                 <X className="w-3 h-3" />
               </button>
             </Badge>
           )}
           {filters.level && (
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="gap-1 bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] border-[hsl(var(--admin-border))]">
               Cấp độ: {filters.level}
-              <button
-                onClick={() => handleFilterChange('level', '')}
-                className="ml-1 hover:text-destructive"
-              >
+              <button onClick={() => handleFilterChange('level', '')} className="ml-1 hover:text-rose-500">
                 <X className="w-3 h-3" />
               </button>
             </Badge>
           )}
           {filters.location && (
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="gap-1 bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] border-[hsl(var(--admin-border))]">
               Hình thức: {filters.location}
-              <button
-                onClick={() => handleFilterChange('location', '')}
-                className="ml-1 hover:text-destructive"
-              >
+              <button onClick={() => handleFilterChange('location', '')} className="ml-1 hover:text-rose-500">
                 <X className="w-3 h-3" />
               </button>
             </Badge>
           )}
           {filters.fee && (
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="gap-1 bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] border-[hsl(var(--admin-border))]">
               Học phí: {filters.fee === 'free' ? 'Miễn phí' : 'Có phí'}
-              <button
-                onClick={() => handleFilterChange('fee', '')}
-                className="ml-1 hover:text-destructive"
-              >
+              <button onClick={() => handleFilterChange('fee', '')} className="ml-1 hover:text-rose-500">
                 <X className="w-3 h-3" />
               </button>
             </Badge>

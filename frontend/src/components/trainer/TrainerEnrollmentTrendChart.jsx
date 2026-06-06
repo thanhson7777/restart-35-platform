@@ -12,10 +12,10 @@ export const TrainerEnrollmentTrendChart = ({ data = [] }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-slate-950/95 border border-slate-800 p-4 rounded-xl shadow-2xl backdrop-blur-md">
-          <p className="text-xs uppercase tracking-wider font-mono text-slate-400 mb-1">{label}</p>
-          <p className="text-sm font-bold text-white font-mono">
-            Học viên: <span className="text-[#3B82F6]">{payload[0].value} học viên</span>
+        <div className="bg-[hsl(var(--admin-surface))]/95 border border-[hsl(var(--admin-border))] p-4 rounded-xl shadow-2xl backdrop-blur-md">
+          <p className="text-xs uppercase tracking-wider font-mono text-[hsl(var(--admin-text-muted))] mb-1">{label}</p>
+          <p className="text-sm font-bold text-[hsl(var(--admin-text-primary))] font-mono">
+            Học viên: <span className="text-[hsl(var(--admin-accent))]">{payload[0].value} học viên</span>
           </p>
         </div>
       );
@@ -33,13 +33,13 @@ export const TrainerEnrollmentTrendChart = ({ data = [] }) => {
       <BezelCard className="flex flex-col h-full" padding="default">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold text-white tracking-tight">Xu hướng đăng ký học viên</h3>
-            <p className="text-xs text-slate-400 mt-1">Biểu đồ số lượng học viên đăng ký mới qua từng tháng</p>
+            <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))] tracking-tight">Xu hướng đăng ký học viên</h3>
+            <p className="text-xs text-[hsl(var(--admin-text-secondary))] mt-1">Biểu đồ số lượng học viên đăng ký mới qua từng tháng</p>
           </div>
           <select
             value={range}
             onChange={(e) => setRange(e.target.value)}
-            className="text-xs border border-slate-800 rounded-full px-3 py-1.5 bg-slate-900 text-slate-300 focus:outline-none focus:border-[#3B82F6] cursor-pointer font-mono"
+            className="text-xs border border-[hsl(var(--admin-border))] rounded-full px-3 py-1.5 bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-secondary))] focus:outline-none focus:border-[hsl(var(--admin-accent))] cursor-pointer font-mono"
           >
             <option value="6">6 tháng gần đây</option>
             <option value="12">12 tháng gần đây</option>
@@ -48,7 +48,7 @@ export const TrainerEnrollmentTrendChart = ({ data = [] }) => {
 
         <div className="h-72 w-full mt-4">
           {filteredData.length === 0 ? (
-            <div className="h-full w-full flex items-center justify-center text-slate-500 text-sm border border-dashed border-slate-800 rounded-xl">
+            <div className="h-full w-full flex items-center justify-center text-[hsl(var(--admin-text-muted))] text-sm border border-dashed border-[hsl(var(--admin-border))] rounded-xl">
               Chưa có dữ liệu xu hướng tuyển sinh.
             </div>
           ) : (

@@ -12,7 +12,7 @@ export const TrainerQuickActions = () => {
       label: 'Tạo khóa học mới',
       icon: Plus,
       onClick: () => navigate('/trainer/courses/new'),
-      colorClass: 'from-blue-600/20 to-cyan-600/10 hover:from-blue-600/30 hover:to-cyan-600/20 border-blue-500/20 hover:border-blue-500/40 text-blue-300',
+      colorClass: 'from-[hsl(var(--admin-accent))]/20 to-cyan-600/10 hover:from-[hsl(var(--admin-accent))]/30 hover:to-cyan-600/20 border-[hsl(var(--admin-accent))]/20 hover:border-[hsl(var(--admin-accent))]/40 text-[hsl(var(--admin-accent))]',
       iconColor: '#60A5FA',
     },
     {
@@ -26,7 +26,7 @@ export const TrainerQuickActions = () => {
       label: 'Học viên có nguy cơ',
       icon: AlertTriangle,
       onClick: () => navigate('/trainer/enrollments?risk=high'),
-      colorClass: 'from-red-600/20 to-orange-600/10 hover:from-red-600/30 hover:to-orange-600/20 border-red-500/20 hover:border-red-500/40 text-red-300',
+      colorClass: 'from-[hsl(var(--admin-danger))]/20 to-orange-600/10 hover:from-[hsl(var(--admin-danger))]/30 hover:to-orange-600/20 border-[hsl(var(--admin-danger))]/20 hover:border-[hsl(var(--admin-danger))]/40 text-[hsl(var(--admin-danger))]',
       iconColor: '#F87171',
     },
   ];
@@ -38,7 +38,7 @@ export const TrainerQuickActions = () => {
       transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
       <BezelCard className="w-full" padding="default">
-        <h3 className="text-sm font-bold text-white tracking-tight uppercase mb-4">Thao tác nhanh</h3>
+        <h3 className="text-sm font-bold text-[hsl(var(--admin-text-primary))] tracking-tight uppercase mb-4">Thao tác nhanh</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {actions.map((action, idx) => {
             const IconComponent = action.icon;
@@ -48,10 +48,10 @@ export const TrainerQuickActions = () => {
                 onClick={action.onClick}
                 className={`flex items-center gap-3 p-4 rounded-2xl border bg-gradient-to-br ${action.colorClass} transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] outline-none text-left`}
               >
-                <div className="p-2.5 rounded-xl bg-slate-900/60 border border-white/5 flex items-center justify-center shrink-0 shadow-inner">
+                <div className="p-2.5 rounded-xl bg-[hsl(var(--admin-surface))]/60 border border-white/5 flex items-center justify-center shrink-0 shadow-inner">
                   <IconComponent size={20} color={action.iconColor} />
                 </div>
-                <span className="text-sm font-semibold tracking-tight text-white group-hover:text-white">
+                <span className="text-sm font-semibold tracking-tight text-[hsl(var(--admin-text-primary))] group-hover:text-[hsl(var(--admin-text-primary))]">
                   {action.label}
                 </span>
               </button>

@@ -18,8 +18,8 @@ export const AdminStatsCards = ({ stats = {} }) => {
       change: '+14% so với tháng trước',
       trend: 'up',
       icon: GraduationCap,
-      iconColor: 'text-[#3B82F6]',
-      bgGlow: 'from-[#3B82F6]/10 to-transparent',
+      iconColor: 'text-[hsl(var(--admin-accent))]',
+      bgGlow: 'from-[hsl(var(--admin-accent))] to-transparent',
     },
     {
       title: 'Doanh thu tháng này',
@@ -27,17 +27,17 @@ export const AdminStatsCards = ({ stats = {} }) => {
       change: '+8.2% so với tháng trước',
       trend: 'up',
       icon: DollarSign,
-      iconColor: 'text-[#10B981]',
-      bgGlow: 'from-[#10B981]/10 to-transparent',
+      iconColor: 'text-[hsl(var(--admin-success))]',
+      bgGlow: 'from-[hsl(var(--admin-success))] to-transparent',
     },
     {
-      title: 'Tỷ lệ bỏ học (Dropout)',
+      title: 'Tỷ lệ bỏ học',
       value: `${dropoutRate}%`,
       change: '-1.5% so với tháng trước',
       trend: 'down',
       icon: AlertTriangle,
-      iconColor: 'text-[#EF4444]',
-      bgGlow: 'from-[#EF4444]/10 to-transparent',
+      iconColor: 'text-[hsl(var(--admin-danger))]',
+      bgGlow: 'from-[hsl(var(--admin-danger))] to-transparent',
     },
     {
       title: 'Khóa học chờ duyệt',
@@ -45,8 +45,8 @@ export const AdminStatsCards = ({ stats = {} }) => {
       change: 'Cần xử lý ngay',
       trend: 'warning',
       icon: BookOpen,
-      iconColor: 'text-[#F59E0B]',
-      bgGlow: 'from-[#F59E0B]/10 to-transparent',
+      iconColor: 'text-[hsl(var(--admin-warning))]',
+      bgGlow: 'from-[hsl(var(--admin-warning))] to-transparent',
     },
   ];
 
@@ -59,40 +59,35 @@ export const AdminStatsCards = ({ stats = {} }) => {
             key={index}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.8,
-              delay: index * 0.1,
-              ease: [0.16, 1, 0.3, 1],
-            }}
+            transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
             <BezelCard
-              outerClassName="h-full hover:border-[#3B82F6]/30 hover:scale-[1.02] cursor-pointer"
+              outerClassName="h-full cursor-pointer"
               innerClassName="flex flex-col justify-between"
             >
-              {/* Background Glow */}
-              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl ${item.bgGlow} rounded-bl-full pointer-events-none blur-xl opacity-70`} />
+              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl ${item.bgGlow} rounded-bl-full pointer-events-none opacity-40`} />
 
               <div className="flex items-center justify-between mb-4 relative z-10">
-                <span className="text-xs uppercase tracking-[0.15em] font-medium text-slate-400 font-mono">
+                <span className="text-[10px] uppercase tracking-[0.12em] font-semibold text-[hsl(var(--admin-text-muted))]">
                   {item.title}
                 </span>
-                <div className="p-2 rounded-full bg-slate-900 border border-slate-800 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+                <div className="p-2 rounded-lg bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))]">
                   <Icon className={`w-5 h-5 ${item.iconColor}`} />
                 </div>
               </div>
 
               <div className="relative z-10 mt-2">
-                <h3 className="text-3xl font-extrabold tracking-tight text-white font-mono">
+                <h3 className="text-[22px] font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] tabular-nums">
                   {item.value}
                 </h3>
                 <div className="flex items-center gap-1.5 mt-2">
                   {item.trend === 'up' && (
-                    <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                    <TrendingUp className="w-3.5 h-3.5 text-[hsl(var(--admin-success))]" />
                   )}
                   {item.trend === 'down' && (
-                    <TrendingDown className="w-3.5 h-3.5 text-emerald-400" />
+                    <TrendingDown className="w-3.5 h-3.5 text-[hsl(var(--admin-success))]" />
                   )}
-                  <span className={`text-xs font-medium ${item.trend === 'warning' ? 'text-amber-400' : 'text-slate-400'}`}>
+                  <span className={`text-xs font-medium ${item.trend === 'warning' ? 'text-[hsl(var(--admin-warning))]' : 'text-[hsl(var(--admin-text-muted))]'}`}>
                     {item.change}
                   </span>
                 </div>

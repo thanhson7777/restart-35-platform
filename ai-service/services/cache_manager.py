@@ -548,12 +548,107 @@ def reset_cache_manager() -> None:
 
 
 # =============================================================================
+# COURSE CACHE MANAGER
+# =============================================================================
+
+class CourseCacheManager:
+    """
+    Cache riêng cho course recommendation với TTL phù hợp.
+
+    TTL Strategy:
+      - Course embeddings:  24h  (ít thay đổi, nặng)
+      - Synonym map:         6h  (thỉnh thoảng cập nhật)
+      - Recommendation result: 1h  (skill gap ổn định trong ngắn hạn)
+    """
+
+    EMBEDDING_TTL = 86400   # 24 hours
+    SYNONYM_TTL   = 21600   # 6 hours
+    RESULT_TTL     = 3600    # 1 hour
+
+    def __init__(self):
+        from cachetools import TTLCache
+        self._embedding_cache = TTLCache(maxsize=5000, ttl=self.EMBEDDING_TTL)
+        self._synonym_cache  = TTLCache(maxsize=2000, ttl=self.SYNONYM_TTL)
+        self._result_cache   = TTLCache(maxsize=2000, ttl=self.RESULT_TTL)
+
+    def get_embedding(self, course_id: str):
+        return self._embedding_cache.get(course_id)
+
+    def set_embedding(self, course_id: str, embedding):
+        self._embedding_cache[course_id] = embedding
+
+    def get_synonym_map(self, key: str):
+        return self._synonym_cache.get(key)
+
+    def set_synonym_map(self, key: str, synonyms):
+        self._synonym_cache[key] = synonyms
+
+    def get_recommendation(self, skill_gaps_hash: str, constraints_hash: str):
+        cache_key = f"rc:{skill_gaps_hash}|{constraints_hash}"
+        return self._result_cache.get(cache_key)
+
+    def set_recommendation(self, skill_gaps_hash: str, constraints_hash: str, result):
+        cache_key = f"rc:{skill_gaps_hash}|{constraints_hash}"
+        self._result_cache[cache_key] = result
+
+    def invalidate_recommendation(self, skill_gaps_hash: str):
+        prefix = f"rc:{skill_gaps_hash}"
+        keys_to_delete = [k for k in self._result_cache if k.startswith(prefix)]
+        for k in keys_to_delete:
+            del self._result_cache[k]
+
+    def get_stats(self) -> dict:
+        return {
+            "embedding_cache": {
+                "entries": len(self._embedding_cache),
+                "maxsize": self._embedding_cache.maxsize,
+                "ttl_seconds": self.EMBEDDING_TTL,
+            },
+            "synonym_cache": {
+                "entries": len(self._synonym_cache),
+                "maxsize": self._synonym_cache.maxsize,
+                "ttl_seconds": self.SYNONYM_TTL,
+            },
+            "result_cache": {
+                "entries": len(self._result_cache),
+                "maxsize": self._result_cache.maxsize,
+                "ttl_seconds": self.RESULT_TTL,
+            },
+        }
+
+    @staticmethod
+    def hash_skill_gaps(skill_gaps: list) -> str:
+        import hashlib
+        normalized = []
+        for gap in sorted(skill_gaps, key=lambda g: g.get('skill_name', '')):
+            normalized.append(f"{gap.get('skill_name', '')}:{gap.get('priority', '')}")
+        joined = '|'.join(normalized)
+        return hashlib.md5(joined.encode()).hexdigest()
+
+    @staticmethod
+    def hash_constraints(constraints: dict) -> str:
+        import hashlib
+        serialized = json.dumps(constraints, sort_keys=True)
+        return hashlib.md5(serialized.encode()).hexdigest()
+
+
+_course_cache_instance = None
+
+
+def get_course_cache() -> CourseCacheManager:
+    global _course_cache_instance
+    if _course_cache_instance is None:
+        _course_cache_instance = CourseCacheManager()
+    return _course_cache_instance
+
+
+# =============================================================================
 # MAIN (for testing)
 # =============================================================================
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("Testing HierarchicalCacheManager")
+    print("Testing HierarchicalCacheManager + CourseCacheManager")
     print("=" * 60)
 
     # Create cache manager

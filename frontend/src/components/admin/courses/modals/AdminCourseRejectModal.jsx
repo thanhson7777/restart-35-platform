@@ -17,144 +17,98 @@ const AdminCourseRejectModal = ({ course, onClose, onConfirm, loading }) => {
   const [sendEmail, setSendEmail] = useState(true);
 
   const handleSubmit = () => {
-    if (reason.trim().length < 10) {
-      return;
-    }
-    onConfirm({
-      status: 'rejected',
-      rejectionReason: reason,
-      sendEmail,
-    });
+    if (reason.trim().length < 10) return;
+    onConfirm({ status: 'rejected', rejectionReason: reason, sendEmail });
   };
 
   const isValid = reason.trim().length >= 10;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
-      {/* Modal */}
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+      <div className="relative bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[hsl(var(--admin-border))]">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="p-2 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+              <AlertTriangle className="w-5 h-5 text-rose-500" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">
-                Từ chối khóa học
-              </h2>
-              <p className="text-sm text-slate-500">
-                Vui lòng nhập lý do từ chối
-              </p>
+              <h2 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Từ chối khóa học</h2>
+              <p className="text-sm text-[hsl(var(--admin-text-muted))]">Vui lòng nhập lý do từ chối</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-slate-500" />
+          <button onClick={onClose} className="p-2 hover:bg-[hsl(var(--admin-surface-elevated))] rounded-lg transition-colors">
+            <X className="w-5 h-5 text-[hsl(var(--admin-text-muted))]" />
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6 space-y-4">
-          {/* Course Info */}
           {course && (
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <p className="font-medium text-foreground line-clamp-2">
-                {course.title}
-              </p>
-              <p className="text-sm text-slate-500 mt-1">
-                {course.provider?.displayName || 'Không xác định'}
-              </p>
+            <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl">
+              <p className="font-medium text-[hsl(var(--admin-text-primary))] line-clamp-2">{course.title}</p>
+              <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-1">{course.provider?.displayName || 'Không xác định'}</p>
             </div>
           )}
 
-          {/* Rejection Reason */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Lý do từ chối <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">
+              Lý do từ chối <span className="text-rose-500">*</span>
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Nhập lý do từ chối khóa học (tối thiểu 10 ký tự)..."
               rows={4}
-              className="w-full px-4 py-3 border border-slate-200 rounded-lg 
-                         focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent
-                         resize-none text-sm"
+              className="w-full px-4 py-3 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl text-[hsl(var(--admin-text-primary))] text-sm focus:outline-none focus:ring-1 focus:ring-[hsl(var(--admin-accent))]/30 focus:border-[hsl(var(--admin-accent))]/50 resize-none"
             />
             <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-slate-500">
-                {reason.length}/500 ký tự
-              </p>
+              <p className="text-xs text-[hsl(var(--admin-text-muted))]">{reason.length}/500 ký tự</p>
               {reason.length < 10 && reason.length > 0 && (
-                <p className="text-xs text-red-500">
-                  Cần tối thiểu 10 ký tự
-                </p>
+                <p className="text-xs text-rose-500">Cần tối thiểu 10 ký tự</p>
               )}
             </div>
           </div>
 
-          {/* Suggestions */}
           <div>
-            <p className="text-sm font-medium text-foreground mb-2">Gợi ý:</p>
+            <p className="text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Gợi ý:</p>
             <div className="flex flex-wrap gap-2">
               {REJECTION_SUGGESTIONS.map((suggestion, index) => (
-                <button
-                  key={index}
-                  onClick={() => setReason(suggestion)}
-                  className="px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 
-                             text-slate-600 rounded-full transition-colors"
-                >
+                <button key={index} onClick={() => setReason(suggestion)}
+                  className="px-3 py-1.5 text-xs bg-[hsl(var(--admin-surface-elevated))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))] rounded-full transition-colors">
                   {suggestion}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Send Email Option */}
-          <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg cursor-pointer">
+          <label className="flex items-center gap-3 p-3 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl cursor-pointer">
             <input
               type="checkbox"
               checked={sendEmail}
               onChange={(e) => setSendEmail(e.target.checked)}
-              className="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary"
+              className="w-4 h-4 text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-border))] rounded focus:ring-[hsl(var(--admin-accent))]/30 bg-[hsl(var(--admin-surface-elevated))]"
             />
             <div className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-slate-500" />
-              <span className="text-sm text-foreground">
-                Gửi email thông báo cho Trung tâm đào tạo
-              </span>
+              <Mail className="w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
+              <span className="text-sm text-[hsl(var(--admin-text-secondary))]">Gửi email thông báo cho Trung tâm đào tạo</span>
             </div>
           </label>
 
-          {/* Warning */}
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <p className="text-sm text-amber-800">
-              <strong>Lưu ý:</strong> Sau khi từ chối, Trung tâm có thể chỉnh sửa 
-              và gửi khóa học để duyệt lại.
+          <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-xl">
+            <p className="text-sm text-amber-500">
+              <strong>Lưu ý:</strong> Sau khi từ chối, Trung tâm có thể chỉnh sửa và gửi khóa học để duyệt lại.
             </p>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))]">
+          <Button variant="outline" onClick={onClose} disabled={loading}
+            className="border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] rounded-xl">
             Hủy bỏ
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={!isValid || loading}
-            loading={loading}
-            className="bg-red-600 hover:bg-red-700 disabled:bg-red-400"
-          >
+          <Button onClick={handleSubmit} disabled={!isValid || loading} loading={loading}
+            className="bg-rose-600 hover:bg-rose-700 disabled:bg-rose-600/50 rounded-xl">
             Xác nhận từ chối
           </Button>
         </div>

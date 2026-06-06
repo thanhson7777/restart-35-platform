@@ -1,4 +1,4 @@
-import { Eye, Check, X, Clock, CheckCircle, XCircle, Archive, Calendar } from 'lucide-react';
+import { Eye, Check, X, Clock, CheckCircle, XCircle, Archive, Calendar, BookOpen, Star } from 'lucide-react';
 import { Badge, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui';
 import { formatPrice, formatDuration } from '@/utils/formatter';
 
@@ -6,37 +6,40 @@ const STATUS_CONFIG = {
   draft: {
     label: 'Nháp',
     variant: 'secondary',
-    bgColor: 'bg-slate-100',
-    textColor: 'text-slate-600',
-    icon: null,
+    bgColor: 'bg-[hsl(var(--admin-surface-elevated))]',
+    textColor: 'text-[hsl(var(--admin-text-muted))]',
+    borderColor: 'border-[hsl(var(--admin-border))]',
   },
   pending: {
     label: 'Chờ duyệt',
     variant: 'warning',
-    bgColor: 'bg-amber-100',
-    textColor: 'text-amber-700',
+    bgColor: 'bg-amber-500/10',
+    textColor: 'text-amber-500',
+    borderColor: 'border-amber-500/20',
     icon: Clock,
   },
   approved: {
     label: 'Đã duyệt',
     variant: 'success',
-    bgColor: 'bg-green-100',
-    textColor: 'text-green-700',
+    bgColor: 'bg-emerald-500/10',
+    textColor: 'text-emerald-500',
+    borderColor: 'border-emerald-500/20',
     icon: CheckCircle,
   },
   rejected: {
     label: 'Từ chối',
     variant: 'destructive',
-    bgColor: 'bg-red-100',
-    textColor: 'text-red-700',
+    bgColor: 'bg-rose-500/10',
+    textColor: 'text-rose-500',
+    borderColor: 'border-rose-500/20',
     icon: XCircle,
   },
   archived: {
     label: 'Lưu trữ',
     variant: 'secondary',
-    bgColor: 'bg-slate-100',
-    textColor: 'text-slate-500',
-    icon: Archive,
+    bgColor: 'bg-[hsl(var(--admin-surface-elevated))]',
+    textColor: 'text-[hsl(var(--admin-text-muted))]',
+    borderColor: 'border-[hsl(var(--admin-border))]',
   },
 };
 
@@ -67,11 +70,10 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
   };
 
   return (
-    <tr className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-      {/* Thumbnail & Title */}
+    <tr className="border-b border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-accent))]/[0.03] transition-colors border-l-[2px] border-l-transparent hover:border-l-[hsl(var(--admin-accent))]">
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0">
+          <div className="w-16 h-10 rounded-lg overflow-hidden bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] flex-shrink-0">
             {course.thumbnail ? (
               <img
                 src={course.thumbnail}
@@ -79,95 +81,88 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-400">
-                📚
+              <div className="w-full h-full flex items-center justify-center text-[hsl(var(--admin-text-muted))]">
+                <BookOpen className="w-5 h-5" />
               </div>
             )}
           </div>
           <div className="min-w-0">
-            <p className="font-medium text-sm text-foreground line-clamp-1">
+            <p className="font-medium text-sm text-[hsl(var(--admin-text-primary))] line-clamp-1">
               {course.title}
             </p>
-            <p className="text-xs text-slate-500 truncate">
+            <p className="text-xs text-[hsl(var(--admin-text-muted))] truncate">
               {course.provider?.displayName || 'Không xác định'}
             </p>
           </div>
         </div>
       </td>
 
-      {/* Status */}
       <td className="px-4 py-3">
         <Badge
-          variant={status.variant}
-          className={`${status.bgColor} ${status.textColor} border-0`}
+          className={`${status.bgColor} ${status.textColor} ${status.borderColor} border font-semibold px-2.5 py-0.5 text-[10px] rounded-full`}
         >
-          {StatusIcon && <StatusIcon className="w-3 h-3 mr-1" />}
+          {StatusIcon && <StatusIcon className="w-3 h-3 mr-1 inline" />}
           {status.label}
         </Badge>
       </td>
 
-      {/* Category & Level */}
       <td className="px-4 py-3">
         <div className="text-sm">
-          <p className="text-slate-600">{course.category?.name || '-'}</p>
-          <p className="text-xs text-slate-400">
+          <p className="text-[hsl(var(--admin-text-secondary))]">{course.category?.name || '-'}</p>
+          <p className="text-xs text-[hsl(var(--admin-text-muted))]">
             {LEVEL_LABELS[course.level] || course.level || '-'}
           </p>
         </div>
       </td>
 
-      {/* Location & Duration */}
       <td className="px-4 py-3">
         <div className="text-sm">
-          <p className="text-slate-600">
+          <p className="text-[hsl(var(--admin-text-secondary))]">
             {LOCATION_LABELS[course.location?.type] || '-'}
           </p>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[hsl(var(--admin-text-muted))]">
             {course.duration ? formatDuration(course.duration) : '-'}
           </p>
         </div>
       </td>
 
-      {/* Fee */}
       <td className="px-4 py-3">
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
           {course.isFree || course.fee === 0
             ? 'Miễn phí'
             : formatPrice(course.fee)}
         </span>
       </td>
 
-      {/* Students */}
       <td className="px-4 py-3">
         <div className="text-sm">
-          <span className="font-medium">{course.currentStudents || 0}</span>
-          <span className="text-slate-400">/{course.maxStudents || '-'} </span>
-          <span className="text-xs text-slate-400">học viên</span>
+          <span className="font-medium text-[hsl(var(--admin-text-primary))]">{course.currentStudents || 0}</span>
+          <span className="text-[hsl(var(--admin-text-muted))]">/{course.maxStudents || '-'} </span>
+          <span className="text-xs text-[hsl(var(--admin-text-muted))]">học viên</span>
         </div>
       </td>
 
-      {/* Rating */}
       <td className="px-4 py-3">
         {course.rating?.average ? (
           <div className="flex items-center gap-1 text-sm">
-            <span className="text-amber-500">⭐</span>
-            <span className="font-medium">{course.rating.average.toFixed(1)}</span>
-            <span className="text-slate-400">({course.rating.count})</span>
+            <span className="text-amber-500">
+              <Star className="w-3.5 h-3.5 fill-amber-500" />
+            </span>
+            <span className="font-medium text-[hsl(var(--admin-text-primary))]">{course.rating.average.toFixed(1)}</span>
+            <span className="text-[hsl(var(--admin-text-muted))]">({course.rating.count})</span>
           </div>
         ) : (
-          <span className="text-sm text-slate-400">-</span>
+          <span className="text-sm text-[hsl(var(--admin-text-muted))]">-</span>
         )}
       </td>
 
-      {/* Date */}
       <td className="px-4 py-3">
         <div className="text-sm">
-          <p className="text-slate-600">{formatDate(course.createdAt)}</p>
-          <p className="text-xs text-slate-400">Ngày tạo</p>
+          <p className="text-[hsl(var(--admin-text-secondary))]">{formatDate(course.createdAt)}</p>
+          <p className="text-xs text-[hsl(var(--admin-text-muted))]">Ngày tạo</p>
         </div>
       </td>
 
-      {/* Actions */}
       <td className="px-4 py-4">
         <TooltipProvider delayDuration={300}>
           <div className="flex items-center gap-2">
@@ -177,13 +172,13 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
                   variant="ghost"
                   size="sm"
                   onClick={() => onView(course)}
-                  className="h-10 w-10 p-0 rounded-lg hover:bg-slate-100"
+                  className="h-10 w-10 p-0 rounded-lg hover:bg-[hsl(var(--admin-surface-elevated))]"
                 >
-                  <Eye className="w-5 h-5 text-slate-600" />
+                  <Eye className="w-5 h-5 text-[hsl(var(--admin-text-muted))]" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
-                <p>Xem chi tiết</p>
+              <TooltipContent className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">
+                Xem chi tiết
               </TooltipContent>
             </Tooltip>
 
@@ -193,13 +188,13 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
                   variant="ghost"
                   size="sm"
                   onClick={() => window.location.href = `/admin/courses/${course._id}/schedule`}
-                  className="h-10 w-10 p-0 rounded-lg hover:bg-slate-100"
+                  className="h-10 w-10 p-0 rounded-lg hover:bg-[hsl(var(--admin-surface-elevated))]"
                 >
-                  <Calendar className="w-5 h-5 text-slate-650" />
+                  <Calendar className="w-5 h-5 text-[hsl(var(--admin-text-muted))]" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
-                <p>Lập lịch học</p>
+              <TooltipContent className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">
+                Lập lịch học
               </TooltipContent>
             </Tooltip>
 
@@ -211,13 +206,13 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
                       variant="ghost"
                       size="sm"
                       onClick={() => onApprove(course)}
-                      className="h-10 w-10 p-0 rounded-lg text-green-600 hover:text-green-700 hover:bg-green-50"
+                      className="h-10 w-10 p-0 rounded-lg text-emerald-500 hover:bg-emerald-500/10"
                     >
                       <Check className="w-5 h-5" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent className="text-green-600">
-                    <p>Duyệt khóa học</p>
+                  <TooltipContent className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-emerald-500">
+                    Duyệt khóa học
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -226,13 +221,13 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
                       variant="ghost"
                       size="sm"
                       onClick={() => onReject(course)}
-                      className="h-10 w-10 p-0 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="h-10 w-10 p-0 rounded-lg text-rose-500 hover:bg-rose-500/10"
                     >
                       <X className="w-5 h-5" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent className="text-red-600">
-                    <p>Từ chối</p>
+                  <TooltipContent className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-rose-500">
+                    Từ chối
                   </TooltipContent>
                 </Tooltip>
               </>

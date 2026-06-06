@@ -12,29 +12,29 @@ export const AdminQuickActions = () => {
       title: 'Phê duyệt khóa học',
       desc: 'Xét duyệt các khóa học đang chờ đăng tải',
       icon: CheckSquare,
-      color: 'text-blue-400 border-blue-500/20 bg-blue-500/5',
+      color: 'text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))]/20 bg-[hsl(var(--admin-accent))]/5',
       href: '/admin/courses/approval',
     },
     {
       title: 'Quản lý tuyển sinh',
       desc: 'Xem danh sách nhập học và phân tích rủi ro',
       icon: GraduationCap,
-      color: 'text-purple-400 border-purple-500/20 bg-purple-500/5',
+      color: 'text-purple-500 border-purple-500/20 bg-purple-500/5',
       href: '/admin/enrollments',
     },
     {
       title: 'Điểm danh thực tế',
       desc: 'Quét mã QR điểm danh học viên offline',
       icon: QrCode,
-      color: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5',
-      href: '/admin/enrollments', // Will select tab or open modal there
+      color: 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5',
+      href: '/admin/enrollments',
     },
     {
       title: 'Xuất dữ liệu học viên',
       desc: 'Tải file CSV/XLSX báo cáo tổng thể',
       icon: FileSpreadsheet,
-      color: 'text-amber-400 border-amber-500/20 bg-amber-500/5',
-      href: '/admin/enrollments', // Will invoke export action there
+      color: 'text-amber-500 border-amber-500/20 bg-amber-500/5',
+      href: '/admin/enrollments',
     },
   ];
 
@@ -45,8 +45,8 @@ export const AdminQuickActions = () => {
       transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
     >
       <BezelCard className="flex flex-col h-full">
-        <h3 className="text-lg font-bold text-white tracking-tight mb-4">Thao tác nhanh</h3>
-        
+        <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))] tracking-tight mb-4">Thao tác nhanh</h3>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
           {actions.map((act, index) => {
             const Icon = act.icon;
@@ -54,22 +54,29 @@ export const AdminQuickActions = () => {
               <button
                 key={index}
                 onClick={() => navigate(act.href)}
-                className="group flex flex-col justify-between text-left p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700/60 transition-all duration-300 active:scale-[0.98] relative overflow-hidden"
+                className="group flex flex-col justify-between text-left p-4 rounded-xl
+                  bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))]
+                  hover:border-[hsl(var(--admin-accent))]/30
+                  transition-all duration-300 active:scale-[0.98] relative overflow-hidden"
               >
                 <div className="flex items-start justify-between w-full">
                   <div className={`p-2.5 rounded-lg border ${act.color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <div className="w-6 h-6 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center group-hover:bg-[#3B82F6] group-hover:border-[#3B82F6] transition-colors duration-300">
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300" />
+                  <div className="w-6 h-6 rounded-full
+                    bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))]
+                    flex items-center justify-center
+                    group-hover:bg-[hsl(var(--admin-accent))] group-hover:border-[hsl(var(--admin-accent))]
+                    transition-colors duration-300">
+                    <ArrowRight className="w-3.5 h-3.5 text-[hsl(var(--admin-text-muted))] group-hover:text-white transition-all duration-300" />
                   </div>
                 </div>
 
                 <div className="mt-4">
-                  <h4 className="text-sm font-bold text-slate-100 group-hover:text-[#3B82F6] transition-colors duration-300">
+                  <h4 className="text-sm font-bold text-[hsl(var(--admin-text-secondary))] group-hover:text-[hsl(var(--admin-accent))] transition-colors duration-300">
                     {act.title}
                   </h4>
-                  <p className="text-xs text-slate-400 mt-1 leading-normal">
+                  <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1 leading-normal">
                     {act.desc}
                   </p>
                 </div>

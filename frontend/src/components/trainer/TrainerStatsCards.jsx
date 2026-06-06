@@ -36,7 +36,7 @@ export const TrainerStatsCards = ({ stats = {}, courses = [], schedules = [], dr
       value: activeStudents,
       sub: 'Đang tham gia học tập',
       icon: Users,
-      colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+      colorClass: 'text-[hsl(var(--admin-accent))] bg-[hsl(var(--admin-accent-subtle))] border-[hsl(var(--admin-accent))]/20',
       iconColor: '#60A5FA',
     },
     {
@@ -52,7 +52,7 @@ export const TrainerStatsCards = ({ stats = {}, courses = [], schedules = [], dr
       value: upcomingSessions,
       sub: 'Diễn ra trong 7 ngày tới',
       icon: Calendar,
-      colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+      colorClass: 'text-[hsl(var(--admin-warning))] bg-[hsl(var(--admin-warning))]/10 border-[hsl(var(--admin-warning))]/20',
       iconColor: '#FBBF24',
     },
     {
@@ -60,7 +60,7 @@ export const TrainerStatsCards = ({ stats = {}, courses = [], schedules = [], dr
       value: highRiskStudents,
       sub: 'Cần can thiệp khẩn cấp',
       icon: AlertTriangle,
-      colorClass: 'text-red-400 bg-red-500/10 border-red-500/20',
+      colorClass: 'text-[hsl(var(--admin-danger))] bg-[hsl(var(--admin-danger))]/10 border-[hsl(var(--admin-danger))]/20',
       iconColor: '#F87171',
     },
   ];
@@ -78,11 +78,11 @@ export const TrainerStatsCards = ({ stats = {}, courses = [], schedules = [], dr
           >
             <BezelCard className="h-full flex items-center justify-between" padding="default">
               <div className="flex flex-col gap-1">
-                <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">{card.title}</p>
-                <h3 className="text-3xl font-extrabold text-white tracking-tight font-mono my-1">
+                <p className="text-xs text-[hsl(var(--admin-text-secondary))] font-medium uppercase tracking-wider">{card.title}</p>
+                <h3 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))] tracking-tight font-mono my-1">
                   {card.value.toLocaleString()}
                 </h3>
-                <span className="text-xs text-slate-500">{card.sub}</span>
+                <span className="text-xs text-[hsl(var(--admin-text-muted))]">{card.sub}</span>
               </div>
               <div className={`p-3 rounded-2xl border ${card.colorClass} flex items-center justify-center shrink-0 shadow-lg`}>
                 <IconComponent size={24} color={card.iconColor} />

@@ -60,7 +60,10 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   enrollmentStartDate: Joi.date().timestamp('javascript').allow(null, ''),
   // Nội dung
   level: Joi.string().valid(...Object.values(COURSE_LEVELS)).default(COURSE_LEVELS.BEGINNER),
-  skills: Joi.array().items(Joi.string()).max(20),
+  skills: Joi.array()
+    .items(Joi.string().min(2).max(100))
+    .min(3)
+    .max(20),
   prerequisites: Joi.array().items(Joi.string()).max(10),
   requirements: Joi.array().items(Joi.string()).max(10),
   syllabus: Joi.array().items(
@@ -72,7 +75,10 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
     })
   ).max(50),
   certificate: Joi.string().allow(''),
-  outcomes: Joi.array().items(Joi.string()).max(20),
+  outcomes: Joi.array()
+    .items(Joi.string().min(2).max(200))
+    .min(2)
+    .max(20),
   // Đánh giá
   rating: Joi.object({
     average: Joi.number().min(0).max(5).default(0),
@@ -88,7 +94,26 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   enrollmentCount: Joi.number().integer().min(0).default(0),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
-  _destroy: Joi.boolean().default(false)
+  _destroy: Joi.boolean().default(false),
+  // ── Scraped source tracking ────────────────────────────────────────
+  // ID từ nền tảng gốc (externalId trong scraper)
+  externalId: Joi.string().allow(null, ''),
+  // Nền tảng nguồn: 'udemy' | 'coursera' | 'linkedin' | 'pluralsight'
+  platform: Joi.string().allow(null, ''),
+  // URL gốc trên nền tảng
+  sourceUrl: Joi.string().uri().allow(null, ''),
+  // Metadata về quá trình scrape
+  _sourceMeta: Joi.object({
+    scrapedAt:   Joi.date().timestamp('javascript').allow(null),
+    rawFields:   Joi.array().items(Joi.string()).default([]),
+    missingFields: Joi.array().items(Joi.string()).default([]),
+    scraperVersion: Joi.string().allow(null, '')
+  }).default({
+    scrapedAt: null,
+    rawFields: [],
+    missingFields: [],
+    scraperVersion: null
+  })
 })
 
 // Helper tạo slug
@@ -280,6 +305,33 @@ const findBySkills = async (skills, limit = 10) => {
     }
     return await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(query)
+      .sort({ rating: -1, enrollmentCount: -1 })
+      .limit(limit)
+      .toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+// Tìm courses phù hợp với skill gaps (skills mà learner chưa có)
+const findBySkillGaps = async (missingSkills, limit = 20) => {
+  try {
+    if (!missingSkills || missingSkills.length === 0) return []
+    const query = {
+      status: COURSE_STATUS.APPROVED,
+      _destroy: { $ne: true },
+      skills: {
+        $in: missingSkills.map(s => new RegExp(s, 'i'))
+      }
+    }
+    return await GET_DB().collection(COURSE_COLLECTION_NAME)
+      .find(query)
+      .project({
+        _id: 1, title: 1, shortDescription: 1,
+        skills: 1, fee: 1, duration: 1,
+        level: 1, rating: 1, enrollmentCount: 1,
+        'location.type': 1
+      })
       .sort({ rating: -1, enrollmentCount: -1 })
       .limit(limit)
       .toArray()
@@ -648,6 +700,7 @@ export const courseModel = {
   findByCategory,
   searchCourses,
   findBySkills,
+  findBySkillGaps,
   findPopular,
   findNew,
   findRelated,

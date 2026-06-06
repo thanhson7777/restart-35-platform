@@ -172,7 +172,7 @@ const TrainerEnrollmentDetailPage = () => {
       <div>
         <button
           onClick={() => navigate('/trainer/enrollments')}
-          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors font-semibold"
+          className="flex items-center gap-1.5 text-xs text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] transition-colors font-semibold"
         >
           <ArrowLeft className="w-4 h-4" />
           Quay lại danh sách học viên
@@ -181,10 +181,10 @@ const TrainerEnrollmentDetailPage = () => {
 
       {/* Title Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">
+        <h1 className="text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))]">
           Hồ sơ học viên: {studentName}
         </h1>
-        <p className="text-gray-400 text-sm">
+        <p className="text-[hsl(var(--admin-text-muted))] text-sm">
           Xem thông tin liên hệ, tiến trình, lịch sử can thiệp và đánh giá kết quả học tập.
         </p>
       </div>
@@ -204,7 +204,7 @@ const TrainerEnrollmentDetailPage = () => {
       <AnimatePresence>
         {modalType && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
             onClick={closeActionModal}
           >
             <motion.div
@@ -212,22 +212,22 @@ const TrainerEnrollmentDetailPage = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 15 }}
               transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-              className="relative w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-1 overflow-hidden shadow-2xl"
+              className="relative w-full max-w-md rounded-2xl bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] p-1 overflow-hidden shadow-[var(--admin-shadow-lg)]"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 rounded-[14px] bg-[#0c101d] border border-slate-800 space-y-4">
+              <div className="p-6 rounded-[14px] bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-sm text-white flex items-center gap-1.5">
-                    {modalType === 'suspend' && <AlertTriangle className="w-4 h-4 text-yellow-500" />}
-                    {modalType === 'complete' && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
-                    {modalType === 'fail' && <XCircle className="w-4 h-4 text-red-500" />}
+                  <h4 className="font-bold text-sm text-[hsl(var(--admin-text-primary))] flex items-center gap-1.5">
+                    {modalType === 'suspend' && <AlertTriangle className="w-4 h-4 text-[hsl(var(--admin-warning))]" />}
+                    {modalType === 'complete' && <CheckCircle2 className="w-4 h-4 text-[hsl(var(--admin-success))]" />}
+                    {modalType === 'fail' && <XCircle className="w-4 h-4 text-[hsl(var(--admin-danger))]" />}
                     {modalType === 'suspend' && 'Tạm ngưng học viên'}
                     {modalType === 'complete' && 'Đánh giá hoàn thành khóa học'}
                     {modalType === 'fail' && 'Đánh trượt học viên'}
                   </h4>
                   <button
                     onClick={closeActionModal}
-                    className="p-1 rounded-full bg-slate-850 text-slate-400 hover:text-white transition-colors"
+                    className="p-1 rounded-full text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -236,19 +236,19 @@ const TrainerEnrollmentDetailPage = () => {
                 <form onSubmit={handleActionConfirm} className="space-y-4 text-sm">
                   {modalType === 'suspend' && (
                     <div className="space-y-3">
-                      <p className="text-slate-300 leading-normal">
-                        Bạn có chắc chắn muốn tạm ngưng việc học của học viên <span className="font-semibold text-white">{studentName}</span>?
+                      <p className="text-[hsl(var(--admin-text-secondary))] leading-normal">
+                        Bạn có chắc chắn muốn tạm ngưng việc học của học viên <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{studentName}</span>?
                         Học viên sẽ không thể tiếp tục truy cập không gian học tập cho tới khi được kích hoạt lại.
                       </p>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                          Lý do tạm ngưng <span className="text-red-500">*</span>
+                        <label className="block text-xs font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-1">
+                          Lý do tạm ngưng <span className="text-[hsl(var(--admin-danger))]">*</span>
                         </label>
                         <textarea
                           placeholder="Ví dụ: Nghỉ học dài ngày không phép, chưa hoàn thành thủ tục học phí..."
                           value={modalReason}
                           onChange={(e) => setModalReason(e.target.value)}
-                          className="w-full text-xs p-3 border rounded-xl bg-slate-950 border-slate-850 text-slate-200 focus:outline-none focus:border-yellow-500 h-24 resize-none"
+                          className="w-full text-xs p-3 border rounded-xl bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] focus:outline-none focus:border-[hsl(var(--admin-warning))] h-24 resize-none"
                           required
                         />
                       </div>
@@ -257,34 +257,34 @@ const TrainerEnrollmentDetailPage = () => {
 
                   {modalType === 'complete' && (
                     <div className="space-y-4">
-                      <p className="text-slate-300 leading-normal">
-                        Nhập điểm số và nhận xét cuối khóa để đánh giá hoàn thành cho học viên <span className="font-semibold text-white">{studentName}</span>.
+                      <p className="text-[hsl(var(--admin-text-secondary))] leading-normal">
+                        Nhập điểm số và nhận xét cuối khóa để đánh giá hoàn thành cho học viên <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{studentName}</span>.
                       </p>
                       <div className="grid grid-cols-1 gap-3">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                            Điểm số cuối khóa (0 - 100) <span className="text-red-500">*</span>
+                          <label className="block text-xs font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-1">
+                            Điểm số cuối khóa (0 - 100) <span className="text-[hsl(var(--admin-danger))]">*</span>
                           </label>
                           <input
                             type="number"
                             placeholder="Ví dụ: 85"
                             value={modalScore}
                             onChange={(e) => setModalScore(e.target.value)}
-                            className="w-full text-xs p-3 border rounded-xl bg-slate-950 border-slate-850 text-slate-200 focus:outline-none focus:border-emerald-500 font-mono font-bold"
+                            className="w-full text-xs p-3 border rounded-xl bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] focus:outline-none focus:border-[hsl(var(--admin-success))] font-mono font-bold"
                             min="0"
                             max="100"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                          <label className="block text-xs font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-1">
                             Ghi chú / Nhận xét thêm
                           </label>
                           <textarea
                             placeholder="Nhập nhận xét về kết quả, thái độ học tập..."
                             value={modalNotes}
                             onChange={(e) => setModalNotes(e.target.value)}
-                            className="w-full text-xs p-3 border rounded-xl bg-slate-950 border-slate-850 text-slate-200 focus:outline-none focus:border-emerald-500 h-20 resize-none"
+                            className="w-full text-xs p-3 border rounded-xl bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] focus:outline-none focus:border-[hsl(var(--admin-success))] h-20 resize-none"
                           />
                         </div>
                       </div>
@@ -293,18 +293,18 @@ const TrainerEnrollmentDetailPage = () => {
 
                   {modalType === 'fail' && (
                     <div className="space-y-3">
-                      <p className="text-slate-300 leading-normal">
-                        Bạn có chắc chắn muốn đánh trượt học viên <span className="font-semibold text-white">{studentName}</span>? Thao tác này sẽ kết thúc đăng ký học với trạng thái Không đạt.
+                      <p className="text-[hsl(var(--admin-text-secondary))] leading-normal">
+                        Bạn có chắc chắn muốn đánh trượt học viên <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{studentName}</span>? Thao tác này sẽ kết thúc đăng ký học với trạng thái Không đạt.
                       </p>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                          Lý do đánh trượt <span className="text-red-500">*</span>
+                        <label className="block text-xs font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-1">
+                          Lý do đánh trượt <span className="text-[hsl(var(--admin-danger))]">*</span>
                         </label>
                         <textarea
                           placeholder="Ví dụ: Điểm tổng kết không đạt yêu cầu tối thiểu..."
                           value={modalReason}
                           onChange={(e) => setModalReason(e.target.value)}
-                          className="w-full text-xs p-3 border rounded-xl bg-slate-950 border-slate-850 text-slate-200 focus:outline-none focus:border-red-500 h-24 resize-none"
+                          className="w-full text-xs p-3 border rounded-xl bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] focus:outline-none focus:border-[hsl(var(--admin-danger))] h-24 resize-none"
                           required
                         />
                       </div>
@@ -317,7 +317,7 @@ const TrainerEnrollmentDetailPage = () => {
                       type="button"
                       variant="outline"
                       onClick={closeActionModal}
-                      className="flex-1 rounded-xl py-3 border-slate-800 text-slate-400 hover:text-white"
+                      className="flex-1 rounded-xl py-3 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]"
                     >
                       Hủy bỏ
                     </Button>
@@ -325,9 +325,9 @@ const TrainerEnrollmentDetailPage = () => {
                       type="submit"
                       disabled={submittingAction}
                       className={`flex-1 rounded-xl py-3 font-bold text-white flex items-center justify-center gap-1.5 ${
-                        modalType === 'suspend' ? 'bg-yellow-600 hover:bg-yellow-700' :
-                        modalType === 'complete' ? 'bg-emerald-600 hover:bg-emerald-700' :
-                        'bg-red-650 hover:bg-red-700'
+                        modalType === 'suspend' ? 'bg-[hsl(var(--admin-warning))] hover:bg-[hsl(var(--admin-warning))]' :
+                        modalType === 'complete' ? 'bg-[hsl(var(--admin-success))] hover:bg-[hsl(var(--admin-success))]' :
+                        'bg-[hsl(var(--admin-danger))] hover:bg-[hsl(var(--admin-danger))]'
                       }`}
                     >
                       {submittingAction ? (

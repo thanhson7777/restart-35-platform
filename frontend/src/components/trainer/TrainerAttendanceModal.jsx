@@ -143,22 +143,22 @@ export const TrainerAttendanceModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-4xl bg-[#111827] border border-slate-800 rounded-2xl flex flex-col max-h-[85vh] shadow-2xl overflow-hidden">
+      <div className="w-full max-w-4xl bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl flex flex-col max-h-[85vh] shadow-2xl overflow-hidden">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 p-5">
+        <div className="flex items-center justify-between border-b border-[hsl(var(--admin-border))] p-5">
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <FileSpreadsheet className="h-5 w-5 text-emerald-500" />
+            <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))] flex items-center gap-2">
+              <FileSpreadsheet className="h-5 w-5 text-[hsl(var(--admin-success))]" />
               Điểm danh học viên
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[hsl(var(--admin-text-muted))]">
               {courseTitle} &bull; Buổi {sessionNumber}: {sessionTitle}
             </p>
           </div>
           <button 
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            className="p-1 rounded-lg text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))] transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -167,29 +167,29 @@ export const TrainerAttendanceModal = ({
         {/* Modal Content */}
         <div className="flex-1 overflow-y-auto p-6">
           {loading ? (
-            <div className="py-20 text-center text-slate-500 space-y-4">
-              <div className="h-10 w-10 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin mx-auto" />
+            <div className="py-20 text-center text-[hsl(var(--admin-text-muted))] space-y-4">
+              <div className="h-10 w-10 border-4 border-[hsl(var(--admin-border))] border-t-[hsl(var(--admin-accent))] rounded-full animate-spin mx-auto" />
               <p className="text-sm font-medium">Đang tải danh sách học viên...</p>
             </div>
           ) : students.length === 0 ? (
-            <div className="py-16 text-center text-slate-500 space-y-3">
-              <AlertCircle className="h-12 w-12 text-slate-700 mx-auto" />
+            <div className="py-16 text-center text-[hsl(var(--admin-text-muted))] space-y-3">
+              <AlertCircle className="h-12 w-12 text-[hsl(var(--admin-text-faint))] mx-auto" />
               <div className="space-y-1">
-                <p className="text-sm font-medium text-slate-400">Không tìm thấy học viên hoạt động</p>
-                <p className="text-xs text-slate-500">Khóa học này chưa có học viên nào ở trạng thái học tập tích cực.</p>
+                <p className="text-sm font-medium text-[hsl(var(--admin-text-muted))]">Không tìm thấy học viên hoạt động</p>
+                <p className="text-xs text-[hsl(var(--admin-text-muted))]">Khóa học này chưa có học viên nào ở trạng thái học tập tích cực.</p>
               </div>
             </div>
           ) : (
             <div className="space-y-4">
               {/* Quick Action Header */}
-              <div className="flex items-center justify-between bg-slate-900/40 border border-slate-800/80 rounded-xl p-3.5">
-                <div className="text-xs text-slate-400 font-medium">
-                  Sỹ số lớp: <strong className="text-white">{students.length}</strong> học viên đăng học.
+              <div className="flex items-center justify-between bg-[hsl(var(--admin-surface-elevated))]/40 border border-[hsl(var(--admin-border))]/80 rounded-xl p-3.5">
+                <div className="text-xs text-[hsl(var(--admin-text-muted))] font-medium">
+                  Sỹ số lớp: <strong className="text-[hsl(var(--admin-text-primary))]">{students.length}</strong> học viên đăng học.
                 </div>
                 <Button
                   onClick={handleMarkAllPresent}
                   size="sm"
-                  className="bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 font-semibold border border-slate-700 hover:border-slate-600 text-xs py-1"
+                  className="bg-[hsl(var(--admin-surface-elevated))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-success))] hover:text-[hsl(var(--admin-success))] font-semibold border border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))] text-xs py-1"
                 >
                   <UserCheck className="h-3.5 w-3.5 mr-1" />
                   Có mặt tất cả
@@ -197,30 +197,30 @@ export const TrainerAttendanceModal = ({
               </div>
 
               {/* Attendance Table */}
-              <div className="rounded-xl border border-slate-800 bg-[#0c101d] overflow-hidden">
+              <div className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] overflow-hidden">
                 <div className="overflow-x-auto">
                   <Table>
-                    <TableHeader className="bg-slate-900/40 border-b border-slate-800">
-                      <TableRow className="hover:bg-transparent border-slate-800">
-                        <TableHead className="text-slate-400 font-semibold py-3 text-xs w-[240px]">Học viên</TableHead>
-                        <TableHead className="text-slate-400 font-semibold py-3 text-xs w-[320px] text-center">Trạng thái điểm danh</TableHead>
-                        <TableHead className="text-slate-400 font-semibold py-3 text-xs">Ghi chú</TableHead>
+                    <TableHeader className="bg-[hsl(var(--admin-surface-elevated))]/40 border-b border-[hsl(var(--admin-border))]">
+                      <TableRow className="hover:bg-transparent border-[hsl(var(--admin-border))]">
+                        <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-3 text-xs w-[240px]">Học viên</TableHead>
+                        <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-3 text-xs w-[320px] text-center">Trạng thái điểm danh</TableHead>
+                        <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-3 text-xs">Ghi chú</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {students.map((student) => (
-                        <TableRow key={student.userId} className="border-slate-800 hover:bg-slate-900/20">
+                        <TableRow key={student.userId} className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))]/20">
                           {/* Student Info */}
                           <TableCell className="py-3.5">
                             <div className="flex items-center gap-3">
                               <Avatar 
                                 src={student.avatar} 
                                 alt={student.displayName}
-                                className="h-9 w-9 border border-slate-800"
+                                className="h-9 w-9 border border-[hsl(var(--admin-border))]"
                               />
                               <div className="min-w-0">
-                                <h4 className="text-sm font-bold text-slate-200 truncate">{student.displayName}</h4>
-                                <span className="text-[10px] text-slate-500 block truncate">{student.email}</span>
+                                <h4 className="text-sm font-bold text-[hsl(var(--admin-text-primary))] truncate">{student.displayName}</h4>
+                                <span className="text-[10px] text-[hsl(var(--admin-text-muted))] block truncate">{student.email}</span>
                               </div>
                             </div>
                           </TableCell>
@@ -233,8 +233,8 @@ export const TrainerAttendanceModal = ({
                                 onClick={() => handleStatusChange(student.userId, 'present')}
                                 className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1 transition-all duration-150 ${
                                   student.status === 'present'
-                                    ? 'bg-emerald-600/15 border-emerald-500/30 text-emerald-400'
-                                    : 'border-slate-800 hover:border-slate-700 bg-slate-900/40 text-slate-400 hover:text-slate-200'
+                                    ? 'bg-[hsl(var(--admin-success))]/15 border-[hsl(var(--admin-success))]/30 text-[hsl(var(--admin-success))]'
+                                    : 'border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))]/40 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]'
                                 }`}
                               >
                                 <Check className="h-3.5 w-3.5" />
@@ -246,8 +246,8 @@ export const TrainerAttendanceModal = ({
                                 onClick={() => handleStatusChange(student.userId, 'late')}
                                 className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1 transition-all duration-150 ${
                                   student.status === 'late'
-                                    ? 'bg-amber-600/15 border-amber-500/30 text-amber-400'
-                                    : 'border-slate-800 hover:border-slate-700 bg-slate-900/40 text-slate-400 hover:text-slate-200'
+                                    ? 'bg-amber-600/15 border-amber-500/30 text-[hsl(var(--admin-warning))]'
+                                    : 'border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))]/40 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]'
                                 }`}
                               >
                                 <Clock className="h-3.5 w-3.5" />
@@ -259,8 +259,8 @@ export const TrainerAttendanceModal = ({
                                 onClick={() => handleStatusChange(student.userId, 'excused')}
                                 className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1 transition-all duration-150 ${
                                   student.status === 'excused'
-                                    ? 'bg-blue-600/15 border-blue-500/30 text-blue-400'
-                                    : 'border-slate-800 hover:border-slate-700 bg-slate-900/40 text-slate-400 hover:text-slate-200'
+                                    ? 'bg-[hsl(var(--admin-accent))]/15 border-[hsl(var(--admin-accent))]/30 text-[hsl(var(--admin-accent))]'
+                                    : 'border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))]/40 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]'
                                 }`}
                               >
                                 <Check className="h-3.5 w-3.5" />
@@ -272,8 +272,8 @@ export const TrainerAttendanceModal = ({
                                 onClick={() => handleStatusChange(student.userId, 'absent')}
                                 className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1 transition-all duration-150 ${
                                   student.status === 'absent'
-                                    ? 'bg-red-600/15 border-red-500/30 text-red-400'
-                                    : 'border-slate-800 hover:border-slate-700 bg-slate-900/40 text-slate-400 hover:text-slate-200'
+                                    ? 'bg-red-600/15 border-red-500/30 text-[hsl(var(--admin-danger))]'
+                                    : 'border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))]/40 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]'
                                 }`}
                               >
                                 <UserX className="h-3.5 w-3.5" />
@@ -288,7 +288,7 @@ export const TrainerAttendanceModal = ({
                               value={student.note}
                               onChange={(e) => handleNoteChange(student.userId, e.target.value)}
                               placeholder="Nhập ghi chú (nếu có)..."
-                              className="bg-slate-900/60 border-slate-800 text-slate-200 text-xs py-1.5 rounded-lg focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500/40"
+                              className="bg-[hsl(var(--admin-surface-elevated))]/60 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] text-xs py-1.5 rounded-lg focus:ring-1 focus:ring-[hsl(var(--admin-success))]/30 focus:border-[hsl(var(--admin-success))]/40"
                             />
                           </TableCell>
                         </TableRow>
@@ -302,12 +302,12 @@ export const TrainerAttendanceModal = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-end gap-3 border-t border-slate-800 p-5">
+        <div className="flex items-center justify-end gap-3 border-t border-[hsl(var(--admin-border))] p-5">
           <Button
             variant="outline"
             onClick={onClose}
             disabled={saving}
-            className="border-slate-800 text-slate-300 hover:bg-slate-800 text-xs py-2 px-4 font-semibold"
+            className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] text-xs py-2 px-4 font-semibold"
           >
             Hủy
           </Button>

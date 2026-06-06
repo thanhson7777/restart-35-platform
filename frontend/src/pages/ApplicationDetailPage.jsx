@@ -6,6 +6,8 @@ import { DocumentUpload } from '@/components/application/DocumentUpload';
 import { getApplicationById, appealApplication } from '@/apis/applicationApi';
 import { formatDate, formatPrice } from '@/utils/formatter';
 import toast from 'react-hot-toast';
+import Navbar from '@/components/landing/Navbar';
+import Footer from '@/components/layout/Footer';
 import {
   ArrowLeft, CheckCircle2, Clock, FileText,
   MessageSquare, AlertCircle
@@ -97,7 +99,9 @@ export default function ApplicationDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-primary/5 border-b border-border py-8">
         <div className="container mx-auto px-4">
@@ -349,6 +353,8 @@ export default function ApplicationDetailPage() {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

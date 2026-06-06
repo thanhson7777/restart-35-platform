@@ -7,6 +7,8 @@ import { getScholarships, getEligibleScholarships } from '@/apis/scholarshipApi'
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import { Award, CheckCircle2 } from 'lucide-react';
+import Navbar from '@/components/landing/Navbar';
+import Footer from '@/components/layout/Footer';
 
 const DEFAULT_FILTERS = {
   search: '',
@@ -89,16 +91,18 @@ export default function ScholarshipPage() {
   const eligibleCount = eligibleScholarships.filter((s) => s.eligibility?.eligible).length;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-primary text-white py-10">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-2">Học bổng</h1>
-          <p className="text-primary-foreground/80">
-            Khám phá các chương trình học bổng dành cho người lao động 35+
-          </p>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background">
+        {/* Light Gradient Header */}
+        <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50 border-b border-[hsl(var(--admin-border))] shadow-sm py-10">
+          <div className="container mx-auto px-4">
+            <h1 className="text-3xl font-bold text-[hsl(var(--admin-text-primary))] mb-2">Học bổng</h1>
+            <p className="text-[hsl(var(--admin-text-muted))]">
+              Khám phá các chương trình học bổng dành cho người lao động 35+
+            </p>
+          </div>
         </div>
-      </div>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Eligible callout */}
@@ -195,6 +199,8 @@ export default function ScholarshipPage() {
           </div>
         )}
       </main>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

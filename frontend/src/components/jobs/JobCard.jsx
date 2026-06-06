@@ -443,6 +443,18 @@ const JobCard = ({
             <BriefcaseIcon className="w-4 h-4 mr-1.5" />
             Ứng tuyển ngay
           </Button>
+
+          {onOpenDetail && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenDetail(job)}
+              className="flex-1 min-w-[100px]"
+            >
+              <SparklesIcon className="w-4 h-4 mr-1.5" />
+              Khóa học
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

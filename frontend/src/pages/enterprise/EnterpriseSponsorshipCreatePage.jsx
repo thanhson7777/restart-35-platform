@@ -52,58 +52,58 @@ export default function EnterpriseSponsorshipCreatePage() {
   return (
     <EnterpriseLayout>
       <div className="max-w-2xl space-y-6">
-        <Button variant="ghost" onClick={() => navigate('/enterprise/sponsorships')} className="text-slate-400 hover:text-white pl-0 gap-2">
+        <Button variant="ghost" onClick={() => navigate('/enterprise/sponsorships')} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] pl-0 gap-2">
           <ArrowLeft size={16} /> Quay lại
         </Button>
 
         <div>
-          <h1 className="text-3xl font-extrabold text-white">Tạo Sponsorship</h1>
-          <p className="text-slate-400 text-sm mt-1">Thiết lập chương trình tài trợ học phí cho người lao động.</p>
+          <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Tạo Sponsorship</h1>
+          <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">Thiết lập chương trình tài trợ học phí cho người lao động.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="bg-[#111827] border border-slate-800 rounded-2xl p-6 space-y-5">
+          <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6 space-y-5">
             <div>
-              <Label className="text-slate-300 mb-1.5 block">Tiêu đề *</Label>
-              <Input value={form.title} onChange={set('title')} placeholder="VD: Học bổng doanh nghiệp Bảo Vệ 2026" className="bg-slate-900 border-slate-700 text-white" />
+              <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Tiêu đề *</Label>
+              <Input value={form.title} onChange={set('title')} placeholder="VD: Học bổng doanh nghiệp Bảo Vệ 2026" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
             </div>
             <div>
-              <Label className="text-slate-300 mb-1.5 block">Mô tả</Label>
+              <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Mô tả</Label>
               <textarea
                 value={form.description}
                 onChange={set('description')}
                 rows={3}
                 placeholder="Mô tả chi tiết chương trình tài trợ..."
-                className="w-full rounded-xl border border-slate-700 bg-slate-900 text-white p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-slate-300 mb-1.5 block">Tổng ngân sách (VND) *</Label>
-                <Input type="number" min={1} value={form.budget} onChange={set('budget')} placeholder="VD: 50000000" className="bg-slate-900 border-slate-700 text-white" />
+                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Tổng ngân sách (VND) *</Label>
+                <Input type="number" min={1} value={form.budget} onChange={set('budget')} placeholder="VD: 50000000" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
               </div>
               <div>
-                <Label className="text-slate-300 mb-1.5 block">Tối đa/người (VND)</Label>
-                <Input type="number" min={0} value={form.maxAmountPerLearner} onChange={set('maxAmountPerLearner')} placeholder="VD: 5000000" className="bg-slate-900 border-slate-700 text-white" />
+                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Tối đa/người (VND)</Label>
+                <Input type="number" min={0} value={form.maxAmountPerLearner} onChange={set('maxAmountPerLearner')} placeholder="VD: 5000000" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-slate-300 mb-1.5 block">Mức tài trợ</Label>
+                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Mức tài trợ</Label>
                 <select
                   value={form.coverageType}
                   onChange={set('coverageType')}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-900 text-white p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   {COVERAGE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
               <div>
-                <Label className="text-slate-300 mb-1.5 block">Hình thức giải ngân</Label>
+                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Hình thức giải ngân</Label>
                 <select
                   value={form.disbursementModel}
                   onChange={set('disbursementModel')}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-900 text-white p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="upfront">Upfront (trước)</option>
                   <option value="milestone">Milestone</option>
@@ -114,10 +114,10 @@ export default function EnterpriseSponsorshipCreatePage() {
           </div>
 
           <div className="flex gap-3">
-            <Button type="submit" disabled={submitting} className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+            <Button type="submit" disabled={submitting} className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white gap-2">
               {submitting ? 'Đang tạo...' : 'Tạo Sponsorship'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/enterprise/sponsorships')} className="border-slate-800 text-slate-300">
+            <Button type="button" variant="outline" onClick={() => navigate('/enterprise/sponsorships')} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">
               Hủy
             </Button>
           </div>

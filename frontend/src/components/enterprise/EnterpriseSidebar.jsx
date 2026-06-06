@@ -14,24 +14,32 @@ const EnterpriseSidebar = ({ collapsed, onToggle }) => {
 
   return (
     <aside className={cn(
-      'fixed inset-y-0 left-0 z-40 hidden lg:flex flex-col border-r border-slate-800 bg-[#001D4A] transition-all duration-300',
+      'fixed inset-y-0 left-0 z-40 hidden lg:flex flex-col border-r border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-sidebar))] transition-all duration-300',
       collapsed ? 'w-20' : 'w-64'
     )}>
-      <div className="flex items-center justify-between px-4 py-5 border-b border-white/10">
-        <Link to="/enterprise/dashboard" className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-2xl bg-white text-[#001D4A] flex items-center justify-center font-black">E</div>
+      {/* Logo */}
+      <div className="h-16 flex items-center justify-between px-4 border-b border-[hsl(var(--admin-border))]">
+        <Link to="/enterprise/dashboard" className="flex items-center gap-3 min-w-0 overflow-hidden">
+          <div className="relative w-8 h-8 shrink-0">
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-[hsl(var(--admin-accent))] to-blue-400 opacity-90" />
+            <div className="absolute inset-[2px] rounded-[7px] bg-[hsl(var(--admin-sidebar))] flex items-center justify-center">
+              <span className="text-[14px] font-bold bg-gradient-to-br from-[hsl(var(--admin-accent))] to-blue-400 bg-clip-text text-transparent leading-none">E</span>
+            </div>
+          </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-bold text-white truncate">Enterprise Hub</p>
-              <p className="text-[11px] text-blue-200/70 truncate">Quản lý hợp tác & tài trợ</p>
+              <p className="text-sm font-bold text-[hsl(var(--admin-text-primary))] truncate">Enterprise Hub</p>
+              <p className="text-[11px] text-[hsl(var(--admin-text-muted))] truncate">Quản lý hợp tác & tài trợ</p>
             </div>
           )}
         </Link>
-        <Button variant="ghost" size="icon" onClick={onToggle} className="text-white hover:bg-white/10">
+        <Button variant="ghost" size="icon" onClick={onToggle} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-surface-hover))] shrink-0">
           <span className="text-xs">{collapsed ? '»' : '«'}</span>
         </Button>
       </div>
-      <nav className="p-3 space-y-1">
+
+      {/* Navigation */}
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = location.pathname.startsWith(href);
           return (
@@ -39,11 +47,16 @@ const EnterpriseSidebar = ({ collapsed, onToggle }) => {
               key={href}
               to={href}
               className={cn(
-                'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors',
-                active ? 'bg-white text-[#001D4A]' : 'text-blue-100 hover:bg-white/10 hover:text-white'
+                'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200',
+                active
+                  ? 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))]'
+                  : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
               )}
             >
-              <Icon size={18} />
+              <Icon size={18} className={cn(
+                'shrink-0',
+                active ? 'text-[hsl(var(--admin-accent))]' : 'text-[hsl(var(--admin-text-muted))]'
+              )} />
               {!collapsed && <span>{label}</span>}
             </Link>
           );

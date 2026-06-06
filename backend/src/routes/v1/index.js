@@ -19,6 +19,7 @@ import { scholarshipRoute } from './scholarshipRoute'
 import { applicationRoute } from './applicationRoute'
 import { escoRoute } from './escoRoute'
 import { jobRoute } from './jobRoute'
+import { learningPathRoute } from './learningPathRoute'
 import { organizationRoute } from './organizationRoute'
 import { fundingConfigRoute } from './fundingConfigRoute'
 import { paymentRoute } from './paymentRoute'
@@ -30,6 +31,7 @@ import { partnershipRoute } from './partnershipRoute'
 import { courseSponsorshipRoute } from './courseSponsorshipRoute'
 import { lessonProgressRoute } from './lessonProgressRoute'
 import { videoNoteRoute } from './videoNoteRoute'
+import { recommendationFeedbackRoute } from './recommendationFeedbackRoute'
 
 const Router = express.Router()
 
@@ -86,6 +88,7 @@ Router.use('/scholarships', scholarshipRoute)
 Router.use('/applications', applicationRoute)
 Router.use('/esco', escoRoute)
 Router.use('/jobs', jobRoute)
+Router.use('/jobs', learningPathRoute)
 Router.use('/organizations', organizationRoute)
 Router.use('/funding-configs', fundingConfigRoute)
 Router.use('/payments', paymentRoute)
@@ -97,5 +100,6 @@ Router.use('/partnerships', partnershipRoute)
 Router.use('/course-sponsorships', courseSponsorshipRoute)
 Router.use('/lesson-progress', lessonProgressRoute)
 Router.use('/video-notes', videoNoteRoute)
+Router.use('/recommendation-feedback', recommendationFeedbackRoute)
 
 export const APIS_V1 = Router

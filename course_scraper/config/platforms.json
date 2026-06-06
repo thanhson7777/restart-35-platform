@@ -1,0 +1,126 @@
+{
+  "linkedin": {
+    "display_name": "LinkedIn Learning",
+    "base_url": "https://www.linkedin.com/learning",
+    "catalog_paths": [
+      "/collections/most-popular",
+      "/topics/programming",
+      "/topics/data-science",
+      "/topics-business"
+    ],
+    "fetcher_type": "stealth",
+    "solve_cf": true,
+    "auth_required": true,
+    "network_idle": true,
+    "selectors": {
+      "course_card": "a.base-card__full-link",
+      "title": "h1.classroom-hero__title",
+      "instructor": "span.instructor-name",
+      "rating": "[data-test-rating-value]",
+      "duration": "[data-test-course-duration]",
+      "skill_tags": "[class*='topic-tag']"
+    },
+    "rate_limit": {
+      "requests_per_minute": 10,
+      "delay_between_requests": 6
+    },
+    "pagination": {
+      "type": "page_param",
+      "param": "page",
+      "start": 1,
+      "max_pages": 20
+    }
+  },
+  "coursera": {
+    "display_name": "Coursera",
+    "base_url": "https://www.coursera.org",
+    "catalog_paths": [
+      "/browse?skill=programming",
+      "/browse?skill=data-science",
+      "/browse?skill=business"
+    ],
+    "fetcher_type": "http",
+    "jsonld_priority": true,
+    "network_idle": false,
+    "selectors": {
+      "course_card": "a.horizontal-card",
+      "title": "h1.headline-1-text",
+      "instructor": "[data-testid='instructor-name']",
+      "rating": "[data-test-rating]",
+      "syllabus": "[data-testid='syllabus-item']",
+      "level": "[data-testid='difficulty']"
+    },
+    "rate_limit": {
+      "requests_per_minute": 20,
+      "delay_between_requests": 3
+    },
+    "pagination": {
+      "type": "next_button",
+      "button_selector": "[data-test='pagination-next']"
+    }
+  },
+  "pluralsight": {
+    "display_name": "Pluralsight",
+    "base_url": "https://www.pluralsight.com",
+    "catalog_paths": [
+      "/browse/software-development",
+      "/browse/technology-ops",
+      "/browse/data-professional"
+    ],
+    "fetcher_type": "stealth",
+    "solve_cf": false,
+    "network_idle": true,
+    "selectors": {
+      "course_card": "a.browse-course-card",
+      "title": "h1[class*='title']",
+      "instructor": "[class*='author-name']",
+      "level": "[class*='skill-level']",
+      "duration": "[class*='course-duration']"
+    },
+    "rate_limit": {
+      "requests_per_minute": 15,
+      "delay_between_requests": 4
+    },
+    "pagination": {
+      "type": "load_more",
+      "load_more_selector": "[class*='load-more']"
+    }
+  },
+  "udemy": {
+    "display_name": "Udemy",
+    "base_url": "https://www.udemy.com",
+    "catalog_paths": [
+      "/courses/development",
+      "/courses/business",
+      "/courses/it-and-software",
+      "/courses/data-science"
+    ],
+    "fetcher_type": "stealth",
+    "solve_cf": true,
+    "network_idle": true,
+    "selectors": {
+      "course_card": "a.course-card",
+      "title": "[data-purpose='course-title']",
+      "instructor": "[data-purpose='instructor-name']",
+      "description": "[data-purpose='course-description']",
+      "headline": "[data-purpose='course-headline']",
+      "last_updated": "[data-purpose='last-updated']",
+      "language": "[data-purpose='course-language']",
+      "lectures": "[data-purpose='lecture']",
+      "content_length": "[data-purpose='content-length']",
+      "rating": "[data-purpose='rating-number']",
+      "enrollment": "[data-purpose='row-enrollment']",
+      "price": "[data-purpose='price-text']"
+    },
+    "rate_limit": {
+      "requests_per_minute": 15,
+      "delay_between_requests": 4
+    },
+    "pagination": {
+      "type": "page_param",
+      "param": "p",
+      "start": 1,
+      "max_pages": 50
+    }
+  }
+}

@@ -17,6 +17,8 @@ import { selectCurrentUser } from '@/redux/user/userSlice';
 import { formatPrice, formatDuration } from '@/utils/formatter';
 import { Star, Users, Clock, MapPin, BookOpen, Eye, Play } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Navbar from '@/components/landing/Navbar';
+import Footer from '@/components/layout/Footer';
 
 export default function CourseDetailPage() {
   const { id } = useParams();
@@ -180,10 +182,10 @@ export default function CourseDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="bg-zinc-950 text-white py-16 border-b border-zinc-900">
+        <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50 border-b border-[hsl(var(--admin-border))] py-16">
           <div className="container mx-auto px-4">
-            <Skeleton className="h-8 w-64 bg-white/10 mb-3" />
-            <Skeleton className="h-5 w-96 bg-white/10" />
+            <Skeleton className="h-8 w-64 bg-[hsl(var(--admin-surface-elevated))] mb-3" />
+            <Skeleton className="h-5 w-96 bg-[hsl(var(--admin-surface-elevated))]" />
           </div>
         </div>
         <main className="container mx-auto px-4 py-8 max-w-7xl">
@@ -220,13 +222,13 @@ export default function CourseDetailPage() {
   const nextSession = sessions.filter(s => s.status !== 'completed')[0];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Premium Dark Theme Header with Grid & Mesh Background */}
-      <div className="relative overflow-hidden bg-zinc-950 text-white py-12 border-b border-zinc-900">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.08),transparent_45%)] pointer-events-none" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
-        
-        <div className="container mx-auto px-4 relative z-10">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background">
+        {/* Light Gradient Header */}
+        <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50 border-b border-[hsl(var(--admin-border))] shadow-sm py-12">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.05),transparent_45%)] pointer-events-none" />
+          <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             {/* Left Column: Course info details */}
             <div className="lg:col-span-2">
@@ -240,7 +242,7 @@ export default function CourseDetailPage() {
                 {level && (
                   <Badge 
                     variant="outline" 
-                    className="border-white/10 text-zinc-350 text-xs px-2.5 py-0.5 rounded-full font-medium"
+                    className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] text-xs px-2.5 py-0.5 rounded-full font-medium"
                   >
                     {level === 'beginner' ? 'Người mới' : level === 'intermediate' ? 'Trung bình' : 'Nâng cao'}
                   </Badge>
@@ -252,7 +254,7 @@ export default function CourseDetailPage() {
                 )}
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-4 leading-tight">
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] mb-4 leading-tight">
                 {title}
               </h1>
 
@@ -263,7 +265,7 @@ export default function CourseDetailPage() {
                     <Badge
                       key={idx}
                       variant="secondary"
-                      className="bg-white/5 border border-white/10 text-zinc-350 text-[10.5px] px-2 py-0.5 font-medium"
+                      className="bg-blue-50 border border-blue-100 text-blue-600 text-[10.5px] px-2 py-0.5 font-medium"
                     >
                       {skill}
                     </Badge>
@@ -277,11 +279,11 @@ export default function CourseDetailPage() {
               )}
 
               {/* Stats row */}
-              <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-400 border-t border-white/5 pt-4">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-[hsl(var(--admin-text-muted))] border-t border-[hsl(var(--admin-border))] pt-4">
                 {rating?.average && (
                   <span className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="font-bold text-white">{rating.average.toFixed(1)}</span>
+                    <span className="font-bold text-[hsl(var(--admin-text-primary))]">{rating.average.toFixed(1)}</span>
                     <span>({rating.count} đánh giá)</span>
                   </span>
                 )}
@@ -308,8 +310,8 @@ export default function CourseDetailPage() {
               {/* Provider Info */}
               {provider && (
                 <div className="flex items-center gap-2 mt-4">
-                  <Avatar fallback={provider.displayName?.[0] || 'T'} size="sm" className="border border-white/10" />
-                  <span className="text-xs text-zinc-300 font-semibold flex items-center gap-1">
+                  <Avatar fallback={provider.displayName?.[0] || 'T'} size="sm" className="border border-[hsl(var(--admin-border))]" />
+                  <span className="text-xs text-[hsl(var(--admin-text-muted))] font-semibold flex items-center gap-1">
                     {provider.displayName}
                     {provider.verified && <span className="text-emerald-500 font-bold" title="Verified partner">✓</span>}
                   </span>
@@ -322,7 +324,7 @@ export default function CourseDetailPage() {
               {course.delivery_type === 'video' && (
                 <div className="mt-6">
                   <div 
-                    className="relative max-w-sm aspect-video rounded-2xl overflow-hidden bg-black/40 border border-white/10 cursor-pointer group shadow-lg"
+                    className="relative max-w-sm aspect-video rounded-2xl overflow-hidden bg-slate-100 border border-[hsl(var(--admin-border))] cursor-pointer group shadow-lg"
                     onClick={() => {
                       const tab = document.querySelector('[role="tab"][value="preview"]');
                       if (tab) tab.click();
@@ -335,16 +337,16 @@ export default function CourseDetailPage() {
                         className="w-full h-full object-cover opacity-85 transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-zinc-650">
+                      <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
                         <BookOpen className="w-10 h-10" />
                       </div>
                     )}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition-colors">
-                      <div className="w-12 h-12 rounded-full bg-white/95 text-zinc-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <div className="absolute inset-0 flex items-center justify-center bg-blue-50/30 group-hover:bg-blue-50/50 transition-colors">
+                      <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <Play className="w-4.5 h-4.5 fill-current ml-0.5" strokeWidth={2} />
                       </div>
                     </div>
-                    <span className="absolute bottom-3 right-3 bg-black/75 text-white text-[9px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded shadow-sm font-mono">
+                    <span className="absolute bottom-3 right-3 bg-primary/90 text-white text-[9px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded shadow-sm font-mono">
                       Xem học thử
                     </span>
                   </div>
@@ -358,21 +360,21 @@ export default function CourseDetailPage() {
 
               {/* OFFLINE layout venue info */}
               {course.delivery_type === 'offline' && location?.address && (
-                <div className="flex items-center gap-2 text-zinc-300 text-xs mt-5 bg-white/5 border border-white/10 px-3.5 py-2.5 rounded-xl max-w-md shadow-sm">
+                <div className="flex items-center gap-2 text-[hsl(var(--admin-text-muted))] text-xs mt-5 bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-border))] px-3.5 py-2.5 rounded-xl max-w-md shadow-sm">
                   <MapPin className="w-4 h-4 text-primary shrink-0" strokeWidth={1.5} />
-                  <span>Địa điểm lớp: <span className="font-semibold text-white">{location.address}</span></span>
+                  <span>Địa điểm lớp: <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{location.address}</span></span>
                 </div>
               )}
             </div>
 
             {/* Right Column: Enrollment Card (Desktop) */}
             <div className="lg:col-span-1 hidden lg:block" id="enrollment-section">
-              <Card className="p-0 overflow-hidden bg-zinc-900 border-zinc-800 shadow-xl">
+              <Card className="p-0 overflow-hidden bg-white border border-[hsl(var(--admin-border))] shadow-xl">
                 {thumbnail && course.delivery_type !== 'video' && (
                   <img
                     src={thumbnail}
                     alt={title}
-                    className="w-full aspect-video object-cover border-b border-zinc-800"
+                    className="w-full aspect-video object-cover border-b border-[hsl(var(--admin-border))]"
                   />
                 )}
                 <div className="p-6">
@@ -396,7 +398,7 @@ export default function CourseDetailPage() {
           {/* Left Column Tabs Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="overview">
-              <TabsList className="mb-6 flex flex-wrap gap-1 p-1 bg-zinc-100 dark:bg-zinc-900/50 rounded-xl border border-zinc-200/50 dark:border-zinc-800">
+              <TabsList className="mb-6 flex flex-wrap gap-1 p-1 bg-zinc-100 rounded-xl border border-zinc-200">
                 <TabsTrigger value="overview" className="rounded-lg text-xs font-semibold px-4 py-2">
                   Tổng quan
                 </TabsTrigger>
@@ -481,7 +483,7 @@ export default function CourseDetailPage() {
 
         {/* Related courses list */}
         {relatedCourses.length > 0 && (
-          <section className="mt-16 pt-10 border-t border-zinc-100 dark:border-zinc-900">
+          <section className="mt-16 pt-10 border-t border-zinc-200">
             <h3 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white mb-6">
               Khóa học liên quan
             </h3>
@@ -497,6 +499,8 @@ export default function CourseDetailPage() {
           </section>
         )}
       </main>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

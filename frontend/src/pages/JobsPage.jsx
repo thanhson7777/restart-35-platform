@@ -8,6 +8,7 @@ import { JobCard } from '@/components/jobs'
 import JobDetailModal from '@/components/jobs/JobDetailModal'
 import CareerRecommendations from '@/components/worker-profile/CareerRecommendations'
 import MainLayout from '@/components/layout/MainLayout'
+import Footer from '@/components/layout/Footer'
 import {
   fetchRecommendedJobs,
   fetchAllJobs,
@@ -406,6 +407,7 @@ const JobsPage = () => {
   const isLoading = activeTab === 'recommended' ? recommendedLoading : jobsLoading
 
   return (
+    <>
     <MainLayout>
       {/* Header */}
       <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-b border-border">
@@ -786,6 +788,8 @@ const JobsPage = () => {
         />
       )}
     </MainLayout>
+    <Footer />
+    </>
   )
 }
 

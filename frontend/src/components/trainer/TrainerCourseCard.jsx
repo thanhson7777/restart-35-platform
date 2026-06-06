@@ -27,17 +27,17 @@ const TrainerCourseCard = ({ course }) => {
   // Status mapping to colors and display text
   const statusConfig = {
     draft: { text: 'Nháp', className: 'bg-gray-500/15 text-gray-400 border-gray-500/30' },
-    pending: { text: 'Chờ duyệt', className: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
-    approved: { text: 'Đã duyệt', className: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
+    pending: { text: 'Chờ duyệt', className: 'bg-[hsl(var(--admin-warning))]/15 text-[hsl(var(--admin-warning))] border-[hsl(var(--admin-warning))]/30' },
+    approved: { text: 'Đã duyệt', className: 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))]/30' },
     published: { text: 'Đã xuất bản', className: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 font-semibold' }
   };
 
   const currentStatus = statusConfig[status] || statusConfig.draft;
 
   return (
-    <Card className="group overflow-hidden border border-[#1f2937] bg-[#111827] transition-all duration-300 hover:-translate-y-1 hover:border-[#374151] hover:shadow-xl hover:shadow-black/40">
+    <Card className="group overflow-hidden border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] transition-all duration-300 hover:-translate-y-1 hover:border-[hsl(var(--admin-border))] hover:shadow-xl hover:shadow-black/40">
       {/* Course Thumbnail */}
-      <div className="relative aspect-video w-full overflow-hidden bg-slate-800">
+      <div className="relative aspect-video w-full overflow-hidden bg-[hsl(var(--admin-surface-elevated))]">
         {thumbnail ? (
           <img
             src={thumbnail}
@@ -45,8 +45,8 @@ const TrainerCourseCard = ({ course }) => {
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#001D4A]/60 to-[#0b0f19] transition-transform duration-500 group-hover:scale-105">
-            <BookOpen className="h-12 w-12 text-blue-500/40" />
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#001D4A]/60 to-[hsl(var(--admin-surface))] transition-transform duration-500 group-hover:scale-105">
+            <BookOpen className="h-12 w-12 text-[hsl(var(--admin-accent))]/40" />
           </div>
         )}
         
@@ -61,16 +61,16 @@ const TrainerCourseCard = ({ course }) => {
       {/* Course Content */}
       <CardContent className="p-5 space-y-4">
         <div>
-          <h3 className="line-clamp-2 text-base font-semibold text-white group-hover:text-blue-400 transition-colors h-12" title={title}>
+          <h3 className="line-clamp-2 text-base font-semibold text-[hsl(var(--admin-text-primary))] group-hover:text-[hsl(var(--admin-accent))] transition-colors h-12" title={title}>
             {title}
           </h3>
-          <p className="mt-1 text-xs text-gray-500">Ngày tạo: {formattedDate}</p>
+          <p className="mt-1 text-xs text-[hsl(var(--admin-text-muted))]">Ngày tạo: {formattedDate}</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 border-y border-[#1f2937] py-3 text-xs text-gray-300">
+        <div className="grid grid-cols-2 gap-4 border-y border-[hsl(var(--admin-border))] py-3 text-xs text-[hsl(var(--admin-text-secondary))]">
           <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-blue-500" />
+            <Users className="h-4 w-4 text-[hsl(var(--admin-accent))]" />
             <span>
               <strong>{currentStudents}</strong>/{maxStudents} học viên
             </span>
@@ -89,10 +89,10 @@ const TrainerCourseCard = ({ course }) => {
             asChild
             variant="outline"
             size="sm"
-            className="border-[#1f2937] bg-transparent hover:bg-slate-800 hover:text-white"
+            className="border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]"
           >
             <Link to={`/trainer/courses/${_id}/students`}>
-              <Users className="mr-1.5 h-3.5 w-3.5 text-gray-400" />
+              <Users className="mr-1.5 h-3.5 w-3.5 text-[hsl(var(--admin-text-muted))]" />
               Học viên
             </Link>
           </Button>
@@ -101,10 +101,10 @@ const TrainerCourseCard = ({ course }) => {
             asChild
             variant="outline"
             size="sm"
-            className="border-[#1f2937] bg-transparent hover:bg-slate-800 hover:text-white"
+            className="border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]"
           >
             <Link to={`/trainer/courses/${_id}/schedule`}>
-              <Calendar className="mr-1.5 h-3.5 w-3.5 text-gray-400" />
+              <Calendar className="mr-1.5 h-3.5 w-3.5 text-[hsl(var(--admin-text-muted))]" />
               Lịch học
             </Link>
           </Button>
@@ -113,7 +113,7 @@ const TrainerCourseCard = ({ course }) => {
         <Button
           asChild
           size="sm"
-          className="w-full bg-[#001D4A] hover:bg-[#002e75] text-white border-none mt-2"
+          className="w-full bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white border-none mt-2 shadow-sm"
         >
           <Link to={`/trainer/courses/${_id}/edit`}>
             <Edit3 className="mr-1.5 h-3.5 w-3.5" />

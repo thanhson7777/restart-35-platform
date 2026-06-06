@@ -39,17 +39,17 @@ export default function NgoSponsorshipLearnersPage() {
   return (
     <NgoLayout>
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => navigate('/ngo/sponsorships')} className="text-slate-400 hover:text-white pl-0 gap-2">
+        <Button variant="ghost" onClick={() => navigate('/ngo/sponsorships')} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] pl-0 gap-2">
           <ArrowLeft size={16} /> Quay lại
         </Button>
 
         {loading ? (
-          <Skeleton className="h-96 rounded-2xl bg-slate-800" />
+          <Skeleton className="h-96 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]" />
         ) : (
           <>
             <div>
-              <h1 className="text-3xl font-extrabold text-white">{sponsorship?.title || 'Sponsorship'}</h1>
-              <p className="text-slate-400 text-sm mt-1">Danh sách học viên được tài trợ bởi chương trình này.</p>
+              <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">{sponsorship?.title || 'Sponsorship'}</h1>
+              <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">Danh sách học viên được tài trợ bởi chương trình này.</p>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
@@ -58,35 +58,35 @@ export default function NgoSponsorshipLearnersPage() {
                 { label: 'Đã giải ngân', value: formatCurrency(sponsorship?.spent) },
                 { label: 'Còn lại', value: formatCurrency(sponsorship?.remaining) }
               ].map(item => (
-                <div key={item.label} className="bg-[#111827] border border-slate-800 rounded-2xl p-5 text-center">
-                  <p className="text-xs text-slate-500 mb-2">{item.label}</p>
-                  <p className="text-xl font-bold text-white">{item.value}</p>
+                <div key={item.label} className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-5 text-center">
+                  <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-2">{item.label}</p>
+                  <p className="text-xl font-bold text-[hsl(var(--admin-text-primary))]">{item.value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="bg-[#111827] border border-slate-800 rounded-2xl overflow-hidden">
-              <div className="p-5 border-b border-slate-800">
-                <h3 className="font-semibold text-white">Danh sách học viên ({learners.length})</h3>
+            <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
+              <div className="p-5 border-b border-[hsl(var(--admin-border))]">
+                <h3 className="font-semibold text-[hsl(var(--admin-text-primary))]">Danh sách học viên ({learners.length})</h3>
               </div>
               {learners.length === 0 ? (
-                <div className="p-8 text-center text-slate-500 text-sm">Chưa có học viên nào được tài trợ.</div>
+                <div className="p-8 text-center text-[hsl(var(--admin-text-muted))] text-sm">Chưa có học viên nào được tài trợ.</div>
               ) : (
-                <div className="divide-y divide-slate-800">
+                <div className="divide-y divide-[hsl(var(--admin-border))]">
                   {learners.map(learner => (
-                    <div key={learner._id || learner.enrollmentId} className="flex items-center justify-between px-5 py-4 hover:bg-slate-900/40 transition-colors">
+                    <div key={learner._id || learner.enrollmentId} className="flex items-center justify-between px-5 py-4 hover:bg-[hsl(var(--admin-accent-subtle))] transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-sm text-slate-300 font-medium">
+                        <div className="w-9 h-9 rounded-full bg-[hsl(var(--admin-surface-elevated))] flex items-center justify-center text-sm text-[hsl(var(--admin-text-secondary))] font-medium">
                           {learner.user?.displayName?.charAt(0)?.toUpperCase() || 'H'}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">{learner.user?.displayName || 'Học viên'}</p>
-                          <p className="text-xs text-slate-500">{learner.user?.email || '—'}</p>
+                          <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">{learner.user?.displayName || 'Học viên'}</p>
+                          <p className="text-xs text-[hsl(var(--admin-text-muted))]">{learner.user?.email || '—'}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium text-emerald-400">{formatCurrency(learner.fundedAmount || sponsorship?.maxAmountPerLearner)}</p>
-                        <p className="text-xs text-slate-500">{learner.status || 'active'}</p>
+                        <p className="text-sm font-medium text-[hsl(var(--admin-success))]">{formatCurrency(learner.fundedAmount || sponsorship?.maxAmountPerLearner)}</p>
+                        <p className="text-xs text-[hsl(var(--admin-text-muted))]">{learner.status || 'active'}</p>
                       </div>
                     </div>
                   ))}

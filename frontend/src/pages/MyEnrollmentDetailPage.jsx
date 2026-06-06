@@ -301,64 +301,65 @@ export default function MyEnrollmentDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Detail Header */}
-      <div className="bg-zinc-950 text-white border-b border-zinc-900 py-6 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.04),transparent_45%)] pointer-events-none" />
-        <div className="container mx-auto px-4 max-w-6xl relative z-10">
-          <button
-            onClick={() => navigate('/my-enrollments')}
-            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors mb-4 font-semibold"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Quay lại Khóa của tôi
-          </button>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background">
+        {/* Light Gradient Header */}
+        <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50 border-b border-[hsl(var(--admin-border))] shadow-sm py-6">
+          <div className="container mx-auto px-4 max-w-6xl relative z-10">
+            <button
+              onClick={() => navigate('/my-enrollments')}
+              className="flex items-center gap-1.5 text-xs text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] transition-colors mb-4 font-semibold"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Quay lại Khóa của tôi
+            </button>
 
-          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-            <div>
-              <div className="flex flex-wrap items-center gap-2 mb-2.5">
-                <DeliveryTypeBadge deliveryType={deliveryType} size="sm" />
-                <FundingModelChip fundingModel={fundingModel} size="sm" />
-                {status === 'in_progress' && <DropoutRiskBadge risk={dropoutRisk} />}
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-2.5">
+                  <DeliveryTypeBadge deliveryType={deliveryType} size="sm" />
+                  <FundingModelChip fundingModel={fundingModel} size="sm" />
+                  {status === 'in_progress' && <DropoutRiskBadge risk={dropoutRisk} />}
+                </div>
+
+                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] mb-2 leading-tight">
+                  {course?.title || 'Chi tiết khóa học'}
+                </h1>
+                
+                <p className="text-xs text-[hsl(var(--admin-text-muted))] font-medium">
+                  Ghi danh ngày: {enrolledAt ? formatDate(enrolledAt) : 'Chưa rõ'}
+                </p>
               </div>
 
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white mb-2 leading-tight">
-                {course?.title || 'Chi tiết khóa học'}
-              </h1>
-              
-              <p className="text-xs text-zinc-400 font-medium">
-                Ghi danh ngày: {enrolledAt ? formatDate(enrolledAt) : 'Chưa rõ'}
-              </p>
+              {/* Launch Learning Workspace Button (only for video classes) */}
+              {deliveryType === 'video' && status === 'in_progress' && (
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="rounded-xl text-xs font-bold px-6 py-4 shadow-lg shrink-0 flex items-center gap-2"
+                  onClick={() => navigate(`/my-enrollments/${id}/learn`)}
+                >
+                  <PlayCircle className="w-5 h-5 fill-current" />
+                  Vào không gian học tập
+                </Button>
+              )}
+
+              {/* View Certificate Button (for completed course) */}
+              {status === 'completed' && (
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="rounded-xl text-xs font-bold px-6 py-4 shadow-lg shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 hover:shadow-emerald-500/10 text-white border-none"
+                  onClick={() => navigate(`/my-enrollments/${id}/certificate`)}
+                >
+                  <Award className="w-5 h-5 fill-current" />
+                  Xem chứng nhận của tôi
+                </Button>
+              )}
             </div>
-
-            {/* Launch Learning Workspace Button (only for video classes) */}
-            {deliveryType === 'video' && status === 'in_progress' && (
-              <Button
-                variant="default"
-                size="lg"
-                className="rounded-xl text-xs font-bold px-6 py-4 shadow-lg shrink-0 flex items-center gap-2"
-                onClick={() => navigate(`/my-enrollments/${id}/learn`)}
-              >
-                <PlayCircle className="w-5 h-5 fill-current" />
-                Vào không gian học tập
-              </Button>
-            )}
-
-            {/* View Certificate Button (for completed course) */}
-            {status === 'completed' && (
-              <Button
-                variant="default"
-                size="lg"
-                className="rounded-xl text-xs font-bold px-6 py-4 shadow-lg shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 hover:shadow-emerald-500/10 text-white border-none"
-                onClick={() => navigate(`/my-enrollments/${id}/certificate`)}
-              >
-                <Award className="w-5 h-5 fill-current" />
-                Xem chứng nhận của tôi
-              </Button>
-            )}
           </div>
         </div>
-      </div>
 
       {/* Main Grid */}
       <main className="container mx-auto px-4 py-8 max-w-6xl">
@@ -857,6 +858,8 @@ export default function MyEnrollmentDetailPage() {
           </div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

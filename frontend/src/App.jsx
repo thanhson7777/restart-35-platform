@@ -26,6 +26,7 @@ import AdminUsersPage from '@/pages/AdminUsersPage';
 import AdminCoursesPage from '@/pages/AdminCoursesPage';
 import AdminCourseApprovalPage from '@/pages/admin/AdminCourseApprovalPage';
 import AdminEnrollmentsPage from '@/pages/admin/AdminEnrollmentsPage';
+import RecommendationAnalyticsPage from '@/pages/admin/RecommendationAnalyticsPage';
 import ScheduleBuilderPage from '@/pages/admin/ScheduleBuilderPage';
 import AdminScholarshipsPage from '@/pages/AdminScholarshipsPage';
 import AttendancePage from '@/pages/admin/AttendancePage';
@@ -108,6 +109,7 @@ function App() {
         <Route path="/admin/courses/:id/schedule" element={<ScheduleBuilderPage />} />
         <Route path="/admin/courses/:id/schedule/session/:sessionNumber/attendance" element={<AttendancePage />} />
         <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
+        <Route path="/admin/recommendation-analytics" element={<RecommendationAnalyticsPage />} />
         <Route path="/admin/applications" element={<AdminDashboardPage />} />
         <Route path="/admin/scholarships" element={<AdminScholarshipsPage />} />
 

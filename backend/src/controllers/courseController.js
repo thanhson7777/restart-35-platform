@@ -206,7 +206,7 @@ const getAdminCourses = async (req, res, next) => {
     res.status(StatusCodes.OK).json({
       success: true,
       message: 'Lấy danh sách khóa học thành công!',
-      courses: result.courses,
+      data: result.courses,
       pagination: result.pagination
     })
   } catch (error) { next(error) }

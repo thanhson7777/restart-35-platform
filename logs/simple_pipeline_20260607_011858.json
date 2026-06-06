@@ -1,0 +1,17 @@
+{
+  "results": {
+    "edx": {
+      "platform": "edx",
+      "status": "success",
+      "raw_count": 500,
+      "normalized_count": 500,
+      "unique_count": 231,
+      "saved": {
+        "upserted": 219,
+        "updated": 12,
+        "skipped": 0
+      }
+    }
+  },
+  "total_saved": 231
+}

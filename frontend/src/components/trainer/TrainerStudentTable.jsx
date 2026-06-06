@@ -75,10 +75,10 @@ export const TrainerStudentTable = ({
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="h-10 bg-slate-900/60 rounded-xl border border-slate-800 animate-pulse w-full" />
+        <div className="h-10 bg-[hsl(var(--admin-surface-elevated))]/60 rounded-xl border border-[hsl(var(--admin-border))] animate-pulse w-full" />
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, idx) => (
-            <div key={idx} className="h-16 bg-slate-950 border border-slate-900/60 rounded-xl animate-pulse w-full" />
+            <div key={idx} className="h-16 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))]/60 rounded-xl animate-pulse w-full" />
           ))}
         </div>
       </div>
@@ -87,25 +87,25 @@ export const TrainerStudentTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-slate-800 bg-[#0c101d] overflow-hidden">
+      <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-900/40 border-b border-slate-800">
-            <TableRow className="hover:bg-transparent border-slate-800">
-              <TableHead className="text-slate-400 font-semibold py-4">Học viên</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Khóa học</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Tiến độ</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Trạng thái</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Nguy cơ bỏ học</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Ngày đăng ký</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4 text-right">Thao tác</TableHead>
+          <TableHeader className="bg-[hsl(var(--admin-surface-elevated))]/40 border-b border-[hsl(var(--admin-border))]">
+            <TableRow className="hover:bg-transparent border-[hsl(var(--admin-border))]">
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Học viên</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Khóa học</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Tiến độ</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Trạng thái</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Nguy cơ bỏ học</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Ngày đăng ký</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4 text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {enrollments.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={7} className="h-48 text-center text-slate-500 py-8">
+                <TableCell colSpan={7} className="h-48 text-center text-[hsl(var(--admin-text-muted))] py-8">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <BookOpen size={24} className="text-slate-700" />
+                    <BookOpen size={24} className="text-[hsl(var(--admin-text-muted))]" />
                     <span>Không tìm thấy học viên nào phù hợp.</span>
                   </div>
                 </TableCell>
@@ -114,7 +114,7 @@ export const TrainerStudentTable = ({
               enrollments.map((item) => (
                 <TableRow
                   key={item._id}
-                  className="border-slate-850 hover:bg-slate-900/20 transition-all duration-200"
+                  className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-elevated))]/20 transition-all duration-200"
                 >
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
@@ -123,36 +123,36 @@ export const TrainerStudentTable = ({
                         alt={item.user?.displayName}
                         fallback={item.user?.displayName?.charAt(0).toUpperCase()}
                         size="default"
-                        className="bg-slate-800 text-slate-300 ring-1 ring-slate-800"
+                        className="bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] ring-1 ring-[hsl(var(--admin-border))]"
                       />
                       <div className="flex flex-col">
-                        <span className="font-semibold text-white text-sm">
+                        <span className="font-semibold text-[hsl(var(--admin-text-primary))] text-sm">
                           {item.user?.displayName || 'Chưa cập nhật'}
                         </span>
-                        <span className="text-xs text-slate-500 font-mono">
+                        <span className="text-xs text-[hsl(var(--admin-text-muted))] font-mono">
                           {item.user?.email || 'N/A'}
                         </span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="py-4">
-                    <span className="text-sm text-slate-300 max-w-[200px] block truncate">
+                    <span className="text-sm text-[hsl(var(--admin-text-secondary))] max-w-[200px] block truncate">
                       {item.course?.title || 'N/A'}
                     </span>
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="flex flex-col gap-1 w-32">
                       <div className="flex items-center justify-between text-xs font-mono">
-                        <span className="text-slate-400">
+                        <span className="text-[hsl(var(--admin-text-muted))]">
                           {item.progress?.currentLesson || 0}/{item.progress?.totalLessons || 0} bài
                         </span>
-                        <span className="font-semibold text-white">
+                        <span className="font-semibold text-[hsl(var(--admin-text-primary))]">
                           {item.progress?.percentage || 0}%
                         </span>
                       </div>
                       <Progress
                         value={item.progress?.percentage || 0}
-                        className="h-1.5 bg-slate-800"
+                        className="h-1.5 bg-[hsl(var(--admin-surface-elevated))]"
                         indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500"
                       />
                     </div>
@@ -169,8 +169,8 @@ export const TrainerStudentTable = ({
                     />
                   </TableCell>
                   <TableCell className="py-4">
-                    <div className="flex items-center gap-1.5 text-slate-400 text-xs font-mono">
-                      <Calendar size={13} className="text-slate-600" />
+                    <div className="flex items-center gap-1.5 text-[hsl(var(--admin-text-muted))] text-xs font-mono">
+                      <Calendar size={13} className="text-[hsl(var(--admin-text-muted))]" />
                       <span>{formatDate(item.enrolledAt)}</span>
                     </div>
                   </TableCell>
@@ -179,7 +179,7 @@ export const TrainerStudentTable = ({
                       variant="outline"
                       size="sm"
                       onClick={() => navigate(`/trainer/enrollments/${item._id}`)}
-                      className="border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800/80 gap-1.5 transition-all duration-200"
+                      className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-elevated))]/80 gap-1.5 transition-all duration-200"
                     >
                       <Eye size={14} />
                       Chi tiết
@@ -194,18 +194,18 @@ export const TrainerStudentTable = ({
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4 bg-slate-950/40 p-4 rounded-xl border border-slate-900">
-          <p className="text-xs text-slate-400">
+        <div className="flex items-center justify-between mt-4 bg-[hsl(var(--admin-surface-elevated))]/40 p-4 rounded-xl border border-[hsl(var(--admin-border))]">
+          <p className="text-xs text-[hsl(var(--admin-text-secondary))]">
             Hiển thị{' '}
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-[hsl(var(--admin-text-primary))]">
               {(pagination.currentPage - 1) * pagination.limit + 1}
             </span>{' '}
             -{' '}
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-[hsl(var(--admin-text-primary))]">
               {Math.min(pagination.currentPage * pagination.limit, pagination.totalRecords)}
             </span>{' '}
             trong tổng số{' '}
-            <span className="font-semibold text-white">{pagination.totalRecords}</span> học viên
+            <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{pagination.totalRecords}</span> học viên
           </p>
 
           <div className="flex items-center gap-1">
@@ -214,7 +214,7 @@ export const TrainerStudentTable = ({
               size="sm"
               onClick={() => onPageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
-              className="border-slate-800 text-slate-400 hover:text-white disabled:opacity-40"
+              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40"
             >
               Trước
             </Button>
@@ -228,8 +228,8 @@ export const TrainerStudentTable = ({
                   onClick={() => onPageChange(pageNum)}
                   className={`w-8 h-8 text-xs font-semibold rounded-lg transition-colors ${
                     isCurrent
-                      ? 'bg-blue-600 text-white'
-                      : 'text-slate-400 hover:bg-slate-900 hover:text-white'
+                      ? 'bg-[hsl(var(--admin-accent))] text-white'
+                      : 'text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]'
                   }`}
                 >
                   {pageNum}
@@ -242,7 +242,7 @@ export const TrainerStudentTable = ({
               size="sm"
               onClick={() => onPageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage === pagination.totalPages}
-              className="border-slate-800 text-slate-400 hover:text-white disabled:opacity-40"
+              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40"
             >
               Sau
             </Button>

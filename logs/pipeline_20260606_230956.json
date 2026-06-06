@@ -1,0 +1,17 @@
+{
+  "results": {
+    "udemy": {
+      "platform": "udemy",
+      "status": "success",
+      "raw_count": 0,
+      "normalized_count": 0,
+      "unique_count": 0,
+      "saved": {
+        "upserted": 0,
+        "updated": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "total_saved": 0
+}
