@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import { Skeleton } from '@/components/ui/Skeleton';
 import AdminCourseRow from './AdminCourseRow';
+import { Inbox } from 'lucide-react';
 
 const AdminCourseTable = ({
   courses,
@@ -13,78 +14,46 @@ const AdminCourseTable = ({
 }) => {
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
+            <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Khóa học
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Danh mục
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Hình thức
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Học phí
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Học viên
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Đánh giá
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Ngày tạo
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Thao tác
-                </th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Khóa học</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Trạng thái</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Danh mục</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Hình thức</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Học phí</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Học viên</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Đánh giá</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Ngày tạo</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {[1, 2, 3, 4, 5].map((i) => (
-                <tr key={i} className="border-b border-slate-100">
+                <tr key={i} className="border-b border-[hsl(var(--admin-border))]">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <Skeleton className="w-16 h-10 rounded-lg" />
                       <div>
-                        <Skeleton className="w-48 h-4 mb-1" />
-                        <Skeleton className="w-24 h-3" />
+                        <Skeleton className="w-48 h-4 mb-1 bg-[hsl(var(--admin-surface-elevated))]" />
+                        <Skeleton className="w-24 h-3 bg-[hsl(var(--admin-surface-elevated))]" />
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <Skeleton className="w-20 h-6 rounded-full" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton className="w-24 h-4" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton className="w-16 h-4" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton className="w-20 h-4" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton className="w-16 h-4" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton className="w-12 h-4" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton className="w-20 h-4" />
-                  </td>
+                  <td className="px-4 py-3"><Skeleton className="w-20 h-6 rounded-full bg-[hsl(var(--admin-surface-elevated))]" /></td>
+                  <td className="px-4 py-3"><Skeleton className="w-24 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
+                  <td className="px-4 py-3"><Skeleton className="w-16 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
+                  <td className="px-4 py-3"><Skeleton className="w-20 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
+                  <td className="px-4 py-3"><Skeleton className="w-16 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
+                  <td className="px-4 py-3"><Skeleton className="w-12 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
+                  <td className="px-4 py-3"><Skeleton className="w-20 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
-                      <Skeleton className="w-8 h-8 rounded" />
-                      <Skeleton className="w-8 h-8 rounded" />
-                      <Skeleton className="w-8 h-8 rounded" />
+                      <Skeleton className="w-8 h-8 rounded bg-[hsl(var(--admin-surface-elevated))]" />
+                      <Skeleton className="w-8 h-8 rounded bg-[hsl(var(--admin-surface-elevated))]" />
+                      <Skeleton className="w-8 h-8 rounded bg-[hsl(var(--admin-surface-elevated))]" />
                     </div>
                   </td>
                 </tr>
@@ -98,14 +67,10 @@ const AdminCourseTable = ({
 
   if (!courses || courses.length === 0) {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 p-12 text-center">
-        <div className="text-6xl mb-4">📚</div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">
-          Chưa có khóa học nào
-        </h3>
-        <p className="text-slate-500">
-          Không tìm thấy khóa học nào phù hợp với bộ lọc của bạn.
-        </p>
+      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-12 text-center">
+        <Inbox className="w-12 h-12 mx-auto text-[hsl(var(--admin-text-muted))] mb-4 opacity-60" />
+        <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))] mb-2">Chưa có khóa học nào</h3>
+        <p className="text-[hsl(var(--admin-text-muted))]">Không tìm thấy khóa học nào phù hợp với bộ lọc hiện tại.</p>
       </div>
     );
   }
@@ -114,41 +79,23 @@ const AdminCourseTable = ({
   const currentPage = pagination.page;
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-slate-50 border-b border-slate-200">
+          <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Khóa học
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Trạng thái
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Danh mục
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Hình thức
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Học phí
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Học viên
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Đánh giá
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Ngày tạo
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Thao tác
-              </th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Khóa học</th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Trạng thái</th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Danh mục</th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Hình thức</th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Học phí</th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Học viên</th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Đánh giá</th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Ngày tạo</th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Thao tác</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-[hsl(var(--admin-border))]">
             {courses.map((course) => (
               <AdminCourseRow
                 key={course._id}
@@ -162,10 +109,9 @@ const AdminCourseTable = ({
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-between">
-          <p className="text-sm text-slate-500">
+        <div className="px-4 py-3 border-t border-[hsl(var(--admin-border))] flex items-center justify-between">
+          <p className="text-sm text-[hsl(var(--admin-text-muted))]">
             Hiển thị {(currentPage - 1) * pagination.limit + 1} -{' '}
             {Math.min(currentPage * pagination.limit, pagination.total)} trong{' '}
             {pagination.total} khóa học
@@ -174,8 +120,7 @@ const AdminCourseTable = ({
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-1 text-sm border border-slate-200 rounded hover:bg-slate-50 
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm border border-[hsl(var(--admin-border))] rounded-lg text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Trước
             </button>
@@ -194,10 +139,10 @@ const AdminCourseTable = ({
                 <button
                   key={pageNum}
                   onClick={() => onPageChange(pageNum)}
-                  className={`px-3 py-1 text-sm border rounded ${
+                  className={`px-3 py-1 text-sm border rounded-lg ${
                     currentPage === pageNum
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'border-slate-200 hover:bg-slate-50'
+                      ? 'bg-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))] text-white'
+                      : 'border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]'
                   }`}
                 >
                   {pageNum}
@@ -207,8 +152,7 @@ const AdminCourseTable = ({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 text-sm border border-slate-200 rounded hover:bg-slate-50 
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm border border-[hsl(var(--admin-border))] rounded-lg text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Sau
             </button>

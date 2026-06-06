@@ -83,14 +83,14 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
   };
 
   return (
-    <div className="trainer-calendar-wrapper overflow-hidden rounded-2xl border border-slate-800 bg-[#111827] p-5 shadow-xl">
+    <div className="trainer-calendar-wrapper overflow-hidden rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] p-5 shadow-[var(--admin-shadow-lg)]">
       <style>{`
-        /* FullCalendar Tailwind overrides for Dark Mode */
+        /* FullCalendar Tailwind overrides for Light Mode */
         .trainer-calendar-wrapper .fc {
-          --fc-border-color: #1f2937;
-          --fc-page-bg-color: #111827;
-          --fc-neutral-bg-color: #1f2937;
-          --fc-list-event-hover-bg-color: #1f2937;
+          --fc-border-color: hsl(var(--admin-border));
+          --fc-page-bg-color: hsl(var(--admin-surface));
+          --fc-neutral-bg-color: hsl(var(--admin-surface-elevated));
+          --fc-list-event-hover-bg-color: hsl(var(--admin-surface-hover));
           font-family: inherit;
         }
         
@@ -103,14 +103,14 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
         .trainer-calendar-wrapper .fc-toolbar-title {
           font-size: 1.25rem !important;
           font-weight: 700 !important;
-          color: #f9fafb !important;
+          color: hsl(var(--admin-text-primary)) !important;
         }
 
         /* Buttons styling */
         .trainer-calendar-wrapper .fc-button {
-          background-color: #1f2937 !important;
-          border-color: #374151 !important;
-          color: #d1d5db !important;
+          background-color: hsl(var(--admin-surface-elevated)) !important;
+          border-color: hsl(var(--admin-border-strong)) !important;
+          color: hsl(var(--admin-text-secondary)) !important;
           font-size: 0.875rem !important;
           font-weight: 500 !important;
           padding: 0.5rem 0.875rem !important;
@@ -120,14 +120,14 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
         }
 
         .trainer-calendar-wrapper .fc-button:hover {
-          background-color: #374151 !important;
-          border-color: #4b5563 !important;
-          color: #ffffff !important;
+          background-color: hsl(var(--admin-surface-hover)) !important;
+          border-color: hsl(var(--admin-border-strong)) !important;
+          color: hsl(var(--admin-text-primary)) !important;
         }
 
         .trainer-calendar-wrapper .fc-button-active {
-          background-color: #001D4A !important;
-          border-color: #001D4A !important;
+          background-color: hsl(var(--admin-accent)) !important;
+          border-color: hsl(var(--admin-accent)) !important;
           color: #ffffff !important;
         }
 
@@ -147,12 +147,12 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
 
         /* Day names header styling */
         .trainer-calendar-wrapper .fc-col-header-cell {
-          background-color: #1e293b / 20;
+          background-color: hsl(var(--admin-surface-elevated));
           padding: 0.75rem 0 !important;
         }
 
         .trainer-calendar-wrapper .fc-col-header-cell-cushion {
-          color: #9ca3af !important;
+          color: hsl(var(--admin-text-muted)) !important;
           font-size: 0.875rem !important;
           font-weight: 600 !important;
           text-decoration: none !important;
@@ -160,7 +160,7 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
 
         /* Day grid cells */
         .trainer-calendar-wrapper .fc-daygrid-day-number {
-          color: #9ca3af !important;
+          color: hsl(var(--admin-text-muted)) !important;
           font-size: 0.875rem !important;
           font-weight: 500 !important;
           padding: 6px 10px !important;
@@ -168,15 +168,15 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
         }
 
         .trainer-calendar-wrapper .fc-daygrid-day:hover {
-          background-color: rgba(31, 41, 55, 0.2);
+          background-color: hsl(var(--admin-surface-hover));
         }
 
         .trainer-calendar-wrapper .fc-day-today {
-          background-color: rgba(0, 29, 74, 0.15) !important;
+          background-color: hsl(var(--admin-accent-subtle)) !important;
         }
 
         .trainer-calendar-wrapper .fc-day-today .fc-daygrid-day-number {
-          color: #60a5fa !important;
+          color: hsl(var(--admin-accent)) !important;
           font-weight: 700 !important;
         }
 
@@ -199,37 +199,37 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
         /* List View */
         .trainer-calendar-wrapper .fc-list {
           border-radius: 0.75rem !important;
-          border-color: #1f2937 !important;
-          background-color: #111827 !important;
+          border-color: hsl(var(--admin-border)) !important;
+          background-color: hsl(var(--admin-surface)) !important;
         }
 
         .trainer-calendar-wrapper .fc-list-day-cushion {
-          background-color: #1f2937 !important;
+          background-color: hsl(var(--admin-surface-elevated)) !important;
           padding: 0.75rem 1rem !important;
         }
 
         .trainer-calendar-wrapper .fc-list-day-text,
         .trainer-calendar-wrapper .fc-list-day-side-text {
-          color: #f3f4f6 !important;
+          color: hsl(var(--admin-text-primary)) !important;
           font-weight: 600 !important;
           text-decoration: none !important;
           font-size: 0.875rem !important;
         }
 
         .trainer-calendar-wrapper .fc-list-event-time {
-          color: #9ca3af !important;
+          color: hsl(var(--admin-text-muted)) !important;
           font-size: 0.875rem !important;
         }
 
         .trainer-calendar-wrapper .fc-list-event-title a {
-          color: #f3f4f6 !important;
+          color: hsl(var(--admin-text-primary)) !important;
           font-weight: 600 !important;
           text-decoration: none !important;
         }
 
         .trainer-calendar-wrapper .fc-list-empty {
-          background-color: #111827 !important;
-          color: #9ca3af !important;
+          background-color: hsl(var(--admin-surface)) !important;
+          color: hsl(var(--admin-text-muted)) !important;
           padding: 3rem 1rem !important;
           font-size: 0.875rem !important;
         }

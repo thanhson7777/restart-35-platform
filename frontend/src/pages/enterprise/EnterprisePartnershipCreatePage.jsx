@@ -53,68 +53,68 @@ export default function EnterprisePartnershipCreatePage() {
   return (
     <EnterpriseLayout>
       <div className="max-w-2xl space-y-6">
-        <Button variant="ghost" onClick={() => navigate('/enterprise/partnerships')} className="text-slate-400 hover:text-white pl-0 gap-2">
+        <Button variant="ghost" onClick={() => navigate('/enterprise/partnerships')} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] pl-0 gap-2">
           <ArrowLeft size={16} /> Quay lại
         </Button>
 
         <div>
-          <h1 className="text-3xl font-extrabold text-white">Tạo Partnership</h1>
-          <p className="text-slate-400 text-sm mt-1">Gửi yêu cầu hợp tác đến các trainer trên nền tảng.</p>
+          <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Tạo Partnership</h1>
+          <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">Gửi yêu cầu hợp tác đến các trainer trên nền tảng.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="bg-[#111827] border border-slate-800 rounded-2xl p-6 space-y-5">
+          <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6 space-y-5">
             <div>
-              <Label className="text-slate-300 mb-1.5 block">Tiêu đề partnership</Label>
-              <Input value={form.title} onChange={set('title')} placeholder="VD: Tuyển dụng lao động cho vị trí Bảo Vệ" className="bg-slate-900 border-slate-700 text-white" />
+              <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Tiêu đề partnership</Label>
+              <Input value={form.title} onChange={set('title')} placeholder="VD: Tuyển dụng lao động cho vị trí Bảo Vệ" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-slate-300 mb-1.5 block">Vị trí tuyển dụng *</Label>
-                <Input value={form.jobTitle} onChange={set('jobTitle')} placeholder="VD: Nhân viên Bảo Vệ" className="bg-slate-900 border-slate-700 text-white" />
+                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Vị trí tuyển dụng *</Label>
+                <Input value={form.jobTitle} onChange={set('jobTitle')} placeholder="VD: Nhân viên Bảo Vệ" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
               </div>
               <div>
-                <Label className="text-slate-300 mb-1.5 block">Số lượng tuyển</Label>
-                <Input type="number" min={1} value={form.jobQuantity} onChange={set('jobQuantity')} className="bg-slate-900 border-slate-700 text-white" />
+                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Số lượng tuyển</Label>
+                <Input type="number" min={1} value={form.jobQuantity} onChange={set('jobQuantity')} className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-slate-300 mb-1.5 block">Mức lương tối thiểu (VND)</Label>
-                <Input type="number" min={0} value={form.salaryMin} onChange={set('salaryMin')} placeholder="VD: 5000000" className="bg-slate-900 border-slate-700 text-white" />
+                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Mức lương tối thiểu (VND)</Label>
+                <Input type="number" min={0} value={form.salaryMin} onChange={set('salaryMin')} placeholder="VD: 5000000" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
               </div>
               <div>
-                <Label className="text-slate-300 mb-1.5 block">Mức lương tối đa (VND)</Label>
-                <Input type="number" min={0} value={form.salaryMax} onChange={set('salaryMax')} placeholder="VD: 10000000" className="bg-slate-900 border-slate-700 text-white" />
+                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Mức lương tối đa (VND)</Label>
+                <Input type="number" min={0} value={form.salaryMax} onChange={set('salaryMax')} placeholder="VD: 10000000" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
               </div>
             </div>
             <div>
-              <Label className="text-slate-300 mb-1.5 block">Yêu cầu khác (mỗi dòng 1)</Label>
+              <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Yêu cầu khác (mỗi dòng 1)</Label>
               <textarea
                 value={form.requirements}
                 onChange={set('requirements')}
                 rows={4}
                 placeholder="VD: Có CCCD&#10;Có kinh nghiệm từ 1 năm"
-                className="w-full rounded-xl border border-slate-700 bg-slate-900 text-white p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <Label className="text-slate-300 mb-1.5 block">Lời nhắn cho trainer</Label>
+              <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Lời nhắn cho trainer</Label>
               <textarea
                 value={form.message}
                 onChange={set('message')}
                 rows={3}
                 placeholder="Giới thiệu thêm về nhu cầu tuyển dụng..."
-                className="w-full rounded-xl border border-slate-700 bg-slate-900 text-white p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           <div className="flex gap-3">
-            <Button type="submit" disabled={submitting} className="bg-blue-600 hover:bg-blue-700 gap-2">
+            <Button type="submit" disabled={submitting} className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white gap-2">
               {submitting ? 'Đang gửi...' : 'Gửi yêu cầu'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/enterprise/partnerships')} className="border-slate-800 text-slate-300">
+            <Button type="button" variant="outline" onClick={() => navigate('/enterprise/partnerships')} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">
               Hủy
             </Button>
           </div>

@@ -5,7 +5,6 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 export const AdminRevenueChart = ({ data = [] }) => {
   const [range, setRange] = useState('12');
-
   const filteredData = range === '6' ? data.slice(-6) : data;
 
   const formatCurrency = (value) => {
@@ -17,10 +16,10 @@ export const AdminRevenueChart = ({ data = [] }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-slate-950/95 border border-slate-800 p-4 rounded-xl shadow-2xl backdrop-blur-md">
-          <p className="text-xs uppercase tracking-wider font-mono text-slate-400 mb-1">{label}</p>
-          <p className="text-sm font-bold text-white font-mono">
-            Doanh thu: <span className="text-[#3B82F6]">{payload[0].value.toLocaleString()} VND</span>
+        <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-4 rounded-xl shadow-[var(--admin-shadow-lg)]">
+          <p className="text-[10px] uppercase tracking-wider text-[hsl(var(--admin-text-muted))] mb-1">{label}</p>
+          <p className="text-sm font-bold text-[hsl(var(--admin-text-primary))]">
+            Doanh thu: <span className="text-[hsl(var(--admin-accent))]">{payload[0].value.toLocaleString()} VND</span>
           </p>
         </div>
       );
@@ -37,13 +36,15 @@ export const AdminRevenueChart = ({ data = [] }) => {
       <BezelCard className="flex flex-col h-full">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold text-white tracking-tight">Doanh thu thanh toán</h3>
-            <p className="text-xs text-slate-400 mt-1">Xu hướng thu nhập thực tế từ học viên và quỹ tài trợ</p>
+            <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))] tracking-tight">Doanh thu thanh toán</h3>
+            <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Xu hướng thu nhập thực tế từ học viên và quỹ tài trợ</p>
           </div>
           <select
             value={range}
             onChange={(e) => setRange(e.target.value)}
-            className="text-xs border border-slate-800 rounded-full px-3 py-1.5 bg-slate-900 text-slate-300 focus:outline-none focus:border-[#3B82F6] cursor-pointer font-mono"
+            className="text-xs border border-[hsl(var(--admin-border))] rounded-xl px-3 py-1.5
+              bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-secondary))]
+              focus:outline-none focus:border-[hsl(var(--admin-accent))]/40 cursor-pointer"
           >
             <option value="6">6 tháng gần đây</option>
             <option value="12">12 tháng gần đây</option>
@@ -52,38 +53,38 @@ export const AdminRevenueChart = ({ data = [] }) => {
 
         <div className="h-72 w-full mt-4">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={filteredData}
-              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-            >
+            <AreaChart data={filteredData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="hsl(var(--admin-accent))" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="hsl(var(--admin-accent))" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.3} vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--admin-border))" opacity={0.5} vertical={false} />
               <XAxis
                 dataKey="month"
-                stroke="#64748b"
+                stroke="hsl(var(--admin-border))"
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
                 fontFamily="JetBrains Mono, monospace"
               />
               <YAxis
-                stroke="#64748b"
+                stroke="hsl(var(--admin-border))"
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={formatCurrency}
                 fontFamily="JetBrains Mono, monospace"
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '3 3' }} />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ stroke: 'hsl(var(--admin-accent))', strokeWidth: 1, strokeDasharray: '3 3' }}
+              />
               <Area
                 type="monotone"
                 dataKey="amount"
-                stroke="#3B82F6"
+                stroke="hsl(var(--admin-accent))"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorRevenue)"

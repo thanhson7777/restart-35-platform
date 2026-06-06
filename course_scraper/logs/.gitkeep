@@ -1,0 +1,3 @@
+# Logs directory — scraper pipeline output goes here
+*.log
+*.json

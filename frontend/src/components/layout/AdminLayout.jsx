@@ -12,7 +12,7 @@ const AdminLayout = ({ children, className }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[hsl(var(--admin-bg))]">
       {/* Sidebar */}
       <AdminSidebar
         collapsed={sidebarCollapsed}
@@ -22,7 +22,7 @@ const AdminLayout = ({ children, className }) => {
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/30 z-30 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -42,7 +42,7 @@ const AdminLayout = ({ children, className }) => {
 
         {/* Page Content */}
         <main className={cn('pt-16 min-h-screen', className)}>
-          <div className="p-6">{children}</div>
+          <div className="p-6 bg-[hsl(var(--admin-bg))]">{children}</div>
         </main>
       </div>
     </div>

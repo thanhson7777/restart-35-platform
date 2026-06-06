@@ -26,13 +26,13 @@ import {
 const STATUS_CONFIG = {
   referred: {
     label: 'Vừa giới thiệu',
-    className: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-    dot: 'bg-amber-400'
+    className: 'bg-[hsl(var(--admin-warning)/15%)] text-[hsl(var(--admin-warning))] border-[hsl(var(--admin-warning)/30%)]',
+    dot: 'bg-[hsl(var(--admin-warning))]'
   },
   interviewing: {
     label: 'Đang phỏng vấn',
-    className: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
-    dot: 'bg-blue-400'
+    className: 'bg-[hsl(var(--admin-accent)/15%)] text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent)/30%)]',
+    dot: 'bg-[hsl(var(--admin-accent))]'
   },
   offered: {
     label: 'Đã nhận offer',
@@ -41,13 +41,13 @@ const STATUS_CONFIG = {
   },
   started: {
     label: 'Đã đi làm',
-    className: 'bg-green-500/15 text-green-400 border-green-500/30',
-    dot: 'bg-green-400'
+    className: 'bg-[hsl(var(--admin-success)/15%)] text-[hsl(var(--admin-success))] border-[hsl(var(--admin-success)/30%)]',
+    dot: 'bg-[hsl(var(--admin-success))]'
   },
   resigned: {
     label: 'Đã nghỉ',
-    className: 'bg-slate-500/15 text-slate-400 border-slate-500/30',
-    dot: 'bg-slate-400'
+    className: 'bg-[hsl(var(--admin-text-muted)/15%)] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-text-muted)/30%)]',
+    dot: 'bg-[hsl(var(--admin-text-muted))]'
   }
 };
 
@@ -113,12 +113,12 @@ export const TrainerPlacementTable = ({
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="h-10 bg-slate-900/60 rounded-xl border border-slate-800 animate-pulse flex-1" />
-          <div className="h-10 bg-slate-900/60 rounded-xl border border-slate-800 animate-pulse w-40" />
+          <div className="h-10 bg-[hsl(var(--admin-surface-elevated))]/60 rounded-xl border border-[hsl(var(--admin-border))] animate-pulse flex-1" />
+          <div className="h-10 bg-[hsl(var(--admin-surface-elevated))]/60 rounded-xl border border-[hsl(var(--admin-border))] animate-pulse w-40" />
         </div>
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, idx) => (
-            <div key={idx} className="h-16 bg-slate-950 border border-slate-900/60 rounded-xl animate-pulse w-full" />
+            <div key={idx} className="h-16 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-surface-elevated))]/60 rounded-xl animate-pulse w-full" />
           ))}
         </div>
       </div>
@@ -130,19 +130,19 @@ export const TrainerPlacementTable = ({
       {/* Filters */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--admin-text-faint))]" size={16} />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Tìm theo tên, công ty, vị trí..."
-            className="pl-9 bg-slate-900/60 border-slate-800 text-slate-200 placeholder:text-slate-600 focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/40"
+            className="pl-9 bg-[hsl(var(--admin-surface-elevated))]/60 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] placeholder:text-[hsl(var(--admin-text-faint))] focus:ring-1 focus:ring-[hsl(var(--admin-accent)/30%)] focus:border-[hsl(var(--admin-accent)/40%)]"
           />
         </div>
 
         <div className="relative">
           <button
             onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-900/60 border border-slate-800 rounded-xl text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[hsl(var(--admin-surface-elevated))]/60 border border-[hsl(var(--admin-border))] rounded-xl text-sm text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))] transition-all duration-200"
           >
             <Filter size={15} />
             <span>
@@ -150,11 +150,11 @@ export const TrainerPlacementTable = ({
                 ? STATUS_CONFIG[statusFilter]?.label || 'Tất cả'
                 : 'Lọc trạng thái'}
             </span>
-            <ChevronDown size={14} className={`text-slate-500 transition-transform ${statusDropdownOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={14} className={`text-[hsl(var(--admin-text-faint))] transition-transform ${statusDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {statusDropdownOpen && (
-            <div className="absolute top-full mt-2 right-0 w-48 bg-[#111827] border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden">
+            <div className="absolute top-full mt-2 right-0 w-48 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl shadow-xl z-20 overflow-hidden">
               {STATUS_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
@@ -164,8 +164,8 @@ export const TrainerPlacementTable = ({
                   }}
                   className={`w-full px-4 py-2.5 text-sm text-left flex items-center gap-2 transition-colors ${
                     statusFilter === opt.value
-                      ? 'bg-blue-600/15 text-blue-400'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      ? 'bg-[hsl(var(--admin-accent)/15%)] text-[hsl(var(--admin-accent))]'
+                      : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
                   }`}
                 >
                   {opt.value && STATUS_CONFIG[opt.value] && (
@@ -181,7 +181,7 @@ export const TrainerPlacementTable = ({
         {statusFilter && (
           <button
             onClick={() => setStatusFilter('')}
-            className="text-xs text-slate-500 hover:text-slate-300 underline underline-offset-2"
+            className="text-xs text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-text-muted))] underline underline-offset-2"
           >
             Xóa lọc
           </button>
@@ -189,18 +189,18 @@ export const TrainerPlacementTable = ({
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-slate-800 bg-[#0c101d] overflow-hidden">
+      <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-900/40 border-b border-slate-800">
-            <TableRow className="hover:bg-transparent border-slate-800">
-              <TableHead className="text-slate-400 font-semibold py-4">Học viên</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Khóa học</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Công ty</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Vị trí</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Lương</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Trạng thái</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4">Ngày tạo</TableHead>
-              <TableHead className="text-slate-400 font-semibold py-4 text-right">Thao tác</TableHead>
+          <TableHeader className="bg-[hsl(var(--admin-surface-elevated))]/40 border-b border-[hsl(var(--admin-border))]">
+            <TableRow className="hover:bg-transparent border-[hsl(var(--admin-border))]">
+              <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Học viên</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Khóa học</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Công ty</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Vị trí</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Lương</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Trạng thái</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Ngày tạo</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4 text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -208,16 +208,16 @@ export const TrainerPlacementTable = ({
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={8} className="h-48 text-center py-12">
                   <div className="flex flex-col items-center justify-center gap-3">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-center">
-                      <Briefcase size={24} className="text-slate-600" />
+                    <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]/80 border border-[hsl(var(--admin-border))] flex items-center justify-center">
+                      <Briefcase size={24} className="text-[hsl(var(--admin-text-faint))]" />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-slate-300">
+                      <p className="text-sm font-semibold text-[hsl(var(--admin-text-secondary))]">
                         {search || statusFilter
                           ? 'Không tìm thấy placement nào phù hợp.'
                           : 'Chưa có placement nào.'}
                       </p>
-                      <p className="text-xs text-slate-500 max-w-xs">
+                      <p className="text-xs text-[hsl(var(--admin-text-faint))] max-w-xs">
                         {search || statusFilter
                           ? 'Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.'
                           : 'Khi học viên hoàn thành khóa học, bạn có thể giới thiệu việc làm cho họ.'}
@@ -230,14 +230,14 @@ export const TrainerPlacementTable = ({
               filteredPlacements.map((placement) => {
                 const statusCfg = STATUS_CONFIG[placement.status] || {
                   label: placement.status || 'N/A',
-                  className: 'bg-slate-800 text-slate-400 border-slate-700',
-                  dot: 'bg-slate-500'
+                  className: 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-border-strong))]',
+                  dot: 'bg-[hsl(var(--admin-text-muted))]'
                 };
 
                 return (
                   <TableRow
                     key={placement._id}
-                    className="border-slate-850 hover:bg-slate-900/20 transition-all duration-200"
+                    className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-elevated))]/20 transition-all duration-200"
                   >
                     <TableCell className="py-4">
                       <div className="flex items-center gap-3">
@@ -246,13 +246,13 @@ export const TrainerPlacementTable = ({
                           alt={placement.user?.displayName}
                           fallback={placement.user?.displayName?.charAt(0)?.toUpperCase() || '?'}
                           size="default"
-                          className="bg-slate-800 text-slate-300 ring-1 ring-slate-800"
+                          className="bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] ring-1 ring-[hsl(var(--admin-border))]"
                         />
                         <div className="flex flex-col">
-                          <span className="font-semibold text-white text-sm">
+                          <span className="font-semibold text-[hsl(var(--admin-text-primary))] text-sm">
                             {placement.user?.displayName || 'Chưa cập nhật'}
                           </span>
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-[hsl(var(--admin-text-faint))]">
                             {placement.user?.email || 'N/A'}
                           </span>
                         </div>
@@ -260,28 +260,28 @@ export const TrainerPlacementTable = ({
                     </TableCell>
 
                     <TableCell className="py-4">
-                      <span className="text-sm text-slate-300 max-w-[180px] block truncate" title={placement.course?.title}>
+                      <span className="text-sm text-[hsl(var(--admin-text-secondary))] max-w-[180px] block truncate" title={placement.course?.title}>
                         {placement.course?.title || 'N/A'}
                       </span>
                     </TableCell>
 
                     <TableCell className="py-4">
                       <div className="flex items-center gap-2">
-                        <Building2 size={14} className="text-slate-600 shrink-0" />
-                        <span className="text-sm text-slate-300 max-w-[160px] block truncate">
+                        <Building2 size={14} className="text-[hsl(var(--admin-text-faint))] shrink-0" />
+                        <span className="text-sm text-[hsl(var(--admin-text-secondary))] max-w-[160px] block truncate">
                           {placement.company || 'N/A'}
                         </span>
                       </div>
                     </TableCell>
 
                     <TableCell className="py-4">
-                      <span className="text-sm text-slate-300 max-w-[140px] block truncate">
+                      <span className="text-sm text-[hsl(var(--admin-text-secondary))] max-w-[140px] block truncate">
                         {placement.position || 'N/A'}
                       </span>
                     </TableCell>
 
                     <TableCell className="py-4">
-                      <span className="text-sm font-semibold text-emerald-400 font-mono">
+                      <span className="text-sm font-semibold text-[hsl(var(--admin-success))] font-mono">
                         {formatSalary(placement.salary)}
                       </span>
                     </TableCell>
@@ -294,7 +294,7 @@ export const TrainerPlacementTable = ({
                     </TableCell>
 
                     <TableCell className="py-4">
-                      <span className="text-xs text-slate-400 font-mono">
+                      <span className="text-xs text-[hsl(var(--admin-text-muted))] font-mono">
                         {formatDate(placement.createdAt)}
                       </span>
                     </TableCell>
@@ -305,7 +305,7 @@ export const TrainerPlacementTable = ({
                           variant="outline"
                           size="sm"
                           onClick={() => onViewDetail?.(placement)}
-                          className="border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800/80 gap-1.5 transition-all duration-200 text-xs px-2.5 py-1.5"
+                          className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] gap-1.5 transition-all duration-200 text-xs px-2.5 py-1.5"
                         >
                           <Eye size={14} />
                           Chi tiết
@@ -322,18 +322,18 @@ export const TrainerPlacementTable = ({
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4 bg-slate-950/40 p-4 rounded-xl border border-slate-900">
-          <p className="text-xs text-slate-400">
+        <div className="flex items-center justify-between mt-4 bg-[hsl(var(--admin-surface))]/40 p-4 rounded-xl border border-[hsl(var(--admin-surface-elevated))]">
+          <p className="text-xs text-[hsl(var(--admin-text-muted))]">
             Hiển thị{' '}
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-[hsl(var(--admin-text-primary))]">
               {(pagination.currentPage - 1) * pagination.limit + 1}
             </span>{' '}
             -{' '}
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-[hsl(var(--admin-text-primary))]">
               {Math.min(pagination.currentPage * pagination.limit, pagination.totalRecords)}
             </span>{' '}
             trong tổng số{' '}
-            <span className="font-semibold text-white">{pagination.totalRecords}</span> placement
+            <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{pagination.totalRecords}</span> placement
           </p>
 
           <div className="flex items-center gap-1">
@@ -342,7 +342,7 @@ export const TrainerPlacementTable = ({
               size="sm"
               onClick={() => onPageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
-              className="border-slate-800 text-slate-400 hover:text-white disabled:opacity-40 text-xs px-3"
+              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40 text-xs px-3"
             >
               Trước
             </Button>
@@ -366,8 +366,8 @@ export const TrainerPlacementTable = ({
                   onClick={() => onPageChange(pageNum)}
                   className={`w-8 h-8 text-xs font-semibold rounded-lg transition-colors ${
                     isCurrent
-                      ? 'bg-blue-600 text-white'
-                      : 'text-slate-400 hover:bg-slate-900 hover:text-white'
+                      ? 'bg-[hsl(var(--admin-accent))] text-white'
+                      : 'text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]'
                   }`}
                 >
                   {pageNum}
@@ -380,7 +380,7 @@ export const TrainerPlacementTable = ({
               size="sm"
               onClick={() => onPageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage === pagination.totalPages}
-              className="border-slate-800 text-slate-400 hover:text-white disabled:opacity-40 text-xs px-3"
+              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40 text-xs px-3"
             >
               Sau
             </Button>

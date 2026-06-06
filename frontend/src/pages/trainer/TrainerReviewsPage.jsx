@@ -155,8 +155,8 @@ export default function TrainerReviewsPage() {
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">Phản hồi đánh giá</h1>
-            <p className="text-gray-400 text-sm mt-1">
+            <h1 className="text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))]">Phản hồi đánh giá</h1>
+            <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">
               Xem và phản hồi ý kiến đóng góp, đánh giá khóa học từ học viên.
             </p>
           </div>
@@ -165,7 +165,7 @@ export default function TrainerReviewsPage() {
             size="sm"
             onClick={handleRefresh}
             disabled={loading}
-            className="border-slate-800 text-slate-300 hover:bg-slate-800 text-xs gap-1.5"
+            className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] text-xs gap-1.5"
           >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
             Làm mới
@@ -176,25 +176,25 @@ export default function TrainerReviewsPage() {
       {/* Summary Stats */}
       {!loading && (
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-800 bg-[#111827]">
-            <MessageSquare size={15} className="text-slate-500" />
-            <span className="text-sm text-slate-300">
-              <span className="font-bold text-white">{reviews.length}</span>{' '}
-              <span className="text-slate-500">đánh giá</span>
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))]">
+            <MessageSquare size={15} className="text-[hsl(var(--admin-text-muted))]" />
+            <span className="text-sm text-[hsl(var(--admin-text-secondary))]">
+              <span className="font-bold text-[hsl(var(--admin-text-primary))]">{reviews.length}</span>{' '}
+              <span className="text-[hsl(var(--admin-text-muted))]">đánh giá</span>
             </span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5">
-            <Clock size={15} className="text-amber-400" />
-            <span className="text-sm text-slate-300">
-              <span className="font-bold text-amber-400">{pendingCount}</span>{' '}
-              <span className="text-slate-500">chưa phản hồi</span>
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[hsl(var(--admin-warning))]/20 bg-[hsl(var(--admin-warning))]/5">
+            <Clock size={15} className="text-[hsl(var(--admin-warning))]" />
+            <span className="text-sm text-[hsl(var(--admin-text-secondary))]">
+              <span className="font-bold text-[hsl(var(--admin-warning))]">{pendingCount}</span>{' '}
+              <span className="text-[hsl(var(--admin-text-muted))]">chưa phản hồi</span>
             </span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-green-500/20 bg-green-500/5">
-            <CheckCircle2 size={15} className="text-green-400" />
-            <span className="text-sm text-slate-300">
-              <span className="font-bold text-green-400">{respondedCount}</span>{' '}
-              <span className="text-slate-500">đã phản hồi</span>
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[hsl(var(--admin-success))]/20 bg-[hsl(var(--admin-success))]/5">
+            <CheckCircle2 size={15} className="text-[hsl(var(--admin-success))]" />
+            <span className="text-sm text-[hsl(var(--admin-text-secondary))]">
+              <span className="font-bold text-[hsl(var(--admin-success))]">{respondedCount}</span>{' '}
+              <span className="text-[hsl(var(--admin-text-muted))]">đã phản hồi</span>
             </span>
           </div>
         </div>
@@ -203,15 +203,15 @@ export default function TrainerReviewsPage() {
       {/* Filter Bar */}
       <div className="flex items-center gap-3 flex-wrap">
         {/* Tab filters */}
-        <div className="flex items-center bg-slate-900/60 border border-slate-800 rounded-xl p-1 gap-1">
+        <div className="flex items-center bg-[hsl(var(--admin-surface-elevated))]/60 border border-[hsl(var(--admin-border))] rounded-xl p-1 gap-1">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setFilterTab(tab.value)}
               className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 filterTab === tab.value
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-[hsl(var(--admin-accent))] text-white shadow-sm'
+                  : 'text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]'
               }`}
             >
               {tab.label}
@@ -223,19 +223,19 @@ export default function TrainerReviewsPage() {
         <div className="relative">
           <button
             onClick={() => setCourseDropdownOpen(!courseDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-900/60 border border-slate-800 rounded-xl text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[hsl(var(--admin-surface-elevated))]/60 border border-[hsl(var(--admin-border))] rounded-xl text-sm text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))] transition-all duration-200"
           >
             <span className="max-w-[160px] truncate">{selectedCourseLabel}</span>
-            <ChevronDown size={14} className={`text-slate-500 transition-transform ${courseDropdownOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={14} className={`text-[hsl(var(--admin-text-muted))] transition-transform ${courseDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {courseDropdownOpen && (
-            <div className="absolute top-full mt-2 left-0 w-64 bg-[#111827] border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden">
+            <div className="absolute top-full mt-2 left-0 w-64 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl shadow-[var(--admin-shadow-lg)] z-20 overflow-hidden">
               <div className="py-1">
                 <button
                   onClick={() => { setCourseFilter(''); setCourseDropdownOpen(false); }}
                   className={`w-full px-4 py-2.5 text-sm text-left flex items-center gap-2 transition-colors ${
-                    !courseFilter ? 'bg-blue-600/15 text-blue-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                    !courseFilter ? 'bg-[hsl(var(--admin-accent))]/15 text-[hsl(var(--admin-accent))]' : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
                   }`}
                 >
                   Tất cả khóa học
@@ -246,12 +246,12 @@ export default function TrainerReviewsPage() {
                     onClick={() => { setCourseFilter(course._id); setCourseDropdownOpen(false); }}
                     className={`w-full px-4 py-2.5 text-sm text-left transition-colors ${
                       courseFilter === course._id
-                        ? 'bg-blue-600/15 text-blue-400'
-                        : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                        ? 'bg-[hsl(var(--admin-accent))]/15 text-[hsl(var(--admin-accent))]'
+                        : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
                     }`}
                   >
                     <span className="block truncate">{course.title || 'Khóa học'}</span>
-                    <span className="block text-xs text-slate-500 mt-0.5">{course.status || ''}</span>
+                    <span className="block text-xs text-[hsl(var(--admin-text-muted))] mt-0.5">{course.status || ''}</span>
                   </button>
                 ))}
               </div>
@@ -263,22 +263,22 @@ export default function TrainerReviewsPage() {
         <div className="relative">
           <button
             onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-900/60 border border-slate-800 rounded-xl text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[hsl(var(--admin-surface-elevated))]/60 border border-[hsl(var(--admin-border))] rounded-xl text-sm text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))] transition-all duration-200"
           >
             <span>Sắp xếp: <strong>{selectedSortLabel}</strong></span>
-            <ChevronDown size={14} className={`text-slate-500 transition-transform ${sortDropdownOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={14} className={`text-[hsl(var(--admin-text-muted))] transition-transform ${sortDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {sortDropdownOpen && (
-            <div className="absolute top-full mt-2 left-0 w-48 bg-[#111827] border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden">
+            <div className="absolute top-full mt-2 left-0 w-48 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl shadow-[var(--admin-shadow-lg)] z-20 overflow-hidden">
               {SORT_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => { setSortBy(opt.value); setSortDropdownOpen(false); }}
                   className={`w-full px-4 py-2.5 text-sm text-left transition-colors ${
                     sortBy === opt.value
-                      ? 'bg-blue-600/15 text-blue-400'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      ? 'bg-[hsl(var(--admin-accent))]/15 text-[hsl(var(--admin-accent))]'
+                      : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
                   }`}
                 >
                   {opt.label}
@@ -291,7 +291,7 @@ export default function TrainerReviewsPage() {
         {(courseFilter || filterTab !== 'all') && (
           <button
             onClick={() => { setFilterTab('all'); setCourseFilter(''); }}
-            className="text-xs text-slate-500 hover:text-slate-300 underline underline-offset-2"
+            className="text-xs text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-secondary))] underline underline-offset-2"
           >
             Xóa bộ lọc
           </button>
@@ -302,36 +302,36 @@ export default function TrainerReviewsPage() {
       {loading ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {Array.from({ length: 4 }).map((_, idx) => (
-            <div key={idx} className="h-72 bg-slate-950 border border-slate-900/60 rounded-2xl animate-pulse" />
+            <div key={idx} className="h-72 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-surface-elevated))]/60 rounded-2xl animate-pulse" />
           ))}
         </div>
       ) : error ? (
-        <div className="border border-red-500/30 bg-red-500/5 rounded-xl p-6 text-center">
-          <p className="text-sm text-red-400 mb-3">{error}</p>
+        <div className="border border-[hsl(var(--admin-danger))]/30 bg-[hsl(var(--admin-danger))]/5 rounded-xl p-6 text-center">
+          <p className="text-sm text-[hsl(var(--admin-danger))] mb-3">{error}</p>
           <Button
             variant="outline"
             size="sm"
             onClick={handleRefresh}
-            className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs gap-1.5"
+            className="border-[hsl(var(--admin-danger))]/30 text-[hsl(var(--admin-danger))] hover:bg-[hsl(var(--admin-danger))]/10 text-xs gap-1.5"
           >
             <RefreshCw size={13} />
             Thử lại
           </Button>
         </div>
       ) : filteredReviews.length === 0 ? (
-        <div className="border border-slate-800 bg-[#111827] rounded-2xl p-16 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-center mx-auto mb-4">
-            <Star size={28} className="text-slate-600" />
+        <div className="border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] rounded-2xl p-16 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]/80 border border-[hsl(var(--admin-border))] flex items-center justify-center mx-auto mb-4">
+            <Star size={28} className="text-[hsl(var(--admin-text-faint))]" />
           </div>
           <div className="space-y-2">
-            <p className="text-base font-semibold text-slate-300">
+            <p className="text-base font-semibold text-[hsl(var(--admin-text-secondary))]">
               {filterTab === 'pending'
                 ? 'Không có đánh giá chưa phản hồi.'
                 : filterTab === 'responded'
                 ? 'Không có đánh giá đã phản hồi.'
                 : 'Chưa có đánh giá nào.'}
             </p>
-            <p className="text-sm text-slate-500 max-w-sm mx-auto">
+            <p className="text-sm text-[hsl(var(--admin-text-muted))] max-w-sm mx-auto">
               {filterTab === 'all' && !courseFilter
                 ? 'Khi học viên đánh giá các khóa học của bạn, họ sẽ xuất hiện tại đây.'
                 : 'Hãy thử thay đổi bộ lọc để xem thêm đánh giá.'}
@@ -353,7 +353,7 @@ export default function TrainerReviewsPage() {
 
       {/* Footer: count */}
       {!loading && !error && filteredReviews.length > 0 && (
-        <p className="text-center text-xs text-slate-600">
+        <p className="text-center text-xs text-[hsl(var(--admin-text-muted))]">
           Hiển thị {filteredReviews.length} trên tổng số {reviews.length} đánh giá
           {courseFilter && ` trong khóa học đã chọn`}
         </p>
@@ -361,6 +361,3 @@ export default function TrainerReviewsPage() {
     </div>
   );
 }
-
-// Import missing icons
-

@@ -198,13 +198,13 @@ const AttendancePage = () => {
     : '';
 
   return (
-    <AdminLayout className="bg-[#0b0f19] text-slate-100 min-h-screen">
+    <AdminLayout>
       {/* Header Area */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(`/admin/courses/${courseId}/schedule`)}
-            className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-slate-700 transition-colors duration-200 active:scale-95 cursor-pointer"
+            className="w-10 h-10 rounded-full bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] flex items-center justify-center text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] hover:border-[hsl(var(--admin-border-strong))] transition-colors duration-200 active:scale-95 cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -217,7 +217,7 @@ const AttendancePage = () => {
         <div className="flex items-center gap-2 shrink-0">
           <Button
             onClick={() => setQrModalOpen(true)}
-            className="bg-purple-600 hover:bg-purple-550 border-purple-500 text-white rounded-full px-5 py-2 text-xs font-bold shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all flex items-center gap-1.5"
+            className="bg-purple-600 hover:bg-purple-600 border-purple-500 text-white rounded-full px-5 py-2 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
             disabled={loading}
           >
             <QrCode className="w-4 h-4" />
@@ -226,7 +226,7 @@ const AttendancePage = () => {
 
           <Button
             onClick={handleSaveAttendance}
-            className="bg-blue-600 hover:bg-blue-550 border-blue-500 text-white rounded-full px-5 py-2 text-xs font-bold shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all flex items-center gap-1.5"
+            className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))] text-white rounded-full px-5 py-2 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
             disabled={loading || saving}
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -237,87 +237,87 @@ const AttendancePage = () => {
 
       {loading ? (
         <div className="space-y-6 animate-pulse">
-          <div className="h-28 bg-slate-900 border border-slate-800 rounded-2xl" />
-          <div className="h-96 bg-slate-900 border border-slate-800 rounded-2xl" />
+          <div className="h-28 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-2xl" />
+          <div className="h-96 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-2xl" />
         </div>
       ) : (
         <div className="space-y-6">
           {/* Quick Stats Panel */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 bg-slate-950/40 border border-slate-850 rounded-2xl flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400">
+            <div className="p-4 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-500">
                 <UserCheck className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono font-bold">Có mặt</p>
-                <p className="text-xl font-extrabold text-white mt-0.5 font-mono">{presentCount} học viên</p>
+                <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase tracking-wider font-mono font-bold">Có mặt</p>
+                <p className="text-xl font-extrabold text-[hsl(var(--admin-text-primary))] mt-0.5 font-mono">{presentCount} học viên</p>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-950/40 border border-slate-850 rounded-2xl flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-450">
+            <div className="p-4 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/25 flex items-center justify-center text-red-500">
                 <UserX className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono font-bold">Vắng mặt</p>
-                <p className="text-xl font-extrabold text-white mt-0.5 font-mono">{absentCount} học viên</p>
+                <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase tracking-wider font-mono font-bold">Vắng mặt</p>
+                <p className="text-xl font-extrabold text-[hsl(var(--admin-text-primary))] mt-0.5 font-mono">{absentCount} học viên</p>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-950/40 border border-slate-850 rounded-2xl flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-450">
+            <div className="p-4 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono font-bold">Đi muộn</p>
-                <p className="text-xl font-extrabold text-white mt-0.5 font-mono">{lateCount} học viên</p>
+                <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase tracking-wider font-mono font-bold">Đi muộn</p>
+                <p className="text-xl font-extrabold text-[hsl(var(--admin-text-primary))] mt-0.5 font-mono">{lateCount} học viên</p>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-950/40 border border-slate-850 rounded-2xl flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400">
+            <div className="p-4 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-500">
                 <Clipboard className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono font-bold">Nghỉ phép</p>
-                <p className="text-xl font-extrabold text-white mt-0.5 font-mono">{excusedCount} học viên</p>
+                <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase tracking-wider font-mono font-bold">Nghỉ phép</p>
+                <p className="text-xl font-extrabold text-[hsl(var(--admin-text-primary))] mt-0.5 font-mono">{excusedCount} học viên</p>
               </div>
             </div>
           </div>
 
           {/* Filtering & Quick Actions Row */}
-          <BezelCard className="p-4 bg-slate-950/20 border border-slate-850 rounded-2xl">
+          <BezelCard className="p-4 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               {/* Search Box */}
               <div className="relative max-w-md w-full">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
                 <input
                   type="text"
                   placeholder="Tìm kiếm học viên theo tên, email, SĐT..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-850 text-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/50 placeholder:text-slate-500"
+                  className="w-full pl-10 pr-4 py-2 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[hsl(var(--admin-accent))]/30 focus:border-[hsl(var(--admin-accent))]/50 placeholder:text-[hsl(var(--admin-text-muted))]"
                 />
               </div>
 
               {/* Quick status change tags */}
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="text-slate-400 font-mono mr-1">Duyệt nhanh tất cả:</span>
+                <span className="text-[hsl(var(--admin-text-muted))] font-mono mr-1">Duyệt nhanh tất cả:</span>
                 <button
                   onClick={() => handleMarkAllStatus('present')}
-                  className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-450 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all font-bold cursor-pointer"
+                  className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all font-bold cursor-pointer"
                 >
                   Có mặt
                 </button>
                 <button
                   onClick={() => handleMarkAllStatus('absent')}
-                  className="px-3 py-1 rounded-full bg-rose-500/10 text-rose-450 hover:bg-rose-500/20 border border-rose-500/20 transition-all font-bold cursor-pointer"
+                  className="px-3 py-1 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 transition-all font-bold cursor-pointer"
                 >
                   Vắng mặt
                 </button>
                 <button
                   onClick={() => handleMarkAllStatus('late')}
-                  className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-450 hover:bg-amber-500/20 border border-amber-500/20 transition-all font-bold cursor-pointer"
+                  className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20 transition-all font-bold cursor-pointer"
                 >
                   Đi muộn
                 </button>
@@ -329,47 +329,47 @@ const AttendancePage = () => {
           <BezelCard className="overflow-hidden">
             {filteredEnrollments.length === 0 ? (
               <div className="p-16 text-center">
-                <AlertCircle className="w-12 h-12 text-slate-650 mx-auto mb-3 opacity-60" />
-                <p className="text-sm text-slate-450 font-bold">Không tìm thấy học viên phù hợp</p>
+                <AlertCircle className="w-12 h-12 text-[hsl(var(--admin-text-muted))] mx-auto mb-3 opacity-60" />
+                <p className="text-sm text-[hsl(var(--admin-text-muted))] font-bold">Không tìm thấy học viên phù hợp</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="border-b border-slate-850 bg-slate-950/40 text-slate-450 font-bold uppercase tracking-wider font-mono">
+                    <tr className="border-b border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] font-bold uppercase tracking-wider font-mono">
                       <th className="py-4 px-5">Học viên</th>
                       <th className="py-4 px-5">Email & SĐT</th>
                       <th className="py-4 px-5 text-center">Trạng thái điểm danh</th>
                       <th className="py-4 px-5">Ghi chú</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-850/60">
+                  <tbody className="divide-y divide-[hsl(var(--admin-border))]/60">
                     {filteredEnrollments.map((enroll) => {
                       const user = enroll.user;
                       if (!user) return null;
                       const currentVal = attendanceData[user._id] || { status: 'present', note: '' };
 
                       return (
-                        <tr key={user._id} className="hover:bg-slate-950/20 transition-colors">
+                        <tr key={user._id} className="hover:bg-[hsl(var(--admin-surface-elevated))] transition-colors">
                           <td className="py-4.5 px-5">
                             <div className="flex items-center gap-3">
                               <Avatar
                                 src={user.avatar}
                                 fallback={user.displayName?.charAt(0) || 'U'}
-                                className="w-9 h-9 border border-slate-800"
+                                className="w-9 h-9 border border-[hsl(var(--admin-border))]"
                               />
                               <div>
-                                <h5 className="font-extrabold text-white text-sm leading-snug">{user.displayName}</h5>
-                                <Badge className="mt-1 bg-slate-900 border border-slate-850 text-slate-450 font-mono text-[9px] px-1.5 py-0">
+                                <h5 className="font-extrabold text-[hsl(var(--admin-text-primary))] text-sm leading-snug">{user.displayName}</h5>
+                                <Badge className="mt-1 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] font-mono text-[9px] px-1.5 py-0">
                                   Học viên
                                 </Badge>
                               </div>
                             </div>
                           </td>
                           <td className="py-4.5 px-5">
-                            <div className="space-y-0.5 font-mono text-slate-400">
+                            <div className="space-y-0.5 font-mono text-[hsl(var(--admin-text-secondary))]">
                               <p className="font-medium">{user.email}</p>
-                              <p className="text-[10px] text-slate-500">{user.phone || 'N/A'}</p>
+                              <p className="text-[10px] text-[hsl(var(--admin-text-muted))]">{user.phone || 'N/A'}</p>
                             </div>
                           </td>
                           <td className="py-4.5 px-5">
@@ -379,8 +379,8 @@ const AttendancePage = () => {
                                 onClick={() => handleStatusChange(user._id, 'present')}
                                 className={`px-3.5 py-1.5 rounded-l-full font-bold transition-all cursor-pointer border ${
                                   currentVal.status === 'present'
-                                    ? 'bg-emerald-500/10 text-emerald-450 border-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.1)]'
-                                    : 'bg-slate-950 border-slate-850 text-slate-500 hover:text-slate-350 hover:bg-slate-900'
+                                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/25'
+                                    : 'bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]'
                                 }`}
                               >
                                 Có mặt
@@ -391,8 +391,8 @@ const AttendancePage = () => {
                                 onClick={() => handleStatusChange(user._id, 'late')}
                                 className={`px-3.5 py-1.5 font-bold transition-all cursor-pointer border-t border-b ${
                                   currentVal.status === 'late'
-                                    ? 'bg-amber-500/10 text-amber-450 border-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.1)]'
-                                    : 'bg-slate-950 border-slate-850 text-slate-500 hover:text-slate-350 hover:bg-slate-900'
+                                    ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                                    : 'bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]'
                                 }`}
                               >
                                 Đi muộn
@@ -403,8 +403,8 @@ const AttendancePage = () => {
                                 onClick={() => handleStatusChange(user._id, 'excused')}
                                 className={`px-3.5 py-1.5 font-bold transition-all cursor-pointer border-t border-b border-l border-r ${
                                   currentVal.status === 'excused'
-                                    ? 'bg-blue-500/10 text-blue-400 border-blue-500/25'
-                                    : 'bg-slate-950 border-slate-850 text-slate-500 hover:text-slate-350 hover:bg-slate-900'
+                                    ? 'bg-blue-500/10 text-blue-500 border-blue-500/25'
+                                    : 'bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]'
                                 }`}
                               >
                                 Phép
@@ -415,8 +415,8 @@ const AttendancePage = () => {
                                 onClick={() => handleStatusChange(user._id, 'absent')}
                                 className={`px-3.5 py-1.5 rounded-r-full font-bold transition-all cursor-pointer border ${
                                   currentVal.status === 'absent'
-                                    ? 'bg-rose-500/10 text-rose-450 border-rose-500/25 shadow-[0_0_12px_rgba(244,63,94,0.1)]'
-                                    : 'bg-slate-950 border-slate-850 text-slate-500 hover:text-slate-350 hover:bg-slate-900'
+                                    ? 'bg-red-500/10 text-red-500 border-red-500/25'
+                                    : 'bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]'
                                 }`}
                               >
                                 Vắng
@@ -429,7 +429,7 @@ const AttendancePage = () => {
                               placeholder="Ghi chú thêm..."
                               value={currentVal.note}
                               onChange={(e) => handleNoteChange(user._id, e.target.value)}
-                              className="w-full max-w-xs px-3 py-1.5 bg-slate-950 border border-slate-850 text-slate-300 rounded-lg text-[11px] focus:outline-none focus:border-blue-500/40"
+                              className="w-full max-w-xs px-3 py-1.5 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] rounded-lg text-[11px] focus:outline-none focus:border-[hsl(var(--admin-accent))]/40"
                             />
                           </td>
                         </tr>
@@ -447,38 +447,38 @@ const AttendancePage = () => {
       <AnimatePresence>
         {qrModalOpen && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md"
             onClick={() => setQrModalOpen(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-lg rounded-[28px] bg-slate-900 border border-slate-800 p-2 overflow-hidden shadow-2xl"
+              className="relative w-full max-w-lg rounded-[28px] bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-2 overflow-hidden shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Core Screen */}
-              <div className="p-8 rounded-[22px] bg-slate-950 border border-slate-850 flex flex-col items-center text-center space-y-6">
+              <div className="p-8 rounded-[22px] bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] flex flex-col items-center text-center space-y-6">
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-blue-500" />
-                    <span className="font-extrabold text-sm text-white font-mono uppercase tracking-wider">CỔNG ĐIỂM DANH TỰ ĐỘNG</span>
+                    <span className="font-extrabold text-sm text-[hsl(var(--admin-text-primary))] font-mono uppercase tracking-wider">CỔNG ĐIỂM DANH TỰ ĐỘNG</span>
                   </div>
                   <button
                     onClick={() => setQrModalOpen(false)}
-                    className="p-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    className="p-1 rounded-full bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] transition-colors cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-white leading-tight">Buổi {sessionNumber}: {session?.title}</h3>
-                  <p className="text-xs text-slate-450 font-medium">Học viên quét mã QR bên dưới hoặc truy cập trang check-in và nhập mã PIN.</p>
+                  <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))] leading-tight">Buổi {sessionNumber}: {session?.title}</h3>
+                  <p className="text-xs text-[hsl(var(--admin-text-muted))] font-medium">Học viên quét mã QR bên dưới hoặc truy cập trang check-in và nhập mã PIN.</p>
                 </div>
 
                 {/* QR Code Graphic Box */}
-                <div className="bg-white p-5 rounded-2xl shadow-xl w-72 h-72 flex items-center justify-center border border-slate-800">
+                <div className="bg-white p-5 rounded-2xl shadow-xl w-72 h-72 flex items-center justify-center border border-[hsl(var(--admin-border))]">
                   {qrCodeSrc ? (
                     <img src={qrCodeSrc} alt="Checkin QR Code" className="w-full h-full object-contain" />
                   ) : (
@@ -487,15 +487,15 @@ const AttendancePage = () => {
                 </div>
 
                 {/* PIN Info display */}
-                <div className="w-full p-4 bg-slate-900 border border-slate-850 rounded-2xl space-y-1 leading-relaxed">
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">MÃ PIN ĐIỂM DANH THỦ CÔNG</p>
-                  <span className="text-4xl font-extrabold text-blue-450 tracking-wider font-mono select-all">
+                <div className="w-full p-4 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl space-y-1 leading-relaxed">
+                  <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase tracking-widest font-bold">MÃ PIN ĐIỂM DANH THỦ CÔNG</p>
+                  <span className="text-4xl font-extrabold text-blue-500 tracking-wider font-mono select-all">
                     {expectedPin}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                  <AlertCircle className="w-4 h-4 text-slate-600 shrink-0" />
+                <div className="flex items-center gap-1.5 text-[11px] text-[hsl(var(--admin-text-muted))]">
+                  <AlertCircle className="w-4 h-4 text-[hsl(var(--admin-text-muted))] shrink-0" />
                   <span>Hệ thống ghi nhận điểm danh thời gian thực và tự động cập nhật thống kê khóa học.</span>
                 </div>
               </div>

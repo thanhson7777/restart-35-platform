@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { FileDown, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { BezelCard } from '@/components/ui';
 import { AdminLayout, AdminPageTitle } from '@/components/layout';
 import {
   getAdminEnrollmentStats,
@@ -145,13 +146,13 @@ const AdminEnrollmentsPage = () => {
   };
 
   return (
-    <AdminLayout className="bg-[#0b0f19] text-slate-100 min-h-screen">
+    <AdminLayout>
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <AdminPageTitle
           title={
             <div className="flex items-center gap-2.5">
-              <span className="text-white font-extrabold tracking-tight">Quản lý tuyển sinh</span>
-              <div className="hidden sm:flex items-center gap-1 bg-[#3B82F6]/10 border border-[#3B82F6]/25 rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-[#3B82F6]">
+              <span className="text-[hsl(var(--admin-text-primary))] font-extrabold tracking-tight">Quản lý tuyển sinh</span>
+              <div className="hidden sm:flex items-center gap-1 bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))]/30 rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-[hsl(var(--admin-accent))]">
                 <span>ENROLLMENTS</span>
               </div>
             </div>
@@ -164,7 +165,7 @@ const AdminEnrollmentsPage = () => {
             size="sm"
             onClick={handleRefresh}
             disabled={statsLoading || tableLoading}
-            className="gap-2 bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 rounded-full"
+            className="gap-2 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] rounded-full"
           >
             <RefreshCw className={`w-4 h-4 ${(statsLoading || tableLoading) ? 'animate-spin' : ''}`} />
             Làm mới
@@ -176,22 +177,22 @@ const AdminEnrollmentsPage = () => {
               variant="outline"
               size="sm"
               onClick={() => setExportMenuOpen(!exportMenuOpen)}
-              className="gap-2 bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 rounded-full"
+              className="gap-2 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] rounded-full"
             >
               <FileDown className="w-4 h-4" />
               Xuất file
             </Button>
             {exportMenuOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-slate-950 border border-slate-800 rounded-2xl shadow-xl z-20 overflow-hidden backdrop-blur-xl">
+              <div className="absolute right-0 mt-2 w-44 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl shadow-xl z-20 overflow-hidden">
                 <button
                   onClick={() => handleExport('csv')}
-                  className="w-full px-4 py-2.5 text-left text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 font-mono transition-colors"
+                  className="w-full px-4 py-2.5 text-left text-xs font-semibold text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] transition-colors"
                 >
                   Xuất CSV (.csv)
                 </button>
                 <button
                   onClick={() => handleExport('xlsx')}
-                  className="w-full px-4 py-2.5 text-left text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-900 font-mono transition-colors"
+                  className="w-full px-4 py-2.5 text-left text-xs font-semibold text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] transition-colors"
                 >
                   Xuất Excel (.xlsx)
                 </button>

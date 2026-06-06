@@ -2,8 +2,8 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * BezelCard - A premium double-bezel card container (Doppelrand technique)
- * Outer enclosure provides a machined border frame while the inner core holds content.
+ * BezelCard - Premium card container (Doppelrand / Double-Bezel technique)
+ * For light admin theme: white surface inside subtle border shell.
  */
 const BezelCard = React.forwardRef(
   ({ className, outerClassName, innerClassName, padding = 'default', children, ...props }, ref) => {
@@ -18,16 +18,19 @@ const BezelCard = React.forwardRef(
       <div
         ref={ref}
         className={cn(
-          'group relative overflow-hidden rounded-[2rem] p-1.5 bg-slate-900/40 border border-slate-800/80 backdrop-blur-md transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-slate-700/60 shadow-xl',
+          'group relative overflow-hidden rounded-2xl',
+          'bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))]',
+          'shadow-[var(--admin-shadow-md)]',
+          'transition-all duration-200',
+          'hover:border-[hsl(var(--admin-border-strong))] hover:shadow-[var(--admin-shadow-lg)]',
           outerClassName
         )}
         {...props}
       >
         <div
           className={cn(
-            'w-full h-full rounded-[calc(2rem-0.375rem)] bg-slate-950/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]',
+            'w-full h-full rounded-xl',
             paddingStyles[padding],
-            innerClassName,
             className
           )}
         >

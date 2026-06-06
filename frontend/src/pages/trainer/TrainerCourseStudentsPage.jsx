@@ -53,28 +53,28 @@ const TrainerCourseStudentsPage = () => {
           variant="outline"
           size="sm"
           onClick={() => navigate('/trainer/courses')}
-          className="border-[#1f2937] bg-transparent hover:bg-slate-800 text-gray-300"
+          className="border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           Quay lại khóa học
         </Button>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            <Users className="h-6 w-6 text-blue-500" />
+          <h1 className="text-2xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] flex items-center gap-2">
+            <Users className="h-6 w-6 text-[hsl(var(--admin-accent))]" />
             Học viên trong khóa học
           </h1>
-          <p className="text-gray-400 text-xs mt-0.5">
+          <p className="text-[hsl(var(--admin-text-muted))] text-xs mt-0.5">
             {course ? `Khóa học: ${course.title}` : 'Đang tải thông tin khóa học...'}
           </p>
         </div>
       </div>
 
       {/* Main Student List */}
-      <div className="bg-[#111827] border border-[#1f2937] p-6 rounded-xl space-y-4">
+      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-6 rounded-xl space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">Danh sách đăng ký học</h3>
+          <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Danh sách đăng ký học</h3>
           {pagination && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-[hsl(var(--admin-text-muted))]">
               Tổng số: <strong>{pagination.totalRecords}</strong> học viên
             </span>
           )}

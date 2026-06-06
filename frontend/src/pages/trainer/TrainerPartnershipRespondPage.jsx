@@ -82,27 +82,27 @@ export default function TrainerPartnershipRespondPage() {
 
   return (
     <div className="space-y-6">
-      <Button variant="ghost" onClick={() => navigate(`/trainer/partnerships/${id}`)} className="text-slate-400 hover:text-white pl-0 gap-2">
+      <Button variant="ghost" onClick={() => navigate(`/trainer/partnerships/${id}`)} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] pl-0 gap-2">
         <ArrowLeft size={16} /> Quay lại chi tiết
       </Button>
 
       {loading ? (
-        <Skeleton className="h-96 rounded-2xl bg-slate-800" />
+        <Skeleton className="h-96 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]" />
       ) : (
         <>
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-extrabold text-white">Phản hồi Partnership</h1>
-              <Badge className="bg-blue-500/15 text-blue-300 border border-blue-500/20">{partnership?.status || 'pending'}</Badge>
+              <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Phản hồi Partnership</h1>
+              <Badge className="bg-[hsl(var(--admin-accent)_/_15%)] text-[hsl(var(--admin-accent))] border border-[hsl(var(--admin-accent)_/_20%]">{partnership?.status || 'pending'}</Badge>
             </div>
-            <p className="text-slate-400 text-sm">
+            <p className="text-[hsl(var(--admin-text-muted))] text-sm">
               {partnership?.enterprise?.displayName || 'Doanh nghiệp'} · {partnership?.recruitmentNeeds?.jobTitle || 'Nhu cầu tuyển dụng'}
             </p>
           </div>
 
-          <div className="bg-[#111827] border border-slate-800 rounded-2xl p-6 space-y-5 max-w-3xl">
+          <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6 space-y-5 max-w-3xl">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Hình thức phản hồi</label>
+              <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Hình thức phản hồi</label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {STATUS_OPTIONS.map(option => (
                   <button
@@ -111,8 +111,8 @@ export default function TrainerPartnershipRespondPage() {
                     onClick={() => setResponseStatus(option.value)}
                     className={`rounded-xl border px-4 py-3 text-sm font-medium transition-colors ${
                       responseStatus === option.value
-                        ? 'border-blue-500 bg-blue-500/10 text-white'
-                        : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white'
+                        ? 'border-[hsl(var(--admin-accent))] bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-text-primary))]'
+                        : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))]/60 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]'
                     }`}
                   >
                     {option.label}
@@ -122,31 +122,31 @@ export default function TrainerPartnershipRespondPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Khóa học đề xuất (ID, cách nhau bằng dấu phẩy)</label>
+              <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Khóa học đề xuất (ID, cách nhau bằng dấu phẩy)</label>
               <input
                 value={proposedCourseIds}
                 onChange={(e) => setProposedCourseIds(e.target.value)}
                 placeholder="6651f...,6652a..."
-                className="w-full rounded-xl border border-slate-700 bg-slate-900 text-white p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Nội dung phản hồi</label>
+              <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Nội dung phản hồi</label>
               <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={6}
                 placeholder="Nhập thông điệp phản hồi cho doanh nghiệp..."
-                className="bg-slate-900 border-slate-700 text-white"
+                className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]"
               />
             </div>
 
             <div className="flex gap-3">
-              <Button onClick={handleSubmit} disabled={submitting} className="bg-blue-600 hover:bg-blue-700 gap-2">
+              <Button onClick={handleSubmit} disabled={submitting} className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] gap-2">
                 <Send size={14} /> {submitting ? 'Đang gửi...' : 'Gửi phản hồi'}
               </Button>
-              <Button variant="outline" onClick={() => navigate(`/trainer/partnerships/${id}`)} className="border-slate-800 text-slate-300">
+              <Button variant="outline" onClick={() => navigate(`/trainer/partnerships/${id}`)} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">
                 Hủy
               </Button>
             </div>

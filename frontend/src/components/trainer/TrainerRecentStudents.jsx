@@ -59,15 +59,15 @@ export const TrainerRecentStudents = ({ students = [] }) => {
       <BezelCard className="flex flex-col h-full" padding="default">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold text-white tracking-tight">Học viên mới đăng ký</h3>
-            <p className="text-xs text-slate-400 mt-1">Các học viên vừa đăng ký vào khóa học của bạn</p>
+            <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))] tracking-tight">Học viên mới đăng ký</h3>
+            <p className="text-xs text-[hsl(var(--admin-text-secondary))] mt-1">Các học viên vừa đăng ký vào khóa học của bạn</p>
           </div>
-          <UserCheck size={20} className="text-[#3B82F6] opacity-80" />
+          <UserCheck size={20} className="text-[hsl(var(--admin-accent))] opacity-80" />
         </div>
 
         <div className="flex-1 overflow-y-auto max-h-[300px] pr-1 space-y-4">
           {students.length === 0 ? (
-            <div className="h-48 flex items-center justify-center text-slate-500 text-sm border border-dashed border-slate-800 rounded-xl">
+            <div className="h-48 flex items-center justify-center text-[hsl(var(--admin-text-muted))] text-sm border border-dashed border-[hsl(var(--admin-border))] rounded-xl">
               Chưa có học viên đăng ký mới.
             </div>
           ) : (
@@ -75,7 +75,7 @@ export const TrainerRecentStudents = ({ students = [] }) => {
               <div
                 key={student.enrollmentId || idx}
                 onClick={() => navigate(`/trainer/enrollments/${student.enrollmentId}`)}
-                className="group flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 border border-slate-800/60 hover:bg-slate-800/40 hover:border-slate-700/60 transition-all duration-300 cursor-pointer"
+                className="group flex items-center justify-between p-3 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]/40 border border-[hsl(var(--admin-border))]/60 hover:bg-[hsl(var(--admin-surface-elevated))]/40 hover:border-[hsl(var(--admin-border))]/60 transition-all duration-300 cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <Avatar
@@ -85,10 +85,10 @@ export const TrainerRecentStudents = ({ students = [] }) => {
                     size="default"
                   />
                   <div>
-                    <h4 className="text-sm font-semibold text-white group-hover:text-[#3B82F6] transition-colors duration-200">
+                    <h4 className="text-sm font-semibold text-[hsl(var(--admin-text-primary))] group-hover:text-[hsl(var(--admin-accent))] transition-colors duration-200">
                       {student.userName}
                     </h4>
-                    <p className="text-xs text-slate-400 max-w-[150px] truncate">{student.courseTitle}</p>
+                    <p className="text-xs text-[hsl(var(--admin-text-secondary))] max-w-[150px] truncate">{student.courseTitle}</p>
                   </div>
                 </div>
 
@@ -97,9 +97,9 @@ export const TrainerRecentStudents = ({ students = [] }) => {
                     <Badge variant={getStatusVariant(student.status)}>
                       {getStatusLabel(student.status)}
                     </Badge>
-                    <ArrowUpRight size={14} className="text-slate-500 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
+                    <ArrowUpRight size={14} className="text-[hsl(var(--admin-text-muted))] group-hover:text-[hsl(var(--admin-text-primary))] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
                   </div>
-                  <span className="text-[10px] text-slate-500">{formatDate(student.enrolledAt)}</span>
+                  <span className="text-[10px] text-[hsl(var(--admin-text-muted))]">{formatDate(student.enrolledAt)}</span>
                 </div>
               </div>
             ))

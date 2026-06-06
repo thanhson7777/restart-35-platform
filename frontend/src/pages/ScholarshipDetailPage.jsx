@@ -25,6 +25,8 @@ import {
   Award, Calendar, Users, MapPin, GraduationCap,
   CheckCircle2, XCircle, BookOpen, ArrowLeft
 } from 'lucide-react';
+import Navbar from '@/components/landing/Navbar';
+import Footer from '@/components/layout/Footer';
 
 const COVERAGE_LABELS = {
   full: 'Miễn phí 100%',
@@ -156,65 +158,67 @@ export default function ScholarshipDetailPage() {
   const progress = maxRecipients > 0 ? Math.round((currentRecipients / maxRecipients) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-primary/90 to-primary text-white py-12">
-        <div className="container mx-auto px-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/scholarships')}
-            className="text-white/80 hover:text-white hover:bg-white/10 mb-6 pl-0 gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" /> Quay lại danh sách
-          </Button>
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="flex-1">
-              {scholarship.ngo && (
-                <p className="text-white/70 text-sm mb-2 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-white/20 text-xs font-bold flex items-center justify-center">
-                    {scholarship.ngo.displayName?.charAt(0)?.toUpperCase()}
-                  </span>
-                  {scholarship.ngo.displayName}
-                </p>
-              )}
-              <h1 className="text-3xl font-bold mb-3">{scholarship.title}</h1>
-              <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm">
-                <span className="flex items-center gap-1">
-                  <Award className="w-4 h-4" />
-                  {formatScholarshipAmount(scholarship.amountPerRecipient)}/người
-                </span>
-                {applicationPeriod?.endDate && (
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    Hạn: {formatDeadline(applicationPeriod.endDate)}
-                  </span>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background">
+        {/* Light Gradient Header */}
+        <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50 border-b border-[hsl(var(--admin-border))] shadow-sm py-12">
+          <div className="container mx-auto px-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/scholarships')}
+              className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] mb-6 pl-0 gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" /> Quay lại danh sách
+            </Button>
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="flex-1">
+                {scholarship.ngo && (
+                  <p className="text-[hsl(var(--admin-text-muted))] text-sm mb-2 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] text-xs font-bold flex items-center justify-center">
+                      {scholarship.ngo.displayName?.charAt(0)?.toUpperCase()}
+                    </span>
+                    {scholarship.ngo.displayName}
+                  </p>
                 )}
-                <span className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  {formatRecipientCount(currentRecipients, maxRecipients)}
-                </span>
-              </div>
-            </div>
-
-            {/* Recipients progress */}
-            {maxRecipients > 0 && (
-              <div className="lg:w-64 bg-white/10 rounded-lg p-4 backdrop-blur">
-                <p className="text-white/70 text-sm mb-2">Số người nhận</p>
-                <p className="text-2xl font-bold mb-3">{currentRecipients}/{maxRecipients}</p>
-                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${
-                      progress >= 90 ? 'bg-red-400' : progress >= 50 ? 'bg-amber-400' : 'bg-green-400'
-                    }`}
-                    style={{ width: `${Math.min(progress, 100)}%` }}
-                  />
+                <h1 className="text-3xl font-bold text-[hsl(var(--admin-text-primary))] mb-3">{scholarship.title}</h1>
+                <div className="flex flex-wrap items-center gap-4 text-[hsl(var(--admin-text-muted))] text-sm">
+                  <span className="flex items-center gap-1">
+                    <Award className="w-4 h-4" />
+                    {formatScholarshipAmount(scholarship.amountPerRecipient)}/người
+                  </span>
+                  {applicationPeriod?.endDate && (
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      Hạn: {formatDeadline(applicationPeriod.endDate)}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1">
+                    <Users className="w-4 h-4" />
+                    {formatRecipientCount(currentRecipients, maxRecipients)}
+                  </span>
                 </div>
-                <p className="text-white/60 text-xs mt-2">{progress}% đã nhận</p>
               </div>
-            )}
+
+              {/* Recipients progress */}
+              {maxRecipients > 0 && (
+                <div className="lg:w-64 bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-border))] rounded-lg p-4">
+                  <p className="text-[hsl(var(--admin-text-muted))] text-sm mb-2">Số người nhận</p>
+                  <p className="text-2xl font-bold text-[hsl(var(--admin-text-primary))] mb-3">{currentRecipients}/{maxRecipients}</p>
+                  <div className="h-2 bg-[hsl(var(--admin-border))] rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        progress >= 90 ? 'bg-red-500' : progress >= 50 ? 'bg-amber-500' : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${Math.min(progress, 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-[hsl(var(--admin-text-muted))] text-xs mt-2">{progress}% đã nhận</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -392,6 +396,8 @@ export default function ScholarshipDetailPage() {
           </div>
         </div>
       </main>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

@@ -256,7 +256,7 @@ const AdminUsersPage = () => {
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-[hsl(var(--admin-text-muted))]">
             Hiển thị{' '}
             <span className="font-medium">
               {(pagination.currentPage - 1) * pagination.limit + 1}
@@ -300,8 +300,8 @@ const AdminUsersPage = () => {
                     onClick={() => handlePageChange(pageNum)}
                     className={`w-8 h-8 text-sm font-medium rounded-lg transition-colors ${
                       pagination.currentPage === pageNum
-                        ? 'bg-slate-900 text-white'
-                        : 'text-slate-600 hover:bg-slate-100'
+                        ? 'bg-[hsl(var(--admin-accent))] text-white'
+                        : 'text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
                     }`}
                   >
                     {pageNum}

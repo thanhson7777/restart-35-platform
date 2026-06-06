@@ -191,16 +191,16 @@ export const PlacementFormModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg bg-[#111827] border border-slate-800 rounded-2xl flex flex-col max-h-[90vh] shadow-2xl overflow-hidden">
+      <div className="w-full max-w-lg bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl flex flex-col max-h-[90vh] shadow-2xl overflow-hidden">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 p-5 shrink-0">
+        <div className="flex items-center justify-between border-b border-[hsl(var(--admin-border))] p-5 shrink-0">
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Briefcase className="h-5 w-5 text-blue-400" />
+            <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))] flex items-center gap-2">
+              <Briefcase className="h-5 w-5 text-[hsl(var(--admin-accent))]" />
               {isEditMode ? 'Cập nhật Placement' : 'Thêm Placement'}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[hsl(var(--admin-text-muted))]">
               {isEditMode
                 ? 'Cập nhật thông tin việc làm của học viên.'
                 : 'Giới thiệu việc làm cho học viên đã hoàn thành khóa học.'}
@@ -208,7 +208,7 @@ export const PlacementFormModal = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))] transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -218,8 +218,8 @@ export const PlacementFormModal = ({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-5">
 
           {loadingData ? (
-            <div className="py-16 text-center text-slate-500 space-y-4">
-              <div className="h-10 w-10 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin mx-auto" />
+            <div className="py-16 text-center text-[hsl(var(--admin-text-faint))] space-y-4">
+              <div className="h-10 w-10 border-4 border-[hsl(var(--admin-border-strong))] border-t-[hsl(var(--admin-accent))] rounded-full animate-spin mx-auto" />
               <p className="text-sm font-medium">Đang tải dữ liệu...</p>
             </div>
           ) : (
@@ -242,7 +242,7 @@ export const PlacementFormModal = ({
               {isEditMode ? (
                 <div className="space-y-1.5">
                   <Label required>Khóa học</Label>
-                  <div className="h-10 px-4 flex items-center bg-slate-900/40 border border-slate-800 rounded-lg text-sm text-slate-300">
+                  <div className="h-10 px-4 flex items-center bg-[hsl(var(--admin-surface-elevated))]/40 border border-[hsl(var(--admin-border))] rounded-lg text-sm text-[hsl(var(--admin-text-secondary))]">
                     {placementCourse?.title || 'N/A'}
                   </div>
                 </div>
@@ -266,13 +266,13 @@ export const PlacementFormModal = ({
                   Công ty
                 </Label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--admin-text-faint))]" size={16} />
                   <Input
                     id="company"
                     value={form.company}
                     onChange={(e) => handleChange('company', e.target.value)}
                     placeholder="Ví dụ: Công ty TNHH ABC"
-                    className="pl-9 bg-slate-900/60 border-slate-800 text-slate-200 placeholder:text-slate-600"
+                    className="pl-9 bg-[hsl(var(--admin-surface-elevated))]/60 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] placeholder:text-[hsl(var(--admin-text-faint))]"
                     error={errors.company}
                   />
                 </div>
@@ -284,13 +284,13 @@ export const PlacementFormModal = ({
                   Vị trí
                 </Label>
                 <div className="relative">
-                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--admin-text-faint))]" size={16} />
                   <Input
                     id="position"
                     value={form.position}
                     onChange={(e) => handleChange('position', e.target.value)}
                     placeholder="Ví dụ: Kỹ thuật viên CNC"
-                    className="pl-9 bg-slate-900/60 border-slate-800 text-slate-200 placeholder:text-slate-600"
+                    className="pl-9 bg-[hsl(var(--admin-surface-elevated))]/60 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] placeholder:text-[hsl(var(--admin-text-faint))]"
                     error={errors.position}
                   />
                 </div>
@@ -301,7 +301,7 @@ export const PlacementFormModal = ({
                 <div className="space-y-1.5">
                   <Label htmlFor="salary">Lương (VND)</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--admin-text-faint))]" size={16} />
                     <Input
                       id="salary"
                       type="number"
@@ -309,7 +309,7 @@ export const PlacementFormModal = ({
                       value={form.salary}
                       onChange={(e) => handleChange('salary', e.target.value)}
                       placeholder="Ví dụ: 10000000"
-                      className="pl-9 bg-slate-900/60 border-slate-800 text-slate-200 placeholder:text-slate-600"
+                      className="pl-9 bg-[hsl(var(--admin-surface-elevated))]/60 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] placeholder:text-[hsl(var(--admin-text-faint))]"
                       error={errors.salary}
                     />
                   </div>
@@ -329,13 +329,13 @@ export const PlacementFormModal = ({
               <div className="space-y-1.5">
                 <Label htmlFor="startedDate">Ngày bắt đầu</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--admin-text-faint))]" size={16} />
                   <Input
                     id="startedDate"
                     type="date"
                     value={form.startedDate}
                     onChange={(e) => handleChange('startedDate', e.target.value)}
-                    className="pl-9 bg-slate-900/60 border-slate-800 text-slate-200"
+                    className="pl-9 bg-[hsl(var(--admin-surface-elevated))]/60 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]"
                   />
                 </div>
               </div>
@@ -349,7 +349,7 @@ export const PlacementFormModal = ({
                   onChange={(e) => handleChange('notes', e.target.value)}
                   placeholder="Thông tin bổ sung về placement (nếu có)..."
                   rows={3}
-                  className="bg-slate-900/60 border-slate-800 text-slate-200 placeholder:text-slate-600 resize-none"
+                  className="bg-[hsl(var(--admin-surface-elevated))]/60 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] placeholder:text-[hsl(var(--admin-text-faint))] resize-none"
                 />
               </div>
             </>
@@ -357,13 +357,13 @@ export const PlacementFormModal = ({
         </form>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 border-t border-slate-800 p-5 shrink-0">
+        <div className="flex items-center justify-end gap-3 border-t border-[hsl(var(--admin-border))] p-5 shrink-0">
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
             disabled={loading}
-            className="border-slate-800 text-slate-300 hover:bg-slate-800 text-sm py-2 px-4"
+            className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] text-sm py-2 px-4"
           >
             Hủy
           </Button>
@@ -371,7 +371,7 @@ export const PlacementFormModal = ({
             type="submit"
             onClick={handleSubmit}
             disabled={loading || loadingData}
-            className="bg-blue-600 hover:bg-blue-700 text-white border-none text-sm py-2 px-5 font-semibold flex items-center gap-2"
+            className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white border-none text-sm py-2 px-5 font-semibold flex items-center gap-2"
           >
             {loading ? (
               <>

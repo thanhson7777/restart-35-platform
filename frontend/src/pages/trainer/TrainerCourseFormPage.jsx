@@ -88,23 +88,23 @@ const TrainerCourseFormPage = () => {
           variant="outline"
           size="sm"
           onClick={() => navigate('/trainer/courses')}
-          className="border-[#1f2937] bg-transparent hover:bg-slate-800 text-gray-300"
+          className="border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           Quay lại danh sách
         </Button>
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-white">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))]">
             {isEditMode ? 'Chỉnh sửa khóa học' : 'Tạo khóa học mới'}
           </h1>
-          <p className="text-gray-400 text-xs mt-0.5">
+          <p className="text-[hsl(var(--admin-text-muted))] text-xs mt-0.5">
             {isEditMode ? 'Cập nhật lại thông tin, giáo trình hoặc lịch học.' : 'Thiết lập nội dung và cấu hình ban đầu cho khóa học mới.'}
           </p>
         </div>
       </div>
 
       {loading ? (
-        <div className="h-96 w-full bg-[#111827] border border-[#1f2937] rounded-xl animate-pulse flex items-center justify-center text-gray-500">
+        <div className="h-96 w-full bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl animate-pulse flex items-center justify-center text-[hsl(var(--admin-text-muted))]">
           Đang tải dữ liệu biểu mẫu...
         </div>
       ) : (

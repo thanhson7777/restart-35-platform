@@ -8,8 +8,8 @@ export const TrainerRiskAlert = ({ level = 'low', score }) => {
       case 'critical':
         return {
           label: 'Cực kỳ nguy cấp',
-          className: 'bg-red-500/15 text-red-400 border-red-500/30 animate-pulse',
-          icon: <ShieldX size={14} className="mr-1 text-red-400" />
+          className: 'bg-[hsl(var(--admin-danger-subtle))] text-[hsl(var(--admin-danger))] border-[hsl(var(--admin-danger))]/30 animate-pulse',
+          icon: <ShieldX size={14} className="mr-1 text-[hsl(var(--admin-danger))]" />
         };
       case 'high':
         return {
@@ -20,15 +20,15 @@ export const TrainerRiskAlert = ({ level = 'low', score }) => {
       case 'medium':
         return {
           label: 'Nguy cơ trung bình',
-          className: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
-          icon: <AlertTriangle size={14} className="mr-1 text-yellow-400" />
+          className: 'bg-yellow-500/15 text-[hsl(var(--admin-warning))] border-yellow-500/30',
+          icon: <AlertTriangle size={14} className="mr-1 text-[hsl(var(--admin-warning))]" />
         };
       case 'low':
       default:
         return {
           label: 'Nguy cơ thấp',
-          className: 'bg-slate-800 text-slate-400 border-slate-700',
-          icon: <CheckCircle2 size={14} className="mr-1 text-slate-400" />
+          className: 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-border))]',
+          icon: <CheckCircle2 size={14} className="mr-1 text-[hsl(var(--admin-text-muted))]" />
         };
     }
   };
@@ -42,7 +42,7 @@ export const TrainerRiskAlert = ({ level = 'low', score }) => {
         {details.label}
       </Badge>
       {score !== undefined && score !== null && (
-        <span className="text-xs font-mono text-slate-500">({score}%)</span>
+        <span className="text-xs font-mono text-[hsl(var(--admin-text-muted))]">({score}%)</span>
       )}
     </div>
   );

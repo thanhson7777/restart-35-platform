@@ -56,9 +56,13 @@ import {
   getCachedCareerPathAPI,
   triggerCareerPathGenerationAPI,
   invalidateCareerPathCacheAPI,
-  analyzeSkillGapsFromEscoAPI
+  analyzeSkillGapsFromEscoAPI,
+  getCourseRecommendationsAPI,
+  getLearningPathAPI
 } from '@/apis/aiAPI'
 import SkillGapSection from '@/components/SkillGapSection'
+import CourseRecommendationSection from '@/components/course/CourseRecommendationSection'
+import LearningPathSection from '@/components/course/LearningPathSection'
 import { featureFlags } from '@/config/features'
 
 // ============================================================================
@@ -84,6 +88,50 @@ const UrgencyBadge = ({ urgency }) => {
 }
 
 const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
+  const [courses, setCourses] = useState([])
+  const [learningPath, setLearningPath] = useState(null)
+  const [loadingCourses, setLoadingCourses] = useState(false)
+  const pathKey = path.job_title || path.title
+
+  useEffect(() => {
+    if (!skillGaps || skillGaps.length === 0) return
+
+    const timeoutId = setTimeout(async () => {
+      setLoadingCourses(true)
+      try {
+        const topGaps = skillGaps.slice(0, 10).map(g => ({
+          skill_name: g.skill_name,
+          priority: g.priority
+        }))
+
+        // Call both APIs in parallel
+        const [courseResult, learningPathResult] = await Promise.allSettled([
+          getCourseRecommendationsAPI({ skill_gaps: topGaps, limit: 5 }),
+          getLearningPathAPI({
+            skill_gaps: topGaps,
+            job_title: pathKey,
+            max_steps: 5
+          })
+        ])
+
+        if (courseResult.status === 'fulfilled') {
+          setCourses(courseResult.value?.courses || [])
+        }
+        if (learningPathResult.status === 'fulfilled') {
+          setLearningPath(learningPathResult.value?.learning_path || null)
+        }
+      } catch (err) {
+        console.error('[CareerRecommendations] course/path API error:', err)
+        setCourses([])
+        setLearningPath(null)
+      } finally {
+        setLoadingCourses(false)
+      }
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [skillGaps, pathKey])
+
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -219,25 +267,22 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
           )
         })()}
 
-        {/* What to Learn: Cần học thêm */}
-        {(path.what_to_learn?.length > 0 || path.learning_path?.length > 0 || path.missing_skills?.length > 0) && (
-          <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
-            <div className="flex items-center gap-2 mb-2">
-              <BookOpen size={14} className="text-purple-600" />
-              <p className="text-sm font-medium text-purple-800">Cần học thêm</p>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {(path.what_to_learn || path.learning_path || path.missing_skills)?.map((skill, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs"
-                >
-                  <ArrowRight size={10} />
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
+        {/* What to Learn: Cần học thêm — thay bằng course recommendations */}
+        {courses !== undefined && (
+          <CourseRecommendationSection
+            courses={courses}
+            loading={loadingCourses}
+            skillGapTotal={(path.what_to_learn || path.learning_path || path.missing_skills)?.length || skillGaps?.length || 0}
+            jobTitle={path.job_title || path.title}
+          />
+        )}
+
+        {/* Learning Path — timeline nhiều bước */}
+        {learningPath && (
+          <LearningPathSection
+            learningPath={learningPath}
+            loading={loadingCourses}
+          />
         )}
 
         {/* Required Skills: Kỹ năng bắt buộc (Federated API) */}

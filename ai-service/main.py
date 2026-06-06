@@ -117,6 +117,7 @@ from routers.career_recommendation import router as rag_recommendation_router
 from routers.esco_normalization import router as esco_router
 from routers.skill_gap import router as skill_gap_router
 from routers.career_federated import router as career_federated_router
+from routers.course_recommendation import router as course_recommendation_router
 
 
 # Global instances
@@ -131,6 +132,7 @@ app.include_router(rag_recommendation_router)
 app.include_router(esco_router)
 app.include_router(skill_gap_router)
 app.include_router(career_federated_router)
+app.include_router(course_recommendation_router)
 
 
 # =============================================================================
@@ -326,6 +328,8 @@ async def startup_event():
         logger.info("   • POST /api/v1/career/analyze-full - Federated career analysis")
     if _llm_client:
         logger.info("   ✅ GROQ LLM integration enabled")
+    logger.info("   • POST /api/v1/ai/course-recommendations - Course recommendations")
+    logger.info("   • GET  /api/v1/ai/course-recommendations/health - Engine health")
     logger.info("")
     logger.info(f"📚 API Docs: http://localhost:8000/docs")
     logger.info("=" * 60)

@@ -5,6 +5,8 @@ import { getMyApplications, deleteApplication } from '@/apis/applicationApi';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import toast from 'react-hot-toast';
+import Navbar from '@/components/landing/Navbar';
+import Footer from '@/components/layout/Footer';
 
 export default function MyApplicationsPage() {
   const navigate = useNavigate();
@@ -81,16 +83,17 @@ export default function MyApplicationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-primary text-white py-10">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-2">Đơn xin học bổng của tôi</h1>
-          <p className="text-primary-foreground/80">
-            Theo dõi trạng thái các đơn đã nộp
-          </p>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background">
+        <div className="bg-primary text-white py-10">
+          <div className="container mx-auto px-4">
+            <h1 className="text-3xl font-bold mb-2">Đơn xin học bổng của tôi</h1>
+            <p className="text-primary-foreground/80">
+              Theo dõi trạng thái các đơn đã nộp
+            </p>
+          </div>
         </div>
-      </div>
 
       <main className="container mx-auto px-4 py-8">
         <ApplicationList
@@ -101,6 +104,8 @@ export default function MyApplicationsPage() {
           onSubmit={handleSubmit}
         />
       </main>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

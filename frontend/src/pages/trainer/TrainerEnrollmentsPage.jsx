@@ -119,27 +119,27 @@ const TrainerEnrollmentsPage = () => {
     <div className="space-y-6">
       {/* Title Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+        <h1 className="text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] flex items-center gap-2">
           Quản lý học viên
         </h1>
-        <p className="text-gray-400 text-sm">
+        <p className="text-[hsl(var(--admin-text-muted))] text-sm">
           Theo dõi tiến trình, đánh giá kết quả và thực hiện can thiệp kịp thời đối với học viên của bạn.
         </p>
       </div>
 
       {/* Filter Bar */}
-      <BezelCard className="bg-[#0c101d] border border-slate-800 p-5" padding="default">
-        <div className="flex items-center gap-2 mb-4 text-slate-300">
-          <SlidersHorizontal size={16} className="text-[#3B82F6]" />
+      <BezelCard className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-5" padding="default">
+        <div className="flex items-center gap-2 mb-4 text-[hsl(var(--admin-text-secondary))]">
+          <SlidersHorizontal size={16} className="text-[hsl(var(--admin-accent))]" />
           <span className="text-sm font-semibold uppercase tracking-wider">Bộ lọc tìm kiếm</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
           {/* Search Box */}
           <div className="md:col-span-1 space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Tìm kiếm</label>
+            <label className="block text-xs font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Tìm kiếm</label>
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--admin-text-muted))]" />
               <Input
                 type="text"
                 placeholder="Tên học viên hoặc email..."
@@ -148,7 +148,7 @@ const TrainerEnrollmentsPage = () => {
                   setSearchText(e.target.value);
                   setPage(1);
                 }}
-                className="pl-10 bg-slate-950 border-slate-800 text-slate-200 text-sm placeholder-slate-600 focus:border-[#3B82F6] h-10 w-full"
+                className="pl-10 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] text-sm placeholder:text-[hsl(var(--admin-text-muted))] focus:border-[hsl(var(--admin-accent))] h-10 w-full"
               />
             </div>
           </div>
@@ -165,7 +165,7 @@ const TrainerEnrollmentsPage = () => {
               }}
               disabled={coursesLoading}
               placeholder="Chọn khóa học..."
-              className="bg-slate-950 border-slate-800"
+              className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>
 
@@ -200,12 +200,12 @@ const TrainerEnrollmentsPage = () => {
 
         {/* Action button inside Filter Bar */}
         {(searchText || courseFilter !== 'ALL' || statusFilter !== 'ALL' || riskFilter !== 'ALL') && (
-          <div className="flex justify-end mt-4 pt-4 border-t border-slate-900/60">
+          <div className="flex justify-end mt-4 pt-4 border-t border-[hsl(var(--admin-surface-elevated))]/60">
             <Button
               variant="outline"
               size="sm"
               onClick={handleResetFilters}
-              className="border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900 font-semibold gap-1.5 transition-all duration-200"
+              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] font-semibold gap-1.5 transition-all duration-200"
             >
               <RotateCcw size={14} />
               Đặt lại bộ lọc
@@ -215,14 +215,14 @@ const TrainerEnrollmentsPage = () => {
       </BezelCard>
 
       {/* Main Student Table */}
-      <BezelCard className="bg-[#0b0e17] border border-slate-900 p-6" padding="default">
+      <BezelCard className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-6" padding="default">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <UserCheck size={18} className="text-emerald-400" />
-            <h2 className="text-lg font-bold text-white tracking-tight">Danh sách học tập</h2>
+            <UserCheck size={18} className="text-[hsl(var(--admin-success))]" />
+            <h2 className="text-lg font-bold text-[hsl(var(--admin-text-primary))] tracking-tight">Danh sách học tập</h2>
           </div>
           {pagination && (
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-[hsl(var(--admin-text-muted))] font-mono">
               Tổng số: {pagination.totalRecords} học viên
             </span>
           )}

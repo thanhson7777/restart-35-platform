@@ -15,11 +15,11 @@ const roleLabels = {
 };
 
 const roleColors = {
-  worker: 'bg-blue-100 text-blue-700',
-  enterprise: 'bg-green-100 text-green-700',
-  trainer: 'bg-purple-100 text-purple-700',
-  ngo: 'bg-orange-100 text-orange-700',
-  admin: 'bg-red-100 text-red-700'
+  worker: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  enterprise: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+  trainer: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+  ngo: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+  admin: 'bg-rose-500/10 text-rose-500 border-rose-500/20'
 };
 
 const MenuDropdown = ({ user, onView, onEdit, onToggleStatus, onDelete, onClose, position }) => {
@@ -30,36 +30,31 @@ const MenuDropdown = ({ user, onView, onEdit, onToggleStatus, onDelete, onClose,
     onClose();
   };
 
-  return (
+  return createPortal(
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40"
-        onClick={onClose}
-      />
-      {/* Menu */}
+      <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
         ref={menuRef}
-        className="fixed z-50 w-48 bg-white rounded-xl border border-slate-200 shadow-xl py-1 animate-in fade-in zoom-in-95 duration-150"
+        className="fixed z-50 w-48 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl shadow-2xl py-1"
         style={{ top: position.y, left: position.x }}
       >
         <button
           onClick={() => handleActionClick(onView)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))] transition-colors"
         >
           <Eye className="w-4 h-4" />
           Xem chi tiết
         </button>
         <button
           onClick={() => handleActionClick(onEdit)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))] transition-colors"
         >
           <Edit2 className="w-4 h-4" />
           Chỉnh sửa
         </button>
         <button
           onClick={() => handleActionClick(onToggleStatus)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))] transition-colors"
         >
           {user.isActive ? (
             <>
@@ -73,16 +68,17 @@ const MenuDropdown = ({ user, onView, onEdit, onToggleStatus, onDelete, onClose,
             </>
           )}
         </button>
-        <div className="border-t border-slate-100 my-1" />
+        <div className="border-t border-[hsl(var(--admin-border))] my-1" />
         <button
           onClick={() => handleActionClick(onDelete)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors"
         >
           <Trash2 className="w-4 h-4" />
           Xóa
         </button>
       </div>
-    </>
+    </>,
+    document.body
   );
 };
 
@@ -103,58 +99,43 @@ const AdminUserTable = ({
 
   const handleMenuToggle = useCallback((userId, e) => {
     e.stopPropagation();
-
     if (openMenuId === userId) {
       setOpenMenuId(null);
     } else {
       const button = menuButtonRefs.current[userId];
       if (button) {
         const rect = button.getBoundingClientRect();
-        const menuWidth = 192; // w-48 = 192px
-        const menuHeight = 220; // approximate menu height
-
+        const menuWidth = 192;
+        const menuHeight = 220;
         let x = rect.right - menuWidth;
         let y = rect.bottom + 8;
-
-        // Ensure menu doesn't go off-screen horizontally
         if (x < 8) x = 8;
-        if (x + menuWidth > window.innerWidth - 8) {
-          x = window.innerWidth - menuWidth - 8;
-        }
-
-        // If not enough space below, show above
-        if (y + menuHeight > window.innerHeight - 8) {
-          y = rect.top - menuHeight - 8;
-        }
-
-        // Ensure menu doesn't go above viewport
+        if (x + menuWidth > window.innerWidth - 8) x = window.innerWidth - menuWidth - 8;
+        if (y + menuHeight > window.innerHeight - 8) y = rect.top - menuHeight - 8;
         if (y < 8) y = 8;
-
         setMenuPosition({ x, y });
       }
       setOpenMenuId(userId);
     }
   }, [openMenuId]);
 
-  const closeMenu = useCallback(() => {
-    setOpenMenuId(null);
-  }, []);
+  const closeMenu = useCallback(() => setOpenMenuId(null), []);
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="divide-y divide-slate-100">
+      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
+        <div className="divide-y divide-[hsl(var(--admin-border))]">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="flex items-center gap-4 p-4">
               <Skeleton className="w-5 h-5" />
               <Skeleton className="w-10 h-10 rounded-full" />
               <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-48" />
+                <Skeleton className="h-4 w-32 bg-[hsl(var(--admin-surface-elevated))]" />
+                <Skeleton className="h-3 w-48 bg-[hsl(var(--admin-surface-elevated))]" />
               </div>
-              <Skeleton className="h-6 w-20" />
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="w-8 h-8" />
+              <Skeleton className="h-6 w-20 bg-[hsl(var(--admin-surface-elevated))]" />
+              <Skeleton className="h-4 w-24 bg-[hsl(var(--admin-surface-elevated))]" />
+              <Skeleton className="w-8 h-8 bg-[hsl(var(--admin-surface-elevated))]" />
             </div>
           ))}
         </div>
@@ -164,14 +145,14 @@ const AdminUserTable = ({
 
   if (!users || users.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-12 text-center">
+        <div className="w-16 h-16 bg-[hsl(var(--admin-surface-elevated))] rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-[hsl(var(--admin-text-muted))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0M7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-slate-900 mb-1">Không có người dùng nào</h3>
-        <p className="text-sm text-slate-500">Thử thay đổi bộ lọc hoặc tìm kiếm khác</p>
+        <h3 className="text-lg font-medium text-[hsl(var(--admin-text-primary))] mb-1">Không có người dùng nào</h3>
+        <p className="text-[hsl(var(--admin-text-muted))] text-sm">Thử thay đổi bộ lọc hoặc tìm kiếm khác</p>
       </div>
     );
   }
@@ -181,44 +162,35 @@ const AdminUserTable = ({
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="w-12 px-4 py-3">
+              <tr className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
+                <th className="w-12 px-4 py-3.5">
                   <input
                     type="checkbox"
                     checked={allSelected}
                     onChange={(e) => onSelectAll(e.target.checked, users)}
-                    className="w-4 h-4 rounded border-slate-300 text-slate-600 focus:ring-slate-500"
+                    className="w-4 h-4 rounded border-[hsl(var(--admin-border))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))] bg-[hsl(var(--admin-surface-elevated))]"
                   />
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Người dùng
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Vai trò
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Ngày tham gia
-                </th>
-                <th className="w-12 px-4 py-3"></th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Người dùng</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Vai trò</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Trạng thái</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Ngày tham gia</th>
+                <th className="w-12 px-4 py-3.5"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[hsl(var(--admin-border))]">
               {users.map((user) => {
                 const isSelected = selectedUsers.includes(user._id);
-
                 return (
                   <tr
                     key={user._id}
                     className={cn(
-                      'hover:bg-slate-50 transition-colors cursor-pointer',
-                      isSelected && 'bg-slate-50'
+                      'hover:bg-[hsl(var(--admin-accent))]/[0.03] transition-colors cursor-pointer border-l-[2px] border-l-transparent hover:border-l-[hsl(var(--admin-accent))]',
+                      isSelected && 'bg-[hsl(var(--admin-accent))]/[0.03]'
                     )}
                     onClick={() => onView(user)}
                   >
@@ -226,11 +198,8 @@ const AdminUserTable = ({
                       <input
                         type="checkbox"
                         checked={isSelected}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          onSelectUser(user._id);
-                        }}
-                        className="w-4 h-4 rounded border-slate-300 text-slate-600 focus:ring-slate-500"
+                        onChange={(e) => { e.stopPropagation(); onSelectUser(user._id); }}
+                        className="w-4 h-4 rounded border-[hsl(var(--admin-border))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))] bg-[hsl(var(--admin-surface-elevated))]"
                       />
                     </td>
                     <td className="px-4 py-4">
@@ -238,52 +207,35 @@ const AdminUserTable = ({
                         <Avatar
                           src={user.avatar}
                           fallback={user.displayName?.charAt(0) || 'U'}
-                          className="w-10 h-10"
+                          className="w-10 h-10 border border-[hsl(var(--admin-border))]"
                         />
                         <div>
-                          <div className="font-medium text-slate-900">{user.displayName}</div>
-                          <div className="text-sm text-slate-500">{user.email}</div>
+                          <div className="font-medium text-[hsl(var(--admin-text-primary))]">{user.displayName}</div>
+                          <div className="text-sm text-[hsl(var(--admin-text-muted))]">{user.email}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <span
-                        className={cn(
-                          'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                          roleColors[user.role] || 'bg-slate-100 text-slate-700'
-                        )}
-                      >
+                      <span className={cn('inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border', roleColors[user.role] || 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-border))]')}>
                         {roleLabels[user.role] || user.role}
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1.5 text-sm font-medium',
-                          user.isActive ? 'text-green-600' : 'text-slate-400'
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            'w-2 h-2 rounded-full',
-                            user.isActive ? 'bg-green-500' : 'bg-slate-300'
-                          )}
-                        />
+                      <span className={cn('inline-flex items-center gap-1.5 text-sm font-medium', user.isActive ? 'text-emerald-500' : 'text-[hsl(var(--admin-text-muted))]')}>
+                        <span className={cn('w-2 h-2 rounded-full', user.isActive ? 'bg-emerald-500' : 'bg-[hsl(var(--admin-text-muted))]')} />
                         {user.isActive ? 'Hoạt động' : 'Không hoạt động'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-sm text-slate-600">
-                      {user.createdAt
-                        ? format(new Date(user.createdAt), 'dd/MM/yyyy', { locale: vi })
-                        : '-'}
+                    <td className="px-4 py-4 text-sm text-[hsl(var(--admin-text-secondary))]">
+                      {user.createdAt ? format(new Date(user.createdAt), 'dd/MM/yyyy', { locale: vi }) : '-'}
                     </td>
                     <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                       <button
                         ref={(el) => (menuButtonRefs.current[user._id] = el)}
                         onClick={(e) => handleMenuToggle(user._id, e)}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-[hsl(var(--admin-surface-elevated))] rounded-lg transition-colors"
                       >
-                        <MoreHorizontal className="w-5 h-5 text-slate-400" />
+                        <MoreHorizontal className="w-5 h-5 text-[hsl(var(--admin-text-muted))]" />
                       </button>
                     </td>
                   </tr>
@@ -294,8 +246,7 @@ const AdminUserTable = ({
         </div>
       </div>
 
-      {/* Portal Dropdown Menu */}
-      {openMenuId && openMenuUser && createPortal(
+      {openMenuId && openMenuUser && (
         <MenuDropdown
           user={openMenuUser}
           onView={onView}
@@ -304,8 +255,7 @@ const AdminUserTable = ({
           onDelete={onDelete}
           onClose={closeMenu}
           position={menuPosition}
-        />,
-        document.body
+        />
       )}
     </>
   );

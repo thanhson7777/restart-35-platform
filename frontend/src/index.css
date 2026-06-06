@@ -92,6 +92,52 @@
     --input: 217 33% 17%;
   }
 
+  /* ====== Admin Light Surfaces ====== */
+  :root {
+    /* Page & Layout */
+    --admin-bg: 220 20% 98%;
+    --admin-sidebar: 220 18% 96%;
+    --admin-sidebar-active: 221 83% 53%;
+    --admin-sidebar-active-bg: 221 83% 96%;
+
+    /* Surfaces */
+    --admin-surface: 0 0% 100%;
+    --admin-surface-elevated: 220 14% 96%;
+    --admin-surface-hover: 220 14% 94%;
+
+    /* Borders */
+    --admin-border: 220 13% 91%;
+    --admin-border-subtle: 220 13% 94%;
+    --admin-border-strong: 220 13% 84%;
+
+    /* Accent - Xanh dương (Blue) */
+    --admin-accent: 221 83% 53%;
+    --admin-accent-hover: 221 83% 47%;
+    --admin-accent-subtle: 221 83% 53% / 10%;
+    --admin-accent-muted: 221 83% 53% / 6%;
+
+    /* Text - Light theme */
+    --admin-text-primary: 222 47% 11%;
+    --admin-text-secondary: 220 9% 46%;
+    --admin-text-muted: 220 9% 56%;
+    --admin-text-faint: 220 9% 72%;
+    --admin-text-inverse: 0 0% 100%;
+
+    /* Semantic */
+    --admin-success: 142 71% 45%;
+    --admin-success-subtle: 142 71% 45% / 10%;
+    --admin-danger: 0 72% 51%;
+    --admin-danger-subtle: 0 72% 51% / 10%;
+    --admin-warning: 38 92% 50%;
+    --admin-warning-subtle: 38 92% 50% / 10%;
+
+    /* Shadows - subtle for light theme */
+    --admin-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --admin-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+    --admin-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --admin-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  }
+
   * {
     @apply border-border;
   }
@@ -393,4 +439,47 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ====== Admin Surface Utilities ====== */
+.admin-surface {
+  background-color: hsl(var(--admin-surface));
+  border: 1px solid hsl(var(--admin-border));
+}
+
+.admin-glass {
+  background-color: hsl(var(--admin-surface) / 80%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--admin-border) / 60%);
+}
+
+.admin-accent-glow {
+  box-shadow: 0 0 20px hsl(var(--admin-accent) / 12%);
+}
+
+.admin-sidebar {
+  background-color: hsl(var(--admin-sidebar));
+}
+
+.admin-sidebar-gradient {
+  background:
+    linear-gradient(180deg, hsl(221 83% 53% / 4%) 0%, transparent 30%),
+    hsl(var(--admin-sidebar));
+}
+
+/* Admin pages: always light + blue accent, ignore system preference */
+.admin-page,
+[data-layout="admin"] {
+  --background: 220 20% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --border: 220 13% 91%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 56%;
+  --primary: 221 83% 53%;
+  --primary-foreground: 0 0% 100%;
+  background-color: hsl(var(--admin-bg));
+  color: hsl(var(--admin-text-primary));
 }

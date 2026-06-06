@@ -40,10 +40,10 @@ const RoleLayoutShell = ({
 
   if (token && !currentUser && userLoading) {
     return (
-      <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-[hsl(var(--admin-sidebar))] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="text-sm text-gray-400 font-mono">{loadingMessage}</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[hsl(var(--admin-accent))]"></div>
+          <p className="text-sm text-[hsl(var(--admin-text-muted))] font-mono">{loadingMessage}</p>
         </div>
       </div>
     );
@@ -54,7 +54,7 @@ const RoleLayoutShell = ({
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-[#f9fafb] font-sans antialiased">
+    <div className="min-h-screen bg-[hsl(var(--admin-bg))] text-[hsl(var(--admin-text-primary))] font-sans antialiased">
       <SidebarComponent
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -62,7 +62,7 @@ const RoleLayoutShell = ({
 
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-sm transition-opacity duration-300"
+          className="fixed inset-0 bg-black/30 z-30 lg:hidden backdrop-blur-sm transition-opacity duration-300"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -79,7 +79,7 @@ const RoleLayoutShell = ({
         />
 
         <main className={cn('pt-16 flex-1 flex flex-col', className)}>
-          <div className="p-6 flex-1 flex flex-col">{children}</div>
+          <div className="p-6 flex-1 flex flex-col bg-[hsl(var(--admin-bg))]">{children}</div>
         </main>
       </div>
     </div>

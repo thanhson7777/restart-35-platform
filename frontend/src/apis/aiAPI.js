@@ -725,3 +725,54 @@ export const analyzeSkillGapsFromEscoAPI = async (userSkills, targetOccupation, 
   )
   return response.data
 }
+
+// ============================================================================
+// Course Recommendation APIs
+// ============================================================================
+
+/**
+ * Get course recommendations based on skill gaps
+ * @param {Object} params - { skill_gaps, constraints, limit }
+ */
+export const getCourseRecommendationsAPI = async ({ skill_gaps, constraints = {}, limit = 10 }) => {
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/course-recommendations`,
+    { skill_gaps, constraints, limit }
+  )
+  return response.data
+}
+
+/**
+ * Get full job learning path (job info + skill gaps + course recommendations)
+ * @param {Object} params - { jobId, userSkills, userAge, constraints }
+ */
+export const getJobLearningPathAPI = async ({ jobId, userSkills = [], userAge = 30, constraints = {} }) => {
+  const response = await authorizeAxiosInstance.get(
+    `${API_ROOT}/v1/jobs/${jobId}/learning-path`,
+    {
+      params: {
+        user_skills: userSkills,
+        user_age: userAge,
+        constraints: JSON.stringify(constraints)
+      }
+    }
+  )
+  return response.data
+}
+
+/**
+ * Get learning path with LLM explanations
+ * @param {Object} params - { skill_gaps, courses, job_title, max_steps }
+ */
+export const getLearningPathAPI = async ({
+  skill_gaps,
+  courses = [],
+  job_title = '',
+  max_steps = 5
+}) => {
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/learning-path`,
+    { skill_gaps, courses, job_title, max_steps }
+  )
+  return response.data
+}

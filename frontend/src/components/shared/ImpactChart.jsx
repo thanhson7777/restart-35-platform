@@ -3,10 +3,10 @@ import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tool
 
 const ImpactChart = ({ data = [], title = 'Tác động theo thời gian', description = 'Số lượng học viên được hỗ trợ và hoàn thành khóa học' }) => {
   return (
-    <Card className="border-slate-800 bg-[#111827] text-white shadow-xl shadow-black/10">
+    <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] shadow-[var(--admin-shadow-lg)]">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">{title}</CardTitle>
-        <p className="text-sm text-slate-400">{description}</p>
+        <CardTitle className="text-base font-semibold text-[hsl(var(--admin-text-primary))]">{title}</CardTitle>
+        <p className="text-sm text-[hsl(var(--admin-text-secondary))]">{description}</p>
       </CardHeader>
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">

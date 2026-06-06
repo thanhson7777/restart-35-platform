@@ -157,18 +157,18 @@ const TrainerSchedulePage = () => {
       {/* Title & Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            <CalendarIcon className="h-8 w-8 text-blue-500" />
+          <h1 className="text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] flex items-center gap-2">
+            <CalendarIcon className="h-8 w-8 text-[hsl(var(--admin-accent))]" />
             Lịch dạy của tôi
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">
             Quản lý lịch giảng dạy theo tháng, tuần và thực hiện điểm danh học viên chuyên cần.
           </p>
         </div>
         <Button
           variant="outline"
           onClick={handleRefresh}
-          className="border-[#1f2937] hover:bg-slate-800 text-slate-300 font-semibold self-start sm:self-auto flex items-center gap-1.5"
+          className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))] font-semibold self-start sm:self-auto flex items-center gap-1.5"
         >
           <RefreshCw className="h-4 w-4" />
           Làm mới
@@ -177,43 +177,43 @@ const TrainerSchedulePage = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-[#111827] border-[#1f2937]">
+        <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-gray-400 uppercase font-semibold">Tổng số lịch học</p>
-              <h3 className="text-2xl font-bold text-white mt-1">{stats.total}</h3>
+              <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase font-semibold">Tổng số lịch học</p>
+              <h3 className="text-2xl font-bold text-[hsl(var(--admin-text-primary))] mt-1">{stats.total}</h3>
             </div>
-            <CalendarIcon className="h-8 w-8 text-blue-500/20" />
+            <CalendarIcon className="h-8 w-8 text-[hsl(var(--admin-accent))]/20" />
           </CardContent>
         </Card>
         
-        <Card className="bg-[#111827] border-[#1f2937]">
+        <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-gray-400 uppercase font-semibold">Đang hoạt động</p>
-              <h3 className="text-2xl font-bold text-emerald-500 mt-1">{stats.active}</h3>
+              <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase font-semibold">Đang hoạt động</p>
+              <h3 className="text-2xl font-bold text-[hsl(var(--admin-success))] mt-1">{stats.active}</h3>
             </div>
-            <CheckCircle className="h-8 w-8 text-emerald-500/20" />
+            <CheckCircle className="h-8 w-8 text-[hsl(var(--admin-success))]/20" />
           </CardContent>
         </Card>
 
-        <Card className="bg-[#111827] border-[#1f2937]">
+        <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-gray-400 uppercase font-semibold font-sans">Tổng số buổi dạy</p>
+              <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase font-semibold font-sans">Tổng số buổi dạy</p>
               <h3 className="text-2xl font-bold text-purple-500 mt-1">{stats.totalSessions}</h3>
             </div>
             <BookOpen className="h-8 w-8 text-purple-500/20" />
           </CardContent>
         </Card>
 
-        <Card className="bg-[#111827] border-[#1f2937]">
+        <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-gray-400 uppercase font-semibold">Lịch bản nháp</p>
-              <h3 className="text-2xl font-bold text-gray-400 mt-1">{stats.draft}</h3>
+              <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase font-semibold">Lịch bản nháp</p>
+              <h3 className="text-2xl font-bold text-[hsl(var(--admin-text-muted))] mt-1">{stats.draft}</h3>
             </div>
-            <FileText className="h-8 w-8 text-gray-400/20" />
+            <FileText className="h-8 w-8 text-[hsl(var(--admin-text-muted))]/20" />
           </CardContent>
         </Card>
       </div>
@@ -221,8 +221,8 @@ const TrainerSchedulePage = () => {
       {/* Main Workspace Layout */}
       {loading ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8 h-[550px] bg-[#111827] border border-[#1f2937] rounded-2xl animate-pulse" />
-          <div className="lg:col-span-4 h-[550px] bg-[#111827] border border-[#1f2937] rounded-2xl animate-pulse" />
+          <div className="lg:col-span-8 h-[550px] bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl animate-pulse" />
+          <div className="lg:col-span-4 h-[550px] bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl animate-pulse" />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -237,10 +237,10 @@ const TrainerSchedulePage = () => {
           {/* Right Side: Filters and details info */}
           <div className="lg:col-span-4 space-y-6">
             {/* Filter Card */}
-            <Card className="bg-[#111827] border-slate-800 shadow-xl">
+            <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] shadow-[var(--admin-shadow-md)]">
               <CardContent className="p-4 flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-slate-400 font-semibold text-xs uppercase tracking-wider">
-                  <Filter className="h-4 w-4 text-blue-500" />
+                <div className="flex items-center gap-2 text-[hsl(var(--admin-text-muted))] font-semibold text-xs uppercase tracking-wider">
+                  <Filter className="h-4 w-4 text-[hsl(var(--admin-accent))]" />
                   Bộ lọc khóa học
                 </div>
                 <select
@@ -249,7 +249,7 @@ const TrainerSchedulePage = () => {
                     setSelectedCourseId(e.target.value);
                     setSelectedSession(null); // Reset detail session view on filter change
                   }}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+                  className="w-full rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3.5 py-2.5 text-xs text-[hsl(var(--admin-text-primary))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--admin-accent))]/50"
                 >
                   <option value="all">Tất cả khóa học</option>
                   {courses.map((course) => (

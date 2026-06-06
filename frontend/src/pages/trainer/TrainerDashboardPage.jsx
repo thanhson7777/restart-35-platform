@@ -70,7 +70,7 @@ const TrainerDashboardPage = () => {
         {/* Stats Cards Skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }).map((_, idx) => (
-            <div key={idx} className="p-6 rounded-[2rem] bg-slate-900/40 border border-slate-800/80 h-28 flex items-center justify-between">
+            <div key={idx} className="p-6 rounded-[2rem] bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] h-28 flex items-center justify-between">
               <div className="space-y-2 flex-1">
                 <Skeleton className="h-3 w-24 rounded" />
                 <Skeleton className="h-7 w-16 rounded" />
@@ -83,7 +83,7 @@ const TrainerDashboardPage = () => {
 
         {/* Middle Section Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 p-6 rounded-[2rem] bg-slate-900/40 border border-slate-800/80 h-96">
+          <div className="lg:col-span-2 p-6 rounded-[2rem] bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] h-96">
             <div className="flex justify-between items-center mb-6">
               <div className="space-y-2">
                 <Skeleton className="h-4 w-32 rounded" />
@@ -93,7 +93,7 @@ const TrainerDashboardPage = () => {
             </div>
             <Skeleton className="h-64 w-full rounded-xl" />
           </div>
-          <div className="p-6 rounded-[2rem] bg-slate-900/40 border border-slate-800/80 h-96">
+          <div className="p-6 rounded-[2rem] bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] h-96">
             <div className="flex justify-between items-center mb-6">
               <div className="space-y-2">
                 <Skeleton className="h-4 w-32 rounded" />
@@ -103,7 +103,7 @@ const TrainerDashboardPage = () => {
             </div>
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, idx) => (
-                <div key={idx} className="flex justify-between items-center p-3 rounded-2xl bg-slate-900/40 border border-slate-800/60 h-16">
+                <div key={idx} className="flex justify-between items-center p-3 rounded-2xl bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] h-16">
                   <div className="flex items-center gap-3">
                     <Skeleton className="h-10 w-10 rounded-full" />
                     <div className="space-y-1">
@@ -119,7 +119,7 @@ const TrainerDashboardPage = () => {
         </div>
 
         {/* Quick Actions Skeleton */}
-        <div className="p-6 rounded-[2rem] bg-slate-900/40 border border-slate-800/80 h-36">
+        <div className="p-6 rounded-[2rem] bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] h-36">
           <Skeleton className="h-4 w-28 mb-4 rounded" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {Array.from({ length: 3 }).map((_, idx) => (
@@ -137,10 +137,10 @@ const TrainerDashboardPage = () => {
     <div className="space-y-6">
       {/* Title Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">
+        <h1 className="text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))]">
           Chào mừng quay trở lại, {trainerName}!
         </h1>
-        <p className="text-gray-400 text-sm">
+        <p className="text-[hsl(var(--admin-text-muted))] text-sm">
           Dưới đây là tổng quan hoạt động và số liệu giảng dạy của bạn trên hệ thống.
         </p>
       </div>

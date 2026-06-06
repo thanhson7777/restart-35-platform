@@ -8,13 +8,13 @@ import { getEnterpriseDashboard, getEnterpriseDashboardGraduates } from '@/apis/
 import { Skeleton } from '@/components/ui';
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
-  <div className="bg-[#111827] border border-slate-800 rounded-2xl p-5 flex items-center gap-4">
-    <div className={`p-3 rounded-2xl bg-slate-900`}>
+  <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-5 flex items-center gap-4">
+    <div className={`p-3 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]`}>
       <Icon size={22} className={color} />
     </div>
     <div>
-      <p className="text-xs text-slate-500 mb-1">{label}</p>
-      <p className="text-2xl font-extrabold text-white">{value ?? 0}</p>
+      <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1">{label}</p>
+      <p className="text-2xl font-extrabold text-[hsl(var(--admin-text-primary))]">{value ?? 0}</p>
     </div>
   </div>
 );
@@ -47,20 +47,20 @@ export default function EnterpriseDashboardPage() {
     <EnterpriseLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-white">Enterprise Dashboard</h1>
-          <p className="text-slate-400 text-sm mt-1">Tổng quan partnership, sponsorship và kết quả đầu ra của bạn.</p>
+          <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Enterprise Dashboard</h1>
+          <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">Tổng quan partnership, sponsorship và kết quả đầu ra của bạn.</p>
         </div>
 
         {loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl bg-slate-800" />)}
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]" />)}
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard icon={Building2} label="Partnerships đang hoạt động" value={stats.activePartnerships} color="text-blue-400" />
-            <StatCard icon={TrendingUp} label="Học viên được tuyển" value={stats.placedLearners} color="text-emerald-400" />
-            <StatCard icon={Users} label="Học viên đang học" value={stats.activeLearners} color="text-amber-400" />
-            <StatCard icon={CheckCircle2} label="Tốt nghiệp" value={stats.completedLearners} color="text-green-400" />
+            <StatCard icon={Building2} label="Partnerships đang hoạt động" value={stats.activePartnerships} color="text-[hsl(var(--admin-accent))]" />
+            <StatCard icon={TrendingUp} label="Học viên được tuyển" value={stats.placedLearners} color="text-[hsl(var(--admin-success))]" />
+            <StatCard icon={Users} label="Học viên đang học" value={stats.activeLearners} color="text-[hsl(var(--admin-warning))]" />
+            <StatCard icon={CheckCircle2} label="Tốt nghiệp" value={stats.completedLearners} color="text-[hsl(var(--admin-success))]" />
           </div>
         )}
 
@@ -73,13 +73,13 @@ export default function EnterpriseDashboardPage() {
             />
           </div>
           <div className="space-y-4">
-            <div className="bg-[#111827] border border-slate-800 rounded-2xl p-5">
-              <h3 className="font-semibold text-white text-sm mb-3">Quick Actions</h3>
+            <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-5">
+              <h3 className="font-semibold text-[hsl(var(--admin-text-primary))] text-sm mb-3">Quick Actions</h3>
               <div className="space-y-2">
-                <button onClick={() => navigate('/enterprise/partnerships')} className="w-full text-left px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm text-slate-200 transition-colors">
+                <button onClick={() => navigate('/enterprise/partnerships')} className="w-full text-left px-3 py-2.5 rounded-xl bg-[hsl(var(--admin-surface-elevated))] hover:bg-[hsl(var(--admin-surface-hover))] text-sm text-[hsl(var(--admin-text-secondary))] transition-colors">
                   Xem danh sách Partnership
                 </button>
-                <button onClick={() => navigate('/enterprise/sponsorships')} className="w-full text-left px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm text-slate-200 transition-colors">
+                <button onClick={() => navigate('/enterprise/sponsorships')} className="w-full text-left px-3 py-2.5 rounded-xl bg-[hsl(var(--admin-surface-elevated))] hover:bg-[hsl(var(--admin-surface-hover))] text-sm text-[hsl(var(--admin-text-secondary))] transition-colors">
                   Quản lý Sponsorship
                 </button>
               </div>
@@ -89,8 +89,8 @@ export default function EnterpriseDashboardPage() {
 
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-white">Học viên tốt nghiệp gần đây</h3>
-            <button onClick={() => navigate('/enterprise/partnerships')} className="text-sm text-blue-400 hover:text-blue-300">Xem tất cả →</button>
+            <h3 className="font-semibold text-[hsl(var(--admin-text-primary))]">Học viên tốt nghiệp gần đây</h3>
+            <button onClick={() => navigate('/enterprise/partnerships')} className="text-sm text-[hsl(var(--admin-accent))] hover:text-[hsl(var(--admin-accent))] opacity-80">Xem tất cả →</button>
           </div>
           <GraduateList graduates={graduates} />
         </div>

@@ -3,13 +3,13 @@ import { cn } from '@/lib/utils';
 
 const Badge = React.forwardRef(({ className, variant, children, ...props }, ref) => {
   const variantStyles = {
-    default: 'bg-primary/10 text-primary',
-    secondary: 'bg-secondary/10 text-secondary',
-    success: 'bg-success/10 text-success',
-    warning: 'bg-warning/10 text-warning',
-    destructive: 'bg-destructive/10 text-destructive',
-    outline: 'border border-input bg-transparent text-foreground',
-    muted: 'bg-muted text-muted-foreground',
+    default:   'bg-indigo-500/10 text-indigo-400 border border-indigo-500/25',
+    secondary: 'bg-[#111318] text-[#8093ad] border border-[#1e2028]',
+    success:   'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25',
+    warning:   'bg-amber-500/10 text-amber-400 border border-amber-500/25',
+    destructive: 'bg-red-500/10 text-red-400 border border-red-500/25',
+    outline:   'border border-[#1e2028] text-[#8093ad] bg-transparent',
+    muted:     'bg-[#111318] text-[#4a5468]',
   };
 
   return (

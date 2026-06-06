@@ -8,6 +8,8 @@ import { getCourses, getRecommendedCourses } from '@/apis/courseApi';
 import { getCategoriesAPI } from '@/apis';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
+import Navbar from '@/components/landing/Navbar';
+import Footer from '@/components/layout/Footer';
 
 const DEFAULT_FILTERS = {
   search: '',
@@ -176,25 +178,23 @@ export default function CoursesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Premium Dark Theme Header with Grid & Mesh Background */}
-      <div className="relative overflow-hidden bg-zinc-950 text-white py-16 border-b border-zinc-900">
-        {/* Glowing emerald accent orb in the top right corner */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.08),transparent_45%)] pointer-events-none" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase font-semibold tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4">
-            Khóa học & Kỹ năng
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-            Nâng tầm Kỹ năng & Sự nghiệp
-          </h1>
-          <p className="text-zinc-400 text-sm sm:text-base max-w-xl leading-relaxed">
-            Khám phá hơn {pagination?.totalItems || '...'} khóa học chất lượng được thiết kế riêng giúp người lao động 35+ vững vàng kỹ năng, tự tin mở rộng cơ hội mới.
-          </p>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background">
+        {/* Light Gradient Header */}
+        <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50 border-b border-[hsl(var(--admin-border))] shadow-sm py-14">
+          <div className="container mx-auto px-4 relative z-10">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase font-semibold tracking-wider bg-blue-50 text-blue-600 border border-blue-100 mb-4">
+              Khóa học & Kỹ năng
+            </span>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] mb-3">
+              Nâng tầm Kỹ năng & Sự nghiệp
+            </h1>
+            <p className="text-[hsl(var(--admin-text-muted))] text-sm sm:text-base max-w-xl leading-relaxed">
+              Khám phá hơn {pagination?.totalItems || '...'} khóa học chất lượng được thiết kế riêng giúp người lao động 35+ vững vàng kỹ năng, tự tin mở rộng cơ hội mới.
+            </p>
+          </div>
         </div>
-      </div>
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Filters */}
@@ -230,11 +230,11 @@ export default function CoursesPage() {
         )}
 
         {/* All courses header */}
-        <div className="flex items-center justify-between mb-6 pb-2 border-b border-zinc-100 dark:border-zinc-900">
-          <h2 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
-            Tất cả khóa học
-            {pagination && (
-              <span className="text-zinc-400 font-semibold text-xs px-2.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/30 dark:border-zinc-800">
+          <div className="flex items-center justify-between mb-6 pb-2 border-b border-zinc-200">
+            <h2 className="text-lg font-bold tracking-tight text-zinc-900 flex items-center gap-2">
+              Tất cả khóa học
+              {pagination && (
+                <span className="text-muted-foreground font-semibold text-xs px-2.5 py-0.5 rounded-full bg-zinc-100 border border-zinc-200">
                 {pagination.totalItems} khóa
               </span>
             )}
@@ -292,6 +292,8 @@ export default function CoursesPage() {
           </div>
         )}
       </main>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

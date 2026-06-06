@@ -135,10 +135,10 @@ const TrainerCoursesPage = () => {
   // Status mapping for table view
   const getStatusBadge = (status) => {
     const statusMap = {
-      draft: { text: 'Nháp', className: 'bg-gray-500/10 text-gray-400 border-gray-500/20' },
-      pending: { text: 'Chờ duyệt', className: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-      approved: { text: 'Đã duyệt', className: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-      published: { text: 'Đã xuất bản', className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' }
+      draft: { text: 'Nháp', className: 'bg-[hsl(var(--admin-text-muted)_/_10%)] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-text-muted)_/_20%)] border' },
+      pending: { text: 'Chờ duyệt', className: 'bg-[hsl(var(--admin-warning)_/_10%)] text-[hsl(var(--admin-warning))] border-[hsl(var(--admin-warning)_/_20%)] border' },
+      approved: { text: 'Đã duyệt', className: 'bg-[hsl(var(--admin-accent)_/_10%)] text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent)_/_20%)] border' },
+      published: { text: 'Đã xuất bản', className: 'bg-[hsl(var(--admin-success)_/_10%)] text-[hsl(var(--admin-success))] border-[hsl(var(--admin-success)_/_20%)] border' }
     };
     const current = statusMap[status] || statusMap.draft;
     return (
@@ -153,12 +153,12 @@ const TrainerCoursesPage = () => {
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">Khóa học của tôi</h1>
-          <p className="text-gray-400 text-sm mt-1">Quản lý nội dung chương trình học, giáo trình và lịch trình bài giảng.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))]">Khóa học của tôi</h1>
+          <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">Quản lý nội dung chương trình học, giáo trình và lịch trình bài giảng.</p>
         </div>
         <Button
           asChild
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 self-start md:self-auto border-none"
+          className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white font-semibold flex items-center gap-2 self-start md:self-auto border-none"
         >
           <Link to="/trainer/courses/new">
             <Plus className="h-5 w-5" />
@@ -169,46 +169,46 @@ const TrainerCoursesPage = () => {
 
       {/* Mini Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-[#111827] border-[#1f2937]">
+        <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-400 uppercase font-semibold">Tổng số khóa</p>
-              <h3 className="text-2xl font-bold text-white mt-1">{stats.total}</h3>
+              <p className="text-xs text-[hsl(var(--admin-text-muted))] uppercase font-semibold">Tổng số khóa</p>
+              <h3 className="text-2xl font-bold text-[hsl(var(--admin-text-primary))] mt-1">{stats.total}</h3>
             </div>
-            <BookOpen className="h-8 w-8 text-blue-500/20" />
+            <BookOpen className="h-8 w-8 text-[hsl(var(--admin-accent))]/20" />
           </CardContent>
         </Card>
-        <Card className="bg-[#111827] border-[#1f2937]">
+        <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-400 uppercase font-semibold">Đã xuất bản</p>
-              <h3 className="text-2xl font-bold text-emerald-500 mt-1">{stats.published}</h3>
+              <p className="text-xs text-[hsl(var(--admin-text-muted))] uppercase font-semibold">Đã xuất bản</p>
+              <h3 className="text-2xl font-bold text-[hsl(var(--admin-success))] mt-1">{stats.published}</h3>
             </div>
-            <CheckCircle className="h-8 w-8 text-emerald-500/20" />
+            <CheckCircle className="h-8 w-8 text-[hsl(var(--admin-success))]/20" />
           </CardContent>
         </Card>
-        <Card className="bg-[#111827] border-[#1f2937]">
+        <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-400 uppercase font-semibold">Chờ phê duyệt</p>
-              <h3 className="text-2xl font-bold text-amber-500 mt-1">{stats.pending}</h3>
+              <p className="text-xs text-[hsl(var(--admin-text-muted))] uppercase font-semibold">Chờ phê duyệt</p>
+              <h3 className="text-2xl font-bold text-[hsl(var(--admin-warning))] mt-1">{stats.pending}</h3>
             </div>
-            <Clock className="h-8 w-8 text-amber-500/20" />
+            <Clock className="h-8 w-8 text-[hsl(var(--admin-warning))]/20" />
           </CardContent>
         </Card>
-        <Card className="bg-[#111827] border-[#1f2937]">
+        <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-400 uppercase font-semibold">Bản nháp</p>
-              <h3 className="text-2xl font-bold text-gray-400 mt-1">{stats.draft}</h3>
+              <p className="text-xs text-[hsl(var(--admin-text-muted))] uppercase font-semibold">Bản nháp</p>
+              <h3 className="text-2xl font-bold text-[hsl(var(--admin-text-muted))] mt-1">{stats.draft}</h3>
             </div>
-            <FileText className="h-8 w-8 text-gray-400/20" />
+            <FileText className="h-8 w-8 text-[hsl(var(--admin-text-muted))]/20" />
           </CardContent>
         </Card>
       </div>
 
       {/* Filters Toolbar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#111827] border border-[#1f2937] p-4 rounded-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-4 rounded-xl">
         <div className="flex flex-wrap items-center gap-2">
           {/* Status filter tabs */}
           {['all', 'published', 'pending', 'draft'].map((status) => (
@@ -217,8 +217,8 @@ const TrainerCoursesPage = () => {
               onClick={() => handleFilterChange(status)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${
                 statusFilter === status
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-transparent text-gray-400 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-[hsl(var(--admin-accent))] text-white'
+                  : 'bg-transparent text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
               }`}
             >
               {status === 'all' ? 'Tất cả' : status === 'published' ? 'Đã xuất bản' : status === 'pending' ? 'Chờ duyệt' : 'Bản nháp'}
@@ -229,27 +229,27 @@ const TrainerCoursesPage = () => {
         <div className="flex items-center gap-3 w-full md:w-auto">
           {/* Search bar */}
           <div className="relative flex-1 md:flex-initial">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-[hsl(var(--admin-text-muted))]" />
             <Input
               placeholder="Tìm kiếm khóa học..."
               value={searchTerm}
               onChange={handleSearchChange}
-              className="bg-slate-900 border-[#1f2937] pl-9 text-white placeholder-gray-500 focus:border-blue-500 w-full md:w-64"
+              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] pl-9 text-[hsl(var(--admin-text-primary))] placeholder:text-[hsl(var(--admin-text-muted))] focus:border-[hsl(var(--admin-accent))] w-full md:w-64"
             />
           </div>
 
           {/* Grid/List layout toggle */}
-          <div className="flex border border-[#1f2937] rounded-lg p-0.5 bg-slate-900">
+          <div className="flex border border-[hsl(var(--admin-border))] rounded-lg p-0.5 bg-[hsl(var(--admin-surface-elevated))]">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-[#001D4A] text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-[hsl(var(--admin-accent))] text-white' : 'text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-secondary))]'}`}
               title="Xem dạng lưới"
             >
               <Grid className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-[#001D4A] text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-[hsl(var(--admin-accent))] text-white' : 'text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-secondary))]'}`}
               title="Xem dạng danh sách"
             >
               <List className="h-4 w-4" />
@@ -262,19 +262,19 @@ const TrainerCoursesPage = () => {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-80 w-full animate-pulse bg-slate-900 border border-[#1f2937] rounded-xl" />
+            <div key={n} className="h-80 w-full animate-pulse bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl" />
           ))}
         </div>
       ) : courses.length === 0 ? (
-        <div className="border border-dashed border-[#1f2937] bg-[#111827] rounded-xl p-16 text-center text-gray-400 flex flex-col items-center justify-center space-y-4">
-          <BookOpen className="h-16 w-16 text-gray-600" />
+        <div className="border border-dashed border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] rounded-xl p-16 text-center text-[hsl(var(--admin-text-muted))] flex flex-col items-center justify-center space-y-4">
+          <BookOpen className="h-16 w-16 text-[hsl(var(--admin-text-faint))]" />
           <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-white">Không tìm thấy khóa học nào</h3>
-            <p className="text-sm text-gray-500">Thử thay đổi từ khóa tìm kiếm hoặc tạo khóa học đầu tiên của bạn.</p>
+            <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Không tìm thấy khóa học nào</h3>
+            <p className="text-sm text-[hsl(var(--admin-text-muted))]">Thử thay đổi từ khóa tìm kiếm hoặc tạo khóa học đầu tiên của bạn.</p>
           </div>
           <Button
             asChild
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold border-none"
+            className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white font-semibold border-none"
           >
             <Link to="/trainer/courses/new">
               <Plus className="mr-1.5 h-4 w-4" />
@@ -291,69 +291,69 @@ const TrainerCoursesPage = () => {
         </div>
       ) : (
         /* List Layout using Table.jsx */
-        <div className="bg-[#111827] border border-[#1f2937] rounded-xl overflow-hidden">
+        <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl overflow-hidden">
           <Table>
-            <TableHeader className="bg-slate-900/60 border-[#1f2937]">
-              <TableRow className="border-[#1f2937] hover:bg-transparent">
-                <TableHead className="text-gray-400 font-semibold py-4">Tên khóa học</TableHead>
-                <TableHead className="text-gray-400 font-semibold py-4">Trạng thái</TableHead>
-                <TableHead className="text-gray-400 font-semibold py-4">Học viên</TableHead>
-                <TableHead className="text-gray-400 font-semibold py-4">Bài học</TableHead>
-                <TableHead className="text-gray-400 font-semibold py-4">Học phí</TableHead>
-                <TableHead className="text-gray-400 font-semibold py-4 text-right">Thao tác</TableHead>
+            <TableHeader className="bg-[hsl(var(--admin-surface-elevated))]/60 border-[hsl(var(--admin-border))]">
+              <TableRow className="border-[hsl(var(--admin-border))] hover:bg-transparent">
+                <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Tên khóa học</TableHead>
+                <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Trạng thái</TableHead>
+                <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Học viên</TableHead>
+                <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Bài học</TableHead>
+                <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4">Học phí</TableHead>
+                <TableHead className="text-[hsl(var(--admin-text-muted))] font-semibold py-4 text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {courses.map((course) => (
-                <TableRow key={course._id} className="border-[#1f2937] hover:bg-slate-800/30">
+                <TableRow key={course._id} className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))]">
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
                       {course.thumbnail ? (
-                        <img src={course.thumbnail} alt={course.title} className="h-10 w-16 object-cover rounded-md bg-slate-800" />
+                        <img src={course.thumbnail} alt={course.title} className="h-10 w-16 object-cover rounded-md bg-[hsl(var(--admin-surface-elevated))]" />
                       ) : (
-                        <div className="h-10 w-16 bg-slate-800 rounded-md flex items-center justify-center">
-                          <BookOpen className="h-5 w-5 text-gray-600" />
+                        <div className="h-10 w-16 bg-[hsl(var(--admin-surface-elevated))] rounded-md flex items-center justify-center">
+                          <BookOpen className="h-5 w-5 text-[hsl(var(--admin-text-faint))]" />
                         </div>
                       )}
                       <div>
-                        <div className="font-semibold text-white line-clamp-1 max-w-[280px]" title={course.title}>
+                        <div className="font-semibold text-[hsl(var(--admin-text-primary))] line-clamp-1 max-w-[280px]" title={course.title}>
                           {course.title}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-[hsl(var(--admin-text-muted))]">
                           Tạo ngày: {new Date(course.createdAt).toLocaleDateString('vi-VN')}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="py-4">{getStatusBadge(course.status)}</TableCell>
-                  <TableCell className="py-4 text-gray-300">
+                  <TableCell className="py-4 text-[hsl(var(--admin-text-secondary))]">
                     <div className="flex items-center gap-1.5">
-                      <Users className="h-4 w-4 text-blue-500" />
+                      <Users className="h-4 w-4 text-[hsl(var(--admin-accent))]" />
                       <span>{course.currentStudents || 0}/{course.maxStudents || 30}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 text-gray-300">
+                  <TableCell className="py-4 text-[hsl(var(--admin-text-secondary))]">
                     <div className="flex items-center gap-1.5">
                       <BookOpen className="h-4 w-4 text-purple-500" />
                       <span>{course.syllabus?.length || 0} bài</span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 text-gray-300 font-medium">
+                  <TableCell className="py-4 text-[hsl(var(--admin-text-secondary))] font-medium">
                     {course.isFree ? 'Miễn phí' : `${course.fee?.toLocaleString('vi-VN')} đ`}
                   </TableCell>
                   <TableCell className="py-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <Button asChild size="sm" variant="outline" className="border-[#1f2937] hover:bg-slate-800 text-gray-300" title="Xem học viên">
+                      <Button asChild size="sm" variant="outline" className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]" title="Xem học viên">
                         <Link to={`/trainer/courses/${course._id}/students`}>
                           <Users className="h-4 w-4" />
                         </Link>
                       </Button>
-                      <Button asChild size="sm" variant="outline" className="border-[#1f2937] hover:bg-slate-800 text-gray-300" title="Lịch dạy">
+                      <Button asChild size="sm" variant="outline" className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]" title="Lịch dạy">
                         <Link to={`/trainer/courses/${course._id}/schedule`}>
                           <Calendar className="h-4 w-4" />
                         </Link>
                       </Button>
-                      <Button asChild size="sm" variant="outline" className="border-[#1f2937] hover:bg-slate-800 text-gray-300" title="Chỉnh sửa">
+                      <Button asChild size="sm" variant="outline" className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]" title="Chỉnh sửa">
                         <Link to={`/trainer/courses/${course._id}/edit`}>
                           <Edit className="h-4 w-4" />
                         </Link>
@@ -362,7 +362,7 @@ const TrainerCoursesPage = () => {
                         size="sm" 
                         variant="outline" 
                         onClick={() => handleDeleteCourse(course._id)}
-                        className="border-[#1f2937] hover:bg-red-500/10 hover:text-red-400 text-gray-500"
+                        className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-danger-subtle))] hover:text-[hsl(var(--admin-danger))] text-[hsl(var(--admin-text-muted))]"
                         title="Xóa khóa học"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -378,7 +378,7 @@ const TrainerCoursesPage = () => {
 
       {/* Pagination Footer */}
       {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-[#1f2937] pt-6 text-sm text-gray-400">
+        <div className="flex items-center justify-between border-t border-[hsl(var(--admin-border))] pt-6 text-sm text-[hsl(var(--admin-text-muted))]">
           <div>
             Hiển thị <strong>{courses.length}</strong> trên <strong>{totalRecords}</strong> khóa học
           </div>
@@ -388,7 +388,7 @@ const TrainerCoursesPage = () => {
               size="sm"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(prev => prev - 1)}
-              className="border-[#1f2937] bg-transparent hover:bg-slate-800"
+              className="border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface-hover))]"
             >
               <ChevronLeft className="h-4 w-4" />
               Trước
@@ -399,7 +399,7 @@ const TrainerCoursesPage = () => {
               size="sm"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(prev => prev + 1)}
-              className="border-[#1f2937] bg-transparent hover:bg-slate-800"
+              className="border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface-hover))]"
             >
               Sau
               <ChevronRight className="h-4 w-4" />
