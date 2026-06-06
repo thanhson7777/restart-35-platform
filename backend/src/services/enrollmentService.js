@@ -3,9 +3,12 @@ import { courseModel } from '~/models/courseModel'
 import { userModel } from '~/models/userModel'
 import { workerProfileModel } from '~/models/workerProfileModel'
 import { fundingConfigModel } from '~/models/fundingConfigModel'
+import { courseSponsorshipModel } from '~/models/courseSponsorshipModel'
+import { partnershipModel } from '~/models/partnershipModel'
 import { GET_DB } from '~/config/mongodb'
 import { applicationService } from './applicationService'
 import { isaRepaymentService } from './isaRepaymentService'
+import { notificationService } from './notificationService'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import {
@@ -20,7 +23,217 @@ import {
   FUNDING_LEARNER_PAY_MODE
 } from '~/utils/constants'
 
-// ============ ENROLL COURSE ============
+const resolveEnrollmentSponsorships = async (profile, course, requestedSource = null) => {
+  const sponsorships = await courseSponsorshipModel.findActiveByCourse(course._id.toString())
+  const matched = []
+
+  for (const sponsorship of sponsorships) {
+    const eligibility = await courseSponsorshipModel.checkEligibility(profile, sponsorship)
+    if (!eligibility.eligible) continue
+
+    const linkedCourse = (sponsorship.linkedCourses || []).find(item => item.courseId === course._id.toString())
+    const fundedAmount = linkedCourse?.maxAmount ?? sponsorship.maxAmountPerLearner ?? course.fee ?? 0
+    const availability = await courseSponsorshipModel.checkAvailability(sponsorship, fundedAmount)
+    if (!availability.available) continue
+
+    matched.push({
+      sponsorshipId: sponsorship._id.toString(),
+      sponsorType: sponsorship.sponsorType,
+      fundedAmount,
+      disbursedAmount: 0,
+      clawbackAmount: 0,
+      coverage: linkedCourse?.coverage || sponsorship.coverageType,
+      status: 'matched',
+      disbursements: [],
+      matchedAt: Date.now(),
+      _sponsorship: sponsorship
+    })
+  }
+
+  if (requestedSource) {
+    return matched.filter(item => {
+      if (requestedSource === 'enterprise_sponsored') return item.sponsorType === USER_ROLES.ENTERPRISE
+      if (requestedSource === 'ngo_sponsored') return item.sponsorType === USER_ROLES.NGO
+      return true
+    })
+  }
+
+  return matched
+}
+
+const syncEnrollmentFundingMetadata = async (course, sponsorshipMatches) => {
+  const partnership = await partnershipModel.findActiveByCourse(course._id.toString())
+  const enterpriseSponsorship = sponsorshipMatches.find(item => item.sponsorType === USER_ROLES.ENTERPRISE)
+
+  return {
+    source: sponsorshipMatches.length > 1
+      ? 'co_funded'
+      : enterpriseSponsorship
+        ? 'enterprise_sponsored'
+        : sponsorshipMatches[0]?.sponsorType === USER_ROLES.NGO
+          ? 'ngo_sponsored'
+          : partnership
+            ? 'enterprise_linked'
+            : 'direct',
+    partnershipId: partnership?._id?.toString() || null,
+    enterpriseId: partnership?.enterpriseId || enterpriseSponsorship?._sponsorship?.sponsorId || null,
+    sponsorships: sponsorshipMatches.map(({ _sponsorship, ...rest }) => rest)
+  }
+}
+
+const processMilestoneDisbursements = async (enrollment, milestoneType = 'completion') => {
+  const sponsorships = enrollment.sponsorships || []
+  const processed = []
+
+  for (const sponsorshipRecord of sponsorships) {
+    const sponsorship = await courseSponsorshipModel.findOneById(sponsorshipRecord.sponsorshipId)
+    if (!sponsorship) continue
+
+    const hasAlreadyDisbursed = (sponsorshipRecord.disbursements || []).some(item => item.milestoneType === milestoneType)
+    if (hasAlreadyDisbursed) continue
+
+    const shouldDisburse =
+      (milestoneType === 'completion' && [ 'completion', 'milestone' ].includes(sponsorship.disbursementModel)) ||
+      (milestoneType === 'upfront' && sponsorship.disbursementModel === 'upfront')
+
+    if (!shouldDisburse) continue
+
+    const amount = sponsorshipRecord.fundedAmount || 0
+    if (amount <= 0) continue
+
+    const disbursement = {
+      enrollmentId: enrollment._id.toString(),
+      courseId: enrollment.courseId.toString(),
+      amount,
+      type: 'disbursement',
+      status: 'completed',
+      milestoneType,
+      createdAt: Date.now()
+    }
+
+    await courseSponsorshipModel.incrementSpent(sponsorshipRecord.sponsorshipId, amount)
+    await courseSponsorshipModel.addDisbursement(sponsorshipRecord.sponsorshipId, disbursement)
+
+    sponsorshipRecord.disbursedAmount = (sponsorshipRecord.disbursedAmount || 0) + amount
+    sponsorshipRecord.status = 'disbursed'
+    sponsorshipRecord.disbursements = [...(sponsorshipRecord.disbursements || []), disbursement]
+
+    processed.push({
+      sponsorshipId: sponsorshipRecord.sponsorshipId,
+      amount,
+      recipients: [sponsorship.sponsorId]
+    })
+  }
+
+  if (processed.length > 0) {
+    await enrollmentModel.update(enrollment._id.toString(), {
+      sponsorships,
+      updatedAt: Date.now()
+    })
+  }
+
+  return processed
+}
+
+const processEnrollmentCompletionTriggers = async (enrollment) => {
+  const sponsorshipNotifications = await processMilestoneDisbursements(enrollment, 'completion')
+
+  if (enrollment.partnershipId) {
+    const partnership = await partnershipModel.findOneById(enrollment.partnershipId)
+    if (partnership) {
+      await partnershipModel.incrementStat(enrollment.partnershipId, 'completedLearners', 1)
+      await notificationService.notifyPartnershipParticipants(
+        partnership,
+        notificationService.NOTIFICATION_EVENT_TYPES.ENROLLMENT_COMPLETED_FOR_PARTNERSHIP,
+        {
+          enrollmentId: enrollment._id.toString(),
+          courseId: enrollment.courseId.toString()
+        }
+      )
+    }
+  }
+
+  if (sponsorshipNotifications.length > 0) {
+    await notificationService.notifySponsors(
+      sponsorshipNotifications,
+      notificationService.NOTIFICATION_EVENT_TYPES.SPONSORSHIP_DISBURSEMENT_CREATED,
+      { enrollmentId: enrollment._id.toString() }
+    )
+  }
+
+  if (enrollment.scholarship?.scholarshipId) {
+    await applicationService.processCompletion(enrollment._id.toString())
+  }
+}
+
+const processEnrollmentDropTriggers = async (enrollment, reason = null) => {
+  const sponsorships = enrollment.sponsorships || []
+  const clawbackNotifications = []
+
+  for (const sponsorshipRecord of sponsorships) {
+    const amount = sponsorshipRecord.disbursedAmount || 0
+    if (amount <= 0) continue
+
+    const sponsorship = await courseSponsorshipModel.findOneById(sponsorshipRecord.sponsorshipId)
+    if (!sponsorship?.clawbackPolicy?.enabled) continue
+
+    const clawback = {
+      enrollmentId: enrollment._id.toString(),
+      courseId: enrollment.courseId.toString(),
+      amount,
+      status: 'completed',
+      reason: reason || enrollment.dropReason || null,
+      createdAt: Date.now()
+    }
+
+    await courseSponsorshipModel.addClawback(sponsorshipRecord.sponsorshipId, clawback)
+    sponsorshipRecord.clawbackAmount = (sponsorshipRecord.clawbackAmount || 0) + amount
+    sponsorshipRecord.status = 'clawback'
+    sponsorshipRecord.disbursements = [...(sponsorshipRecord.disbursements || []), { ...clawback, type: 'clawback' }]
+
+    clawbackNotifications.push({
+      sponsorshipId: sponsorshipRecord.sponsorshipId,
+      amount,
+      recipients: [sponsorship.sponsorId]
+    })
+  }
+
+  if (clawbackNotifications.length > 0) {
+    await enrollmentModel.update(enrollment._id.toString(), { sponsorships })
+    await notificationService.notifySponsors(
+      clawbackNotifications,
+      notificationService.NOTIFICATION_EVENT_TYPES.SPONSORSHIP_CLAWBACK_CREATED,
+      {
+        enrollmentId: enrollment._id.toString(),
+        reason: reason || enrollment.dropReason || null
+      }
+    )
+  }
+
+  if (enrollment.partnershipId) {
+    const partnership = await partnershipModel.findOneById(enrollment.partnershipId)
+    if (partnership) {
+      await notificationService.notifyPartnershipParticipants(
+        partnership,
+        notificationService.NOTIFICATION_EVENT_TYPES.ENROLLMENT_DROPPED_WITH_FUNDING,
+        {
+          enrollmentId: enrollment._id.toString(),
+          reason: reason || enrollment.dropReason || null
+        }
+      )
+    }
+  }
+
+  if (enrollment.scholarship?.scholarshipId && enrollment.scholarship?.disbursedAmount > 0) {
+    await applicationService.processClawback(enrollment._id.toString())
+  }
+}
+
+const emitEnrollmentNotifications = async (eventType, payload = {}) => {
+  const notification = notificationService.buildNotification(eventType, payload)
+  return await notificationService.queueNotification(notification)
+}
+
 const enrollCourse = async (userId, courseId, data) => {
   try {
     const { motivation, source, scheduleId, scholarshipId } = data
@@ -81,6 +294,9 @@ const enrollCourse = async (userId, courseId, data) => {
       waitlistPosition = waitlistCount.totalEnrollments + 1
     }
 
+    const sponsorshipMatches = await resolveEnrollmentSponsorships(profile, course, source)
+    const fundingMetadata = await syncEnrollmentFundingMetadata(course, sponsorshipMatches)
+
     const enrollmentData = {
       userId: userId,
       courseId: courseId,
@@ -88,7 +304,10 @@ const enrollCourse = async (userId, courseId, data) => {
       status: finalStatus,
       payment_status: ENROLLMENT_PAYMENT_STATUS.PENDING,
       motivation: motivation || null,
-      source: source || 'direct',
+      source: fundingMetadata.source || source || 'direct',
+      partnershipId: fundingMetadata.partnershipId,
+      enterpriseId: fundingMetadata.enterpriseId,
+      sponsorships: fundingMetadata.sponsorships,
       scholarship: {
         scholarshipId: scholarshipId || null,
         applicationId: null,
@@ -116,6 +335,18 @@ const enrollCourse = async (userId, courseId, data) => {
     }
 
     const enrollment = await enrollmentModel.findOneById(result.insertedId)
+
+    if (fundingMetadata.sponsorships.length > 0) {
+      await emitEnrollmentNotifications(
+        notificationService.NOTIFICATION_EVENT_TYPES.SPONSORSHIP_ELIGIBLE_MATCH_FOUND,
+        {
+          enrollmentId: enrollment._id.toString(),
+          courseId,
+          matches: fundingMetadata.sponsorships,
+          recipients: fundingMetadata.sponsorships.map(item => item.sponsorshipId)
+        }
+      )
+    }
 
     // Auto-create ISA record nếu khóa học có funding_model = ISA
     if (course.funding_model === FUNDING_LEARNER_PAY_MODE.ISA && enrollment) {
@@ -395,15 +626,11 @@ const updateProgress = async (enrollmentId, progressData, trainerId) => {
 
     // Xử lý khi hoàn thành 100%
     if (progressData.percentage >= 100 && enrollment.status !== ENROLLMENT_STATUS_V2.COMPLETED) {
-      await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.COMPLETED, {
+      const completedEnrollment = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.COMPLETED, {
         completedAt: Date.now()
       })
       await courseModel.decrementEnrollmentCount(enrollment.courseId)
-
-      // Trigger disbursement nếu có scholarship
-      if (enrollment.scholarship?.scholarshipId) {
-        await applicationService.processCompletion(enrollmentId)
-      }
+      await processEnrollmentCompletionTriggers(completedEnrollment)
     } else if (progressData.percentage > 0 && progressData.percentage < 100) {
       if (enrollment.status === ENROLLMENT_STATUS_V2.ACTIVE) {
         await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.IN_PROGRESS)
@@ -466,6 +693,7 @@ const updateStatus = async (enrollmentId, status, additionalData, trainerId) => 
 
     if (status === ENROLLMENT_STATUS_V2.COMPLETED) {
       await courseModel.decrementEnrollmentCount(enrollment.courseId)
+      await processEnrollmentCompletionTriggers(updatedEnrollment)
     }
 
     if (status === ENROLLMENT_STATUS_V2.ACTIVE && enrollment.status === ENROLLMENT_STATUS_V2.ACTIVE) {
@@ -477,13 +705,9 @@ const updateStatus = async (enrollmentId, status, additionalData, trainerId) => 
       }
     }
 
-    if (status === ENROLLMENT_STATUS_V2.DROPPED || status === ENROLLMENT_STATUS_V2.DROPPED) {
+    if (status === ENROLLMENT_STATUS_V2.DROPPED || status === ENROLLMENT_STATUS_V2.FAILED) {
       await courseModel.decrementEnrollmentCount(enrollment.courseId)
-
-      // Xử lý clawback nếu có scholarship đã giải ngân
-      if (enrollment.scholarship?.scholarshipId && enrollment.scholarship?.disbursedAmount > 0) {
-        await applicationService.processClawback(enrollmentId)
-      }
+      await processEnrollmentDropTriggers(updatedEnrollment, updateData.dropReason || updateData.reason || null)
     }
 
     return updatedEnrollment
@@ -536,6 +760,8 @@ const cancelEnrollment = async (enrollmentId, userId, reason) => {
     if (enrollment.scholarship?.scholarshipId && enrollment.scholarship?.disbursedAmount > 0) {
       await applicationService.processRefund(enrollmentId)
     }
+
+    await processEnrollmentDropTriggers(updatedEnrollment, reason)
 
     return updatedEnrollment
   } catch (error) { throw error }
@@ -752,6 +978,8 @@ const dropEnrollment = async (enrollmentId, userId, dropReason) => {
       await courseModel.decrementEnrollmentCount(enrollment.courseId.toString())
     }
 
+    await processEnrollmentDropTriggers(updated, dropReason)
+
     return updated
   } catch (error) { throw error }
 }
@@ -803,6 +1031,7 @@ const completeEnrollment = async (enrollmentId, trainerId, options = {}) => {
     }
 
     const updated = await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.COMPLETED, updateData)
+    await processEnrollmentCompletionTriggers(updated)
 
     // Auto-create certificate when enrollment is completed
     try {
@@ -835,6 +1064,8 @@ const failEnrollment = async (enrollmentId, trainerId, reason) => {
     if (enrollment.status !== ENROLLMENT_STATUS_V2.ACTIVE) {
       await courseModel.decrementEnrollmentCount(enrollment.courseId.toString())
     }
+
+    await processEnrollmentDropTriggers(updated, reason)
 
     return updated
   } catch (error) { throw error }

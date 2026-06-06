@@ -1,5 +1,5 @@
 import { authorizeAxiosInstance, publicAxiosInstance } from '~/utils/authorizeAxios';
-import { API_ROOT } from '~/utils/constants';
+import { API_ROOT, ENROLLMENT_SOURCE } from '~/utils/constants';
 
 // ─── Courses (Public) ─────────────────────────────────────────────────────────
 
@@ -20,6 +20,15 @@ export const getCourseById = (id, params) =>
 
 export const getRelatedCourses = (id) =>
   publicAxiosInstance.get(`${API_ROOT}/v1/courses/${id}/related`);
+
+export const getPartnershipCourses = (params) =>
+  publicAxiosInstance.get(`${API_ROOT}/v1/courses`, {
+    params: {
+      ...params,
+      linkedPartnershipId: params?.linkedPartnershipId,
+      linkedEnterpriseId: params?.linkedEnterpriseId
+    }
+  });
 
 // ─── Courses (Authenticated - Worker) ─────────────────────────────────────────
 

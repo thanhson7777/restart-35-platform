@@ -127,7 +127,22 @@ export const COMPLETION_STATUS = {
 export const ENROLLMENT_SOURCE = {
   DIRECT: 'direct',
   SCHOLARSHIP: 'scholarship',
-  RECOMMENDATION: 'recommendation'
+  RECOMMENDATION: 'recommendation',
+  ENTERPRISE_LINKED: 'enterprise_linked',
+  ENTERPRISE_SPONSORED: 'enterprise_sponsored',
+  NGO_SPONSORED: 'ngo_sponsored',
+  CO_FUNDED: 'co_funded'
+}
+
+// ============ PARTNERSHIP STATUS ============
+export const PARTNERSHIP_STATUS = {
+  PENDING: 'pending',
+  NEGOTIATING: 'negotiating',
+  ACCEPTED: 'accepted',
+  REJECTED: 'rejected',
+  ACTIVE: 'active',
+  CANCELLED: 'cancelled',
+  EXPIRED: 'expired'
 }
 
 // ============ SCHOLARSHIP COVERAGE ============
@@ -268,6 +283,30 @@ export const COURSE_FUNDING_MODELS = {
   MIXED: 'mixed'
 }
 
+// ============ COURSE SPONSORSHIP STATUS ============
+export const COURSE_SPONSORSHIP_STATUS = {
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  PAUSED: 'paused',
+  EXHAUSTED: 'exhausted',
+  EXPIRED: 'expired',
+  CANCELLED: 'cancelled'
+}
+
+// ============ COURSE SPONSORSHIP MODEL ============
+export const COURSE_SPONSORSHIP_MODEL = {
+  ENTERPRISE: 'enterprise',
+  NGO: 'ngo',
+  CO_FUNDED: 'co_funded'
+}
+
+// ============ DISBURSEMENT MODEL ============
+export const DISBURSEMENT_MODEL = {
+  UPFRONT: 'upfront',
+  MILESTONE: 'milestone',
+  COMPLETION: 'completion'
+}
+
 // ============ ENROLLMENT STATUS V2 ============
 // Chuẩn hóa: 8 status cũ → 5 status mới (xem migration ở Task 1.5)
 export const ENROLLMENT_STATUS_V2 = {
@@ -356,6 +395,14 @@ export const PLACEMENT_STATUS = {
   REJECTED: 'rejected',
   STARTED: 'started',
   RESIGNED: 'resigned'
+}
+
+// ============ PLACEMENT REFERRAL SOURCE ============
+export const PLACEMENT_REFERRAL_SOURCE = {
+  PARTNERSHIP: 'partnership',
+  ENTERPRISE_SPONSORSHIP: 'enterprise_sponsorship',
+  NGO_SPONSORSHIP: 'ngo_sponsorship',
+  MIXED: 'mixed'
 }
 
 // ============ MAX LIMITS ============

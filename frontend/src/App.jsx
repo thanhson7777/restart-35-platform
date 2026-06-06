@@ -31,9 +31,9 @@ import AdminScholarshipsPage from '@/pages/AdminScholarshipsPage';
 import AttendancePage from '@/pages/admin/AttendancePage';
 import CheckinPage from '@/pages/my-enrollments/CheckinPage';
 import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
-
-// Trainer Dashboard Imports
 import TrainerLayout from '@/components/trainer/TrainerLayout';
+import EnterpriseLayout from '@/components/enterprise/EnterpriseLayout';
+import NgoLayout from '@/components/ngo/NgoLayout';
 import TrainerDashboardPage from '@/pages/trainer/TrainerDashboardPage';
 import TrainerCoursesPage from '@/pages/trainer/TrainerCoursesPage';
 import TrainerCourseFormPage from '@/pages/trainer/TrainerCourseFormPage';
@@ -44,6 +44,19 @@ import TrainerEnrollmentDetailPage from '@/pages/trainer/TrainerEnrollmentDetail
 import TrainerSchedulePage from '@/pages/trainer/TrainerSchedulePage';
 import TrainerPlacementsPage from '@/pages/trainer/TrainerPlacementsPage';
 import TrainerReviewsPage from '@/pages/trainer/TrainerReviewsPage';
+import TrainerPartnershipsPage from '@/pages/trainer/TrainerPartnershipsPage';
+import TrainerPartnershipDetailPage from '@/pages/trainer/TrainerPartnershipDetailPage';
+import TrainerPartnershipRespondPage from '@/pages/trainer/TrainerPartnershipRespondPage';
+import EnterpriseDashboardPage from '@/pages/enterprise/EnterpriseDashboardPage';
+import EnterprisePartnershipsPage from '@/pages/enterprise/EnterprisePartnershipsPage';
+import EnterprisePartnershipCreatePage from '@/pages/enterprise/EnterprisePartnershipCreatePage';
+import EnterprisePartnershipDetailPage from '@/pages/enterprise/EnterprisePartnershipDetailPage';
+import EnterpriseSponsorshipsPage from '@/pages/enterprise/EnterpriseSponsorshipsPage';
+import EnterpriseSponsorshipCreatePage from '@/pages/enterprise/EnterpriseSponsorshipCreatePage';
+import NgoImpactDashboardPage from '@/pages/ngo/NgoImpactDashboardPage';
+import NgoSponsorshipsPage from '@/pages/ngo/NgoSponsorshipsPage';
+import NgoSponsorshipCreatePage from '@/pages/ngo/NgoSponsorshipCreatePage';
+import NgoSponsorshipLearnersPage from '@/pages/ngo/NgoSponsorshipLearnersPage';
 
 
 function App() {
@@ -108,8 +121,27 @@ function App() {
         <Route path="/trainer/enrollments" element={<TrainerLayout><TrainerEnrollmentsPage /></TrainerLayout>} />
         <Route path="/trainer/enrollments/:id" element={<TrainerLayout><TrainerEnrollmentDetailPage /></TrainerLayout>} />
         <Route path="/trainer/schedule" element={<TrainerLayout><TrainerSchedulePage /></TrainerLayout>} />
+        <Route path="/trainer/partnerships" element={<TrainerLayout><TrainerPartnershipsPage /></TrainerLayout>} />
+        <Route path="/trainer/partnerships/:id" element={<TrainerLayout><TrainerPartnershipDetailPage /></TrainerLayout>} />
+        <Route path="/trainer/partnerships/:id/respond" element={<TrainerLayout><TrainerPartnershipRespondPage /></TrainerLayout>} />
         <Route path="/trainer/placements" element={<TrainerLayout><TrainerPlacementsPage /></TrainerLayout>} />
         <Route path="/trainer/reviews" element={<TrainerLayout><TrainerReviewsPage /></TrainerLayout>} />
+
+        {/* Enterprise Routes */}
+        <Route path="/enterprise" element={<Navigate to="/enterprise/dashboard" replace />} />
+        <Route path="/enterprise/dashboard" element={<EnterpriseLayout><EnterpriseDashboardPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/partnerships" element={<EnterpriseLayout><EnterprisePartnershipsPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/partnerships/create" element={<EnterpriseLayout><EnterprisePartnershipCreatePage /></EnterpriseLayout>} />
+        <Route path="/enterprise/partnerships/:id" element={<EnterpriseLayout><EnterprisePartnershipDetailPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/sponsorships" element={<EnterpriseLayout><EnterpriseSponsorshipsPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/sponsorships/create" element={<EnterpriseLayout><EnterpriseSponsorshipCreatePage /></EnterpriseLayout>} />
+
+        {/* NGO Routes */}
+        <Route path="/ngo" element={<Navigate to="/ngo/dashboard/impact" replace />} />
+        <Route path="/ngo/dashboard/impact" element={<NgoLayout><NgoImpactDashboardPage /></NgoLayout>} />
+        <Route path="/ngo/sponsorships" element={<NgoLayout><NgoSponsorshipsPage /></NgoLayout>} />
+        <Route path="/ngo/sponsorships/create" element={<NgoLayout><NgoSponsorshipCreatePage /></NgoLayout>} />
+        <Route path="/ngo/sponsorships/:id/learners" element={<NgoLayout><NgoSponsorshipLearnersPage /></NgoLayout>} />
 
         {/* Worker Profile Page */}
         <Route path="/worker-profile" element={<WorkerProfilePage />} />

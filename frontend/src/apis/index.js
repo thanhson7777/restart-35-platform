@@ -464,5 +464,8 @@ export * from './courseApi';
 // Scholarship API exports
 export * from './scholarshipApi';
 
-// Application API exports
-export * from './applicationApi';
+// Partnership & Sponsorship API exports
+export * from './partnershipApi';
+export * from './courseSponsorshipApi';
+export * from './enterpriseDashboardApi';
+export * from './ngoDashboardApi';

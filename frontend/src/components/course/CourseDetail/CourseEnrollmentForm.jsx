@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import { Users, AlertTriangle, BookOpen, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { ENROLLMENT_SOURCE } from '@/utils/constants';
 
 // Import Funding Sidebar sub-cards
 import { FundingSidebarFreeCard } from './FundingSidebarFreeCard';
@@ -72,7 +73,15 @@ export const CourseEnrollmentForm = ({
       await onSubmit({
         courseId: course._id,
         motivation: motivation.trim() || undefined,
-        source: 'direct',
+        source: course?.linkedPartnershipId
+          ? ENROLLMENT_SOURCE.ENTERPRISE_LINKED
+          : course?.sponsorship?.source === 'ngo'
+          ? ENROLLMENT_SOURCE.NGO_SPONSORED
+          : course?.sponsorship?.source === 'enterprise'
+          ? ENROLLMENT_SOURCE.ENTERPRISE_SPONSORED
+          : course?.sponsorship?.source === 'mixed'
+          ? ENROLLMENT_SOURCE.CO_FUNDED
+          : ENROLLMENT_SOURCE.DIRECT,
         ...additionalData, // Pass fundingModel, method, voucherCode if any
       });
     } catch (err) {

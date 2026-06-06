@@ -2,7 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validator'
-import { PLACEMENT_STATUS } from '~/utils/constants'
+import { PLACEMENT_STATUS, PLACEMENT_REFERRAL_SOURCE } from '~/utils/constants'
 
 const PLACEMENT_COLLECTION_NAME = 'placements'
 const PLACEMENT_COLLECTION_SCHEMA = Joi.object({
@@ -26,7 +26,9 @@ const PLACEMENT_COLLECTION_SCHEMA = Joi.object({
     currency: Joi.string().default('VND'),
     employmentType: Joi.string().allow('', null)
   }).required(),
-  referralSource: Joi.string().allow('', null),
+  referralSource: Joi.string().valid(...Object.values(PLACEMENT_REFERRAL_SOURCE)).allow('', null),
+  partnershipId: Joi.string().allow(null, ''),
+  sponsorshipId: Joi.string().allow(null, ''),
   interviewDate: Joi.date().timestamp('javascript').allow(null),
   offerDetails: Joi.object({
     offeredDate: Joi.date().timestamp('javascript').allow(null),

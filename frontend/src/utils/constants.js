@@ -133,6 +133,10 @@ export const ENROLLMENT_SOURCE = {
   DIRECT: 'direct',
   SCHOLARSHIP: 'scholarship',
   RECOMMENDATION: 'recommendation',
+  ENTERPRISE_LINKED: 'enterprise_linked',
+  ENTERPRISE_SPONSORED: 'enterprise_sponsored',
+  NGO_SPONSORED: 'ngo_sponsored',
+  CO_FUNDED: 'co_funded'
 }
 
 // ─── Scholarship & Application Constants ──────────────────────────────────────
