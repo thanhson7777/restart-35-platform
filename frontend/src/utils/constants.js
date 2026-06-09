@@ -13,8 +13,10 @@ const isProduction = import.meta.env.MODE === 'production'
  */
 
 // Backend API URL (Node.js Express)
+// Dev: Use relative path to proxy through Vite dev server
+// Prod: Use absolute URL
 export const API_ROOT = isDev
-  ? 'http://localhost:8017'
+  ? ''
   : isProduction
     ? 'https://api.restart35.com'
     : 'http://localhost:8017'

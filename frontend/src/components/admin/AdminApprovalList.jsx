@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BezelCard } from '@/components/ui';
+import { BezelCard, SafeImage } from '@/components/ui';
 import { Calendar, User, MapPin, DollarSign, Check, X, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -52,7 +52,7 @@ export const AdminApprovalList = ({ courses = [], onApprove, onReject, onView })
               padding="none"
             >
               <div className="relative aspect-video w-full overflow-hidden bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
-                <img
+                <SafeImage
                   src={course.thumbnail || 'https://picsum.photos/seed/course-thumb/400/250'}
                   alt={course.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]"

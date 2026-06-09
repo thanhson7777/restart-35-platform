@@ -10,6 +10,7 @@ import {
   PAYMENT_STATUS,
   ENROLLMENT_PAYMENT_STATUS
 } from '~/utils/constants'
+import { env } from '~/config/enviroment'
 
 // ============ CREATE ============
 const createPayment = async (userId, data) => {
@@ -53,7 +54,10 @@ const createPayment = async (userId, data) => {
     }
 
     if (method === 'bank_transfer') {
-      paymentData.qrUrl = `https://img.vietqr.io/image/VCB-1234567890-compact.png?amount=${amount}&addInfo=RESTART35-${enrollmentId.toString().toUpperCase()}&accountName=RESTART35%20PROJECT`
+      const bankAccountNumber = env.PAYMENT_BANK_ACCOUNT_NUMBER.replace(/\s+/g, '')
+      const bankName = env.PAYMENT_BANK_NAME
+      const accountName = encodeURIComponent(env.PAYMENT_ACCOUNT_NAME)
+      paymentData.qrUrl = `https://img.vietqr.io/image/${bankName}-${bankAccountNumber}-compact.png?amount=${amount}&addInfo=RESTART35-${enrollmentId.toString().toUpperCase()}&accountName=${accountName}`
     }
 
     const result = await paymentModel.createNew(paymentData)
@@ -304,6 +308,27 @@ const webhookHandler = async (gateway, payload) => {
     let status
     let transactionId
     let paymentId = null
+
+    if (gateway === 'vietqr') {
+      const data = payload.data || payload
+      const desc = data.description || data.content || data.addInfo || data.metadata?.description || ''
+      const match = desc.match(/RESTART35-([A-Fa-f0-9]{24})/)
+      if (match) {
+        const enrollmentId = match[1]
+        const db = await GET_DB()
+        const payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+          enrollmentId,
+          status: PAYMENT_STATUS.PENDING,
+          _destroy: { $ne: true }
+        })
+        if (payment) {
+          status = PAYMENT_STATUS.COMPLETED
+          transactionId = data.transactionId || data.id || data.transaction_id
+          paymentId = payment._id.toString()
+        }
+      }
+      return { status, transactionId, paymentId }
+    }
 
     if (gateway === 'casso') {
       const transactions = payload.data || []

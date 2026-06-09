@@ -3,77 +3,7 @@ import { Button } from '@/components/ui'
 import { Badge } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
-// Icons
-const XIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-  </svg>
-)
-
-const MapPinIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-)
-
-const DollarSignIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" x2="12" y1="2" y2="22" />
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-  </svg>
-)
-
-const ExternalLinkIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-    <polyline points="15 3 21 3 21 9" />
-    <line x1="10" x2="21" y1="14" y2="3" />
-  </svg>
-)
-
-const BookmarkIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-  </svg>
-)
-
-const FlagIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-    <line x1="4" x2="4" y1="22" y2="15" />
-  </svg>
-)
-
-const SparklesIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-    <path d="M5 3v4" />
-    <path d="M19 17v4" />
-    <path d="M3 5h4" />
-    <path d="M17 19h4" />
-  </svg>
-)
-
-const CheckIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
-
-const AlertIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-    <line x1="12" x2="12" y1="9" y2="13" />
-    <line x1="12" x2="12.01" y1="17" y2="17" />
-  </svg>
-)
-
-const LoaderIcon = ({ className }) => (
-  <svg className={cn('animate-spin', className)} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-  </svg>
-)
+import { X, MapPin, CurrencyDollar, ArrowSquareOut, BookmarkSimple, Flag, Sparkle, Check, Warning, CircleNotch } from '@phosphor-icons/react'
 
 /**
  * JobDetailModal Component - Modal hiển thị chi tiết job
@@ -228,11 +158,11 @@ const JobDetailModal = ({
               {/* Tags */}
               <div className="flex flex-wrap items-center gap-2 mt-3">
                 <Badge variant="outline" className="font-normal">
-                  <MapPinIcon className="w-3 h-3 mr-1" />
+                  <MapPin className="w-3 h-3 mr-1" weight="regular" />
                   {jobData.location}
                 </Badge>
                 <Badge variant="outline" className="font-normal text-success">
-                  <DollarSignIcon className="w-3 h-3 mr-1" />
+                  <CurrencyDollar className="w-3 h-3 mr-1" weight="regular" />
                   {formatSalary()}
                 </Badge>
                 <Badge variant="outline" className="font-normal">
@@ -253,7 +183,7 @@ const JobDetailModal = ({
               onClick={onClose}
               className="shrink-0 p-2 rounded-lg hover:bg-muted transition-colors"
             >
-              <XIcon className="w-5 h-5" />
+              <X className="w-5 h-5" weight="bold" />
             </button>
           </div>
         </div>
@@ -264,7 +194,7 @@ const JobDetailModal = ({
           {(jobData.matchScore > 0 || jobData.skillsMatch > 0) && (
             <div className="bg-muted/50 rounded-lg p-4">
               <h3 className="font-medium mb-2 flex items-center gap-2">
-                <CheckIcon className="w-4 h-4 text-primary" />
+                <Check className="w-4 h-4 text-primary" />
                 Độ phù hợp với hồ sơ của bạn
               </h3>
               <div className="flex flex-wrap gap-4 text-sm">
@@ -293,18 +223,18 @@ const JobDetailModal = ({
             <h3 className="font-medium mb-3">Yêu cầu</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
-                <CheckIcon className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
+                <Check className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
                 <span><strong>Kinh nghiệm:</strong> {jobData.experienceRequired} năm</span>
               </li>
               {jobData.educationRequired && (
                 <li className="flex items-start gap-2">
-                  <CheckIcon className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
+                  <Check className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
                   <span><strong>Bằng cấp:</strong> {jobData.educationRequired}</span>
                 </li>
               )}
               {jobData.agePreference && jobData.agePreference !== 'any' && (
                 <li className="flex items-start gap-2">
-                  <CheckIcon className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
+                  <Check className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
                   <span><strong>Tuổi:</strong> {jobData.agePreference}</span>
                 </li>
               )}
@@ -338,7 +268,7 @@ const JobDetailModal = ({
           {/* Dead link warning */}
           {showDeadWarning && (
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-2">
-              <AlertIcon className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+              <Warning className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
               <div>
                 <p className="font-medium text-sm text-destructive">Link đã hết hạn</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -358,12 +288,12 @@ const JobDetailModal = ({
           >
             {isVerifying ? (
               <>
-                <LoaderIcon className="w-4 h-4 mr-2" />
+                <CircleNotch className="w-4 h-4 mr-2 animate-spin" />
                 Đang kiểm tra link...
               </>
             ) : (
               <>
-                <ExternalLinkIcon className="w-4 h-4 mr-2" />
+                <ArrowSquareOut className="w-4 h-4 mr-2" />
                 Ứng tuyển tại nhà tuyển dụng
               </>
             )}
@@ -376,7 +306,7 @@ const JobDetailModal = ({
               onClick={handleSave}
               className="flex-1"
             >
-              <BookmarkIcon className="w-4 h-4 mr-2" />
+              <BookmarkSimple className="w-4 h-4 mr-2" />
               Lưu việc làm
             </Button>
             <Button
@@ -384,7 +314,7 @@ const JobDetailModal = ({
               onClick={handleReportDeadLink}
               className="flex-1"
             >
-              <FlagIcon className="w-4 h-4 mr-2" />
+              <Flag className="w-4 h-4 mr-2" />
               Báo link chết
             </Button>
           </div>
@@ -396,7 +326,7 @@ const JobDetailModal = ({
               onClick={() => onViewCourses(job)}
               className="w-full mt-2"
             >
-              <SparklesIcon className="w-4 h-4 mr-2" />
+              <Sparkle className="w-4 h-4 mr-2" />
               Xem khóa học gợi ý cho vị trí này
             </Button>
           )}

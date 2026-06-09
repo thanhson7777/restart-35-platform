@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Badge, Button, Tabs, TabsList, TabsTrigger, TabsContent, Skeleton } from '@/components/ui';
-import { getEnrollmentById, getCourseSchedule, getCourseLessons, getMyIsaRepayments, submitIncome, createPayment, getScheduleById } from '@/apis/courseApi';
+import { getEnrollmentById, getCourseSchedule, getCourseLessons, getMyIsaRepayments, submitIncome, createPayment, getScheduleById, cancelEnrollment } from '@/apis/courseApi';
 import { DeliveryTypeBadge } from '@/components/course/DeliveryTypeBadge';
 import { FundingModelChip } from '@/components/course/FundingModelChip';
 import { DropoutRiskBadge } from '@/components/enrollment/DropoutRiskBadge';
@@ -35,6 +35,11 @@ export default function MyEnrollmentDetailPage() {
   const [checkoutRecord, setCheckoutRecord] = useState(null);
   const [checkoutPayment, setCheckoutPayment] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+
+  // Cancel enrollment states
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
 
   const fetchEnrollmentDetail = useCallback(async () => {
     setLoading(true);
@@ -210,6 +215,20 @@ export default function MyEnrollmentDetailPage() {
     }
   };
 
+  const handleCancelEnrollment = async () => {
+    setCancelling(true);
+    try {
+      await cancelEnrollment(id, { reason: cancelReason || 'Hủy từ trang chi tiết' });
+      toast.success('Đã hủy ghi danh thành công');
+      setShowCancelModal(false);
+      navigate('/my-enrollments');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Hủy ghi danh thất bại');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-6xl space-y-6">
@@ -355,6 +374,18 @@ export default function MyEnrollmentDetailPage() {
                 >
                   <Award className="w-5 h-5 fill-current" />
                   Xem chứng nhận của tôi
+                </Button>
+              )}
+
+              {/* Cancel Enrollment Button (only for active enrollments) */}
+              {status === 'in_progress' && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="rounded-xl text-xs font-bold px-6 py-4 shrink-0 flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                  onClick={() => setShowCancelModal(true)}
+                >
+                  Hủy ghi danh
                 </Button>
               )}
             </div>
@@ -858,6 +889,42 @@ export default function MyEnrollmentDetailPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Cancel Enrollment Confirmation Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl">
+            <h3 className="text-lg font-bold mb-2">Xác nhận hủy ghi danh</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Bạn có chắc muốn hủy đăng ký khóa học này? Hành động này không thể hoàn tác.
+            </p>
+            <textarea
+              className="w-full p-3 rounded-lg border border-border text-sm mb-4 dark:bg-zinc-800 dark:border-zinc-700 resize-none"
+              placeholder="Lý do hủy (tùy chọn)"
+              rows={3}
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+            />
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => { setShowCancelModal(false); setCancelReason(''); }}
+                disabled={cancelling}
+              >
+                Đóng
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleCancelEnrollment}
+                disabled={cancelling}
+              >
+                {cancelling ? 'Đang hủy...' : 'Xác nhận hủy'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       </div>
       <Footer />
     </>

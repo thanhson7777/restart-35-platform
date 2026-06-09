@@ -74,7 +74,12 @@ export default function MyEnrollmentsPage() {
   };
 
   const handleViewDetail = (enrollment) => {
-    navigate(`/courses/${enrollment.courseId || enrollment.course?._id}`);
+    const courseId = enrollment.courseId || enrollment.course?._id;
+    if (courseId) {
+      navigate(`/courses/${courseId}`);
+    } else {
+      console.error('[ERROR] handleViewDetail: courseId is undefined', enrollment);
+    }
   };
 
   if (!currentUser) {

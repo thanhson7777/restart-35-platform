@@ -4,6 +4,7 @@ import express from 'express'
 import multer from 'multer'
 import { courseValidation } from '~/validations/courseValidation'
 import { courseController } from '~/controllers/courseController'
+import { courseModel } from '~/models/courseModel'
 import { authMiddleware } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
@@ -20,6 +21,38 @@ const upload = multer({
     }
   }
 })
+
+/**
+ * @route   GET /v1/courses/map-data
+ * @desc    Lấy dữ liệu khóa học có địa điểm cho bản đồ
+ * @access  Public
+ */
+Router.get('/map-data', async (req, res, next) => {
+  try {
+    const courses = await courseModel
+      .find({ status: 'published' })
+      .select('title thumbnail category fee isFree offlineVenue')
+      .limit(500)
+      .lean();
+
+    const data = courses
+      .filter(c => c.offlineVenue && (c.offlineVenue.address || c.offlineVenue.city))
+      .map(c => ({
+        _id: c._id.toString(),
+        title: c.title,
+        category: c.category?.name,
+        thumbnail: c.thumbnail,
+        venue: c.offlineVenue?.address || c.offlineVenue?.city,
+        lat: c.offlineVenue?.lat || null,
+        lng: c.offlineVenue?.lng || null,
+        price: c.isFree ? 0 : (c.fee || 0),
+      }));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
 
 const parseMultipartBody = (req, res, next) => {
   const jsonFields = ['duration', 'location', 'skills', 'prerequisites', 'requirements', 'syllabus', 'outcomes']

@@ -1,4 +1,4 @@
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Badge, Button, SafeImage } from '@/components/ui';
 import { ApplicationStatus } from '@/components/shared/ApplicationStatus';
 import { formatDate, formatPrice } from '@/utils/formatter';
 import { FileText, CheckCircle2, XCircle, BookOpen, Send, Trash2, Eye } from 'lucide-react';
@@ -44,7 +44,7 @@ export const ApplicationCard = ({
         {/* Thumbnail */}
         <div className="sm:w-40 sm:h-28 shrink-0">
           {course?.thumbnail ? (
-            <img
+            <SafeImage
               src={course.thumbnail}
               alt={course.title}
               className="w-full h-32 sm:h-full object-cover rounded-lg"

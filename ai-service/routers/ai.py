@@ -499,9 +499,11 @@ async def recommend_jobs(request: RecommendJobsRequest):
         List of recommended jobs with scores
     """
     try:
+        logger.info(f"[recommend-jobs] Request: skills={request.skills}, experience={request.experience}, limit={request.limit}")
+
         # Use hybrid recommender (TF-IDF + Semantic)
         hybrid = get_hybrid_recommender()
-
+        
         result = hybrid.recommend(
             skills=request.skills,
             experience=request.experience,
@@ -516,6 +518,7 @@ async def recommend_jobs(request: RecommendJobsRequest):
             user_id=request.user_id
         )
 
+        logger.info(f"[recommend-jobs] Success: {result.get('data', {}).get('total', 0)} jobs returned")
         return result
 
     except FileNotFoundError as e:
@@ -523,8 +526,14 @@ async def recommend_jobs(request: RecommendJobsRequest):
             status_code=503,
             detail=f"Data file not found: {str(e)}"
         )
+    except ZeroDivisionError as e:
+        logger.error(f"[recommend-jobs] ZeroDivisionError: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Recommendation calculation error: {str(e)}"
+        )
     except Exception as e:
-        logger.error(f"Recommendation error: {str(e)}")
+        logger.error(f"Recommendation error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Recommendation error: {str(e)}"

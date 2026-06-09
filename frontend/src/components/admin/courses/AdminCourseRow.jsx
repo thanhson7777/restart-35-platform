@@ -1,5 +1,5 @@
 import { Eye, Check, X, Clock, CheckCircle, XCircle, Archive, Calendar, BookOpen, Star } from 'lucide-react';
-import { Badge, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui';
+import { Badge, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, SafeImage } from '@/components/ui';
 import { formatPrice, formatDuration } from '@/utils/formatter';
 
 const STATUS_CONFIG = {
@@ -75,7 +75,7 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
         <div className="flex items-center gap-3">
           <div className="w-16 h-10 rounded-lg overflow-hidden bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] flex-shrink-0">
             {course.thumbnail ? (
-              <img
+              <SafeImage
                 src={course.thumbnail}
                 alt={course.title}
                 className="w-full h-full object-cover"

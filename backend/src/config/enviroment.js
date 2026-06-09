@@ -35,6 +35,10 @@ export const env = {
   MOMO_ACCESS_KEY: process.env.MOMO_ACCESS_KEY,
   MOMO_SECRET_KEY: process.env.MOMO_SECRET_KEY,
 
+  PAYMENT_BANK_ACCOUNT_NUMBER: process.env.PAYMENT_BANK_ACCOUNT_NUMBER || '1234567890',
+  PAYMENT_BANK_NAME: process.env.PAYMENT_BANK_NAME || 'Vietcombank',
+  PAYMENT_ACCOUNT_NAME: process.env.PAYMENT_ACCOUNT_NAME || 'RESTART35 PROJECT',
+
   // AI Service Configuration
   AI_SERVICE_HOST: process.env.AI_SERVICE_HOST || 'localhost',
   AI_SERVICE_PORT: process.env.AI_SERVICE_PORT || '8000',

@@ -464,8 +464,29 @@ export * from './courseApi';
 // Scholarship API exports
 export * from './scholarshipApi';
 
+// Organization API exports
+export * from './organizationApi';
+
+// Payment API exports
+export * from './paymentApi';
+
 // Partnership & Sponsorship API exports
 export * from './partnershipApi';
 export * from './courseSponsorshipApi';
 export * from './enterpriseDashboardApi';
 export * from './ngoDashboardApi';
+
+// Funding Config API exports
+export * from './fundingConfigApi';
+
+// Certificate API exports
+export * from './certificateApi';
+
+// Review Moderation API exports
+export * from './reviewModerationApi';
+
+// Learning Record API exports
+export * from './learningRecordApi';
+
+// ESCO API exports
+export * from './escoApi';

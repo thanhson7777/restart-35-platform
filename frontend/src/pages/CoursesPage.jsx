@@ -93,8 +93,8 @@ export default function CoursesPage() {
       });
 
       const res = await getCourses(params);
-      setCourses(res.data || []);
-      setPagination(res.pagination || null);
+      setCourses(res.data?.data || []);
+      setPagination(res.data?.pagination || null);
     } catch (err) {
       console.error('Error fetching courses:', err);
       setError('Không thể tải danh sách khóa học. Vui lòng thử lại.');

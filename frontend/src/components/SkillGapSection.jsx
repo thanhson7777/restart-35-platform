@@ -14,7 +14,8 @@
 
 import { useState, useMemo } from 'react'
 import { featureFlags } from '~/config/features'
-import { Loader2, TrendingUp, HeartHandshake } from 'lucide-react'
+import { CircleNotch, TrendUp, Handshake, Star, Heart, Code, ChartBar, Palette, Globe, CurrencyDollar, FirstAid, BookOpenText, X, Clock, Lightbulb, ArrowSquareOut } from '@phosphor-icons/react'
+import { cn } from '~/lib/utils'
 
 // Priority configuration
 const PRIORITY_CONFIG = {
@@ -24,7 +25,9 @@ const PRIORITY_CONFIG = {
     bgColor: 'bg-red-50',
     borderColor: 'border-red-200',
     textColor: 'text-red-700',
-    icon: '🔴',
+    iconBg: 'bg-red-100',
+    iconColor: 'text-red-600',
+    iconWeight: 'fill',
     description: 'Kỹ năng cần thiết cho vị trí mục tiêu'
   },
   important: {
@@ -33,7 +36,9 @@ const PRIORITY_CONFIG = {
     bgColor: 'bg-amber-50',
     borderColor: 'border-amber-200',
     textColor: 'text-amber-700',
-    icon: '🟡',
+    iconBg: 'bg-amber-100',
+    iconColor: 'text-amber-600',
+    iconWeight: 'fill',
     description: 'Kỹ năng nên có để tăng cơ hội'
   },
   nice_to_have: {
@@ -42,21 +47,30 @@ const PRIORITY_CONFIG = {
     bgColor: 'bg-green-50',
     borderColor: 'border-green-200',
     textColor: 'text-green-700',
-    icon: '🟢',
+    iconBg: 'bg-green-100',
+    iconColor: 'text-green-600',
+    iconWeight: 'regular',
     description: 'Kỹ năng bổ sung giá trị'
   }
 }
 
-// Skill category icons
-const SKILL_ICONS = {
-  technical: '💻',
-  soft: '🤝',
-  management: '📊',
-  creative: '🎨',
-  language: '🌍',
-  finance: '💰',
-  health: '🏥',
-  other: '📚'
+// Icon components for priority levels (rendered dynamically)
+const PriorityIcons = {
+  essential: TrendUp,
+  important: Star,
+  nice_to_have: Heart
+}
+
+// Skill category icon components
+const CategoryIcons = {
+  technical: Code,
+  soft: Handshake,
+  management: ChartBar,
+  creative: Palette,
+  language: Globe,
+  finance: CurrencyDollar,
+  health: FirstAid,
+  other: BookOpenText
 }
 
 /**
@@ -97,36 +111,45 @@ const SkillGapCard = ({ skillGap, onSelect, isSelected }) => {
   const priority = skillGap.priority || 'nice_to_have'
   const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.nice_to_have
   const category = categorizeSkill(skillGap.skill_name)
-  const icon = SKILL_ICONS[category] || SKILL_ICONS.other
+  const CategoryIcon = CategoryIcons[category] || CategoryIcons.other
+  const PriorityIcon = PriorityIcons[priority]
 
   return (
     <div
-      className={`
-        p-4 rounded-lg border-2 transition-all cursor-pointer
-        ${isSelected
+      className={cn(
+        'p-4 rounded-lg border-2 transition-all cursor-pointer',
+        isSelected
           ? `${config.borderColor} ${config.bgColor} shadow-md`
-          : `border-gray-200 hover:border-gray-300 hover:shadow-sm`
-        }
-      `}
+          : 'border-border hover:border-muted-foreground/30 hover:shadow-sm'
+      )}
       onClick={() => onSelect?.(skillGap)}
     >
       <div className="flex items-start gap-3">
-        {/* Icon */}
-        <span className="text-2xl flex-shrink-0">{icon}</span>
+        {/* Category Icon */}
+        <div className={cn(
+          'flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center',
+          config.iconBg
+        )}>
+          <CategoryIcon size={18} className={config.iconColor} />
+        </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-medium text-gray-900 truncate">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <h4 className="font-medium text-foreground truncate">
               {skillGap.skill_name}
             </h4>
-            <span className={`text-xs px-2 py-0.5 rounded ${config.bgColor} ${config.textColor}`}>
-              {config.icon} {config.label}
+            <span className={cn(
+              'inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium',
+              config.bgColor, config.textColor
+            )}>
+              <PriorityIcon size={10} weight={config.iconWeight} />
+              {config.label}
             </span>
           </div>
 
           {skillGap.reason && (
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-muted-foreground mb-2">
               {skillGap.reason}
             </p>
           )}
@@ -134,11 +157,16 @@ const SkillGapCard = ({ skillGap, onSelect, isSelected }) => {
           {/* Score indicator if available */}
           {skillGap.score !== undefined && skillGap.score > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Ưu tiên:</span>
-              <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+              <span className="text-xs text-muted-foreground">Ưu tiên:</span>
+              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
-                  className={`h-full ${config.bgColor.replace('50', '500')}`}
-                  style={{ width: `${Math.min(100, skillGap.score * 100)}%` }}
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${Math.min(100, skillGap.score * 100)}%`,
+                    backgroundColor: priority === 'essential' ? '#dc2626'
+                      : priority === 'important' ? '#d97706'
+                      : '#16a34a'
+                  }}
                 />
               </div>
             </div>
@@ -155,45 +183,60 @@ const SkillGapCard = ({ skillGap, onSelect, isSelected }) => {
 const SkillGapDetail = ({ skillGap, onClose }) => {
   const priority = skillGap.priority || 'nice_to_have'
   const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.nice_to_have
+  const PriorityIcon = PriorityIcons[priority]
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+      <div className="bg-background rounded-xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className={`p-4 ${config.bgColor} border-b ${config.borderColor}`}>
+        <div className={cn('shrink-0 p-4 border-b', config.bgColor, config.borderColor)}>
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-lg">{skillGap.skill_name}</h3>
+            <div className="flex items-center gap-2">
+              <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', config.iconBg)}>
+                <PriorityIcon size={16} weight={config.iconWeight} className={config.iconColor} />
+              </div>
+              <h3 className="font-semibold text-lg text-foreground">{skillGap.skill_name}</h3>
+            </div>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-black/10 rounded-full transition-colors"
+              className="p-1.5 hover:bg-black/10 rounded-lg transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X size={18} weight="bold" className="text-muted-foreground" />
             </button>
           </div>
-          <span className={`inline-block mt-2 text-sm ${config.textColor}`}>
-            {config.icon} {config.label} - {config.description}
-          </span>
+          <div className="flex items-center gap-2 mt-2">
+            <PriorityIcon size={12} weight={config.iconWeight} className={config.iconColor} />
+            <span className={cn('text-sm font-medium', config.textColor)}>
+              {config.label} — {config.description}
+            </span>
+          </div>
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {skillGap.reason && (
             <div>
-              <h4 className="font-medium text-gray-700 mb-1">Lý do cần thiết</h4>
-              <p className="text-gray-600">{skillGap.reason}</p>
+              <h4 className="font-medium text-foreground mb-1 flex items-center gap-1.5">
+                <Lightbulb size={14} className="text-amber-500 shrink-0" />
+                Lý do cần thiết
+              </h4>
+              <p className="text-muted-foreground">{skillGap.reason}</p>
             </div>
           )}
 
           {skillGap.learning_resources && skillGap.learning_resources.length > 0 && (
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">Nguồn học tập</h4>
+              <h4 className="font-medium text-foreground mb-2 flex items-center gap-1.5">
+                <BookOpenText size={14} className="text-blue-500 shrink-0" />
+                Nguồn học tập
+              </h4>
               <ul className="space-y-2">
                 {skillGap.learning_resources.map((resource, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-sm">
-                    <span className="text-blue-500 mt-0.5">•</span>
-                    <span className="text-gray-600">{resource}</span>
+                    <ArrowSquareOut size={13} className="text-blue-500 mt-0.5 shrink-0" />
+                    <span className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                      {resource}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -201,20 +244,18 @@ const SkillGapDetail = ({ skillGap, onClose }) => {
           )}
 
           {skillGap.estimated_time && (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Thời gian ước tính: {skillGap.estimated_time}</span>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock size={15} className="shrink-0" />
+              <span>Thời gian ước tính: <span className="font-medium text-foreground">{skillGap.estimated_time}</span></span>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t bg-gray-50 rounded-b-xl">
+        <div className="shrink-0 p-4 border-t bg-muted/30 rounded-b-xl">
           <button
             onClick={onClose}
-            className="w-full py-2 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity font-medium"
           >
             Đóng
           </button>
@@ -282,9 +323,9 @@ const SkillGapSection = ({
 
   if (!hasAnyData) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <span className="text-4xl mb-2 block">📚</span>
-        <p>Chưa có thông tin kỹ năng cần phát triển</p>
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <BookOpenText size={40} className="text-muted-foreground mb-3" />
+        <p className="text-sm text-muted-foreground">Chưa có thông tin kỹ năng cần phát triển</p>
       </div>
     )
   }
@@ -293,12 +334,12 @@ const SkillGapSection = ({
     <div className="skill-gap-section">
       {/* Header */}
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+        <h3 className="text-lg font-semibold text-foreground mb-1">
           Kỹ năng cần phát triển
         </h3>
         {occupation && (
-          <p className="text-sm text-gray-500">
-            Cho vị trí: <span className="font-medium">{occupation}</span>
+          <p className="text-sm text-muted-foreground">
+            Cho vị trí: <span className="font-medium text-foreground">{occupation}</span>
             {groqEnhanced && (
               <span className="ml-2 inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
                 AI-enhanced
@@ -311,44 +352,52 @@ const SkillGapSection = ({
       {/* Priority Tabs */}
       {showFilters && skillGaps.length > 0 && (
         <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
-          {priorityTabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActivePriority(tab.key)}
-              className={`
-                px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all
-                ${activePriority === tab.key
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }
-              `}
-            >
-              {tab.label} ({tab.count})
-            </button>
-          ))}
+          {priorityTabs.map(tab => {
+            const isActive = activePriority === tab.key
+            const tabConfig = tab.key !== 'all' ? PRIORITY_CONFIG[tab.key] : null
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActivePriority(tab.key)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all',
+                  isActive && tabConfig
+                    ? `${tabConfig.bgColor} ${tabConfig.textColor} shadow-sm`
+                    : isActive
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                )}
+              >
+                {tab.label} ({tab.count})
+              </button>
+            )
+          })}
         </div>
       )}
 
       {/* Progress Summary */}
       {skillGaps.length > 0 && (
         <div className="grid grid-cols-3 gap-3 mb-4">
-          {Object.entries(PRIORITY_CONFIG).map(([key, config]) => (
-            <div
-              key={key}
-              className={`p-3 rounded-lg ${config.bgColor} border ${config.borderColor}`}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <span>{config.icon}</span>
-                <span className={`text-sm font-medium ${config.textColor}`}>
-                  {config.label}
-                </span>
+          {Object.entries(PRIORITY_CONFIG).map(([key, config]) => {
+            const Icon = PriorityIcons[key]
+            return (
+              <div
+                key={key}
+                className={cn('p-3 rounded-lg', config.bgColor, 'border', config.borderColor)}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Icon size={13} weight={config.iconWeight} className={config.textColor} />
+                  <span className={cn('text-sm font-medium', config.textColor)}>
+                    {config.label}
+                  </span>
+                </div>
+                <div className="text-2xl font-bold text-foreground">
+                  {groupedGaps[key]?.length || 0}
+                </div>
+                <div className="text-xs text-muted-foreground">kỹ năng</div>
               </div>
-              <div className="text-2xl font-bold text-gray-900">
-                {groupedGaps[key]?.length || 0}
-              </div>
-              <div className="text-xs text-gray-500">kỹ năng</div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
@@ -367,19 +416,19 @@ const SkillGapSection = ({
 
               {/* Expanded Detail */}
               {expandedId === gap.skill_name + index && (
-                <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="mt-2 p-3 bg-muted/50 rounded-lg border border-border">
                   {gap.reason && (
-                    <p className="text-sm text-gray-600 mb-2">
-                      <span className="font-medium">Lý do: </span>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      <span className="font-medium text-foreground">Lý do: </span>
                       {gap.reason}
                     </p>
                   )}
                   {gap.learning_resources && gap.learning_resources.length > 0 && (
                     <div className="text-sm">
-                      <span className="font-medium text-gray-700">Nguồn học tập: </span>
+                      <span className="font-medium text-foreground">Nguồn học tập: </span>
                       <ul className="mt-1 space-y-1">
                         {gap.learning_resources.map((resource, idx) => (
-                          <li key={idx} className="text-blue-600 hover:underline">
+                          <li key={idx} className="text-blue-600 hover:underline cursor-pointer">
                             {resource}
                           </li>
                         ))}
@@ -396,20 +445,20 @@ const SkillGapSection = ({
       {/* Trending Skills Section */}
       {showTrending && trendingSkills.length > 0 && (
         <div className="mb-6">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <TrendingUp size={16} className="text-orange-500" />
+          <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <TrendUp size={16} className="text-orange-500" />
             Xu hướng kỹ năng (2025-2026)
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {trendingSkills.map((skill, index) => (
               <div key={index} className="flex items-start gap-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                 <span className="text-orange-500 mt-0.5 flex-shrink-0">
-                  <TrendingUp size={14} />
+                  <TrendUp size={14} />
                 </span>
                 <div className="min-w-0">
-                  <span className="font-medium text-gray-900 text-sm">{skill.name}</span>
+                  <span className="font-medium text-foreground text-sm">{skill.name}</span>
                   {skill.reason && (
-                    <p className="text-xs text-gray-500 mt-0.5">{skill.reason}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{skill.reason}</p>
                   )}
                 </div>
               </div>
@@ -421,20 +470,20 @@ const SkillGapSection = ({
       {/* Soft Skills Section */}
       {showSoftSkills && softSkills.length > 0 && (
         <div className="mb-6">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <HeartHandshake size={16} className="text-purple-500" />
+          <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Handshake size={16} className="text-purple-500" />
             Kỹ năng mềm cần thiết
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {softSkills.map((skill, index) => (
               <div key={index} className="flex items-start gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg">
                 <span className="text-purple-500 mt-0.5 flex-shrink-0">
-                  <HeartHandshake size={14} />
+                  <Handshake size={14} />
                 </span>
                 <div className="min-w-0">
-                  <span className="font-medium text-gray-900 text-sm">{skill.name}</span>
+                  <span className="font-medium text-foreground text-sm">{skill.name}</span>
                   {skill.reason && (
-                    <p className="text-xs text-gray-500 mt-0.5">{skill.reason}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{skill.reason}</p>
                   )}
                 </div>
               </div>

@@ -994,6 +994,71 @@ const getSkillGapHealth = async (req, res, next) => {
 }
 
 // ============================================================================
+// COURSE RECOMMENDATION CONTROLLERS
+// ============================================================================
+
+/**
+ * Get course recommendations based on skill gaps
+ * POST /v1/ai/course-recommendations
+ */
+const getCourseRecommendations = async (req, res, next) => {
+  try {
+    const { skill_gaps, constraints, limit } = req.body
+
+    if (!skill_gaps || skill_gaps.length === 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'skill_gaps là bắt buộc'
+      })
+    }
+
+    console.log(`[Course Recommendations] Request with ${skill_gaps.length} skill gaps`)
+
+    const result = await aiService.getCourseRecommendations({
+      skill_gaps,
+      constraints: constraints || {},
+      limit: limit || 10
+    })
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] getCourseRecommendations error:', error)
+    next(error)
+  }
+}
+
+/**
+ * Get learning path with LLM explanations
+ * POST /v1/ai/learning-path
+ */
+const getLearningPath = async (req, res, next) => {
+  try {
+    const { skill_gaps, courses, job_title, max_steps } = req.body
+
+    if (!skill_gaps || skill_gaps.length === 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'skill_gaps là bắt buộc'
+      })
+    }
+
+    console.log(`[Learning Path] Request with ${skill_gaps.length} skill gaps`)
+
+    const result = await aiService.getLearningPath({
+      skill_gaps,
+      courses: courses || [],
+      job_title: job_title || '',
+      max_steps: max_steps || 5
+    })
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    console.error('[AIController] getLearningPath error:', error)
+    next(error)
+  }
+}
+
+// ============================================================================
 // FEDERATED CAREER ANALYSIS (Phase 3)
 // ============================================================================
 
@@ -1067,6 +1132,9 @@ export const aiController = {
   // ESCO Skill Gap
   analyzeEscoSkillGaps,
   getSkillGapHealth,
+  // Course Recommendations
+  getCourseRecommendations,
+  getLearningPath,
   // Federated Career Analysis (Phase 3)
   federatedCareerAnalysis
 }

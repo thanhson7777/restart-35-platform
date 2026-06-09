@@ -22,6 +22,25 @@ export const generateSlug = (text) => {
     .replace(/^-+|-+$/g, '');
 };
 
+// ─── URL utilities ──────────────────────────────────────────────────────────────
+
+/**
+ * Encode URL safely for use in img src.
+ * Handles special characters in Open edX asset URLs like:
+ * asset-v1:BerkeleyX+CS169.1x+3T2015SP+type@asset+block@image.png
+ */
+export const encodeImageUrl = (url) => {
+  if (!url) return '';
+  
+  // If it's an Open edX asset URL, encode special characters
+  if (url.startsWith('asset-v1:')) {
+    return encodeURI(url);
+  }
+  
+  // For other URLs, return as-is (already properly encoded)
+  return url;
+};
+
 // ─── Course & Enrollment formatters ────────────────────────────────────────────
 
 export const formatPrice = (amount) => {

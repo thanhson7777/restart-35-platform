@@ -2,26 +2,26 @@ import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { motion } from 'framer-motion'
 import {
-  TrendingUp,
-  AlertTriangle,
-  Zap,
+  TrendUp,
+  Warning,
+  Lightning,
   ArrowRight,
   Clock,
-  DollarSign,
+  CurrencyDollar,
   Target,
-  Loader2,
-  RefreshCw,
-  Sparkles,
+  Check,
+  CircleNotch,
+  ArrowClockwise,
+  Sparkle,
   Database,
-  BarChart3,
+  ChartBar,
   Rocket,
-  Route,
+  Path,
   Lightbulb,
   ThumbsUp,
-  BookOpen,
-  AlertCircle,
+  BookOpenText,
   X
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { cn } from '~/lib/utils'
 import {
   selectCareerPath,
@@ -73,8 +73,8 @@ const UrgencyBadge = ({ urgency }) => {
   const config = {
     low: { label: 'Thấp', bg: 'bg-green-100', text: 'text-green-700', icon: null },
     medium: { label: 'Trung bình', bg: 'bg-amber-100', text: 'text-amber-700', icon: null },
-    high: { label: 'Cao', bg: 'bg-orange-100', text: 'text-orange-700', icon: AlertTriangle },
-    critical: { label: 'Khẩn cấp', bg: 'bg-red-100', text: 'text-red-700', icon: AlertTriangle }
+    high: { label: 'Cao', bg: 'bg-orange-100', text: 'text-orange-700', icon: Warning },
+    critical: { label: 'Khẩn cấp', bg: 'bg-red-100', text: 'text-red-700', icon: Warning }
   }
 
   const { label, bg, text, icon: Icon } = config[urgency] || config.low
@@ -142,13 +142,13 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
   }
 
   const iconConfig = {
-    management: { icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
-    age_transition: { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50' },
-    skill_upgrade: { icon: Zap, color: 'text-purple-500', bg: 'bg-purple-50' },
+    management: { icon: TrendUp, color: 'text-blue-500', bg: 'bg-blue-50' },
+    age_transition: { icon: Warning, color: 'text-amber-500', bg: 'bg-amber-50' },
+    skill_upgrade: { icon: Lightning, color: 'text-purple-500', bg: 'bg-purple-50' },
     // RAG types
-    best_fit: { icon: Sparkles, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    income_boost: { icon: DollarSign, color: 'text-green-500', bg: 'bg-green-50' },
-    progression: { icon: BarChart3, color: 'text-indigo-500', bg: 'bg-indigo-50' }
+    best_fit: { icon: Sparkle, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+    income_boost: { icon: CurrencyDollar, color: 'text-green-500', bg: 'bg-green-50' },
+    progression: { icon: ChartBar, color: 'text-indigo-500', bg: 'bg-indigo-50' }
   }
 
   const { icon: Icon, color, bg } = iconConfig[type] || iconConfig.management
@@ -162,7 +162,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
     >
       {/* Header: Icon + Title + Match Score */}
       <div className="flex items-start gap-3 mb-3">
-        <div className={cn('flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center', bg)}>
+        <div className={cn('flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center', bg)}>
           <Icon size={20} className={color} />
         </div>
         <div className="flex-1 min-w-0">
@@ -183,13 +183,13 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
         {path.reasoning?.length > 0 && (
           <div className="bg-emerald-50 rounded-lg p-3 border-l-4 border-emerald-500">
             <div className="flex items-center gap-2 mb-2">
-              <Lightbulb size={14} className="text-emerald-600" />
+              <Lightbulb size={15} weight="fill" className="text-emerald-600 shrink-0" />
               <p className="text-sm font-medium text-emerald-800">Tại sao gợi ý nghề này?</p>
             </div>
             <ul className="space-y-1">
               {path.reasoning.map((reason, i) => (
                 <li key={i} className="text-xs text-emerald-700 flex items-start gap-1.5">
-                  <span className="text-emerald-500 mt-0.5">✓</span>
+                  <span className="text-emerald-500 mt-0.5"><Check size={11} weight="bold" className="shrink-0" /></span>
                   <span>{reason}</span>
                 </li>
               ))}
@@ -201,7 +201,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
         {path.user_strengths?.length > 0 && (
           <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
             <div className="flex items-center gap-2 mb-2">
-              <ThumbsUp size={14} className="text-blue-600" />
+              <ThumbsUp size={15} weight="fill" className="text-blue-600 shrink-0" />
               <p className="text-sm font-medium text-blue-800">Điểm mạnh của bạn</p>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -226,7 +226,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
             <div className="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <Target size={14} className="text-orange-600" />
+                  <Target size={15} weight="duotone" className="text-orange-500 shrink-0" />
                   <p className="text-sm font-medium text-orange-800">Kỹ năng cần phát triển</p>
                 </div>
                 <span className="text-xs text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-full">
@@ -245,9 +245,9 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
                     )}
                   >
                     {gap.priority === 'essential' ? (
-                      <TrendingUp size={10} />
+                      <TrendUp size={11} weight="bold" />
                     ) : (
-                      <Zap size={10} />
+                      <Lightning size={11} weight="fill" />
                     )}
                     {gap.skill_name}
                   </span>
@@ -258,7 +258,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
                   onClick={() => onViewAllSkills(path.job_title || path.title, skillGaps)}
                   className="mt-2 flex items-center gap-1 text-xs text-orange-700 font-semibold hover:text-orange-900 hover:underline transition-colors"
                 >
-                  <BookOpen size={12} />
+                  <BookOpenText size={12} />
                   Xem tất cả {skillGaps.length} kỹ năng
                   <ArrowRight size={12} />
                 </button>
@@ -289,7 +289,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
         {path.required_skills?.length > 0 && (
           <div className="bg-rose-50 rounded-lg p-3 border-l-4 border-rose-500">
             <div className="flex items-center gap-2 mb-2">
-              <AlertCircle size={14} className="text-rose-600" />
+              <Warning size={14} className="text-rose-600" />
               <p className="text-sm font-medium text-rose-800">Kỹ năng bắt buộc</p>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -309,7 +309,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
         {path.preferred_skills?.length > 0 && (
           <div className="bg-cyan-50 rounded-lg p-3 border-l-4 border-cyan-500">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles size={14} className="text-cyan-600" />
+              <Sparkle size={14} className="text-cyan-600" />
               <p className="text-sm font-medium text-cyan-800">Kỹ năng ưu tiên</p>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -330,13 +330,13 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
           <div className="flex gap-4 text-xs text-muted-foreground">
             {path.salary_range && (
               <div className="flex items-center gap-1">
-                <DollarSign size={12} />
+                <CurrencyDollar size={12} />
                 <span>{path.salary_range}</span>
               </div>
             )}
             {path.growth_outlook && (
               <div className="flex items-center gap-1">
-                <TrendingUp size={12} />
+                <TrendUp size={12} />
                 <span>{path.growth_outlook}</span>
               </div>
             )}
@@ -347,7 +347,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
         {path.risks?.length > 0 && (
           <div className="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-500">
             <div className="flex items-center gap-2 mb-2">
-              <AlertCircle size={14} className="text-amber-600" />
+              <Warning size={14} className="text-amber-600" />
               <p className="text-sm font-medium text-amber-800">Lưu ý</p>
             </div>
             <ul className="space-y-1">
@@ -428,7 +428,7 @@ const SectionHeader = ({ title, subtitle, icon: Icon, count }) => (
 
 const LoadingState = ({ isRAG }) => (
   <div className="flex flex-col items-center justify-center py-8 text-center">
-    <Loader2 size={32} className="text-primary animate-spin mb-3" />
+    <CircleNotch size={32} className="text-primary animate-spin mb-3" />
     <p className="text-sm text-muted-foreground">
       {isRAG ? 'Đang phân tích với AI...' : 'Đang phân tích lộ trình sự nghiệp...'}
     </p>
@@ -439,11 +439,11 @@ const EmptyState = ({ onRetry, type }) => (
   <div className="flex flex-col items-center justify-center py-8 text-center">
     <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
       {type === 'rag' || type === 'career' ? (
-        <Sparkles size={24} className="text-slate-400" />
+        <Sparkle size={24} className="text-slate-400" />
       ) : type === 'startup' ? (
         <Rocket size={24} className="text-slate-400" />
       ) : (
-        <TrendingUp size={24} className="text-slate-400" />
+        <TrendUp size={24} className="text-slate-400" />
       )}
     </div>
     <p className="text-sm text-muted-foreground mb-3">
@@ -467,7 +467,7 @@ const EmptyState = ({ onRetry, type }) => (
 const ErrorState = ({ error, onRetry }) => (
   <div className="flex flex-col items-center justify-center py-8 text-center">
     <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mb-3">
-      <AlertTriangle size={24} className="text-red-400" />
+      <Warning size={24} className="text-red-400" />
     </div>
     <p className="text-sm text-red-600 mb-2">Đã xảy ra lỗi</p>
     <p className="text-xs text-muted-foreground mb-3">{error}</p>
@@ -526,13 +526,13 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
         {idea.reasoning?.length > 0 && (
           <div className="bg-emerald-50 rounded-lg p-3 border-l-4 border-emerald-500">
             <div className="flex items-center gap-2 mb-2">
-              <Lightbulb size={14} className="text-emerald-600" />
+              <Lightbulb size={15} weight="fill" className="text-emerald-600 shrink-0" />
               <p className="text-sm font-medium text-emerald-800">Tại sao gợi ý ý tưởng này?</p>
             </div>
             <ul className="space-y-1">
               {idea.reasoning.map((reason, i) => (
                 <li key={i} className="text-xs text-emerald-700 flex items-start gap-1.5">
-                  <span className="text-emerald-500 mt-0.5">✓</span>
+                  <span className="text-emerald-500 mt-0.5"><Check size={11} weight="bold" className="shrink-0" /></span>
                   <span>{reason}</span>
                 </li>
               ))}
@@ -544,7 +544,7 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
         {idea.user_strengths?.length > 0 && (
           <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
             <div className="flex items-center gap-2 mb-2">
-              <ThumbsUp size={14} className="text-blue-600" />
+              <ThumbsUp size={15} weight="fill" className="text-blue-600 shrink-0" />
               <p className="text-sm font-medium text-blue-800">Điểm mạnh của bạn</p>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -564,7 +564,7 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
         {idea.what_to_learn?.length > 0 && (
           <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
             <div className="flex items-center gap-2 mb-2">
-              <BookOpen size={14} className="text-purple-600" />
+              <BookOpenText size={14} className="text-purple-600" />
               <p className="text-sm font-medium text-purple-800">Cần học thêm</p>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -590,7 +590,7 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
             <div className="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <Target size={14} className="text-orange-600" />
+                  <Target size={15} weight="duotone" className="text-orange-500 shrink-0" />
                   <p className="text-sm font-medium text-orange-800">Kỹ năng cần phát triển</p>
                 </div>
                 <span className="text-xs text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-full">
@@ -609,9 +609,9 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
                     )}
                   >
                     {skill.priority === 'essential' ? (
-                      <TrendingUp size={10} />
+                      <TrendUp size={11} weight="bold" />
                     ) : (
-                      <Zap size={10} />
+                      <Lightning size={11} weight="fill" />
                     )}
                     {skill.skill_name}
                   </span>
@@ -622,7 +622,7 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
                   onClick={() => onViewAllSkills(idea.name, idea.required_skills)}
                   className="mt-2 flex items-center gap-1 text-xs text-orange-700 font-semibold hover:text-orange-900 hover:underline transition-colors"
                 >
-                  <BookOpen size={12} />
+                  <BookOpenText size={12} />
                   Xem tất cả {idea.required_skills.length} kỹ năng
                   <ArrowRight size={12} />
                 </button>
@@ -635,7 +635,7 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
         {idea.risks?.length > 0 && (
           <div className="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-500">
             <div className="flex items-center gap-2 mb-2">
-              <AlertCircle size={14} className="text-amber-600" />
+              <Warning size={14} className="text-amber-600" />
               <p className="text-sm font-medium text-amber-800">Lưu ý</p>
             </div>
             <ul className="space-y-1">
@@ -668,7 +668,7 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
       <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-border text-xs">
         {idea.required_capital && (
           <div className="flex items-center gap-1">
-            <DollarSign size={12} className="text-muted-foreground" />
+            <CurrencyDollar size={12} className="text-muted-foreground" />
             <span className="text-muted-foreground">Vốn:</span>
             <span className="font-medium">{idea.required_capital}</span>
           </div>
@@ -682,7 +682,7 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
         )}
         {idea.expected_profit && (
           <div className="flex items-center gap-1 text-green-600">
-            <TrendingUp size={12} />
+            <TrendUp size={12} />
             <span className="font-medium">{idea.expected_profit}</span>
           </div>
         )}
@@ -751,24 +751,43 @@ function CareerRecommendations({ className, userProfile }) {
   const hasFetchedStartup = useRef(false)
   const prevProfileRef = useRef(null)
 
-  // Detect profile changes (especially employmentHistory) and reset fetch flags
+  // Helper to create a hash of the full profile for change detection
+  const getProfileHash = (profile) => {
+    if (!profile) return null
+    return JSON.stringify({
+      basicInfo: profile.basicInfo,
+      aspirations: profile.aspirations,
+      barriers: profile.barriers,
+      employmentHistory: profile.employmentHistory
+    })
+  }
+
+  // Update prevProfileRef BEFORE comparison (so first render has correct baseline)
+  useEffect(() => {
+    const currentProfile = userProfile || careerPath?.user_profile
+    if (!currentProfile) return
+    const currentProfileHash = getProfileHash(currentProfile)
+    prevProfileRef.current = currentProfileHash
+  }, [userProfile, careerPath])
+
+  // Detect profile changes and reset fetch flags
   useEffect(() => {
     const currentProfile = userProfile || careerPath?.user_profile
     if (!currentProfile) return
 
-    // Create a hash/key to compare employmentHistory
-    const currentJobs = JSON.stringify(currentProfile.employmentHistory)
-    const prevJobs = prevProfileRef.current
+    // Create a hash of the full profile (not just employmentHistory)
+    const currentProfileHash = getProfileHash(currentProfile)
+    const prevProfileHash = prevProfileRef.current
 
-    // Reset fetch flags if employmentHistory changed
-    if (prevJobs !== currentJobs) {
+    // Reset fetch flags if ANY part of the profile changed
+    // Note: prevProfileHash is already updated at the start of the effect,
+    // so we compare against the value from the previous render
+    if (prevProfileHash !== null && prevProfileHash !== currentProfileHash) {
+      console.log('[Profile Change] Detected - resetting RAG cache flags')
       hasFetchedRAG.current = false
       hasFetchedLegacy.current = false
       hasFetchedStartup.current = false
     }
-
-    // Update previous profile ref
-    prevProfileRef.current = currentJobs
   }, [userProfile, careerPath])
 
   // Check if user is logged in
@@ -870,6 +889,24 @@ function CareerRecommendations({ className, userProfile }) {
         response: err?.response?.data,
         status: err?.response?.status
       })
+
+      // Fallback: try legacy career path if RAG fails
+      try {
+        const profileData = userProfile || careerPath?.user_profile
+        if (profileData?.age) {
+          console.log('[RAG] Falling back to legacy career path...')
+          dispatch(fetchCareerPath({
+            age: profileData.age,
+            experiences: profileData.experiences || [],
+            current_role: profileData.currentRole,
+            current_industry: profileData.currentIndustry,
+            include_age_transition: true,
+            include_management_track: true
+          }))
+        }
+      } catch (legacyErr) {
+        console.error('[RAG] Legacy fallback also failed:', legacyErr)
+      }
     }
   }
 
@@ -1160,7 +1197,7 @@ function CareerRecommendations({ className, userProfile }) {
       <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-3">
-            <AlertTriangle size={24} className="text-amber-500" />
+            <Warning size={24} className="text-amber-500" />
           </div>
           <p className="text-sm text-amber-600 mb-2">Vui lòng đăng nhập</p>
           <p className="text-xs text-muted-foreground mb-3">
@@ -1185,7 +1222,7 @@ function CareerRecommendations({ className, userProfile }) {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <TrendingUp size={20} className="text-primary" />
+            <TrendUp size={20} className="text-primary" />
             Lộ trình sự nghiệp
           </h2>
           {careerPath?.user_profile && (
@@ -1206,7 +1243,7 @@ function CareerRecommendations({ className, userProfile }) {
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             )}
           >
-            <Route size={14} />
+            <Path size={14} />
             Lộ trình nghề nghiệp
           </button>
         </div>
@@ -1240,7 +1277,7 @@ function CareerRecommendations({ className, userProfile }) {
               <SectionHeader
                 title="Gợi ý phù hợp nhất"
                 subtitle="Dựa trên RAG data"
-                icon={Sparkles}
+                icon={Sparkle}
                 count={bestFits.length}
               />
               <div className="space-y-3">
@@ -1268,7 +1305,7 @@ function CareerRecommendations({ className, userProfile }) {
               <SectionHeader
                 title="Tăng thu nhập nhanh"
                 subtitle="Những lựa chọn có thể tăng thu nhập"
-                icon={DollarSign}
+                icon={CurrencyDollar}
                 count={incomeBoost.length}
               />
               <div className="space-y-3">
@@ -1296,7 +1333,7 @@ function CareerRecommendations({ className, userProfile }) {
               <SectionHeader
                 title="Lộ trình phát triển"
                 subtitle="Cơ hội thăng tiến"
-                icon={BarChart3}
+                icon={ChartBar}
                 count={progression.length}
               />
               <div className="space-y-3">
@@ -1369,24 +1406,24 @@ function CareerRecommendations({ className, userProfile }) {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="relative bg-background rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
               {/* Header */}
-              <div className="shrink-0 p-5 border-b bg-orange-50">
+              <div className="shrink-0 p-5 border-b bg-orange-50/70">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Target size={18} className="text-orange-600" />
-                      <h2 className="text-lg font-semibold text-gray-900">
+                      <Target size={18} weight="duotone" className="text-orange-500 shrink-0" />
+                      <h2 className="text-lg font-semibold text-foreground">
                         Kỹ năng cần phát triển
                       </h2>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      Vị trí: <span className="font-medium text-gray-900">{skillModal.occupation}</span>
+                    <p className="text-sm text-muted-foreground">
+                      Vị trí: <span className="font-medium text-foreground">{skillModal.occupation}</span>
                     </p>
                   </div>
                   <button
                     onClick={handleCloseSkillModal}
-                    className="shrink-0 p-2 rounded-lg hover:bg-orange-100 transition-colors"
+                    className="shrink-0 p-2 rounded-lg hover:bg-orange-100 active:bg-orange-200 transition-colors"
                   >
-                    <X size={18} className="text-gray-500" />
+                    <X size={18} weight="bold" className="text-muted-foreground" />
                   </button>
                 </div>
               </div>
@@ -1412,22 +1449,22 @@ function CareerRecommendations({ className, userProfile }) {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" onClick={handleCloseStartupSkillModal} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="relative bg-background rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
-              <div className="shrink-0 p-5 border-b bg-orange-50">
+              <div className="shrink-0 p-5 border-b bg-orange-50/70">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Target size={18} className="text-orange-600" />
-                      <h2 className="text-lg font-semibold text-gray-900">Kỹ năng cần phát triển</h2>
+                      <Target size={18} weight="duotone" className="text-orange-500 shrink-0" />
+                      <h2 className="text-lg font-semibold text-foreground">Kỹ năng cần phát triển</h2>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      Y tuong: <span className="font-medium text-gray-900">{startupSkillModal.startupName}</span>
+                    <p className="text-sm text-muted-foreground">
+                      Ý tưởng: <span className="font-medium text-foreground">{startupSkillModal.startupName}</span>
                     </p>
                   </div>
                   <button
                     onClick={handleCloseStartupSkillModal}
-                    className="shrink-0 p-2 rounded-lg hover:bg-orange-100 transition-colors"
+                    className="shrink-0 p-2 rounded-lg hover:bg-orange-100 active:bg-orange-200 transition-colors"
                   >
-                    <X size={18} className="text-gray-500" />
+                    <X size={18} weight="bold" className="text-muted-foreground" />
                   </button>
                 </div>
               </div>
@@ -1446,17 +1483,10 @@ function CareerRecommendations({ className, userProfile }) {
       )}
 
       <div className="flex justify-center pt-4 border-t border-border">
-        <button
-          onClick={handleRefresh}
-          disabled={isRefreshing || isLoadingRAG || startupLoading}
-          className={cn(
-            'flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-slate-100 rounded-lg transition-colors',
-            (isRefreshing || isLoadingRAG || startupLoading) && 'opacity-50 cursor-not-allowed'
-          )}
-        >
-          <RefreshCw size={14} className={cn(isRefreshing && 'animate-spin')} />
-          Làm mới dữ liệu
-        </button>
+        <div className="flex items-center gap-2 px-4 py-2 text-xs text-muted-foreground">
+          <Warning size={14} className="shrink-0" />
+          Lưu ý: Đây là gợi ý từ AI, bạn nên cân nhắc trước khi áp dụng
+        </div>
       </div>
     </div>
   )

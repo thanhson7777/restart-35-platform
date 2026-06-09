@@ -1,4 +1,4 @@
-import { Card, Badge } from '@/components/ui';
+import { Card, Badge, SafeImage } from '@/components/ui';
 import { Progress } from '@/components/ui';
 import { formatDeadline, formatScholarshipAmount, formatRecipientCount } from '@/utils/formatter';
 import { SCHOLARSHIP_STATUS } from '@/utils/constants';
@@ -41,7 +41,7 @@ export const ScholarshipCard = ({ scholarship, onClick }) => {
       {/* Thumbnail */}
       <div className="relative aspect-[16/9] bg-muted overflow-hidden">
         {thumbnail ? (
-          <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
+          <SafeImage src={thumbnail} alt={title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-primary/5">
             <Award className="w-10 h-10 text-primary/30" />

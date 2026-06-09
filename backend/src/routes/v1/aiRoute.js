@@ -322,6 +322,26 @@ Router.post(
 Router.get('/skill-gap/health', aiController.getSkillGapHealth)
 
 // ============================================================================
+// COURSE RECOMMENDATION ROUTES
+// ============================================================================
+
+/**
+ * @route   POST /v1/ai/course-recommendations
+ * @desc    Get course recommendations based on skill gaps
+ * @access  Public
+ * @body    { skill_gaps: [], constraints: {}, limit: 10 }
+ */
+Router.post('/course-recommendations', aiController.getCourseRecommendations)
+
+/**
+ * @route   POST /v1/ai/learning-path
+ * @desc    Get learning path with LLM explanations
+ * @access  Public
+ * @body    { skill_gaps: [], courses: [], job_title: '', max_steps: 5 }
+ */
+Router.post('/learning-path', aiController.getLearningPath)
+
+// ============================================================================
 // FEDERATED CAREER ANALYSIS ROUTES (Phase 3)
 // ============================================================================
 

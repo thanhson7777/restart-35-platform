@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, MapPin, Users, Calendar, DollarSign, BookOpen, FileText } from 'lucide-react';
-import { Button, Badge, Progress, Avatar } from '@/components/ui';
+import { Button, Badge, Progress, Avatar, SafeImage } from '@/components/ui';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
@@ -59,7 +59,7 @@ const AdminScholarshipDetailModal = ({ scholarship, open, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[hsl(var(--admin-border))]">
           <div className="flex items-center gap-4">
-            <img
+            <SafeImage
               src={scholarship.thumbnail || 'https://picsum.photos/seed/sch/80/60'}
               alt={scholarship.title}
               className="w-20 h-14 rounded-lg object-cover bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))]"

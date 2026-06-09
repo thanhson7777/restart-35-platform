@@ -20,6 +20,8 @@ import { applicationRoute } from './applicationRoute'
 import { escoRoute } from './escoRoute'
 import { jobRoute } from './jobRoute'
 import { learningPathRoute } from './learningPathRoute'
+import forumRoute from './forumRoute'
+import mentorRoute from './mentorRoute'
 import { organizationRoute } from './organizationRoute'
 import { fundingConfigRoute } from './fundingConfigRoute'
 import { paymentRoute } from './paymentRoute'
@@ -89,6 +91,8 @@ Router.use('/applications', applicationRoute)
 Router.use('/esco', escoRoute)
 Router.use('/jobs', jobRoute)
 Router.use('/jobs', learningPathRoute)
+Router.use('/forum', forumRoute)
+Router.use('/mentors', mentorRoute)
 Router.use('/organizations', organizationRoute)
 Router.use('/funding-configs', fundingConfigRoute)
 Router.use('/payments', paymentRoute)

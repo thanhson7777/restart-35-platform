@@ -5,7 +5,7 @@
 
 import React from 'react'
 import CourseRecommendationCard from './CourseRecommendationCard'
-import { BookOpen, Loader2, AlertCircle } from 'lucide-react'
+import { BookOpenText, CircleNotch, Warning } from '@phosphor-icons/react'
 import { trackFeedbackAPI } from '~/apis/recommendationFeedbackAPI'
 
 const CourseRecommendationSection = ({
@@ -18,7 +18,7 @@ const CourseRecommendationSection = ({
     return (
       <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
         <div className="flex items-center gap-2 mb-3">
-          <BookOpen size={14} className="text-purple-600" />
+                <BookOpenText size={14} className="text-purple-600" />
           <p className="text-sm font-medium text-purple-800">Khóa học gợi ý</p>
         </div>
         <div className="space-y-3">
@@ -29,7 +29,7 @@ const CourseRecommendationSection = ({
           ))}
         </div>
         <div className="flex items-center gap-2 mt-3 text-xs text-purple-600">
-          <Loader2 size={12} className="animate-spin" />
+          <CircleNotch size={12} className="animate-spin" />
           <span>Đang tìm khóa học phù hợp...</span>
         </div>
       </div>
@@ -40,11 +40,11 @@ const CourseRecommendationSection = ({
     return (
       <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
         <div className="flex items-center gap-2 mb-2">
-          <BookOpen size={14} className="text-purple-600" />
+                <BookOpenText size={14} className="text-purple-600" />
           <p className="text-sm font-medium text-purple-800">Khóa học gợi ý</p>
         </div>
         <div className="flex items-center gap-2 text-xs text-purple-600">
-          <AlertCircle size={12} />
+          <Warning size={12} />
           <span>Chưa có khóa học phù hợp cho {skillGapTotal} kỹ năng cần học</span>
         </div>
       </div>
@@ -55,7 +55,7 @@ const CourseRecommendationSection = ({
     <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <BookOpen size={14} className="text-purple-600" />
+                <BookOpenText size={14} className="text-purple-600" />
           <p className="text-sm font-medium text-purple-800">Khóa học gợi ý</p>
         </div>
         <span className="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">

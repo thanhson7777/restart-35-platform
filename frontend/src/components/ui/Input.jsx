@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 const Input = React.forwardRef(
   ({ className, variant, inputSize, error, type, ...props }, ref) => {
     const baseStyles =
-      'flex w-full rounded-lg border border-[#1e2028] bg-[#0f1117] px-3 py-2 text-sm text-white ring-offset-[#0f1117] transition-all duration-200 placeholder:text-[#4a5468] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500/40 disabled:cursor-not-allowed disabled:opacity-50';
+      'flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background transition-all duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
 
     const variantStyles = {
       default: 'focus-visible:ring-ring',

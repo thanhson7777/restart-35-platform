@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Card } from '@/components/ui';
+import { Badge, Card, SafeImage } from '@/components/ui';
 import { Star, Clock, MapPin, Users, BookOpen, Play } from 'lucide-react';
 import { formatPrice, formatDuration, formatMatchScore, formatVideoDuration } from '@/utils/formatter';
 import { DeliveryTypeBadge } from './DeliveryTypeBadge';
@@ -68,7 +68,7 @@ export const CourseCard = ({
           }`}
         >
           {thumbnail ? (
-            <img
+            <SafeImage
               src={thumbnail}
               alt={title}
               className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"

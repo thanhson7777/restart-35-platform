@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast';
 import { Agentation } from 'agentation';
 import AuthPage from '@/pages/AuthPage';
 import WorkerProfilePage from '@/pages/WorkerProfilePage';
+import WorkerDashboardPage from '@/pages/worker/WorkerDashboardPage';
 import JobsPage from '@/pages/JobsPage';
 import CoursesPage from '@/pages/CoursesPage';
 import CourseDetailPage from '@/pages/CourseDetailPage';
@@ -17,9 +18,13 @@ import MyEnrollmentsPage from '@/pages/MyEnrollmentsPage';
 import MyEnrollmentDetailPage from '@/pages/MyEnrollmentDetailPage';
 import VideoLearningPage from '@/pages/VideoLearningPage';
 import CertificatePage from '@/pages/my-enrollments/CertificatePage';
+import OpportunityMapPage from '@/pages/OpportunityMapPage';
+import ForumPage from '@/pages/community/ForumPage';
+import MentorFindPage from '@/pages/community/MentorFindPage';
 import ScholarshipPage from '@/pages/ScholarshipPage';
 import ScholarshipDetailPage from '@/pages/ScholarshipDetailPage';
 import MyApplicationsPage from '@/pages/MyApplicationsPage';
+import MyOutcomesPage from '@/pages/MyOutcomesPage';
 import ApplicationDetailPage from '@/pages/ApplicationDetailPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
@@ -29,6 +34,9 @@ import AdminEnrollmentsPage from '@/pages/admin/AdminEnrollmentsPage';
 import RecommendationAnalyticsPage from '@/pages/admin/RecommendationAnalyticsPage';
 import ScheduleBuilderPage from '@/pages/admin/ScheduleBuilderPage';
 import AdminScholarshipsPage from '@/pages/AdminScholarshipsPage';
+import AdminOrganizationsPage from '@/pages/admin/AdminOrganizationsPage';
+import AdminPaymentsPage from '@/pages/admin/AdminPaymentsPage';
+import AdminApplicationsPage from '@/pages/admin/AdminApplicationsPage';
 import AttendancePage from '@/pages/admin/AttendancePage';
 import CheckinPage from '@/pages/my-enrollments/CheckinPage';
 import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
@@ -58,7 +66,35 @@ import NgoImpactDashboardPage from '@/pages/ngo/NgoImpactDashboardPage';
 import NgoSponsorshipsPage from '@/pages/ngo/NgoSponsorshipsPage';
 import NgoSponsorshipCreatePage from '@/pages/ngo/NgoSponsorshipCreatePage';
 import NgoSponsorshipLearnersPage from '@/pages/ngo/NgoSponsorshipLearnersPage';
+import CertificateVerifyPage from '@/pages/CertificateVerifyPage';
+import AdminIsaRepaymentsPage from '@/pages/admin/AdminIsaRepaymentsPage';
+import AdminFundingConfigsPage from '@/pages/admin/AdminFundingConfigsPage';
+import AdminCertificatesPage from '@/pages/admin/AdminCertificatesPage';
+import AdminPlacementsPage from '@/pages/admin/AdminPlacementsPage';
+import AdminReviewsModerationPage from '@/pages/admin/AdminReviewsModerationPage';
+import AdminLearningRecordsPage from '@/pages/admin/AdminLearningRecordsPage';
+import AdminInteractionsPage from '@/pages/admin/AdminInteractionsPage';
+import AdminEscoSyncPage from '@/pages/admin/AdminEscoSyncPage';
+import IsaDashboardPage from '@/pages/IsaDashboardPage';
 
+// Protected Route Component
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const currentUser = useSelector(selectCurrentUser);
+  const isAuthenticated = !!localStorage.getItem('accessToken');
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (allowedRoles && currentUser) {
+    const userRole = currentUser.role;
+    if (!allowedRoles.includes(userRole)) {
+      return <Navigate to="/" replace />;
+    }
+  }
+
+  return children;
+};
 
 function App() {
   const dispatch = useDispatch();
@@ -110,8 +146,18 @@ function App() {
         <Route path="/admin/courses/:id/schedule/session/:sessionNumber/attendance" element={<AttendancePage />} />
         <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
         <Route path="/admin/recommendation-analytics" element={<RecommendationAnalyticsPage />} />
-        <Route path="/admin/applications" element={<AdminDashboardPage />} />
+        <Route path="/admin/applications" element={<AdminApplicationsPage />} />
+        <Route path="/admin/organizations" element={<AdminOrganizationsPage />} />
+        <Route path="/admin/payments" element={<AdminPaymentsPage />} />
         <Route path="/admin/scholarships" element={<AdminScholarshipsPage />} />
+        <Route path="/admin/isa-repayments" element={<AdminIsaRepaymentsPage />} />
+        <Route path="/admin/funding-configs" element={<AdminFundingConfigsPage />} />
+        <Route path="/admin/certificates" element={<AdminCertificatesPage />} />
+        <Route path="/admin/placements" element={<AdminPlacementsPage />} />
+        <Route path="/admin/reviews" element={<AdminReviewsModerationPage />} />
+        <Route path="/admin/learning-records" element={<AdminLearningRecordsPage />} />
+        <Route path="/admin/interactions" element={<AdminInteractionsPage />} />
+        <Route path="/admin/esco-sync" element={<AdminEscoSyncPage />} />
 
         {/* Trainer Routes */}
         <Route path="/trainer" element={<TrainerLayout><TrainerDashboardPage /></TrainerLayout>} />
@@ -147,11 +193,33 @@ function App() {
 
         {/* Worker Profile Page */}
         <Route path="/worker-profile" element={<WorkerProfilePage />} />
+        {/* Worker Dashboard */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute allowedRoles={['worker']}>
+            <WorkerDashboardPage />
+          </ProtectedRoute>
+        } />
+        {/* Community */}
+        <Route path="/community" element={
+          <ProtectedRoute allowedRoles={['worker']}>
+            <WorkerDashboardPage />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Navigate to="/community/forum" replace />} />
+          <Route path="forum" element={<ForumPage />} />
+          <Route path="mentors" element={<MentorFindPage />} />
+        </Route>
         {/* Jobs Page */}
         <Route path="/jobs" element={<JobsPage />} />
         {/* Courses */}
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
+        {/* Worker Routes */}
+        <Route path="/my-isa" element={
+          <ProtectedRoute allowedRoles={['worker', 'admin']}>
+            <IsaDashboardPage />
+          </ProtectedRoute>
+        } />
         {/* My Enrollments */}
         <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
         <Route path="/my-enrollments/:id" element={<MyEnrollmentDetailPage />} />
@@ -160,12 +228,19 @@ function App() {
         <Route path="/my-enrollments/:id/certificate" element={<CertificatePage />} />
         <Route path="/verify/:code" element={<CertificatePage />} />
         <Route path="/certificates/verify/:code" element={<CertificatePage />} />
+        <Route path="/verify-certificate" element={<CertificateVerifyPage />} />
+        <Route path="/opportunity-map" element={
+          <ProtectedRoute allowedRoles={['worker', 'admin']}>
+            <OpportunityMapPage />
+          </ProtectedRoute>
+        } />
         {/* Scholarships */}
         <Route path="/scholarships" element={<ScholarshipPage />} />
         <Route path="/scholarships/:id" element={<ScholarshipDetailPage />} />
         {/* My Applications */}
         <Route path="/my-applications" element={<MyApplicationsPage />} />
         <Route path="/my-applications/:id" element={<ApplicationDetailPage />} />
+        <Route path="/my-outcomes" element={<MyOutcomesPage />} />
         {/* Landing Page */}
         <Route path="/" element={
           <LandingLayout>

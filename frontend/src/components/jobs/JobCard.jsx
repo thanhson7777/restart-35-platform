@@ -7,70 +7,7 @@ import { cn } from '@/lib/utils'
 import { toggleSaveJob, selectIsJobSaved } from '@/redux/job/jobSlice'
 import { JOB_TYPE_OPTIONS } from '@/data/profileData'
 
-// Icons
-const MapPinIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-)
-
-const DollarSignIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" x2="12" y1="2" y2="22" />
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-  </svg>
-)
-
-const BookmarkIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-  </svg>
-)
-
-const BookmarkFilledIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-  </svg>
-)
-
-const LinkIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-  </svg>
-)
-
-const CheckIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
-
-const AlertIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-    <line x1="12" x2="12" y1="9" y2="13" />
-    <line x1="12" x2="12.01" y1="17" y2="17" />
-  </svg>
-)
-
-const SparklesIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-    <path d="M5 3v4" />
-    <path d="M19 17v4" />
-    <path d="M3 5h4" />
-    <path d="M17 19h4" />
-  </svg>
-)
-
-const BriefcaseIcon = ({ className }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-    <rect width="20" height="14" x="2" y="6" rx="2" />
-  </svg>
-)
+import { MapPin, CurrencyDollar, BookmarkSimple, Check, Warning, Sparkle } from '@phosphor-icons/react'
 
 /**
  * Format salary for display
@@ -140,6 +77,7 @@ const getMatchScoreColor = (score) => {
  * @param {Object} [props.userSkills] - User's skills from profile for comparison
  * @param {Object} [props.targetSalary] - User's target salary
  * @param {Object} [props.onApply] - Callback when clicking apply
+ * @param {boolean} [props.isApplied] - Whether the user has already applied to this job
  * @param {Object} [props.onViewSimilar] - Callback when clicking view similar
  * @param {Function} [props.onOpenDetail] - Callback when clicking to open detail modal
  * @param {string} [props.className] - Additional CSS classes
@@ -151,6 +89,7 @@ const JobCard = ({
   onApply,
   onViewSimilar,
   onOpenDetail,
+  isApplied = false,
   className
 }) => {
   const dispatch = useDispatch()
@@ -321,12 +260,12 @@ const JobCard = ({
               {/* Meta Info */}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm">
                 <span className="flex items-center gap-1.5 text-muted-foreground">
-                  <MapPinIcon className="w-4 h-4 shrink-0" />
+                  <MapPin className="w-4 h-4 shrink-0" weight="regular" />
                   <span className="truncate">{jobData.location}</span>
                 </span>
 
                 <span className="flex items-center gap-1.5 text-success font-medium">
-                  <DollarSignIcon className="w-4 h-4 shrink-0" />
+                  <CurrencyDollar className="w-4 h-4 shrink-0" weight="regular" />
                   <span>{formatSalary(jobData.salary || jobData.salaryMin)}</span>
                 </span>
 
@@ -354,7 +293,7 @@ const JobCard = ({
                         isMatching && 'bg-success/10 text-success border-success/20'
                       )}
                     >
-                      {isMatching && <CheckIcon className="w-3 h-3 mr-1" />}
+                      {isMatching && <Check className="w-3 h-3 mr-1" weight="bold" />}
                       {skill}
                     </Badge>
                   )
@@ -374,7 +313,7 @@ const JobCard = ({
           <div className="px-5 pb-4">
             <div className="bg-muted/50 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-2">
-                <SparklesIcon className="w-4 h-4 text-primary" />
+                <Sparkle className="w-4 h-4 text-primary" weight="fill" />
                 <span className="text-sm font-medium text-foreground">Tại sao phù hợp?</span>
               </div>
               <ul className="space-y-1">
@@ -387,9 +326,9 @@ const JobCard = ({
                     )}
                   >
                     {reason.type === 'success' ? (
-                      <CheckIcon className="w-3.5 h-3.5 shrink-0" />
+                      <Check className="w-3.5 h-3.5 shrink-0" weight="bold" />
                     ) : (
-                      <AlertIcon className="w-3.5 h-3.5 shrink-0" />
+                      <Warning className="w-3.5 h-3.5 shrink-0" weight="regular" />
                     )}
                     <span>{reason.text}</span>
                   </li>
@@ -399,63 +338,23 @@ const JobCard = ({
           </div>
         )}
 
-        {/* Section 4: Actions */}
-        <div className="px-5 pb-5 flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSaveToggle}
-            className={cn(
-              'flex-1 min-w-[100px]',
-              isSaved && 'text-primary border-primary/30 bg-primary/5'
-            )}
-          >
-            {isSaved ? (
-              <>
-                <BookmarkFilledIcon className="w-4 h-4 mr-1.5" />
-                Đã lưu
-              </>
-            ) : (
-              <>
-                <BookmarkIcon className="w-4 h-4 mr-1.5" />
-                Lưu
-              </>
-            )}
-          </Button>
-
-          {onViewSimilar && (
+        {/* Action: Apply Button */}
+        <div className="px-5 pb-5">
+          {isApplied ? (
+            <div className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-success/10 text-success font-semibold text-sm border border-success/20">
+              <Check className="w-4 h-4" weight="bold" />
+              Đã ứng tuyển
+            </div>
+          ) : (
             <Button
-              variant="outline"
-              size="sm"
-              onClick={handleViewSimilar}
-              className="flex-1 min-w-[100px]"
+              onClick={handleApply}
+              className="w-full"
             >
-              <LinkIcon className="w-4 h-4 mr-1.5" />
-              Tương tự
-            </Button>
-          )}
-
-          <Button
-            size="sm"
-            onClick={handleApply}
-            className="flex-[2] min-w-[140px]"
-          >
-            <BriefcaseIcon className="w-4 h-4 mr-1.5" />
-            Ứng tuyển ngay
-          </Button>
-
-          {onOpenDetail && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenDetail(job)}
-              className="flex-1 min-w-[100px]"
-            >
-              <SparklesIcon className="w-4 h-4 mr-1.5" />
-              Khóa học
+              Ứng tuyển ngay
             </Button>
           )}
         </div>
+
       </CardContent>
     </Card>
   )

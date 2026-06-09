@@ -31,6 +31,7 @@ class JobsToMongoDB:
     SOURCE_EXPIRY = {
         'VietnamWorks': 60,
         'VietnamWorks_Algolia': 60,
+        'VietnamWorks_V2': 60,  # NEW (2026-06-09)
         'TopCV': 45,
         'Vieclam24h': 30,
         'CareerBuilder': 45,
@@ -44,26 +45,52 @@ class JobsToMongoDB:
     
     # Region mapping
     REGION_MAPPING = {
-        # North
-        'Hà Nội': 'north', 'Hải Phòng': 'north', 'Hải Dương': 'north',
-        'Bắc Ninh': 'north', 'Bắc Giang': 'north', 'Vĩnh Phúc': 'north',
-        'Quảng Ninh': 'north', 'Hưng Yên': 'north', 'Thái Bình': 'north',
-        'Nam Định': 'north', 'Ninh Bình': 'north', 'Hà Nam': 'north',
-        'Thanh Hóa': 'north', 'Nghệ An': 'north', 'Hà Tĩnh': 'north',
+        # North - include both original and lowercase/normalised forms
+        'Hà Nội': 'north', 'Ha Noi': 'north', 'hanoi': 'north',
+        'Hải Phòng': 'north', 'Hai Phong': 'north', 'hai phong': 'north',
+        'Hải Dương': 'north', 'Hai Duong': 'north',
+        'Bắc Ninh': 'north', 'Bac Ninh': 'north',
+        'Bắc Giang': 'north', 'Bac Giang': 'north',
+        'Vĩnh Phúc': 'north', 'Vinh Phuc': 'north',
+        'Quảng Ninh': 'north', 'Quang Ninh': 'north',
+        'Hưng Yên': 'north', 'Hung Yen': 'north',
+        'Thái Bình': 'north', 'Thai Binh': 'north',
+        'Nam Định': 'north', 'Nam Dinh': 'north',
+        'Ninh Bình': 'north', 'Ninh Binh': 'north',
+        'Hà Nam': 'north', 'Ha Nam': 'north',
+        'Thanh Hóa': 'north', 'Thanh Hoa': 'north',
+        'Nghệ An': 'north', 'Nghe An': 'north',
+        'Hà Tĩnh': 'north', 'Ha Tinh': 'north',
         # South
-        'Hồ Chí Minh': 'south', 'Đồng Nai': 'south', 'Bình Phước': 'south',
-        'Tây Ninh': 'south', 'Long An': 'south', 'Tiền Giang': 'south',
-        'Bến Tre': 'south', 'Trà Vinh': 'south', 'Vĩnh Long': 'south',
+        'Hồ Chí Minh': 'south', 'Ho Chi Minh': 'south', 'hcm': 'south', 'hcmc': 'south', 'TP HCM': 'south', 'HCM': 'south',
+        'Đồng Nai': 'south', 'Dong Nai': 'south',
+        'Bình Phước': 'south', 'Binh Phuoc': 'south',
+        'Tây Ninh': 'south', 'Tay Ninh': 'south',
+        'Long An': 'south', 'long an': 'south',
+        'Tiền Giang': 'south', 'Tien Giang': 'south',
+        'Bến Tre': 'south', 'Ben Tre': 'south',
+        'Trà Vinh': 'south', 'Tra Vinh': 'south',
+        'Vĩnh Long': 'south', 'Vinh Long': 'south',
         # South East
-        'Bình Dương': 'south_east', 'Bà Rịa Vũng Tàu': 'south_east',
-        'Đà Nẵng': 'central', 'Hội An': 'central', 'Huế': 'central',
+        'Bình Dương': 'south_east', 'Binh Duong': 'south_east', 'BD': 'south_east',
+        'Bà Rịa Vũng Tàu': 'south_east', 'Ba Ria Vung Tau': 'south_east',
         # Central
-        'Thừa Thiên Huế': 'central', 'Quảng Bình': 'central',
-        'Quảng Trị': 'central', 'Thanh Hóa': 'central',
+        'Đà Nẵng': 'central', 'Da Nang': 'central', 'da nang': 'central',
+        'Hội An': 'central', 'Hoi An': 'central',
+        'Huế': 'central', 'Hue': 'central', 'hue': 'central',
+        'Thừa Thiên Huế': 'central', 'Thua Thien Hue': 'central',
+        'Quảng Bình': 'central', 'Quang Binh': 'central',
+        'Quảng Trị': 'central', 'Quang Tri': 'central',
+        'Thanh Hóa': 'central', 'Thanh Hoa': 'central',
         # Mekong
-        'Cần Thơ': 'mekong', 'An Giang': 'mekong', 'Đồng Tháp': 'mekong',
-        'Kiên Giang': 'mekong', 'Hậu Giang': 'mekong', 'Sóc Trăng': 'mekong',
-        'Bạc Liêu': 'mekong', 'Cà Mau': 'mekong',
+        'Cần Thơ': 'mekong', 'Can Tho': 'mekong', 'can tho': 'mekong',
+        'An Giang': 'mekong', 'an giang': 'mekong',
+        'Đồng Tháp': 'mekong', 'Dong Thap': 'mekong',
+        'Kiên Giang': 'mekong', 'Kien Giang': 'mekong',
+        'Hậu Giang': 'mekong', 'Hau Giang': 'mekong',
+        'Sóc Trăng': 'mekong', 'Soc Trang': 'mekong',
+        'Bạc Liêu': 'mekong', 'Bac Lieu': 'mekong',
+        'Cà Mau': 'mekong', 'Ca Mau': 'mekong',
     }
     
     def __init__(self, csv_path, mongo_uri=None, db_name=None, dry_run=False, batch_size=500):
@@ -162,10 +189,21 @@ class JobsToMongoDB:
         return self.SOURCE_EXPIRY.get(source, 45)
     
     def get_region(self, location):
-        """Map location to region."""
+        """Map location to region (case-insensitive)."""
         if not location:
             return None
-        return self.REGION_MAPPING.get(location, None)
+        # Try exact match first
+        region = self.REGION_MAPPING.get(location, None)
+        if region:
+            return region
+        # Try lowercase
+        region = self.REGION_MAPPING.get(location.lower(), None)
+        if region:
+            return region
+        # Try normalized form (replace spaces, remove diacritics approximation)
+        norm = location.lower().strip()
+        region = self.REGION_MAPPING.get(norm, None)
+        return region
     
     def parse_csv_row(self, row):
         """Parse a CSV row into a MongoDB document."""

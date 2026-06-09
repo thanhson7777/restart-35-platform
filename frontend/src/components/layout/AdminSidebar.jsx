@@ -2,26 +2,39 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard, Users, BookOpen, GraduationCap,
-  FileText, Award, Settings, HelpCircle, LogOut,
-  ChevronLeft, ChevronRight, CheckSquare, BarChart2,
-} from 'lucide-react';
+  GridFour, Users, BookOpenText, GraduationCap,
+  FileText, Medal, Gear, Question, SignOut,
+  CaretLeft, CaretRight, CheckSquare, ChartBar,
+  CreditCard, TrendUp, Wallet, Certificate,
+  Briefcase, ChatCircle, Brain, ArrowsClockwise,
+} from '@phosphor-icons/react';
+import { Building2 } from 'lucide-react';
 import { Badge } from '@/components/ui';
 
 const adminNavItems = [
-  { title: 'Tổng quan', href: '/admin', icon: LayoutDashboard },
+  { title: 'Tổng quan', href: '/admin', icon: GridFour },
   { title: 'Quản lý người dùng', href: '/admin/users', icon: Users, badge: '2.4k' },
-  { title: 'Quản lý khóa học', href: '/admin/courses', icon: BookOpen },
+  { title: 'Quản lý khóa học', href: '/admin/courses', icon: BookOpenText },
   { title: 'Duyệt khóa học', href: '/admin/courses/approval', icon: CheckSquare },
   { title: 'Quản lý tuyển sinh', href: '/admin/enrollments', icon: GraduationCap, badge: '12' },
+  { title: 'Đối tác', href: '/admin/organizations', icon: Building2 },
+  { title: 'Thanh toán', href: '/admin/payments', icon: CreditCard },
   { title: 'Đơn ứng tuyển', href: '/admin/applications', icon: FileText, badge: '5' },
-  { title: 'Học bổng', href: '/admin/scholarships', icon: Award },
-  { title: 'Analytics Khóa học', href: '/admin/recommendation-analytics', icon: BarChart2 },
+  { title: 'Học bổng', href: '/admin/scholarships', icon: Medal },
+  { title: 'ISA Repayments', href: '/admin/isa-repayments', icon: TrendUp },
+  { title: 'Funding Cấu hình', href: '/admin/funding-configs', icon: Wallet },
+  { title: 'Chứng chỉ', href: '/admin/certificates', icon: Certificate },
+  { title: 'Placements', href: '/admin/placements', icon: Briefcase },
+  { title: 'Duyệt Reviews', href: '/admin/reviews', icon: ChatCircle },
+  { title: 'Analytics Khóa học', href: '/admin/recommendation-analytics', icon: ChartBar },
+  { title: 'Learning Analytics', href: '/admin/learning-records', icon: Brain },
+  { title: 'Interactions', href: '/admin/interactions', icon: TrendUp },
+  { title: 'ESCO Sync', href: '/admin/esco-sync', icon: ArrowsClockwise },
 ];
 
 const bottomNavItems = [
-  { title: 'Cài đặt', href: '/admin/settings', icon: Settings },
-  { title: 'Trợ giúp', href: '/admin/help', icon: HelpCircle },
+  { title: 'Cài đặt', href: '/admin/settings', icon: Gear },
+  { title: 'Trợ giúp', href: '/admin/help', icon: Question },
 ];
 
 const AdminSidebar = ({ collapsed, onToggle }) => {
@@ -155,7 +168,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                 collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5'
               )}
             >
-              <LogOut className="w-[18px] h-[18px] shrink-0" />
+              <SignOut className="w-[18px] h-[18px] shrink-0" />
               {!collapsed && <span className="font-medium text-[13px]">Đăng xuất</span>}
             </button>
           </li>
@@ -181,7 +194,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
             exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
             transition={{ duration: 0.15, ease: [0.32, 0.72, 0, 1] }}
           >
-            {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+            {collapsed ? <CaretRight className="w-3.5 h-3.5" /> : <CaretLeft className="w-3.5 h-3.5" />}
           </motion.span>
         </AnimatePresence>
       </motion.button>

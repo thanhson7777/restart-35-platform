@@ -220,13 +220,21 @@ class DataTransformer:
         if final_category and final_category != 'other':
             transformed['category'] = final_category
 
+        # Use source-specific job ID if available (VietnamWorks jobId, etc.)
+        # This ensures the same job always gets the same ID across scrapes
+        source_id = job.get('job_id', '')
+        if source_id and source:
+            transformed['id'] = f"scraped_{source.lower()}_{source_id}"
+        else:
+            transformed['id'] = f"scraped_{source.lower()}_{index:05d}"
+
         # Ensure salary_min <= salary_max
         if transformed['salary_min'] > transformed['salary_max']:
             transformed['salary_min'], transformed['salary_max'] = (
                 transformed['salary_max'],
                 transformed['salary_min']
             )
-        
+
         return transformed
     
     def clean_text(self, text: str) -> str:

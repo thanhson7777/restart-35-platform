@@ -255,7 +255,7 @@ class AIProvider {
       if (preferredJobType) payload.preferred_job_type = preferredJobType
       if (allowRemote) payload.allow_remote = allowRemote
 
-const response = await aiApiClient.post('/api/v1/ai/recommend-jobs', payload)
+      const response = await aiApiClient.post('/api/v1/ai/recommend-jobs', payload)
       return response.data
     } catch (error) {
       console.warn('[AIProvider] recommendJobs - AI Service error, using mock data')

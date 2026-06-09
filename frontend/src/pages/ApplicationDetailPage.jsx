@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, Badge, Button } from '@/components/ui';
+import { Card, CardContent, Badge, Button, SafeImage } from '@/components/ui';
 import { ApplicationStatus } from '@/components/shared/ApplicationStatus';
 import { DocumentUpload } from '@/components/application/DocumentUpload';
 import { getApplicationById, appealApplication } from '@/apis/applicationApi';
@@ -340,7 +340,7 @@ export default function ApplicationDetailPage() {
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-sm mb-2">Khóa học đã đăng ký</h3>
                   {app.course.thumbnail && (
-                    <img
+                    <SafeImage
                       src={app.course.thumbnail}
                       alt={app.course.title}
                       className="w-full aspect-video object-cover rounded-lg mb-2"

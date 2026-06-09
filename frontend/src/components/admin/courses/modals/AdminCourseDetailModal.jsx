@@ -1,5 +1,5 @@
 import { X, Check, AlertTriangle, Clock, Users, Star, BookOpen, Award } from 'lucide-react';
-import { Button, Badge } from '@/components/ui';
+import { Button, Badge, SafeImage } from '@/components/ui';
 import { formatPrice, formatDuration } from '@/utils/formatter';
 
 const STATUS_CONFIG = {
@@ -46,7 +46,7 @@ const AdminCourseDetailModal = ({ course, onClose, onApprove, onReject }) => {
               <div className="w-64 flex-shrink-0">
                 <div className="aspect-video rounded-lg overflow-hidden bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))]">
                   {course.thumbnail ? (
-                    <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
+                    <SafeImage src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <BookOpen className="w-10 h-10 text-[hsl(var(--admin-text-muted))]" />

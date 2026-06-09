@@ -28,7 +28,8 @@ import {
   TableBody, 
   TableHead, 
   TableRow, 
-  TableCell 
+  TableCell,
+  SafeImage 
 } from '@/components/ui';
 import { getMyCourses, deleteCourse } from '@/apis/courseApi';
 import TrainerCourseCard from '@/components/trainer/TrainerCourseCard';
@@ -309,7 +310,7 @@ const TrainerCoursesPage = () => {
                   <TableCell className="py-4">
                     <div className="flex items-center gap-3">
                       {course.thumbnail ? (
-                        <img src={course.thumbnail} alt={course.title} className="h-10 w-16 object-cover rounded-md bg-[hsl(var(--admin-surface-elevated))]" />
+                        <SafeImage src={course.thumbnail} alt={course.title} className="h-10 w-16 object-cover rounded-md bg-[hsl(var(--admin-surface-elevated))]" />
                       ) : (
                         <div className="h-10 w-16 bg-[hsl(var(--admin-surface-elevated))] rounded-md flex items-center justify-center">
                           <BookOpen className="h-5 w-5 text-[hsl(var(--admin-text-faint))]" />

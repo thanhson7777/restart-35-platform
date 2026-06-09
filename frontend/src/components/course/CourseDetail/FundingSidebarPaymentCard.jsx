@@ -1,13 +1,108 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui';
-import { CreditCard, QrCode, Sparkles, Check, Clock } from 'lucide-react';
+import { CreditCard, QrCode, Sparkles, Clock } from 'lucide-react';
 import { formatPrice } from '@/utils/formatter';
+import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { createPayment, getPaymentById } from '@/apis/courseApi';
 
 export const FundingSidebarPaymentCard = ({ course, onSubmit, isSubmitting }) => {
   const [showQR, setShowQR] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [activePayment, setActivePayment] = useState(null);
+  const [confirming, setConfirming] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [verifiedStatus, setVerifiedStatus] = useState(null);
   const { fee = 15000000, _id } = course || {};
 
   const monthlyInstallment = Math.round(fee / 4);
+
+  const handleCreatePayment = async () => {
+    setCreating(true);
+    setActivePayment(null);
+    setVerifiedStatus(null);
+    try {
+      const res = await createPayment({
+        courseId: _id,
+        method: 'bank_transfer',
+        amount: fee
+      });
+      const paymentData = res.data || res;
+      setActivePayment(paymentData);
+      setShowQR(true);
+    } catch (err) {
+      console.error(err);
+      toast.error('Không thể tạo thông tin thanh toán. Vui lòng thử lại sau.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const startPollingStatus = async (paymentId) => {
+    setVerifying(true);
+    setVerifiedStatus('pending');
+    const maxAttempts = 20;
+    const intervalMs = 2000;
+    let attempt = 0;
+
+    const poll = async () => {
+      try {
+        const res = await getPaymentById(paymentId);
+        const payment = res.data || res;
+        const status = payment?.status;
+        if (status === 'completed') {
+          setVerifiedStatus('completed');
+          setActivePayment((prev) => ({ ...prev, status }));
+          setVerifying(false);
+          toast.success('Hệ thống đã nhận được thanh toán của bạn.');
+          return true;
+        }
+        if (status === 'failed') {
+          setVerifiedStatus('failed');
+          setActivePayment((prev) => ({ ...prev, status }));
+          setVerifying(false);
+          toast.error('Thanh toán không thành công. Vui lòng kiểm tra lại giao dịch.');
+          return true;
+        }
+      } catch (err) {
+        console.error('Poll payment status error:', err);
+      }
+      attempt += 1;
+      if (attempt >= maxAttempts) {
+        setVerifiedStatus('timeout');
+        setVerifying(false);
+        toast.error('Hệ thống chưa xác nhận được thanh toán. Vui lòng thử lại sau.');
+        return true;
+      }
+      return false;
+    };
+
+    const stopped = await poll();
+    if (!stopped) {
+      const timer = setInterval(async () => {
+        const shouldStop = await poll();
+        if (shouldStop) clearInterval(timer);
+      }, intervalMs);
+    }
+  };
+
+  const handleConfirmTransfer = async () => {
+    try {
+      setConfirming(true);
+      const paymentId = activePayment?._id;
+      if (!paymentId) {
+        toast.error('Không tìm thấy mã giao dịch để xác nhận.');
+        return;
+      }
+      await onSubmit({ fundingModel: 'learner_paid', method: 'qr', paymentId });
+      await startPollingStatus(paymentId);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setConfirming(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -32,7 +127,6 @@ export const FundingSidebarPaymentCard = ({ course, onSubmit, isSubmitting }) =>
         <span className="font-medium">Giảm ngay 40% cho người lao động 35+</span>
       </div>
 
-      {/* Toggle options or QR Code display */}
       {!showQR ? (
         <div className="space-y-3">
           {/* Installment Plan Summary */}
@@ -45,75 +139,110 @@ export const FundingSidebarPaymentCard = ({ course, onSubmit, isSubmitting }) =>
             </p>
           </div>
 
-          {/* Action button to display QR */}
           <Button
-            onClick={() => setShowQR(true)}
+            onClick={handleCreatePayment}
+            disabled={creating}
             variant="outline"
             className="w-full py-4 text-xs font-bold rounded-full border-zinc-300 dark:border-zinc-800 flex items-center justify-center gap-2"
           >
-            <QrCode className="w-4 h-4" />
-            Hiển thị mã VietQR chuyển khoản
+            {creating ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Đang tạo mã thanh toán...
+              </>
+            ) : (
+              <>
+                <QrCode className="w-4 h-4" />
+                Hiển thị mã VietQR chuyển khoản
+              </>
+            )}
           </Button>
 
-          {/* Direct enroll and pay later button */}
           <Button
             onClick={() => onSubmit({ fundingModel: 'learner_paid', method: 'direct' })}
             disabled={isSubmitting}
             className="w-full py-5 rounded-full text-xs font-bold shadow-sm"
           >
-            {isSubmitting ? 'Đang đăng ký...' : 'Đăng ký và Thanh toán sau'}
+            {isSubmitting ? 'Đang xử lý...' : 'Đăng ký và Thanh toán sau'}
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* VietQR Code double-bezel nested hardware simulation */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
           <div className="p-1 rounded-[16px] bg-zinc-100 dark:bg-zinc-900 border border-zinc-250 dark:border-zinc-800">
             <div className="p-4 rounded-[12px] bg-white dark:bg-zinc-950 border border-zinc-150 dark:border-zinc-900 text-center space-y-3">
               <span className="text-[9px] uppercase font-bold tracking-wider text-primary block">
                 Mã Thanh Toán VietQR
               </span>
-              
-              {/* Fake QR visual placeholder with double-bezel */}
+
               <div className="w-36 h-36 mx-auto p-1.5 border border-zinc-200 rounded-xl bg-white flex items-center justify-center">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=vietqr_mock_payment_for_${_id}`}
-                  alt="VietQR code placeholder"
-                  className="w-full h-full object-contain"
-                />
+                {activePayment?.qrUrl ? (
+                  <img
+                    src={activePayment.qrUrl}
+                    alt="VietQR code"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
+                )}
               </div>
 
-              {/* Bank Details */}
               <div className="space-y-1 text-xs text-zinc-650 dark:text-zinc-400 font-medium">
-                <p>Ngân hàng: <span className="font-bold text-zinc-950 dark:text-white">Vietcombank</span></p>
-                <p>STK: <span className="font-bold text-zinc-950 dark:text-white font-mono">1234 5678 90</span></p>
+                <p>Ngân hàng: <span className="font-bold text-zinc-950 dark:text-white">Sacombank (SCB)</span></p>
+                <p>STK: <span className="font-bold text-zinc-950 dark:text-white font-mono">0701 3957 3585</span></p>
+                <p>Chủ tài khoản: <span className="font-bold text-zinc-950 dark:text-white">NGUYEN THANH SON</span></p>
                 <p>Số tiền: <span className="font-bold text-primary font-mono">{formatPrice(fee)}</span></p>
-                <p className="text-[10px] text-zinc-400">Nội dung: <span className="font-mono bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded font-bold">ENROLL_{_id?.slice(-6).toUpperCase()}</span></p>
+                <p className="text-[10px] text-zinc-400">Nội dung: <span className="font-mono bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded font-bold">{activePayment?.qrUrl ? `RESTART35-${(_id || '').toString().toUpperCase()}` : 'Đang tạo...'}</span></p>
               </div>
             </div>
           </div>
 
-          <div className="flex gap-2">
+          {!verifiedStatus || verifiedStatus === 'timeout' || verifiedStatus === 'failed' ? (
             <Button
-              onClick={() => setShowQR(false)}
-              variant="outline"
-              className="flex-1 py-4 text-xs font-semibold rounded-full border-zinc-200 dark:border-zinc-800"
+              onClick={handleConfirmTransfer}
+              disabled={confirming || verifying}
+              className="w-full py-4 text-xs font-bold rounded-full shadow-sm"
             >
-              Quay lại
+              {confirming || verifying ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {verifying ? 'Đang đối soát thanh toán...' : 'Đang xác nhận...'}
+                </span>
+              ) : (
+                'Tôi đã chuyển khoản thành công'
+              )}
             </Button>
-            <Button
-              onClick={() => onSubmit({ fundingModel: 'learner_paid', method: 'qr' })}
-              disabled={isSubmitting}
-              className="flex-[2] py-4 text-xs font-bold rounded-full shadow-sm"
-            >
-              {isSubmitting ? 'Đang xử lý...' : 'Xác nhận đã chuyển khoản'}
-            </Button>
-          </div>
+          ) : null}
+
+          {verifying && (
+            <div className="flex items-center justify-center gap-2 text-[11px] text-amber-600">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Đang chờ hệ thống xác nhận giao dịch...</span>
+            </div>
+          )}
+
+          {verifiedStatus === 'completed' && (
+            <div className="flex items-center justify-center gap-2 text-[11px] text-emerald-600">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Xác nhận thanh toán thành công.</span>
+            </div>
+          )}
+
+          {verifiedStatus === 'failed' && (
+            <div className="flex items-center justify-center gap-2 text-[11px] text-rose-600">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>Thanh toán không thành công. Vui lòng thử lại.</span>
+            </div>
+          )}
 
           <div className="flex items-center justify-center gap-1.5 text-[10.5px] text-zinc-400">
             <Clock className="w-3.5 h-3.5" />
             <span>Mã chuyển khoản có hiệu lực trong vòng 24 giờ</span>
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );

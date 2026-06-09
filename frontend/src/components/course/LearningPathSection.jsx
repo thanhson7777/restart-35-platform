@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { BookOpen, Clock, CheckCircle2, Loader2 } from 'lucide-react';
+import { BookOpenText, Clock, CheckCircle, CircleNotch } from '@phosphor-icons/react';
 
 const LEVEL_LABELS = {
   BEGINNER: 'Sơ cấp',
@@ -39,7 +39,7 @@ const LearningPathSection = ({ learningPath, loading }) => {
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="flex items-center gap-2 mb-0.5">
-            <BookOpen size={16} className="text-blue-600" />
+            <BookOpenText size={16} className="text-blue-600" />
             <h3 className="text-sm font-semibold text-blue-900">Lộ trình học tập</h3>
           </div>
           {job_title && (
@@ -73,7 +73,7 @@ const LearningPathSection = ({ learningPath, loading }) => {
           </span>
         )}
         <span className="flex items-center gap-1">
-          <CheckCircle2 size={12} />
+          <CheckCircle size={12} />
           {skills_covered_count} kỹ năng được bù
         </span>
       </div>
@@ -156,7 +156,7 @@ const LearningPathStep = ({ step, index, isLast }) => {
                 key={skill}
                 className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded text-xs border border-purple-100"
               >
-                <CheckCircle2 size={10} className="text-purple-500" />
+                <CheckCircle size={10} className="text-purple-500" />
                 {skill}
               </span>
             ))}
@@ -196,7 +196,7 @@ const LearningPathStep = ({ step, index, isLast }) => {
 const LearningPathSkeleton = () => (
   <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
     <div className="flex items-center gap-2 mb-4">
-      <BookOpen size={16} className="text-blue-400" />
+      <BookOpenText size={16} className="text-blue-400" />
       <div className="h-4 w-32 bg-blue-200 rounded animate-pulse" />
     </div>
     <div className="space-y-3">

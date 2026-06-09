@@ -6,7 +6,7 @@ import {
   autosaveWorkerProfileAPI,
   completeWorkerProfileAPI
 } from '~/apis/profileAPI'
-import { invalidateCareerPathCacheAPI } from '~/apis/aiAPI'
+import { invalidateCareerPathCacheAPI, invalidateRAGCacheAPI } from '~/apis/aiAPI'
 
 // Async thunks
 export const fetchMyProfile = createAsyncThunk(
@@ -47,7 +47,10 @@ export const saveStep = createAsyncThunk(
       // Invalidate career path cache when profile is updated
       // This ensures fresh recommendations on next visit
       try {
-        await invalidateCareerPathCacheAPI()
+        await Promise.all([
+          invalidateCareerPathCacheAPI(),
+          invalidateRAGCacheAPI()
+        ])
       } catch (cacheError) {
         console.warn('[Profile] Failed to invalidate career cache:', cacheError)
       }
@@ -68,7 +71,10 @@ export const autosave = createAsyncThunk(
       // Invalidate career path cache when profile is updated
       // This ensures fresh recommendations on next visit
       try {
-        await invalidateCareerPathCacheAPI()
+        await Promise.all([
+          invalidateCareerPathCacheAPI(),
+          invalidateRAGCacheAPI()
+        ])
       } catch (cacheError) {
         console.warn('[Profile] Failed to invalidate career cache:', cacheError)
       }
@@ -88,7 +94,10 @@ export const completeProfile = createAsyncThunk(
 
       // Invalidate career path cache when profile is completed
       try {
-        await invalidateCareerPathCacheAPI()
+        await Promise.all([
+          invalidateCareerPathCacheAPI(),
+          invalidateRAGCacheAPI()
+        ])
       } catch (cacheError) {
         console.warn('[Profile] Failed to invalidate career cache:', cacheError)
       }

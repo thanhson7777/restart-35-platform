@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Textarea } from '@/components/ui';
 import { BookMarked, Play, Trash2, Clock, Plus } from 'lucide-react';
-import { createVideoNote, getVideoNotes, deleteVideoNote } from '@/apis/courseApi';
+import { createVideoNote, getVideoNotesByLesson, deleteVideoNote } from '@/apis/courseApi';
 import toast from 'react-hot-toast';
 
 // Helper to format seconds (e.g. 75 -> "01:15")
@@ -21,7 +21,7 @@ export const VideoNoteEditor = ({ lessonId, currentTime = 0, onSeek }) => {
   const fetchNotes = async () => {
     setLoading(true);
     try {
-      const res = await getVideoNotes(lessonId);
+      const res = await getVideoNotesByLesson(lessonId);
       setNotes(Array.isArray(res.data) ? res.data : Array.isArray(res?.data?.data) ? res.data.data : []);
     } catch (err) {
       console.warn('API notes failed, reading from localStorage:', err);
