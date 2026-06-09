@@ -1,5 +1,5 @@
 import { Eye } from 'lucide-react';
-import { Progress } from '@/components/ui/Progress';
+import { Progress, SafeImage } from '@/components/ui';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
@@ -33,7 +33,7 @@ const AdminScholarshipRow = ({ scholarship, onView }) => {
     <tr className="border-b border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-accent))]/[0.03] transition-colors border-l-[2px] border-l-transparent hover:border-l-[hsl(var(--admin-accent))]">
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <img src={scholarship.thumbnail || 'https://picsum.photos/seed/sch/60/40'} alt={scholarship.title}
+          <SafeImage src={scholarship.thumbnail || 'https://picsum.photos/seed/sch/60/40'} alt={scholarship.title}
             className="w-14 h-10 rounded-lg object-cover bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))]" />
           <div className="min-w-0">
             <p className="font-medium text-sm text-[hsl(var(--admin-text-primary))] truncate max-w-[200px]">{scholarship.title}</p>

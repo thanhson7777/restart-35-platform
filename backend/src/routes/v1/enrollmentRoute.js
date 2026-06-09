@@ -2,6 +2,7 @@ import express from 'express'
 import { enrollmentValidation } from '~/validations/enrollmentValidation'
 import { enrollmentController } from '~/controllers/enrollmentController'
 import { videoNoteController } from '~/controllers/videoNoteController'
+import { lessonProgressService } from '~/services/lessonProgressService'
 import { authMiddleware } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
@@ -112,6 +113,23 @@ Router.put(
 )
 
 // ============ TRAINER ROUTES (Auth Required) ============
+
+// Hoàn thành một bài học cụ thể (worker)
+Router.put(
+  '/:enrollmentId/lessons/:lessonId/complete',
+  authMiddleware.isAuthorized,
+  enrollmentValidation.checkId,
+  async (req, res, next) => {
+    try {
+      const { enrollmentId, lessonId } = req.params
+      const userId = req.user._id.toString()
+      const result = await lessonProgressService.markLessonComplete(enrollmentId, lessonId, userId)
+      res.json({ success: true, data: result })
+    } catch (error) {
+      next(error)
+    }
+  }
+)
 
 // Lấy danh sách học viên của khóa học
 Router.get(

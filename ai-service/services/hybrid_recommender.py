@@ -127,14 +127,22 @@ class HybridRecommender:
                     cf_jobs = data['data']['jobs']
 
                     # Build CF score lookup (normalized to 0-1)
-                    max_score = max((job.get('cfScore', 0) for job in cf_jobs), default=1.0)
-                    max_score = max_score if max_score > 0 else 1.0
+                    # Guard against empty cfScore values
+                    cf_score_values = [job.get('cfScore', 0) or 0 for job in cf_jobs]
+                    max_score = max(cf_score_values, default=1.0)
+                    if max_score <= 0:
+                        logger.warning(f"[CF] All cf_scores are 0, using default 1.0 for normalization")
+                        max_score = 1.0
 
                     cf_scores = {}
                     for job in cf_jobs:
                         job_id = job.get('_id')
-                        score = job.get('cfScore', 0) / max_score  # Normalize
-                        cf_scores[job_id] = min(1.0, score)
+                        cf_val = job.get('cfScore', 0) or 0
+                        if max_score > 0:
+                            score = cf_val / max_score
+                        else:
+                            score = 0.0
+                        cf_scores[job_id] = min(1.0, max(0.0, score))
 
                     # Cache the scores
                     self._cf_scores_cache[cache_key] = cf_scores
@@ -335,18 +343,25 @@ class HybridRecommender:
         # Compute semantic similarities
         query_norm = np.linalg.norm(query_embedding[0])
         if query_norm == 0:
+            logger.warning("[Hybrid] Query norm is 0, setting semantic_score=0.5")
             for job in jobs:
                 job['semantic_score'] = 0.5
             return jobs
 
         doc_norms = np.linalg.norm(job_embeddings, axis=1)
+        if np.any(doc_norms == 0):
+            logger.warning(f"[Hybrid] {np.sum(doc_norms == 0)} docs have zero norm")
         doc_norms = np.where(doc_norms == 0, 1e-10, doc_norms)
 
         similarities = np.dot(job_embeddings, query_embedding[0]) / (doc_norms * query_norm)
 
         # Add semantic scores to jobs
         for i, job in enumerate(jobs):
-            job['semantic_score'] = round(float(similarities[i]), 4)
+            score = float(similarities[i])
+            if np.isnan(score) or np.isinf(score):
+                logger.warning(f"[Hybrid] Invalid semantic_score at idx={i}: {score}, setting to 0.5")
+                score = 0.5
+            job['semantic_score'] = round(score, 4)
 
         return jobs
 
@@ -365,6 +380,11 @@ class HybridRecommender:
             tfidf_score = job.get('score', 0.5)
             semantic_score = job.get('semantic_score', 0.5)
             cf_score = job.get('cf_score', 0.0 if has_cf else 0.5)
+
+            # Guard against NaN/Inf
+            tfidf_score = float(tfidf_score) if not (np.isnan(tfidf_score) or np.isinf(tfidf_score)) else 0.5
+            semantic_score = float(semantic_score) if not (np.isnan(semantic_score) or np.isinf(semantic_score)) else 0.5
+            cf_score = float(cf_score) if not (np.isnan(cf_score) or np.isinf(cf_score)) else 0.5
 
             # Normalize scores to 0-1
             tfidf_score = max(0.0, min(1.0, tfidf_score))
@@ -386,15 +406,25 @@ class HybridRecommender:
             else:
                 # Fallback to TF-IDF + Semantic only
                 total_weight = self.TFIDF_WEIGHT + self.SEMANTIC_WEIGHT
-                hybrid_score = (
-                    tfidf_score * (self.TFIDF_WEIGHT / total_weight) +
-                    semantic_score * (self.SEMANTIC_WEIGHT / total_weight)
-                )
-                weights_used = {
-                    'tfidf': self.TFIDF_WEIGHT / total_weight,
-                    'semantic': self.SEMANTIC_WEIGHT / total_weight,
-                    'cf': 0
-                }
+                if total_weight == 0:
+                    logger.warning("[Hybrid] total_weight=0, setting hybrid_score=0.5")
+                    hybrid_score = 0.5
+                    weights_used = {'tfidf': 0, 'semantic': 0, 'cf': 0}
+                else:
+                    hybrid_score = (
+                        tfidf_score * (self.TFIDF_WEIGHT / total_weight) +
+                        semantic_score * (self.SEMANTIC_WEIGHT / total_weight)
+                    )
+                    weights_used = {
+                        'tfidf': self.TFIDF_WEIGHT / total_weight,
+                        'semantic': self.SEMANTIC_WEIGHT / total_weight,
+                        'cf': 0
+                    }
+
+            # Guard against NaN/Inf
+            if np.isnan(hybrid_score) or np.isinf(hybrid_score):
+                logger.warning(f"[Hybrid] Invalid hybrid_score: {hybrid_score}, resetting to 0.5")
+                hybrid_score = 0.5
 
             # Cap at 1.0
             hybrid_score = min(1.0, hybrid_score)

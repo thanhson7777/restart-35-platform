@@ -17,6 +17,8 @@ import {
   selectLastSavedAt,
   selectCurrentStep
 } from '@/redux/profile/profileSlice'
+import { clearRAGRecommendation, clearStartupIdeas } from '@/redux/ai/aiSlice'
+import { invalidateCareerPathCacheAPI, invalidateRAGCacheAPI } from '@/apis/aiAPI'
 import { EDUCATION_OPTIONS, MARITAL_STATUS_OPTIONS } from '~/data/profileData'
 
 const PHONE_ICON = () => (
@@ -192,6 +194,15 @@ function BasicInfoForm({ onNext }) {
       const result = await dispatch(saveStep({ step: 1, data: formData }))
 
       if (saveStep.fulfilled.match(result)) {
+        // Clear career path cache vì basicInfo đã thay đổi
+        dispatch(clearRAGRecommendation())
+        dispatch(clearStartupIdeas())
+        invalidateCareerPathCacheAPI().catch(err => {
+          console.error('[BasicInfoForm] Failed to invalidate career path cache:', err)
+        })
+        invalidateRAGCacheAPI().catch(err => {
+          console.error('[BasicInfoForm] Failed to invalidate RAG cache:', err)
+        })
         dispatch(setCurrentStep(2))
         toast.success('Đã lưu thông tin cơ bản!')
         onNext?.()

@@ -16,6 +16,8 @@ import {
   selectIsSaving,
   selectLastSavedAt
 } from '@/redux/profile/profileSlice'
+import { clearRAGRecommendation, clearStartupIdeas } from '@/redux/ai/aiSlice'
+import { invalidateCareerPathCacheAPI, invalidateRAGCacheAPI } from '@/apis/aiAPI'
 
 const STEP_NUMBER = 3
 const AUTOSAVE_DELAY = 1500
@@ -150,6 +152,15 @@ function BarriersForm({ onNext }) {
       const result = await dispatch(saveStep({ step: STEP_NUMBER, data: barriers }))
 
       if (saveStep.fulfilled.match(result)) {
+        // Clear career path cache vì barriers đã thay đổi
+        dispatch(clearRAGRecommendation())
+        dispatch(clearStartupIdeas())
+        invalidateCareerPathCacheAPI().catch(err => {
+          console.error('[BarriersForm] Failed to invalidate career path cache:', err)
+        })
+        invalidateRAGCacheAPI().catch(err => {
+          console.error('[BarriersForm] Failed to invalidate RAG cache:', err)
+        })
         dispatch(setCurrentStep(STEP_NUMBER + 1))
         toast.success('Đã lưu rào cản & thách thức!')
         onNext?.()

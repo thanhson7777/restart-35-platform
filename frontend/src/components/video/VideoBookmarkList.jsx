@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button } from '@/components/ui';
 import { Bookmark, Clock, Trash2, Plus, BookmarkCheck } from 'lucide-react';
-import { toggleVideoBookmark } from '@/apis/courseApi';
+import { toggleVideoBookmark, getVideoBookmarks } from '@/apis/courseApi';
 import toast from 'react-hot-toast';
 
 // Helper to format seconds (e.g. 150 -> "02:30")
@@ -11,15 +11,26 @@ const formatTimestamp = (secs) => {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 };
 
-export const VideoBookmarkList = ({ lessonId, currentTime = 0, onSeek }) => {
+export const VideoBookmarkList = ({ lessonId, enrollmentId, currentTime = 0, onSeek }) => {
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchBookmarks = () => {
+  const fetchBookmarks = async () => {
     setLoading(true);
-    const local = localStorage.getItem(`bookmarks_${lessonId}`);
-    setBookmarks(local ? JSON.parse(local) : []);
-    setLoading(false);
+    try {
+      const res = await getVideoBookmarks(lessonId);
+      const list = Array.isArray(res.data) ? res.data
+        : Array.isArray(res?.data?.data) ? res.data.data
+        : [];
+      setBookmarks(list);
+      localStorage.setItem(`bookmarks_${lessonId}`, JSON.stringify(list));
+    } catch (err) {
+      console.warn('API bookmarks failed, reading from localStorage:', err);
+      const local = localStorage.getItem(`bookmarks_${lessonId}`);
+      setBookmarks(local ? JSON.parse(local) : []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -29,36 +40,45 @@ export const VideoBookmarkList = ({ lessonId, currentTime = 0, onSeek }) => {
   }, [lessonId]);
 
   const handleAddBookmark = async () => {
+    if (!enrollmentId) {
+      toast.error('Không xác định được khóa học. Vui lòng thử lại.');
+      return;
+    }
+
     const timestampSec = Math.floor(currentTime);
-    
-    // Check duplicate
+
+    // Check duplicate by timestamp
     if (bookmarks.some((b) => b.timestamp === timestampSec)) {
       toast.error('Mốc thời gian này đã được đánh dấu.');
       return;
     }
 
     const title = prompt('Nhập tên gợi nhớ mốc đánh dấu này:', `Ghim tại ${formatTimestamp(timestampSec)}`);
-    if (title === null) return; // Cancelled prompt
+    if (title === null) return;
     const finalTitle = title.trim() || `Ghim tại ${formatTimestamp(timestampSec)}`;
 
-    const newBookmark = {
-      _id: `bmark_${Date.now()}`,
+    const tempId = `bmark_${Date.now()}`;
+    const optimisticBookmark = {
+      _id: tempId,
       lessonId,
+      enrollmentId,
       timestamp: timestampSec,
       title: finalTitle,
       createdAt: new Date().toISOString(),
     };
 
     try {
-      await toggleVideoBookmark(lessonId, { timestamp: timestampSec, title: finalTitle, action: 'add' });
-      // Reload or local update
-      const updated = [...bookmarks, newBookmark].sort((a, b) => a.timestamp - b.timestamp);
-      localStorage.setItem(`bookmarks_${lessonId}`, JSON.stringify(updated));
-      setBookmarks(updated);
+      await toggleVideoBookmark(lessonId, {
+        enrollmentId,
+        title: finalTitle,
+        bookmarked: true,
+      });
+      // Refresh from server to get real ID
+      await fetchBookmarks();
       toast.success('Đã ghim mốc bài học!');
     } catch (err) {
-      console.warn('API bookmark failed, using localStorage:', err);
-      const updated = [...bookmarks, newBookmark].sort((a, b) => a.timestamp - b.timestamp);
+      console.warn('API bookmark failed, updating localStorage:', err);
+      const updated = [...bookmarks, optimisticBookmark].sort((a, b) => a.timestamp - b.timestamp);
       localStorage.setItem(`bookmarks_${lessonId}`, JSON.stringify(updated));
       setBookmarks(updated);
       toast.success('Đã ghim mốc bài học (Offline)!');
@@ -66,11 +86,17 @@ export const VideoBookmarkList = ({ lessonId, currentTime = 0, onSeek }) => {
   };
 
   const handleDeleteBookmark = async (bookmarkId, timestampSec) => {
+    if (!enrollmentId) {
+      toast.error('Không xác định được khóa học.');
+      return;
+    }
     try {
-      await toggleVideoBookmark(lessonId, { timestamp: timestampSec, action: 'remove' });
-      const updated = bookmarks.filter((b) => b._id !== bookmarkId);
-      localStorage.setItem(`bookmarks_${lessonId}`, JSON.stringify(updated));
-      setBookmarks(updated);
+      await toggleVideoBookmark(lessonId, {
+        enrollmentId,
+        bookmarked: false,
+      });
+      // Refresh from server
+      await fetchBookmarks();
       toast.success('Đã gỡ ghim.');
     } catch (err) {
       console.warn('API remove bookmark failed, updating localStorage:', err);

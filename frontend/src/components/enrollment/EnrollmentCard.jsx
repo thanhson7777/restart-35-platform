@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, SafeImage } from '@/components/ui';
 import { EnrollmentStatus } from '@/components/shared/EnrollmentStatus';
 import { formatDate, formatPrice } from '@/utils/formatter';
 import { Calendar, MapPin, BookOpen, PlayCircle, ShieldAlert, Award } from 'lucide-react';
@@ -63,12 +63,12 @@ export const EnrollmentCard = ({
       <Card
         variant="interactive"
         className="rounded-[18px] bg-white dark:bg-zinc-950 overflow-hidden border border-zinc-150/60 dark:border-zinc-900 shadow-sm flex flex-col md:flex-row gap-5 p-5"
-        onClick={onViewDetail}
+        onClick={() => onViewDetail && onViewDetail(enrollment)}
       >
         {/* Course Thumbnail */}
         <div className="md:w-48 aspect-[16/10] shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-900 relative">
           {course?.thumbnail ? (
-            <img
+            <SafeImage
               src={course.thumbnail}
               alt={course.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"

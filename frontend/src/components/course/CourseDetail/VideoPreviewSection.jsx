@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Badge, Button, SafeImage } from '@/components/ui';
 import { Play, X, Lock, PlayCircle, Clock } from 'lucide-react';
 import { getPreviewLessons } from '@/apis/courseApi';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -90,7 +90,7 @@ export const VideoPreviewSection = ({ courseId }) => {
             >
               {/* Thumbnail Container */}
               <div className="relative aspect-video bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
-                <img
+                <SafeImage
                   src={lesson.thumbnail || `https://picsum.photos/seed/lesson-${idx}/400/225`}
                   alt={lesson.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -180,7 +180,7 @@ export const VideoPreviewSection = ({ courseId }) => {
                   controls
                   autoPlay
                   className="w-full h-full"
-                  poster={activeVideo.thumbnail || 'https://picsum.photos/seed/video-poster/800/450'}
+                  poster={activeVideo.thumbnail ? encodeURI(activeVideo.thumbnail) : 'https://picsum.photos/seed/video-poster/800/450'}
                 />
               </div>
 

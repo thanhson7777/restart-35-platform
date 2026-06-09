@@ -132,8 +132,9 @@ const getCourses = async (queryParams) => {
     if (category) filters.category = category
     if (provider) filters.provider = provider
     if (level) filters.level = level
-    if (isFree !== undefined) filters.isFree = isFree
-    if (hasScholarship) filters.hasScholarship = hasScholarship
+    // Convert string "false" to boolean false
+    if (isFree !== undefined && isFree !== '') filters.isFree = isFree === true || isFree === 'true'
+    if (hasScholarship && hasScholarship !== '' && hasScholarship !== 'false') filters.hasScholarship = true
     if (skill) filters.skill = skill
     if (delivery_type) filters.delivery_type = delivery_type
     if (funding_model) filters.funding_model = funding_model
@@ -596,8 +597,14 @@ const checkEligibility = async (userId, courseId) => {
 const calculateMatchScore = (userSkills, courseSkills) => {
   if (!courseSkills || courseSkills.length === 0) return 0
 
-  const userSkillsLower = userSkills.map(s => s.toLowerCase())
-  const courseSkillsLower = courseSkills.map(s => s.toLowerCase())
+  // Filter out non-string values
+  const validUserSkills = userSkills.filter(s => typeof s === 'string')
+  const validCourseSkills = courseSkills.filter(s => typeof s === 'string')
+
+  if (validUserSkills.length === 0) return 0
+
+  const userSkillsLower = validUserSkills.map(s => s.toLowerCase())
+  const courseSkillsLower = validCourseSkills.map(s => s.toLowerCase())
 
   let matchCount = 0
   for (const skill of courseSkillsLower) {

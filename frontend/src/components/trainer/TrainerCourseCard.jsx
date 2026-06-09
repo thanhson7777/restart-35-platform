@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, Users, Calendar, Edit3, ArrowRight } from 'lucide-react';
-import { Card, CardContent, Badge, Button } from '@/components/ui';
+import { Card, CardContent, Badge, Button, SafeImage } from '@/components/ui';
 
 const TrainerCourseCard = ({ course }) => {
   const {
@@ -39,7 +39,7 @@ const TrainerCourseCard = ({ course }) => {
       {/* Course Thumbnail */}
       <div className="relative aspect-video w-full overflow-hidden bg-[hsl(var(--admin-surface-elevated))]">
         {thumbnail ? (
-          <img
+          <SafeImage
             src={thumbnail}
             alt={title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

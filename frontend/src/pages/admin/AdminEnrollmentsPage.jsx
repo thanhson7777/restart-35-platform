@@ -7,13 +7,15 @@ import { AdminLayout, AdminPageTitle } from '@/components/layout';
 import {
   getAdminEnrollmentStats,
   getAllEnrollments,
-  exportEnrollments
+  exportEnrollments,
 } from '@/apis/courseApi';
+import { getDropoutRisk } from '@/apis/learningRecordApi';
 import {
   AdminEnrollmentStats,
   AdminEnrollmentFilters,
   AdminEnrollmentTable,
-  AdminEnrollmentDetailModal
+  AdminEnrollmentDetailModal,
+  RiskAnalysisPanel,
 } from '@/components/admin/enrollments';
 
 const AdminEnrollmentsPage = () => {
@@ -33,6 +35,9 @@ const AdminEnrollmentsPage = () => {
   const [selectedEnrollment, setSelectedEnrollment] = useState(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('enrollments');
+  const [riskData, setRiskData] = useState(null);
+  const [riskLoading, setRiskLoading] = useState(false);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -46,6 +51,22 @@ const AdminEnrollmentsPage = () => {
       toast.error('Khong the tai thong ke');
     } finally {
       setStatsLoading(false);
+    }
+  }, []);
+
+  const fetchRiskData = useCallback(async () => {
+    try {
+      setRiskLoading(true);
+      const response = await getDropoutRisk();
+      if (response.success) {
+        setRiskData(response.data);
+      } else if (response.data?.success) {
+        setRiskData(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching risk data:', error);
+    } finally {
+      setRiskLoading(false);
     }
   }, []);
 
@@ -143,6 +164,12 @@ const AdminEnrollmentsPage = () => {
   const handleRefresh = () => {
     fetchStats();
     fetchEnrollments();
+    if (activeTab === 'risk') fetchRiskData();
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'risk') fetchRiskData();
   };
 
   return (
@@ -207,6 +234,28 @@ const AdminEnrollmentsPage = () => {
         <AdminEnrollmentStats stats={stats} loading={statsLoading} />
       </div>
 
+      {/* Tab Navigation */}
+      <div className="flex gap-2 mb-6">
+        {[
+          { key: 'enrollments', label: 'Danh sách Enrollment' },
+          { key: 'risk', label: 'Risk Analysis' },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => handleTabChange(tab.key)}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              activeTab === tab.key
+                ? 'bg-[hsl(var(--admin-accent))] text-white'
+                : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))]'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'enrollments' ? (
+      <>
       {/* Filters & Table wrapped in BezelCard */}
       <BezelCard className="mb-8">
         <AdminEnrollmentFilters
@@ -231,6 +280,11 @@ const AdminEnrollmentsPage = () => {
         open={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
       />
+      </>
+      ) : (
+      /* Risk Analysis Tab */
+      <RiskAnalysisPanel data={riskData} loading={riskLoading} />
+      )}
     </AdminLayout>
   );
 };

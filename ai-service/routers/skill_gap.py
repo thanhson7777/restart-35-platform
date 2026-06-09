@@ -321,15 +321,15 @@ async def health_check():
     - LLM availability
     """
     try:
-        # Check engine
-        engine = HybridSkillGapEngine(use_llm=False)
+        # Check engine with LLM enabled to get accurate LLM availability
+        engine = HybridSkillGapEngine(use_llm=True)
         prefilter_stats = engine.prefilter.get_stats()
         engine_ok = prefilter_stats.get("job_count", 0) > 0
 
         # Check cache
         cache = get_cache()
 
-        # Check LLM
+        # Check LLM - engine was initialized with use_llm=True
         llm_available = engine.refiner.available
 
         status = "healthy" if (engine_ok and llm_available) else "degraded"

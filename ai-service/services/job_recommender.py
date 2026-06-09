@@ -305,19 +305,27 @@ class JobRecommender:
             Score từ 0.0 đến 1.0
         """
         if target_salary is None:
-            return 0.5  # Neutral score nếu không có target
+            return 0.5  # Neutral score if no target
 
-        # Kiểm tra target nằm trong range
+        # Check if target is within range
         if salary_min <= target_salary <= salary_max:
             return 1.0
 
-        # Tính khoảng cách từ target đến range
+        # Guard against zero salary values
+        if salary_min <= 0 and salary_max <= 0:
+            return 0.5  # Neutral if both salaries are invalid
+
+        # Calculate distance from target to range
         if target_salary < salary_min:
             distance = salary_min - target_salary
-            max_distance = salary_min * 0.5  # Cho phép lệch 50%
+            max_distance = salary_min * 0.5 if salary_min > 0 else abs(distance) + 1  # Allow 50% deviation
         else:
             distance = target_salary - salary_max
-            max_distance = salary_max * 0.3
+            max_distance = salary_max * 0.3 if salary_max > 0 else abs(distance) + 1  # Allow 30% deviation
+
+        # Guard against zero max_distance (prevent division by zero)
+        if max_distance <= 0:
+            return 0.0
 
         score = max(0, 1 - (distance / max_distance))
         return min(1.0, max(0.0, score))

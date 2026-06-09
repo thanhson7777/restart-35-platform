@@ -4,7 +4,6 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import viLocale from '@fullcalendar/core/locales/vi';
 
 export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => {
   // Convert schedules & their sessions into FullCalendar events
@@ -245,7 +244,7 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
         events={getEvents()}
         eventClick={handleEventClick}
         height="auto"
-        locale={viLocale}
+        locale="vi"
         firstDay={1} // Monday
       />
     </div>

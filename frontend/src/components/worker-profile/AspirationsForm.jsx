@@ -23,6 +23,8 @@ import {
   selectIsCompleting,
   selectIsCompleted
 } from '@/redux/profile/profileSlice'
+import { clearRAGRecommendation, clearStartupIdeas } from '@/redux/ai/aiSlice'
+import { invalidateCareerPathCacheAPI, invalidateRAGCacheAPI } from '@/apis/aiAPI'
 
 const STEP_NUMBER = 4
 const AUTOSAVE_DELAY = 1500
@@ -183,6 +185,15 @@ function AspirationsForm({ onComplete }) {
         const result = await dispatch(completeProfile())
 
         if (completeProfile.fulfilled.match(result)) {
+          // Clear career path cache vì aspirations đã thay đổi
+          dispatch(clearRAGRecommendation())
+          dispatch(clearStartupIdeas())
+          invalidateCareerPathCacheAPI().catch(err => {
+            console.error('[AspirationsForm] Failed to invalidate career path cache:', err)
+          })
+          invalidateRAGCacheAPI().catch(err => {
+            console.error('[AspirationsForm] Failed to invalidate RAG cache:', err)
+          })
           setIsCompleted(true)
           toast.success('Chúc mừng! Bạn đã hoàn thành hồ sơ!')
           dispatch(setCurrentStep(STEP_NUMBER))
@@ -194,6 +205,15 @@ function AspirationsForm({ onComplete }) {
         }
       } else {
         // Nếu đã hoàn thành -> chỉ thông báo (đã autosave)
+        // Vẫn invalidate cache vì aspirations đã thay đổi
+        dispatch(clearRAGRecommendation())
+        dispatch(clearStartupIdeas())
+        invalidateCareerPathCacheAPI().catch(err => {
+          console.error('[AspirationsForm] Failed to invalidate career path cache:', err)
+        })
+        invalidateRAGCacheAPI().catch(err => {
+          console.error('[AspirationsForm] Failed to invalidate RAG cache:', err)
+        })
         toast.success('Đã cập nhật thay đổi!')
       }
     } catch (err) {

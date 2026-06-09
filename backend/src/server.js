@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import express from 'express'
 import exitHook from 'async-exit-hook'
-import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
-import { connectRedis, closeRedis } from '~/config/redis'
+import { CONNECT_DB, CLOSE_DB, GET_DB } from '~/config/mongodb'
+import { connectRedis, closeRedis, getRedis, isRedisAvailable } from '~/config/redis'
 import { env } from './config/enviroment'
 import { APIS_V1 } from './routes/v1'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
@@ -25,6 +25,51 @@ const START_SERVER = () => {
   app.use(express.urlencoded({ extended: true }))
 
   app.use('/v1', APIS_V1)
+
+  // Health check endpoint - check both MongoDB and Redis
+  app.get('/health', async (req, res) => {
+    const checks = { mongodb: false, redis: false }
+    let mongoError = null
+    let redisError = null
+
+    // Check MongoDB
+    try {
+      const db = GET_DB()
+      if (db) {
+        await db.command({ ping: 1 })
+        checks.mongodb = true
+      }
+    } catch (e) {
+      mongoError = e.message
+      checks.mongodb = false
+    }
+
+    // Check Redis
+    try {
+      if (isRedisAvailable()) {
+        const redisClient = getRedis()
+        if (redisClient) {
+          await redisClient.ping()
+          checks.redis = true
+        }
+      }
+    } catch (e) {
+      redisError = e.message
+      checks.redis = false
+    }
+
+    const healthy = checks.mongodb && checks.redis
+    res.status(healthy ? 200 : 503).json({
+      status: healthy ? 'healthy' : 'degraded',
+      service: 'backend',
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      checks: {
+        mongodb: { status: checks.mongodb ? 'ok' : 'error', error: mongoError },
+        redis: { status: checks.redis ? 'ok' : 'error', error: redisError }
+      }
+    })
+  })
 
   app.use(errorHandlingMiddleware)
 

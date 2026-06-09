@@ -35,31 +35,36 @@ import {
   selectCareerPathLoading,
   fetchCareerPath
 } from '@/redux/ai/aiSlice'
+import {
+  createOutcome,
+  fetchMyOutcomes,
+  selectOutcomes
+} from '@/redux/outcome/outcomeSlice'
 import { selectCurrentUser } from '@/redux/user/userSlice'
 import toast from 'react-hot-toast'
 
 // Lucide React Icons
 import {
-  Sparkles,
-  AlertCircle,
-  RefreshCw,
+  Sparkle,
+  Warning,
+  ArrowClockwise,
   Briefcase,
-  Bookmark,
-  TrendingUp,
+  BookmarkSimple,
+  TrendUp,
   User,
   ArrowRight,
-  ChevronLeft,
-  Layers,
-  Settings2,
+  CaretLeft,
+  Stack,
+  Sliders,
   Check
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 // Tab options
 const TABS = [
-  { id: 'recommended', label: 'Gợi ý cho bạn', icon: Sparkles },
-  { id: 'career', label: 'Lộ trình nghề nghiệp', icon: TrendingUp },
+  { id: 'recommended', label: 'Gợi ý cho bạn', icon: Sparkle },
+  { id: 'career', label: 'Lộ trình nghề nghiệp', icon: TrendUp },
   { id: 'all', label: 'Tất cả việc làm', icon: Briefcase },
-  { id: 'saved', label: 'Đã lưu', icon: Bookmark }
+  { id: 'saved', label: 'Đã lưu', icon: BookmarkSimple }
 ]
 
 /**
@@ -83,6 +88,7 @@ const JobsPage = () => {
   const [skillFilterMode, setSkillFilterMode] = useState('all') // 'all' | 'latest' | 'custom'
   const [selectedJobIndex, setSelectedJobIndex] = useState(null)
   const [showCustomDropdown, setShowCustomDropdown] = useState(false)
+  const [appliedJobIds, setAppliedJobIds] = useState(new Set())
 
   // Handlers for job detail modal
   const handleOpenJobDetail = (job) => {
@@ -118,11 +124,24 @@ const JobsPage = () => {
   const filters = useSelector(selectJobFilters)
   const careerPath = useSelector(selectCareerPath)
   const careerPathLoading = useSelector(selectCareerPathLoading)
+  const myOutcomes = useSelector(selectOutcomes)
 
   // Refs to prevent infinite loops
   const hasFetchedRecommended = useRef(false)
   const hasFetchedAll = useRef(false)
   const hasFetchedCareer = useRef(false)
+
+  // Fetch applied job IDs on mount
+  useEffect(() => {
+    dispatch(fetchMyOutcomes())
+  }, [dispatch])
+
+  // Populate appliedJobIds from outcomes
+  useEffect(() => {
+    if (myOutcomes?.length > 0) {
+      setAppliedJobIds(new Set(myOutcomes.map(o => o.jobId)))
+    }
+  }, [myOutcomes])
 
   // =============================================================================
   // HELPER FUNCTIONS - Skills extraction
@@ -365,9 +384,29 @@ const JobsPage = () => {
   }
 
   // Handle apply
-  const handleApply = (job) => {
-    toast.success(`Đã nộp đơn ứng tuyển: ${job.title}`)
-    // TODO: Call apply API
+  const handleApply = async (job) => {
+    const jobId = job._id || job.id
+    if (appliedJobIds.has(jobId)) {
+      toast.warning('Bạn đã ứng tuyển vị trí này rồi')
+      return
+    }
+    try {
+      await dispatch(createOutcome({
+        jobId,
+        jobTitle: job.title || job.job_title,
+        companyName: job.company || job.company_name,
+        metadata: {
+          location: job.location,
+          salary: job.salary,
+          employmentType: job.job_type,
+          matchScore: job.matchScore,
+        },
+      })).unwrap()
+      setAppliedJobIds(prev => new Set([...prev, jobId]))
+      toast.success(`Đã nộp đơn ứng tuyển: ${job.title}`)
+    } catch (error) {
+      toast.error(error || 'Ứng tuyển thất bại. Vui lòng thử lại.')
+    }
   }
 
   // Get current jobs based on tab
@@ -415,7 +454,7 @@ const JobsPage = () => {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                <Sparkles className="w-8 h-8 text-primary" />
+                <Sparkle className="w-8 h-8 text-primary" weight="fill" />
                 Việc làm gợi ý cho bạn
               </h1>
               <p className="text-muted-foreground mt-2 text-lg">
@@ -439,7 +478,7 @@ const JobsPage = () => {
                 disabled={isLoading}
                 className="shrink-0"
               >
-                <RefreshCw className={cn('w-4 h-4 mr-2', isLoading && 'animate-spin')} />
+                <ArrowClockwise className={cn('w-4 h-4 mr-2', isLoading && 'animate-spin')} />
                 Làm mới
               </Button>
             </div>
@@ -453,7 +492,7 @@ const JobsPage = () => {
           <Card className="mb-6 border-warning/50 bg-warning/5">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -479,7 +518,7 @@ const JobsPage = () => {
           <Card className="mb-6 border-warning/50 bg-warning/5">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -551,11 +590,6 @@ const JobsPage = () => {
                   )
                 })}
               </div>
-
-              {/* Results count */}
-              <p className="text-sm text-muted-foreground hidden sm:block">
-                {isLoading ? 'Đang tải...' : `${currentJobs.length} việc làm`}
-              </p>
             </div>
 
             {/* Smart Filter Chip Bar - Chỉ hiển thị khi tab là 'recommended' và có employmentHistory */}
@@ -576,7 +610,7 @@ const JobsPage = () => {
                         : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
                     )}
                   >
-                    <Layers className="w-3.5 h-3.5" />
+                    <Stack className="w-3.5 h-3.5" />
                     <span>Toàn bộ hồ sơ</span>
                   </button>
 
@@ -618,7 +652,7 @@ const JobsPage = () => {
                           : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
                       )}
                     >
-                      <Settings2 className="w-3.5 h-3.5" />
+                      <Sliders className="w-3.5 h-3.5" />
                       <span>
                         {skillFilterMode === 'custom' && selectedCustomJob
                           ? `Tùy chỉnh: ${getJobTitle(selectedCustomJob)}`
@@ -663,21 +697,6 @@ const JobsPage = () => {
                     )}
                   </div>
                 </div>
-
-                {/* Info badge - số skills đang dùng */}
-                <div className="flex items-center gap-2 mt-3">
-                  <div className="h-px flex-1 bg-border" />
-                  <p className="text-xs text-muted-foreground">
-                    Đang dùng <span className="font-medium text-foreground">{skillsByFilterMode.length}</span> skills để gợi ý
-                    {skillFilterMode === 'latest' && latestJob && (
-                      <span className="ml-1">(từ: {getJobTitle(latestJob)})</span>
-                    )}
-                    {skillFilterMode === 'custom' && selectedCustomJob && (
-                      <span className="ml-1">(từ: {getJobTitle(selectedCustomJob)})</span>
-                    )}
-                  </p>
-                  <div className="h-px flex-1 bg-border" />
-                </div>
               </div>
             )}
 
@@ -686,7 +705,7 @@ const JobsPage = () => {
               <Card className="mb-6 border-destructive/50 bg-destructive/5">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-destructive shrink-0" />
+                    <Warning className="w-5 h-5 text-destructive shrink-0" />
                     <p className="text-destructive">{error}</p>
                     <Button
                       variant="ghost"
@@ -760,6 +779,7 @@ const JobsPage = () => {
                     onApply={handleApply}
                     onViewSimilar={handleViewSimilar}
                     onOpenDetail={handleOpenJobDetail}
+                    isApplied={appliedJobIds.has(job._id || job.id)}
                   />
                 ))}
               </div>

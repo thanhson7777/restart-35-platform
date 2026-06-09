@@ -112,14 +112,17 @@ export const getCourseLessons = (courseId) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/${courseId}/lessons`);
 
 // ─── Enrollment Progress ───────────────────────────────────────────────
-export const recordVideoProgress = (lessonId, data) =>
-  authorizeAxiosInstance.post(`${API_ROOT}/v1/lesson-progress/lessons/${lessonId}/progress`, data);
+export const recordVideoProgress = (enrollmentId, lessonId, data) =>
+  authorizeAxiosInstance.post(
+    `${API_ROOT}/v1/lesson-progress/lessons/${lessonId}/progress`,
+    { enrollmentId, ...data }
+  );
 
 export const getLessonProgress = (enrollmentId) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/lesson-progress/enrollments/${enrollmentId}/progress`);
 
-export const markLessonComplete = (lessonId) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/lessons/${lessonId}/complete`);
+export const markLessonComplete = (enrollmentId, lessonId) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${enrollmentId}/lessons/${lessonId}/complete`);
 
 // ─── Video Notes ──────────────────────────────────────────────────────
 export const createVideoNote = (data) =>
@@ -127,6 +130,9 @@ export const createVideoNote = (data) =>
 
 export const getVideoNotes = (enrollmentId) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/${enrollmentId}/notes`);
+
+export const getVideoNotesByLesson = (lessonId) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/video-notes/lesson/${lessonId}`);
 
 export const updateVideoNote = (noteId, data) =>
   authorizeAxiosInstance.patch(`${API_ROOT}/v1/video-notes/${noteId}`, data);
@@ -136,7 +142,10 @@ export const deleteVideoNote = (noteId) =>
 
 // ─── Video Bookmarks ──────────────────────────────────────────────────
 export const toggleVideoBookmark = (lessonId, data) =>
-  authorizeAxiosInstance.post(`${API_ROOT}/v1/lessons/${lessonId}/bookmark`, data);
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/lesson-progress/lessons/${lessonId}/bookmark`, data);
+
+export const getVideoBookmarks = (lessonId) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/lesson-progress/lessons/${lessonId}/bookmarks`);
 
 // ─── Admin Dropout Risk & Interventions ──────────────────────────────────
 export const getRiskList = (params) =>
@@ -246,6 +255,9 @@ export const studentCheckin = (scheduleId, sessionNumber, data) =>
 export const getScheduleById = (id) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/${id}`);
 
+export const getWorkerUpcomingSchedule = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/upcoming`, { params });
+
 // ─── Trainer Courses (NEW) ──────────────────────────────────────────
 export const getMyCourses = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/me/my-courses`, { params });
@@ -311,11 +323,6 @@ export const updatePlacementStatus = (id, data) =>
 export const getPlacementById = (id) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/placements/${id}`);
 
-// ─── Trainer Learning Records / Dropout Risk (NEW) ──────────────────
-export const getDropoutRisk = (params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/learning-records/analytics/dropout-risk`, { params });
-
-
-
-
+export const resignPlacement = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/placements/${id}/resign`, data);
 

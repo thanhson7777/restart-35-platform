@@ -40,6 +40,7 @@ from base_scraper import BaseScraper
 from vietnamworks_scraper import VietnamWorksScraper
 from vietnamworks_api_scraper import VietnamWorksAPIScraper
 from vietnamworks_algolia_scraper import VietnamWorksAlgoliaScraper
+from vietnamworks_v2_scraper import VietnamWorksV2Scraper
 from careerbuilder_scraper import CareerBuilderScraper
 from topcv_scraper import TopCVScraper
 from enhanced_playwright_scraper import EnhancedPlaywrightScraper
@@ -118,7 +119,7 @@ class ScrapingOrchestrator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         self.pages = pages
-        self.sources = sources or ['vieclam24h']  # Default to Vieclam24h
+        self.sources = sources or ['vietnamworks_v2']  # Default: VietnamWorks V2 (API working 2026-06-09)
         self.dry_run = dry_run
         self.verbose = verbose
         self.scrape_details = scrape_details
@@ -159,6 +160,7 @@ class ScrapingOrchestrator:
             'vietnamworks': lambda: VietnamWorksScraper(delay=3.0),
             'vietnamworks_api': lambda: VietnamWorksAPIScraper(delay=2.0),
             'vietnamworks_algolia': lambda: VietnamWorksAlgoliaScraper(delay=1.5),
+            'vietnamworks_v2': lambda: VietnamWorksV2Scraper(delay=1.0),  # NEW (2026-06-09) - API working!
             'careerbuilder': lambda: CareerBuilderScraper(delay=2.5),
             'topcv': lambda: TopCVScraper(delay=3.5),
             'timviec365': lambda: Timviec365Scraper(delay=2.0),
@@ -598,13 +600,13 @@ def parse_args():
     parser.add_argument(
         '--source', '-s',
         choices=[
-            'mywork', 'itviec', 'vieclam24h', 'vnw', 'vnw_api', 'vnw_algolia', 'cb', 'topcv',
+            'mywork', 'itviec', 'vieclam24h', 'vnw', 'vnw_api', 'vnw_algolia', 'vnw_v2', 'cb', 'topcv',
             'timviec365', 'vieclamtot', 'vieclau',
             'viecoi', 'vietjobs', 'jobstreet',  # NEW
             'all'
         ],
-        default='mywork',
-        help='Source to scrape (default: mywork). vnw_algolia = VietnamWorks via Algolia API'
+        default='vnw_v2',
+        help='Source to scrape (default: vnw_v2 - VietnamWorks API v2, working as of 2026-06-09)'
     )
 
     parser.add_argument(
@@ -653,6 +655,7 @@ def main():
         'vnw': ['vietnamworks'],
         'vnw_api': ['vietnamworks_api'],
         'vnw_algolia': ['vietnamworks_algolia'],
+        'vnw_v2': ['vietnamworks_v2'],  # NEW - VietnamWorks API v2 (working 2026-06-09)
         'cb': ['careerbuilder'],
         'topcv': ['topcv'],
         'timviec365': ['timviec365'],

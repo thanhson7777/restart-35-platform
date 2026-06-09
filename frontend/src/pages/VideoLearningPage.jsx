@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Card, Tabs, TabsList, TabsTrigger, TabsContent, Skeleton } from '@/components/ui';
-import { getEnrollmentById, getCourseLessons, recordVideoProgress, markLessonComplete } from '@/apis/courseApi';
+import { getEnrollmentById, getCourseLessons, getLessonProgress, recordVideoProgress, markLessonComplete } from '@/apis/courseApi';
+import debounce from 'lodash/debounce';
 import { VideoLessonSidebar } from '@/components/video/VideoLessonSidebar';
 import { VideoNoteEditor } from '@/components/video/VideoNoteEditor';
 import { VideoBookmarkList } from '@/components/video/VideoBookmarkList';
@@ -69,20 +70,59 @@ export default function VideoLearningPage() {
     fetchLearningData();
   }, [id]);
 
-  // Throttled API progress sync (Send progress every 20 seconds while playing)
-  useEffect(() => {
-    if (!isPlaying || !currentLesson) return;
-
-    const interval = setInterval(() => {
-      if (videoRef.current) {
-        const seconds = Math.floor(videoRef.current.currentTime);
-        recordVideoProgress(currentLesson._id, { watchedSeconds: seconds })
-          .catch((err) => console.warn('Progress recording failed:', err));
+  // Throttled API progress sync — debounced save every 10s while playing
+  const saveProgress = useCallback(
+    debounce(async (position) => {
+      if (!enrollment?._id || !currentLesson?._id) return;
+      try {
+        await recordVideoProgress(enrollment._id, currentLesson._id, {
+          watchedSeconds: Math.floor(position),
+        });
+      } catch (err) {
+        console.warn('Progress save failed:', err);
       }
-    }, 20000);
+    }, 10000),
+    [enrollment?._id, currentLesson?._id]
+  );
 
-    return () => clearInterval(interval);
-  }, [isPlaying, currentLesson]);
+  // Listen to video timeupdate for debounced save
+  useEffect(() => {
+    if (!isPlaying || !videoRef.current) return;
+    const handleTimeUpdate = () => {
+      saveProgress(videoRef.current.currentTime);
+    };
+    const video = videoRef.current;
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    return () => video.removeEventListener('timeupdate', handleTimeUpdate);
+  }, [isPlaying, saveProgress]);
+
+  // Restore video position from saved progress
+  useEffect(() => {
+    if (!enrollment?._id || !currentLesson?._id || !videoRef.current) return;
+
+    const restorePosition = async () => {
+      try {
+        const res = await getLessonProgress(enrollment._id);
+        const lessonProgress = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res?.data?.data)
+          ? res.data.data
+          : [];
+        const progress = lessonProgress.find(
+          (p) =>
+            p.lessonId === currentLesson._id ||
+            p.lessonId === currentLesson.id
+        );
+        if (progress?.watchedSeconds && progress.watchedSeconds > 5) {
+          videoRef.current.currentTime = progress.watchedSeconds;
+        }
+      } catch (err) {
+        console.warn('Could not restore video position:', err);
+      }
+    };
+
+    restorePosition();
+  }, [enrollment?._id, currentLesson?._id]);
 
   // Video timeupdate handler
   const handleTimeUpdate = () => {
@@ -204,7 +244,7 @@ export default function VideoLearningPage() {
     if (!currentLesson) return;
 
     try {
-      await markLessonComplete(currentLesson._id);
+      await markLessonComplete(enrollment._id, currentLesson._id);
       
       // Update completion mark inside lessons list
       const updatedLessons = lessons.map((l) =>
@@ -452,6 +492,7 @@ export default function VideoLearningPage() {
                   <TabsContent value="bookmarks" className="focus:outline-none">
                     <VideoBookmarkList
                       lessonId={currentLesson._id || currentLesson.id}
+                      enrollmentId={enrollment?._id}
                       currentTime={currentTime}
                       onSeek={handleSeek}
                     />

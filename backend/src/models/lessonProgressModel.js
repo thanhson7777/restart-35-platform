@@ -16,6 +16,10 @@ const LESSON_PROGRESS_COLLECTION_SCHEMA = Joi.object({
   percentComplete: Joi.number().min(0).max(100).default(0),
   completed: Joi.boolean().default(false),
 
+  bookmarked: Joi.boolean().default(false),
+  bookmarkNote: Joi.string().allow('', null).max(200).default(null),
+  bookmarkedAt: Joi.date().timestamp('javascript').allow(null),
+
   firstWatchedAt: Joi.date().timestamp('javascript').default(Date.now),
   lastWatchedAt: Joi.date().timestamp('javascript').default(Date.now),
   completedAt: Joi.date().timestamp('javascript').allow(null),
@@ -77,6 +81,22 @@ const findByEnrollment = async (enrollmentId) => {
         enrollmentId: String(enrollmentId),
         _destroy: { $ne: true }
       })
+      .toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const findBookmarksByLessonAndUser = async (lessonId, userId) => {
+  try {
+    return await GET_DB().collection(LESSON_PROGRESS_COLLECTION_NAME)
+      .find({
+        lessonId: String(lessonId),
+        userId: String(userId),
+        bookmarked: true,
+        _destroy: { $ne: true }
+      })
+      .sort({ bookmarkedAt: -1 })
       .toArray()
   } catch (error) {
     throw new Error(error.message)
@@ -161,6 +181,7 @@ export const lessonProgressModel = {
   findOneById,
   findOneByEnrollmentAndLesson,
   findByEnrollment,
+  findBookmarksByLessonAndUser,
   update,
   upsertProgress
 }

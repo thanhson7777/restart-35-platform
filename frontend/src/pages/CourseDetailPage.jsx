@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Avatar, Skeleton } from '@/components/ui';
+import { Card, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Avatar, Skeleton, SafeImage } from '@/components/ui';
 import { CourseCard } from '@/components/course/CourseCard';
 import { CourseEnrollmentForm } from '@/components/course/CourseDetail/CourseEnrollmentForm';
 import { CourseInfo } from '@/components/course/CourseDetail/CourseInfo';
@@ -331,7 +331,7 @@ export default function CourseDetailPage() {
                     }}
                   >
                     {thumbnail ? (
-                      <img
+                      <SafeImage
                         src={thumbnail}
                         alt="Xem trước video bài giảng"
                         className="w-full h-full object-cover opacity-85 transition-transform duration-500 group-hover:scale-105"
@@ -371,7 +371,7 @@ export default function CourseDetailPage() {
             <div className="lg:col-span-1 hidden lg:block" id="enrollment-section">
               <Card className="p-0 overflow-hidden bg-white border border-[hsl(var(--admin-border))] shadow-xl">
                 {thumbnail && course.delivery_type !== 'video' && (
-                  <img
+                  <SafeImage
                     src={thumbnail}
                     alt={title}
                     className="w-full aspect-video object-cover border-b border-[hsl(var(--admin-border))]"

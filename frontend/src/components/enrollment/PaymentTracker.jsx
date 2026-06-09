@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button } from '@/components/ui';
 import { CreditCard, CheckCircle2, Clock, AlertCircle, QrCode, X, Loader2 } from 'lucide-react';
 import { formatPrice, formatDate } from '@/utils/formatter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createPayment } from '@/apis/courseApi';
+import { createPayment, getPaymentById } from '@/apis/courseApi';
 import toast from 'react-hot-toast';
 
 export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPaymentSuccess }) => {
   const [selectedInstallment, setSelectedInstallment] = useState(null);
   const [activePayment, setActivePayment] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [verifiedStatus, setVerifiedStatus] = useState(null);
 
   if (!installments || installments.length === 0) return null;
 
@@ -51,10 +53,11 @@ export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPa
   };
 
   const handleOpenPayment = async (e, installment, index) => {
-    e.stopPropagation(); // Tránh kích hoạt sự kiện click ở thẻ cha
+    e.stopPropagation();
     setSelectedInstallment({ ...installment, index });
     setLoading(true);
     setActivePayment(null);
+    setVerifiedStatus(null);
     try {
       const res = await createPayment({
         enrollmentId,
@@ -73,9 +76,68 @@ export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPa
     }
   };
 
+  const startPollingStatus = async (paymentId) => {
+    setVerifying(true);
+    setVerifiedStatus('pending');
+    const maxAttempts = 20;
+    const intervalMs = 2000;
+    let attempt = 0;
+
+    const poll = async () => {
+      try {
+        const res = await getPaymentById(paymentId);
+        const payment = res.data || res;
+        const status = payment?.status;
+        if (status === 'completed') {
+          setVerifiedStatus('completed');
+          setActivePayment((prev) => ({ ...prev, status }));
+          setVerifying(false);
+          toast.success('Hệ thống đã nhận được thanh toán của bạn.');
+          if (onPaymentSuccess) onPaymentSuccess();
+          return true;
+        }
+        if (status === 'failed') {
+          setVerifiedStatus('failed');
+          setActivePayment((prev) => ({ ...prev, status }));
+          setVerifying(false);
+          toast.error('Thanh toán không thành công. Vui lòng kiểm tra lại giao dịch.');
+          return true;
+        }
+      } catch (err) {
+        console.error('Poll payment status error:', err);
+      }
+      attempt += 1;
+      if (attempt >= maxAttempts) {
+        setVerifiedStatus('timeout');
+        setVerifying(false);
+        toast.error('Hệ thống chưa xác nhận được thanh toán. Vui lòng thử lại sau.');
+        return true;
+      }
+      return false;
+    };
+
+    const stopped = await poll();
+    if (!stopped) {
+      const timer = setInterval(async () => {
+        const shouldStop = await poll();
+        if (shouldStop) clearInterval(timer);
+      }, intervalMs);
+    }
+  };
+
+  const handleConfirmTransfer = async () => {
+    if (!activePayment?._id) {
+      toast.error('Không tìm thấy mã giao dịch để xác nhận.');
+      return;
+    }
+    await startPollingStatus(activePayment._id);
+  };
+
   const handleClosePayment = () => {
     setSelectedInstallment(null);
     setActivePayment(null);
+    setVerifiedStatus(null);
+    setVerifying(false);
     if (onPaymentSuccess) {
       onPaymentSuccess();
     }
@@ -163,7 +225,6 @@ export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPa
               className="relative w-full max-w-sm rounded-[24px] bg-zinc-900 border border-zinc-800 p-1 overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Double-Bezel Inner Core */}
               <div className="p-6 rounded-[18px] bg-white dark:bg-zinc-950 border border-zinc-150 dark:border-zinc-900 space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-1.5">
@@ -186,20 +247,19 @@ export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPa
                 ) : (
                   activePayment && (
                     <div className="space-y-4">
-                      {/* VietQR visual image */}
                       <div className="p-1 rounded-[16px] bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850">
                         <div className="bg-white p-4 rounded-[12px] text-center space-y-3">
                           <div className="w-40 h-40 mx-auto p-1.5 border border-zinc-200 rounded-xl bg-white flex items-center justify-center">
                             <img
-                              src={activePayment.qrUrl || `https://img.vietqr.io/image/VCB-1234567890-compact.png?amount=${activePayment.amount}&addInfo=RESTART35-${enrollmentId.toUpperCase()}&accountName=RESTART35%20PROJECT`}
+                              src={activePayment.qrUrl}
                               alt="VietQR code"
                               className="w-full h-full object-contain"
                             />
                           </div>
                           
                           <div className="space-y-1 text-xs text-zinc-650 font-medium">
-                            <p>Ngân hàng: <span className="font-bold text-zinc-900">Vietcombank (VCB)</span></p>
-                            <p>Số tài khoản: <span className="font-bold text-zinc-900 font-mono">1234 5678 90</span></p>
+                            <p>Ngân hàng: <span className="font-bold text-zinc-900">Sacombank (SCB)</span></p>
+                            <p>Số tài khoản: <span className="font-bold text-zinc-900 font-mono">0701 3957 3585</span></p>
                             <p>Số tiền: <span className="font-bold text-primary font-mono">{formatPrice(activePayment.amount)}</span></p>
                             <div className="text-[10px] text-zinc-550 mt-2 bg-zinc-100 p-2 rounded-lg leading-relaxed">
                               <p className="font-bold text-zinc-400 uppercase text-[9px] tracking-wider mb-0.5">Nội dung chuyển khoản chính xác:</p>
@@ -211,16 +271,46 @@ export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPa
                         </div>
                       </div>
 
+                      {!verifiedStatus || verifiedStatus === 'timeout' || verifiedStatus === 'failed' ? (
+                        <Button
+                          className="w-full py-4 text-xs font-bold rounded-full shadow-sm"
+                          onClick={handleConfirmTransfer}
+                          disabled={verifying}
+                        >
+                          {verifying ? (
+                            <span className="inline-flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Đang đối soát thanh toán...
+                            </span>
+                          ) : (
+                            'Tôi đã chuyển khoản thành công'
+                          )}
+                        </Button>
+                      ) : null}
+
+                      {verifying && (
+                        <p className="text-[10px] text-center text-amber-600">
+                          Đang chờ hệ thống xác nhận giao dịch...
+                        </p>
+                      )}
+
+                      {verifiedStatus === 'completed' && (
+                        <div className="flex items-center justify-center gap-2 text-[11px] text-emerald-600">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Xác nhận thanh toán thành công.</span>
+                        </div>
+                      )}
+
+                      {verifiedStatus === 'failed' && (
+                        <div className="flex items-center justify-center gap-2 text-[11px] text-rose-600">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          <span>Thanh toán không thành công. Vui lòng thử lại.</span>
+                        </div>
+                      )}
+
                       <p className="text-[10px] text-center text-zinc-400 dark:text-zinc-500 leading-normal">
                         Vui lòng quét mã QR trên hoặc chuyển khoản chính xác nội dung hiển thị để hệ thống ghi nhận đối soát tự động.
                       </p>
-
-                      <Button
-                        className="w-full py-4 text-xs font-bold rounded-full shadow-sm"
-                        onClick={handleClosePayment}
-                      >
-                        Tôi đã chuyển khoản thành công
-                      </Button>
                     </div>
                   )
                 )}

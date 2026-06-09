@@ -339,7 +339,7 @@ class CourseRecommendationEngine:
         gap_skills_all = list(set(gap_skills + gap_skills_lower))
 
         query: Dict[str, Any] = {
-            "status": "approved",
+            "status": {"$in": ["approved", "pending", "draft"]},
             "_destroy": {"$ne": True},
         }
 
@@ -374,6 +374,7 @@ class CourseRecommendationEngine:
             query["location.type"] = constraints["locationType"]
 
         try:
+            cursor = self._courses_coll.find(query)
             seen_ids = set()
             unique_candidates = []
             for doc in cursor:

@@ -14,9 +14,10 @@ Date: 2026-05-12
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
-from datetime import datetime
-import logging
+from datetime import datetime, timedelta
+import hashlib
 import json
+import logging
 
 # Import translation service for Vietnamese job titles
 from services.translation_service import translate_job_recommendations
@@ -27,6 +28,15 @@ logger = logging.getLogger(__name__)
 # Global RAG engine reference (set in main.py)
 _rag_engine = None
 _llm_client = None
+
+# Simple in-memory cache for RAG recommendations
+_rag_cache = {
+    "data": None,
+    "generated_at": None,
+    "expires_at": None,
+    "profile_hash": None
+}
+_CACHE_TTL_HOURS = 24
 
 
 def set_rag_engine(engine):
@@ -39,6 +49,24 @@ def set_llm_client(client):
     """Set the global LLM client instance."""
     global _llm_client
     _llm_client = client
+
+
+def _hash_profile(profile: dict) -> str:
+    """Create a hash of the profile for cache key."""
+    profile_str = json.dumps(profile, sort_keys=True, default=str)
+    return hashlib.md5(profile_str.encode()).hexdigest()
+
+
+def _is_cache_valid(profile_hash: str) -> bool:
+    """Check if cache is valid and not expired."""
+    global _rag_cache
+    if _rag_cache["data"] is None:
+        return False
+    if _rag_cache["profile_hash"] != profile_hash:
+        return False
+    if _rag_cache["expires_at"] is None:
+        return False
+    return datetime.now() < _rag_cache["expires_at"]
 
 
 # ============================================================================
@@ -177,8 +205,9 @@ def parse_llm_json_response(response_text: str) -> Optional[Dict]:
 
         # Try to extract JSON using regex as last resort
         import re
-        json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
-        match = re.search(json_pattern, text, re.DOTALL)
+        # Try to find a complete or nearly-complete JSON object
+        json_pattern = r'\{[\s\S]*\}'
+        match = re.search(json_pattern, text if 'text' in dir() else response_text, re.DOTALL)
         if match:
             try:
                 return json.loads(match.group(0))
@@ -219,8 +248,48 @@ def extract_salary_from_context(rag_context: str) -> List[Dict]:
 # API Endpoints
 # ============================================================================
 
+@router.get("/career-recommendation")
+async def get_rag_career_recommendation_info():
+    """
+    GET endpoint for RAG career recommendation.
+
+    Returns cached RAG recommendation if available and not expired.
+    If no cached data exists, returns a clear message.
+    """
+    global _rag_cache
+
+    if _rag_cache["data"] is None:
+        return {
+            "success": False,
+            "data": None,
+            "meta": {
+                "status": "no_cache",
+                "message": "No cached RAG recommendation found. Please send a POST request to generate one.",
+                "required_method": "POST",
+                "endpoint": "/api/v1/ai/rag/career-recommendation"
+            }
+        }
+
+    # Check if cache is expired
+    is_expired = datetime.now() >= _rag_cache["expires_at"] if _rag_cache["expires_at"] else True
+
+    return {
+        "success": True,
+        "data": _rag_cache["data"],
+        "meta": {
+            "status": "expired" if is_expired else "fresh",
+            "generatedAt": _rag_cache["generated_at"].isoformat() if _rag_cache["generated_at"] else None,
+            "expiresAt": _rag_cache["expires_at"].isoformat() if _rag_cache["expires_at"] else None,
+            "isFresh": not is_expired,
+            "isExpired": is_expired,
+            "refreshCount": 1,
+            "profileHash": _rag_cache["profile_hash"]
+        }
+    }
+
+
 @router.post("/career-recommendation", response_model=RAGCareerResponse)
-async def get_rag_career_recommendation(request: RAGCareerRequest):
+async def post_rag_career_recommendation(request: RAGCareerRequest):
     """
     Get RAG-based career recommendation.
 
@@ -265,11 +334,11 @@ async def get_rag_career_recommendation(request: RAGCareerRequest):
 
         # Step 3: Call LLM with system prompt
         logger.info("Calling GROQ API...")
-        
+
         response = _llm_client.generate(
             prompt=user_prompt,
             temperature=0.1,
-            max_tokens=2048,
+            max_tokens=4096,  # Increased from 2048 to avoid JSON truncation
             system_prompt=system_prompt
         )
 
@@ -283,8 +352,34 @@ async def get_rag_career_recommendation(request: RAGCareerRequest):
         result = parse_llm_json_response(response)
 
         if result is None:
+            # Log the raw response for debugging
+            logger.warning(f"Failed to parse LLM JSON. Raw response preview: {response[:500] if response else 'empty'}")
+            # Retry with higher max_tokens
+            logger.info("Retrying with higher max_tokens (4096)...")
+            response_retry = _llm_client.generate(
+                prompt=user_prompt,
+                temperature=0.1,
+                max_tokens=4096,
+                system_prompt=system_prompt
+            )
+            result = parse_llm_json_response(response_retry)
+
+        if result is None:
+            # Last resort: try to extract partial JSON with relaxed parsing
+            logger.warning("JSON parse failed after retry. Trying partial extraction...")
+            import re
+            # Try to find any JSON object in the response
+            match = re.search(r'\{[\s\S]*\}', response or '')
+            if match:
+                try:
+                    result = json.loads(match.group(0))
+                    logger.info("Partial JSON extraction succeeded")
+                except:
+                    pass
+
+        if result is None:
             # Fallback: try to extract what we can
-            logger.warning("Failed to parse LLM JSON, returning basic response")
+            logger.warning("All JSON parsing attempts failed, returning basic response")
             return RAGCareerResponse(
                 success=True,
                 best_fits=[],
@@ -301,7 +396,7 @@ async def get_rag_career_recommendation(request: RAGCareerRequest):
         logger.info(f"Translated job titles in recommendation response")
 
         # Step 6: Build response
-        return RAGCareerResponse(
+        response = RAGCareerResponse(
             success=True,
             best_fits=result.get("best_fits", []),
             income_boost=result.get("income_boost", []),
@@ -311,6 +406,21 @@ async def get_rag_career_recommendation(request: RAGCareerRequest):
             rag_context_used=True,
             message="Success"
         )
+
+        # Step 7: Save to cache
+        global _rag_cache
+        profile_hash = _hash_profile(request.profile)
+        _rag_cache["data"] = {
+            "best_fits": result.get("best_fits", []),
+            "income_boost": result.get("income_boost", []),
+            "progression": result.get("progression", [])
+        }
+        _rag_cache["generated_at"] = datetime.now()
+        _rag_cache["expires_at"] = datetime.now() + timedelta(hours=_CACHE_TTL_HOURS)
+        _rag_cache["profile_hash"] = profile_hash
+        logger.info(f"RAG recommendation cached. Expires at: {_rag_cache['expires_at']}")
+
+        return response
 
     except HTTPException:
         raise
@@ -573,7 +683,7 @@ async def get_startup_suggestions(request: RAGStartupRequest):
         response = _llm_client.generate(
             prompt=user_prompt,
             temperature=0.1,
-            max_tokens=2048,
+            max_tokens=4096,  # Increased from 2048 to avoid truncation
             system_prompt=system_prompt
         )
 
@@ -587,7 +697,20 @@ async def get_startup_suggestions(request: RAGStartupRequest):
         result = parse_llm_json_response(response)
 
         if result is None:
-            logger.warning("Failed to parse LLM JSON for startup, returning empty")
+            # Log the raw response for debugging
+            logger.warning(f"Failed to parse LLM JSON for startup. Raw response preview: {response[:500] if response else 'empty'}")
+            # Retry with higher max_tokens
+            logger.info("Retrying with higher max_tokens (4096)...")
+            response_retry = _llm_client.generate(
+                prompt=user_prompt,
+                temperature=0.1,
+                max_tokens=4096,
+                system_prompt=system_prompt
+            )
+            result = parse_llm_json_response(response_retry)
+
+        if result is None:
+            logger.warning("Retry also failed. Returning empty startup_ideas.")
             return {
                 "success": True,
                 "startup_ideas": [],

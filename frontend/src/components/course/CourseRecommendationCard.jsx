@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react'
-import { ThumbsUp, ThumbsDown, X } from 'lucide-react'
+import { ThumbsUp, ThumbsDown, X } from '@phosphor-icons/react'
 
 const LEVEL_LABELS = {
   BEGINNER: 'Sơ cấp',
