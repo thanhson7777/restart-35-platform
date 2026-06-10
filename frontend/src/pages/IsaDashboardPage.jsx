@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { RefreshCw } from 'lucide-react';
 import { IsaStatusCard, IsaPaymentSchedule, IsaIncomeForm } from '@/components/isa';
-import { getMyIsaRepayments } from '@/apis';
+import { getMyIsaRepayments, calculateMonthlyPayment } from '@/apis';
+import { Card } from '@/components/ui';
 
 const IsaDashboardPage = () => {
   const [isaList, setIsaList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIsa, setCurrentIsa] = useState(null);
+  const [nextPayment, setNextPayment] = useState(null);
 
   const fetchIsaData = useCallback(async () => {
     try {
@@ -29,6 +31,33 @@ const IsaDashboardPage = () => {
   useEffect(() => {
     fetchIsaData();
   }, [fetchIsaData]);
+
+  useEffect(() => {
+    if (currentIsa && currentIsa.status === 'active') {
+      const nextMonth = new Date();
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      const monthStr = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}`;
+      const isaId = currentIsa._id || currentIsa.id;
+      if (!isaId) return;
+
+      calculateMonthlyPayment(isaId, monthStr)
+        .then(res => {
+          const data = res.data?.data || res.data || null;
+          setNextPayment(data);
+        })
+        .catch(() => {});
+    }
+  }, [currentIsa]);
+
+  const fmt = (v) => {
+    if (!v && v !== 0) return 'N/A';
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v);
+  };
+
+  const fmtDate = (d) => {
+    if (!d) return '';
+    return new Date(d).toLocaleDateString('vi-VN');
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -78,10 +107,35 @@ const IsaDashboardPage = () => {
           </div>
         )}
 
+        {/* ISA Overview Cards */}
+        {currentIsa && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Card className="p-3 text-center border border-gray-200">
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Tổng thu nhập</p>
+              <p className="text-lg font-bold text-gray-900">{fmt(currentIsa.totalIncomeDeclared || 0)}</p>
+            </Card>
+            <Card className="p-3 text-center border border-gray-200">
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Đã trả</p>
+              <p className="text-lg font-bold text-green-600">{fmt(currentIsa.totalPaidAmount || currentIsa.totalPaid || 0)}</p>
+            </Card>
+            <Card className="p-3 text-center border border-gray-200">
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Còn nợ</p>
+              <p className="text-lg font-bold text-orange-600">{fmt((currentIsa.maxCap || 0) - (currentIsa.totalPaidAmount || currentIsa.totalPaid || 0))}</p>
+            </Card>
+            <Card className="p-3 text-center border border-gray-200">
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Kỳ tới</p>
+              <p className="text-base font-bold text-indigo-600">{nextPayment ? fmt(nextPayment.amount) : 'N/A'}</p>
+              {nextPayment?.dueDate && (
+                <p className="text-xs text-gray-400">Hạn: {fmtDate(nextPayment.dueDate)}</p>
+              )}
+            </Card>
+          </div>
+        )}
+
         <IsaStatusCard isa={currentIsa} />
 
         {currentIsa && currentIsa.monthlyRecords && (
-          <IsaPaymentSchedule monthlyRecords={currentIsa.monthlyRecords} />
+          <IsaPaymentSchedule monthlyRecords={currentIsa.monthlyRecords} isa={currentIsa} />
         )}
 
         {currentIsa && (currentIsa.status === 'active' || currentIsa.status === 'pending') && (

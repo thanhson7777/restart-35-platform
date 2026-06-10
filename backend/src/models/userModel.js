@@ -18,6 +18,14 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   isActive: Joi.boolean().default(false),
   verifyToken: Joi.string(),
 
+  // BasicInfo fields
+  age: Joi.number().integer().min(35).max(65),
+  gender: Joi.string().valid('male', 'female', 'other'),
+  province: Joi.string().allow(''),
+  district: Joi.string().allow(''),
+  education: Joi.string().allow(''),
+  maritalStatus: Joi.string().valid('single', 'married', 'divorced', 'widowed'),
+
   address: Joi.string().optional().allow(null, ''),
   organizationId: Joi.string().pattern(/^[a-f\d]{24}$/i).allow(null, ''),
 

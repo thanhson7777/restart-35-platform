@@ -31,7 +31,7 @@ import {
   TableCell,
   SafeImage 
 } from '@/components/ui';
-import { getMyCourses, deleteCourse } from '@/apis/courseApi';
+import { getMyCourses, deleteCourse } from '@/apis/trainerApi';
 import TrainerCourseCard from '@/components/trainer/TrainerCourseCard';
 import toast from 'react-hot-toast';
 

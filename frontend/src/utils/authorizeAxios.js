@@ -19,6 +19,8 @@ let injectedStore = null
 
 export const injectStore = (store) => {
   injectedStore = store
+  fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8e2819'},body:JSON.stringify({sessionId:'8e2819',location:'authorizeAxios.js:injectStore',message:'injectStore called',data:{hasStore:!!store,storeKeys:store?Object.keys(store):null},timestamp:Date.now(),hypothesisId:'H-injectStore',runId:'debug'})}).catch(()=>{});
+  return store
 }
 
 // ─── Token refresh queue ─────────────────────────────────────────────────────
@@ -29,6 +31,12 @@ export const injectStore = (store) => {
 let isRefreshing = false
 let failedQueue = [] /** @type {{resolve: Function, reject: Function}[]} */
 let refreshedToken = null // Store the most recently refreshed token
+
+const resetInterceptorState = () => {
+  isRefreshing = false
+  refreshedToken = null
+  failedQueue = []
+}
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
@@ -160,4 +168,4 @@ authorizeAxiosInstance.interceptors.response.use(
   }
 )
 
-export { publicAxiosInstance, authorizeAxiosInstance }
+export { publicAxiosInstance, authorizeAxiosInstance, resetInterceptorState }

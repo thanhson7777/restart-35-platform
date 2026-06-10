@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EnrollmentList } from '@/components/enrollment/EnrollmentList';
 import { Button, Skeleton } from '@/components/ui';
-import { getMyEnrollments, cancelEnrollment } from '@/apis/courseApi';
+import { getMyEnrollments, cancelEnrollment, dropEnrollment } from '@/apis/courseApi';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import toast from 'react-hot-toast';
@@ -66,6 +66,21 @@ export default function MyEnrollmentsPage() {
       toast.error(msg);
     } finally {
       setCancellingId(null);
+    }
+  };
+
+  const handleDrop = async (enrollment) => {
+    const reason = window.prompt(
+      `Vui lòng nhập lý do rút khỏi khóa học "${enrollment.course?.title}":`
+    );
+    if (!reason) return;
+
+    try {
+      await dropEnrollment(enrollment._id, { dropReason: reason });
+      toast.success('Đã rút khỏi khóa học thành công.');
+      fetchEnrollments();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Rút khỏi khóa học thất bại.');
     }
   };
 
@@ -144,6 +159,7 @@ export default function MyEnrollmentsPage() {
           enrollments={enrollments}
           loading={loading}
           onCancel={handleCancel}
+          onDrop={handleDrop}
           onViewProgress={handleViewProgress}
           onViewDetail={handleViewDetail}
         />

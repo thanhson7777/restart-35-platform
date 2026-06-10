@@ -9,7 +9,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { Card, CardContent, Button } from '@/components/ui';
-import { getTrainerSchedules, getTrainerScheduleStats, getMyCourses } from '@/apis/courseApi';
+import { getTrainerSchedules, getTrainerScheduleStats, getMyCourses } from '@/apis/trainerApi';
 import { TrainerScheduleCalendar } from '@/components/trainer/TrainerScheduleCalendar';
 import { TrainerSessionCard } from '@/components/trainer/TrainerSessionCard';
 import { TrainerAttendanceModal } from '@/components/trainer/TrainerAttendanceModal';

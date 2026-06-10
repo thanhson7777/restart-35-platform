@@ -172,6 +172,25 @@ const getPlacementStats = async (req, res, next) => {
   }
 }
 
+// ============ FEEDBACK ============
+const givePlacementFeedback = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const userId = req.jwtDecoded._id.toString()
+    const { rating, comment } = req.body
+
+    const placement = await placementService.givePlacementFeedback(id, userId, { rating, comment })
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Gửi feedback thành công!',
+      data: placement
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const placementController = {
   createPlacement,
   getPlacements,
@@ -181,5 +200,6 @@ export const placementController = {
   updatePlacementStatus,
   resignPlacement,
   softDeletePlacement,
-  getPlacementStats
+  getPlacementStats,
+  givePlacementFeedback
 }

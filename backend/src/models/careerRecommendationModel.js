@@ -65,6 +65,7 @@ const CAREER_RECOMMENDATION_COLLECTION_SCHEMA = Joi.object({
   expiresAt: Joi.date().timestamp('javascript'),
   status: Joi.string().valid('active', 'stale', 'generating').default('active'),
   version: Joi.number().integer().min(1).default(1),
+  profileHash: Joi.string().allow(null).default(null),
   _destroy: Joi.boolean().default(false)
 })
 
@@ -287,7 +288,8 @@ const getRAGRecommendationsByUserId = async (userId) => {
           ragGeneratedAt: 1,
           ragRefreshCount: 1,
           expiresAt: 1,
-          status: 1
+          status: 1,
+          profileHash: 1
         }
       }
     )

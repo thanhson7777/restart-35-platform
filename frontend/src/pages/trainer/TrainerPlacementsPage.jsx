@@ -7,7 +7,7 @@ import {
   getPlacements,
   updatePlacementStatus,
   getPlacementById
-} from '@/apis/courseApi';
+} from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
 
 const STATUS_COUNTS_INITIAL = {

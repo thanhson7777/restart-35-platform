@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { Bell, Search, Menu, ChevronDown } from 'lucide-react';
 import { Avatar } from '@/components/ui';
-import { selectCurrentUser } from '@/redux/user/userSlice';
+import { selectCurrentUser, logoutUser } from '@/redux/user/userSlice';
 
 const TrainerHeader = ({ onMenuClick, sidebarCollapsed }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -187,9 +189,8 @@ const TrainerHeader = ({ onMenuClick, sidebarCollapsed }) => {
                 <div className="py-1 border-t border-[hsl(var(--admin-border))]">
                   <button
                     onClick={() => {
-                      localStorage.removeItem('accessToken');
-                      localStorage.removeItem('refreshToken');
-                      window.location.href = '/auth';
+                      dispatch(logoutUser());
+                      navigate('/auth');
                     }}
                     className="w-full text-left px-4 py-2 text-xs text-[hsl(var(--admin-danger))] hover:bg-[hsl(var(--admin-danger-subtle))] transition-colors"
                   >

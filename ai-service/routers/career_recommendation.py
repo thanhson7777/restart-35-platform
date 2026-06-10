@@ -39,6 +39,25 @@ _rag_cache = {
 _CACHE_TTL_HOURS = 24
 
 
+@router.delete("/cache")
+async def invalidate_rag_cache():
+    """
+    Xóa in-memory RAG cache khi profile thay đổi.
+
+    Multi-worker: cần gọi endpoint này cho TẤT CẢ workers.
+    Để broadcast hiệu quả hơn trong multi-worker, cân nhắc dùng Redis.
+    """
+    global _rag_cache
+    _rag_cache = {
+        "data": None,
+        "generated_at": None,
+        "expires_at": None,
+        "profile_hash": None
+    }
+    logger.info("RAG in-memory cache cleared")
+    return {"success": True, "message": "Cache cleared"}
+
+
 def set_rag_engine(engine):
     """Set the global RAG engine instance."""
     global _rag_engine

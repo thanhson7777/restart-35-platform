@@ -11,7 +11,7 @@
 
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchCareerTransitions } from '~/redux/ai/aiSlice'
+import { fetchCareerTransitions, fetchTransitionsSkills } from '~/redux/ai/aiSlice'
 import {
   selectCareerTransitions,
   selectCareerTransitionsLoading,
@@ -95,6 +95,9 @@ const CareerTransitions = ({ profile }) => {
   
   const [activeTab, setActiveTab] = useState('universal')
   const [expandedCard, setExpandedCard] = useState(null)
+  const [selectedIndustryForSkills, setSelectedIndustryForSkills] = useState(null)
+  const [skillsDetail, setSkillsDetail] = useState(null)
+  const [skillsLoading, setSkillsLoading] = useState(false)
   
   // Fetch transitions when profile changes
   useEffect(() => {
@@ -124,7 +127,20 @@ const CareerTransitions = ({ profile }) => {
       }))
     }
   }, [profile, dispatch])
-  
+
+  const handleViewSkills = async (industry) => {
+    setSelectedIndustryForSkills(industry)
+    setSkillsLoading(true)
+    try {
+      const result = await dispatch(fetchTransitionsSkills({ industry })).unwrap()
+      setSkillsDetail(result?.data || result)
+    } catch (err) {
+      console.error('Skills fetch error:', err)
+    } finally {
+      setSkillsLoading(false)
+    }
+  }
+
   // Filter transitions by tab
   const filteredTransitions = transitions.filter(t => {
     if (activeTab === 'universal') {
@@ -215,6 +231,7 @@ const CareerTransitions = ({ profile }) => {
               data={item}
               isExpanded={expandedCard === index}
               onToggle={() => setExpandedCard(expandedCard === index ? null : index)}
+              onViewSkills={handleViewSkills}
             />
           ))
         )}
@@ -226,6 +243,58 @@ const CareerTransitions = ({ profile }) => {
           Hiển thị {filteredTransitions.length} / {transitions.length} gợi ý
         </div>
       )}
+
+      {/* Skills Detail Panel */}
+      {selectedIndustryForSkills && (
+        <div className="border border-blue-200 rounded-lg bg-blue-50 dark:bg-blue-950/20 overflow-hidden">
+          <div className="bg-blue-100 dark:bg-blue-900 px-4 py-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+              Kỹ năng cho ngành: {INDUSTRY_NAMES[selectedIndustryForSkills] || selectedIndustryForSkills}
+            </h3>
+            <button
+              onClick={() => { setSelectedIndustryForSkills(null); setSkillsDetail(null); }}
+              className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium"
+            >
+              Đóng
+            </button>
+          </div>
+          <div className="p-4">
+            {skillsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <span className="ml-3 text-sm text-gray-500">Đang tải...</span>
+              </div>
+            ) : skillsDetail ? (
+              <div className="space-y-2">
+                {(Array.isArray(skillsDetail) ? skillsDetail : []).map((skill, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-zinc-900">
+                    <div>
+                      <p className="text-sm font-medium">{skill.name || skill}</p>
+                      <p className="text-xs text-gray-500">{skill.level || skill.escoLevel || ''}</p>
+                    </div>
+                    {skill.matchScore !== undefined && (
+                      <div className="text-right">
+                        <p className="text-xs font-medium">{skill.matchScore}%</p>
+                        <div className="w-16 h-1.5 bg-gray-200 rounded-full mt-1">
+                          <div
+                            className="h-full bg-blue-500 rounded-full"
+                            style={{ width: `${skill.matchScore}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {(!Array.isArray(skillsDetail) || skillsDetail.length === 0) && (
+                  <p className="text-sm text-gray-500 text-center py-4">Không có dữ liệu kỹ năng cho ngành này.</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-4">Không có dữ liệu kỹ năng.</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -233,7 +302,7 @@ const CareerTransitions = ({ profile }) => {
 /**
  * Transition Card Component
  */
-const TransitionCard = ({ data, isExpanded, onToggle }) => {
+const TransitionCard = ({ data, isExpanded, onToggle, onViewSkills }) => {
   const transition = data?.transition || data
   const explanation = data?.explanation
   const resources = data?.learning_resources || []
@@ -267,6 +336,14 @@ const TransitionCard = ({ data, isExpanded, onToggle }) => {
             </span>
             <span>|</span>
             <span>{transition?.timeline_months || 6} tháng</span>
+            {onViewSkills && transition?.target_industry && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onViewSkills(transition.target_industry); }}
+                className="ml-2 px-2 py-0.5 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 rounded font-medium transition-colors"
+              >
+                Xem kỹ năng
+              </button>
+            )}
           </div>
         </div>
         

@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Progress, Avatar, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
-import { Footer } from '@/components/layout';
-import { HeroSection, CoreProblemsSection, StatsBar, SolutionsSection, LandingLayout, Navbar, Features, CourseCategories, PopularCourses, CTASection } from '@/components/landing';
+import { HeroSection, CoreProblemsSection, StatsBar, SolutionsSection, LandingLayout, Navbar, CourseCategories, PopularCourses, CTASection, HowItWorksSection, FeaturesSection, TestimonialsSection, Footer } from '@/components/landing';
 import { StatsCard, CourseProgressCard, JobCard, ActivityItem, SkillBadge, QuickAction } from '@/components/dashboard';
 import { CourseCard } from '@/components/course';
 import { useState, useEffect } from 'react';
@@ -12,20 +11,32 @@ import AuthPage from '@/pages/AuthPage';
 import WorkerProfilePage from '@/pages/WorkerProfilePage';
 import WorkerDashboardPage from '@/pages/worker/WorkerDashboardPage';
 import JobsPage from '@/pages/JobsPage';
+import JobDetailPage from '@/pages/JobDetailPage';
 import CoursesPage from '@/pages/CoursesPage';
 import CourseDetailPage from '@/pages/CourseDetailPage';
+import CourseCurriculumPage from '@/pages/CourseCurriculumPage';
 import MyEnrollmentsPage from '@/pages/MyEnrollmentsPage';
 import MyEnrollmentDetailPage from '@/pages/MyEnrollmentDetailPage';
 import VideoLearningPage from '@/pages/VideoLearningPage';
 import CertificatePage from '@/pages/my-enrollments/CertificatePage';
 import OpportunityMapPage from '@/pages/OpportunityMapPage';
 import ForumPage from '@/pages/community/ForumPage';
+import ForumPostDetailPage from '@/pages/ForumPostDetailPage';
 import MentorFindPage from '@/pages/community/MentorFindPage';
 import ScholarshipPage from '@/pages/ScholarshipPage';
 import ScholarshipDetailPage from '@/pages/ScholarshipDetailPage';
 import MyApplicationsPage from '@/pages/MyApplicationsPage';
 import MyOutcomesPage from '@/pages/MyOutcomesPage';
 import ApplicationDetailPage from '@/pages/ApplicationDetailPage';
+import MyPlacementsPage from '@/pages/MyPlacementsPage';
+import MySuccessStatsPage from '@/pages/MySuccessStatsPage';
+import MyLearningRecordsPage from '@/pages/MyLearningRecordsPage';
+import MySchedulesPage from '@/pages/MySchedulesPage';
+import MySponsorshipsPage from '@/pages/MySponsorshipsPage';
+import MentorBookingPage from '@/pages/MentorBookingPage';
+import MyMentorSessionsPage from '@/pages/MyMentorSessionsPage';
+import AboutPage from '@/pages/AboutPage';
+import ContactPage from '@/pages/ContactPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
 import AdminCoursesPage from '@/pages/AdminCoursesPage';
@@ -67,6 +78,7 @@ import NgoSponsorshipsPage from '@/pages/ngo/NgoSponsorshipsPage';
 import NgoSponsorshipCreatePage from '@/pages/ngo/NgoSponsorshipCreatePage';
 import NgoSponsorshipLearnersPage from '@/pages/ngo/NgoSponsorshipLearnersPage';
 import CertificateVerifyPage from '@/pages/CertificateVerifyPage';
+import AccountVerificationPage from '@/pages/AccountVerificationPage';
 import AdminIsaRepaymentsPage from '@/pages/admin/AdminIsaRepaymentsPage';
 import AdminFundingConfigsPage from '@/pages/admin/AdminFundingConfigsPage';
 import AdminCertificatesPage from '@/pages/admin/AdminCertificatesPage';
@@ -76,6 +88,7 @@ import AdminLearningRecordsPage from '@/pages/admin/AdminLearningRecordsPage';
 import AdminInteractionsPage from '@/pages/admin/AdminInteractionsPage';
 import AdminEscoSyncPage from '@/pages/admin/AdminEscoSyncPage';
 import IsaDashboardPage from '@/pages/IsaDashboardPage';
+import WorkerLayout from '@/components/worker/WorkerLayout';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -191,56 +204,67 @@ function App() {
         <Route path="/ngo/sponsorships/create" element={<NgoLayout><NgoSponsorshipCreatePage /></NgoLayout>} />
         <Route path="/ngo/sponsorships/:id/learners" element={<NgoLayout><NgoSponsorshipLearnersPage /></NgoLayout>} />
 
-        {/* Worker Profile Page */}
-        <Route path="/worker-profile" element={<WorkerProfilePage />} />
-        {/* Worker Dashboard */}
-        <Route path="/dashboard" element={
-          <ProtectedRoute allowedRoles={['worker']}>
-            <WorkerDashboardPage />
-          </ProtectedRoute>
-        } />
-        {/* Community */}
-        <Route path="/community" element={
-          <ProtectedRoute allowedRoles={['worker']}>
-            <WorkerDashboardPage />
-          </ProtectedRoute>
-        }>
-          <Route index element={<Navigate to="/community/forum" replace />} />
+        {/* Worker Layout Routes */}
+        <Route path="/worker" element={<WorkerLayout><WorkerDashboardPage /></WorkerLayout>} />
+        <Route path="/worker/profile" element={<WorkerLayout><WorkerProfilePage /></WorkerLayout>} />
+        <Route path="/worker/community" element={<WorkerLayout />}>
+          <Route index element={<Navigate to="/worker/community/forum" replace />} />
           <Route path="forum" element={<ForumPage />} />
+          <Route path="forum/:id" element={<ForumPostDetailPage />} />
           <Route path="mentors" element={<MentorFindPage />} />
         </Route>
         {/* Jobs Page */}
-        <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/jobs" element={<JobsPage key={currentUser?._id ?? 'guest'} />} />
+        <Route path="/jobs/:id" element={<JobDetailPage />} />
         {/* Courses */}
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
-        {/* Worker Routes */}
+        <Route path="/courses/:id/curriculum" element={<CourseCurriculumPage />} />
+        {/* My ISA */}
         <Route path="/my-isa" element={
-          <ProtectedRoute allowedRoles={['worker', 'admin']}>
-            <IsaDashboardPage />
-          </ProtectedRoute>
+          <WorkerLayout>
+            <ProtectedRoute allowedRoles={['worker', 'admin']}>
+              <IsaDashboardPage />
+            </ProtectedRoute>
+          </WorkerLayout>
         } />
         {/* My Enrollments */}
-        <Route path="/my-enrollments" element={<MyEnrollmentsPage />} />
-        <Route path="/my-enrollments/:id" element={<MyEnrollmentDetailPage />} />
-        <Route path="/my-enrollments/:id/checkin" element={<CheckinPage />} />
-        <Route path="/my-enrollments/:id/learn" element={<VideoLearningPage />} />
-        <Route path="/my-enrollments/:id/certificate" element={<CertificatePage />} />
-        <Route path="/verify/:code" element={<CertificatePage />} />
-        <Route path="/certificates/verify/:code" element={<CertificatePage />} />
-        <Route path="/verify-certificate" element={<CertificateVerifyPage />} />
+        <Route path="/my-enrollments" element={<WorkerLayout><MyEnrollmentsPage /></WorkerLayout>} />
+        <Route path="/my-enrollments/:id" element={<WorkerLayout><MyEnrollmentDetailPage /></WorkerLayout>} />
+        <Route path="/my-enrollments/:id/checkin" element={<WorkerLayout><CheckinPage /></WorkerLayout>} />
+        <Route path="/my-enrollments/:id/learn" element={<WorkerLayout><VideoLearningPage /></WorkerLayout>} />
+        <Route path="/my-enrollments/:id/certificate" element={<WorkerLayout><CertificatePage /></WorkerLayout>} />
+        <Route path="/verify/:code" element={<WorkerLayout><CertificatePage /></WorkerLayout>} />
+        <Route path="/certificates/verify/:code" element={<WorkerLayout><CertificatePage /></WorkerLayout>} />
+        <Route path="/verify-certificate" element={<WorkerLayout><CertificateVerifyPage /></WorkerLayout>} />
+        <Route path="/account/verification" element={<WorkerLayout><AccountVerificationPage /></WorkerLayout>} />
         <Route path="/opportunity-map" element={
-          <ProtectedRoute allowedRoles={['worker', 'admin']}>
-            <OpportunityMapPage />
-          </ProtectedRoute>
+          <WorkerLayout>
+            <ProtectedRoute allowedRoles={['worker', 'admin']}>
+              <OpportunityMapPage />
+            </ProtectedRoute>
+          </WorkerLayout>
         } />
         {/* Scholarships */}
         <Route path="/scholarships" element={<ScholarshipPage />} />
         <Route path="/scholarships/:id" element={<ScholarshipDetailPage />} />
         {/* My Applications */}
-        <Route path="/my-applications" element={<MyApplicationsPage />} />
-        <Route path="/my-applications/:id" element={<ApplicationDetailPage />} />
-        <Route path="/my-outcomes" element={<MyOutcomesPage />} />
+        <Route path="/my-applications" element={<WorkerLayout><MyApplicationsPage /></WorkerLayout>} />
+        <Route path="/my-applications/:id" element={<WorkerLayout><ApplicationDetailPage /></WorkerLayout>} />
+        <Route path="/my-outcomes" element={<WorkerLayout><MyOutcomesPage /></WorkerLayout>} />
+        {/* About */}
+        <Route path="/about" element={<AboutPage />} />
+        {/* Contact */}
+        <Route path="/contact" element={<ContactPage />} />
+        {/* My Placements */}
+        <Route path="/my-placements" element={<WorkerLayout><MyPlacementsPage /></WorkerLayout>} />
+        {/* My Learning Records */}
+        <Route path="/my-learning-records" element={<WorkerLayout><MyLearningRecordsPage /></WorkerLayout>} />
+        <Route path="/my-schedules" element={<WorkerLayout><MySchedulesPage /></WorkerLayout>} />
+        <Route path="/my-sponsorships" element={<WorkerLayout><MySponsorshipsPage /></WorkerLayout>} />
+        <Route path="/mentor/booking" element={<WorkerLayout><MentorBookingPage /></WorkerLayout>} />
+        <Route path="/my-mentor-sessions" element={<WorkerLayout><MyMentorSessionsPage /></WorkerLayout>} />
+        <Route path="/my-success-stats" element={<WorkerLayout><MySuccessStatsPage /></WorkerLayout>} />
         {/* Landing Page */}
         <Route path="/" element={
           <LandingLayout>
@@ -249,9 +273,11 @@ function App() {
             <StatsBar />
             <CoreProblemsSection />
             <SolutionsSection />
-            <Features />
+            <HowItWorksSection />
             <CourseCategories />
             <PopularCourses />
+            <FeaturesSection />
+            <TestimonialsSection />
             <CTASection />
             <Footer />
           </LandingLayout>

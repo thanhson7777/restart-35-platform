@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, RotateCcw, SlidersHorizontal, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getTrainerEnrollments, getMyCourses } from '@/apis/courseApi';
+import { getTrainerEnrollments, getMyCourses } from '@/apis/trainerApi';
 import { BezelCard, Input, SelectField, Button } from '@/components/ui';
 import { TrainerStudentTable } from '@/components/trainer/TrainerStudentTable';
 

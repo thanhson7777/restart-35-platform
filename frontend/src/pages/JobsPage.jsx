@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui'
 import { Card, CardContent } from '@/components/ui'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -40,7 +40,7 @@ import {
   fetchMyOutcomes,
   selectOutcomes
 } from '@/redux/outcome/outcomeSlice'
-import { selectCurrentUser } from '@/redux/user/userSlice'
+import { selectCurrentUser, selectIsAuthenticated } from '@/redux/user/userSlice'
 import toast from 'react-hot-toast'
 
 // Lucide React Icons
@@ -61,8 +61,8 @@ import {
 
 // Tab options
 const TABS = [
-  { id: 'recommended', label: 'Gợi ý cho bạn', icon: Sparkle },
-  { id: 'career', label: 'Lộ trình nghề nghiệp', icon: TrendUp },
+  { id: 'recommended', label: 'Việc làm phù hợp', icon: Sparkle },
+  { id: 'career', label: 'Gợi ý việc làm từ AI', icon: TrendUp },
   { id: 'all', label: 'Tất cả việc làm', icon: Briefcase },
   { id: 'saved', label: 'Đã lưu', icon: BookmarkSimple }
 ]
@@ -81,6 +81,7 @@ const TABS = [
 const JobsPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
 
   // State
   const [activeTab, setActiveTab] = useState('recommended')
@@ -114,6 +115,7 @@ const JobsPage = () => {
   const formData = useSelector(selectFormData)
   const isProfileCompleted = useSelector(selectIsCompleted)
   const currentUser = useSelector(selectCurrentUser)
+  const isAuthenticated = useSelector(selectIsAuthenticated)
   const recommendedJobs = useSelector(selectRecommendedJobs)
   const allJobs = useSelector(selectAllJobs)
   const savedJobs = useSelector(selectSavedJobs)
@@ -133,8 +135,9 @@ const JobsPage = () => {
 
   // Fetch applied job IDs on mount
   useEffect(() => {
+    if (!currentUser) return
     dispatch(fetchMyOutcomes())
-  }, [dispatch])
+  }, [dispatch, currentUser?._id])
 
   // Populate appliedJobIds from outcomes
   useEffect(() => {
@@ -142,6 +145,39 @@ const JobsPage = () => {
       setAppliedJobIds(new Set(myOutcomes.map(o => o.jobId)))
     }
   }, [myOutcomes])
+
+  // Clear local state when user logs out; reset refs when user account changes
+  useEffect(() => {
+    const userId = currentUser?._id
+    if (userId) {
+      // User logged in or switched account — reset refs so fetch effects re-run
+      hasFetchedRecommended.current = false
+      hasFetchedAll.current = false
+      hasFetchedCareer.current = false
+    } else {
+      // User logged out — clear all UI state
+      setSelectedJob(null)
+      setSelectedJobIndex(null)
+      setAppliedJobIds(new Set())
+      setShowCustomDropdown(false)
+      setSkillFilterMode('all')
+      setActiveTab('all')
+    }
+  }, [currentUser?._id])
+
+  // =============================================================================
+  // HELPER FUNCTIONS - Auth guard for protected tabs
+  // =============================================================================
+
+  const handleTabClick = (tabId) => {
+    const authRequiredTabs = ['recommended', 'saved', 'career']
+    if (authRequiredTabs.includes(tabId) && !isAuthenticated) {
+      toast.error('Bạn cần đăng nhập để sử dụng chức năng này.')
+      navigate(`/auth?redirect=${encodeURIComponent(location.pathname + location.search)}`)
+      return
+    }
+    setActiveTab(tabId)
+  }
 
   // =============================================================================
   // HELPER FUNCTIONS - Skills extraction
@@ -252,12 +288,12 @@ const JobsPage = () => {
     return Math.floor(totalMonths / 12) // Convert months to years
   }, [formData])
 
-  // Fetch worker profile on mount if not already loaded
+  // Fetch worker profile on mount and whenever user account changes
   useEffect(() => {
     if (!profile && !isProfileCompleted) {
       dispatch(fetchMyProfile())
     }
-  }, [dispatch, profile, isProfileCompleted])
+  }, [dispatch, profile, isProfileCompleted, currentUser?._id])
 
   // Reset fetch flag when filter mode changes
   useEffect(() => {
@@ -447,368 +483,368 @@ const JobsPage = () => {
 
   return (
     <>
-    <MainLayout>
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-b border-border">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                <Sparkle className="w-8 h-8 text-primary" weight="fill" />
-                Việc làm gợi ý cho bạn
-              </h1>
-              <p className="text-muted-foreground mt-2 text-lg">
-                Dựa trên kỹ năng và hồ sơ của bạn
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {currentUser && (
+      <MainLayout>
+        {/* Header */}
+        <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-b border-border">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                  <Sparkle className="w-8 h-8 text-primary" weight="fill" />
+                  Việc làm gợi ý cho bạn
+                </h1>
+                <p className="text-muted-foreground mt-2 text-lg">
+                  Dựa trên kỹ năng và hồ sơ của bạn
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {currentUser && (
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/worker-profile')}
+                    className="shrink-0"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Cập nhật hồ sơ
+                  </Button>
+                )}
                 <Button
                   variant="outline"
-                  onClick={() => navigate('/worker-profile')}
+                  onClick={handleRefresh}
+                  disabled={isLoading}
                   className="shrink-0"
                 >
-                  <User className="w-4 h-4 mr-2" />
-                  Cập nhật hồ sơ
+                  <ArrowClockwise className={cn('w-4 h-4 mr-2', isLoading && 'animate-spin')} />
+                  Làm mới
                 </Button>
-              )}
-              <Button
-                variant="outline"
-                onClick={handleRefresh}
-                disabled={isLoading}
-                className="shrink-0"
-              >
-                <ArrowClockwise className={cn('w-4 h-4 mr-2', isLoading && 'animate-spin')} />
-                Làm mới
-              </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-6">
-        {/* Profile Incomplete Banner */}
-        {!isProfileCompleted && (
-          <Card className="mb-6 border-warning/50 bg-warning/5">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Để nhận gợi ý chính xác hơn, vui lòng cập nhật đầy đủ thông tin hồ sơ của bạn.
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/worker-profile')}
-                  className="shrink-0"
-                >
-                  Cập nhật hồ sơ
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Career Path Banner - Profile Not Completed */}
-        {activeTab === 'career' && !isProfileCompleted && (
-          <Card className="mb-6 border-warning/50 bg-warning/5">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Vui lòng hoàn thiện hồ sơ người lao động để xem lộ trình nghề nghiệp phù hợp.
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/worker-profile')}
-                  className="shrink-0"
-                >
-                  Hoàn thiện hồ sơ
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Missing Skills Banner - Chỉ hiển thị khi thực sự không có skills */}
-        {activeTab === 'recommended' && !hasProfileForRecommendations && (
-          <Card className="mb-6 border-primary/50 bg-primary/5">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <User className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">Chưa có kỹ năng trong hồ sơ</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Vui lòng thêm kỹ năng trong bước "Kinh nghiệm làm việc" hoặc "Nguyện vọng" để nhận gợi ý việc làm phù hợp.
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/worker-profile?step=3')}
-                  className="shrink-0"
-                >
-                  Thêm kỹ năng
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="flex flex-col gap-6">
-          {/* Main Content */}
-          <div className="flex-1 min-w-0">
-            {/* Tabs */}
-            <div className="flex items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
-                {TABS.map((tab) => {
-                  const Icon = tab.icon
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={cn(
-                        'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all',
-                        activeTab === tab.id
-                          ? 'bg-background text-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
-                      )}
-                    >
-                      <Icon className="w-4 h-4" />
-                      <span className="hidden sm:inline">{tab.label}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Smart Filter Chip Bar - Chỉ hiển thị khi tab là 'recommended' và có employmentHistory */}
-            {activeTab === 'recommended' && formData?.employmentHistory?.length > 0 && (
-              <div className="mb-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  {/* Chip: Toàn bộ hồ sơ */}
-                  <button
-                    onClick={() => {
-                      setSkillFilterMode('all')
-                      setSelectedJobIndex(null)
-                      setShowCustomDropdown(false)
-                    }}
-                    className={cn(
-                      'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all border',
-                      skillFilterMode === 'all'
-                        ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                        : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
-                    )}
+        <div className="container mx-auto px-4 py-6">
+          {/* Profile Incomplete Banner */}
+          {!isProfileCompleted && (
+            <Card className="mb-6 border-warning/50 bg-warning/5">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Để nhận gợi ý chính xác hơn, vui lòng cập nhật đầy đủ thông tin hồ sơ của bạn.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/worker-profile')}
+                    className="shrink-0"
                   >
-                    <Stack className="w-3.5 h-3.5" />
-                    <span>Toàn bộ hồ sơ</span>
-                  </button>
+                    Cập nhật hồ sơ
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-                  {/* Chip: Nghề gần nhất */}
-                  <button
-                    onClick={() => {
-                      setSkillFilterMode('latest')
-                      setSelectedJobIndex(null)
-                      setShowCustomDropdown(false)
-                    }}
-                    className={cn(
-                      'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all border',
-                      skillFilterMode === 'latest'
-                        ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                        : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
-                    )}
+          {/* Career Path Banner - Profile Not Completed */}
+          {activeTab === 'career' && !isProfileCompleted && (
+            <Card className="mb-6 border-warning/50 bg-warning/5">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Vui lòng hoàn thiện hồ sơ người lao động để xem lộ trình nghề nghiệp phù hợp.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/worker-profile')}
+                    className="shrink-0"
                   >
-                    <Briefcase className="w-3.5 h-3.5" />
-                    <span>Nghề gần nhất: {getJobTitle(latestJob)}</span>
-                  </button>
+                    Hoàn thiện hồ sơ
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-                  {/* Chip: Tùy chỉnh */}
-                  <div className="relative">
+          {/* Missing Skills Banner - Chỉ hiển thị khi thực sự không có skills */}
+          {activeTab === 'recommended' && !hasProfileForRecommendations && (
+            <Card className="mb-6 border-primary/50 bg-primary/5">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <User className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">Chưa có kỹ năng trong hồ sơ</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Vui lòng thêm kỹ năng trong bước "Kinh nghiệm làm việc" hoặc "Nguyện vọng" để nhận gợi ý việc làm phù hợp.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/worker-profile?step=3')}
+                    className="shrink-0"
+                  >
+                    Thêm kỹ năng
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="flex flex-col gap-6">
+            {/* Main Content */}
+            <div className="flex-1 min-w-0">
+              {/* Tabs */}
+              <div className="flex items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+                  {TABS.map((tab) => {
+                    const Icon = tab.icon
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => handleTabClick(tab.id)}
+                        className={cn(
+                          'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all',
+                          activeTab === tab.id
+                            ? 'bg-background text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                        )}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="hidden sm:inline">{tab.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Smart Filter Chip Bar - Chỉ hiển thị khi tab là 'recommended' và có employmentHistory */}
+              {activeTab === 'recommended' && formData?.employmentHistory?.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* Chip: Toàn bộ hồ sơ */}
                     <button
                       onClick={() => {
-                        if (skillFilterMode === 'custom') {
-                          setSkillFilterMode('all')
-                          setSelectedJobIndex(null)
-                          setShowCustomDropdown(false)
-                        } else {
-                          setSkillFilterMode('custom')
-                          setShowCustomDropdown(!showCustomDropdown)
-                        }
+                        setSkillFilterMode('all')
+                        setSelectedJobIndex(null)
+                        setShowCustomDropdown(false)
                       }}
                       className={cn(
                         'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all border',
-                        skillFilterMode === 'custom'
+                        skillFilterMode === 'all'
                           ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                           : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
                       )}
                     >
-                      <Sliders className="w-3.5 h-3.5" />
-                      <span>
-                        {skillFilterMode === 'custom' && selectedCustomJob
-                          ? `Tùy chỉnh: ${getJobTitle(selectedCustomJob)}`
-                          : 'Tùy chỉnh'}
-                      </span>
+                      <Stack className="w-3.5 h-3.5" />
+                      <span>Toàn bộ hồ sơ</span>
                     </button>
 
-                    {/* Dropdown menu khi chọn custom */}
-                    {showCustomDropdown && skillFilterMode === 'custom' && (
-                      <div className="absolute top-full left-0 mt-2 w-72 bg-background border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
-                        <div className="p-2 border-b bg-muted/50">
-                          <p className="text-xs font-medium text-muted-foreground">
-                            Chọn kinh nghiệm để gợi ý
-                          </p>
+                    {/* Chip: Nghề gần nhất */}
+                    <button
+                      onClick={() => {
+                        setSkillFilterMode('latest')
+                        setSelectedJobIndex(null)
+                        setShowCustomDropdown(false)
+                      }}
+                      className={cn(
+                        'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all border',
+                        skillFilterMode === 'latest'
+                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                          : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
+                      )}
+                    >
+                      <Briefcase className="w-3.5 h-3.5" />
+                      <span>Nghề gần nhất: {getJobTitle(latestJob)}</span>
+                    </button>
+
+                    {/* Chip: Tùy chỉnh */}
+                    <div className="relative">
+                      <button
+                        onClick={() => {
+                          if (skillFilterMode === 'custom') {
+                            setSkillFilterMode('all')
+                            setSelectedJobIndex(null)
+                            setShowCustomDropdown(false)
+                          } else {
+                            setSkillFilterMode('custom')
+                            setShowCustomDropdown(!showCustomDropdown)
+                          }
+                        }}
+                        className={cn(
+                          'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all border',
+                          skillFilterMode === 'custom'
+                            ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                            : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-muted-foreground/50'
+                        )}
+                      >
+                        <Sliders className="w-3.5 h-3.5" />
+                        <span>
+                          {skillFilterMode === 'custom' && selectedCustomJob
+                            ? `Tùy chỉnh: ${getJobTitle(selectedCustomJob)}`
+                            : 'Tùy chỉnh'}
+                        </span>
+                      </button>
+
+                      {/* Dropdown menu khi chọn custom */}
+                      {showCustomDropdown && skillFilterMode === 'custom' && (
+                        <div className="absolute top-full left-0 mt-2 w-72 bg-background border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                          <div className="p-2 border-b bg-muted/50">
+                            <p className="text-xs font-medium text-muted-foreground">
+                              Chọn kinh nghiệm để gợi ý
+                            </p>
+                          </div>
+                          {formData.employmentHistory.map((job, index) => (
+                            <button
+                              key={index}
+                              onClick={() => {
+                                setSelectedJobIndex(index)
+                                setShowCustomDropdown(false)
+                              }}
+                              className={cn(
+                                'w-full text-left px-3 py-2.5 text-sm hover:bg-muted transition-colors flex items-center justify-between gap-2',
+                                selectedJobIndex === index && 'bg-muted font-medium'
+                              )}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium truncate">
+                                  {getJobTitle(job)}
+                                </div>
+                                <div className="text-xs text-muted-foreground truncate">
+                                  {job.companyName || 'Không có công ty'} • {job.duration ? Math.floor(job.duration / 12) : 0} năm
+                                </div>
+                              </div>
+                              {selectedJobIndex === index && (
+                                <Check className="w-4 h-4 text-primary shrink-0" />
+                              )}
+                            </button>
+                          ))}
                         </div>
-                        {formData.employmentHistory.map((job, index) => (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              setSelectedJobIndex(index)
-                              setShowCustomDropdown(false)
-                            }}
-                            className={cn(
-                              'w-full text-left px-3 py-2.5 text-sm hover:bg-muted transition-colors flex items-center justify-between gap-2',
-                              selectedJobIndex === index && 'bg-muted font-medium'
-                            )}
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium truncate">
-                                {getJobTitle(job)}
-                              </div>
-                              <div className="text-xs text-muted-foreground truncate">
-                                {job.companyName || 'Không có công ty'} • {job.duration ? Math.floor(job.duration / 12) : 0} năm
-                              </div>
-                            </div>
-                            {selectedJobIndex === index && (
-                              <Check className="w-4 h-4 text-primary shrink-0" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Error State */}
-            {error && (
-              <Card className="mb-6 border-destructive/50 bg-destructive/5">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <Warning className="w-5 h-5 text-destructive shrink-0" />
-                    <p className="text-destructive">{error}</p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRefresh}
-                      className="ml-auto"
-                    >
-                      Thử lại
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+              {/* Error State */}
+              {error && (
+                <Card className="mb-6 border-destructive/50 bg-destructive/5">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <Warning className="w-5 h-5 text-destructive shrink-0" />
+                      <p className="text-destructive">{error}</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRefresh}
+                        className="ml-auto"
+                      >
+                        Thử lại
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-            {/* Jobs List */}
-            {isLoading ? (
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <Card key={i}>
-                    <CardContent className="p-5">
-                      <div className="flex items-start gap-4">
-                        <Skeleton className="w-14 h-14 rounded-lg" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-5 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                          <div className="flex gap-2 mt-2">
-                            <Skeleton className="h-6 w-20" />
-                            <Skeleton className="h-6 w-20" />
-                            <Skeleton className="h-6 w-20" />
+              {/* Jobs List */}
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <Card key={i}>
+                      <CardContent className="p-5">
+                        <div className="flex items-start gap-4">
+                          <Skeleton className="w-14 h-14 rounded-lg" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-5 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <div className="flex gap-2 mt-2">
+                              <Skeleton className="h-6 w-20" />
+                              <Skeleton className="h-6 w-20" />
+                              <Skeleton className="h-6 w-20" />
+                            </div>
                           </div>
+                          <Skeleton className="w-14 h-14 rounded-full" />
                         </div>
-                        <Skeleton className="w-14 h-14 rounded-full" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : activeTab === 'career' && isProfileCompleted ? (
-              <CareerRecommendations userProfile={formData} />
-            ) : currentJobs.length === 0 ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">
-                    {activeTab === 'recommended'
-                      ? 'Không có việc làm gợi ý'
-                      : activeTab === 'saved'
-                        ? 'Chưa có việc làm đã lưu'
-                        : 'Không tìm thấy việc làm'}
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    {activeTab === 'recommended'
-                      ? 'Hãy cập nhật hồ sơ để nhận gợi ý phù hợp hơn.'
-                      : 'Thử thay đổi bộ lọc hoặc quay lại sau.'}
-                  </p>
-                  {activeTab === 'recommended' && (
-                    <Button onClick={() => navigate('/worker-profile')}>
-                      Cập nhật hồ sơ
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {currentJobs.map((job) => (
-                  <JobCard
-                    key={job.id || job._id || Math.random()}
-                    job={job}
-                    userSkills={skillsByFilterMode}
-                    targetSalary={formData?.aspirations?.targetSalary}
-                    onApply={handleApply}
-                    onViewSimilar={handleViewSimilar}
-                    onOpenDetail={handleOpenJobDetail}
-                    isApplied={appliedJobIds.has(job._id || job.id)}
-                  />
-                ))}
-              </div>
-            )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : activeTab === 'career' && isProfileCompleted ? (
+                <CareerRecommendations userProfile={formData} />
+              ) : currentJobs.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">
+                      {activeTab === 'recommended'
+                        ? 'Không có việc làm gợi ý'
+                        : activeTab === 'saved'
+                          ? 'Chưa có việc làm đã lưu'
+                          : 'Không tìm thấy việc làm'}
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      {activeTab === 'recommended'
+                        ? 'Hãy cập nhật hồ sơ để nhận gợi ý phù hợp hơn.'
+                        : 'Thử thay đổi bộ lọc hoặc quay lại sau.'}
+                    </p>
+                    {activeTab === 'recommended' && (
+                      <Button onClick={() => navigate('/worker-profile')}>
+                        Cập nhật hồ sơ
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {currentJobs.map((job) => (
+                    <JobCard
+                      key={job.id || job._id || Math.random()}
+                      job={job}
+                      userSkills={skillsByFilterMode}
+                      targetSalary={formData?.aspirations?.targetSalary}
+                      onApply={handleApply}
+                      onViewSimilar={handleViewSimilar}
+                      onOpenDetail={handleOpenJobDetail}
+                      isApplied={appliedJobIds.has(job._id || job.id)}
+                    />
+                  ))}
+                </div>
+              )}
 
-            {/* Load More */}
-            {currentJobs.length > 0 && currentJobs.length < 20 && (
-              <div className="mt-6 text-center">
-                <Button variant="outline" disabled>
-                  Không còn việc làm nào
-                </Button>
-              </div>
-            )}
+              {/* Load More */}
+              {currentJobs.length > 0 && currentJobs.length < 20 && (
+                <div className="mt-6 text-center">
+                  <Button variant="outline" disabled>
+                    Không còn việc làm nào
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Job Detail Modal */}
-      {selectedJob && (
-        <JobDetailModal
-          job={selectedJob}
-          onClose={handleCloseJobDetail}
-          onApply={handleApply}
-          onReportDeadLink={handleReportDeadLink}
-          onSave={handleSaveJob}
-        />
-      )}
-    </MainLayout>
-    <Footer />
+        {/* Job Detail Modal */}
+        {selectedJob && (
+          <JobDetailModal
+            job={selectedJob}
+            onClose={handleCloseJobDetail}
+            onApply={handleApply}
+            onReportDeadLink={handleReportDeadLink}
+            onSave={handleSaveJob}
+          />
+        )}
+      </MainLayout>
+      <Footer />
     </>
   )
 }

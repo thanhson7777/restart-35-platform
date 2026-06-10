@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Badge, Button, Tabs, TabsList, TabsTrigger, TabsContent, Skeleton } from '@/components/ui';
-import { getEnrollmentById, getCourseSchedule, getCourseLessons, getMyIsaRepayments, submitIncome, createPayment, getScheduleById, cancelEnrollment } from '@/apis/courseApi';
+import { getEnrollmentById, getCourseSchedule, getCourseLessons, getMyIsaRepayments, submitIncome, createPayment, getScheduleById, cancelEnrollment, dropEnrollment } from '@/apis/courseApi';
 import { DeliveryTypeBadge } from '@/components/course/DeliveryTypeBadge';
 import { FundingModelChip } from '@/components/course/FundingModelChip';
 import { DropoutRiskBadge } from '@/components/enrollment/DropoutRiskBadge';
@@ -40,6 +40,9 @@ export default function MyEnrollmentDetailPage() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
+
+  // Dropout risk state
+  const [riskData, setRiskData] = useState(null);
 
   const fetchEnrollmentDetail = useCallback(async () => {
     setLoading(true);
@@ -119,6 +122,15 @@ export default function MyEnrollmentDetailPage() {
                 setIsaRecord(record || null);
               })
               .catch((err) => console.warn('ISA Agreement fetch error:', err))
+          );
+        }
+
+        // Fetch dropout risk if enrollment is in_progress
+        if (enrollData.status === 'in_progress') {
+          fetchDetails.push(
+            getEnrollmentRisk(id)
+              .then((res) => setRiskData(res.data?.data || null))
+              .catch(() => setRiskData(null))
           );
         }
 
@@ -388,6 +400,28 @@ export default function MyEnrollmentDetailPage() {
                   Hủy ghi danh
                 </Button>
               )}
+
+              {/* Drop Enrollment Button (only for in_progress) */}
+              {status === 'in_progress' && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="rounded-xl text-xs font-bold px-6 py-4 shrink-0 flex items-center gap-2 border-orange-200 text-orange-600 hover:bg-orange-50 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-950/30"
+                  onClick={async () => {
+                    const reason = window.prompt('Vui lòng nhập lý do rút khỏi khóa học:');
+                    if (!reason) return;
+                    try {
+                      await dropEnrollment(id, { dropReason: reason });
+                      toast.success('Đã rút khỏi khóa học thành công.');
+                      navigate('/my-enrollments');
+                    } catch (err) {
+                      toast.error(err?.response?.data?.message || 'Rút khỏi khóa học thất bại.');
+                    }
+                  }}
+                >
+                  Rút khỏi khóa học
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -428,6 +462,49 @@ export default function MyEnrollmentDetailPage() {
                   </div>
                 )}
               </TabsContent>
+
+              {/* Dropout Risk Section */}
+              {status === 'in_progress' && riskData && (
+                <Card className="mt-4 border-l-4 border-l-orange-400">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-foreground">Mức độ hoàn thành khóa học</h3>
+                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                        riskData.score >= 0.7
+                          ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                          : riskData.score >= 0.4
+                          ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                          : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                      }`}>
+                        {riskData.score >= 0.7 ? 'Nguy hiểm' : riskData.score >= 0.4 ? 'Trung bình' : 'Ổn định'}
+                        ({Math.round(riskData.score * 100)}%)
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-2">
+                      <div
+                        className={`h-2.5 rounded-full transition-all ${
+                          riskData.score >= 0.7
+                            ? 'bg-red-500'
+                            : riskData.score >= 0.4
+                            ? 'bg-yellow-500'
+                            : 'bg-green-500'
+                        }`}
+                        style={{ width: `${Math.round((1 - riskData.score) * 100)}%` }}
+                      />
+                    </div>
+                    {riskData.factors && riskData.factors.length > 0 && (
+                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        <p className="font-medium mb-1">Yếu tố ảnh hưởng:</p>
+                        <ul className="list-disc list-inside space-y-0.5">
+                          {riskData.factors.map((f, i) => (
+                            <li key={i}>{f}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Tab: Schedules List */}
               {['live', 'offline', 'blended'].includes(deliveryType) && (

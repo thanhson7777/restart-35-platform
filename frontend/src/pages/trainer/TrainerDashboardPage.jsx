@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { selectCurrentUser } from '@/redux/user/userSlice';
-import { getEnrollmentStats, getMyCourses, getTrainerSchedules } from '@/apis/courseApi';
+import { getEnrollmentStats, getMyCourses, getTrainerSchedules, getEnterpriseStudents } from '@/apis/trainerApi';
 import { getDropoutRisk } from '@/apis/learningRecordApi';
 import { TrainerStatsCards } from '@/components/trainer/TrainerStatsCards';
 import { TrainerEnrollmentTrendChart } from '@/components/trainer/TrainerEnrollmentTrendChart';
 import { TrainerRecentStudents } from '@/components/trainer/TrainerRecentStudents';
 import { TrainerQuickActions } from '@/components/trainer/TrainerQuickActions';
+import { TrainerEnterpriseStudentsWidget } from '@/components/trainer/TrainerEnterpriseStudentsWidget';
 import { Skeleton } from '@/components/ui';
 
 const TrainerDashboardPage = () => {
@@ -18,11 +19,12 @@ const TrainerDashboardPage = () => {
   const [courses, setCourses] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [dropoutRisk, setDropoutRisk] = useState({});
+  const [enterpriseStudents, setEnterpriseStudents] = useState(null);
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     try {
-      const [statsRes, coursesRes, schedulesRes, riskRes] = await Promise.all([
+      const [statsRes, coursesRes, schedulesRes, riskRes, enterpriseRes] = await Promise.all([
         getEnrollmentStats().catch(err => {
           console.error('Error fetching enrollment stats:', err);
           return { data: { data: {} } };
@@ -38,6 +40,10 @@ const TrainerDashboardPage = () => {
         getDropoutRisk().catch(err => {
           console.error('Error fetching dropout risk:', err);
           return { data: { data: {} } };
+        }),
+        getEnterpriseStudents().catch(err => {
+          console.error('Error fetching enterprise students:', err);
+          return { data: { data: null } };
         })
       ]);
 
@@ -45,6 +51,7 @@ const TrainerDashboardPage = () => {
       setCourses(coursesRes.data?.data || []);
       setSchedules(schedulesRes.data?.data || []);
       setDropoutRisk(riskRes.data?.data || {});
+      setEnterpriseStudents(enterpriseRes.data?.data || null);
     } catch (err) {
       console.error('Unexpected error loading dashboard:', err);
       toast.error('Có lỗi xảy ra khi tải dữ liệu tổng quan.');
@@ -163,6 +170,11 @@ const TrainerDashboardPage = () => {
           <TrainerRecentStudents students={stats.recentEnrollments || []} />
         </div>
       </div>
+
+      {/* Enterprise Students Widget */}
+      {enterpriseStudents && enterpriseStudents.total > 0 && (
+        <TrainerEnterpriseStudentsWidget data={enterpriseStudents} />
+      )}
 
       {/* Quick Action Buttons */}
       <TrainerQuickActions />

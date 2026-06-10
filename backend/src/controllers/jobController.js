@@ -9,6 +9,11 @@ import ScrapedJob from '../models/scrapedJobModel.js';
 /**
  * Verify URL - HEAD request để kiểm tra link còn sống không
  * POST /v1/jobs/:id/verify
+ *
+ * Returns:
+ *   - isAlive: true  -> URL responds with 2xx/3xx
+ *   - isAlive: false -> URL responds with 4xx/5xx (definite dead)
+ *   - isAlive: null  -> Could not verify (network error, timeout, etc.)
  */
 export const verifyJobUrl = async (req, res) => {
   try {
@@ -19,7 +24,6 @@ export const verifyJobUrl = async (req, res) => {
 
     // Nếu không có trong MongoDB (fallback: jobs từ CSV chưa import)
     if (!job) {
-      // Trả về unknown - frontend sẽ thử mở link trực tiếp
       return res.json({
         success: true,
         isAlive: null,
@@ -33,7 +37,7 @@ export const verifyJobUrl = async (req, res) => {
     if (!sourceUrl) {
       return res.json({
         success: true,
-        isAlive: false,
+        isAlive: null,
         error: 'No URL available',
         jobId: id
       });
@@ -71,15 +75,17 @@ export const verifyJobUrl = async (req, res) => {
       });
 
     } catch (error) {
-      // URL không accessible
+      // Network error (connection refused, timeout, DNS fail, etc.)
+      // -> Không chắc chắn link chết, có thể do bot protection
       const errorMessage = error.message || 'Connection failed';
 
+      // Cập nhật status trong MongoDB với isAlive = null (unknown)
       await ScrapedJob.updateOne(
         { _id: job._id },
         {
           $set: {
-            isActive: false,
-            'urlStatus.isAlive': false,
+            'urlStatus.code': null,
+            'urlStatus.isAlive': null,
             'urlStatus.errorMessage': errorMessage,
             lastVerifiedAt: new Date()
           }
@@ -88,7 +94,7 @@ export const verifyJobUrl = async (req, res) => {
 
       return res.json({
         success: true,
-        isAlive: false,
+        isAlive: null, // unknown - không block user
         error: errorMessage,
         jobId: id
       });

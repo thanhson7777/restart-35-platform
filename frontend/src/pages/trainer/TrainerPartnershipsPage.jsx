@@ -6,7 +6,7 @@ import { Button, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Textarea } fro
 import PartnershipCard from '@/components/shared/PartnershipCard';
 import {
   getTrainerPartnerships
-} from '@/apis/partnershipApi';
+} from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
 
 const STATUS_CONFIG = {

@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, X, AlertTriangle, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, X, AlertTriangle, CheckCircle2, XCircle, Loader2, TrendingUp, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
   getEnrollmentById,
   getEnrollmentRiskDetail,
   triggerManualIntervention,
+  updateEnrollmentProgress,
+  updateEnrollmentStatus,
   suspendEnrollment,
   completeEnrollmentTrainer,
   failEnrollment
-} from '@/apis/courseApi';
+} from '@/apis/trainerApi';
+import { getEnrollmentById as getEnrollmentByIdPublic } from '@/apis/courseApi';
 import { Button, Skeleton } from '@/components/ui';
 import { TrainerEnrollmentDetail } from '@/components/trainer/TrainerEnrollmentDetail';
 
@@ -25,11 +28,16 @@ const TrainerEnrollmentDetailPage = () => {
   const [isInterventionLoading, setIsInterventionLoading] = useState(false);
 
   // Modal States
-  const [modalType, setModalType] = useState(null); // 'suspend' | 'complete' | 'fail' | null
+  const [modalType, setModalType] = useState(null); // 'suspend' | 'complete' | 'fail' | 'progress' | 'status' | null
   const [modalReason, setModalReason] = useState('');
   const [modalScore, setModalScore] = useState('');
   const [modalNotes, setModalNotes] = useState('');
   const [submittingAction, setSubmittingAction] = useState(false);
+
+  // Progress & Status editing
+  const [progressInput, setProgressInput] = useState('');
+  const [progressNotes, setProgressNotes] = useState('');
+  const [statusSelect, setStatusSelect] = useState('');
 
   // Fetch Enrollment Details & Risk Profile
   const fetchDetails = useCallback(async () => {
@@ -79,12 +87,49 @@ const TrainerEnrollmentDetailPage = () => {
     }
   };
 
+  // Update Progress
+  const handleUpdateProgress = async () => {
+    const val = parseFloat(progressInput);
+    if (isNaN(val) || val < 0 || val > 100) {
+      toast.error('Tiến độ phải từ 0 đến 100.');
+      return;
+    }
+    try {
+      const res = await updateEnrollmentProgress(id, { progress: val, notes: progressNotes });
+      if (res.data?.success) {
+        toast.success('Cập nhật tiến độ thành công!');
+        setModalType(null);
+        fetchDetails();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Cập nhật tiến độ thất bại.');
+    }
+  };
+
+  // Update Status
+  const handleUpdateStatus = async () => {
+    if (!statusSelect) { toast.error('Vui lòng chọn trạng thái.'); return; }
+    try {
+      const res = await updateEnrollmentStatus(id, { status: statusSelect });
+      if (res.data?.success) {
+        toast.success('Cập nhật trạng thái thành công!');
+        setModalType(null);
+        fetchDetails();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Cập nhật trạng thái thất bại.');
+    }
+  };
+
   // Open Actions Confirmation Modals
   const openActionModal = (type) => {
     setModalType(type);
     setModalReason('');
     setModalScore('');
     setModalNotes('');
+    setProgressInput('');
+    setProgressNotes('');
+    setStatusSelect('');
   };
 
   const closeActionModal = () => {
@@ -197,6 +242,8 @@ const TrainerEnrollmentDetailPage = () => {
         onSuspend={() => openActionModal('suspend')}
         onComplete={() => openActionModal('complete')}
         onFail={() => openActionModal('fail')}
+        onUpdateProgress={() => openActionModal('progress')}
+        onUpdateStatus={() => openActionModal('status')}
         isInterventionLoading={isInterventionLoading}
       />
 
@@ -233,7 +280,12 @@ const TrainerEnrollmentDetailPage = () => {
                   </button>
                 </div>
 
-                <form onSubmit={handleActionConfirm} className="space-y-4 text-sm">
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  if (modalType === 'progress') { handleUpdateProgress(); return; }
+                  if (modalType === 'status') { handleUpdateStatus(); return; }
+                  handleActionConfirm(e);
+                }} className="space-y-4 text-sm">
                   {modalType === 'suspend' && (
                     <div className="space-y-3">
                       <p className="text-[hsl(var(--admin-text-secondary))] leading-normal">
@@ -311,6 +363,67 @@ const TrainerEnrollmentDetailPage = () => {
                     </div>
                   )}
 
+                  {modalType === 'progress' && (
+                    <div className="space-y-4">
+                      <p className="text-[hsl(var(--admin-text-secondary))] leading-normal">
+                        Cập nhật tiến độ học tập của <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{studentName}</span>.
+                      </p>
+                      <div className="grid grid-cols-1 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-1">
+                            Tiến độ (%) <span className="text-[hsl(var(--admin-danger))]">*</span>
+                          </label>
+                          <input
+                            type="number"
+                            placeholder="0 - 100"
+                            value={progressInput}
+                            onChange={(e) => setProgressInput(e.target.value)}
+                            className="w-full text-xs p-3 border rounded-xl bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] focus:outline-none focus:border-[hsl(var(--admin-accent))] font-mono font-bold"
+                            min="0"
+                            max="100"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-1">
+                            Ghi chú
+                          </label>
+                          <textarea
+                            placeholder="Nhận xét về tiến độ học tập..."
+                            value={progressNotes}
+                            onChange={(e) => setProgressNotes(e.target.value)}
+                            className="w-full text-xs p-3 border rounded-xl bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] focus:outline-none focus:border-[hsl(var(--admin-accent))] h-20 resize-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {modalType === 'status' && (
+                    <div className="space-y-4">
+                      <p className="text-[hsl(var(--admin-text-secondary))] leading-normal">
+                        Thay đổi trạng thái đăng ký của <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{studentName}</span>.
+                      </p>
+                      <div>
+                        <label className="block text-xs font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-1">
+                          Trạng thái mới
+                        </label>
+                        <select
+                          value={statusSelect}
+                          onChange={(e) => setStatusSelect(e.target.value)}
+                          className="w-full text-xs p-3 border rounded-xl bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] focus:outline-none focus:border-[hsl(var(--admin-accent))]"
+                        >
+                          <option value="">-- Chọn trạng thái --</option>
+                          <option value="active">Đang học</option>
+                          <option value="suspended">Tạm ngưng</option>
+                          <option value="completed">Hoàn thành</option>
+                          <option value="failed">Đã trượt</option>
+                          <option value="dropped">Bỏ học</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Buttons */}
                   <div className="flex gap-3 pt-2">
                     <Button
@@ -322,11 +435,18 @@ const TrainerEnrollmentDetailPage = () => {
                       Hủy bỏ
                     </Button>
                     <Button
-                      type="submit"
+                      type="button"
+                      onClick={
+                        modalType === 'progress' ? handleUpdateProgress :
+                        modalType === 'status' ? handleUpdateStatus :
+                        handleActionConfirm
+                      }
                       disabled={submittingAction}
                       className={`flex-1 rounded-xl py-3 font-bold text-white flex items-center justify-center gap-1.5 ${
                         modalType === 'suspend' ? 'bg-[hsl(var(--admin-warning))] hover:bg-[hsl(var(--admin-warning))]' :
                         modalType === 'complete' ? 'bg-[hsl(var(--admin-success))] hover:bg-[hsl(var(--admin-success))]' :
+                        modalType === 'progress' ? 'bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))]' :
+                        modalType === 'status' ? 'bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))]' :
                         'bg-[hsl(var(--admin-danger))] hover:bg-[hsl(var(--admin-danger))]'
                       }`}
                     >
@@ -335,6 +455,8 @@ const TrainerEnrollmentDetailPage = () => {
                       ) : (
                         modalType === 'suspend' ? 'Xác nhận ngưng' :
                         modalType === 'complete' ? 'Xác nhận hoàn thành' :
+                        modalType === 'progress' ? 'Cập nhật tiến độ' :
+                        modalType === 'status' ? 'Cập nhật trạng thái' :
                         'Xác nhận trượt'
                       )}
                     </Button>

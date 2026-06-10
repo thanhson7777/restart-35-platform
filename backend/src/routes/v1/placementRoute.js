@@ -48,6 +48,14 @@ Router.get(
   placementController.getPlacementById
 )
 
+// Gửi feedback cho placement
+Router.post(
+  '/:id/feedback',
+  authMiddleware.isAuthorized,
+  placementValidation.checkPlacementId,
+  placementController.givePlacementFeedback
+)
+
 // Cập nhật thông tin placement
 Router.put(
   '/:id',

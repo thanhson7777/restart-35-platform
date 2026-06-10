@@ -721,9 +721,25 @@ const invalidateRAGCache = async (req, res, next) => {
       })
     }
 
-    // Mark RAG recommendation as stale
+    const redis = getRedis()
+
+    // 1. Delete Redis cache
+    if (redis && isRedisAvailable()) {
+      try {
+        await redis.del(CACHE_KEYS.ragRecommendation(userId))
+        await redis.del(CACHE_KEYS.careerPath(userId))
+        console.log(`[Cache INVALIDATE] Redis deleted - User: ${userId}`)
+      } catch (redisError) {
+        // Redis operation failed, continue
+      }
+    }
+
+    // 2. Mark RAG recommendation as stale in MongoDB
     await careerRecommendationModel.markAsStale(userId)
     console.log(`[Cache INVALIDATE] RAG cache stale - User: ${userId}`)
+
+    // 3. Invalidate AI Service in-memory cache
+    await aiService.invalidateAIRAGCache()
 
     res.status(StatusCodes.OK).json({
       success: true,

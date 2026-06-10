@@ -8,8 +8,12 @@ import {
   getMyEnrollments,
   getMyCertificates,
   getWorkerUpcomingSchedule,
+  getMyIsaRepayments,
 } from '@/apis'
 import { getMyOutcomesAPI } from '@/apis/outcomeAPI'
+import { getMySponsorships } from '@/apis/courseSponsorshipApi'
+import { fetchMyPlacements } from '@/redux/placement/placementSlice'
+import { useDispatch } from 'react-redux'
 import {
   BookOpen,
   PlayCircle,
@@ -20,6 +24,12 @@ import {
   Clock,
   ChevronRight,
   Sparkles,
+  DollarSign,
+  TrendingUp,
+  CheckCircle,
+  ClipboardList,
+  Target,
+  MessageSquare,
 } from 'lucide-react'
 
 function SectionHeader({ title, action, actionHref }) {
@@ -73,11 +83,15 @@ function CourseListSkeleton() {
 
 export default function WorkerDashboardPage() {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const [enrollments, setEnrollments] = useState([])
   const [certificates, setCertificates] = useState([])
   const [applications, setApplications] = useState([])
   const [upcomingSessions, setUpcomingSessions] = useState([])
+  const [isaList, setIsaList] = useState([])
+  const [placements, setPlacements] = useState([])
+  const [sponsorships, setSponsorships] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -92,35 +106,42 @@ export default function WorkerDashboardPage() {
           getMyCertificates(),
           getMyOutcomesAPI(),
           getWorkerUpcomingSchedule(),
+          getMyIsaRepayments(),
+          dispatch(fetchMyPlacements()).unwrap().catch(() => []),
+          getMySponsorships(),
         ])
 
         if (cancelled) return
 
-        const [enrollRes, certRes, appRes, schedRes] = results
+        const [enrollRes, certRes, appRes, schedRes, isaRes, placementsRes, sponsorshipRes] = results
 
         if (enrollRes.status === 'fulfilled') {
-          const list = enrollRes.value?.data?.data
-            ?? enrollRes.value?.data
-            ?? []
+          const list = enrollRes.value?.data?.data ?? enrollRes.value?.data ?? []
           setEnrollments(Array.isArray(list) ? list : [])
         }
         if (certRes.status === 'fulfilled') {
-          const list = certRes.value?.data?.data
-            ?? certRes.value?.data
-            ?? []
+          const list = certRes.value?.data?.data ?? certRes.value?.data ?? []
           setCertificates(Array.isArray(list) ? list : [])
         }
         if (appRes.status === 'fulfilled') {
-          const list = appRes.value?.data?.data
-            ?? appRes.value?.data
-            ?? []
+          const list = appRes.value?.data?.data ?? appRes.value?.data ?? []
           setApplications(Array.isArray(list) ? list : [])
         }
         if (schedRes.status === 'fulfilled') {
-          const list = schedRes.value?.data?.data
-            ?? schedRes.value?.data
-            ?? []
+          const list = schedRes.value?.data?.data ?? schedRes.value?.data ?? []
           setUpcomingSessions(Array.isArray(list) ? list.slice(0, 5) : [])
+        }
+        if (isaRes.status === 'fulfilled') {
+          const list = isaRes.value?.data || []
+          setIsaList(Array.isArray(list) ? list : [])
+        }
+        if (placementsRes.status === 'fulfilled') {
+          const list = Array.isArray(placementsRes.value) ? placementsRes.value : []
+          setPlacements(list)
+        }
+        if (sponsorshipRes.status === 'fulfilled') {
+          const list = sponsorshipRes.value?.data || []
+          setSponsorships(Array.isArray(list) ? list : [])
         }
       } catch (err) {
         if (!cancelled) setError(err.message || 'Failed to load dashboard')
@@ -130,7 +151,7 @@ export default function WorkerDashboardPage() {
     }
     fetchData()
     return () => { cancelled = true }
-  }, [])
+  }, [dispatch])
 
   const activeEnrollments = enrollments.filter(
     (e) => e.status === 'active' || e.status === 'enrolled' || e.progress?.percentage > 0
@@ -139,6 +160,11 @@ export default function WorkerDashboardPage() {
   const pendingApplications = applications.filter(
     (a) => a.status === 'pending' || a.status === 'applied'
   )
+  const activePlacements = placements.filter(
+    (p) => ['started', 'accepted', 'offered', 'interviewing'].includes(p.status)
+  )
+  const activeISA = isaList.find((isa) => isa.status === 'active') || isaList[0]
+  const nextISA = activeISA?.nextPayment
 
   // Compose recent activity from real data
   const recentActivity = []
@@ -327,7 +353,11 @@ export default function WorkerDashboardPage() {
                 <QuickAction icon={BookOpen} label="Khóa học" href="/courses" />
                 <QuickAction icon={Briefcase} label="Việc làm" href="/jobs" />
                 <QuickAction icon={Gift} label="Học bổng" href="/scholarships" />
-                <QuickAction icon={Award} label="Chứng chỉ" href="/my-certificates" />
+                <QuickAction icon={Award} label="Chứng chỉ" href="/verify-certificate" />
+                <QuickAction icon={ClipboardList} label="Ghi danh" href="/my-enrollments" />
+                <QuickAction icon={Target} label="Việc làm" href="/my-placements" />
+                <QuickAction icon={DollarSign} label="ISA" href="/my-isa" />
+                <QuickAction icon={MessageSquare} label="Diễn đàn" href="/community/forum" />
               </div>
             </CardContent>
           </Card>
@@ -336,7 +366,7 @@ export default function WorkerDashboardPage() {
           {recentActivity.length > 0 && (
             <Card>
               <CardHeader className="pb-3 pt-4 px-5">
-                <CardTitle className="text-base">Hoạt động gần đây</CardTitle>
+                <CardTitle className="text-base">Hoat dong gan day</CardTitle>
               </CardHeader>
               <CardContent className="px-5 pb-5">
                 <div className="divide-y divide-border">
@@ -351,6 +381,100 @@ export default function WorkerDashboardPage() {
                     />
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Placements Summary */}
+          {!loading && placements.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3 pt-4 px-5 flex-row items-center justify-between">
+                <CardTitle className="text-base">Viec lam cua toi</CardTitle>
+                <a href="/my-placements" className="text-xs text-primary hover:underline flex items-center gap-1">
+                  Chi tiet <ChevronRight className="w-3 h-3" />
+                </a>
+              </CardHeader>
+              <CardContent className="px-5 pb-5 space-y-2">
+                {activePlacements.slice(0, 3).map((p) => (
+                  <div key={p._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                      <Briefcase className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{p.job?.title || p.position || 'Viec lam'}</p>
+                      <p className="text-xs text-muted-foreground">{p.employer?.name || p.employerName || ''}</p>
+                    </div>
+                    <span className="text-xs text-green-600 font-medium shrink-0 capitalize">{p.status}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ISA Summary */}
+          {!loading && activeISA && (
+            <Card>
+              <CardHeader className="pb-3 pt-4 px-5 flex-row items-center justify-between">
+                <CardTitle className="text-base">ISA cua toi</CardTitle>
+                <a href="/my-isa" className="text-xs text-primary hover:underline flex items-center gap-1">
+                  Chi tiet <ChevronRight className="w-3 h-3" />
+                </a>
+              </CardHeader>
+              <CardContent className="px-5 pb-5 space-y-3">
+                {activeISA.totalPaidAmount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Da tra</span>
+                    <span className="text-sm font-medium text-green-600">
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(activeISA.totalPaidAmount)}
+                    </span>
+                  </div>
+                )}
+                {activeISA.maxCap > 0 && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Muc toi da</span>
+                      <span className="text-sm font-medium">
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(activeISA.maxCap)}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500 rounded-full"
+                        style={{ width: `${Math.min(100, ((activeISA.totalPaidAmount || 0) / activeISA.maxCap) * 100)}%` }}
+                      />
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Sponsorships Summary */}
+          {!loading && sponsorships.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3 pt-4 px-5 flex-row items-center justify-between">
+                <CardTitle className="text-base">Hoc bong cua toi</CardTitle>
+                <a href="/my-sponsorships" className="text-xs text-primary hover:underline flex items-center gap-1">
+                  Chi tiet <ChevronRight className="w-3 h-3" />
+                </a>
+              </CardHeader>
+              <CardContent className="px-5 pb-5 space-y-2">
+                {sponsorships.slice(0, 3).map((e, i) => (
+                  <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                      <Gift className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{e.courseName}</p>
+                      <p className="text-xs text-muted-foreground">{e.sponsorships?.length || 0} chuong trinh</p>
+                    </div>
+                    <span className="text-xs font-medium text-blue-600 shrink-0">
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(
+                        (e.sponsorships || []).reduce((sum, sp) => sum + (sp.fundedAmount || 0), 0)
+                      )}
+                    </span>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}

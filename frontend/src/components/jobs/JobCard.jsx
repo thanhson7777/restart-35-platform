@@ -1,5 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui'
 import { Badge, Avatar } from '@/components/ui'
 import { Button } from '@/components/ui'
@@ -76,7 +77,6 @@ const getMatchScoreColor = (score) => {
  * @param {string} [props.job.description] - Job description
  * @param {Object} [props.userSkills] - User's skills from profile for comparison
  * @param {Object} [props.targetSalary] - User's target salary
- * @param {Object} [props.onApply] - Callback when clicking apply
  * @param {boolean} [props.isApplied] - Whether the user has already applied to this job
  * @param {Object} [props.onViewSimilar] - Callback when clicking view similar
  * @param {Function} [props.onOpenDetail] - Callback when clicking to open detail modal
@@ -86,13 +86,12 @@ const JobCard = ({
   job,
   userSkills = [],
   targetSalary = null,
-  onApply,
   onViewSimilar,
   onOpenDetail,
-  isApplied = false,
   className
 }) => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const jobId = job?.id || job?._id
   const isSaved = useSelector(selectIsJobSaved(jobId))
 
@@ -181,17 +180,13 @@ const JobCard = ({
     onViewSimilar?.(jobData)
   }
 
-  // Handle apply
-  const handleApply = (e) => {
-    e.stopPropagation()
-    onApply?.(jobData)
-  }
-
   // Handle open detail
   const handleOpenDetail = (e) => {
+    if (e?.stopPropagation) e.stopPropagation()
     if (onOpenDetail) {
-      e?.stopPropagation?.()
       onOpenDetail(job)
+    } else {
+      navigate(`/jobs/${jobId}`)
     }
   }
 
@@ -338,22 +333,6 @@ const JobCard = ({
           </div>
         )}
 
-        {/* Action: Apply Button */}
-        <div className="px-5 pb-5">
-          {isApplied ? (
-            <div className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-success/10 text-success font-semibold text-sm border border-success/20">
-              <Check className="w-4 h-4" weight="bold" />
-              Đã ứng tuyển
-            </div>
-          ) : (
-            <Button
-              onClick={handleApply}
-              className="w-full"
-            >
-              Ứng tuyển ngay
-            </Button>
-          )}
-        </div>
 
       </CardContent>
     </Card>

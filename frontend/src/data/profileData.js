@@ -622,16 +622,14 @@ export const getDistricts = (provinceCode) => {
   return DISTRICTS_BY_PROVINCE[provinceCode] || []
 }
 
-// Step labels
+// Step labels (BasicInfo removed - now in registration)
 export const STEP_LABELS = [
-  'Thông tin cơ bản',
   'Kinh nghiệm làm việc',
   'Rào cản & Thách thức',
   'Nguyện vọng'
 ]
 
 export const STEP_DESCRIPTIONS = [
-  'Tuổi, giới tính, địa chỉ, trình độ học vấn',
   'Các công việc đã làm trước đây',
   'Những khó khăn bạn đang gặp phải',
   'Công việc và môi trường bạn mong muốn'

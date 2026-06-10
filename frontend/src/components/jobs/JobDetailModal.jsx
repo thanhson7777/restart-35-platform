@@ -3,7 +3,7 @@ import { Button } from '@/components/ui'
 import { Badge } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
-import { X, MapPin, CurrencyDollar, ArrowSquareOut, BookmarkSimple, Flag, Sparkle, Check, Warning, CircleNotch } from '@phosphor-icons/react'
+import { X, MapPin, CurrencyDollar, ArrowSquareOut, BookmarkSimple, Flag, Sparkle, Check } from '@phosphor-icons/react'
 
 /**
  * JobDetailModal Component - Modal hiển thị chi tiết job
@@ -31,8 +31,6 @@ const JobDetailModal = ({
   onViewCourses
 }) => {
   const [showFullDescription, setShowFullDescription] = useState(false)
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [showDeadWarning, setShowDeadWarning] = useState(false)
 
   if (!job) return null
 
@@ -90,40 +88,23 @@ const JobDetailModal = ({
 
   const qualityBadge = getQualityBadge()
 
-  // Handle apply with URL verification
+  // Handle apply - always try to open link, no blocking verification
   const handleApply = async () => {
     if (!jobData.sourceUrl) return
 
-    setIsVerifying(true)
+    // Always try to open the link directly
+    // Background verify happens asynchronously (fire-and-forget)
+    // The backend logs the result to MongoDB for future reference
+    window.open(jobData.sourceUrl, '_blank', 'noopener,noreferrer')
+    onApply?.(job)
 
-    try {
-      // Call API to verify URL
-      const response = await fetch(`/v1/jobs/${jobData.id}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      const result = await response.json()
-
-      if (result.isAlive === true) {
-        // URL is alive - open it
-        window.open(jobData.sourceUrl, '_blank', 'noopener,noreferrer')
-        onApply?.(job)
-      } else if (result.isAlive === false) {
-        // URL is dead - show warning
-        setShowDeadWarning(true)
-        // Report dead link automatically
-        onReportDeadLink?.(jobData.id)
-      } else {
-        // Unknown status (job not in MongoDB) - try to open anyway
-        window.open(jobData.sourceUrl, '_blank', 'noopener,noreferrer')
-      }
-    } catch (err) {
-      // Network error - try to open link anyway
-      console.warn('Verification failed, trying to open link anyway:', err)
-      window.open(jobData.sourceUrl, '_blank', 'noopener,noreferrer')
-    } finally {
-      setIsVerifying(false)
-    }
+    // Background verify (non-blocking)
+    fetch(`/v1/jobs/${jobData.id}/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }).catch(() => {
+      // Silently ignore - user already has the link open
+    })
   }
 
   // Handle report dead link
@@ -265,38 +246,15 @@ const JobDetailModal = ({
 
         {/* Footer */}
         <div className="shrink-0 p-6 border-t bg-card space-y-3">
-          {/* Dead link warning */}
-          {showDeadWarning && (
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-2">
-              <Warning className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-sm text-destructive">Link đã hết hạn</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Tin tuyển dụng này có thể đã được gỡ bỏ hoặc đã hết hạn.
-                  Cảm ơn bạn đã báo cáo!
-                </p>
-              </div>
-            </div>
-          )}
-
           {/* Apply Button */}
           <Button
             onClick={handleApply}
-            disabled={isVerifying || !jobData.sourceUrl}
+            disabled={!jobData.sourceUrl}
             className="w-full"
             size="lg"
           >
-            {isVerifying ? (
-              <>
-                <CircleNotch className="w-4 h-4 mr-2 animate-spin" />
-                Đang kiểm tra link...
-              </>
-            ) : (
-              <>
-                <ArrowSquareOut className="w-4 h-4 mr-2" />
-                Ứng tuyển tại nhà tuyển dụng
-              </>
-            )}
+            <ArrowSquareOut className="w-4 h-4 mr-2" />
+            Ứng tuyển tại nhà tuyển dụng
           </Button>
 
           {/* Secondary Actions */}

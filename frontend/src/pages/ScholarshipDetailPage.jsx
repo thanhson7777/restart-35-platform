@@ -8,6 +8,7 @@ import {
   checkScholarshipEligibility
 } from '@/apis/scholarshipApi';
 import {
+  getMyApplications,
   createApplication,
   getApplicationById
 } from '@/apis/applicationApi';
@@ -48,6 +49,7 @@ export default function ScholarshipDetailPage() {
   const [scholarship, setScholarship] = useState(null);
   const [eligibility, setEligibility] = useState(null);
   const [existingApplication, setExistingApplication] = useState(null);
+  const [myApplicationStatus, setMyApplicationStatus] = useState(null); // 'none' | 'draft' | 'submitted' | 'approved' | 'rejected'
   const [loading, setLoading] = useState(true);
   const [eligibilityLoading, setEligibilityLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -83,10 +85,22 @@ export default function ScholarshipDetailPage() {
   const fetchExistingApplication = useCallback(async () => {
     if (!currentUser) return;
     try {
-      const appsRes = await getApplicationById(id);
-      setExistingApplication(appsRes.data);
+      const appsRes = await getMyApplications({ scholarshipId: id });
+      const apps = appsRes.data?.data || appsRes.data || [];
+      const myApp = apps.find(a =>
+        a.scholarshipId === id ||
+        a.scholarship?._id === id ||
+        a.scholarshipId === id
+      );
+      if (myApp) {
+        setExistingApplication(myApp);
+        setMyApplicationStatus(myApp.status);
+      } else {
+        setMyApplicationStatus('none');
+        setExistingApplication(null);
+      }
     } catch {
-      // No existing application — that's fine
+      setMyApplicationStatus('none');
     }
   }, [id, currentUser]);
 
@@ -104,6 +118,7 @@ export default function ScholarshipDetailPage() {
         motivationLetter: data.motivationLetter,
       });
       setExistingApplication(res.data);
+      setMyApplicationStatus('draft');
       toast.success('Đã lưu nháp đơn!');
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Lưu thất bại.';
@@ -123,6 +138,7 @@ export default function ScholarshipDetailPage() {
       const { submitApplication } = await import('@/apis/applicationApi');
       await submitApplication(existingApplication._id);
       toast.success('Nộp đơn thành công!');
+      setMyApplicationStatus('submitted');
       navigate('/my-applications');
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Nộp đơn thất bại.';
@@ -378,7 +394,32 @@ export default function ScholarshipDetailPage() {
                           <EligibilityIndicator eligibility={eligibility} />
                         </div>
                       )}
+                      {/* Application Status Banner */}
+                      {myApplicationStatus && myApplicationStatus !== 'none' && (
+                        <Card className={`mb-4 ${
+                          myApplicationStatus === 'submitted' ? 'border-blue-300 bg-blue-50 dark:bg-blue-950/20' :
+                          myApplicationStatus === 'approved' ? 'border-green-300 bg-green-50 dark:bg-green-950/20' :
+                          myApplicationStatus === 'rejected' ? 'border-red-300 bg-red-50 dark:bg-red-950/20' :
+                          'border-gray-300 bg-gray-50 dark:bg-gray-900/20'
+                        }`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-3">
+                              {myApplicationStatus === 'submitted' && <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">Đã nộp đơn</Badge>}
+                              {myApplicationStatus === 'approved' && <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Đã duyệt</Badge>}
+                              {myApplicationStatus === 'rejected' && <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">Bị từ chối</Badge>}
+                              {myApplicationStatus === 'draft' && <Badge className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">Đang nháp</Badge>}
+                              <p className="text-sm text-gray-700 dark:text-gray-300">
+                                {myApplicationStatus === 'submitted' && 'Đơn của bạn đã được nộp. Vui lòng chờ xét duyệt.'}
+                                {myApplicationStatus === 'approved' && 'Chúc mừng! Đơn của bạn đã được duyệt.'}
+                                {myApplicationStatus === 'rejected' && 'Đơn của bạn không được duyệt. Vui lòng liên hệ để biết chi tiết.'}
+                                {myApplicationStatus === 'draft' && 'Đơn của bạn chưa được nộp. Vui lòng nộp để được xét duyệt.'}
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
                       {(!eligibility || eligibility.eligible !== false) && (
+                        myApplicationStatus !== 'submitted' && myApplicationStatus !== 'approved' ? (
                         <ApplicationForm
                           scholarship={scholarship}
                           existingApplication={existingApplication}
@@ -387,6 +428,7 @@ export default function ScholarshipDetailPage() {
                           isSaving={isSaving}
                           isSubmitting={isSubmitting}
                         />
+                        ) : null
                       )}
                     </>
                   )}

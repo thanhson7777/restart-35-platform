@@ -9,6 +9,17 @@ import { env } from '~/config/enviroment'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import axios from 'axios'
+import crypto from 'crypto'
+
+/**
+ * Compute MD5 hash of a profile object for cache invalidation.
+ * @param {Object} profile - User profile object
+ * @returns {string} MD5 hex hash
+ */
+const computeProfileHash = (profile) => {
+  const str = JSON.stringify(profile, Object.keys(profile).sort())
+  return crypto.createHash('md5').update(str).digest('hex')
+}
 
 /**
  * Lấy danh sách công việc gợi ý cho user dựa trên kỹ năng
@@ -815,6 +826,7 @@ const triggerRAGCareerRecommendation = async (userId, profile) => {
     }
 
     // Save to MongoDB
+    const profileHash = computeProfileHash(profile)
     const updateData = {
       ragRecommendations: {
         best_fits: ragResult.best_fits || [],
@@ -826,7 +838,8 @@ const triggerRAGCareerRecommendation = async (userId, profile) => {
       ragRefreshCount: 1,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       status: 'active',
-      scoringMethod: 'rag'
+      scoringMethod: 'rag',
+      profileHash
     }
 
     await careerRecommendationModel.upsertByUserId(userId, updateData)
@@ -873,9 +886,10 @@ const triggerRAGCareerRecommendation = async (userId, profile) => {
  * Lấy cached RAG recommendation cho user
  *
  * @param {string} userId - User ID
+ * @param {Object} [currentProfile] - Current profile to compare hash
  * @returns {Promise<Object>} Cached RAG recommendation
  */
-const getCachedRAGRecommendation = async (userId) => {
+const getCachedRAGRecommendation = async (userId, currentProfile = null) => {
   try {
     if (!userId) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'User ID là bắt buộc')
@@ -892,6 +906,23 @@ const getCachedRAGRecommendation = async (userId) => {
         meta: {
           hasData: false,
           recommendation: 'Goi API trigger de tao moi'
+        }
+      }
+    }
+
+    // Check if profile has changed → force regenerate
+    if (currentProfile && cachedData.profileHash) {
+      const currentHash = computeProfileHash(currentProfile)
+      if (cachedData.profileHash !== currentHash) {
+        return {
+          success: false,
+          data: null,
+          message: 'Profile đã thay đổi, cần regenerate',
+          meta: {
+            hasData: false,
+            stale: true,
+            forceRegenerate: true
+          }
         }
       }
     }
@@ -972,6 +1003,7 @@ const refreshRAGRecommendation = async (userId, profile) => {
     }
 
     // Update MongoDB
+    const profileHash = computeProfileHash(profile)
     const updateData = {
       ragRecommendations: {
         best_fits: ragResult.best_fits || [],
@@ -983,7 +1015,8 @@ const refreshRAGRecommendation = async (userId, profile) => {
       ragRefreshCount: currentCount + 1,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       status: 'active',
-      scoringMethod: 'rag'
+      scoringMethod: 'rag',
+      profileHash
     }
 
     await careerRecommendationModel.updateRAGRecommendations(userId, updateData)
@@ -1204,6 +1237,28 @@ const getLearningPath = async ({ skill_gaps, courses = [], job_title = '', max_s
   }
 }
 
+// ============================================================================
+// Cache Invalidation
+// ============================================================================
+
+/**
+ * Xóa in-memory RAG cache trong AI Service.
+ * @returns {Promise<Object>} { success: boolean }
+ */
+const invalidateAIRAGCache = async () => {
+  try {
+    const AI_SERVICE_URL = `http://${env.AI_SERVICE_HOST}:${env.AI_SERVICE_PORT}`
+    await axios.delete(
+      `${AI_SERVICE_URL}/api/v1/ai/rag/cache`,
+      { timeout: 5000 }
+    )
+    return { success: true }
+  } catch (error) {
+    console.warn('[AIService] AI in-memory cache invalidation failed:', error.message)
+    return { success: false }
+  }
+}
+
 // Export các functions
 export const aiService = {
   getRecommendedJobs,
@@ -1239,5 +1294,7 @@ export const aiService = {
   // Course Recommendations
   getCourseRecommendations,
   // Learning Path
-  getLearningPath
+  getLearningPath,
+  // Cache Invalidation
+  invalidateAIRAGCache
 }

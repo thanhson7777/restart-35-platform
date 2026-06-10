@@ -384,6 +384,34 @@ const getPlacementStats = async (query) => {
   }
 }
 
+// ============ GIVE FEEDBACK ============
+const givePlacementFeedback = async (id, userId, feedbackData) => {
+  try {
+    const placement = await placementModel.findOneById(id)
+    if (!placement) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Placement không tồn tại!')
+    }
+
+    if (placement.userId.toString() !== userId) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền gửi feedback cho placement này!')
+    }
+
+    const updateData = {
+      feedback: {
+        rating: feedbackData.rating,
+        comment: feedbackData.comment,
+        submittedAt: new Date()
+      },
+      updatedBy: userId
+    }
+
+    const updated = await placementModel.update(id, updateData)
+    return updated
+  } catch (error) {
+    throw error
+  }
+}
+
 export const placementService = {
   createPlacement,
   getPlacements,
@@ -393,5 +421,6 @@ export const placementService = {
   updatePlacementStatus,
   resignPlacement,
   softDeletePlacement,
-  getPlacementStats
+  getPlacementStats,
+  givePlacementFeedback
 }

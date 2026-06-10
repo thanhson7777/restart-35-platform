@@ -49,19 +49,14 @@ export const getEnrollmentById = (id) =>
 export const cancelEnrollment = (id, data) =>
   authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/cancel`, data);
 
-// ─── Trainer ─────────────────────────────────────────────────────────────────
+export const dropEnrollment = (enrollmentId, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${enrollmentId}/drop`, data);
 
-export const getCourseEnrollments = (courseId, params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/course/${courseId}`, { params });
+export const reopenWorkerProfile = () =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/worker-profiles/reopen`);
 
-export const updateEnrollmentProgress = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/progress`, data);
-
-export const updateEnrollmentStatus = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/status`, data);
-
-export const getEnrollmentStats = (params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/stats`, { params });
+export const getEnrollmentRisk = (enrollmentId) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/${enrollmentId}/risk`);
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
 
@@ -89,6 +84,9 @@ export const getCourseByIdAdmin = (id, params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/${id}`, { params });
 
 // ─── Admin Enrollments ─────────────────────────────────────────────────────────
+
+export const getCourseEnrollments = (courseId, params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/course/${courseId}`, { params });
 
 export const getAdminEnrollmentStats = () =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/admin/stats`);
@@ -150,12 +148,6 @@ export const getVideoBookmarks = (lessonId) =>
 // ─── Admin Dropout Risk & Interventions ──────────────────────────────────
 export const getRiskList = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/admin/risk-list`, { params });
-
-export const getEnrollmentRiskDetail = (id) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/${id}/risk`);
-
-export const triggerManualIntervention = (id, data) =>
-  authorizeAxiosInstance.post(`${API_ROOT}/v1/enrollments/${id}/intervention`, data);
 
 // ─── Admin Schedule Builder ───────────────────────────────────────────
 export const getAdminCourseSchedule = (courseId) =>
@@ -273,56 +265,4 @@ export const deleteCourse = (id) =>
 
 export const submitCourse = (id) =>
   authorizeAxiosInstance.put(`${API_ROOT}/v1/courses/${id}/submit`);
-
-// ─── Trainer Enrollments (NEW) ──────────────────────────────────────
-export const getTrainerEnrollments = (params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/trainer/list`, { params });
-
-export const suspendEnrollment = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/suspend`, data);
-
-export const completeEnrollmentTrainer = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/complete`, data);
-
-export const failEnrollment = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/fail`, data);
-
-// ─── Trainer Schedules (NEW) ────────────────────────────────────────
-export const getTrainerSchedules = (params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/trainer/list`, { params });
-
-export const getTrainerScheduleStats = () =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/schedules/trainer/stats`);
-
-// ─── Trainer Reviews (NEW) ─────────────────────────────────────────
-export const respondToReview = (id, data) =>
-  authorizeAxiosInstance.post(`${API_ROOT}/v1/reviews/${id}/response`, {
-    content: data.responseText || data.content,
-    courseId: data.courseId
-  });
-
-export const getReviewsByCourse = (courseId, params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/reviews/course/${courseId}`, { params });
-
-export const getReviewById = (id) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/reviews/${id}`);
-
-// ─── Trainer Placements (NEW) ───────────────────────────────────────
-export const getPlacements = (params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/placements`, { params });
-
-export const createPlacement = (data) =>
-  authorizeAxiosInstance.post(`${API_ROOT}/v1/placements`, data);
-
-export const updatePlacement = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/placements/${id}`, data);
-
-export const updatePlacementStatus = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/placements/${id}/status`, data);
-
-export const getPlacementById = (id) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/placements/${id}`);
-
-export const resignPlacement = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/placements/${id}/resign`, data);
 

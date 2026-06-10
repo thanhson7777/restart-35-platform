@@ -16,6 +16,7 @@ import { BlendedProgressDetail } from './BlendedProgressDetail';
 export const EnrollmentCard = ({
   enrollment,
   onCancel,
+  onDrop,
   onViewProgress,
   onViewDetail,
 }) => {
@@ -35,6 +36,7 @@ export const EnrollmentCard = ({
 
   const isActive = ['enrolled', 'in_progress'].includes(status);
   const isCancellable = ['enrolled', 'pending', 'waitlist'].includes(status);
+  const isDropable = status === 'in_progress';
   
   const deliveryType = course?.delivery_type || 'video';
   const fundingModel = course?.funding_model || 'free';
@@ -193,6 +195,19 @@ export const EnrollmentCard = ({
                   }}
                 >
                   Hủy đăng ký
+                </Button>
+              )}
+              {isDropable && onDrop && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs font-bold rounded-xl text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-950/20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDrop(enrollment);
+                  }}
+                >
+                  Rút khỏi khóa học
                 </Button>
               )}
             </div>

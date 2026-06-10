@@ -40,9 +40,10 @@ export default function MyOutcomesPage() {
   const statsLoading = useSelector(selectStatsLoading)
 
   useEffect(() => {
+    if (!currentUser) return
     dispatch(fetchMyOutcomes())
     dispatch(fetchMyStats())
-  }, [dispatch])
+  }, [dispatch, currentUser?._id])
 
   const handleWithdraw = async (outcomeId) => {
     if (!window.confirm('Bạn có chắc muốn rút đơn ứng tuyển này?')) return

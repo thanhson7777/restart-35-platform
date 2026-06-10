@@ -1,5 +1,7 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { cn } from '@/utils/cn';
+import { logoutUser } from '@/redux/user/userSlice';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   GridFour, Users, BookOpenText, GraduationCap,
@@ -38,6 +40,8 @@ const bottomNavItems = [
 ];
 
 const AdminSidebar = ({ collapsed, onToggle }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
   const isActive = (href) =>
     href === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(href);
@@ -162,7 +166,10 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
           })}
           <li>
             <button
-              onClick={() => { localStorage.removeItem('accessToken'); window.location.href = '/auth'; }}
+              onClick={() => {
+                dispatch(logoutUser());
+                navigate('/auth');
+              }}
               className={cn(
                 'w-full flex items-center gap-3 rounded-xl text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-danger-subtle))] hover:text-[hsl(var(--admin-danger))] transition-all duration-200',
                 collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5'

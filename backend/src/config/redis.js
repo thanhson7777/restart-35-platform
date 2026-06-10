@@ -80,7 +80,8 @@ export const closeRedis = async () => {
 export const CACHE_KEYS = {
   careerPath: (userId) => `career:path:${userId}`,
   careerTransitions: (userId) => `career:transitions:${userId}`,
-  generationStatus: (userId) => `career:status:${userId}`
+  generationStatus: (userId) => `career:status:${userId}`,
+  ragRecommendation: (userId) => `rag:recommendation:${userId}`
 }
 
 export default redisClient
