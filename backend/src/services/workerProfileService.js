@@ -3,6 +3,7 @@ import { userModel } from '~/models/userModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { WORKER_PROFILE_STEPS, DEFAULT_PAGE, DEFAULT_ITEM_PER_PAGE } from '~/utils/constants'
+import { normalize } from '~/utils/provinceMap'
 
 const createNew = async (userId) => {
   try {
@@ -15,7 +16,7 @@ const createNew = async (userId) => {
     const basicInfo = (user && user.age) ? {
       age: user.age,
       gender: user.gender || '',
-      province: user.province || '',
+      province: normalize(user.province) || '',
       district: user.district || '',
       education: user.education || '',
       maritalStatus: user.maritalStatus || ''
@@ -57,23 +58,8 @@ const getProfileById = async (profileId) => {
 
 const updateStep = async (userId, step, stepData) => {
   try {
-    const stepFieldMap = {
-      1: 'employmentHistory',
-      2: 'barriers',
-      3: 'aspirations'
-    }
-
-    if (!stepFieldMap[step]) {
+    if (![1, 2, 3, 4].includes(step)) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Số bước không hợp lệ!')
-    }
-
-    const data = {
-      currentStep: step,
-      [stepFieldMap[step]]: stepData
-    }
-
-    if (step === WORKER_PROFILE_STEPS.MAX_STEP) {
-      data.isCompleted = true
     }
 
     const updatedProfile = await workerProfileModel.updateStep(userId, step, stepData)
@@ -89,8 +75,9 @@ const autosave = async (userId, step, data) => {
   try {
     const stepFieldMap = {
       1: 'employmentHistory',
-      2: 'barriers',
-      3: 'aspirations'
+      2: 'interests',
+      3: 'barriers',
+      4: 'aspirations'
     }
 
     if (!stepFieldMap[step]) {

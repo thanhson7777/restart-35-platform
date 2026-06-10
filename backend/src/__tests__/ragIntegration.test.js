@@ -21,7 +21,7 @@ const mockProfile = {
   basicInfo: {
     age: 40,
     gender: 'male',
-    province: 'HCM',
+    province: '79',
     education: 'university'
   },
   employmentHistory: [

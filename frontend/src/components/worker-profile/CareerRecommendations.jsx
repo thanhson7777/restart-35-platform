@@ -780,7 +780,7 @@ function CareerRecommendations({ className, userProfile }) {
       const basicInfo = profile.basicInfo || {}
 
       // Transform employmentHistory to experiences format
-      const experiences = (profile.employmentHistory || []).map(exp => ({
+      const experiences = (Array.isArray(profile.employmentHistory) ? profile.employmentHistory : []).map(exp => ({
         industry: exp.industry,
         role: exp.position || exp.role || exp.current_role,
         years: exp.duration ? Math.floor(exp.duration / 12) : (exp.years || 0),
@@ -803,7 +803,8 @@ function CareerRecommendations({ className, userProfile }) {
           skills: aspirations.skills || aspirations.desired_skills || [],
           targetSalary: aspirations.target_salary || aspirations.targetSalary
         },
-        barriers: profile.barriers || {}
+        barriers: profile.barriers || {},
+        interests: profile.interests || []
       }
     }
 
@@ -827,7 +828,8 @@ function CareerRecommendations({ className, userProfile }) {
         skills: profile.desired_skills || profile.skills || [],
         targetSalary: profile.target_salary || profile.targetSalary
       },
-      barriers: profile.barriers || {}
+      barriers: profile.barriers || {},
+      interests: profile.interests || []
     }
   }
 
@@ -938,7 +940,8 @@ function CareerRecommendations({ className, userProfile }) {
 
   // Batch fetch all data after RAG completes (ESCO + courses + learning paths)
   const fetchAllCareerData = async (profileData) => {
-    const employmentHistory = profileData?.employmentHistory || profileData?.employment_history || []
+    const rawHistory = profileData?.employmentHistory || profileData?.employment_history
+    const employmentHistory = Array.isArray(rawHistory) ? rawHistory : []
     const userSkills = []
 
     for (const exp of employmentHistory) {
@@ -959,7 +962,7 @@ function CareerRecommendations({ className, userProfile }) {
         const title = item.job_title || item.title || ''
         if (title) occupationSet.add(title)
       })
-    if (employmentHistory.length > 0) {
+    if (Array.isArray(employmentHistory) && employmentHistory.length > 0) {
       const empOcc = employmentHistory[0].occupation?.titleVi || employmentHistory[0].occupation?.titleEn || employmentHistory[0].role || employmentHistory[0].jobTitle || employmentHistory[0].position || ''
       if (empOcc) occupationSet.add(empOcc)
     }

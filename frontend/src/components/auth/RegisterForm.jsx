@@ -148,11 +148,12 @@ function BasicInfoStep({ basicInfo, setBasicInfo, errors, touched, onChange }) {
             placeholder="35 - 65"
             value={basicInfo.age}
             onChange={(e) => {
+              setBasicInfo(prev => ({ ...prev, age: e.target.value }))
+            }}
+            onBlur={(e) => {
               const val = parseInt(e.target.value)
-              if (e.target.value === '') {
-                setBasicInfo(prev => ({ ...prev, age: '' }))
-              } else if (!isNaN(val) && val >= 35 && val <= 65) {
-                setBasicInfo(prev => ({ ...prev, age: val }))
+              if (e.target.value !== '' && (isNaN(val) || val < 35 || val > 65)) {
+                onChange('age', '')
               }
             }}
             className={`

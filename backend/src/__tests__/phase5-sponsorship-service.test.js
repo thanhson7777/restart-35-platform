@@ -260,9 +260,9 @@ describe('courseSponsorshipModel', () => {
 
     it('should return NOT eligible when province not in list', async () => {
       const sponsorship = {
-        eligibilityCriteria: { provinces: ['HCM', 'Hanoi', 'Da Nang'] }
+        eligibilityCriteria: { provinces: ['79', '01', '48'] }
       }
-      const profile = { basicInfo: { province: 'Can Tho' } }
+      const profile = { basicInfo: { province: '92' } }
       const result = await courseSponsorshipModel.checkEligibility(profile, sponsorship)
       expect(result.eligible).toBe(false)
       expect(result.reason).toContain('Địa phương')
@@ -270,9 +270,9 @@ describe('courseSponsorshipModel', () => {
 
     it('should return eligible when province is in list', async () => {
       const sponsorship = {
-        eligibilityCriteria: { provinces: ['HCM', 'Hanoi'] }
+        eligibilityCriteria: { provinces: ['79', '01'] }
       }
-      const profile = { basicInfo: { province: 'HCM' } }
+      const profile = { basicInfo: { province: '79' } }
       const result = await courseSponsorshipModel.checkEligibility(profile, sponsorship)
       expect(result.eligible).toBe(true)
     })
@@ -293,7 +293,7 @@ describe('courseSponsorshipModel', () => {
           ageMin: 35,
           ageMax: 55,
           maxIncome: 15000000,
-          provinces: ['HCM'],
+          provinces: ['79'],
           education: ['university']
         }
       }
@@ -301,7 +301,7 @@ describe('courseSponsorshipModel', () => {
         basicInfo: {
           age: 45,
           monthlyIncome: 10000000,
-          province: 'HCM',
+          province: '79',
           education: 'university'
         },
         careerProfile: {}

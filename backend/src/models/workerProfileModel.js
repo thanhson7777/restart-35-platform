@@ -36,29 +36,43 @@ const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
     phone: Joi.string().allow('')
   }),
 
-  employmentHistory: Joi.array().items(
+  employmentHistory: Joi.alternatives().try(
+    // Format 1: Có kinh nghiệm - array of jobs
+    Joi.array().items(
+      Joi.object({
+        companyName: Joi.string().allow(''),
+        occupation: Joi.alternatives().try(
+          OCCUPATION_SCHEMA,
+          Joi.string().allow('') // Backward compat: old position string
+        ),
+        position: Joi.string().allow(''),
+        duration: Joi.number().integer().min(0),
+        jobType: Joi.string().valid(...Object.values(JOB_TYPES)),
+        skills: Joi.array().items(
+          Joi.alternatives().try(
+            SKILL_SCHEMA,
+            Joi.string()
+          )
+        ),
+        industry: Joi.string().allow('')
+      })
+    ).max(MAX_EMPLOYMENT_HISTORY),
+
+    // Format 2: Skip - object với status "không có"
     Joi.object({
-      companyName: Joi.string().allow(''),
-      // New occupation format (ESCO)
-      occupation: Joi.alternatives().try(
-        OCCUPATION_SCHEMA,
-        Joi.string().allow('') // Backward compat: old position string
-      ),
-      // Legacy position field (for backward compatibility)
-      position: Joi.string().allow(''),
-      duration: Joi.number().integer().min(0),
-      jobType: Joi.string().valid(...Object.values(JOB_TYPES)),
-      // Skills can be string[] (legacy) or object[] (ESCO)
-      skills: Joi.array().items(
-        Joi.alternatives().try(
-          SKILL_SCHEMA,
-          Joi.string()
-        )
-      ),
-      // Legacy industry field (kept for backward compat but deprecated)
-      industry: Joi.string().allow('')
-    })
-  ).max(MAX_EMPLOYMENT_HISTORY),
+      status: Joi.string().valid('không có').required(),
+      skipped_at: Joi.date().timestamp('javascript').default(Date.now())
+    }).unknown(true)
+  ),
+
+  interests: Joi.alternatives().try(
+    Joi.array().items(Joi.string()),
+    Joi.object({
+      interests: Joi.array().items(Joi.string()),
+      status: Joi.string().valid('không có')
+    }),
+    Joi.string().valid('không có')
+  ).optional(),
 
   barriers: Joi.object({
     health: Joi.boolean().default(false),
@@ -188,8 +202,9 @@ const updateStep = async (userId, step, stepData) => {
       const stepFieldMap = {
         1: 'basicInfo',
         2: 'employmentHistory',
-        3: 'barriers',
-        4: 'aspirations'
+        3: 'interests',
+        4: 'barriers',
+        5: 'aspirations'
       }
 
       const fieldName = stepFieldMap[step]
@@ -217,8 +232,9 @@ const updateStep = async (userId, step, stepData) => {
       const stepFieldMap = {
         1: 'basicInfo',
         2: 'employmentHistory',
-        3: 'barriers',
-        4: 'aspirations'
+        3: 'interests',
+        4: 'barriers',
+        5: 'aspirations'
       }
 
       const fieldName = stepFieldMap[step]

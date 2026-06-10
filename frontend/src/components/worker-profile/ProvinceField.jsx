@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { VIETNAM_PROVINCES, getDistricts } from '~/data/profileData'
+import { fetchProvinces, fetchWards } from '~/services/locationService'
 
 const MapPinIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -27,14 +27,37 @@ const ChevronIcon = ({ open }) => (
 )
 
 function ProvinceField({ province, district, onProvinceChange, onDistrictChange, errors = {} }) {
-  const districts = province ? getDistricts(province) : []
   const [provinceOpen, setProvinceOpen] = useState(false)
   const [districtOpen, setDistrictOpen] = useState(false)
   const provinceRef = useRef(null)
   const districtRef = useRef(null)
 
-  const selectedProvince = VIETNAM_PROVINCES.find(p => p.value === province)
-  const selectedDistrict = districts.find(d => d.value === district)
+  const [provinceList, setProvinceList] = useState([])
+  const [wardList, setWardList] = useState([])
+  const [loadingProvinces, setLoadingProvinces] = useState(true)
+  const [loadingWards, setLoadingWards] = useState(false)
+
+  // Fetch provinces on mount
+  useEffect(() => {
+    fetchProvinces().then(data => {
+      setProvinceList(data)
+      setLoadingProvinces(false)
+    })
+  }, [])
+
+  // Fetch wards when province changes (districts abolished July 2025 — province → ward direct)
+  useEffect(() => {
+    if (!province) {
+      setWardList([])
+      return
+    }
+    setLoadingWards(true)
+    onDistrictChange('') // reset district when province changes
+    fetchWards(province).then(data => {
+      setWardList(data)
+      setLoadingWards(false)
+    })
+  }, [province])
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -48,6 +71,9 @@ function ProvinceField({ province, district, onProvinceChange, onDistrictChange,
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  const selectedProvince = provinceList.find(p => p.value === province)
+  const selectedWard = wardList.find(w => w.value === district)
 
   return (
     <>
@@ -83,28 +109,34 @@ function ProvinceField({ province, district, onProvinceChange, onDistrictChange,
           {provinceOpen && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-input rounded-lg shadow-lg z-50 overflow-hidden">
               <ul className="max-h-48 overflow-y-auto py-1">
-                {VIETNAM_PROVINCES.map((p) => (
-                  <li key={p.value}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onProvinceChange(p.value)
-                        setProvinceOpen(false)
-                      }}
-                      className={`
-                        w-full px-3 py-2 text-sm text-left
-                        hover:bg-primary/10 hover:text-primary
-                        transition-colors duration-150
-                        ${province === p.value
-                          ? 'bg-primary/10 text-primary font-medium'
-                          : 'text-foreground'
-                        }
-                      `}
-                    >
-                      {p.label}
-                    </button>
+                {loadingProvinces ? (
+                  <li className="px-3 py-2 text-sm text-muted-foreground text-center">
+                    Đang tải...
                   </li>
-                ))}
+                ) : (
+                  provinceList.map((p) => (
+                    <li key={p.value}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onProvinceChange(p.value)
+                          setProvinceOpen(false)
+                        }}
+                        className={`
+                          w-full px-3 py-2 text-sm text-left
+                          hover:bg-primary/10 hover:text-primary
+                          transition-colors duration-150
+                          ${province === p.value
+                            ? 'bg-primary/10 text-primary font-medium'
+                            : 'text-foreground'
+                          }
+                        `}
+                      >
+                        {p.label}
+                      </button>
+                    </li>
+                  ))
+                )}
               </ul>
             </div>
           )}
@@ -116,10 +148,10 @@ function ProvinceField({ province, district, onProvinceChange, onDistrictChange,
         )}
       </div>
 
-      {/* District Select */}
+      {/* Ward / Commune Select */}
       <div className="space-y-1.5">
         <label className="block text-sm font-medium text-foreground">
-          Quận / Huyện
+          Phường / Xã / Thị trấn
           <span className="ml-1 text-xs text-muted-foreground font-normal">(tùy chọn)</span>
         </label>
         <div ref={districtRef} className="relative">
@@ -143,8 +175,8 @@ function ProvinceField({ province, district, onProvinceChange, onDistrictChange,
               ${errors.district ? 'border-destructive' : 'border-input'}
             `}
           >
-            <span className={selectedDistrict ? 'text-foreground' : 'text-muted-foreground'}>
-              {selectedDistrict ? selectedDistrict.label : '-- Chọn quận/huyện --'}
+            <span className={selectedWard ? 'text-foreground' : 'text-muted-foreground'}>
+              {selectedWard ? selectedWard.label : '-- Chọn phường/xã --'}
             </span>
             <ChevronIcon open={districtOpen} />
           </button>
@@ -152,28 +184,38 @@ function ProvinceField({ province, district, onProvinceChange, onDistrictChange,
           {districtOpen && province && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-input rounded-lg shadow-lg z-50 overflow-hidden">
               <ul className="max-h-48 overflow-y-auto py-1">
-                {districts.map((d) => (
-                  <li key={d.value}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onDistrictChange(d.value)
-                        setDistrictOpen(false)
-                      }}
-                      className={`
-                        w-full px-3 py-2 text-sm text-left
-                        hover:bg-primary/10 hover:text-primary
-                        transition-colors duration-150
-                        ${district === d.value
-                          ? 'bg-primary/10 text-primary font-medium'
-                          : 'text-foreground'
-                        }
-                      `}
-                    >
-                      {d.label}
-                    </button>
+                {loadingWards ? (
+                  <li className="px-3 py-2 text-sm text-muted-foreground text-center">
+                    Đang tải...
                   </li>
-                ))}
+                ) : wardList.length === 0 ? (
+                  <li className="px-3 py-2 text-sm text-muted-foreground text-center">
+                    Không có dữ liệu
+                  </li>
+                ) : (
+                  wardList.map((w) => (
+                    <li key={w.value}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onDistrictChange(w.value)
+                          setDistrictOpen(false)
+                        }}
+                        className={`
+                          w-full px-3 py-2 text-sm text-left
+                          hover:bg-primary/10 hover:text-primary
+                          transition-colors duration-150
+                          ${district === w.value
+                            ? 'bg-primary/10 text-primary font-medium'
+                            : 'text-foreground'
+                          }
+                        `}
+                      >
+                        {w.label}
+                      </button>
+                    </li>
+                  ))
+                )}
               </ul>
             </div>
           )}

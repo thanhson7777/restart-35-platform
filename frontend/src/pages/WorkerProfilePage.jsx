@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/Card'
 import { Avatar } from '@/components/ui/Avatar'
 import StepIndicator from '@/components/worker-profile/StepIndicator'
 import EmploymentForm from '@/components/worker-profile/EmploymentForm'
+import InterestsStep from '@/components/worker-profile/InterestsStep'
 import BarriersForm from '@/components/worker-profile/BarriersForm'
 import AspirationsForm from '@/components/worker-profile/AspirationsForm'
 import {
@@ -70,13 +71,13 @@ function WorkerProfilePage() {
 
   // Sync active step with Redux (offset by 1 since BasicInfo is now step 0)
   useEffect(() => {
-    // currentStep from backend is 1=Employment, 2=Barriers, 3=Aspirations
-    // activeStep in UI is 1, 2, 3
+    // currentStep from backend is 1=Employment, 2=Interests, 3=Barriers, 4=Aspirations
+    // activeStep in UI is 1, 2, 3, 4
     setActiveStep(currentStep || 1)
   }, [currentStep])
 
   const handleNext = () => {
-    setActiveStep((prev) => Math.min(prev + 1, 3))
+    setActiveStep((prev) => Math.min(prev + 1, 4))
   }
 
   const handlePrev = () => {
@@ -97,8 +98,10 @@ function WorkerProfilePage() {
       case 1:
         return <EmploymentForm onNext={handleNext} />
       case 2:
-        return <BarriersForm onNext={handleNext} />
+        return <InterestsStep onNext={handleNext} />
       case 3:
+        return <BarriersForm onNext={handleNext} />
+      case 4:
         return <AspirationsForm />
       default:
         return <EmploymentForm onNext={handleNext} />
@@ -112,6 +115,7 @@ function WorkerProfilePage() {
   const getStepDescription = () => {
     const descriptions = [
       'Các công việc đã làm trước đây',
+      'Sở thích và đam mê của bạn',
       'Những khó khăn bạn đang gặp phải',
       'Công việc và môi trường bạn mong muốn'
     ]
@@ -168,7 +172,7 @@ function WorkerProfilePage() {
           </motion.div>
 
           {/* Step Indicator */}
-          <StepIndicator currentStep={activeStep} totalSteps={3} isProfileCompleted={isCompleted} />
+          <StepIndicator currentStep={activeStep} totalSteps={4} isProfileCompleted={isCompleted} />
 
           {/* Form Card */}
           <motion.div

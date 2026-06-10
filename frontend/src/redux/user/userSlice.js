@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { authorizeAxiosInstance, publicAxiosInstance, resetInterceptorState, injectStore } from '~/utils/authorizeAxios'
+import { authorizeAxiosInstance, publicAxiosInstance, resetInterceptorState } from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 import { loginAPI, registerAPI } from '~/apis/authAPI'
 import { clearAllSessionData } from '~/utils/logout'
@@ -9,6 +9,10 @@ import { clearSavedJobs, clearFilters } from '~/redux/job/jobSlice'
 import { clearCurrentOutcome } from '~/redux/outcome/outcomeSlice'
 import { resetPlacement } from '~/redux/placement/placementSlice'
 import { resetLearningRecord } from '~/redux/learningRecord/learningRecordSlice'
+import { resetJobs } from '~/redux/job/jobSlice'
+import { clearOutcomes } from '~/redux/outcome/outcomeSlice'
+
+// Lazy store accessor — avoids circular dependency with store.js
 
 const initialState = {
   currentUser: null,
@@ -33,6 +37,15 @@ export const loginUserAPI = createAsyncThunk(
       if (refreshToken) {
         localStorage.setItem('refreshToken', refreshToken)
       }
+
+      // Reset all slices before new account takes over
+      const store = (await import('~/redux/store')).store
+      store.dispatch(resetProfile())
+      store.dispatch(resetAIState())
+      store.dispatch(resetJobs())
+      store.dispatch(clearOutcomes())
+      store.dispatch(resetPlacement())
+      store.dispatch(resetLearningRecord())
 
       return { user, accessToken, refreshToken }
     } catch (error) {
@@ -64,6 +77,14 @@ export const logoutUser = createAsyncThunk(
     localStorage.removeItem('refreshToken')
     resetInterceptorState()
     clearAllSessionData()
+    // Reset all slices on logout
+    const store = (await import('~/redux/store')).store
+    store.dispatch(resetProfile())
+    store.dispatch(resetAIState())
+    store.dispatch(resetJobs())
+    store.dispatch(clearOutcomes())
+    store.dispatch(resetPlacement())
+    store.dispatch(resetLearningRecord())
     return null
   }
 )
@@ -73,6 +94,9 @@ export const fetchCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/users/me`)
+      // #region agent debug log
+      fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3b3da8'},body:JSON.stringify({sessionId:'3b3da8',location:'userSlice.js:fetchCurrentUser_fulfilled',message:'GET /v1/users/me raw response.data.data',data:{data:response.data,dataData:response.data?.data},timestamp:Date.now(),hypothesisId:'D',runId:'init'})}).catch(()=>{});
+      // #endregion
       return response.data.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Không thể lấy thông tin user')
@@ -85,6 +109,9 @@ export const updateUserAPI = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/users/update`, data)
+      // #region agent debug log
+      fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3b3da8'},body:JSON.stringify({sessionId:'3b3da8',location:'userSlice.js:updateUserAPI_fulfilled',message:'updateUserAPI response.data',data:{responseData:response.data},timestamp:Date.now(),hypothesisId:'A',runId:'init'})}).catch(()=>{});
+      // #endregion
       return response.data.data || response.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Có lỗi khi cập nhật')
@@ -126,17 +153,6 @@ export const userSlice = createSlice({
       state.isAuthenticated = true
       state.currentUser = action.payload.user
       state.error = null
-      // Reset all slices before new account takes over
-      const store = injectStore()
-      fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8e2819'},body:JSON.stringify({sessionId:'8e2819',location:'userSlice.js:login.fulfilled',message:'injectStore result in login.fulfilled',data:{storeValue:store,storeType:typeof store,truthy:!!store},timestamp:Date.now(),hypothesisId:'H-injectStore',runId:'debug'})}).catch(()=>{});
-      if (store) {
-        store.dispatch(resetProfile())
-        store.dispatch(resetAIState())
-        store.dispatch(resetJobs())
-        store.dispatch(clearOutcomes())
-        store.dispatch(resetPlacement())
-        store.dispatch(resetLearningRecord())
-      }
     })
     builder.addCase(loginUserAPI.rejected, (state, action) => {
       state.isLoading = false

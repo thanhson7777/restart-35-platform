@@ -63,8 +63,6 @@ import {
 const TABS = [
   { id: 'recommended', label: 'Việc làm phù hợp', icon: Sparkle },
   { id: 'career', label: 'Gợi ý việc làm từ AI', icon: TrendUp },
-  { id: 'all', label: 'Tất cả việc làm', icon: Briefcase },
-  { id: 'saved', label: 'Đã lưu', icon: BookmarkSimple }
 ]
 
 /**
@@ -216,7 +214,7 @@ const JobsPage = () => {
 
     // Priority 2: employmentHistory[*].skills (new flow - matches backend)
     // Note: profileSlice uses camelCase 'employmentHistory', not snake_case
-    if (profile?.employmentHistory && profile.employmentHistory.length > 0) {
+    if (Array.isArray(profile?.employmentHistory) && profile.employmentHistory.length > 0) {
       const allSkills = []
       for (const job of profile.employmentHistory) {
         if (job.skills && Array.isArray(job.skills)) {
@@ -244,7 +242,7 @@ const JobsPage = () => {
   const skillsForRecommendation = extractSkillsFromProfile(formData)
 
   // Get latest job for display
-  const latestJob = formData?.employmentHistory?.[0]
+  const latestJob = Array.isArray(formData?.employmentHistory) ? formData.employmentHistory[0] : undefined
 
   // Helper to get display title from job (prioritize occupation from ESCO)
   const getJobTitle = (job) => {
@@ -281,9 +279,10 @@ const JobsPage = () => {
 
   // Calculate experience from employment history (convert months to years)
   const totalExperience = useMemo(() => {
-    if (!formData?.employmentHistory || formData.employmentHistory.length === 0) {
-      return 0
-    }
+    if (!formData?.employmentHistory) return 0
+    if (Array.isArray(formData.employmentHistory) && formData.employmentHistory.length === 0) return 0
+    // Skip case: employmentHistory is { status: "không có" }
+    if (!Array.isArray(formData.employmentHistory)) return 0
     const totalMonths = formData.employmentHistory.reduce((sum, job) => sum + (job.duration || 0), 0)
     return Math.floor(totalMonths / 12) // Convert months to years
   }, [formData])
@@ -329,7 +328,7 @@ const JobsPage = () => {
     } else if (activeTab === 'career' && isProfileCompleted && !careerPathLoading) {
       if (!hasFetchedCareer.current && formData.basicInfo?.age) {
         hasFetchedCareer.current = true
-        const experiences = (formData.employmentHistory || [])
+        const experiences = (Array.isArray(formData.employmentHistory) ? formData.employmentHistory : [])
           .filter(job => job.companyName || job.position)
           .map(job => ({
             industry: formData.basicInfo.industry || 'general',
@@ -699,36 +698,44 @@ const JobsPage = () => {
                       {/* Dropdown menu khi chọn custom */}
                       {showCustomDropdown && skillFilterMode === 'custom' && (
                         <div className="absolute top-full left-0 mt-2 w-72 bg-background border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
-                          <div className="p-2 border-b bg-muted/50">
-                            <p className="text-xs font-medium text-muted-foreground">
-                              Chọn kinh nghiệm để gợi ý
-                            </p>
-                          </div>
-                          {formData.employmentHistory.map((job, index) => (
-                            <button
-                              key={index}
-                              onClick={() => {
-                                setSelectedJobIndex(index)
-                                setShowCustomDropdown(false)
-                              }}
-                              className={cn(
-                                'w-full text-left px-3 py-2.5 text-sm hover:bg-muted transition-colors flex items-center justify-between gap-2',
-                                selectedJobIndex === index && 'bg-muted font-medium'
-                              )}
-                            >
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate">
-                                  {getJobTitle(job)}
-                                </div>
-                                <div className="text-xs text-muted-foreground truncate">
-                                  {job.companyName || 'Không có công ty'} • {job.duration ? Math.floor(job.duration / 12) : 0} năm
-                                </div>
+                          {Array.isArray(formData.employmentHistory) ? (
+                            <>
+                              <div className="p-2 border-b bg-muted/50">
+                                <p className="text-xs font-medium text-muted-foreground">
+                                  Chọn kinh nghiệm để gợi ý
+                                </p>
                               </div>
-                              {selectedJobIndex === index && (
-                                <Check className="w-4 h-4 text-primary shrink-0" />
-                              )}
-                            </button>
-                          ))}
+                              {formData.employmentHistory.map((job, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => {
+                                    setSelectedJobIndex(index)
+                                    setShowCustomDropdown(false)
+                                  }}
+                                  className={cn(
+                                    'w-full text-left px-3 py-2.5 text-sm hover:bg-muted transition-colors flex items-center justify-between gap-2',
+                                    selectedJobIndex === index && 'bg-muted font-medium'
+                                  )}
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium truncate">
+                                      {getJobTitle(job)}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground truncate">
+                                      {job.companyName || 'Không có công ty'} • {job.duration ? Math.floor(job.duration / 12) : 0} năm
+                                    </div>
+                                  </div>
+                                  {selectedJobIndex === index && (
+                                    <Check className="w-4 h-4 text-primary shrink-0" />
+                                  )}
+                                </button>
+                              ))}
+                            </>
+                          ) : (
+                            <div className="p-3 text-sm text-muted-foreground text-center">
+                              Không có kinh nghiệm để chọn
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

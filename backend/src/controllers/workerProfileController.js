@@ -70,7 +70,8 @@ const autosave = async (req, res, next) => {
       data: {
         profileId: updatedProfile._id,
         currentStep: updatedProfile.currentStep,
-        savedAt: updatedProfile.updatedAt
+        savedAt: updatedProfile.updatedAt,
+        stepData: data
       }
     })
   } catch (error) { next(error) }
@@ -116,6 +117,46 @@ const getProfiles = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getProfileCompleteness = async (req, res, next) => {
+  try {
+    const userId = req.user._id.toString()
+    const profile = await workerProfileService.getMyProfile(userId)
+
+    const employmentHistory = profile.employmentHistory
+    let hasExperience = true
+
+    if (employmentHistory) {
+      if (typeof employmentHistory === 'object' && !Array.isArray(employmentHistory)) {
+        hasExperience = employmentHistory.status !== 'không có'
+      } else if (Array.isArray(employmentHistory)) {
+        hasExperience = employmentHistory.length > 0 &&
+          employmentHistory.some(j => j?.companyName || j?.position)
+      }
+    } else {
+      hasExperience = false
+    }
+
+    const interests = profile.interests
+    const hasInterests = interests && interests !== 'không có' &&
+      (interests.length > 0 || (interests.interests && interests.interests.length > 0))
+
+    const missingFields = []
+    if (!hasExperience) missingFields.push('employmentHistory')
+    if (!hasInterests) missingFields.push('interests')
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: {
+        is_complete: hasExperience && hasInterests,
+        has_experience: hasExperience,
+        has_interests: hasInterests,
+        missing_fields: missingFields,
+        completeness_score: (hasExperience ? 50 : 0) + (hasInterests ? 50 : 0)
+      }
+    })
+  } catch (error) { next(error) }
+}
+
 export const workerProfileController = {
   createNew,
   getMyProfile,
@@ -124,5 +165,6 @@ export const workerProfileController = {
   autosave,
   completeProfile,
   reopenProfile,
-  getProfiles
+  getProfiles,
+  getProfileCompleteness
 }

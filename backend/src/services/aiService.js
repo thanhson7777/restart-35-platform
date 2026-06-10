@@ -868,6 +868,17 @@ const triggerRAGCareerRecommendation = async (userId, profile) => {
       )
     }
 
+    if (error.response?.status === 429) {
+      // Groq API rate limit — distinguish from generic 500
+      const retryAfter = error.response?.headers?.['retry-after']
+      throw new ApiError(
+        StatusCodes.TOO_MANY_REQUESTS,
+        retryAfter
+          ? `API rate limit. Vui lòng thử lại sau ${Math.ceil(parseInt(retryAfter) / 60)} phút.`
+          : 'API rate limit. Vui lòng thử lại sau vài phút.'
+      )
+    }
+
     if (error.response?.status === 503) {
       throw new ApiError(
         StatusCodes.SERVICE_UNAVAILABLE,
@@ -1043,6 +1054,16 @@ const refreshRAGRecommendation = async (userId, profile) => {
       throw new ApiError(
         StatusCodes.SERVICE_UNAVAILABLE,
         'AI Service hiện không khả dụng'
+      )
+    }
+
+    if (error.response?.status === 429) {
+      const retryAfter = error.response?.headers?.['retry-after']
+      throw new ApiError(
+        StatusCodes.TOO_MANY_REQUESTS,
+        retryAfter
+          ? `API rate limit. Vui lòng thử lại sau ${Math.ceil(parseInt(retryAfter) / 60)} phút.`
+          : 'API rate limit. Vui lòng thử lại sau vài phút.'
       )
     }
 
