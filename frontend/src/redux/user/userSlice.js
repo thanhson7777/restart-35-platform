@@ -1,7 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { authorizeAxiosInstance, publicAxiosInstance } from '~/utils/authorizeAxios'
+import { authorizeAxiosInstance, publicAxiosInstance, resetInterceptorState, injectStore } from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 import { loginAPI, registerAPI } from '~/apis/authAPI'
+import { clearAllSessionData } from '~/utils/logout'
+import { resetProfile } from '~/redux/profile/profileSlice'
+import { resetAIState } from '~/redux/ai/aiSlice'
+import { clearSavedJobs, clearFilters } from '~/redux/job/jobSlice'
+import { clearCurrentOutcome } from '~/redux/outcome/outcomeSlice'
+import { resetPlacement } from '~/redux/placement/placementSlice'
+import { resetLearningRecord } from '~/redux/learningRecord/learningRecordSlice'
 
 const initialState = {
   currentUser: null,
@@ -51,14 +58,13 @@ export const registerUserAPI = createAsyncThunk(
 export const logoutUser = createAsyncThunk(
   'user/logout',
   async (_, { rejectWithValue }) => {
-    try {
-      await authorizeAxiosInstance.delete(`${API_ROOT}/v1/users/logout`)
-    } catch (error) {
-      // ignore logout errors, still clear local state
-    } finally {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-    }
+    // NO-OP: chỉ clear local state, không gọi API
+    // Gọi API logout trong thunk gây race condition khi logout → login liên tiếp
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    resetInterceptorState()
+    clearAllSessionData()
+    return null
   }
 )
 
@@ -120,6 +126,17 @@ export const userSlice = createSlice({
       state.isAuthenticated = true
       state.currentUser = action.payload.user
       state.error = null
+      // Reset all slices before new account takes over
+      const store = injectStore()
+      fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'8e2819'},body:JSON.stringify({sessionId:'8e2819',location:'userSlice.js:login.fulfilled',message:'injectStore result in login.fulfilled',data:{storeValue:store,storeType:typeof store,truthy:!!store},timestamp:Date.now(),hypothesisId:'H-injectStore',runId:'debug'})}).catch(()=>{});
+      if (store) {
+        store.dispatch(resetProfile())
+        store.dispatch(resetAIState())
+        store.dispatch(resetJobs())
+        store.dispatch(clearOutcomes())
+        store.dispatch(resetPlacement())
+        store.dispatch(resetLearningRecord())
+      }
     })
     builder.addCase(loginUserAPI.rejected, (state, action) => {
       state.isLoading = false
@@ -180,6 +197,10 @@ export const { clearUser, updateUser, clearError, restoreAuth } = userSlice.acti
 
 export const selectCurrentUser = (state) => {
   return state.user.currentUser
+}
+
+export const selectIsAuthenticated = (state) => {
+  return state.user.isAuthenticated
 }
 
 export const userReducer = userSlice.reducer

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/Button'
 import {
   TrendUp,
   Warning,
@@ -50,7 +51,20 @@ import {
   selectStartupIdeas,
   selectStartupLoading,
   selectStartupError,
-  triggerStartupSuggestion
+  triggerStartupSuggestion,
+  // Batch selectors
+  selectCourseRecommendationsMap,
+  selectLearningPathsMap,
+  selectSkillGapsMap,
+  selectCourseLoading,
+  setCourseRecommendations,
+  setLearningPaths,
+  setSkillGaps,
+  setCourseLoading,
+  clearCourseRecommendations,
+  // RAG Skill Gap selectors
+  selectRAGSkillsGap,
+  selectRAGSkillsGapLoading
 } from '@/redux/ai/aiSlice'
 import {
   getCachedCareerPathAPI,
@@ -58,7 +72,8 @@ import {
   invalidateCareerPathCacheAPI,
   analyzeSkillGapsFromEscoAPI,
   getCourseRecommendationsAPI,
-  getLearningPathAPI
+  getLearningPathAPI,
+  getRAGSkillsGapAPI
 } from '@/apis/aiAPI'
 import SkillGapSection from '@/components/SkillGapSection'
 import CourseRecommendationSection from '@/components/course/CourseRecommendationSection'
@@ -87,50 +102,8 @@ const UrgencyBadge = ({ urgency }) => {
   )
 }
 
-const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
-  const [courses, setCourses] = useState([])
-  const [learningPath, setLearningPath] = useState(null)
-  const [loadingCourses, setLoadingCourses] = useState(false)
+const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading, onViewAllSkills }) => {
   const pathKey = path.job_title || path.title
-
-  useEffect(() => {
-    if (!skillGaps || skillGaps.length === 0) return
-
-    const timeoutId = setTimeout(async () => {
-      setLoadingCourses(true)
-      try {
-        const topGaps = skillGaps.slice(0, 10).map(g => ({
-          skill_name: g.skill_name,
-          priority: g.priority
-        }))
-
-        // Call both APIs in parallel
-        const [courseResult, learningPathResult] = await Promise.allSettled([
-          getCourseRecommendationsAPI({ skill_gaps: topGaps, limit: 5 }),
-          getLearningPathAPI({
-            skill_gaps: topGaps,
-            job_title: pathKey,
-            max_steps: 5
-          })
-        ])
-
-        if (courseResult.status === 'fulfilled') {
-          setCourses(courseResult.value?.courses || [])
-        }
-        if (learningPathResult.status === 'fulfilled') {
-          setLearningPath(learningPathResult.value?.learning_path || null)
-        }
-      } catch (err) {
-        console.error('[CareerRecommendations] course/path API error:', err)
-        setCourses([])
-        setLearningPath(null)
-      } finally {
-        setLoadingCourses(false)
-      }
-    }, 500)
-
-    return () => clearTimeout(timeoutId)
-  }, [skillGaps, pathKey])
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -166,14 +139,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
           <Icon size={20} className={color} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="font-medium text-foreground truncate">{path.job_title || path.title}</h4>
-            {path.match_score && (
-              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                Match: {(path.match_score * 100).toFixed(0)}%
-              </span>
-            )}
-          </div>
+          <h4 className="font-medium text-foreground truncate">{path.job_title || path.title}</h4>
         </div>
       </div>
 
@@ -271,7 +237,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
         {courses !== undefined && (
           <CourseRecommendationSection
             courses={courses}
-            loading={loadingCourses}
+            loading={loading}
             skillGapTotal={(path.what_to_learn || path.learning_path || path.missing_skills)?.length || skillGaps?.length || 0}
             jobTitle={path.job_title || path.title}
           />
@@ -281,7 +247,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
         {learningPath && (
           <LearningPathSection
             learningPath={learningPath}
-            loading={loadingCourses}
+            loading={loading}
           />
         )}
 
@@ -411,7 +377,7 @@ const PathCard = ({ path, type, index, skillGaps, onViewAllSkills }) => {
   )
 }
 
-const SectionHeader = ({ title, subtitle, icon: Icon, count }) => (
+const SectionHeader = ({ title, icon: Icon, count }) => (
   <div className="flex items-center justify-between mb-3">
     <div className="flex items-center gap-2">
       {Icon && <Icon size={18} className="text-primary" />}
@@ -420,9 +386,6 @@ const SectionHeader = ({ title, subtitle, icon: Icon, count }) => (
         <span className="text-xs text-muted-foreground">({count})</span>
       )}
     </div>
-    {subtitle && (
-      <span className="text-xs text-muted-foreground">{subtitle}</span>
-    )}
   </div>
 )
 
@@ -714,7 +677,7 @@ function CareerRecommendations({ className, userProfile }) {
   const bestFits = useSelector(selectBestFits)
   const incomeBoost = useSelector(selectIncomeBoost)
   const progression = useSelector(selectProgression)
-  const ragGeneratedAt = useSelector(selectRAGGeneratedAt)
+  // Startup state
   const ragIsFresh = useSelector(selectRAGIsFresh)
   const ragIsExpired = useSelector(selectRAGIsExpired)
 
@@ -723,14 +686,22 @@ function CareerRecommendations({ className, userProfile }) {
   const startupLoading = useSelector(selectStartupLoading)
   const startupError = useSelector(selectStartupError)
 
+  // RAG Skill Gap state
+  const ragSkillsGap = useSelector(selectRAGSkillsGap)
+  const ragSkillsGapLoading = useSelector(selectRAGSkillsGapLoading)
+
+  // Batch course/learning-path from Redux
+  const courseRecommendationsMap = useSelector(selectCourseRecommendationsMap)
+  const learningPathsMap = useSelector(selectLearningPathsMap)
+  const skillGapsMapRedux = useSelector(selectSkillGapsMap)
+  const courseLoading = useSelector(selectCourseLoading)
+
   // Local state
   const [dataSource, setDataSource] = useState(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastGenerated, setLastGenerated] = useState(null)
   const [activeTab, setActiveTab] = useState('career') // 'career' | 'skills'
   const [selectedCareerPath, setSelectedCareerPath] = useState(null)
-  const [skillGapsMap, setSkillGapsMap] = useState(new Map())
-  const [isLoadingSkillGaps, setIsLoadingSkillGaps] = useState(false)
 
   // Skill Gap Modal state
   const [skillModal, setSkillModal] = useState({ isOpen: false, occupation: null, result: null })
@@ -758,7 +729,12 @@ function CareerRecommendations({ className, userProfile }) {
       basicInfo: profile.basicInfo,
       aspirations: profile.aspirations,
       barriers: profile.barriers,
-      employmentHistory: profile.employmentHistory
+      employmentHistory: profile.employmentHistory,
+      // Also include top-level fields (from users collection)
+      age: profile.age,
+      gender: profile.gender,
+      province: profile.province,
+      education: profile.education
     })
   }
 
@@ -815,10 +791,10 @@ function CareerRecommendations({ className, userProfile }) {
 
       return {
         basicInfo: {
-          age: basicInfo.age,
-          gender: basicInfo.gender,
-          province: basicInfo.province || basicInfo.location,
-          education: basicInfo.education
+          age: basicInfo.age || profile.age,
+          gender: basicInfo.gender || profile.gender,
+          province: basicInfo.province || basicInfo.location || profile.province,
+          education: basicInfo.education || profile.education
         },
         employmentHistory: experiences,
         aspirations: {
@@ -960,127 +936,95 @@ function CareerRecommendations({ className, userProfile }) {
     }
   }
 
-  // Fetch skill gaps from ESCO for multiple occupations (Phase 2-3)
-  const fetchSkillGapsFromEsco = async (profileData) => {
-    try {
-      // Extract user skills from employment history
-      const employmentHistory = profileData?.employmentHistory || profileData?.employment_history || []
-      const userSkills = []
+  // Batch fetch all data after RAG completes (ESCO + courses + learning paths)
+  const fetchAllCareerData = async (profileData) => {
+    const employmentHistory = profileData?.employmentHistory || profileData?.employment_history || []
+    const userSkills = []
 
-      for (const exp of employmentHistory) {
-        if (exp.skills && Array.isArray(exp.skills)) {
-          for (const skill of exp.skills) {
-            if (typeof skill === 'string') {
-              userSkills.push(skill)
-            } else if (skill?.name) {
-              userSkills.push(skill.name)
-            } else if (skill?.titleVi) {
-              userSkills.push(skill.titleVi)
-            } else if (skill?.titleEn) {
-              userSkills.push(skill.titleEn)
-            }
-          }
+    for (const exp of employmentHistory) {
+      if (exp.skills && Array.isArray(exp.skills)) {
+        for (const skill of exp.skills) {
+          if (typeof skill === 'string') userSkills.push(skill)
+          else if (skill?.name) userSkills.push(skill.name)
+          else if (skill?.titleVi) userSkills.push(skill.titleVi)
+          else if (skill?.titleEn) userSkills.push(skill.titleEn)
         }
       }
-
-      if (userSkills.length === 0) {
-        console.log('[SkillGaps] No user skills found in profile')
-        return
-      }
-
-      // Extract unique occupations from all 3 RAG sources + startup
-      const occupationSet = new Set()
-
-      // From bestFits
-      bestFits.forEach(f => {
-        const title = f.job_title || f.title || ''
-        if (title) occupationSet.add(title)
-      })
-
-      // From incomeBoost
-      incomeBoost.forEach(f => {
-        const title = f.job_title || f.title || ''
-        if (title) occupationSet.add(title)
-      })
-
-      // From progression
-      progression.forEach(f => {
-        const title = f.job_title || f.title || ''
-        if (title) occupationSet.add(title)
-      })
-
-      // From startupIdeas
-      startupIdeas.forEach(s => {
-        const title = s.job_title || ''
-        if (title) occupationSet.add(title)
-      })
-
-      // From employment history (fallback)
-      if (employmentHistory.length > 0) {
-        const empOcc = employmentHistory[0].occupation?.titleVi
-          || employmentHistory[0].occupation?.titleEn
-          || employmentHistory[0].role
-          || employmentHistory[0].jobTitle
-          || employmentHistory[0].position
-          || ''
-        if (empOcc) occupationSet.add(empOcc)
-      }
-
-      const occupations = Array.from(occupationSet).slice(0, 8) // max 8 occupations
-
-      if (occupations.length === 0) {
-        console.log('[SkillGaps] No occupations found to analyze')
-        return
-      }
-
-      const age = profileData?.basicInfo?.age || profileData?.age || 30
-
-      // Build career context
-      const careerContext = {
-        industry: profileData?.basicInfo?.industry || profileData?.industry || '',
-        userStrengths: profileData?.strengths || [],
-        aspirations: profileData?.aspirations || {},
-        barriers: {
-          age,
-          ...(profileData?.barriers || {})
-        }
-      }
-
-      setIsLoadingSkillGaps(true)
-      console.log(`[SkillGaps] Analyzing ${occupations.length} occupations:`, occupations)
-
-      // Call ESCO analysis for ALL occupations in parallel
-      const results = await Promise.all(
-        occupations.map(occ =>
-          analyzeSkillGapsFromEscoAPI(
-            userSkills,
-            occ,
-            age,
-            15,
-            careerContext
-          ).catch(err => {
-            console.warn(`[SkillGaps] Failed for ${occ}:`, err.message)
-            return null
-          })
-        )
-      )
-
-      // Build Map: occupation -> result
-      const newMap = new Map()
-      results.forEach((result, idx) => {
-        if (result?.success) {
-          newMap.set(occupations[idx], result)
-        }
-      })
-
-      setSkillGapsMap(newMap)
-      console.log(`[SkillGaps] Loaded gaps for ${newMap.size} occupations`)
-    } catch (err) {
-      console.warn('[SkillGaps] ESCO analysis failed:', err.message)
-    } finally {
-      setIsLoadingSkillGaps(false)
     }
+
+    if (userSkills.length === 0) return
+
+    const occupationSet = new Set()
+      ;[...bestFits, ...incomeBoost, ...progression, ...startupIdeas].forEach(item => {
+        const title = item.job_title || item.title || ''
+        if (title) occupationSet.add(title)
+      })
+    if (employmentHistory.length > 0) {
+      const empOcc = employmentHistory[0].occupation?.titleVi || employmentHistory[0].occupation?.titleEn || employmentHistory[0].role || employmentHistory[0].jobTitle || employmentHistory[0].position || ''
+      if (empOcc) occupationSet.add(empOcc)
+    }
+    const occupations = Array.from(occupationSet).slice(0, 8)
+    if (occupations.length === 0) return
+
+    const age = profileData?.basicInfo?.age || profileData?.age || 30
+    const careerContext = {
+      industry: profileData?.basicInfo?.industry || profileData?.industry || '',
+      userStrengths: profileData?.strengths || [],
+      aspirations: profileData?.aspirations || {},
+      barriers: { age, ...(profileData?.barriers || {}) }
+    }
+
+    dispatch(setCourseLoading(true))
+
+    // Step 1: Batch ESCO skill gaps (parallel)
+    const escResults = await Promise.all(
+      occupations.map(occ =>
+        analyzeSkillGapsFromEscoAPI(userSkills, occ, age, 15, careerContext).catch(() => null)
+      )
+    )
+    const skillGapsObj = {}
+    escResults.forEach((r, i) => {
+      if (r?.success) skillGapsObj[occupations[i]] = r
+    })
+    dispatch(setSkillGaps(skillGapsObj))
+
+    const allGaps = Object.values(skillGapsObj).flatMap(r => r?.skill_gaps || []).slice(0, 15)
+    const topGaps = allGaps.map(g => ({ skill_name: g.skill_name, priority: g.priority }))
+
+    // Step 2: Batch course recommendations + learning paths (parallel)
+    const [courseResults, learningPathResults] = await Promise.all([
+      Promise.all(occupations.map(occ =>
+        getCourseRecommendationsAPI({ skill_gaps: topGaps, limit: 5 }).catch(() => null)
+      )),
+      Promise.all(occupations.map(occ =>
+        getLearningPathAPI({ skill_gaps: topGaps, job_title: occ, max_steps: 5 }).catch(() => null)
+      ))
+    ])
+
+    const courseMap = {}
+    courseResults.forEach((r, i) => {
+      if (r) courseMap[occupations[i]] = r.courses || []
+    })
+    dispatch(setCourseRecommendations(courseMap))
+
+    const learningPathMap = {}
+    learningPathResults.forEach((r, i) => {
+      if (r) learningPathMap[occupations[i]] = r.learning_path || null
+    })
+    dispatch(setLearningPaths(learningPathMap))
+
+    dispatch(setCourseLoading(false))
   }
+
+  // Trigger batch fetch when RAG data is available
+  const hasFetchedAllData = useRef(false)
+  useEffect(() => {
+    const hasRAGData = bestFits.length > 0 || incomeBoost.length > 0 || progression.length > 0
+    if (!hasRAGData || !userProfile || hasFetchedAllData.current) return
+
+    hasFetchedAllData.current = true
+    fetchAllCareerData(userProfile)
+  }, [bestFits.length, incomeBoost.length, progression.length, userProfile])
 
   // Manual refresh
   const handleRefresh = async () => {
@@ -1126,6 +1070,8 @@ function CareerRecommendations({ className, userProfile }) {
     hasFetchedRAG.current = false
     hasFetchedLegacy.current = false
     hasFetchedStartup.current = false
+    hasFetchedAllData.current = false
+    dispatch(clearCourseRecommendations())
     prevProfileRef.current = null
 
     // Fetch data based on active tab
@@ -1146,17 +1092,7 @@ function CareerRecommendations({ className, userProfile }) {
     }
   }, [activeTab, isLoggedIn, wantsToStartBusiness, startupIdeas.length, userProfile, dispatch])
 
-  // Trigger ESCO skill gaps AFTER bestFits is populated
-  const hasFetchedSkillGaps = useRef(false)
-  useEffect(() => {
-    if (bestFits.length > 0 && !hasFetchedSkillGaps.current) {
-      hasFetchedSkillGaps.current = true
-      const profileData = userProfile || careerPath?.user_profile
-      if (profileData) {
-        fetchSkillGapsFromEsco(profileData)
-      }
-    }
-  }, [bestFits.length, userProfile, careerPath])
+  // Trigger ESCO skill gaps AFTER bestFits is populated (now handled inside fetchAllCareerData)
 
   const handleRetry = () => {
     // Reset flags for retry based on current tab
@@ -1218,37 +1154,6 @@ function CareerRecommendations({ className, userProfile }) {
 
   return (
     <div className={cn('space-y-6', className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <TrendUp size={20} className="text-primary" />
-            Lộ trình sự nghiệp
-          </h2>
-          {careerPath?.user_profile && (
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Dựa trên hồ sơ của bạn ({careerPath.user_profile.total_experience_years} năm kinh nghiệm)
-            </p>
-          )}
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="flex border-b border-border">
-          <button
-            onClick={() => setActiveTab('career')}
-            className={cn(
-              'px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2',
-              activeTab === 'career'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <Path size={14} />
-            Lộ trình nghề nghiệp
-          </button>
-        </div>
-      </div>
-
       {/* Tab Content */}
 
       {/* Tab 1: Lộ trình nghề nghiệp */}
@@ -1276,14 +1181,15 @@ function CareerRecommendations({ className, userProfile }) {
             <div>
               <SectionHeader
                 title="Gợi ý phù hợp nhất"
-                subtitle="Dựa trên RAG data"
                 icon={Sparkle}
                 count={bestFits.length}
               />
               <div className="space-y-3">
                 {bestFits.map((path, index) => {
                   const occKey = path.job_title || path.title
-                  const gaps = skillGapsMap.get(occKey)?.skill_gaps || []
+                  const gaps = skillGapsMapRedux[occKey]?.skill_gaps || []
+                  const courses = courseRecommendationsMap[occKey] || []
+                  const learningPath = learningPathsMap[occKey] || null
                   return (
                     <PathCard
                       key={`best-fit-${index}`}
@@ -1291,6 +1197,9 @@ function CareerRecommendations({ className, userProfile }) {
                       type="best_fit"
                       index={index}
                       skillGaps={gaps}
+                      courses={courses}
+                      learningPath={learningPath}
+                      loading={courseLoading}
                       onViewAllSkills={handleOpenSkillModal}
                     />
                   )
@@ -1304,14 +1213,15 @@ function CareerRecommendations({ className, userProfile }) {
             <div>
               <SectionHeader
                 title="Tăng thu nhập nhanh"
-                subtitle="Những lựa chọn có thể tăng thu nhập"
                 icon={CurrencyDollar}
                 count={incomeBoost.length}
               />
               <div className="space-y-3">
                 {incomeBoost.map((path, index) => {
                   const occKey = path.job_title || path.title
-                  const gaps = skillGapsMap.get(occKey)?.skill_gaps || []
+                  const gaps = skillGapsMapRedux[occKey]?.skill_gaps || []
+                  const courses = courseRecommendationsMap[occKey] || []
+                  const learningPath = learningPathsMap[occKey] || null
                   return (
                     <PathCard
                       key={`income-${index}`}
@@ -1319,6 +1229,9 @@ function CareerRecommendations({ className, userProfile }) {
                       type="income_boost"
                       index={index}
                       skillGaps={gaps}
+                      courses={courses}
+                      learningPath={learningPath}
+                      loading={courseLoading}
                       onViewAllSkills={handleOpenSkillModal}
                     />
                   )
@@ -1332,14 +1245,15 @@ function CareerRecommendations({ className, userProfile }) {
             <div>
               <SectionHeader
                 title="Lộ trình phát triển"
-                subtitle="Cơ hội thăng tiến"
                 icon={ChartBar}
                 count={progression.length}
               />
               <div className="space-y-3">
                 {progression.map((path, index) => {
                   const occKey = path.job_title || path.title
-                  const gaps = skillGapsMap.get(occKey)?.skill_gaps || []
+                  const gaps = skillGapsMapRedux[occKey]?.skill_gaps || []
+                  const courses = courseRecommendationsMap[occKey] || []
+                  const learningPath = learningPathsMap[occKey] || null
                   return (
                     <PathCard
                       key={`progression-${index}`}
@@ -1347,6 +1261,9 @@ function CareerRecommendations({ className, userProfile }) {
                       type="progression"
                       index={index}
                       skillGaps={gaps}
+                      courses={courses}
+                      learningPath={learningPath}
+                      loading={courseLoading}
                       onViewAllSkills={handleOpenSkillModal}
                     />
                   )
@@ -1360,7 +1277,6 @@ function CareerRecommendations({ className, userProfile }) {
             <div>
               <SectionHeader
                 title="Gợi ý lập nghiệp"
-                subtitle="Dựa trên kinh nghiệm của bạn"
                 icon={Rocket}
                 count={startupIdeas.length}
               />
@@ -1378,13 +1294,6 @@ function CareerRecommendations({ className, userProfile }) {
                 <EmptyState type="startup" />
               )}
             </div>
-          )}
-
-          {/* RAG Generated timestamp */}
-          {ragGeneratedAt && (
-            <p className="text-xs text-muted-foreground text-center">
-              Phân tích RAG lúc: {new Date(ragGeneratedAt).toLocaleString('vi-VN')}
-            </p>
           )}
 
           {/* Show empty state if no RAG data */}

@@ -2,8 +2,22 @@ import express from 'express'
 import { isaRepaymentValidation } from '~/validators/isaRepaymentValidation'
 import { isaRepaymentController } from '~/controllers/isaRepaymentController'
 import { authMiddleware } from '~/middlewares/authMiddleware'
+import multer from 'multer'
 
 const Router = express.Router()
+
+// Configure multer for file upload (memory storage)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'].includes(file.mimetype)) {
+      cb(null, true)
+    } else {
+      cb(new Error('Chỉ chấp nhận file jpg, png, pdf'), false)
+    }
+  }
+})
 
 // ============ WORKER ROUTES ============
 
@@ -14,10 +28,11 @@ Router.get(
   isaRepaymentController.getMyIsaRepayments
 )
 
-// Nộp thu nhập
+// Nộp thu nhập (hỗ trợ upload file chứng minh thu nhập)
 Router.post(
   '/:id/submit-income',
   authMiddleware.isAuthorized,
+  upload.single('proofDocument'),
   isaRepaymentValidation.checkIsaRepaymentId,
   isaRepaymentValidation.submitIncome,
   isaRepaymentController.submitIncome

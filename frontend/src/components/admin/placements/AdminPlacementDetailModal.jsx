@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { updatePlacementStatus, resignPlacement } from '@/apis';
+import { updatePlacementStatus, resignPlacement } from '@/apis/trainerApi';
 
 const statusConfig = {
   active: { label: 'Đang làm', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },

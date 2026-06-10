@@ -776,3 +776,23 @@ export const getLearningPathAPI = async ({
   )
   return response.data
 }
+
+// ============================================================================
+// RAG Skill Gap & Federated Career Analysis
+// ============================================================================
+
+export const getRAGSkillsGapAPI = async (profile) => {
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/rag/skills-gap`,
+    { profile }
+  )
+  return response.data
+}
+
+export const federatedCareerAnalysisAPI = async (user_profile, options = {}) => {
+  const response = await authorizeAxiosInstance.post(
+    `${AI_BASE_URL}/career/analyze-full`,
+    { user_profile, options }
+  )
+  return response.data
+}

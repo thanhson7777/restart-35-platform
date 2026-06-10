@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AuthSidebar } from '@/components/auth/AuthSidebar'
 import LoginForm from '@/components/auth/LoginForm'
@@ -17,6 +17,96 @@ const RestartIcon = ({ className }) => (
   </svg>
 )
 
+// ===== Role Selection Step =====
+const ROLE_OPTIONS = [
+  {
+    id: 'worker',
+    label: 'Người lao động',
+    description: 'Tìm việc làm phù hợp sau tuổi 35',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    )
+  },
+  {
+    id: 'trainer',
+    label: 'Huấn luyện viên',
+    description: 'Đào tạo và hướng dẫn người lao động',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+        <path d="M6 12v5c3 3 9 3 12 0v-5" />
+      </svg>
+    )
+  },
+  {
+    id: 'enterprise',
+    label: 'Doanh nghiệp',
+    description: 'Tuyển dụng và hợp tác cùng RESTART-35',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2" />
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+      </svg>
+    )
+  },
+  {
+    id: 'ngo',
+    label: 'Tổ chức phi chính phủ',
+    description: 'Đồng hành cùng người lao động',
+    icon: (
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    )
+  }
+]
+
+function RoleSelectionStep({ onSelectRole }) {
+  return (
+    <motion.div
+      key="role-selection"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.25 }}
+      className="space-y-4"
+    >
+      <div className="text-center mb-6">
+        <p className="text-sm text-muted-foreground">
+          Bạn đăng ký với vai trò gì?
+        </p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {ROLE_OPTIONS.map((role) => (
+          <button
+            key={role.id}
+            type="button"
+            onClick={() => onSelectRole(role.id)}
+            className="
+              flex items-center gap-3 p-4 rounded-xl border border-border
+              bg-background hover:bg-muted/50 hover:border-primary/50
+              text-left transition-all duration-200 cursor-pointer
+              focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
+            "
+          >
+            <div className="text-primary flex-shrink-0">{role.icon}</div>
+            <div className="min-w-0">
+              <p className="font-medium text-foreground text-sm">{role.label}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-tight">{role.description}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
 const tabs = [
   { id: 'login', label: 'Đăng nhập' },
   { id: 'register', label: 'Đăng ký' }
@@ -25,7 +115,15 @@ const tabs = [
 function AuthPage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const [activeTab, setActiveTab] = useState('login')
+  const [selectedRole, setSelectedRole] = useState(null)
+
+  // Support redirect after login via query param, e.g. /auth?redirect=/jobs
+  const rawRedirect = new URLSearchParams(location.search).get('redirect')
+  const redirectAfterLogin = (rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//'))
+    ? rawRedirect
+    : null
 
   // Global error from Redux
   const { error, isAuthenticated, isLoading } = useSelector((state) => state.user)
@@ -33,9 +131,9 @@ function AuthPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/')
+      navigate(redirectAfterLogin || '/')
     }
-  }, [isAuthenticated, navigate])
+  }, [isAuthenticated, navigate, redirectAfterLogin])
 
   // Clear error when switching tabs
   const handleSwitchTab = (tabId) => {
@@ -133,11 +231,15 @@ function AuthPage() {
                   exit={{ opacity: 0, x: 10 }}
                   transition={{ duration: 0.2, ease: 'easeOut' }}
                 >
-                  <LoginForm onSwitchTab={() => handleSwitchTab('register')} />
+                  <LoginForm onSwitchTab={() => handleSwitchTab('register')} redirectAfterLogin={redirectAfterLogin} />
                 </motion.div>
               )}
 
-              {activeTab === 'register' && (
+              {activeTab === 'register' && !selectedRole && (
+                <RoleSelectionStep onSelectRole={setSelectedRole} />
+              )}
+
+              {activeTab === 'register' && selectedRole && (
                 <motion.div
                   key="register-form"
                   initial={{ opacity: 0, x: 10 }}
@@ -145,7 +247,11 @@ function AuthPage() {
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.2, ease: 'easeOut' }}
                 >
-                  <RegisterForm onSwitchTab={() => handleSwitchTab('login')} />
+                  <RegisterForm
+                    onSwitchTab={() => handleSwitchTab('login')}
+                    selectedRole={selectedRole}
+                    onBackToRoleSelection={() => setSelectedRole(null)}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>

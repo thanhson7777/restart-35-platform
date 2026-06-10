@@ -16,6 +16,17 @@ const MailIcon = ({ className }) => (
   </svg>
 )
 
+const getRoleRedirectPath = (role) => {
+  const roleRedirects = {
+    admin: '/admin',
+    trainer: '/trainer',
+    enterprise: '/enterprise/dashboard',
+    ngo: '/ngo/dashboard/impact',
+    worker: '/',
+  };
+  return roleRedirects[role] || '/';
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -30,7 +41,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } }
 }
 
-function LoginForm({ onSwitchTab }) {
+function LoginForm({ onSwitchTab, redirectAfterLogin }) {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { isLoading } = useSelector((state) => state.user)
@@ -73,7 +84,12 @@ function LoginForm({ onSwitchTab }) {
     const result = await dispatch(loginUserAPI(formData))
     if (loginUserAPI.fulfilled.match(result)) {
       toast.success('Đăng nhập thành công!')
-      navigate('/')
+      const role = result.payload?.user?.role
+      if (redirectAfterLogin) {
+        navigate(redirectAfterLogin)
+      } else {
+        navigate(getRoleRedirectPath(role))
+      }
     } else {
       toast.error(typeof result.payload === 'string' ? result.payload : result.payload?.message || 'Đăng nhập thất bại.')
     }

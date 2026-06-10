@@ -470,6 +470,9 @@ export * from './organizationApi';
 // Payment API exports
 export * from './paymentApi';
 
+// Placement API exports
+export * from './placementApi';
+
 // Partnership & Sponsorship API exports
 export * from './partnershipApi';
 export * from './courseSponsorshipApi';

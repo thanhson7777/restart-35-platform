@@ -177,6 +177,27 @@ const jobSlice = createSlice({
     clearSavedJobs: (state) => {
       state.savedJobs = []
       localStorage.removeItem('savedJobs')
+    },
+    resetJobs: (state) => {
+      state.jobs = []
+      state.totalJobs = 0
+      state.recommendedJobs = []
+      state.totalRecommended = 0
+      state.similarJobs = []
+      state.currentJob = null
+      state.filters = {
+        location: null,
+        jobType: null,
+        salaryMin: null,
+        salaryMax: null,
+        postedWithin: null,
+        matchMin: null
+      }
+      state.filters_applied = {}
+      state.loading = false
+      state.recommendedLoading = false
+      state.similarLoading = false
+      state.error = null
     }
   },
   extraReducers: (builder) => {
@@ -258,6 +279,7 @@ export const {
   clearFilters,
   toggleSaveJob,
   clearSavedJobs,
+  resetJobs,
   reportDeadLink
 } = jobSlice.actions
 

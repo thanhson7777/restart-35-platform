@@ -1,5 +1,7 @@
 import { isaRepaymentService } from '~/services/isaRepaymentService'
 import { StatusCodes } from 'http-status-codes'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
+import streamifier from 'streamifier'
 
 // ============ CREATE ============
 const createIsaRepayment = async (req, res, next) => {
@@ -78,7 +80,18 @@ const submitIncome = async (req, res, next) => {
     const { id } = req.params
     const { month, year, income, incomeProof } = req.body
 
-    const isa = await isaRepaymentService.submitIncome(userId, id, month, year, income, incomeProof)
+    // Handle file upload - upload to cloudinary if file is present
+    let proofUrl = incomeProof || null
+    if (req.file) {
+      try {
+        const uploadResult = await CloudinaryProvider.streamUpload(req.file.buffer, 'isa-proofs')
+        proofUrl = uploadResult.secure_url
+      } catch (uploadErr) {
+        console.error('[ISA] Cloudinary upload error:', uploadErr)
+      }
+    }
+
+    const isa = await isaRepaymentService.submitIncome(userId, id, month, year, income, proofUrl)
 
     res.status(StatusCodes.OK).json({
       success: true,

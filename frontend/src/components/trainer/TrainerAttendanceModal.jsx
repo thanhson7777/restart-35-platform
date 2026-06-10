@@ -19,7 +19,7 @@ import {
   Avatar, 
   Input 
 } from '@/components/ui';
-import { getSessionAttendance, getCourseEnrollments, recordAttendance } from '@/apis/courseApi';
+import { getSessionAttendance, getCourseEnrollments, recordAttendance } from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
 
 export const TrainerAttendanceModal = ({

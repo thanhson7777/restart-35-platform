@@ -11,7 +11,9 @@ import {
   AlertOctagon,
   Zap,
   TrendingDown,
+  TrendingUp,
   UserX,
+  Activity,
   CheckCircle,
   XCircle,
   Clock
@@ -32,6 +34,8 @@ export const TrainerEnrollmentDetail = ({
   onSuspend = () => {},
   onComplete = () => {},
   onFail = () => {},
+  onUpdateProgress = () => {},
+  onUpdateStatus = () => {},
   isInterventionLoading = false
 }) => {
   const {
@@ -167,6 +171,15 @@ export const TrainerEnrollmentDetail = ({
             <Badge variant={getStatusBadgeVariant(status)} className="px-3 py-1 text-xs font-semibold rounded-md">
               {getStatusLabel(status)}
             </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onUpdateStatus}
+              className="text-[hsl(var(--admin-accent))] hover:text-[hsl(var(--admin-accent))] text-xs gap-1 mt-2"
+            >
+              <Activity size={12} />
+              Đổi trạng thái
+            </Button>
 
             <div className="w-full border-t border-[hsl(var(--admin-border))]/80 my-5" />
 
@@ -239,6 +252,18 @@ export const TrainerEnrollmentDetail = ({
               className="h-2.5 bg-[hsl(var(--admin-surface-elevated))]"
               indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500"
             />
+
+            <div className="flex items-center justify-end mt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onUpdateProgress}
+                className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-subtle))] text-xs gap-1.5"
+              >
+                <TrendingUp size={12} />
+                Cập nhật tiến độ
+              </Button>
+            </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
               <div className="bg-[hsl(var(--admin-surface-elevated))]/40 border border-[hsl(var(--admin-border))] p-3.5 rounded-2xl">

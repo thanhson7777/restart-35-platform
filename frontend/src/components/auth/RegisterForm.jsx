@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/Button'
 import { Input, Label } from '@/components/ui/Input'
 import { PasswordInput } from '@/components/ui/PasswordInput'
+import { SelectField } from '@/components/ui/SelectField'
+import GenderField from '@/components/worker-profile/GenderField'
+import ProvinceField from '@/components/worker-profile/ProvinceField'
 import { registerUserAPI } from '@/redux/user/userSlice'
 import {
   EMAIL_RULE,
@@ -15,6 +18,7 @@ import {
   PHONE_RULE,
   PHONE_RULE_MESSAGE
 } from '~/utils/validators'
+import { EDUCATION_OPTIONS, MARITAL_STATUS_OPTIONS } from '~/data/profileData'
 
 const UserIcon = ({ className }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -87,11 +91,138 @@ const PasswordStrengthIndicator = ({ password }) => {
   )
 }
 
-function RegisterForm({ onSwitchTab }) {
+// ===== Step 2: BasicInfo =====
+const BOOK_ICON = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+  </svg>
+)
+
+const HEART_ICON = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+)
+
+const initialBasicInfo = {
+  age: '',
+  gender: '',
+  province: '01',
+  district: '',
+  education: '',
+  maritalStatus: ''
+}
+
+function BasicInfoStep({ basicInfo, setBasicInfo, errors, touched, onChange }) {
+  const handleChange = (field, value) => {
+    if (field === 'province') {
+      setBasicInfo(prev => ({ ...prev, province: value, district: '' }))
+    } else {
+      setBasicInfo(prev => ({ ...prev, [field]: value }))
+    }
+    if (errors[field]) {
+      onChange(field, '') // clear error
+    }
+  }
+
+  return (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="space-y-4"
+    >
+      {/* Age + Gender */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <label htmlFor="reg-age" className="block text-sm font-medium text-foreground">
+            Tuổi <span className="text-destructive">*</span>
+          </label>
+          <input
+            id="reg-age"
+            type="number"
+            min="35"
+            max="65"
+            placeholder="35 - 65"
+            value={basicInfo.age}
+            onChange={(e) => {
+              const val = parseInt(e.target.value)
+              if (e.target.value === '') {
+                setBasicInfo(prev => ({ ...prev, age: '' }))
+              } else if (!isNaN(val) && val >= 35 && val <= 65) {
+                setBasicInfo(prev => ({ ...prev, age: val }))
+              }
+            }}
+            className={`
+              w-full bg-background border rounded-lg px-4 py-2.5 text-sm
+              focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
+              transition-colors duration-200
+              placeholder:text-muted-foreground/60
+              ${touched.age && errors.age ? 'border-destructive' : 'border-input'}
+            `}
+          />
+          {touched.age && errors.age && (
+            <p className="text-xs text-destructive">{errors.age}</p>
+          )}
+        </div>
+
+        <GenderField
+          value={basicInfo.gender}
+          onChange={(value) => handleChange('gender', value)}
+          error={touched.gender ? errors.gender : ''}
+        />
+      </motion.div>
+
+      {/* Province + District */}
+      <motion.div variants={itemVariants}>
+        <ProvinceField
+          province={basicInfo.province}
+          district={basicInfo.district}
+          onProvinceChange={(value) => handleChange('province', value)}
+          onDistrictChange={(value) => handleChange('district', value)}
+          errors={errors}
+        />
+      </motion.div>
+
+      {/* Education + Marital Status */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <SelectField
+          id="reg-education"
+          label="Trình độ học vấn"
+          value={basicInfo.education}
+          options={EDUCATION_OPTIONS}
+          onChange={(val) => handleChange('education', val)}
+          placeholder="-- Chọn trình độ --"
+          icon={<BOOK_ICON />}
+          error={touched.education ? errors.education : ''}
+          required
+        />
+
+        <SelectField
+          id="reg-maritalStatus"
+          label="Tình trạng hôn nhân"
+          value={basicInfo.maritalStatus}
+          options={MARITAL_STATUS_OPTIONS}
+          onChange={(val) => handleChange('maritalStatus', val)}
+          placeholder="-- Chọn tình trạng --"
+          icon={<HEART_ICON />}
+          error={touched.maritalStatus ? errors.maritalStatus : ''}
+          required
+        />
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// ===== Main RegisterForm =====
+function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelection }) {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { isLoading } = useSelector((state) => state.user)
 
+  // Step 1: Account info
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -102,7 +233,12 @@ function RegisterForm({ onSwitchTab }) {
   const [errors, setErrors] = useState({})
   const [successMessage, setSuccessMessage] = useState('')
 
-  const validate = () => {
+  // Step 2: BasicInfo
+  const [basicInfo, setBasicInfo] = useState(initialBasicInfo)
+  const [basicInfoErrors, setBasicInfoErrors] = useState({})
+  const [basicInfoTouched, setBasicInfoTouched] = useState({})
+
+  const validateAccount = () => {
     const newErrors = {}
 
     if (!formData.email.trim()) {
@@ -135,8 +271,36 @@ function RegisterForm({ onSwitchTab }) {
       newErrors.phone = PHONE_RULE_MESSAGE
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return newErrors
+  }
+
+  const validateBasicInfo = () => {
+    const newErrors = {}
+
+    const ageStr = String(basicInfo.age ?? '').trim()
+    if (!ageStr) {
+      newErrors.age = 'Tuổi là bắt buộc.'
+    } else {
+      const ageNum = parseInt(ageStr, 10)
+      if (isNaN(ageNum) || ageNum < 35 || ageNum > 65) {
+        newErrors.age = 'Tuổi phải từ 35 đến 65.'
+      }
+    }
+
+    if (!basicInfo.gender) {
+      newErrors.gender = 'Vui lòng chọn giới tính.'
+    }
+    if (!basicInfo.province) {
+      newErrors.province = 'Vui lòng chọn tỉnh/thành.'
+    }
+    if (!basicInfo.education) {
+      newErrors.education = 'Vui lòng chọn trình độ học vấn.'
+    }
+    if (!basicInfo.maritalStatus) {
+      newErrors.maritalStatus = 'Vui lòng chọn tình trạng hôn nhân.'
+    }
+
+    return newErrors
   }
 
   const handleChange = (e) => {
@@ -147,30 +311,60 @@ function RegisterForm({ onSwitchTab }) {
     }
   }
 
-  const handleSubmit = async (e) => {
+  const handleBasicInfoChange = (field, value) => {
+    if (basicInfoErrors[field]) {
+      setBasicInfoErrors((prev) => ({ ...prev, [field]: '' }))
+    }
+  }
+
+  const handleAccountSubmit = (e) => {
     e.preventDefault()
     setSuccessMessage('')
-    if (!validate()) return
+    const accountErrors = validateAccount()
+    setErrors(accountErrors)
+    if (Object.keys(accountErrors).length > 0) return
+    // Move to step 2 — let user fill basicInfo
+    setBasicInfoTouched({ age: true, gender: true, province: true, education: true, maritalStatus: true })
+    const biErrors = validateBasicInfo()
+    setBasicInfoErrors(biErrors)
+    if (Object.keys(biErrors).length > 0) {
+      toast.error('Vui lòng điền đầy đủ thông tin cơ bản.')
+      return
+    }
+    // Both steps valid — submit
+    handleFullSubmit()
+  }
 
-    const result = await dispatch(
-      registerUserAPI({
-        email: formData.email,
-        password: formData.password,
-        phone: formData.phone,
-        displayName: formData.displayName
-      })
-    )
+  const handleFullSubmit = async () => {
+    setSuccessMessage('')
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+      phone: formData.phone,
+      displayName: formData.displayName,
+      role: selectedRole || 'worker'
+    }
+
+    if (selectedRole === 'worker') {
+      payload.basicInfo = {
+        age: basicInfo.age,
+        gender: basicInfo.gender,
+        province: basicInfo.province,
+        district: basicInfo.district,
+        education: basicInfo.education,
+        maritalStatus: basicInfo.maritalStatus
+      }
+    }
+
+    const result = await dispatch(registerUserAPI(payload))
 
     if (registerUserAPI.fulfilled.match(result)) {
       toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.')
       setSuccessMessage('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.')
-      setFormData({
-        email: '',
-        password: '',
-        confirmPassword: '',
-        displayName: '',
-        phone: ''
-      })
+      setFormData({ email: '', password: '', confirmPassword: '', displayName: '', phone: '' })
+      setBasicInfo(initialBasicInfo)
+      setBasicInfoErrors({})
+      setBasicInfoTouched({})
       setTimeout(() => onSwitchTab(), 2500)
     } else {
       toast.error(typeof result.payload === 'string' ? result.payload : result.payload?.message || 'Đăng ký thất bại.')
@@ -178,14 +372,7 @@ function RegisterForm({ onSwitchTab }) {
   }
 
   return (
-    <motion.div
-      key="register"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="space-y-4"
-    >
+    <div className="space-y-4">
       {successMessage && (
         <motion.div
           initial={{ opacity: 0, y: -5 }}
@@ -196,121 +383,152 @@ function RegisterForm({ onSwitchTab }) {
         </motion.div>
       )}
 
-      <motion.div variants={itemVariants}>
-        <Label htmlFor="displayName" required>
-          Họ và tên
-        </Label>
-        <div className="relative mt-1">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <UserIcon className="h-4 w-4 text-muted-foreground" />
+      {/* ===== Step 1: Account Info ===== */}
+      <motion.div variants={containerVariants} initial="hidden" animate="visible">
+        <motion.div variants={itemVariants}>
+          <Label htmlFor="displayName" required>
+            Họ và tên
+          </Label>
+          <div className="relative mt-1">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <UserIcon className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <Input
+              id="displayName"
+              name="displayName"
+              placeholder="Nguyễn Văn A"
+              value={formData.displayName}
+              onChange={handleChange}
+              error={errors.displayName}
+              className="pl-10"
+              inputSize="lg"
+              autoComplete="name"
+            />
           </div>
-          <Input
-            id="displayName"
-            name="displayName"
-            placeholder="Nguyễn Văn A"
-            value={formData.displayName}
-            onChange={handleChange}
-            error={errors.displayName}
-            className="pl-10"
-            inputSize="lg"
-            autoComplete="name"
-          />
-        </div>
-      </motion.div>
+        </motion.div>
 
-      <motion.div variants={itemVariants}>
-        <Label htmlFor="email" required>
-          Email
-        </Label>
-        <div className="relative mt-1">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <MailIcon className="h-4 w-4 text-muted-foreground" />
+        <motion.div variants={itemVariants}>
+          <Label htmlFor="email" required>
+            Email
+          </Label>
+          <div className="relative mt-1">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <MailIcon className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="email@example.com"
+              value={formData.email}
+              onChange={handleChange}
+              error={errors.email}
+              className="pl-10"
+              inputSize="lg"
+              autoComplete="email"
+            />
           </div>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="email@example.com"
-            value={formData.email}
-            onChange={handleChange}
-            error={errors.email}
-            className="pl-10"
-            inputSize="lg"
-            autoComplete="email"
-          />
-        </div>
-      </motion.div>
+        </motion.div>
 
-      <motion.div variants={itemVariants}>
-        <Label htmlFor="phone" required>
-          Số điện thoại
-        </Label>
-        <div className="relative mt-1">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <PhoneIcon className="h-4 w-4 text-muted-foreground" />
+        <motion.div variants={itemVariants}>
+          <Label htmlFor="phone" required>
+            Số điện thoại
+          </Label>
+          <div className="relative mt-1">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <PhoneIcon className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="0xxxxxxxxx"
+              value={formData.phone}
+              onChange={handleChange}
+              error={errors.phone}
+              className="pl-10"
+              inputSize="lg"
+              autoComplete="tel"
+            />
           </div>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="0xxxxxxxxx"
-            value={formData.phone}
-            onChange={handleChange}
-            error={errors.phone}
-            className="pl-10"
-            inputSize="lg"
-            autoComplete="tel"
-          />
-        </div>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Label htmlFor="password" required>
+            Mật khẩu
+          </Label>
+          <div className="mt-1">
+            <PasswordInput
+              id="password"
+              name="password"
+              placeholder="Ít nhất 8 ký tự, có chữ và số"
+              value={formData.password}
+              onChange={handleChange}
+              error={errors.password}
+              inputSize="lg"
+              autoComplete="new-password"
+            />
+          </div>
+          <PasswordStrengthIndicator password={formData.password} />
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Label htmlFor="confirmPassword" required>
+            Xác nhận mật khẩu
+          </Label>
+          <div className="mt-1">
+            <PasswordInput
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="Nhập lại mật khẩu"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+              inputSize="lg"
+              autoComplete="new-password"
+            />
+          </div>
+        </motion.div>
       </motion.div>
 
-      <motion.div variants={itemVariants}>
-        <Label htmlFor="password" required>
-          Mật khẩu
-        </Label>
-        <div className="mt-1">
-          <PasswordInput
-            id="password"
-            name="password"
-            placeholder="Ít nhất 8 ký tự, có chữ và số"
-            value={formData.password}
-            onChange={handleChange}
-            error={errors.password}
-            inputSize="lg"
-            autoComplete="new-password"
+      {/* ===== Step 2: BasicInfo ===== */}
+      {selectedRole === 'worker' && (
+        <div className="pt-2 border-t border-border/50">
+          <p className="text-sm font-medium text-foreground mb-3">
+            Thông tin cơ bản <span className="text-destructive">*</span>
+          </p>
+          <BasicInfoStep
+            basicInfo={basicInfo}
+            setBasicInfo={setBasicInfo}
+            errors={basicInfoErrors}
+            touched={basicInfoTouched}
+            onChange={handleBasicInfoChange}
           />
         </div>
-        <PasswordStrengthIndicator password={formData.password} />
-      </motion.div>
+      )}
 
-      <motion.div variants={itemVariants}>
-        <Label htmlFor="confirmPassword" required>
-          Xác nhận mật khẩu
-        </Label>
-        <div className="mt-1">
-          <PasswordInput
-            id="confirmPassword"
-            name="confirmPassword"
-            placeholder="Nhập lại mật khẩu"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            error={errors.confirmPassword}
-            inputSize="lg"
-            autoComplete="new-password"
-          />
-        </div>
-      </motion.div>
-
+      {/* Submit */}
       <motion.div variants={itemVariants}>
         <Button
           type="submit"
-          onClick={handleSubmit}
+          onClick={handleAccountSubmit}
           isLoading={isLoading}
           size="xl"
           className="w-full"
         >
           Tạo tài khoản
         </Button>
+      </motion.div>
+
+      {/* Back to role selection */}
+      <motion.div variants={itemVariants} className="text-center">
+        <button
+          type="button"
+          onClick={onBackToRoleSelection}
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
+        >
+          Quay lại chọn vai trò
+        </button>
       </motion.div>
 
       <motion.div variants={itemVariants} className="text-center">
@@ -325,7 +543,7 @@ function RegisterForm({ onSwitchTab }) {
           </button>
         </p>
       </motion.div>
-    </motion.div>
+    </div>
   )
 }
 

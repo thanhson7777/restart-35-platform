@@ -38,6 +38,11 @@ const PLACEMENT_COLLECTION_SCHEMA = Joi.object({
   startedDate: Joi.date().timestamp('javascript').allow(null),
   resignationDate: Joi.date().timestamp('javascript').allow(null),
   resignationReason: Joi.string().allow('', null),
+  feedback: Joi.object({
+    rating: Joi.number().min(1).max(5).allow(null),
+    comment: Joi.string().allow('', null),
+    submittedAt: Joi.date().timestamp('javascript').allow(null)
+  }).default(null),
   notes: Joi.string().allow('', null),
   _destroy: Joi.boolean().default(false)
 })

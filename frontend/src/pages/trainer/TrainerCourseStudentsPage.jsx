@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Users, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { getCourseById, getCourseEnrollments } from '@/apis/courseApi';
+import { getCourseById } from '@/apis/courseApi';
+import { getCourseEnrollments } from '@/apis/trainerApi';
 import { TrainerStudentTable } from '@/components/trainer/TrainerStudentTable';
 import toast from 'react-hot-toast';
 

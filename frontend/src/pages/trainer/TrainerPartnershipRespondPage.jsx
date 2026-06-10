@@ -8,7 +8,7 @@ import {
   negotiatePartnership,
   confirmPartnership,
   cancelPartnership
-} from '@/apis/partnershipApi';
+} from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
 
 const STATUS_OPTIONS = [

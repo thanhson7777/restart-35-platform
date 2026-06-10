@@ -8,11 +8,12 @@ import { Button, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Textarea } fro
 import { getPartnershipDetail,
   getPartnershipLearners,
   getPartnershipGraduates,
+  getPartnershipStats,
   respondPartnership,
   negotiatePartnership,
   confirmPartnership,
   cancelPartnership
-} from '@/apis/partnershipApi';
+} from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
 
 const STATUS_CONFIG = {
@@ -40,6 +41,7 @@ export default function TrainerPartnershipDetailPage() {
   const [partnership, setPartnership] = useState(null);
   const [learners, setLearners] = useState([]);
   const [graduates, setGraduates] = useState([]);
+  const [partnershipStats, setPartnershipStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('learners');
   const [actionLoading, setActionLoading] = useState(false);
@@ -53,14 +55,16 @@ export default function TrainerPartnershipDetailPage() {
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [detailRes, learnersRes, graduatesRes] = await Promise.all([
+      const [detailRes, learnersRes, graduatesRes, statsRes] = await Promise.all([
         getPartnershipDetail(id),
         getPartnershipLearners(id, { limit: 50 }),
-        getPartnershipGraduates(id, { limit: 50 })
+        getPartnershipGraduates(id, { limit: 50 }),
+        getPartnershipStats(id).catch(() => ({ data: { data: null } }))
       ]);
       setPartnership(detailRes.data?.data);
       setLearners(learnersRes.data?.data || []);
       setGraduates(graduatesRes.data?.data || []);
+      setPartnershipStats(statsRes.data?.data || null);
     } catch (err) {
       console.error('Error fetching partnership detail:', err);
       toast.error(err.response?.data?.message || 'Không thể tải chi tiết partnership.');
@@ -205,10 +209,10 @@ export default function TrainerPartnershipDetailPage() {
       {/* Summary Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Tổng học viên', value: summary.totalLearners ?? 0, icon: Users, color: 'text-[hsl(var(--admin-accent))]' },
-          { label: 'Đang học', value: summary.pendingLearners ?? 0, icon: BookOpen, color: 'text-[hsl(var(--admin-warning))]' },
-          { label: 'Đã tốt nghiệp', value: summary.totalGraduates ?? 0, icon: GraduationCap, color: 'text-[hsl(var(--admin-success))]' },
-          { label: 'Referral Bonus', value: formatCurrency(agreedTerms.referralBonus || partnership.referralBonus), icon: TrendingUp, color: 'text-purple-500' }
+          { label: 'Tổng học viên', value: partnershipStats?.totalLearners ?? summary.totalLearners ?? 0, icon: Users, color: 'text-[hsl(var(--admin-accent))]' },
+          { label: 'Đang học', value: partnershipStats?.pendingLearners ?? summary.pendingLearners ?? 0, icon: BookOpen, color: 'text-[hsl(var(--admin-warning))]' },
+          { label: 'Đã tốt nghiệp', value: partnershipStats?.totalGraduates ?? summary.totalGraduates ?? 0, icon: GraduationCap, color: 'text-[hsl(var(--admin-success))]' },
+          { label: 'Revenue', value: formatCurrency(partnershipStats?.revenue ?? 0), icon: TrendingUp, color: 'text-purple-500' }
         ].map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">

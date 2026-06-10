@@ -28,6 +28,7 @@ export const EnrollmentList = ({
   enrollments = [],
   loading = false,
   onCancel,
+  onDrop,
   onViewProgress,
   onViewDetail,
 }) => {
@@ -209,6 +210,7 @@ export const EnrollmentList = ({
               <EnrollmentCard
                 enrollment={enrollment}
                 onCancel={onCancel}
+                onDrop={onDrop}
                 onViewProgress={onViewProgress}
                 onViewDetail={onViewDetail}
               />

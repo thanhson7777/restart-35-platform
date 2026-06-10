@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { Bell, Search, Menu, ChevronDown, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar } from '@/components/ui';
+import { logoutUser } from '@/redux/user/userSlice';
 
 const AdminHeader = ({ onMenuClick, sidebarCollapsed }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -180,7 +184,10 @@ const AdminHeader = ({ onMenuClick, sidebarCollapsed }) => {
                   </div>
                   <div className="py-1.5 border-t border-[hsl(var(--admin-border))]">
                     <button
-                      onClick={() => { localStorage.removeItem('accessToken'); window.location.href = '/auth'; }}
+                      onClick={() => {
+                        dispatch(logoutUser());
+                        navigate('/auth');
+                      }}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[hsl(var(--admin-danger))] hover:bg-[hsl(var(--admin-danger-subtle))] transition-all duration-150 rounded-xl mx-1.5"
                     >
                       Đăng xuất

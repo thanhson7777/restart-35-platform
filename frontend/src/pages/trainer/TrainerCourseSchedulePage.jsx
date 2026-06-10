@@ -23,15 +23,16 @@ import {
   CardContent, 
   Badge 
 } from '@/components/ui';
-import { 
-  getCourseById, 
-  getAdminCourseSchedule, 
-  createSchedule, 
+import { getAdminCourseSchedule,
+  createSchedule,
   publishSchedule,
-  addScheduleSession, 
-  updateScheduleSession, 
-  cancelScheduleSession 
-} from '@/apis/courseApi';
+  addScheduleSession,
+  updateScheduleSession,
+  cancelScheduleSession,
+  rescheduleSession,
+  markSessionComplete
+} from '@/apis/trainerApi';
+import { getCourseById } from '@/apis/courseApi';
 import toast from 'react-hot-toast';
 
 const TrainerCourseSchedulePage = () => {
@@ -75,6 +76,12 @@ const TrainerCourseSchedulePage = () => {
   });
 
   const [cancelReason, setCancelReason] = useState('');
+
+  // Reschedule & Complete modals
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [rescheduleForm, setRescheduleForm] = useState({ newDate: '', newStartTime: '08:00', newEndTime: '10:00', reason: '' });
+  const [completeForm, setCompleteForm] = useState({ notes: '' });
 
   // Fetch course and schedule
   const fetchData = useCallback(async () => {
@@ -310,6 +317,55 @@ const TrainerCourseSchedulePage = () => {
     setShowCancelModal(true);
   };
 
+  // 6. Reschedule Session
+  const handleRescheduleSession = async () => {
+    if (!rescheduleForm.newDate || !rescheduleForm.newStartTime || !rescheduleForm.newEndTime) {
+      toast.error('Vui lòng nhập đầy đủ ngày và giờ mới.');
+      return;
+    }
+    try {
+      await rescheduleSession(schedule._id, activeSession.sessionNumber, {
+        newDate: rescheduleForm.newDate,
+        newStartTime: rescheduleForm.newStartTime,
+        newEndTime: rescheduleForm.newEndTime,
+        reason: rescheduleForm.reason
+      });
+      toast.success('Đổi lịch thành công!');
+      setShowRescheduleModal(false);
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể đổi lịch.');
+    }
+  };
+
+  // 7. Mark Session Complete
+  const handleMarkComplete = async () => {
+    try {
+      await markSessionComplete(schedule._id, activeSession.sessionNumber, {
+        notes: completeForm.notes
+      });
+      toast.success('Đã đánh dấu hoàn thành buổi học!');
+      setShowCompleteModal(false);
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể đánh dấu hoàn thành.');
+    }
+  };
+
+  const openRescheduleModal = (sess) => {
+    setActiveSession(sess);
+    let dateStr = '';
+    if (sess.date) dateStr = new Date(sess.date).toISOString().split('T')[0];
+    setRescheduleForm({ newDate: dateStr, newStartTime: sess.startTime || '08:00', newEndTime: sess.endTime || '10:00', reason: '' });
+    setShowRescheduleModal(true);
+  };
+
+  const openCompleteModal = (sess) => {
+    setActiveSession(sess);
+    setCompleteForm({ notes: '' });
+    setShowCompleteModal(true);
+  };
+
   // Status mapping for sessions
   const getSessionBadge = (status) => {
     const statusMap = {
@@ -521,6 +577,26 @@ const TrainerCourseSchedulePage = () => {
                               >
                                 <X className="h-3.5 w-3.5" />
                                 Hủy buổi
+                              </Button>
+
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openRescheduleModal(sess)}
+                                className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-accent-subtle))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] flex items-center gap-1"
+                              >
+                                <Calendar className="h-3.5 w-3.5" />
+                                Đổi lịch
+                              </Button>
+
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openCompleteModal(sess)}
+                                className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-success-subtle))] hover:text-[hsl(var(--admin-success))] text-[hsl(var(--admin-text-secondary))] flex items-center gap-1"
+                              >
+                                <Check className="h-3.5 w-3.5" />
+                                Hoàn thành
                               </Button>
                             </div>
                           )}
@@ -828,6 +904,127 @@ const TrainerCourseSchedulePage = () => {
                 className="bg-[hsl(var(--admin-danger))] hover:bg-[hsl(var(--admin-danger))] text-white border-none font-semibold"
               >
                 Hủy buổi học
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. RESCHEDULE SESSION MODAL */}
+      {showRescheduleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-6 space-y-6 shadow-[var(--admin-shadow-lg)]">
+            <div className="flex items-start gap-3">
+              <Calendar className="h-6 w-6 text-[hsl(var(--admin-accent))] flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))]">Đổi lịch buổi số {activeSession?.sessionNumber}</h3>
+                <p className="text-[hsl(var(--admin-text-muted))] text-xs mt-1">
+                  Cập nhật thời gian mới cho buổi học: <strong>{activeSession?.title}</strong>.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-[hsl(var(--admin-text-secondary))]">Ngày mới</Label>
+                <Input
+                  type="date"
+                  value={rescheduleForm.newDate}
+                  onChange={(e) => setRescheduleForm({ ...rescheduleForm, newDate: e.target.value })}
+                  className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Giờ bắt đầu</Label>
+                  <Input
+                    type="time"
+                    value={rescheduleForm.newStartTime}
+                    onChange={(e) => setRescheduleForm({ ...rescheduleForm, newStartTime: e.target.value })}
+                    className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Giờ kết thúc</Label>
+                  <Input
+                    type="time"
+                    value={rescheduleForm.newEndTime}
+                    onChange={(e) => setRescheduleForm({ ...rescheduleForm, newEndTime: e.target.value })}
+                    className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[hsl(var(--admin-text-secondary))]">Lý do đổi lịch</Label>
+                <Textarea
+                  placeholder="Ví dụ: Trùng lịch học, nghỉ lễ..."
+                  value={rescheduleForm.reason}
+                  onChange={(e) => setRescheduleForm({ ...rescheduleForm, reason: e.target.value })}
+                  className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
+                  rows={2}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowRescheduleModal(false)}
+                className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))]"
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleRescheduleSession}
+                className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white border-none font-semibold"
+              >
+                Xác nhận đổi lịch
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. MARK COMPLETE MODAL */}
+      {showCompleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-6 space-y-6 shadow-[var(--admin-shadow-lg)]">
+            <div className="flex items-start gap-3">
+              <Check className="h-6 w-6 text-[hsl(var(--admin-success))] flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))]">Hoàn thành buổi số {activeSession?.sessionNumber}</h3>
+                <p className="text-[hsl(var(--admin-text-muted))] text-xs mt-1">
+                  Đánh dấu buổi học <strong>{activeSession?.title}</strong> đã hoàn thành.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[hsl(var(--admin-text-secondary))]">Ghi chú buổi học (tùy chọn)</Label>
+              <Textarea
+                placeholder="Nhập ghi chú về buổi học, nội dung đã giảng dạy..."
+                value={completeForm.notes}
+                onChange={(e) => setCompleteForm({ ...completeForm, notes: e.target.value })}
+                className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-success))]"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowCompleteModal(false)}
+                className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))]"
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleMarkComplete}
+                className="bg-[hsl(var(--admin-success))] hover:bg-[hsl(var(--admin-success))] text-white border-none font-semibold"
+              >
+                Hoàn thành
               </Button>
             </div>
           </div>

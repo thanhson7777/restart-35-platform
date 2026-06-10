@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Send, Clock, CheckCircle2 } from 'lucide-react';
 import { Avatar, Badge, Button, Textarea } from '@/components/ui';
-import { respondToReview } from '@/apis/courseApi';
+import { respondToReview } from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
 
 const MAX_RESPONSE_LENGTH = 300;

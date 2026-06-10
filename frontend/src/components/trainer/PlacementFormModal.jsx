@@ -15,8 +15,7 @@ import {
   Textarea,
   SelectField
 } from '@/components/ui';
-import { getTrainerEnrollments, getMyCourses } from '@/apis/courseApi';
-import { createPlacement, updatePlacement } from '@/apis/courseApi';
+import { getTrainerEnrollments, getMyCourses, createPlacement, updatePlacement } from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
 
 const EMPLOYMENT_TYPES = [

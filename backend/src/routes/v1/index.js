@@ -22,10 +22,12 @@ import { jobRoute } from './jobRoute'
 import { learningPathRoute } from './learningPathRoute'
 import forumRoute from './forumRoute'
 import mentorRoute from './mentorRoute'
+import mentorSessionRoute from './mentorSessionRoute'
 import { organizationRoute } from './organizationRoute'
 import { fundingConfigRoute } from './fundingConfigRoute'
 import { paymentRoute } from './paymentRoute'
 import { isaRepaymentRoute } from './isaRepaymentRoute'
+import workerSponsorshipRoute from './workerSponsorshipRoute'
 import { learningRecordRoute } from './learningRecordRoute'
 import { certificateRoute } from './certificateRoute'
 import { placementRoute } from './placementRoute'
@@ -34,6 +36,7 @@ import { courseSponsorshipRoute } from './courseSponsorshipRoute'
 import { lessonProgressRoute } from './lessonProgressRoute'
 import { videoNoteRoute } from './videoNoteRoute'
 import { recommendationFeedbackRoute } from './recommendationFeedbackRoute'
+import { contactRoute } from './contactRoute'
 
 const Router = express.Router()
 
@@ -67,7 +70,8 @@ Router.get('/', (req, res) => {
       certificates: '/v1/certificates',
       placements: '/v1/placements',
       partnerships: '/v1/partnerships',
-      courseSponsorships: '/v1/course-sponsorships'
+      courseSponsorships: '/v1/course-sponsorships',
+      contacts: '/v1/contacts'
     }
   })
 })
@@ -93,6 +97,8 @@ Router.use('/jobs', jobRoute)
 Router.use('/jobs', learningPathRoute)
 Router.use('/forum', forumRoute)
 Router.use('/mentors', mentorRoute)
+Router.use('/mentor-sessions', mentorSessionRoute)
+Router.use('/worker-sponsorships', workerSponsorshipRoute)
 Router.use('/organizations', organizationRoute)
 Router.use('/funding-configs', fundingConfigRoute)
 Router.use('/payments', paymentRoute)
@@ -105,5 +111,6 @@ Router.use('/course-sponsorships', courseSponsorshipRoute)
 Router.use('/lesson-progress', lessonProgressRoute)
 Router.use('/video-notes', videoNoteRoute)
 Router.use('/recommendation-feedback', recommendationFeedbackRoute)
+Router.use('/contacts', contactRoute)
 
 export const APIS_V1 = Router

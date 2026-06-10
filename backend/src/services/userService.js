@@ -24,9 +24,21 @@ const createNew = async (reqBody) => {
       password: bcryptjs.hashSync(reqBody.password, 10),
       username: name,
       phone: reqBody.phone,
-      displayName: name,
+      displayName: reqBody.displayName || name,
       verifyToken: uuidv4(),
-      role: USER_ROLES.WORKER
+      role: reqBody.role || USER_ROLES.WORKER,
+      ...(reqBody.basicInfo && {
+        age: reqBody.basicInfo.age,
+        gender: reqBody.basicInfo.gender,
+        province: reqBody.basicInfo.province || '',
+        district: reqBody.basicInfo.district || '',
+        education: reqBody.basicInfo.education,
+        maritalStatus: reqBody.basicInfo.maritalStatus
+      })
+    }
+
+    if (newUser.age !== undefined && newUser.age !== null && (newUser.age < 35 || newUser.age > 65)) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Tuổi phải từ 35 đến 65')
     }
 
     const createdUser = await userModel.createNew(newUser)

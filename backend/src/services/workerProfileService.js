@@ -11,12 +11,23 @@ const createNew = async (userId) => {
       throw new ApiError(StatusCodes.CONFLICT, 'Hồ sơ đã tồn tại!')
     }
 
+    const user = await userModel.findOneById(userId)
+    const basicInfo = (user && user.age) ? {
+      age: user.age,
+      gender: user.gender || '',
+      province: user.province || '',
+      district: user.district || '',
+      education: user.education || '',
+      maritalStatus: user.maritalStatus || ''
+    } : undefined
+
     const newProfile = {
       userId: userId,
-      currentStep: WORKER_PROFILE_STEPS.BASIC_INFO,
+      currentStep: WORKER_PROFILE_STEPS.EMPLOYMENT,
       isCompleted: false,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      ...(basicInfo && { basicInfo })
     }
 
     const createdProfile = await workerProfileModel.createNew(newProfile)
@@ -47,10 +58,9 @@ const getProfileById = async (profileId) => {
 const updateStep = async (userId, step, stepData) => {
   try {
     const stepFieldMap = {
-      1: 'basicInfo',
-      2: 'employmentHistory',
-      3: 'barriers',
-      4: 'aspirations'
+      1: 'employmentHistory',
+      2: 'barriers',
+      3: 'aspirations'
     }
 
     if (!stepFieldMap[step]) {
@@ -78,10 +88,9 @@ const updateStep = async (userId, step, stepData) => {
 const autosave = async (userId, step, data) => {
   try {
     const stepFieldMap = {
-      1: 'basicInfo',
-      2: 'employmentHistory',
-      3: 'barriers',
-      4: 'aspirations'
+      1: 'employmentHistory',
+      2: 'barriers',
+      3: 'aspirations'
     }
 
     if (!stepFieldMap[step]) {

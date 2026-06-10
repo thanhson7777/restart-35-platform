@@ -319,7 +319,15 @@ export default function CourseDetailPage() {
               )}
 
               {/* Type-Specific Layout Additions inside Header */}
-              
+
+              {/* Curriculum Button */}
+              <button
+                onClick={() => navigate(`/courses/${id}/curriculum`)}
+                className="mt-4 w-full py-2 px-4 text-sm font-medium bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors text-center"
+              >
+                Xem giáo trình
+              </button>
+
               {/* VIDEO layout play previews overlay */}
               {course.delivery_type === 'video' && (
                 <div className="mt-6">

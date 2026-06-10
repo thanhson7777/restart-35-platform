@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Avatar } from '@/components/ui/Avatar'
 import StepIndicator from '@/components/worker-profile/StepIndicator'
-import BasicInfoForm from '@/components/worker-profile/BasicInfoForm'
 import EmploymentForm from '@/components/worker-profile/EmploymentForm'
 import BarriersForm from '@/components/worker-profile/BarriersForm'
 import AspirationsForm from '@/components/worker-profile/AspirationsForm'
@@ -20,6 +19,8 @@ import {
 } from '@/redux/profile/profileSlice'
 import { selectCurrentUser } from '@/redux/user/userSlice'
 import { STEP_LABELS } from '~/data/profileData'
+import { reopenWorkerProfile } from '@/apis/courseApi'
+import toast from 'react-hot-toast'
 
 const LOGO_ICON = () => (
   <svg className="w-6 h-6" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -63,23 +64,23 @@ function WorkerProfilePage() {
         }
       })
       .catch(() => {
-        // No profile exists, create one
         dispatch(createProfile())
       })
-  }, [dispatch])
+  }, [dispatch, currentUser?._id])
 
-  // Sync active step with Redux
+  // Sync active step with Redux (offset by 1 since BasicInfo is now step 0)
   useEffect(() => {
+    // currentStep from backend is 1=Employment, 2=Barriers, 3=Aspirations
+    // activeStep in UI is 1, 2, 3
     setActiveStep(currentStep || 1)
   }, [currentStep])
 
   const handleNext = () => {
-    setActiveStep((prev) => Math.min(prev + 1, 4))
+    setActiveStep((prev) => Math.min(prev + 1, 3))
   }
 
   const handlePrev = () => {
     setActiveStep((prev) => Math.max(prev - 1, 1))
-    dispatch(setCurrentStep(activeStep - 1))
   }
 
   const renderStepContent = () => {
@@ -94,15 +95,13 @@ function WorkerProfilePage() {
 
     switch (activeStep) {
       case 1:
-        return <BasicInfoForm onNext={handleNext} />
-      case 2:
         return <EmploymentForm onNext={handleNext} />
-      case 3:
+      case 2:
         return <BarriersForm onNext={handleNext} />
-      case 4:
+      case 3:
         return <AspirationsForm />
       default:
-        return <BasicInfoForm onNext={handleNext} />
+        return <EmploymentForm onNext={handleNext} />
     }
   }
 
@@ -112,7 +111,6 @@ function WorkerProfilePage() {
 
   const getStepDescription = () => {
     const descriptions = [
-      'Tuổi, giới tính, địa chỉ, trình độ học vấn',
       'Các công việc đã làm trước đây',
       'Những khó khăn bạn đang gặp phải',
       'Công việc và môi trường bạn mong muốn'
@@ -170,7 +168,7 @@ function WorkerProfilePage() {
           </motion.div>
 
           {/* Step Indicator */}
-          <StepIndicator currentStep={activeStep} isProfileCompleted={isCompleted} />
+          <StepIndicator currentStep={activeStep} totalSteps={3} isProfileCompleted={isCompleted} />
 
           {/* Form Card */}
           <motion.div
@@ -227,6 +225,34 @@ function WorkerProfilePage() {
               </CardContent>
             </Card>
           </motion.div>
+
+          {/* Reopen Profile Banner */}
+          {isCompleted && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl"
+            >
+              <p className="text-sm text-blue-700 mb-3">
+                Hồ sơ của bạn đã hoàn thành. Bạn có thể mở lại để chỉnh sửa thông tin.
+              </p>
+              <button
+                type="button"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors"
+                onClick={async () => {
+                  try {
+                    await reopenWorkerProfile();
+                    toast.success('Đã mở lại hồ sơ để chỉnh sửa');
+                    dispatch(fetchMyProfile());
+                  } catch (error) {
+                    toast.error(error?.response?.data?.message || 'Không thể mở lại hồ sơ');
+                  }
+                }}
+              >
+                Chỉnh sửa hồ sơ
+              </button>
+            </motion.div>
+          )}
 
           {/* Help text */}
           <motion.p

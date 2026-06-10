@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { getCategoriesAPI } from '@/apis';
-import { getCourseById, createCourse, updateCourse, submitCourse } from '@/apis/courseApi';
+import { getCourseById } from '@/apis/courseApi';
+import { createCourse, updateCourse, submitCourse } from '@/apis/trainerApi';
 import TrainerCourseForm from '@/components/trainer/TrainerCourseForm';
 import toast from 'react-hot-toast';
 

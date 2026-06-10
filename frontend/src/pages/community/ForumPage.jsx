@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui'
 import { Button } from '@/components/ui'
 import { Input } from '@/components/ui/Input'
@@ -28,6 +29,7 @@ const CATEGORY_BADGE = {
 }
 
 export default function ForumPage() {
+  const navigate = useNavigate()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [category, setCategory] = useState('all')
@@ -150,6 +152,7 @@ export default function ForumPage() {
         ) : filteredPosts.map(post => (
           <Card
             key={post._id}
+            onClick={() => navigate(`/forum/${post._id}`)}
             className="hover:border-primary/40 transition-colors cursor-pointer group"
           >
             <CardContent className="p-5">

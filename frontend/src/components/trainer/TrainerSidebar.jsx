@@ -1,5 +1,7 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { cn } from '@/utils/cn';
+import { logoutUser } from '@/redux/user/userSlice';
 import {
   LayoutDashboard,
   Users,
@@ -25,6 +27,8 @@ const trainerNavItems = [
 ];
 
 const TrainerSidebar = ({ collapsed, onToggle }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const isActive = (href) =>
@@ -133,9 +137,8 @@ const TrainerSidebar = ({ collapsed, onToggle }) => {
             'transition-all duration-200 text-left'
           )}
           onClick={() => {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            window.location.href = '/auth';
+            dispatch(logoutUser());
+            navigate('/auth');
           }}
         >
           <LogOut className="w-5 h-5 shrink-0" />

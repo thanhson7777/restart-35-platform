@@ -24,7 +24,9 @@ import {
   refreshRAGRecommendationAPI,
   getRAGSourcesAPI,
   getRAGHealthAPI,
-  triggerStartupSuggestionAPI
+  triggerStartupSuggestionAPI,
+  getRAGSkillsGapAPI,
+  federatedCareerAnalysisAPI
 } from '~/apis/aiAPI'
 
 /**
@@ -413,6 +415,42 @@ export const triggerStartupSuggestion = createAsyncThunk(
 )
 
 /**
+ * RAG Skill Gap Analysis
+ * POST /v1/ai/rag/skills-gap
+ */
+export const fetchRAGSkillsGap = createAsyncThunk(
+  'ai/fetchRAGSkillsGap',
+  async (profile, { rejectWithValue }) => {
+    try {
+      const response = await getRAGSkillsGapAPI(profile)
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể phân tích khoảng trống kỹ năng'
+      )
+    }
+  }
+)
+
+/**
+ * Federated Career Analysis
+ * POST /v1/ai/career/analyze-full
+ */
+export const fetchFederatedCareerAnalysis = createAsyncThunk(
+  'ai/fetchFederatedCareerAnalysis',
+  async ({ user_profile, options = {} }, { rejectWithValue }) => {
+    try {
+      const response = await federatedCareerAnalysisAPI(user_profile, options)
+      return response?.data ?? response
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Không thể phân tích nghề nghiệp toàn diện'
+      )
+    }
+  }
+)
+
+/**
  * Risk Level Constants
  */
 export const RISK_LEVELS = {
@@ -530,7 +568,24 @@ const initialState = {
   // Startup state
   startupIdeas: [],
   startupLoading: false,
-  startupError: null
+  startupError: null,
+
+  // Batch course/learning-path maps (shared across career path cards)
+  courseRecommendationsMap: {},    // { occupation: [courses] }
+  learningPathsMap: {},            // { occupation: learningPath }
+  skillGapsMap: {},               // { occupation: [skillGaps] }
+  courseLoading: false,
+  courseError: null,
+
+  // RAG Skill Gap
+  ragSkillsGap: null,
+  ragSkillsGapLoading: false,
+  ragSkillsGapError: null,
+
+  // Federated Career Analysis
+  federatedResult: null,
+  federatedLoading: false,
+  federatedError: null
 }
 
 /**
@@ -630,6 +685,46 @@ const aiSlice = createSlice({
     setRAGRecommendation: (state, action) => {
       state.ragRecommendation = action.payload
       state.ragError = null
+    },
+
+    /**
+     * Set course recommendations map (batch result)
+     */
+    setCourseRecommendations: (state, action) => {
+      state.courseRecommendationsMap = action.payload
+      state.courseLoading = false
+      state.courseError = null
+    },
+
+    /**
+     * Set learning paths map (batch result)
+     */
+    setLearningPaths: (state, action) => {
+      state.learningPathsMap = action.payload
+    },
+
+    /**
+     * Set skill gaps map (batch ESCO result)
+     */
+    setSkillGaps: (state, action) => {
+      state.skillGapsMap = action.payload
+    },
+
+    /**
+     * Set course loading state
+     */
+    setCourseLoading: (state, action) => {
+      state.courseLoading = action.payload
+    },
+
+    /**
+     * Clear course recommendations (when profile changes)
+     */
+    clearCourseRecommendations: (state) => {
+      state.courseRecommendationsMap = {}
+      state.learningPathsMap = {}
+      state.skillGapsMap = {}
+      state.courseError = null
     }
   },
 
@@ -987,6 +1082,40 @@ const aiSlice = createSlice({
         state.startupLoading = false
         state.startupError = action.payload
       })
+
+    /**
+     * fetchRAGSkillsGap
+     */
+    builder
+      .addCase(fetchRAGSkillsGap.pending, (state) => {
+        state.ragSkillsGapLoading = true
+        state.ragSkillsGapError = null
+      })
+      .addCase(fetchRAGSkillsGap.fulfilled, (state, action) => {
+        state.ragSkillsGapLoading = false
+        state.ragSkillsGap = action.payload
+      })
+      .addCase(fetchRAGSkillsGap.rejected, (state, action) => {
+        state.ragSkillsGapLoading = false
+        state.ragSkillsGapError = action.payload
+      })
+
+    /**
+     * fetchFederatedCareerAnalysis
+     */
+    builder
+      .addCase(fetchFederatedCareerAnalysis.pending, (state) => {
+        state.federatedLoading = true
+        state.federatedError = null
+      })
+      .addCase(fetchFederatedCareerAnalysis.fulfilled, (state, action) => {
+        state.federatedLoading = false
+        state.federatedResult = action.payload
+      })
+      .addCase(fetchFederatedCareerAnalysis.rejected, (state, action) => {
+        state.federatedLoading = false
+        state.federatedError = action.payload
+      })
   }
 })
 
@@ -1004,7 +1133,12 @@ export const {
   resetAIState,
   clearRAGRecommendation,
   setRAGRecommendation,
-  clearStartupIdeas
+  clearStartupIdeas,
+  setCourseRecommendations,
+  setLearningPaths,
+  setSkillGaps,
+  setCourseLoading,
+  clearCourseRecommendations
 } = aiSlice.actions
 
 /**
@@ -1089,5 +1223,22 @@ export const selectProgression = (state) => state.ai.ragRecommendation?.progress
 export const selectStartupIdeas = (state) => state.ai.startupIdeas
 export const selectStartupLoading = (state) => state.ai.startupLoading
 export const selectStartupError = (state) => state.ai.startupError
+
+// Batch course/learning-path selectors
+export const selectCourseRecommendationsMap = (state) => state.ai.courseRecommendationsMap
+export const selectLearningPathsMap = (state) => state.ai.learningPathsMap
+export const selectSkillGapsMap = (state) => state.ai.skillGapsMap
+export const selectCourseLoading = (state) => state.ai.courseLoading
+export const selectCourseError = (state) => state.ai.courseError
+
+// RAG Skill Gap selectors
+export const selectRAGSkillsGap = (state) => state.ai.ragSkillsGap
+export const selectRAGSkillsGapLoading = (state) => state.ai.ragSkillsGapLoading
+export const selectRAGSkillsGapError = (state) => state.ai.ragSkillsGapError
+
+// Federated Career Analysis selectors
+export const selectFederatedResult = (state) => state.ai.federatedResult
+export const selectFederatedLoading = (state) => state.ai.federatedLoading
+export const selectFederatedError = (state) => state.ai.federatedError
 
 export default aiSlice.reducer

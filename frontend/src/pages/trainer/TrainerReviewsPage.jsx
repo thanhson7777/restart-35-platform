@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Star, ChevronDown, RefreshCw, MessageSquare, Clock, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { TrainerReviewCard } from '@/components/trainer/TrainerReviewCard';
-import { getMyCourses, getReviewsByCourse } from '@/apis/courseApi';
+import { getMyCourses, getReviewsByCourse } from '@/apis/trainerApi';
 
 const FILTER_TABS = [
   { value: 'all', label: 'Tất cả' },

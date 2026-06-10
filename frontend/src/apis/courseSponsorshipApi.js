@@ -18,3 +18,6 @@ export const deleteSponsorship = (id) =>
 
 export const getSponsorshipLearners = (id, params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/course-sponsorships/${id}/learners`, { params });
+
+export const getMySponsorships = () =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/worker-sponsorships/my`);
