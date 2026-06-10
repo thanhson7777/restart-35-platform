@@ -5,6 +5,7 @@ import {
   SCHOLARSHIP_STATUS,
   SCHOLARSHIP_COVERAGE
 } from '~/utils/constants'
+import { normalize, normalizeList } from '~/utils/provinceMap'
 
 const SCHOLARSHIP_COLLECTION_NAME = 'scholarships'
 const SCHOLARSHIP_COLLECTION_SCHEMA = Joi.object({
@@ -90,6 +91,11 @@ const createNew = async (data, skipValidation = false) => {
       ? data
       : await validateBeforeCreate(data)
 
+    // Normalize provinces in eligibilityCriteria to 2-digit codes
+    if (validData.eligibilityCriteria?.provinces) {
+      validData.eligibilityCriteria.provinces = normalizeList(validData.eligibilityCriteria.provinces)
+    }
+
     return await GET_DB().collection(SCHOLARSHIP_COLLECTION_NAME).insertOne(validData)
   } catch (error) {
     throw new Error(error.message)
@@ -171,6 +177,7 @@ const findActive = async (skip = 0, limit = 10, filters = {}) => {
 const findEligibleForUser = async (userProfile, skip = 0, limit = 10) => {
   try {
     const { basicInfo } = userProfile
+    const workerProvinceCode = normalize(basicInfo?.province)
 
     const scholarships = await GET_DB().collection(SCHOLARSHIP_COLLECTION_NAME)
       .find({
@@ -183,7 +190,7 @@ const findEligibleForUser = async (userProfile, skip = 0, limit = 10) => {
             {
               $or: [
                 { $eq: [{ $size: '$eligibilityCriteria.provinces' }, 0] },
-                { $in: [basicInfo.province, '$eligibilityCriteria.provinces'] }
+                { $in: [workerProvinceCode, '$eligibilityCriteria.provinces'] }
               ]
             }
           ]
@@ -234,6 +241,11 @@ const update = async (scholarshipId, data) => {
     const updateData = {
       ...data,
       updatedAt: Date.now()
+    }
+
+    // Normalize provinces in eligibilityCriteria to 2-digit codes
+    if (updateData.eligibilityCriteria?.provinces) {
+      updateData.eligibilityCriteria.provinces = normalizeList(updateData.eligibilityCriteria.provinces)
     }
 
     const result = await GET_DB().collection(SCHOLARSHIP_COLLECTION_NAME).findOneAndUpdate(
@@ -496,7 +508,9 @@ const validateEligibility = (profile, criteria) => {
   }
 
   if (criteria.provinces?.length > 0 && basicInfo.province) {
-    if (!criteria.provinces.includes(basicInfo.province)) {
+    const workerCode = normalize(basicInfo.province)
+    const eligibleCodes = normalizeList(criteria.provinces)
+    if (!eligibleCodes.includes(workerCode)) {
       errors.push('Địa điểm không nằm trong phạm vi được hỗ trợ')
     }
   }

@@ -1,11 +1,9 @@
 import {
   LayoutDashboard,
   UserCircle,
-  BookOpen,
   ClipboardList,
   Calendar,
   FileText,
-  Briefcase,
   FileCheck,
   Target,
   Gift,
@@ -14,10 +12,9 @@ import {
   MessageSquare,
   Users,
   CalendarCheck,
-  TrendingUp,
   Award,
-  BookMarked,
   GraduationCap,
+  Settings,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui';
@@ -29,12 +26,12 @@ const navGroups = [
     items: [
       { href: '/worker', label: 'Tổng quan', icon: LayoutDashboard, end: true },
       { href: '/worker/profile', label: 'Hồ sơ của tôi', icon: UserCircle },
+      { href: '/worker/account-settings', label: 'Cài đặt tài khoản', icon: Settings },
     ],
   },
   {
     section: 'HỌC TẬP',
     items: [
-      { href: '/courses', label: 'Khóa học', icon: BookOpen },
       { href: '/my-enrollments', label: 'Ghi danh của tôi', icon: ClipboardList },
       { href: '/my-schedules', label: 'Lịch học', icon: Calendar },
       { href: '/my-learning-records', label: 'Bản ghi học tập', icon: FileText },
@@ -43,7 +40,6 @@ const navGroups = [
   {
     section: 'VIỆC LÀM',
     items: [
-      { href: '/jobs', label: 'Việc làm', icon: Briefcase },
       { href: '/my-applications', label: 'Đơn ứng tuyển', icon: FileCheck },
       { href: '/my-placements', label: 'Vị trí việc làm', icon: Target },
     ],
@@ -62,7 +58,6 @@ const navGroups = [
       { href: '/community/forum', label: 'Diễn đàn', icon: MessageSquare },
       { href: '/mentor/booking', label: 'Đặt lịch Mentor', icon: Users },
       { href: '/my-mentor-sessions', label: 'Lịch sử Mentor', icon: CalendarCheck },
-      { href: '/my-success-stats', label: 'Thống kê thành công', icon: TrendingUp },
     ],
   },
   {

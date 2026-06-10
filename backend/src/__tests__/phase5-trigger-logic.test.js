@@ -92,7 +92,7 @@ async function createWorkerProfile(userId, profileData = {}) {
     basicInfo: profileData.basicInfo || {
       age: 45,
       gender: 'male',
-      province: 'HCM',
+      province: '79',
       education: EDUCATION_LEVELS.UNIVERSITY,
       maritalStatus: 'single',
       phone: '0900000000'
@@ -510,7 +510,7 @@ describe('Phase 5 — trigger logic', () => {
           ageMin: 35,
           ageMax: 55,
           maxIncome: 20000000,
-          provinces: ['HCM'],
+          provinces: ['79'],
           education: [EDUCATION_LEVELS.UNIVERSITY]
         }
       })

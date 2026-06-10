@@ -88,7 +88,7 @@ async function createWorkerProfile(userId, profileData = {}) {
     basicInfo: profileData.basicInfo || {
       age: 45,
       gender: 'male',
-      province: 'HCM',
+      province: '79',
       education: EDUCATION_LEVELS.UNIVERSITY,
       maritalStatus: 'single',
       phone: '0900000000'
@@ -239,7 +239,7 @@ describe('Phase 5 — enrollmentService integration', () => {
         eligibilityCriteria: {
           ageMin: 35,
           ageMax: 55,
-          provinces: ['HCM']
+          provinces: ['79']
         }
       })
 
@@ -259,7 +259,7 @@ describe('Phase 5 — enrollmentService integration', () => {
         eligibilityCriteria: {
           ageMin: 35,
           ageMax: 55,
-          provinces: ['HCM']
+          provinces: ['79']
         }
       })
 

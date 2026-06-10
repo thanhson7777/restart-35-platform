@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { selectCurrentUser, logoutUser } from '@/redux/user/userSlice';
-import { UserCircle, User, BookOpen, ClipboardText, SignOut } from '@phosphor-icons/react';
+import { UserCircle, User, BookOpen, ClipboardText, SignOut, Briefcase } from '@phosphor-icons/react';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -105,23 +105,40 @@ const Navbar = () => {
                       </p>
                       <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">{currentUser?.email}</p>
                     </div>
-                    <div className="py-1">
-                      <Link to="/profile" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <User size={18} />Thông tin tài khoản
+                    <div className="py-1.5">
+                      <div className="px-3 py-1.5">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Tài khoản</p>
+                      </div>
+                      <Link to="/worker/account-settings" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
+                        <User size={17} className="shrink-0" />Thông tin tài khoản
                       </Link>
-                      <Link to="/worker-profile" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <UserCircle size={18} />Hồ sơ của tôi
+                      <Link to="/worker/profile" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
+                        <UserCircle size={17} className="shrink-0" />Hồ sơ của tôi
                       </Link>
-                      <Link to="/my-enrollments" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <BookOpen size={18} />Khóa của tôi
+
+                      <div className="px-3 py-1.5 mt-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Việc làm</p>
+                      </div>
+                      <Link to="/jobs" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
+                        <Briefcase size={17} className="shrink-0" />Việc làm phù hợp
                       </Link>
-                      <Link to="/my-applications" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <ClipboardText size={18} />Đơn xin học bổng
+                      <Link to="/my-applications" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
+                        <ClipboardText size={17} className="shrink-0" />Đơn ứng tuyển
+                      </Link>
+
+                      <div className="px-3 py-1.5 mt-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Học tập</p>
+                      </div>
+                      <Link to="/courses" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
+                        <BookOpen size={17} className="shrink-0" />Khóa học
+                      </Link>
+                      <Link to="/my-enrollments" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
+                        <ClipboardText size={17} className="shrink-0" />Ghi danh của tôi
                       </Link>
                     </div>
                     <div className="border-t border-zinc-100 py-1">
-                      <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-2.5 text-red-500 hover:bg-red-50 transition-colors text-sm">
-                        <SignOut size={18} />Đăng xuất
+                      <button onClick={handleLogout} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl w-full text-red-500 hover:bg-red-50 transition-colors text-sm">
+                        <SignOut size={17} className="shrink-0" />Đăng xuất
                       </button>
                     </div>
                   </motion.div>

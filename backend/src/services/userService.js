@@ -11,6 +11,7 @@ import { pickUser } from '~/utils/formatter'
 import bcryptjs from 'bcryptjs'
 import { USER_ROLES } from '~/utils/constants'
 import { DEFAULT_PAGE, DEFAULT_ITEM_PER_PAGE } from '~/utils/constants'
+import { normalize } from '~/utils/provinceMap'
 
 const createNew = async (reqBody) => {
   try {
@@ -30,7 +31,7 @@ const createNew = async (reqBody) => {
       ...(reqBody.basicInfo && {
         age: reqBody.basicInfo.age,
         gender: reqBody.basicInfo.gender,
-        province: reqBody.basicInfo.province || '',
+        province: normalize(reqBody.basicInfo.province) || '',
         district: reqBody.basicInfo.district || '',
         education: reqBody.basicInfo.education,
         maritalStatus: reqBody.basicInfo.maritalStatus

@@ -163,7 +163,7 @@ export const createWorkerProfile = async (db, userId, profileData = {}) => {
     basicInfo: profileData.basicInfo || {
       age: 45,
       gender: 'male',
-      province: 'HCM',
+      province: '79',
       education: 'university',
       maritalStatus: 'single',
       phone: '0900000000'

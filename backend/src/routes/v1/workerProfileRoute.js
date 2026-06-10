@@ -69,4 +69,11 @@ Router.route('/:id')
     workerProfileController.getProfileById
   )
 
+// Kiểm tra mức độ hoàn thiện hồ sơ
+Router.route('/completeness')
+  .get(
+    authMiddleware.isAuthorized,
+    workerProfileController.getProfileCompleteness
+  )
+
 export const workerProfileRoute = Router

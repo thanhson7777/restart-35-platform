@@ -26,6 +26,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+class RateLimitError(Exception):
+    """Raised when LLM API returns 429 rate limit"""
+    def __init__(self, message, retry_after=None):
+        super().__init__(message)
+        self.retry_after = retry_after  # seconds
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -121,6 +128,8 @@ class UnifiedLLMClient:
             
         Returns:
             Generated text or None if failed
+        Raises:
+            RateLimitError: When API returns 429 rate limit (so caller can handle 429 specifically)
         """
         if not self.available:
             logger.warning("No LLM client available")
@@ -130,6 +139,7 @@ class UnifiedLLMClient:
         if model is None:
             model = LLMConfig.GROQ_LLAMA if self.provider == 'groq' else LLMConfig.GEMINI_FLASH
         
+        last_error = None
         for attempt in range(LLMConfig.MAX_RETRIES):
             try:
                 if self.provider == 'groq' and self._groq_client:
@@ -146,10 +156,26 @@ class UnifiedLLMClient:
                         return self._call_gemini(LLMConfig.GEMINI_FLASH, prompt, temperature, max_tokens)
                         
             except Exception as e:
+                last_error = e
+                # Re-raise 429 rate limit immediately so caller can handle it
+                if hasattr(e, 'status_code') and e.status_code == 429:
+                    retry_after = None
+                    if hasattr(e, 'response') and e.response is not None:
+                        try:
+                            retry_after = e.response.headers.get('retry-after')
+                            if retry_after:
+                                retry_after = int(retry_after)
+                        except (ValueError, TypeError):
+                            retry_after = None
+                    raise RateLimitError(
+                        f"GROQ API rate limit exceeded: {e}",
+                        retry_after=retry_after
+                    ) from e
                 logger.warning(f"LLM error (attempt {attempt + 1}): {e}")
                 if attempt < LLMConfig.MAX_RETRIES - 1:
                     time.sleep(LLMConfig.RETRY_DELAY * (attempt + 1))
         
+        logger.error(f"LLM generation failed after {LLMConfig.MAX_RETRIES} retries. Last error: {last_error}")
         return None
     
     def _call_groq(self, model: str, prompt: str, temperature: float, max_tokens: int, system_prompt: str = None) -> Optional[str]:

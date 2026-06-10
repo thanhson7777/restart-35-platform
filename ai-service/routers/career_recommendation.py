@@ -21,6 +21,7 @@ import logging
 
 # Import translation service for Vietnamese job titles
 from services.translation_service import translate_job_recommendations
+from config.groq_client import RateLimitError
 
 router = APIRouter(prefix="/api/v1/ai/rag", tags=["RAG Career Recommendation"])
 logger = logging.getLogger(__name__)
@@ -157,6 +158,11 @@ class RAGCareerResponse(BaseModel):
     generated_at: str = ""
     rag_context_used: bool = True
     message: Optional[str] = None
+    profile_case: Optional[str] = Field(
+        None,
+        description="Profile case: no_experience_no_interests, no_experience_has_interests, "
+                    "has_experience_no_interests, no_experience_wants_entrepreneurship, complete"
+    )
 
 
 # ============================================================================
@@ -343,23 +349,34 @@ async def post_rag_career_recommendation(request: RAGCareerRequest):
 
         logger.info(f"RAG retrieved {len(sources)} sources: {sources}")
 
-        # Step 2: Build prompt
-        from prompts.career_recommend import format_career_prompt
+        # Step 2: Build prompt với case detection
+        from prompts.career_recommend import format_career_prompt, determine_profile_case
 
+        profile_case = determine_profile_case(request.profile)
         system_prompt, user_prompt = format_career_prompt(
             request.profile,
-            rag_context
+            rag_context,
+            profile_case=profile_case
         )
 
         # Step 3: Call LLM with system prompt
         logger.info("Calling GROQ API...")
 
-        response = _llm_client.generate(
-            prompt=user_prompt,
-            temperature=0.1,
-            max_tokens=4096,  # Increased from 2048 to avoid JSON truncation
-            system_prompt=system_prompt
-        )
+        try:
+            response = _llm_client.generate(
+                prompt=user_prompt,
+                temperature=0.1,
+                max_tokens=4096,  # Increased from 2048 to avoid JSON truncation
+                system_prompt=system_prompt
+            )
+        except RateLimitError as e:
+            logger.warning(f"GROQ rate limit hit: {e}")
+            retry_after = e.retry_after
+            headers = {"Retry-After": str(retry_after)} if retry_after else {}
+            raise HTTPException(
+                status_code=429,
+                detail=f"GROQ API rate limit exceeded. Please try again later."
+            )
 
         if not response:
             raise HTTPException(
@@ -375,12 +392,19 @@ async def post_rag_career_recommendation(request: RAGCareerRequest):
             logger.warning(f"Failed to parse LLM JSON. Raw response preview: {response[:500] if response else 'empty'}")
             # Retry with higher max_tokens
             logger.info("Retrying with higher max_tokens (4096)...")
-            response_retry = _llm_client.generate(
-                prompt=user_prompt,
-                temperature=0.1,
-                max_tokens=4096,
-                system_prompt=system_prompt
-            )
+            try:
+                response_retry = _llm_client.generate(
+                    prompt=user_prompt,
+                    temperature=0.1,
+                    max_tokens=4096,
+                    system_prompt=system_prompt
+                )
+            except RateLimitError as e:
+                logger.warning(f"GROQ rate limit hit on retry: {e}")
+                raise HTTPException(
+                    status_code=429,
+                    detail="GROQ API rate limit exceeded. Please try again later."
+                )
             result = parse_llm_json_response(response_retry)
 
         if result is None:
@@ -423,7 +447,8 @@ async def post_rag_career_recommendation(request: RAGCareerRequest):
             sources=sources,
             generated_at=datetime.now().isoformat(),
             rag_context_used=True,
-            message="Success"
+            message="Success",
+            profile_case=profile_case
         )
 
         # Step 7: Save to cache
@@ -682,6 +707,17 @@ async def get_startup_suggestions(request: RAGStartupRequest):
         )
 
     try:
+        # DEBUG: Log profile structure to diagnose what data frontend sends
+        import json
+        logger.info(f"[STARTUP DEBUG] Profile: {json.dumps(request.profile, ensure_ascii=False, default=str)[:1000]}")
+        logger.info(f"[STARTUP DEBUG] Profile keys: {list(request.profile.keys())}")
+        emp = request.profile.get("employmentHistory", [])
+        logger.info(f"[STARTUP DEBUG] employmentHistory type={type(emp).__name__}, value={emp}")
+        interests = request.profile.get("interests", [])
+        logger.info(f"[STARTUP DEBUG] interests: {interests}")
+        aspirations = request.profile.get("aspirations", {})
+        logger.info(f"[STARTUP DEBUG] aspirations: {aspirations}")
+
         # Step 1: Get RAG context
         rag_context = _rag_engine.get_recommendation_context_sync(request.profile)
         sources = _rag_engine.get_sources()
@@ -689,22 +725,31 @@ async def get_startup_suggestions(request: RAGStartupRequest):
         logger.info(f"RAG retrieved {len(sources)} sources for startup")
 
         # Step 2: Build prompt using format_startup_prompt
-        from prompts.career_recommend import format_startup_prompt
+        from prompts.career_recommend import format_startup_prompt, determine_profile_case
 
+        profile_case = determine_profile_case(request.profile)
         system_prompt, user_prompt = format_startup_prompt(
             request.profile,
             rag_context,
-            request.budget
+            request.budget,
+            profile_case=profile_case
         )
 
         # Step 3: Call LLM
         logger.info("Calling GROQ API for startup suggestions...")
-        response = _llm_client.generate(
-            prompt=user_prompt,
-            temperature=0.1,
-            max_tokens=4096,  # Increased from 2048 to avoid truncation
-            system_prompt=system_prompt
-        )
+        try:
+            response = _llm_client.generate(
+                prompt=user_prompt,
+                temperature=0.1,
+                max_tokens=4096,  # Increased from 2048 to avoid truncation
+                system_prompt=system_prompt
+            )
+        except RateLimitError as e:
+            logger.warning(f"GROQ rate limit hit in startup suggestions: {e}")
+            raise HTTPException(
+                status_code=429,
+                detail="GROQ API rate limit exceeded. Please try again later."
+            )
 
         if not response:
             raise HTTPException(
@@ -720,12 +765,19 @@ async def get_startup_suggestions(request: RAGStartupRequest):
             logger.warning(f"Failed to parse LLM JSON for startup. Raw response preview: {response[:500] if response else 'empty'}")
             # Retry with higher max_tokens
             logger.info("Retrying with higher max_tokens (4096)...")
-            response_retry = _llm_client.generate(
-                prompt=user_prompt,
-                temperature=0.1,
-                max_tokens=4096,
-                system_prompt=system_prompt
-            )
+            try:
+                response_retry = _llm_client.generate(
+                    prompt=user_prompt,
+                    temperature=0.1,
+                    max_tokens=4096,
+                    system_prompt=system_prompt
+                )
+            except RateLimitError as e:
+                logger.warning(f"GROQ rate limit hit on startup retry: {e}")
+                raise HTTPException(
+                    status_code=429,
+                    detail="GROQ API rate limit exceeded. Please try again later."
+                )
             result = parse_llm_json_response(response_retry)
 
         if result is None:

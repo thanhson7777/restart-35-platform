@@ -235,6 +235,91 @@ class RAGContextBuilder:
 
         return "\n".join(context_parts[:5])
 
+    def build_employment_context(self, employment_history) -> str:
+        """
+        Build context từ employment history, xử lý cả skip case.
+        """
+        context_parts = []
+
+        if isinstance(employment_history, dict):
+            if employment_history.get('status') == 'không có':
+                context_parts.append("KINH NGHIỆM: CHƯA CÓ")
+                context_parts.append("Người dùng chưa có kinh nghiệm làm việc chính thức.")
+                context_parts.append("Gợi ý: Ưu tiên công việc entry-level, không yêu cầu kinh nghiệm.")
+                return '\n'.join(context_parts)
+            else:
+                return self._build_single_job_context(employment_history)
+
+        if isinstance(employment_history, list):
+            valid_jobs = [j for j in employment_history
+                          if j and (j.get('companyName') or j.get('position')
+                                   or j.get('occupation'))]
+            if not valid_jobs:
+                context_parts.append("KINH NGHIỆM: CHƯA CÓ")
+                context_parts.append("Người dùng chưa có kinh nghiệm làm việc chính thức.")
+                return '\n'.join(context_parts)
+
+            total_months = sum(j.get('duration', 0) for j in valid_jobs)
+            context_parts.append(f"KINH NGHIỆM: CÓ ({len(valid_jobs)} công việc, ~{total_months // 12} năm)")
+            for job in valid_jobs:
+                context_parts.append(self._build_single_job_context(job))
+            return '\n'.join(context_parts)
+
+        return "Không có thông tin kinh nghiệm."
+
+    def _build_single_job_context(self, job: dict) -> str:
+        """Build context từ một job entry."""
+        parts = []
+        if job.get('companyName'):
+            parts.append(f"Công ty: {job['companyName']}")
+        occ = job.get('occupation')
+        if occ:
+            title = occ.get('titleVi', occ) if isinstance(occ, dict) else occ
+            parts.append(f"Vị trí: {title}")
+        if job.get('position'):
+            parts.append(f"Chức danh: {job['position']}")
+        if job.get('duration'):
+            parts.append(f"Thời gian: {job['duration']} tháng")
+        skills = job.get('skills')
+        if skills:
+            skill_names = [s.get('titleVi', s.get('title', str(s)))
+                           if isinstance(s, dict) else str(s) for s in skills]
+            parts.append(f"Kỹ năng: {', '.join(skill_names[:5])}")
+        return ' | '.join(parts) if parts else ''
+
+    def build_full_profile_context(self, profile: dict) -> str:
+        """
+        Build complete profile context string cho RAG, xử lý cả skip case.
+        """
+        parts = []
+
+        basic_info = profile.get('basicInfo', {})
+        if basic_info:
+            parts.append("THÔNG TIN CƠ BẢN:")
+            if basic_info.get('age'):
+                parts.append(f"- Tuổi: {basic_info['age']}")
+            if basic_info.get('gender'):
+                parts.append(f"- Giới tính: {basic_info['gender']}")
+            if basic_info.get('province'):
+                parts.append(f"- Tỉnh/Thành: {basic_info['province']}")
+
+        employment_history = profile.get('employmentHistory')
+        if employment_history:
+            parts.append("\nKINH NGHIỆM:")
+            parts.append(self.build_employment_context(employment_history))
+
+        aspirations = profile.get('aspirations', {})
+        if aspirations:
+            parts.append("\nNGUYỆN VỌNG:")
+            target = aspirations.get('targetJob')
+            if target:
+                title = target.get('titleVi', target) if isinstance(target, dict) else str(target)
+                parts.append(f"- Công việc mong muốn: {title}")
+            if aspirations.get('wantsToStartBusiness'):
+                parts.append("- Mong muốn: Khởi nghiệp/Tự tạo việc làm")
+
+        return '\n'.join(parts)
+
     def format_context_for_llm(self, user_profile: Dict) -> str:
         """
         Format context as a string for LLM prompt

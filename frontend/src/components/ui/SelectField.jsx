@@ -22,6 +22,7 @@ function SelectField({
   disabled,
   hint,
   id,
+  loading,
 }) {
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef(null)
@@ -88,7 +89,11 @@ function SelectField({
         {open && (
           <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-input rounded-lg shadow-lg z-50 overflow-hidden">
             <ul className="max-h-48 overflow-y-auto py-1">
-              {options.length === 0 ? (
+              {loading ? (
+                <li className="px-3 py-2 text-sm text-muted-foreground text-center">
+                  Đang tải...
+                </li>
+              ) : options.length === 0 ? (
                 <li className="px-3 py-2 text-sm text-muted-foreground text-center">
                   Không có lựa chọn
                 </li>

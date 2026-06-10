@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { MapPin, Lightbulb, Sparkles, RefreshCw, Loader2 } from 'lucide-react'
+import { MapPin, Lightbulb, Sparkles, RefreshCw, Loader2, AlertTriangle, RotateCcw } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { Label } from '@/components/ui/Input'
@@ -11,7 +11,7 @@ import { SelectField } from '@/components/ui/SelectField'
 import { OccupationSelect } from '@/components/ui/OccupationSelect'
 import SalaryInput from './SalaryInput'
 import JobTypeSelector from './JobTypeSelector'
-import { VIETNAM_PROVINCES } from '~/data/profileData'
+import { fetchProvinces } from '~/services/locationService'
 import {
   autosave,
   updateFormData,
@@ -54,6 +54,66 @@ const initialAspirations = {
   wantsToStartBusiness: false
 }
 
+// Helper check profile co kinh nghiem khong
+const hasExperience = (savedData) => {
+  const empHistory = savedData?.employmentHistory
+  if (!empHistory) return false
+
+  if (typeof empHistory === 'object' && !Array.isArray(empHistory) && empHistory.status === 'không có') {
+    return false
+  }
+
+  if (Array.isArray(empHistory)) {
+    if (empHistory.length === 0) return false
+    const first = empHistory[0]
+    if (!first || Object.keys(first).every(k => !first[k])) return false
+  }
+
+  if (typeof empHistory === 'object' && Object.keys(empHistory).length === 0) return false
+
+  return true
+}
+
+const WARNING_MESSAGES = {
+  no_experience_no_interests: {
+    title: "Hồ sơ chưa hoàn thiện",
+    message: "Bạn chưa cung cấp thông tin kinh nghiệm làm việc và sở thích. Gợi ý việc làm từ AI dựa trên hồ sơ chưa hoàn thiện sẽ không mang lại kết quả như mong đợi.",
+    checkbox: "Tôi đã hiểu và đồng ý tiếp tục với hồ sơ chưa hoàn thiện",
+    severity: "high"
+  },
+  no_experience_has_interests: {
+    title: "Hồ sơ còn thiếu thông tin",
+    message: "Bạn đã cung cấp sở thích nhưng chưa có kinh nghiệm làm việc. Gợi ý việc làm từ AI sẽ dựa chủ yếu vào sở thích của bạn, chưa có kinh nghiệm thực tế để đề xuất chính xác hơn.",
+    checkbox: "Tôi đã hiểu và đồng ý tiếp tục",
+    severity: "medium"
+  },
+  has_experience_no_interests: {
+    title: "Hồ sơ còn thiếu thông tin",
+    message: "Bạn đã cung cấp kinh nghiệm làm việc nhưng chưa có sở thích. Gợi ý việc làm từ AI sẽ dựa chủ yếu vào kinh nghiệm, chưa có sở thích để cá nhân hóa gợi ý.",
+    checkbox: "Tôi đã hiểu và đồng ý tiếp tục",
+    severity: "medium"
+  },
+  no_experience_wants_entrepreneurship: {
+    title: "Cần lưu ý khi chọn khởi nghiệp",
+    message: "Với hồ sơ chưa có kinh nghiệm làm việc, khởi nghiệp là lựa chọn khó khăn. Bạn nên cân nhắc tích lũy kinh nghiệm thực tế, kỹ năng chuyên môn và hiểu biết thị trường trước khi bắt đầu dự án kinh doanh riêng.",
+    checkbox: "Tôi đã hiểu các rủi ro và đồng ý tiếp tục",
+    severity: "high"
+  }
+}
+
+const getWarningCase = (savedData, aspirations) => {
+  const exp = hasExperience(savedData)
+  const int = savedData?.interests && savedData.interests !== "không có" &&
+    (savedData.interests.length > 0 || (savedData.interests.interests && savedData.interests.interests.length > 0))
+  const wantsKNG = aspirations?.wantsToStartBusiness
+
+  if (!exp && !int) return 'no_experience_no_interests'
+  if (!exp && int) return 'no_experience_has_interests'
+  if (exp && !int) return 'has_experience_no_interests'
+  if (!exp && wantsKNG) return 'no_experience_wants_entrepreneurship'
+  return null
+}
+
 function AspirationsForm({ onComplete }) {
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -75,12 +135,25 @@ function AspirationsForm({ onComplete }) {
   })
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [provinceList, setProvinceList] = useState([])
+  const [loadingProvinces, setLoadingProvinces] = useState(true)
+
+  // Fetch province list from API on mount
+  useEffect(() => {
+    fetchProvinces().then(data => {
+      setProvinceList(data)
+      setLoadingProvinces(false)
+    })
+  }, [])
   const [isCompleted, setIsCompleted] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   const autosaveTimerRef = useRef(null)
   const toastShownRef = useRef(false)
   const formRef = useRef(null)
+
+  // Checkbox dong y voi profile chua hoan thien
+  const [agreedToIncompleteProfile, setAgreedToIncompleteProfile] = useState(false)
 
   // Sync from Redux on mount
   useEffect(() => {
@@ -106,6 +179,82 @@ function AspirationsForm({ onComplete }) {
   useEffect(() => {
     setIsCompleted(isProfileCompleted ?? false)
   }, [isProfileCompleted])
+
+  // Computed warning
+  const warningCase = getWarningCase(savedData, aspirations)
+  const isProfileComplete = hasExperience(savedData)
+
+  // Warning box cho profile chua hoan thien
+  const IncompleteProfileWarning = ({ warningCase: wc, onBackToAddExperience }) => {
+    const config = WARNING_MESSAGES[wc]
+    if (!config) return null
+
+    const isHighSeverity = config.severity === 'high'
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className={`rounded-2xl p-6 mb-6 ${
+          isHighSeverity
+            ? 'bg-amber-50 border-2 border-amber-400'
+            : 'bg-yellow-50 border-2 border-yellow-300'
+        }`}
+      >
+        <div className="flex gap-4">
+          <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
+            isHighSeverity ? 'bg-amber-100' : 'bg-yellow-100'
+          }`}>
+            <AlertTriangle size={24} className={
+              isHighSeverity ? 'text-amber-600' : 'text-yellow-600'
+            } />
+          </div>
+          <div className="flex-1">
+            <h3 className={`font-bold text-base mb-2 ${
+              isHighSeverity ? 'text-amber-800' : 'text-yellow-800'
+            }`}>
+              {config.title}
+            </h3>
+            <p className={`text-sm leading-relaxed mb-4 ${
+              isHighSeverity ? 'text-amber-700' : 'text-yellow-700'
+            }`}>
+              {config.message}
+            </p>
+
+            <label className="flex items-start gap-3 cursor-pointer mb-4">
+              <input
+                type="checkbox"
+                checked={agreedToIncompleteProfile}
+                onChange={(e) => setAgreedToIncompleteProfile(e.target.checked)}
+                className="w-5 h-5 mt-0.5 rounded border-2 border-amber-400 text-amber-600 focus:ring-amber-500 cursor-pointer"
+              />
+              <span className={`text-sm ${
+                isHighSeverity ? 'text-amber-800' : 'text-yellow-800'
+              }`}>
+                {config.checkbox}
+              </span>
+            </label>
+
+            {onBackToAddExperience && (
+              <button
+                type="button"
+                onClick={onBackToAddExperience}
+                className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+                  isHighSeverity
+                    ? 'text-amber-700 hover:text-amber-900'
+                    : 'text-yellow-700 hover:text-yellow-900'
+                }`}
+              >
+                <RotateCcw size={16} />
+                Quay lại bổ sung kinh nghiệm
+              </button>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
 
   // Debounced autosave
   const triggerAutosave = useCallback(() => {
@@ -147,6 +296,11 @@ function AspirationsForm({ onComplete }) {
     // Salary validation
     if (aspirations.targetSalary > 1000000000) {
       newErrors.targetSalary = 'Lương không quá 1 tỷ đồng'
+    }
+
+    // Profile chua hoan thien + chua tick checkbox -> block submit
+    if (!isProfileComplete && !agreedToIncompleteProfile) {
+      newErrors.profileIncomplete = 'Vui lòng đồng ý tiếp tục với hồ sơ chưa hoàn thiện'
     }
 
     setErrors(newErrors)
@@ -196,7 +350,7 @@ function AspirationsForm({ onComplete }) {
           })
           setIsCompleted(true)
           toast.success('Chúc mừng! Bạn đã hoàn thành hồ sơ!')
-          dispatch(setCurrentStep(STEP_NUMBER))
+          dispatch(setCurrentStep(4))
           onComplete?.()
           setIsRedirecting(true)
           setTimeout(() => navigate('/jobs'), 1500)
@@ -279,6 +433,14 @@ function AspirationsForm({ onComplete }) {
         </div>
       </motion.div>
 
+      {/* Warning box - chi hien khi profile chua hoan thien */}
+      {warningCase && !isProfileComplete && (
+        <IncompleteProfileWarning
+          warningCase={warningCase}
+          onBackToAddExperience={() => dispatch(setCurrentStep(1))}
+        />
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Target Job - Using ESCO Search + Autocomplete */}
         <motion.div variants={itemVariants} data-error="targetJob">
@@ -329,7 +491,8 @@ function AspirationsForm({ onComplete }) {
             <SelectField
               label="Địa điểm làm việc"
               value={aspirations.targetProvince}
-              options={VIETNAM_PROVINCES}
+              options={provinceList}
+              loading={loadingProvinces}
               onChange={(value) => updateField('targetProvince', value)}
               placeholder="-- Chọn tỉnh/thành --"
               icon={<MapPin size={18} className="text-muted-foreground" />}
@@ -374,11 +537,15 @@ function AspirationsForm({ onComplete }) {
             size="xl"
             className={cn(
               "w-full transition-all duration-300",
+              !isProfileComplete && !agreedToIncompleteProfile && "opacity-50 cursor-not-allowed",
               isCompleted && "opacity-50 cursor-not-allowed"
             )}
           >
             <Sparkles size={18} className="mr-2" />
-            Hoàn thành hồ sơ
+            {isProfileComplete || agreedToIncompleteProfile
+              ? 'Hoàn thành hồ sơ'
+              : 'Vui lòng đồng ý với điều kiện'
+            }
             {!isCompleted && (
               <svg className="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />

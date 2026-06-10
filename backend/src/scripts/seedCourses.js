@@ -939,7 +939,7 @@ async function seedWorkerProfiles(workers) {
       basicInfo: {
         age: 42,
         gender: 'female',
-        province: 'TP.HCM',
+        province: '79',
         district: 'Quận 12',
         education: 'university',
         maritalStatus: 'single',
@@ -960,7 +960,7 @@ async function seedWorkerProfiles(workers) {
         targetJob: { titleVi: 'Nhân viên kỹ thuật', titleEn: 'Technical Staff' },
         targetJobNoPreference: false,
         targetSalary: 8000000,
-        targetProvince: 'TP.HCM'
+        targetProvince: '79'
       },
       createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
       updatedAt: new Date()
@@ -972,7 +972,7 @@ async function seedWorkerProfiles(workers) {
       basicInfo: {
         age: 48,
         gender: 'male',
-        province: 'Bình Dương',
+        province: '75',
         district: 'Thuận An',
         education: 'high_school',
         maritalStatus: 'married',

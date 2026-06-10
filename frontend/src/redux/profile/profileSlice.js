@@ -4,7 +4,8 @@ import {
   getMyWorkerProfileAPI,
   updateWorkerProfileStepAPI,
   autosaveWorkerProfileAPI,
-  completeWorkerProfileAPI
+  completeWorkerProfileAPI,
+  updateWorkerProfileBasicInfoAPI
 } from '~/apis/profileAPI'
 import { invalidateCareerPathCacheAPI, invalidateRAGCacheAPI } from '~/apis/aiAPI'
 
@@ -79,7 +80,7 @@ export const autosave = createAsyncThunk(
         console.warn('[Profile] Failed to invalidate career cache:', cacheError)
       }
 
-      return { profileId: response.data.profileId, savedAt: response.data.savedAt }
+      return { profileId: response.data.profileId, savedAt: response.data.savedAt, stepData: response.data.stepData, step }
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message)
     }
@@ -110,6 +111,18 @@ export const completeProfile = createAsyncThunk(
   }
 )
 
+export const updateMyBasicInfo = createAsyncThunk(
+  'profile/updateMyBasicInfo',
+  async (basicInfo, { rejectWithValue }) => {
+    try {
+      const response = await updateWorkerProfileBasicInfoAPI(basicInfo)
+      return response.data || response
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message)
+    }
+  }
+)
+
 // Initial state
 const initialState = {
   profile: null,
@@ -126,6 +139,7 @@ const initialState = {
   formData: {
     basicInfo: {},
     employmentHistory: [],
+    interests: [],
     barriers: {},
     aspirations: {}
   },
@@ -148,8 +162,9 @@ const profileSlice = createSlice({
       const stepFieldMap = {
         1: 'basicInfo',
         2: 'employmentHistory',
-        3: 'barriers',
-        4: 'aspirations'
+        3: 'interests',
+        4: 'barriers',
+        5: 'aspirations'
       }
       if (stepFieldMap[step]) {
         state.formData[stepFieldMap[step]] = data
@@ -174,6 +189,7 @@ const profileSlice = createSlice({
         state.formData = {
           basicInfo: profile.basicInfo || {},
           employmentHistory: profile.employmentHistory || [],
+          interests: profile.interests || [],
           barriers: profile.barriers || {},
           aspirations: profile.aspirations || {}
         }
@@ -192,6 +208,9 @@ const profileSlice = createSlice({
       })
       .addCase(fetchMyProfile.fulfilled, (state, action) => {
         state.isLoading = false
+        // #region agent debug log
+        fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3b3da8'},body:JSON.stringify({sessionId:'3b3da8',location:'profileSlice.js:fetchMyProfile_fulfilled',message:'fetchMyProfile profile payload',data:{payload:action.payload},timestamp:Date.now(),hypothesisId:'B',runId:'init'})}).catch(()=>{});
+        // #endregion
         if (action.payload) {
           state.profile = action.payload
           state.profileId = action.payload._id
@@ -200,6 +219,7 @@ const profileSlice = createSlice({
           state.formData = {
             basicInfo: action.payload.basicInfo || {},
             employmentHistory: action.payload.employmentHistory || [],
+            interests: action.payload.interests || [],
             barriers: action.payload.barriers || {},
             aspirations: action.payload.aspirations || {}
           }
@@ -259,9 +279,31 @@ const profileSlice = createSlice({
         if (action.payload.profileId) {
           state.profileId = action.payload.profileId
         }
+        if (action.payload.step && action.payload.stepData) {
+          const stepFieldMap = {
+            1: 'basicInfo',
+            2: 'employmentHistory',
+            3: 'interests',
+            4: 'barriers',
+            5: 'aspirations'
+          }
+          const field = stepFieldMap[action.payload.step]
+          if (field) {
+            state.formData[field] = action.payload.stepData
+          }
+        }
       })
       .addCase(autosave.rejected, (state) => {
         state.isSaving = false
+      })
+
+    // updateMyBasicInfo
+    builder
+      .addCase(updateMyBasicInfo.fulfilled, (state, action) => {
+        if (action.payload) {
+          state.profile = action.payload
+          state.formData.basicInfo = action.payload.basicInfo || {}
+        }
       })
 
     // completeProfile
@@ -275,9 +317,10 @@ const profileSlice = createSlice({
         const profile = action.payload
         state.profile = profile
         state.isCompleted = profile?.isCompleted !== false
-        state.currentStep = profile?.currentStep ?? 4
+        state.currentStep = profile?.currentStep ?? 5
         if (profile?.basicInfo) state.formData.basicInfo = profile.basicInfo
         if (profile?.employmentHistory) state.formData.employmentHistory = profile.employmentHistory
+        if (profile?.interests) state.formData.interests = profile.interests
         if (profile?.barriers) state.formData.barriers = profile.barriers
         if (profile?.aspirations) state.formData.aspirations = profile.aspirations
       })
@@ -295,7 +338,7 @@ export const {
   setStepErrors,
   clearStepErrors,
   loadFormFromProfile,
-  resetProfile
+  resetProfile,
 } = profileSlice.actions
 
 // Selectors

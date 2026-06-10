@@ -19,7 +19,7 @@ import {
 import { clearRAGRecommendation, clearStartupIdeas } from '@/redux/ai/aiSlice'
 import { invalidateCareerPathCacheAPI, invalidateRAGCacheAPI } from '@/apis/aiAPI'
 
-const STEP_NUMBER = 3
+const STEP_NUMBER = 4
 const AUTOSAVE_DELAY = 1500
 
 const containerVariants = {

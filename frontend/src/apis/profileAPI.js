@@ -36,6 +36,14 @@ export const completeWorkerProfileAPI = async () => {
   return response.data
 }
 
+export const updateWorkerProfileBasicInfoAPI = async (basicInfo) => {
+  const response = await authorizeAxiosInstance.put(
+    `${API_ROOT}/v1/worker-profiles/step/1`,
+    basicInfo
+  )
+  return response.data
+}
+
 export const getWorkerProfilesAPI = async ({ page = 1, limit = 10, isCompleted } = {}) => {
   const params = new URLSearchParams()
   params.append('page', page)

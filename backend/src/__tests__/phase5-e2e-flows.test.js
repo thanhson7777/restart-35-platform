@@ -100,7 +100,7 @@ async function createWorkerProfile(userId, profileData = {}) {
     basicInfo: profileData.basicInfo || {
       age: 45,
       gender: 'male',
-      province: 'HCM',
+      province: '79',
       education: EDUCATION_LEVELS.UNIVERSITY,
       maritalStatus: 'single',
       phone: '0900000000'
@@ -381,7 +381,7 @@ describe('Phase 5 — E2E Flows', () => {
         eligibilityCriteria: {
           ageMin: 35,
           ageMax: 60,
-          provinces: ['HCM'],
+          provinces: ['79'],
           education: ['university']
         },
         status: COURSE_SPONSORSHIP_STATUS.DRAFT,
@@ -462,7 +462,7 @@ describe('Phase 5 — E2E Flows', () => {
         basicInfo: {
           age: 42,
           gender: 'female',
-          province: 'Hanoi',
+          province: '01',
           education: EDUCATION_LEVELS.COLLEGE,
           maritalStatus: 'single',
           phone: '0900000000'
@@ -489,7 +489,7 @@ describe('Phase 5 — E2E Flows', () => {
         eligibilityCriteria: {
           ageMin: 35,
           ageMax: 60,
-          provinces: ['Hanoi', 'HCM', 'Da Nang'],
+          provinces: ['01', '79', '48'],
           education: ['university', 'college']
         },
         clawbackPolicy: {

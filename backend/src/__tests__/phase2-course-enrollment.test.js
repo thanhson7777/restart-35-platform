@@ -40,7 +40,7 @@ async function createTestWorkerProfile(userId) {
     basicInfo: {
       age: 45,
       gender: 'male',
-      province: 'HCM',
+      province: '79',
       education: EDUCATION_LEVELS.UNIVERSITY,
       maritalStatus: 'single',
       phone: '0900000000'

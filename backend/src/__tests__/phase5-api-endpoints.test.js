@@ -406,7 +406,7 @@ describe('Phase 5 — API Endpoints', () => {
           eligibilityCriteria: {
             ageMin: 35,
             ageMax: 60,
-            provinces: ['HCM'],
+            provinces: ['79'],
             education: ['university']
           }
         },

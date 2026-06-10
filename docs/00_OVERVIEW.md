@@ -38,10 +38,10 @@
 |--------|-------|-----------|
 | **Module 1** | Vulnerable Profile & Matching | ✅ Hoạt động |
 | **Module 2** | AI Engine (Job Recommendation + Risk Prediction) | ✅ Rule-based, 🔜 ML |
-| **Module 3** | Training & Sponsorship | 🔜 Sắp xây |
+| **Module 3** | Training & Sponsorship (Enterprise/NGO Sponsorship, Partnership) | 🔄 Đang xây |
 | **Module 4** | Livelihood Support (Micro-finance) | 🔜 Sắp xây |
 | **Module 5** | Opportunity Map (Leaflet/Mapbox) | 🔜 Sắp xây |
-| **Module 6** | Community (Forum, Mentor/Mentee) | 🔜 Sắp xây |
+| **Module 6** | Community Hub (Recruitment, Forum, Workshop, Events) | 📋 Đã lên kế hoạch |
 | **Module 7** | Impact Tracking Dashboard | 🔜 Sắp xây |
 
 ---
@@ -64,7 +64,7 @@
 - Module 3: Training & Sponsorship
 - Module 4: Livelihood Support
 - Module 5: Opportunity Map
-- Module 6: Community
+- Module 6: Community Hub (xem chi tiết tại `docs/21_KE_HOACH_MODULE_CONG_DONG.md`)
 - Module 7: Impact Tracking Dashboard
 
 ### ⚠️ Cần cải thiện

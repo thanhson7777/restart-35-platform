@@ -9,6 +9,7 @@ import {
   ORGANIZATION_TYPES,
   SCHOLARSHIP_COVERAGE
 } from '~/utils/constants'
+import { normalize, normalizeList } from '~/utils/provinceMap'
 
 const COURSE_SPONSORSHIP_COLLECTION_NAME = 'course_sponsorships'
 
@@ -220,8 +221,12 @@ const checkEligibility = async (profile, sponsorship) => {
     return { eligible: false, reason: 'Thu nhập vượt quá mức cho phép.' }
   }
 
-  if (criteria.provinces?.length && basicInfo.province && !criteria.provinces.includes(basicInfo.province)) {
-    return { eligible: false, reason: 'Địa phương không nằm trong phạm vi tài trợ.' }
+  if (criteria.provinces?.length && basicInfo.province) {
+    const workerCode = normalize(basicInfo.province)
+    const eligibleCodes = normalizeList(criteria.provinces)
+    if (!eligibleCodes.includes(workerCode)) {
+      return { eligible: false, reason: 'Địa phương không nằm trong phạm vi tài trợ.' }
+    }
   }
 
   if (criteria.education?.length && basicInfo.education && !criteria.education.includes(basicInfo.education)) {

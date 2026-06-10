@@ -57,12 +57,20 @@ const employmentHistoryItemValidation = Joi.object({
   description: Joi.string().allow('')
 })
 
-const employmentHistoryValidation = Joi.array()
-  .items(employmentHistoryItemValidation)
-  .max(MAX_EMPLOYMENT_HISTORY)
-  .messages({
-    'array.max': `Chỉ được nhập tối đa ${MAX_EMPLOYMENT_HISTORY} công việc`
-  })
+// Validation cho employmentHistory - hỗ trợ cả array (có kinh nghiệm) và object (skip)
+const employmentHistoryValidation = Joi.alternatives().try(
+  // Format 1: Array (có kinh nghiệm)
+  Joi.array()
+    .items(employmentHistoryItemValidation)
+    .max(MAX_EMPLOYMENT_HISTORY)
+    .messages({ 'array.max': `Chỉ được nhập tối đa ${MAX_EMPLOYMENT_HISTORY} công việc` }),
+
+  // Format 2: Object skip với status "không có"
+  Joi.object({
+    status: Joi.string().valid('không có').required(),
+    skipped_at: Joi.date().timestamp('javascript').optional()
+  }).unknown(true)
+)
 
 // ============ Step 3: Barriers Validation ============
 const barriersValidation = Joi.object({
@@ -148,9 +156,23 @@ const autosave = async (req, res, next) => {
     step: Joi.number().integer().min(1).max(WORKER_PROFILE_STEPS.MAX_STEP).required(),
     data: Joi.object({
       basicInfo: Joi.object().unknown(true),
-      employmentHistory: Joi.array().items(Joi.object().unknown(true)),
+      employmentHistory: Joi.alternatives().try(
+        Joi.array().items(Joi.object().unknown(true)),
+        Joi.object({
+          status: Joi.string().valid('không có').required(),
+          skipped_at: Joi.date().timestamp('javascript').optional()
+        }).unknown(true)
+      ),
       barriers: Joi.object().unknown(true),
-      aspirations: Joi.object().unknown(true)
+      aspirations: Joi.object().unknown(true),
+      interests: Joi.alternatives().try(
+        Joi.array().items(Joi.string()),
+        Joi.object({
+          interests: Joi.array().items(Joi.string()),
+          status: Joi.string().valid('không có')
+        }).unknown(true),
+        Joi.string().valid('không có')
+      ).optional()
     }).unknown(true)
   })
 

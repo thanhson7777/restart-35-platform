@@ -10,6 +10,7 @@ import { Agentation } from 'agentation';
 import AuthPage from '@/pages/AuthPage';
 import WorkerProfilePage from '@/pages/WorkerProfilePage';
 import WorkerDashboardPage from '@/pages/worker/WorkerDashboardPage';
+import WorkerAccountSettingsPage from '@/pages/worker/WorkerAccountSettingsPage';
 import JobsPage from '@/pages/JobsPage';
 import JobDetailPage from '@/pages/JobDetailPage';
 import CoursesPage from '@/pages/CoursesPage';
@@ -207,6 +208,7 @@ function App() {
         {/* Worker Layout Routes */}
         <Route path="/worker" element={<WorkerLayout><WorkerDashboardPage /></WorkerLayout>} />
         <Route path="/worker/profile" element={<WorkerLayout><WorkerProfilePage /></WorkerLayout>} />
+        <Route path="/worker/account-settings" element={<WorkerLayout><WorkerAccountSettingsPage /></WorkerLayout>} />
         <Route path="/worker/community" element={<WorkerLayout />}>
           <Route index element={<Navigate to="/worker/community/forum" replace />} />
           <Route path="forum" element={<ForumPage />} />

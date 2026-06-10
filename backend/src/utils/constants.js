@@ -67,9 +67,10 @@ export const RISK_LEVELS = {
 // BASIC_INFO removed - basicInfo now lives in users collection
 export const WORKER_PROFILE_STEPS = {
   EMPLOYMENT: 1,
-  BARRIERS: 2,
-  ASPIRATIONS: 3,
-  MAX_STEP: 3
+  INTERESTS: 2,
+  BARRIERS: 3,
+  ASPIRATIONS: 4,
+  MAX_STEP: 4
 }
 
 //============= COURSE STATUS ============
