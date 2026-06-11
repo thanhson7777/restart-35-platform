@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar } from 'lucide-react';
-import EnterpriseLayout from '@/components/enterprise/EnterpriseLayout';
+
 import GraduateList from '@/components/shared/GraduateList';
 import { Button, Badge } from '@/components/ui';
 import { getPartnershipDetail, getPartnershipGraduates } from '@/apis/partnershipApi';
@@ -46,7 +46,7 @@ export default function EnterprisePartnershipDetailPage() {
   }, [id, navigate]);
 
   if (loading) {
-    return <EnterpriseLayout><Skeleton className="h-96 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]" /></EnterpriseLayout>;
+    return <><Skeleton className="h-96 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]" /></>;
   }
 
   if (!partnership) return null;
@@ -56,7 +56,7 @@ export default function EnterprisePartnershipDetailPage() {
   const recruitment = partnership.recruitmentNeeds || {};
 
   return (
-    <EnterpriseLayout>
+    <>
       <div className="space-y-6">
         <Button variant="ghost" onClick={() => navigate('/enterprise/partnerships')} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] pl-0 gap-2">
           <ArrowLeft size={16} /> Quay lại
@@ -109,6 +109,6 @@ export default function EnterprisePartnershipDetailPage() {
           </div>
         </div>
       </div>
-    </EnterpriseLayout>
+    </>
   );
 }

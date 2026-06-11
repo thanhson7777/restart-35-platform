@@ -127,6 +127,34 @@ const getCoursesByCategory = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getFreeCourses = async (req, res, next) => {
+  try {
+    req.query.isFree = 'true'
+    const result = await courseService.getCourses(req.query)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách khóa học miễn phí thành công!',
+      data: result.courses,
+      pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
+const getPaidCourses = async (req, res, next) => {
+  try {
+    req.query.isFree = 'false'
+    const result = await courseService.getCourses(req.query)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách khóa học có phí thành công!',
+      data: result.courses,
+      pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
 // ============ UPDATE ============
 const updateCourse = async (req, res, next) => {
   try {
@@ -268,6 +296,8 @@ export const courseController = {
   getNewCourses,
   getRelatedCourses,
   getCoursesByCategory,
+  getFreeCourses,
+  getPaidCourses,
   getCourseLessons,
   getPreviewLessons,
 

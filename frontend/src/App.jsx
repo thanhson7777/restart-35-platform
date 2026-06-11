@@ -26,9 +26,7 @@ import ForumPostDetailPage from '@/pages/ForumPostDetailPage';
 import MentorFindPage from '@/pages/community/MentorFindPage';
 import ScholarshipPage from '@/pages/ScholarshipPage';
 import ScholarshipDetailPage from '@/pages/ScholarshipDetailPage';
-import MyApplicationsPage from '@/pages/MyApplicationsPage';
 import MyOutcomesPage from '@/pages/MyOutcomesPage';
-import ApplicationDetailPage from '@/pages/ApplicationDetailPage';
 import MyPlacementsPage from '@/pages/MyPlacementsPage';
 import MySuccessStatsPage from '@/pages/MySuccessStatsPage';
 import MyLearningRecordsPage from '@/pages/MyLearningRecordsPage';
@@ -74,12 +72,34 @@ import EnterprisePartnershipCreatePage from '@/pages/enterprise/EnterprisePartne
 import EnterprisePartnershipDetailPage from '@/pages/enterprise/EnterprisePartnershipDetailPage';
 import EnterpriseSponsorshipsPage from '@/pages/enterprise/EnterpriseSponsorshipsPage';
 import EnterpriseSponsorshipCreatePage from '@/pages/enterprise/EnterpriseSponsorshipCreatePage';
+import EnterpriseJobsPage from '@/pages/enterprise/EnterpriseJobsPage';
+import EnterpriseJobCreatePage from '@/pages/enterprise/EnterpriseJobCreatePage';
+import EnterpriseJobDetailPage from '@/pages/enterprise/EnterpriseJobDetailPage';
+import EnterpriseApplicationsPage from '@/pages/enterprise/EnterpriseApplicationsPage';
+import EnterpriseApplicationDetailPage from '@/pages/enterprise/EnterpriseApplicationDetailPage';
+import EnterpriseInterviewsPage from '@/pages/enterprise/EnterpriseInterviewsPage';
+import EnterpriseInterviewSchedulePage from '@/pages/enterprise/EnterpriseInterviewSchedulePage';
+import EnterpriseInterviewDetailPage from '@/pages/enterprise/EnterpriseInterviewDetailPage';
+import EnterpriseOffersPage from '@/pages/enterprise/EnterpriseOffersPage';
+import EnterpriseOfferDetailPage from '@/pages/enterprise/EnterpriseOfferDetailPage';
+import EnterpriseOfferCreatePage from '@/pages/enterprise/EnterpriseOfferCreatePage';
+import WorkerApplicationsPage from '@/pages/worker/WorkerApplicationsPage';
+import WorkerApplicationDetailPage from '@/pages/worker/WorkerApplicationDetailPage';
+import WorkerInterviewsPage from '@/pages/worker/WorkerInterviewsPage';
+import WorkerOffersPage from '@/pages/worker/WorkerOffersPage';
+import CommunityHubPage from '@/pages/CommunityHubPage';
+import CommunityJobDetailPage from '@/pages/community/CommunityJobDetailPage';
+import EventDetailPage from '@/pages/community/EventDetailPage';
 import NgoImpactDashboardPage from '@/pages/ngo/NgoImpactDashboardPage';
 import NgoSponsorshipsPage from '@/pages/ngo/NgoSponsorshipsPage';
 import NgoSponsorshipCreatePage from '@/pages/ngo/NgoSponsorshipCreatePage';
 import NgoSponsorshipLearnersPage from '@/pages/ngo/NgoSponsorshipLearnersPage';
+import NgoEventsPage from '@/pages/ngo/NgoEventsPage';
+import NgoEventCreatePage from '@/pages/ngo/NgoEventCreatePage';
 import CertificateVerifyPage from '@/pages/CertificateVerifyPage';
 import AccountVerificationPage from '@/pages/AccountVerificationPage';
+import AdminPendingJobsPage from '@/pages/admin/AdminPendingJobsPage';
+import AdminJobReviewPage from '@/pages/admin/AdminJobReviewPage';
 import AdminIsaRepaymentsPage from '@/pages/admin/AdminIsaRepaymentsPage';
 import AdminFundingConfigsPage from '@/pages/admin/AdminFundingConfigsPage';
 import AdminCertificatesPage from '@/pages/admin/AdminCertificatesPage';
@@ -161,6 +181,8 @@ function App() {
         <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
         <Route path="/admin/recommendation-analytics" element={<RecommendationAnalyticsPage />} />
         <Route path="/admin/applications" element={<AdminApplicationsPage />} />
+        <Route path="/admin/jobs/pending" element={<AdminPendingJobsPage />} />
+        <Route path="/admin/jobs/:id/review" element={<AdminJobReviewPage />} />
         <Route path="/admin/organizations" element={<AdminOrganizationsPage />} />
         <Route path="/admin/payments" element={<AdminPaymentsPage />} />
         <Route path="/admin/scholarships" element={<AdminScholarshipsPage />} />
@@ -197,6 +219,19 @@ function App() {
         <Route path="/enterprise/partnerships/:id" element={<EnterpriseLayout><EnterprisePartnershipDetailPage /></EnterpriseLayout>} />
         <Route path="/enterprise/sponsorships" element={<EnterpriseLayout><EnterpriseSponsorshipsPage /></EnterpriseLayout>} />
         <Route path="/enterprise/sponsorships/create" element={<EnterpriseLayout><EnterpriseSponsorshipCreatePage /></EnterpriseLayout>} />
+        {/* Enterprise Recruitment Routes */}
+        <Route path="/enterprise/recruitment" element={<EnterpriseLayout><EnterpriseJobsPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/recruitment/create" element={<EnterpriseLayout><EnterpriseJobCreatePage /></EnterpriseLayout>} />
+        <Route path="/enterprise/recruitment/:id" element={<EnterpriseLayout><EnterpriseJobDetailPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/recruitment/:id/edit" element={<EnterpriseLayout><EnterpriseJobCreatePage /></EnterpriseLayout>} />
+        <Route path="/enterprise/applications" element={<EnterpriseLayout><EnterpriseApplicationsPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/applications/:id" element={<EnterpriseLayout><EnterpriseApplicationDetailPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/interviews" element={<EnterpriseLayout><EnterpriseInterviewsPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/interviews/schedule" element={<EnterpriseLayout><EnterpriseInterviewSchedulePage /></EnterpriseLayout>} />
+        <Route path="/enterprise/interviews/:id" element={<EnterpriseLayout><EnterpriseInterviewDetailPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/offers" element={<EnterpriseLayout><EnterpriseOffersPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/offers/create" element={<EnterpriseLayout><EnterpriseOfferCreatePage /></EnterpriseLayout>} />
+        <Route path="/enterprise/offers/:id" element={<EnterpriseLayout><EnterpriseOfferDetailPage /></EnterpriseLayout>} />
 
         {/* NGO Routes */}
         <Route path="/ngo" element={<Navigate to="/ngo/dashboard/impact" replace />} />
@@ -204,6 +239,8 @@ function App() {
         <Route path="/ngo/sponsorships" element={<NgoLayout><NgoSponsorshipsPage /></NgoLayout>} />
         <Route path="/ngo/sponsorships/create" element={<NgoLayout><NgoSponsorshipCreatePage /></NgoLayout>} />
         <Route path="/ngo/sponsorships/:id/learners" element={<NgoLayout><NgoSponsorshipLearnersPage /></NgoLayout>} />
+        <Route path="/ngo/events" element={<NgoLayout><NgoEventsPage /></NgoLayout>} />
+        <Route path="/ngo/events/create" element={<NgoLayout><NgoEventCreatePage /></NgoLayout>} />
 
         {/* Worker Layout Routes */}
         <Route path="/worker" element={<WorkerLayout><WorkerDashboardPage /></WorkerLayout>} />
@@ -215,9 +252,19 @@ function App() {
           <Route path="forum/:id" element={<ForumPostDetailPage />} />
           <Route path="mentors" element={<MentorFindPage />} />
         </Route>
+        {/* Community Hub */}
+        <Route path="/community" element={<CommunityHubPage />} />
+        <Route path="/community/jobs/:id" element={<CommunityJobDetailPage />} />
+        <Route path="/community/events/:id" element={<EventDetailPage />} />
         {/* Jobs Page */}
-        <Route path="/jobs" element={<JobsPage key={currentUser?._id ?? 'guest'} />} />
         <Route path="/jobs/:id" element={<JobDetailPage />} />
+        {/* Worker Recruitment Routes */}
+        <Route path="/my/applications" element={<WorkerLayout><WorkerApplicationsPage /></WorkerLayout>} />
+        <Route path="/my/applications/:id" element={<WorkerLayout><WorkerApplicationDetailPage /></WorkerLayout>} />
+        <Route path="/my/interviews" element={<WorkerLayout><WorkerInterviewsPage /></WorkerLayout>} />
+        <Route path="/my/interviews/:id" element={<WorkerLayout><WorkerInterviewsPage /></WorkerLayout>} />
+        <Route path="/my/offers" element={<WorkerLayout><WorkerOffersPage /></WorkerLayout>} />
+        <Route path="/my/offers/:id" element={<WorkerLayout><WorkerOffersPage /></WorkerLayout>} />
         {/* Courses */}
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
@@ -251,11 +298,10 @@ function App() {
         <Route path="/scholarships" element={<ScholarshipPage />} />
         <Route path="/scholarships/:id" element={<ScholarshipDetailPage />} />
         {/* My Applications */}
-        <Route path="/my-applications" element={<WorkerLayout><MyApplicationsPage /></WorkerLayout>} />
-        <Route path="/my-applications/:id" element={<WorkerLayout><ApplicationDetailPage /></WorkerLayout>} />
         <Route path="/my-outcomes" element={<WorkerLayout><MyOutcomesPage /></WorkerLayout>} />
         {/* About */}
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/jobs" element={<JobsPage />} />
         {/* Contact */}
         <Route path="/contact" element={<ContactPage />} />
         {/* My Placements */}
@@ -563,8 +609,8 @@ function CoursesExample() {
                 key={cat}
                 onClick={() => setActiveTab(cat)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === cat
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted hover:bg-muted/80'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted hover:bg-muted/80'
                   }`}
               >
                 {cat}

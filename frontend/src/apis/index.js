@@ -169,6 +169,15 @@ export const getUsersAPI = async ({ page = 1, limit = 10, role = 'ALL', isActive
   return response.data
 }
 
+export const getPublicTrainersAPI = async ({ page = 1, limit = 100 } = {}) => {
+  const params = new URLSearchParams()
+  params.append('page', page)
+  params.append('limit', limit)
+
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/users/public/trainers?${params.toString()}`)
+  return response.data
+}
+
 export const getUserByIdAPI = async (id) => {
   const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/users/${id}`)
   return response.data

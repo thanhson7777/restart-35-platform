@@ -8,7 +8,7 @@ import {
   FileText, Medal, Gear, Question, SignOut,
   CaretLeft, CaretRight, CheckSquare, ChartBar,
   CreditCard, TrendUp, Wallet, Certificate,
-  Briefcase, ChatCircle, Brain, ArrowsClockwise,
+  Briefcase, ChatCircle, Brain, ArrowsClockwise, Megaphone
 } from '@phosphor-icons/react';
 import { Building2 } from 'lucide-react';
 import { Badge } from '@/components/ui';
@@ -22,6 +22,7 @@ const adminNavItems = [
   { title: 'Đối tác', href: '/admin/organizations', icon: Building2 },
   { title: 'Thanh toán', href: '/admin/payments', icon: CreditCard },
   { title: 'Đơn ứng tuyển', href: '/admin/applications', icon: FileText, badge: '5' },
+  { title: 'Duyệt tin tuyển dụng', href: '/admin/jobs/pending', icon: Megaphone },
   { title: 'Học bổng', href: '/admin/scholarships', icon: Medal },
   { title: 'ISA Repayments', href: '/admin/isa-repayments', icon: TrendUp },
   { title: 'Funding Cấu hình', href: '/admin/funding-configs', icon: Wallet },

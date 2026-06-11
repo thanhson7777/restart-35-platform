@@ -164,6 +164,25 @@ const processEnrollmentCompletionTriggers = async (enrollment) => {
   if (enrollment.scholarship?.scholarshipId) {
     await applicationService.processCompletion(enrollment._id.toString())
   }
+
+  // Tự động nộp đơn nếu khóa học có liên kết việc làm (Cam kết việc làm)
+  if (enrollment.sponsorships && enrollment.sponsorships.length > 0) {
+    for (const s of enrollment.sponsorships) {
+      if (s.sponsorshipId) {
+        const sponsorship = await courseSponsorshipModel.findOneById(s.sponsorshipId)
+        if (sponsorship && sponsorship.linkedJobId && sponsorship.autoApplyOnCompletion) {
+          try {
+            await applicationService.applyToJob(sponsorship.linkedJobId.toString(), enrollment.userId.toString(), {
+              source: 'course_linked',
+              notes: 'Hệ thống tự động nộp hồ sơ dựa trên cam kết việc làm sau khóa học.'
+            })
+          } catch (e) {
+            console.error(`Auto apply failed for enrollment ${enrollment._id}:`, e.message)
+          }
+        }
+      }
+    }
+  }
 }
 
 const processEnrollmentDropTriggers = async (enrollment, reason = null) => {
@@ -286,7 +305,9 @@ const enrollCourse = async (userId, courseId, data) => {
     let finalStatus = ENROLLMENT_STATUS_V2.ACTIVE
     let waitlistPosition = null
 
-    if (!capacityResult.available) {
+    if (source === 'ngo_sponsored') {
+      finalStatus = ENROLLMENT_STATUS_V2.PENDING_REVIEW
+    } else if (!capacityResult.available) {
       finalStatus = ENROLLMENT_STATUS_V2.ACTIVE
       const waitlistCount = await enrollmentModel.findByCourse(courseId, 0, 100, {
         status: ENROLLMENT_STATUS_V2.ACTIVE
@@ -324,7 +345,7 @@ const enrollCourse = async (userId, courseId, data) => {
       },
       waitlistPosition,
       enrolledAt: Date.now(),
-      startDate: finalStatus === ENROLLMENT_STATUS_V2.ACTIVE ? Date.now() : null,
+      startDate: (finalStatus === ENROLLMENT_STATUS_V2.ACTIVE) ? Date.now() : null,
       prerequisiteWarnings: prereqResult.passed ? [] : prereqResult.missing
     }
 

@@ -15,6 +15,9 @@ import {
   Award,
   GraduationCap,
   Settings,
+  Briefcase,
+  BriefcaseBusiness,
+  UsersRound
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui';
@@ -40,7 +43,10 @@ const navGroups = [
   {
     section: 'VIỆC LÀM',
     items: [
-      { href: '/my-applications', label: 'Đơn ứng tuyển', icon: FileCheck },
+      { href: '/community', label: 'Cộng đồng', icon: Briefcase },
+      { href: '/my/applications', label: 'Đơn ứng tuyển', icon: FileCheck },
+      { href: '/my/interviews', label: 'Lịch phỏng vấn', icon: UsersRound },
+      { href: '/my/offers', label: 'Offers', icon: BriefcaseBusiness },
       { href: '/my-placements', label: 'Vị trí việc làm', icon: Target },
     ],
   },

@@ -40,9 +40,14 @@ const createCourse = async (req, res, next) => {
     }),
     schedule: Joi.string().max(500).allow(''),
     location: Joi.object({
-      type: Joi.string().valid(...Object.values(LOCATION_TYPES)).required(),
-      address: Joi.string().max(500).allow(''),
-      link: Joi.string().uri().allow(null, '')
+      type: Joi.string().valid(...Object.values(LOCATION_TYPES)).allow('', null),
+      address: Joi.string().max(500).allow('', null),
+      province: Joi.string().allow('', null),
+      ward: Joi.string().allow('', null),
+      coordinates: Joi.object({
+        lat: Joi.number().allow(null),
+        lng: Joi.number().allow(null)
+      }).allow(null)
     }),
     fee: Joi.number().integer().min(0).default(0),
     isFree: Joi.boolean().default(false),
@@ -90,9 +95,14 @@ const updateCourse = async (req, res, next) => {
     }),
     schedule: Joi.string().max(500).allow(''),
     location: Joi.object({
-      type: Joi.string().valid(...Object.values(LOCATION_TYPES)).required(),
-      address: Joi.string().max(500).allow(''),
-      link: Joi.string().uri().allow(null, '')
+      type: Joi.string().valid(...Object.values(LOCATION_TYPES)).allow('', null),
+      address: Joi.string().max(500).allow('', null),
+      province: Joi.string().allow('', null),
+      ward: Joi.string().allow('', null),
+      coordinates: Joi.object({
+        lat: Joi.number().allow(null),
+        lng: Joi.number().allow(null)
+      }).allow(null)
     }),
     fee: Joi.number().integer().min(0),
     isFree: Joi.boolean(),

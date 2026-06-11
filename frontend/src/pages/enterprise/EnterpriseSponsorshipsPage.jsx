@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BadgeDollarSign, Plus, RefreshCw } from 'lucide-react';
-import EnterpriseLayout from '@/components/enterprise/EnterpriseLayout';
+
 import SponsorshipBadge from '@/components/shared/SponsorshipBadge';
 import { Button, Badge } from '@/components/ui';
 import { getSponsorships } from '@/apis/courseSponsorshipApi';
@@ -37,7 +37,7 @@ export default function EnterpriseSponsorshipsPage() {
   useEffect(() => { fetchSponsorships(); }, [fetchSponsorships]);
 
   return (
-    <EnterpriseLayout>
+    <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -103,6 +103,6 @@ export default function EnterpriseSponsorshipsPage() {
           </div>
         )}
       </div>
-    </EnterpriseLayout>
+    </>
   );
 }

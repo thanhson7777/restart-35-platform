@@ -78,6 +78,14 @@ const parseMultipartBody = (req, res, next) => {
       if (!isNaN(parsed)) req.body[field] = parsed
     }
   })
+
+  // Safe fix for thumbnail: if it's not a valid string URL, remove it. New files are in req.file.
+  if (req.body.thumbnail !== undefined) {
+    if (typeof req.body.thumbnail !== 'string' || (!req.body.thumbnail.startsWith('http') && req.body.thumbnail !== '')) {
+      delete req.body.thumbnail;
+    }
+  }
+
   next()
 }
 
@@ -107,6 +115,20 @@ Router.get(
   '/category/:categoryId',
   courseValidation.queryCourses,
   courseController.getCoursesByCategory
+)
+
+// Khóa học miễn phí
+Router.get(
+  '/free',
+  courseValidation.queryCourses,
+  courseController.getFreeCourses
+)
+
+// Khóa học có phí
+Router.get(
+  '/paid',
+  courseValidation.queryCourses,
+  courseController.getPaidCourses
 )
 
 // Khóa học liên quan

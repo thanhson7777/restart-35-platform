@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Send } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Send, BookOpen, CheckSquare, Square } from 'lucide-react';
 import { Button, Textarea, Badge, Skeleton } from '@/components/ui';
 import {
   getPartnershipDetail,
   respondPartnership,
   negotiatePartnership,
   confirmPartnership,
-  cancelPartnership
+  cancelPartnership,
+  getMyCourses
 } from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
 
@@ -25,7 +26,8 @@ export default function TrainerPartnershipRespondPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [responseStatus, setResponseStatus] = useState('negotiating');
-  const [proposedCourseIds, setProposedCourseIds] = useState('');
+  const [proposedCourseIds, setProposedCourseIds] = useState([]);
+  const [myCourses, setMyCourses] = useState([]);
 
   const fetchPartnership = useCallback(async () => {
     setLoading(true);
@@ -40,7 +42,19 @@ export default function TrainerPartnershipRespondPage() {
     }
   }, [id, navigate]);
 
-  useEffect(() => { fetchPartnership(); }, [fetchPartnership]);
+  const fetchCourses = useCallback(async () => {
+    try {
+      const res = await getMyCourses({ limit: 50 });
+      setMyCourses(res.data?.data || []);
+    } catch (err) {
+      console.error('Lỗi tải danh sách khóa học:', err);
+    }
+  }, []);
+
+  useEffect(() => { 
+    fetchPartnership(); 
+    fetchCourses();
+  }, [fetchPartnership, fetchCourses]);
 
   const handleSubmit = async () => {
     if (!message.trim()) {
@@ -52,7 +66,7 @@ export default function TrainerPartnershipRespondPage() {
     try {
       const payload = {
         status: responseStatus,
-        proposedCourseIds: proposedCourseIds.split(',').map(s => s.trim()).filter(Boolean),
+        proposedCourseIds: proposedCourseIds,
         message: message.trim()
       };
 
@@ -122,13 +136,49 @@ export default function TrainerPartnershipRespondPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Khóa học đề xuất (ID, cách nhau bằng dấu phẩy)</label>
-              <input
-                value={proposedCourseIds}
-                onChange={(e) => setProposedCourseIds(e.target.value)}
-                placeholder="6651f...,6652a..."
-                className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]"
-              />
+              <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Khóa học đề xuất</label>
+              <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar bg-[hsl(var(--admin-surface-elevated))]/60 p-4 rounded-xl border border-[hsl(var(--admin-border-strong))]">
+                {myCourses.length === 0 ? (
+                  <p className="text-sm text-[hsl(var(--admin-text-muted))] italic">Bạn chưa có khóa học nào.</p>
+                ) : (
+                  myCourses.map(course => {
+                    const isSelected = proposedCourseIds.includes(course._id);
+                    return (
+                      <div
+                        key={course._id}
+                        onClick={() => {
+                          setProposedCourseIds(prev =>
+                            isSelected ? prev.filter(id => id !== course._id) : [...prev, course._id]
+                          );
+                        }}
+                        className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                          isSelected
+                            ? 'bg-[hsl(var(--admin-accent))]/10 border-[hsl(var(--admin-accent))]'
+                            : 'bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))]'
+                        }`}
+                      >
+                        <div className="mt-0.5">
+                          {isSelected ? (
+                            <CheckSquare className="text-[hsl(var(--admin-accent))] w-4 h-4" />
+                          ) : (
+                            <Square className="text-[hsl(var(--admin-text-faint))] w-4 h-4" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))] truncate">
+                            {course.title}
+                          </p>
+                          <div className="flex gap-3 mt-1 text-xs text-[hsl(var(--admin-text-muted))]">
+                            <span className="flex items-center gap-1">
+                              <BookOpen size={12} /> {course.duration?.value || 0} {course.duration?.unit || 'giờ'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
 
             <div>

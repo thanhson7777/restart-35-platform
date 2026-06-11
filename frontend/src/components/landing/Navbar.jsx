@@ -52,8 +52,9 @@ const Navbar = () => {
             {[
               { label: 'Trang chủ', to: '/' },
               { label: 'Giới thiệu', to: '/about' },
-              { label: 'Việc làm', to: '/jobs' },
+              { label: 'Việc làm trên thị trường', to: '/jobs' },
               { label: 'Khóa học', to: '/courses' },
+              { label: 'Diễn đàn & Cộng đồng', to: '/community' },
               { label: 'Liên hệ', to: '/contact' },
             ].map((item) => (
               <Link
@@ -106,35 +107,10 @@ const Navbar = () => {
                       <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">{currentUser?.email}</p>
                     </div>
                     <div className="py-1.5">
-                      <div className="px-3 py-1.5">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Tài khoản</p>
-                      </div>
-                      <Link to="/worker/account-settings" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <User size={17} className="shrink-0" />Thông tin tài khoản
-                      </Link>
-                      <Link to="/worker/profile" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <UserCircle size={17} className="shrink-0" />Hồ sơ của tôi
+                      <Link to="/worker" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl bg-[hsl(var(--primary))]/5 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10 transition-colors text-sm font-medium">
+                        <Briefcase size={17} className="shrink-0" />Đến trang người lao động
                       </Link>
 
-                      <div className="px-3 py-1.5 mt-1">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Việc làm</p>
-                      </div>
-                      <Link to="/jobs" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <Briefcase size={17} className="shrink-0" />Việc làm phù hợp
-                      </Link>
-                      <Link to="/my-applications" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <ClipboardText size={17} className="shrink-0" />Đơn ứng tuyển
-                      </Link>
-
-                      <div className="px-3 py-1.5 mt-1">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Học tập</p>
-                      </div>
-                      <Link to="/courses" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <BookOpen size={17} className="shrink-0" />Khóa học
-                      </Link>
-                      <Link to="/my-enrollments" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-zinc-50 transition-colors text-sm">
-                        <ClipboardText size={17} className="shrink-0" />Ghi danh của tôi
-                      </Link>
                     </div>
                     <div className="border-t border-zinc-100 py-1">
                       <button onClick={handleLogout} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl w-full text-red-500 hover:bg-red-50 transition-colors text-sm">

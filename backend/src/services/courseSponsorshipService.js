@@ -8,8 +8,10 @@ import {
   DEFAULT_ITEM_PER_PAGE,
   COURSE_SPONSORSHIP_STATUS,
   ORGANIZATION_TYPES,
-  USER_ROLES
+  USER_ROLES,
+  ENROLLMENT_STATUS_V2
 } from '~/utils/constants'
+import { courseModel } from '~/models/courseModel'
 
 const ensureSponsorRole = async (userId, sponsorType) => {
   const user = await userModel.findOneById(userId)
@@ -168,6 +170,36 @@ const getCourseSponsorshipLearners = async (sponsorshipId, actorId, role, queryP
   }
 }
 
+const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, status) => {
+  const sponsorship = await getCourseSponsorshipById(sponsorshipId, sponsorId, null) // ensure owner
+  
+  const enrollment = await enrollmentModel.findOneById(enrollmentId)
+  if (!enrollment) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Ghi danh không tồn tại!')
+  }
+
+  // verify enrollment belongs to this sponsorship
+  const hasSponsorship = enrollment.sponsorships?.some(s => s.sponsorshipId === sponsorshipId)
+  if (!hasSponsorship && enrollment.source !== 'ngo_sponsored') {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Ghi danh này không thuộc chương trình tài trợ của bạn!')
+  }
+
+  if (status === 'approved') {
+    await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.ACTIVE, {
+      startDate: Date.now()
+    })
+    await courseModel.incrementEnrollmentCount(enrollment.courseId)
+  } else if (status === 'rejected') {
+    await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.DROPPED, {
+      dropReason: 'Bị từ chối bởi tổ chức tài trợ'
+    })
+  } else {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Trạng thái quyết định không hợp lệ!')
+  }
+
+  return await enrollmentModel.findOneById(enrollmentId)
+}
+
 const getCourseSponsorshipStats = async (sponsorshipId, actorId, role) => {
   const sponsorship = await getCourseSponsorshipById(sponsorshipId, actorId, role)
   const [learnersResult] = await Promise.all([
@@ -221,6 +253,7 @@ export const courseSponsorshipService = {
   linkCourse,
   unlinkCourse,
   getCourseSponsorshipLearners,
+  decideSponsorshipLearner,
   getCourseSponsorshipStats,
   getEnterpriseSponsorshipOverview,
   getNgoSponsorshipOverview

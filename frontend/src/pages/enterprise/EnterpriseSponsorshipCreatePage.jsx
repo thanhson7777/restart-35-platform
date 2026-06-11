@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import EnterpriseLayout from '@/components/enterprise/EnterpriseLayout';
+import { useEffect } from 'react';
+
 import { Button, Input, Label } from '@/components/ui';
 import { createSponsorship } from '@/apis/courseSponsorshipApi';
+import { getEnterpriseJobs } from '@/apis/recruitmentAPI';
 import toast from 'react-hot-toast';
 
 const COVERAGE_OPTIONS = [
@@ -20,8 +22,23 @@ export default function EnterpriseSponsorshipCreatePage() {
     budget: '',
     maxAmountPerLearner: '',
     coverageType: 'partial',
-    disbursementModel: 'completion'
+    disbursementModel: 'completion',
+    linkedJobId: '',
+    guaranteedPlacements: ''
   });
+  const [jobs, setJobs] = useState([]);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await getEnterpriseJobs({ limit: 100 });
+        setJobs(res.data?.jobs || res.data?.data || []);
+      } catch (err) {
+        console.error('Lỗi khi tải danh sách tin tuyển dụng', err);
+      }
+    };
+    fetchJobs();
+  }, []);
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
 
@@ -37,7 +54,9 @@ export default function EnterpriseSponsorshipCreatePage() {
         budget: Number(form.budget),
         maxAmountPerLearner: form.maxAmountPerLearner ? Number(form.maxAmountPerLearner) : null,
         coverageType: form.coverageType,
-        disbursementModel: form.disbursementModel
+        disbursementModel: form.disbursementModel,
+        linkedJobId: form.linkedJobId || null,
+        guaranteedPlacements: form.guaranteedPlacements ? Number(form.guaranteedPlacements) : null
       };
       await createSponsorship(payload);
       toast.success('Đã tạo sponsorship thành công!');
@@ -50,7 +69,7 @@ export default function EnterpriseSponsorshipCreatePage() {
   };
 
   return (
-    <EnterpriseLayout>
+    <>
       <div className="max-w-2xl space-y-6">
         <Button variant="ghost" onClick={() => navigate('/enterprise/sponsorships')} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] pl-0 gap-2">
           <ArrowLeft size={16} /> Quay lại
@@ -111,6 +130,39 @@ export default function EnterpriseSponsorshipCreatePage() {
                 </select>
               </div>
             </div>
+            
+            <div className="pt-4 border-t border-[hsl(var(--admin-border))]">
+              <h3 className="text-[hsl(var(--admin-text-primary))] font-semibold mb-1">Cam kết việc làm (Tùy chọn)</h3>
+              <p className="text-[hsl(var(--admin-text-muted))] text-sm mb-4">Gắn gói tài trợ với một vị trí công việc cụ thể. Những học viên xuất sắc nhất sẽ được tự động nộp hồ sơ ứng tuyển.</p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Vị trí tuyển dụng</Label>
+                  <select
+                    value={form.linkedJobId}
+                    onChange={set('linkedJobId')}
+                    className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">-- Không liên kết --</option>
+                    {jobs.map(job => (
+                      <option key={job._id} value={job._id}>{job.title}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Số lượng cam kết tuyển</Label>
+                  <Input 
+                    type="number" 
+                    min={1} 
+                    value={form.guaranteedPlacements} 
+                    onChange={set('guaranteedPlacements')} 
+                    placeholder="VD: 5, 10..." 
+                    disabled={!form.linkedJobId}
+                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))] disabled:opacity-50" 
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-3">
@@ -123,6 +175,6 @@ export default function EnterpriseSponsorshipCreatePage() {
           </div>
         </form>
       </div>
-    </EnterpriseLayout>
+    </>
   );
 }

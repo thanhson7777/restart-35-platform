@@ -9,6 +9,8 @@ import jobReducer from './job/jobSlice'
 import outcomeReducer from './outcome/outcomeSlice'
 import placementReducer from './placement/placementSlice'
 import learningRecordReducer from './learningRecord/learningRecordSlice'
+import recruitmentReducer from './recruitment/recruitmentSlice'
+import eventReducer from './event/eventSlice'
 
 const rootPersistConfig = {
   key: 'root',
@@ -23,7 +25,9 @@ const reducers = combineReducers({
   job: jobReducer,
   outcome: outcomeReducer,
   placement: placementReducer,
-  learningRecord: learningRecordReducer
+  learningRecord: learningRecordReducer,
+  recruitment: recruitmentReducer,
+  event: eventReducer
 })
 
 const persistedReducers = persistReducer(rootPersistConfig, reducers)

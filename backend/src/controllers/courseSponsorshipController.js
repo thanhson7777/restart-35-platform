@@ -158,6 +158,27 @@ const getCourseSponsorshipLearners = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const decideSponsorshipLearner = async (req, res, next) => {
+  try {
+    const { id: sponsorshipId, enrollmentId } = req.params
+    const sponsorId = req.user._id.toString()
+    const { status } = req.body
+
+    const result = await courseSponsorshipService.decideSponsorshipLearner(
+      sponsorshipId,
+      enrollmentId,
+      sponsorId,
+      status
+    )
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã cập nhật trạng thái xét duyệt thành công!',
+      data: result
+    })
+  } catch (error) { next(error) }
+}
+
 const getCourseSponsorshipStats = async (req, res, next) => {
   try {
     const stats = await courseSponsorshipService.getCourseSponsorshipStats(
@@ -185,5 +206,6 @@ export const courseSponsorshipController = {
   linkCourse,
   unlinkCourse,
   getCourseSponsorshipLearners,
+  decideSponsorshipLearner,
   getCourseSponsorshipStats
 }

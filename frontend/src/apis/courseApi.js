@@ -12,6 +12,12 @@ export const getPopularCourses = (params) =>
 export const getNewCourses = (params) =>
   publicAxiosInstance.get(`${API_ROOT}/v1/courses/new`, { params });
 
+export const getFreeCourses = (params) =>
+  publicAxiosInstance.get(`${API_ROOT}/v1/courses/free`, { params });
+
+export const getPaidCourses = (params) =>
+  publicAxiosInstance.get(`${API_ROOT}/v1/courses/paid`, { params });
+
 export const getCoursesByCategory = (categoryId, params) =>
   publicAxiosInstance.get(`${API_ROOT}/v1/courses/category/${categoryId}`, { params });
 

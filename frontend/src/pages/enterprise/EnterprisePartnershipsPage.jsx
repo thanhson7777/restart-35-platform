@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Handshake, Plus, RefreshCw } from 'lucide-react';
-import EnterpriseLayout from '@/components/enterprise/EnterpriseLayout';
+
 import PartnershipCard from '@/components/shared/PartnershipCard';
 import { Button } from '@/components/ui';
 import { getEnterprisePartnerships } from '@/apis/partnershipApi';
@@ -40,7 +40,7 @@ export default function EnterprisePartnershipsPage() {
   useEffect(() => { fetchPartnerships(1); }, [fetchPartnerships]);
 
   return (
-    <EnterpriseLayout>
+    <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -97,6 +97,6 @@ export default function EnterprisePartnershipsPage() {
           </div>
         )}
       </div>
-    </EnterpriseLayout>
+    </>
   );
 }

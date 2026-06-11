@@ -50,8 +50,21 @@ export const fetchProvinces = async () => {
   cache.provinces = data.map((p) => ({
     value: p.code.id,
     label: p.name.local,
+    lat: p.centroid ? parseFloat(p.centroid[1]) : null,
+    lng: p.centroid ? parseFloat(p.centroid[0]) : null,
   }))
   return cache.provinces
+}
+
+/**
+ * Lookup a single province by its code, returning full data including centroid.
+ * @param {string|number} code
+ * @returns {Promise<{value, label, lat, lng}|null>}
+ */
+export const fetchProvinceByCode = async (code) => {
+  if (!code) return null
+  const provinces = await fetchProvinces()
+  return provinces.find((p) => p.value === normalizeCode(code)) || null
 }
 
 /**

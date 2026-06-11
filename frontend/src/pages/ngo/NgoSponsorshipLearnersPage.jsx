@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import NgoLayout from '@/components/ngo/NgoLayout';
 import { Button } from '@/components/ui';
-import { getSponsorshipById, getSponsorshipLearners } from '@/apis/courseSponsorshipApi';
+import { getSponsorshipById, getSponsorshipLearners, decideSponsorshipLearner } from '@/apis/courseSponsorshipApi';
 import toast from 'react-hot-toast';
 import { Skeleton } from '@/components/ui';
 
@@ -35,6 +35,18 @@ export default function NgoSponsorshipLearnersPage() {
     };
     fetch();
   }, [id, navigate]);
+
+  const handleDecision = async (enrollmentId, status) => {
+    try {
+      await decideSponsorshipLearner(id, enrollmentId, status);
+      toast.success(status === 'approved' ? 'Đã chấp nhận học viên!' : 'Đã từ chối học viên!');
+      // Refresh list
+      const lrRes = await getSponsorshipLearners(id, { limit: 50 });
+      setLearners(lrRes.data?.data || []);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra.');
+    }
+  };
 
   return (
     <NgoLayout>
@@ -86,7 +98,13 @@ export default function NgoSponsorshipLearnersPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium text-[hsl(var(--admin-success))]">{formatCurrency(learner.fundedAmount || sponsorship?.maxAmountPerLearner)}</p>
-                        <p className="text-xs text-[hsl(var(--admin-text-muted))]">{learner.status || 'active'}</p>
+                        <p className="text-xs text-[hsl(var(--admin-text-muted))]">{learner.status === 'pending_review' ? 'Chờ duyệt' : learner.status}</p>
+                        {learner.status === 'pending_review' && (
+                          <div className="flex gap-2 mt-2">
+                            <Button size="sm" onClick={() => handleDecision(learner._id, 'approved')} className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700">Chấp nhận</Button>
+                            <Button size="sm" variant="outline" onClick={() => handleDecision(learner._id, 'rejected')} className="h-7 text-xs border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">Từ chối</Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

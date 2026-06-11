@@ -83,6 +83,12 @@ Router.get(
   courseSponsorshipController.getCourseSponsorshipLearners
 )
 
+Router.put(
+  '/:id/learners/:enrollmentId/decision',
+  authMiddleware.isAuthorized,
+  courseSponsorshipController.decideSponsorshipLearner
+)
+
 Router.get(
   '/:id/stats',
   authMiddleware.isAuthorized,

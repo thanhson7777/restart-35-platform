@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/Card'
-import { Avatar } from '@/components/ui/Avatar'
 import StepIndicator from '@/components/worker-profile/StepIndicator'
 import EmploymentForm from '@/components/worker-profile/EmploymentForm'
 import InterestsStep from '@/components/worker-profile/InterestsStep'
@@ -22,20 +21,6 @@ import { selectCurrentUser } from '@/redux/user/userSlice'
 import { STEP_LABELS } from '~/data/profileData'
 import { reopenWorkerProfile } from '@/apis/courseApi'
 import toast from 'react-hot-toast'
-
-const LOGO_ICON = () => (
-  <svg className="w-6 h-6" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" />
-    <path d="M10 16L14 20L22 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-)
-
-const UserIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-)
 
 function WorkerProfilePage() {
   const dispatch = useDispatch()
@@ -124,36 +109,6 @@ function WorkerProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-blue-50 flex flex-col">
-      {/* Header */}
-      <header className="bg-white border-b border-border shadow-sm sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2 text-primary font-bold text-lg">
-            <LOGO_ICON />
-            <span>RESTART-35</span>
-          </div>
-
-          {/* User info */}
-          <div className="flex items-center gap-3">
-            {currentUser?.avatar ? (
-              <Avatar src={currentUser.avatar} size="sm" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <UserIcon />
-              </div>
-            )}
-            <div className="hidden sm:block">
-              <p className="text-sm font-medium text-foreground leading-none">
-                {currentUser?.displayName || currentUser?.username || 'Người dùng'}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {currentUser?.email}
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main content */}
       <main className="flex-1 py-6 sm:py-10 px-4 sm:px-6">
         <div className="max-w-2xl mx-auto">

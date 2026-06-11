@@ -1,11 +1,31 @@
-import React, { useState } from 'react';
-import { Send, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Send, X, BookOpen, CheckSquare, Square } from 'lucide-react';
 import { Button, Textarea } from '@/components/ui';
+import { getMyCourses } from '@/apis/trainerApi';
 
 const PartnershipResponseModal = ({ isOpen, onClose, partnership, onSuccess, loading = false }) => {
   const [responseStatus, setResponseStatus] = useState('negotiating');
   const [responseText, setResponseText] = useState('');
-  const [proposedCourseIds, setProposedCourseIds] = useState('');
+  const [proposedCourseIds, setProposedCourseIds] = useState([]);
+  const [myCourses, setMyCourses] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const fetchCourses = async () => {
+        try {
+          const res = await getMyCourses({ limit: 50 });
+          setMyCourses(res.data?.data || []);
+        } catch (err) {
+          console.error('Lỗi lấy khóa học', err);
+        }
+      };
+      fetchCourses();
+    } else {
+      setProposedCourseIds([]);
+      setResponseText('');
+      setResponseStatus('negotiating');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -13,7 +33,7 @@ const PartnershipResponseModal = ({ isOpen, onClose, partnership, onSuccess, loa
     if (!responseText.trim()) return;
     onSuccess?.({
       status: responseStatus,
-      proposedCourseIds: proposedCourseIds.split(',').map(s => s.trim()).filter(Boolean),
+      proposedCourseIds: proposedCourseIds,
       message: responseText.trim()
     });
   };
@@ -64,19 +84,53 @@ const PartnershipResponseModal = ({ isOpen, onClose, partnership, onSuccess, loa
             </div>
           </div>
 
-          {/* Proposed Course IDs */}
+          {/* Proposed Courses */}
           <div>
             <label className="block text-xs text-[hsl(var(--admin-text-muted))] font-medium mb-1.5">
-              Khóa học đề xuất (IDs, cách nhau bởi dấu phẩy)
+              Khóa học đề xuất
             </label>
-            <input
-              type="text"
-              value={proposedCourseIds}
-              onChange={e => setProposedCourseIds(e.target.value)}
-              placeholder="6501a2b3..., 6501c4d5..."
-              className="w-full bg-[hsl(var(--admin-surface-elevated))]/60 border border-[hsl(var(--admin-border))] rounded-xl px-4 py-2.5 text-sm text-[hsl(var(--admin-text-primary))] placeholder:text-[hsl(var(--admin-text-faint))] focus:outline-none focus:border-[hsl(var(--admin-accent))]/60"
-            />
-            <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Bạn có thể nhập ObjectId của các khóa học muốn đề xuất</p>
+            <div className="max-h-48 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+              {myCourses.length === 0 ? (
+                <p className="text-sm text-[hsl(var(--admin-text-muted))] italic">Bạn chưa có khóa học nào.</p>
+              ) : (
+                myCourses.map(course => {
+                  const isSelected = proposedCourseIds.includes(course._id);
+                  return (
+                    <div
+                      key={course._id}
+                      onClick={() => {
+                        setProposedCourseIds(prev =>
+                          isSelected ? prev.filter(id => id !== course._id) : [...prev, course._id]
+                        );
+                      }}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                        isSelected
+                          ? 'bg-[hsl(var(--admin-accent))]/10 border-[hsl(var(--admin-accent))]'
+                          : 'bg-[hsl(var(--admin-surface-elevated))]/60 border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))]'
+                      }`}
+                    >
+                      <div className="mt-0.5">
+                        {isSelected ? (
+                          <CheckSquare className="text-[hsl(var(--admin-accent))] w-4 h-4" />
+                        ) : (
+                          <Square className="text-[hsl(var(--admin-text-faint))] w-4 h-4" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))] truncate">
+                          {course.title}
+                        </p>
+                        <div className="flex gap-3 mt-1 text-xs text-[hsl(var(--admin-text-muted))]">
+                          <span className="flex items-center gap-1">
+                            <BookOpen size={12} /> {course.duration?.value || 0} {course.duration?.unit || 'giờ'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
 
           {/* Response Text */}

@@ -91,6 +91,14 @@ const isAuthorizedEnterpriseOrNGOOrAdmin = async (req, res, next) => {
   return await verifyRoleAccess([USER_ROLES.ENTERPRISE, USER_ROLES.NGO, USER_ROLES.ADMIN], req, next)
 }
 
+const isAuthorizedWorker = async (req, res, next) => {
+  return await verifyRoleAccess([USER_ROLES.WORKER], req, next)
+}
+
+const isAuthorizedWorkerOrAdmin = async (req, res, next) => {
+  return await verifyRoleAccess([USER_ROLES.WORKER, USER_ROLES.ADMIN], req, next)
+}
+
 export const authMiddleware = {
   isAuthorized,
   isAuthorizedAdmin,
@@ -99,5 +107,7 @@ export const authMiddleware = {
   isAuthorizedTrainer,
   isAuthorizedTrainerOrAdmin,
   isAuthorizedEnterpriseOrAdmin,
-  isAuthorizedEnterpriseOrNGOOrAdmin
+  isAuthorizedEnterpriseOrNGOOrAdmin,
+  isAuthorizedWorker,
+  isAuthorizedWorkerOrAdmin
 }

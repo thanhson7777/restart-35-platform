@@ -315,7 +315,8 @@ export const ENROLLMENT_STATUS_V2 = {
   COMPLETED: 'completed',
   DROPPED: 'dropped',
   FAILED: 'failed',
-  SUSPENDED: 'suspended'
+  SUSPENDED: 'suspended',
+  PENDING_REVIEW: 'pending_review'
 }
 
 // ============ ENROLLMENT PAYMENT STATUS ============
@@ -409,3 +410,66 @@ export const PLACEMENT_REFERRAL_SOURCE = {
 // ============ MAX LIMITS ============
 export const MAX_EMPLOYMENT_HISTORY = 3
 export const MAX_SKILLS = 10
+
+// ============ RECRUITMENT JOB STATUS ============
+export const RECRUITMENT_JOB_STATUS = {
+  DRAFT: 'draft',
+  PENDING_APPROVAL: 'pending_approval',
+  PUBLISHED: 'published',
+  CLOSED: 'closed',
+  EXPIRED: 'expired'
+}
+
+// ============ JOB LOCATION TYPE ============
+export const JOB_LOCATION_TYPE = {
+  ONSITE: 'onsite',
+  REMOTE: 'remote',
+  HYBRID: 'hybrid'
+}
+
+// ============ INTERVIEW MEETING TYPE ============
+export const INTERVIEW_MEETING_TYPE = {
+  GOOGLE_MEET: 'google_meet',
+  OFFICE: 'office',
+  PHONE: 'phone'
+}
+
+// ============ RECRUITMENT APPLICATION STATUS ============
+export const RECRUITMENT_APPLICATION_STATUS = {
+  NEW: 'new',
+  REVIEWING: 'reviewing',
+  SHORTLISTED: 'shortlisted',
+  INTERVIEW_SCHEDULED: 'interview_scheduled',
+  INTERVIEWED: 'interviewed',
+  OFFERED: 'offered',
+  HIRED: 'hired',
+  REJECTED: 'rejected',
+  WITHDRAWN: 'withdrawn'
+}
+
+// ============ INTERVIEW STATUS ============
+export const RECRUITMENT_INTERVIEW_STATUS = {
+  PENDING_CONFIRMATION: 'pending_confirmation',
+  CONFIRMED: 'confirmed',
+  RESCHEDULED: 'rescheduled',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  NO_SHOW: 'no_show'
+}
+
+// ============ RECRUITMENT OFFER STATUS ============
+export const RECRUITMENT_OFFER_STATUS = {
+  PENDING: 'pending',
+  ACCEPTED: 'accepted',
+  REJECTED: 'rejected',
+  EXPIRED: 'expired',
+  WITHDRAWN: 'withdrawn'
+}
+
+// ============ APPLICATION SOURCE ============
+export const RECRUITMENT_APPLICATION_SOURCE = {
+  DIRECT: 'direct',
+  COURSE_LINKED: 'course_linked',
+  RECOMMENDATION: 'recommendation',
+  AI_SUGGESTED: 'ai_suggested'
+}

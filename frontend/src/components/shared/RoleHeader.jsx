@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, Bell, Search, UserCircle as LucideUserCircle, Settings, Briefcase, BookOpen, FileCheck, CalendarCheck, LogOut } from 'lucide-react';
+import { Menu, Bell, Search, UserCircle as LucideUserCircle, Settings, Briefcase, BookOpen, FileCheck, CalendarCheck, LogOut, Home } from 'lucide-react';
 import { ChatCircle } from '@phosphor-icons/react';
 import { Button, Avatar } from '@/components/ui';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentUser, logoutUser } from '@/redux/user/userSlice';
 
-const RoleHeader = ({ title, subtitle, onMenuClick }) => {
+const RoleHeader = ({ title, subtitle, onMenuClick, sidebarCollapsed }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const currentUser = useSelector(selectCurrentUser);
@@ -32,9 +32,11 @@ const RoleHeader = ({ title, subtitle, onMenuClick }) => {
 
   return (
     <header className={`
-      fixed top-0 right-0 left-0 lg:left-auto z-20 h-16
+      fixed top-0 right-0 z-20 h-[64px]
       border-b border-[hsl(var(--admin-border))]
       bg-[hsl(var(--admin-sidebar))]/95 backdrop-blur-xl
+      transition-all duration-300
+      ${sidebarCollapsed ? 'left-0 lg:left-20' : 'left-0 lg:left-64'}
     `}>
       <div className="h-full px-4 lg:px-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
@@ -110,72 +112,13 @@ const RoleHeader = ({ title, subtitle, onMenuClick }) => {
                   </div>
 
                   <div className="py-1.5">
-                    <div className="px-3 py-1.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Tài khoản</p>
-                    </div>
                     <Link
-                      to="/worker/profile"
+                      to="/"
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-sm"
                     >
-                      <LucideUserCircle size={17} className="text-emerald-500 shrink-0" />
-                      Hồ sơ của tôi
-                    </Link>
-                    <Link
-                      to="/worker/account-settings"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-sm"
-                    >
-                      <Settings size={17} className="text-emerald-500 shrink-0" />
-                      Cài đặt tài khoản
-                    </Link>
-
-                    <div className="px-3 py-1.5 mt-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Học tập &amp; Việc làm</p>
-                    </div>
-                    <Link
-                      to="/jobs"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-sm"
-                    >
-                      <Briefcase size={17} className="text-emerald-500 shrink-0" />
-                      Việc làm
-                    </Link>
-                    <Link
-                      to="/courses"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-sm"
-                    >
-                      <BookOpen size={17} className="text-emerald-500 shrink-0" />
-                      Khóa học
-                    </Link>
-                    <Link
-                      to="/my-applications"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-sm"
-                    >
-                      <FileCheck size={17} className="text-emerald-500 shrink-0" />
-                      Đơn ứng tuyển
-                    </Link>
-
-                    <div className="px-3 py-1.5 mt-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">Hỗ trợ</p>
-                    </div>
-                    <Link
-                      to="/community/forum"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-sm"
-                    >
-                      <ChatCircle size={17} className="text-emerald-500 shrink-0" />
-                      Diễn đàn
-                    </Link>
-                    <Link
-                      to="/mentor/booking"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-[hsl(var(--foreground))] hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-sm"
-                    >
-                      <CalendarCheck size={17} className="text-emerald-500 shrink-0" />
-                      Đặt lịch Mentor
+                      <Home size={17} className="text-emerald-500 shrink-0" />
+                      Quay lại trang chủ
                     </Link>
                   </div>
 

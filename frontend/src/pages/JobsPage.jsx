@@ -537,7 +537,7 @@ const JobsPage = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/worker-profile')}
+                    onClick={() => navigate('/worker/profile')}
                     className="shrink-0"
                   >
                     Cập nhật hồ sơ
@@ -805,7 +805,7 @@ const JobsPage = () => {
                         : 'Thử thay đổi bộ lọc hoặc quay lại sau.'}
                     </p>
                     {activeTab === 'recommended' && (
-                      <Button onClick={() => navigate('/worker-profile')}>
+                      <Button onClick={() => navigate('/worker/profile')}>
                         Cập nhật hồ sơ
                       </Button>
                     )}
