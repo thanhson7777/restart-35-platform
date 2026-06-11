@@ -21,3 +21,6 @@ export const getSponsorshipLearners = (id, params) =>
 
 export const getMySponsorships = () =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/worker-sponsorships/my`);
+
+export const decideSponsorshipLearner = (sponsorshipId, enrollmentId, status) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/course-sponsorships/${sponsorshipId}/learners/${enrollmentId}/decision`, { status });

@@ -79,7 +79,7 @@ const RoleLayoutShell = ({
         />
 
         <main className={cn('pt-16 flex-1 flex flex-col', className)}>
-          <div className="p-6 flex-1 flex flex-col bg-[hsl(var(--admin-bg))]">{children}</div>
+          <div className="px-6 py-6 flex-1 flex flex-col bg-[hsl(var(--admin-bg))]">{children}</div>
         </main>
       </div>
     </div>

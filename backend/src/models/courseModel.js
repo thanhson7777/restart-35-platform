@@ -43,12 +43,14 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   linkedEnterpriseId: Joi.string().allow(null, ''),
   sponsorship: Joi.object({
     hasSponsorship: Joi.boolean().default(false),
+    hasJobGuarantee: Joi.boolean().default(false),
     sponsorTypes: Joi.array().items(Joi.string()).default([]),
     activeSponsorshipIds: Joi.array().items(Joi.string()).default([]),
     priorityRecruitment: Joi.boolean().default(false),
     badgeLabel: Joi.string().allow('', null).default(null)
   }).default({
     hasSponsorship: false,
+    hasJobGuarantee: false,
     sponsorTypes: [],
     activeSponsorshipIds: [],
     priorityRecruitment: false,
@@ -62,8 +64,8 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   level: Joi.string().valid(...Object.values(COURSE_LEVELS)).default(COURSE_LEVELS.BEGINNER),
   skills: Joi.array()
     .items(Joi.string().min(2).max(100))
-    .min(3)
-    .max(20),
+    .max(20)
+    .default([]),
   prerequisites: Joi.array().items(Joi.string()).max(10),
   requirements: Joi.array().items(Joi.string()).max(10),
   syllabus: Joi.array().items(
@@ -77,8 +79,8 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   certificate: Joi.string().allow(''),
   outcomes: Joi.array()
     .items(Joi.string().min(2).max(200))
-    .min(2)
-    .max(20),
+    .max(20)
+    .default([]),
   // Đánh giá
   rating: Joi.object({
     average: Joi.number().min(0).max(5).default(0),
@@ -187,12 +189,40 @@ const findOneBySlug = async (slug) => {
     throw new Error(error.message)
   }
 }
-const findByProvider = async (providerId, skip = 0, limit = 10) => {
+const findByProvider = async (providerId, skip = 0, limit = 10, filters = {}) => {
   try {
+    let objectIdProvider = null;
+    if (ObjectId.isValid(providerId)) {
+      objectIdProvider = new ObjectId(providerId);
+    }
+    
     const query = {
-      providerId: providerId,
       _destroy: { $ne: true }
     }
+    
+    if (objectIdProvider) {
+      query.$or = [
+        { providerId: providerId },
+        { providerId: objectIdProvider }
+      ];
+    } else {
+      query.providerId = providerId;
+    }
+
+    if (filters.status) {
+      query.status = filters.status;
+    }
+    
+    if (filters.search) {
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { title: { $regex: filters.search, $options: 'i' } },
+          { description: { $regex: filters.search, $options: 'i' } }
+        ]
+      });
+    }
+
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(query)
       .sort({ createdAt: -1 })
@@ -251,7 +281,7 @@ const searchCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, so
     }
     if (filters.isFree === true) {
       matchStage.isFree = true
-    } else if (filters.isFree === false && (filters.minFee !== undefined || filters.maxFee !== undefined)) {
+    } else if (filters.isFree === false) {
       matchStage.isFree = false
       if (filters.minFee !== undefined) {
         matchStage.fee = { ...matchStage.fee, $gte: filters.minFee }

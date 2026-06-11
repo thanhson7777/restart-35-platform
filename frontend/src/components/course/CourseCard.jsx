@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, Card, SafeImage } from '@/components/ui';
-import { Star, Clock, MapPin, Users, BookOpen, Play } from 'lucide-react';
+import { Star, Clock, MapPin, Users, BookOpen, Play, Heart, Briefcase } from 'lucide-react';
 import { formatPrice, formatDuration, formatMatchScore, formatVideoDuration } from '@/utils/formatter';
 import { DeliveryTypeBadge } from './DeliveryTypeBadge';
 import { FundingModelChip } from './FundingModelChip';
@@ -98,6 +98,26 @@ export const CourseCard = ({
                   {location.type === 'online' ? 'Trực tuyến' : location.type === 'offline' ? 'Tại lớp' : 'Kết hợp'}
                 </Badge>
               )
+            )}
+            
+            {course.sponsorship?.hasSponsorship && (
+              <Badge
+                variant="secondary"
+                className="bg-rose-500/95 hover:bg-rose-600 text-white text-[10px] px-2 py-0.5 shadow-sm border-0 font-medium flex items-center gap-1"
+              >
+                <Heart className="w-3 h-3 fill-white" />
+                Được tài trợ
+              </Badge>
+            )}
+
+            {course.sponsorship?.hasJobGuarantee && (
+              <Badge
+                variant="secondary"
+                className="bg-emerald-500/95 hover:bg-emerald-600 text-white text-[10px] px-2 py-0.5 shadow-sm border-0 font-medium flex items-center gap-1"
+              >
+                <Briefcase className="w-3 h-3 fill-white" />
+                Cam kết việc làm
+              </Badge>
             )}
             
             {level && (

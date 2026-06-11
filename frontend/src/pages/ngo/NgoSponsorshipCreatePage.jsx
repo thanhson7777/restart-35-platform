@@ -1,38 +1,58 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import NgoLayout from '@/components/ngo/NgoLayout';
 import { Button, Input, Label } from '@/components/ui';
 import { createSponsorship } from '@/apis/courseSponsorshipApi';
+import { getCourses } from '@/apis/courseApi';
 import toast from 'react-hot-toast';
 
 export default function NgoSponsorshipCreatePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [submitting, setSubmitting] = useState(false);
+  const [courses, setCourses] = useState([]);
   const [form, setForm] = useState({
     title: '',
     description: '',
-    budget: '',
-    maxAmountPerLearner: '',
-    coverageType: 'partial',
-    disbursementModel: 'completion'
+    selectedCourses: searchParams.get('courseId') ? [searchParams.get('courseId')] : []
   });
 
+  useEffect(() => {
+    getCourses({ limit: 50, isFree: false })
+      .then(res => {
+        const paidCourses = (res.data?.data || []).filter(c => c.fee > 0);
+        setCourses(paidCourses);
+      })
+      .catch(() => {});
+  }, []);
+
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
+
+  const toggleCourse = (id) => {
+    setForm(f => ({
+      ...f,
+      selectedCourses: f.selectedCourses.includes(id) 
+        ? f.selectedCourses.filter(c => c !== id) 
+        : [...f.selectedCourses, id]
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) { toast.error('Vui lòng nhập tiêu đề.'); return; }
-    if (!form.budget || Number(form.budget) <= 0) { toast.error('Vui lòng nhập ngân sách hợp lệ.'); return; }
+    if (form.selectedCourses.length === 0) { toast.error('Vui lòng chọn ít nhất 1 khóa học.'); return; }
     setSubmitting(true);
     try {
       const payload = {
         title: form.title,
         description: form.description || null,
-        budget: Number(form.budget),
-        maxAmountPerLearner: form.maxAmountPerLearner ? Number(form.maxAmountPerLearner) : null,
-        coverageType: form.coverageType,
-        disbursementModel: form.disbursementModel
+        sponsorType: 'ngo',
+        budget: 100000000, // Dummy value
+        maxAmountPerLearner: null,
+        coverageType: 'partial',
+        disbursementModel: 'completion',
+        linkedCourses: form.selectedCourses.map(id => ({ courseId: id, coverage: 'partial' }))
       };
       await createSponsorship(payload);
       toast.success('Đã tạo sponsorship thành công!');
@@ -72,31 +92,27 @@ export default function NgoSponsorshipCreatePage() {
                 className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Tổng ngân sách (VND) *</Label>
-                <Input type="number" min={1} value={form.budget} onChange={set('budget')} placeholder="VD: 100000000" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
-              </div>
-              <div>
-                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Tối đa/người (VND)</Label>
-                <Input type="number" min={0} value={form.maxAmountPerLearner} onChange={set('maxAmountPerLearner')} placeholder="VD: 5000000" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Mức tài trợ</Label>
-                <select value={form.coverageType} onChange={set('coverageType')} className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                  <option value="full">100% học phí</option>
-                  <option value="partial">Một phần học phí</option>
-                </select>
-              </div>
-              <div>
-                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Hình thức giải ngân</Label>
-                <select value={form.disbursementModel} onChange={set('disbursementModel')} className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                  <option value="upfront">Upfront (trước)</option>
-                  <option value="milestone">Milestone</option>
-                  <option value="completion">Khi hoàn thành</option>
-                </select>
+            <div>
+              <Label className="text-[hsl(var(--admin-text-secondary))] mb-3 block">Chọn khóa học tài trợ *</Label>
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                {courses.map(course => (
+                  <label key={course._id} className="flex items-start gap-3 p-3 rounded-xl border border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] cursor-pointer transition-colors">
+                    <input 
+                      type="checkbox" 
+                      className="mt-1"
+                      checked={form.selectedCourses.includes(course._id)}
+                      onChange={() => toggleCourse(course._id)}
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">{course.title}</p>
+                      <p className="text-xs text-[hsl(var(--admin-success))] font-bold mt-0.5">
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(course.fee || 0)}
+                      </p>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))] line-clamp-1 mt-0.5">{course.skills?.join(', ')}</p>
+                    </div>
+                  </label>
+                ))}
+                {courses.length === 0 && <p className="text-sm text-[hsl(var(--admin-text-muted))]">Đang tải danh sách khóa học...</p>}
               </div>
             </div>
           </div>

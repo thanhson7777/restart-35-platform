@@ -11,6 +11,7 @@ const EnterpriseLayout = ({ children, className }) => {
       HeaderComponent={(props) => (
         <RoleHeader
           {...props}
+          sidebarCollapsed={props.sidebarCollapsed}
           title="Enterprise Dashboard"
           subtitle="Theo dõi partnership, sponsorship và kết quả đầu ra"
         />

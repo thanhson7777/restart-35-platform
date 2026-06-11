@@ -1,245 +1,168 @@
-import { applicationService } from '~/services/applicationService'
 import { StatusCodes } from 'http-status-codes'
-import { USER_ROLES } from '~/utils/constants'
+import { applicationService } from '~/services/applicationService'
 
-// ============ WORKER ROUTES ============
+// ============ WORKER: APPLY ============
 
-// Lấy applications của worker
-const getMyApplications = async (req, res, next) => {
+const applyToJob = async (req, res, next) => {
   try {
-    const userId = req.user._id.toString()
-    const result = await applicationService.getMyApplications(userId, req.query)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: 'Lấy danh sách đơn thành công!',
-      data: result.applications,
-      pagination: result.pagination
-    })
-  } catch (error) { next(error) }
-}
-
-// Tạo application mới (draft)
-const createApplication = async (req, res, next) => {
-  try {
-    const userId = req.user._id.toString()
-    const application = await applicationService.createApplication(userId, req.body)
-
+    const result = await applicationService.applyToJob(req.params.jobId, req.user._id, req.body)
     res.status(StatusCodes.CREATED).json({
       success: true,
-      message: 'Tạo đơn thành công!',
-      data: application
+      message: 'Ứng tuyển thành công!',
+      data: result
     })
   } catch (error) { next(error) }
 }
 
-// Lấy chi tiết application
+const getMyApplications = async (req, res, next) => {
+  try {
+    const { page, limit, status } = req.query
+    const filters = {}
+    if (status) filters.status = status
+
+    const result = await applicationService.getMyApplications(req.user._id, page, limit, filters)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách đơn ứng tuyển thành công!',
+      data: result.applications,
+      pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
+const getMyApplicationById = async (req, res, next) => {
+  try {
+    const result = await applicationService.getMyApplicationById(req.params.id, req.user._id)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy chi tiết đơn ứng tuyển thành công!',
+      data: result
+    })
+  } catch (error) { next(error) }
+}
+
+const withdrawApplication = async (req, res, next) => {
+  try {
+    await applicationService.withdrawApplication(req.params.id, req.user._id)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã rút đơn ứng tuyển thành công!'
+    })
+  } catch (error) { next(error) }
+}
+
+// ============ ENTERPRISE: MANAGE APPLICATIONS ============
+
+const getApplications = async (req, res, next) => {
+  try {
+    const { page, limit, status, jobId, search } = req.query
+    const filters = {}
+    if (status) filters.status = status
+    if (jobId) filters.jobId = jobId
+    if (search) filters.search = search
+
+    const result = await applicationService.getApplications(req.user._id, page, limit, filters)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách đơn ứng tuyển thành công!',
+      data: result.applications,
+      pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
 const getApplicationById = async (req, res, next) => {
   try {
-    const userId = req.user._id.toString()
-    const { id } = req.params
-    const userRole = req.user.role
-
-    const application = await applicationService.getApplicationById(id, userId, userRole)
-
+    const result = await applicationService.getApplicationById(req.params.id, req.user._id)
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Lấy thông tin đơn thành công!',
-      data: application
+      message: 'Lấy chi tiết đơn ứng tuyển thành công!',
+      data: result
     })
   } catch (error) { next(error) }
 }
 
-// Cập nhật application
-const updateApplication = async (req, res, next) => {
+const getWorkerProfile = async (req, res, next) => {
   try {
-    const userId = req.user._id.toString()
-    const { id } = req.params
-
-    const application = await applicationService.updateApplication(id, userId, req.body)
-
+    const result = await applicationService.getWorkerProfile(req.params.id, req.user._id)
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Cập nhật đơn thành công!',
-      data: application
+      message: 'Lấy thông tin ứng viên thành công!',
+      data: result
     })
   } catch (error) { next(error) }
 }
 
-// Nộp đơn
-const submitApplication = async (req, res, next) => {
+const updateApplicationStatus = async (req, res, next) => {
   try {
-    const userId = req.user._id.toString()
-    const { id } = req.params
-
-    const application = await applicationService.submitApplication(id, userId)
-
+    const result = await applicationService.updateApplicationStatus(
+      req.params.id,
+      req.user._id,
+      req.body.status,
+      req.body.note
+    )
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Nộp đơn thành công!',
-      data: application
+      message: 'Cập nhật trạng thái đơn ứng tuyển thành công!',
+      data: result
     })
   } catch (error) { next(error) }
 }
 
-// Xóa application
-const deleteApplication = async (req, res, next) => {
+const shortlistApplication = async (req, res, next) => {
   try {
-    const userId = req.user._id.toString()
-    const { id } = req.params
-
-    await applicationService.deleteApplication(id, userId)
-
+    const result = await applicationService.shortlistApplication(
+      req.params.id,
+      req.user._id,
+      req.body.reason
+    )
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Xóa đơn thành công!'
+      message: 'Đã chọn ứng viên vào danh sách phỏng vấn!',
+      data: result
     })
   } catch (error) { next(error) }
 }
 
-// Kháng cáo
-const appealApplication = async (req, res, next) => {
-  try {
-    const userId = req.user._id.toString()
-    const { id } = req.params
-    const { reason } = req.body
-
-    const application = await applicationService.appealApplication(id, userId, reason)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: 'Gửi kháng cáo thành công!',
-      data: application
-    })
-  } catch (error) { next(error) }
-}
-
-// ============ NGO ROUTES ============
-
-// Lấy pending applications cho NGO
-const getPendingApplications = async (req, res, next) => {
-  try {
-    const ngoId = req.user._id.toString()
-    const result = await applicationService.getPendingApplications(ngoId, req.query)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: 'Lấy danh sách đơn chờ duyệt thành công!',
-      data: result.applications,
-      pagination: result.pagination
-    })
-  } catch (error) { next(error) }
-}
-
-// Lấy application để review
-const getApplicationForReview = async (req, res, next) => {
-  try {
-    const ngoId = req.user._id.toString()
-    const { id } = req.params
-
-    const application = await applicationService.getApplicationById(id, ngoId, USER_ROLES.NGO)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: 'Lấy thông tin đơn thành công!',
-      data: application
-    })
-  } catch (error) { next(error) }
-}
-
-// Duyệt đơn
-const approveApplication = async (req, res, next) => {
-  try {
-    const ngoId = req.user._id.toString()
-    const { id } = req.params
-    const { approvedAmount, reviewNotes } = req.body
-
-    const application = await applicationService.approveApplication(id, ngoId, {
-      approvedAmount,
-      reviewNotes
-    })
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: 'Phê duyệt đơn thành công!',
-      data: application
-    })
-  } catch (error) { next(error) }
-}
-
-// Từ chối đơn
 const rejectApplication = async (req, res, next) => {
   try {
-    const ngoId = req.user._id.toString()
-    const { id } = req.params
-    const { reason } = req.body
-
-    if (!reason) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Vui lòng cung cấp lý do từ chối!'
-      })
-    }
-
-    const application = await applicationService.rejectApplication(id, ngoId, reason)
-
+    const result = await applicationService.rejectApplication(
+      req.params.id,
+      req.user._id,
+      req.body.reason
+    )
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Từ chối đơn thành công!',
-      data: application
+      message: 'Đã từ chối ứng viên!',
+      data: result
     })
   } catch (error) { next(error) }
 }
 
-// Xếp vào danh sách chờ
-const waitlistApplication = async (req, res, next) => {
+const getApplicationInterview = async (req, res, next) => {
   try {
-    const ngoId = req.user._id.toString()
-    const { id } = req.params
-
-    const application = await applicationService.waitlistApplication(id, ngoId)
-
+    const result = await applicationService.getApplicationInterview(req.params.id, req.user._id)
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Thêm vào danh sách chờ thành công!',
-      data: application
-    })
-  } catch (error) { next(error) }
-}
-
-// ============ ADMIN ROUTES ============
-
-// Lấy tất cả applications
-const getAllApplications = async (req, res, next) => {
-  try {
-    const result = await applicationService.getAllApplications(req.query)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: 'Lấy danh sách đơn thành công!',
-      data: result.applications,
-      pagination: result.pagination
+      message: 'Lấy thông tin phỏng vấn thành công!',
+      data: result
     })
   } catch (error) { next(error) }
 }
 
 export const applicationController = {
   // Worker
+  applyToJob,
   getMyApplications,
-  createApplication,
+  getMyApplicationById,
+  withdrawApplication,
+
+  // Enterprise
+  getApplications,
   getApplicationById,
-  updateApplication,
-  submitApplication,
-  deleteApplication,
-  appealApplication,
-
-  // NGO
-  getPendingApplications,
-  getApplicationForReview,
-  approveApplication,
+  getWorkerProfile,
+  updateApplicationStatus,
+  shortlistApplication,
   rejectApplication,
-  waitlistApplication,
-
-  // Admin
-  getAllApplications
+  getApplicationInterview
 }

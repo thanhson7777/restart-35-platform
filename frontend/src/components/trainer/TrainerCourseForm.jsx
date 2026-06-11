@@ -12,7 +12,8 @@ import {
   GraduationCap, 
   AlertCircle,
   FileText,
-  Settings
+  Settings,
+  Info
 } from 'lucide-react';
 import { 
   Button, 
@@ -22,6 +23,7 @@ import {
   SelectField, 
   Checkbox 
 } from '@/components/ui';
+import LocationPicker from '@/components/location/LocationPicker';
 
 const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmitting = false }) => {
   const [activeTab, setActiveTab] = useState('basic');
@@ -37,9 +39,10 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
   // Time & Location
   const [durationValue, setDurationValue] = useState(1);
   const [durationUnit, setDurationUnit] = useState('weeks');
-  const [locationType, setLocationType] = useState('online');
   const [locationAddress, setLocationAddress] = useState('');
-  const [locationLink, setLocationLink] = useState('');
+  const [locationProvince, setLocationProvince] = useState('');
+  const [locationWard, setLocationWard] = useState('');
+  const [locationCoordinates, setLocationCoordinates] = useState({ lat: null, lng: null });
   const [enrollmentStartDate, setEnrollmentStartDate] = useState('');
   const [scheduleText, setScheduleText] = useState('');
 
@@ -84,9 +87,10 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       }
 
       if (initialData.location) {
-        setLocationType(initialData.location.type || 'online');
         setLocationAddress(initialData.location.address || '');
-        setLocationLink(initialData.location.link || '');
+        setLocationProvince(initialData.location.province || '');
+        setLocationWard(initialData.location.ward || '');
+        setLocationCoordinates(initialData.location.coordinates || { lat: null, lng: null });
       }
 
       // Convert timestamp to YYYY-MM-DD for date input
@@ -112,15 +116,12 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
     }
   }, [initialData]);
 
-  // Sync fee and isFree when model changes
+  // Sync fee and isFree when model changes (removed fundingModel effect)
   useEffect(() => {
-    if (fundingModel === 'free') {
-      setIsFree(true);
+    if (isFree) {
       setFee(0);
-    } else {
-      setIsFree(false);
     }
-  }, [fundingModel]);
+  }, [isFree]);
 
   // Handle image upload change
   const handleThumbnailChange = (e) => {
@@ -211,7 +212,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       // Switch to first tab with errors
       if (errors.title || errors.categoryId || errors.description) {
         setActiveTab('basic');
-      } else if (errors.duration) {
+      } else if (errors.duration || errors.location) {
         setActiveTab('schedule');
       } else if (errors.fee || errors.maxStudents) {
         setActiveTab('financial');
@@ -227,7 +228,14 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
     payload.append('description', description);
     payload.append('level', level);
     payload.append('delivery_type', deliveryType);
-    payload.append('schedule', scheduleText.trim());
+    
+    // Always append scheduleText unless it's video
+    if (deliveryType !== 'video') {
+      payload.append('schedule', scheduleText.trim());
+    } else {
+      payload.append('schedule', '');
+    }
+
     payload.append('certificate', certificate.trim());
     
     // Status Override
@@ -254,13 +262,22 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       unit: durationUnit
     }));
 
-    payload.append('location', JSON.stringify({
-      type: locationType,
-      address: locationAddress.trim(),
-      link: locationLink.trim()
-    }));
+    // Handle Location based on deliveryType
+    let locationData = { type: deliveryType === 'video' ? 'online' : (deliveryType === 'hybrid' ? 'hybrid' : (deliveryType === 'offline' ? 'offline' : 'online')) };
+    
+    if (deliveryType === 'offline' || deliveryType === 'hybrid') {
+      locationData = {
+        type: deliveryType,
+        address: locationAddress?.trim() || '',
+        province: locationProvince || '',
+        ward: locationWard || '',
+        coordinates: locationCoordinates || { lat: null, lng: null }
+      };
+    }
+    
+    payload.append('location', JSON.stringify(locationData));
 
-    payload.append('funding_model', fundingModel);
+    payload.append('funding_model', isFree ? 'free' : 'learner_paid');
 
     // Arrays
     payload.append('skills', JSON.stringify(skills));
@@ -476,12 +493,32 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
             <div className="space-y-6">
               <div className="border-b border-[hsl(var(--admin-border))] pb-4">
                 <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Thời gian & Địa điểm học</h3>
-                <p className="text-[hsl(var(--admin-text-muted))] text-xs">Cấu hình thời lượng khóa học, địa chỉ học trực tiếp và thời gian mở tuyển sinh.</p>
+                <p className="text-[hsl(var(--admin-text-muted))] text-xs">Cấu hình thời lượng khóa học, địa chỉ học và thời gian mở tuyển sinh.</p>
               </div>
+
+              {/* Notice for Video and Online courses */}
+              {deliveryType === 'video' && (
+                <div className="bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))/30] p-4 rounded-lg flex items-start gap-3 text-[hsl(var(--admin-accent))]">
+                  <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm">
+                    <strong>Khóa học qua Video:</strong> Hình thức học tự do trên nền tảng (self-paced), không yêu cầu thiết lập địa điểm hay lịch học cố định.
+                  </p>
+                </div>
+              )}
+              {deliveryType === 'online' && (
+                <div className="bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))/30] p-4 rounded-lg flex items-start gap-3 text-[hsl(var(--admin-accent))]">
+                  <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm">
+                    <strong>Lớp học Online:</strong> Hệ thống sẽ tự động tạo phòng học (Google Meet) và gửi link cho học viên khi đến thời gian học. Bạn không cần thiết lập địa điểm.
+                  </p>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="durationValue" className="text-[hsl(var(--admin-text-secondary))]">Thời lượng khóa học <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
+                  <Label htmlFor="durationValue" className="text-[hsl(var(--admin-text-secondary))]">
+                    {deliveryType === 'video' ? 'Thời lượng ước tính hoàn thành' : 'Thời lượng khóa học'} <span className="text-[hsl(var(--admin-danger))]">*</span>
+                  </Label>
                   <div className="flex gap-2">
                     <Input
                       id="durationValue"
@@ -510,7 +547,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="enrollmentStartDate" className="text-[hsl(var(--admin-text-secondary))]">Ngày bắt đầu đăng ký</Label>
+                  <Label htmlFor="enrollmentStartDate" className="text-[hsl(var(--admin-text-secondary))]">
+                    {deliveryType === 'video' ? 'Ngày ra mắt khóa học (Không bắt buộc)' : 'Ngày bắt đầu đăng ký'}
+                  </Label>
                   <Input
                     id="enrollmentStartDate"
                     type="date"
@@ -521,58 +560,35 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
               </div>
 
-              <div className="border-t border-[hsl(var(--admin-border))] pt-4 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="locationType" className="text-[hsl(var(--admin-text-secondary))]">Loại địa điểm</Label>
-                  <select
-                    id="locationType"
-                    value={locationType}
-                    onChange={(e) => setLocationType(e.target.value)}
-                    className="w-full md:w-1/3 rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
-                  >
-                    <option value="online">Trực tuyến (Online)</option>
-                    <option value="offline">Trực tiếp tại Trung tâm (Offline)</option>
-                    <option value="hybrid">Học kết hợp (Hybrid)</option>
-                  </select>
+              {(deliveryType === 'offline' || deliveryType === 'hybrid') && (
+                <div className="border-t border-[hsl(var(--admin-border))] pt-4">
+                  <LocationPicker
+                    address={locationAddress}
+                    province={locationProvince}
+                    ward={locationWard}
+                    coordinates={locationCoordinates}
+                    onAddressChange={setLocationAddress}
+                    onProvinceChange={(v) => { setLocationProvince(v); setLocationWard(''); }}
+                    onWardChange={setLocationWard}
+                    onCoordinatesChange={setLocationCoordinates}
+                    errors={{ address: errors.location }}
+                  />
                 </div>
+              )}
 
-                {locationType !== 'online' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="locationAddress" className="text-[hsl(var(--admin-text-secondary))]">Địa chỉ cụ thể</Label>
-                      <Input
-                        id="locationAddress"
-                        placeholder="Số 123 Đường ABC, Quận X, TP. HCM"
-                        value={locationAddress}
-                        onChange={(e) => setLocationAddress(e.target.value)}
-                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="locationLink" className="text-[hsl(var(--admin-text-secondary))]">Link bản đồ (Google Maps URL)</Label>
-                      <Input
-                        id="locationLink"
-                        placeholder="https://maps.google.com/..."
-                        value={locationLink}
-                        onChange={(e) => setLocationLink(e.target.value)}
-                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="scheduleText" className="text-[hsl(var(--admin-text-secondary))]">Lịch học dự kiến (Hiển thị giới thiệu)</Label>
-                <Textarea
-                  id="scheduleText"
-                  placeholder="Ví dụ: Tối thứ 2 - 4 - 6 từ 19:30 đến 21:30"
-                  value={scheduleText}
-                  onChange={(e) => setScheduleText(e.target.value)}
-                  className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
-                  rows={2}
-                />
-              </div>
+              {deliveryType !== 'video' && (
+                <div className="space-y-2 border-t border-[hsl(var(--admin-border))] pt-4">
+                  <Label htmlFor="scheduleText" className="text-[hsl(var(--admin-text-secondary))]">Lịch học dự kiến (Hiển thị giới thiệu)</Label>
+                  <Textarea
+                    id="scheduleText"
+                    placeholder="Ví dụ: Tối thứ 2 - 4 - 6 từ 19:30 đến 21:30"
+                    value={scheduleText}
+                    onChange={(e) => setScheduleText(e.target.value)}
+                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
+                    rows={2}
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -586,19 +602,27 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="fundingModel" className="text-[hsl(var(--admin-text-secondary))]">Mô hình tài trợ học phí</Label>
-                  <select
-                    id="fundingModel"
-                    value={fundingModel}
-                    onChange={(e) => setFundingModel(e.target.value)}
-                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
-                  >
-                    <option value="free">Miễn phí hoàn toàn (Free)</option>
-                    <option value="upfront">Thanh toán trả trước (Upfront)</option>
-                    <option value="deposit">Đặt cọc cam kết (Deposit)</option>
-                    <option value="installment">Trả góp định kỳ (Installment)</option>
-                    <option value="isa">Thỏa thuận chia sẻ thu nhập (ISA)</option>
-                  </select>
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Loại học phí</Label>
+                  <div className="flex gap-4 mt-2">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm text-[hsl(var(--admin-text-primary))]">
+                      <input
+                        type="radio"
+                        checked={isFree}
+                        onChange={() => { setIsFree(true); setFee(0); }}
+                        className="h-4 w-4 accent-[hsl(var(--admin-accent))]"
+                      />
+                      <span>Miễn phí hoàn toàn</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm text-[hsl(var(--admin-text-primary))]">
+                      <input
+                        type="radio"
+                        checked={!isFree}
+                        onChange={() => setIsFree(false)}
+                        className="h-4 w-4 accent-[hsl(var(--admin-accent))]"
+                      />
+                      <span>Có thu học phí</span>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -620,7 +644,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
               </div>
 
-              {fundingModel !== 'free' && (
+              {!isFree && (
                 <div className="space-y-2 md:w-1/2">
                   <Label htmlFor="fee" className="text-[hsl(var(--admin-text-secondary))]">Học phí (VND) <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                   <div className="relative">

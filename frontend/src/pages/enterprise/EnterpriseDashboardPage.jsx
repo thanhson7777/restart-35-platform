@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, TrendingUp, Users, CheckCircle2 } from 'lucide-react';
-import EnterpriseLayout from '@/components/enterprise/EnterpriseLayout';
+
 import ImpactChart from '@/components/shared/ImpactChart';
 import GraduateList from '@/components/shared/GraduateList';
 import { getEnterpriseDashboard, getEnterpriseDashboardGraduates } from '@/apis/enterpriseDashboardApi';
@@ -44,7 +44,7 @@ export default function EnterpriseDashboardPage() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   return (
-    <EnterpriseLayout>
+    <>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Enterprise Dashboard</h1>
@@ -95,6 +95,6 @@ export default function EnterpriseDashboardPage() {
           <GraduateList graduates={graduates} />
         </div>
       </div>
-    </EnterpriseLayout>
+    </>
   );
 }

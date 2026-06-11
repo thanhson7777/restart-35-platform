@@ -44,6 +44,9 @@ Router.route('/update')
     userController.update
   )
 
+Router.route('/public/trainers')
+  .get(userController.getPublicTrainers)
+
 Router.route('/')
   .get(
     authMiddleware.isAuthorized,

@@ -12,6 +12,7 @@ import { ScheduleSessionList } from '@/components/course/CourseDetail/ScheduleSe
 import { LiveSessionCountdown } from '@/components/course/CourseDetail/LiveSessionCountdown';
 import { CourseInstructorInfo } from '@/components/course/CourseDetail/CourseInstructorInfo';
 import { getCourseById, getRelatedCourses, enrollCourse, getMyEnrollments, getCourseSchedule, getCourseLessons } from '@/apis/courseApi';
+import { getSponsorships } from '@/apis/courseSponsorshipApi';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import { formatPrice, formatDuration } from '@/utils/formatter';
@@ -30,6 +31,7 @@ export default function CourseDetailPage() {
   const [existingEnrollment, setExistingEnrollment] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [courseLessons, setCourseLessons] = useState([]);
+  const [sponsorships, setSponsorships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [error, setError] = useState(null);
@@ -62,9 +64,10 @@ export default function CourseDetailPage() {
       try {
         const userId = currentUser?._id;
         console.log('[DEBUG] beforeAPI', { id, userId, url: `/v1/courses/${id}` });
-        const [courseRes, relatedRes] = await Promise.all([
+        const [courseRes, relatedRes, sponsorRes] = await Promise.all([
           getCourseById(id, userId ? { userId } : {}),
           getRelatedCourses(id),
+          getSponsorships({ courseId: id, status: 'active' }).catch(() => ({ data: { data: [] } }))
         ]);
         console.log('[DEBUG] courseRes', { status: courseRes?.status, keys: courseRes ? Object.keys(courseRes) : [], dataKeys: courseRes?.data ? Object.keys(courseRes.data) : [], hasSuccess: courseRes?.data?.success });
 
@@ -74,6 +77,9 @@ export default function CourseDetailPage() {
 
         const related = relatedRes.data?.data || relatedRes.data || relatedRes;
         setRelatedCourses(Array.isArray(related) ? related : []);
+
+        const activeSponsors = sponsorRes.data?.data || [];
+        setSponsorships(Array.isArray(activeSponsors) ? activeSponsors : []);
 
         // Fetch Schedule & Lessons based on course type
         const fetchDetails = [];
@@ -252,6 +258,11 @@ export default function CourseDetailPage() {
                     Đã kiểm duyệt
                   </Badge>
                 )}
+                {sponsorships.length > 0 && (
+                  <Badge className="bg-blue-600 border-0 text-xs px-2.5 py-0.5 rounded-full font-medium">
+                    Được tài trợ bởi {sponsorships[0].title}
+                  </Badge>
+                )}
               </div>
 
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] mb-4 leading-tight">
@@ -390,6 +401,7 @@ export default function CourseDetailPage() {
                     course={course}
                     eligibility={eligibility}
                     existingEnrollment={existingEnrollment}
+                    sponsorships={sponsorships}
                     onSubmit={handleEnroll}
                     isSubmitting={enrolling}
                   />
@@ -482,6 +494,7 @@ export default function CourseDetailPage() {
                 course={course}
                 eligibility={eligibility}
                 existingEnrollment={existingEnrollment}
+                sponsorships={sponsorships}
                 onSubmit={handleEnroll}
                 isSubmitting={enrolling}
               />

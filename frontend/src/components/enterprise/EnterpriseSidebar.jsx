@@ -1,4 +1,4 @@
-import { LayoutDashboard, Handshake, BadgeDollarSign } from 'lucide-react';
+import { LayoutDashboard, Handshake, BadgeDollarSign, Briefcase, Users, Calendar, FileText } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils/cn';
@@ -6,7 +6,12 @@ import { cn } from '@/utils/cn';
 const navItems = [
   { href: '/enterprise/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
   { href: '/enterprise/partnerships', label: 'Partnerships', icon: Handshake },
-  { href: '/enterprise/sponsorships', label: 'Tài trợ', icon: BadgeDollarSign }
+  { href: '/enterprise/sponsorships', label: 'Tài trợ', icon: BadgeDollarSign },
+  { divider: true },
+  { href: '/enterprise/recruitment', label: 'Tin tuyển dụng', icon: Briefcase },
+  { href: '/enterprise/applications', label: 'Ứng viên', icon: Users },
+  { href: '/enterprise/interviews', label: 'Phỏng vấn', icon: Calendar },
+  { href: '/enterprise/offers', label: 'Offers', icon: FileText }
 ];
 
 const EnterpriseSidebar = ({ collapsed, onToggle }) => {
@@ -40,7 +45,11 @@ const EnterpriseSidebar = ({ collapsed, onToggle }) => {
 
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {navItems.map((item, idx) => {
+          if (item.divider) {
+            return <div key={`divider-${idx}`} className="h-px bg-[hsl(var(--admin-border))] my-2" />;
+          }
+          const { href, label, icon: Icon } = item;
           const active = location.pathname.startsWith(href);
           return (
             <Link

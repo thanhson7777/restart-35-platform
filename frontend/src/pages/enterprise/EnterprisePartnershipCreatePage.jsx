@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import EnterpriseLayout from '@/components/enterprise/EnterpriseLayout';
+
 import { Button, Input, Label } from '@/components/ui';
+import { getPublicTrainersAPI } from '@/apis';
 import { createPartnership } from '@/apis/partnershipApi';
 import toast from 'react-hot-toast';
 
@@ -19,14 +20,34 @@ export default function EnterprisePartnershipCreatePage() {
     message: ''
   });
 
+  const [searchParams] = useSearchParams();
+  const urlTrainerId = searchParams.get('trainerId');
+
+  const [trainers, setTrainers] = useState([]);
+  const [selectedTrainer, setSelectedTrainer] = useState(urlTrainerId || '');
+
+  useEffect(() => {
+    const fetchTrainers = async () => {
+      try {
+        const res = await getPublicTrainersAPI({ limit: 100 });
+        setTrainers(res.users || res.data?.users || res.data || []);
+      } catch (err) {
+        console.error('Lỗi lấy danh sách trainer', err);
+      }
+    };
+    fetchTrainers();
+  }, []);
+
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!selectedTrainer) { toast.error('Vui lòng chọn Trainer để hợp tác.'); return; }
     if (!form.jobTitle.trim()) { toast.error('Vui lòng nhập vị trí tuyển dụng.'); return; }
     setSubmitting(true);
     try {
       const payload = {
+        trainerId: selectedTrainer,
         title: form.title,
         recruitmentNeeds: {
           jobTitle: form.jobTitle,
@@ -51,7 +72,7 @@ export default function EnterprisePartnershipCreatePage() {
   };
 
   return (
-    <EnterpriseLayout>
+    <>
       <div className="max-w-2xl space-y-6">
         <Button variant="ghost" onClick={() => navigate('/enterprise/partnerships')} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] pl-0 gap-2">
           <ArrowLeft size={16} /> Quay lại
@@ -64,6 +85,19 @@ export default function EnterprisePartnershipCreatePage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6 space-y-5">
+            <div>
+              <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Chọn đối tác (Trainer) *</Label>
+              <select
+                value={selectedTrainer}
+                onChange={(e) => setSelectedTrainer(e.target.value)}
+                className="w-full rounded-xl border border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">-- Chọn Trainer --</option>
+                {trainers.map(t => (
+                  <option key={t._id} value={t._id}>{t.displayName || t.email}</option>
+                ))}
+              </select>
+            </div>
             <div>
               <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Tiêu đề partnership</Label>
               <Input value={form.title} onChange={set('title')} placeholder="VD: Tuyển dụng lao động cho vị trí Bảo Vệ" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
@@ -120,6 +154,6 @@ export default function EnterprisePartnershipCreatePage() {
           </div>
         </form>
       </div>
-    </EnterpriseLayout>
+    </>
   );
 }

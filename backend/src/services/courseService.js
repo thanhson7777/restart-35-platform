@@ -181,13 +181,17 @@ const getCourses = async (queryParams) => {
 
 const getMyCourses = async (userId, queryParams) => {
   try {
-    const { page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE } = queryParams
+    const { page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE, status, search } = queryParams
 
     const currentPage = parseInt(page, 10) || DEFAULT_PAGE
     const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
     const skip = (currentPage - 1) * recordLimit
+    
+    const filters = {}
+    if (status) filters.status = status
+    if (search) filters.search = search
 
-    const { courses, totalCourses } = await courseModel.findByProvider(userId, skip, recordLimit)
+    const { courses, totalCourses } = await courseModel.findByProvider(userId, skip, recordLimit, filters)
 
     return {
       courses,

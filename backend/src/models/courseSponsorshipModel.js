@@ -66,6 +66,9 @@ const COURSE_SPONSORSHIP_COLLECTION_SCHEMA = Joi.object({
     .default(COURSE_SPONSORSHIP_STATUS.DRAFT),
   autoApprove: Joi.boolean().default(false),
   priorityRecruitment: Joi.boolean().default(false),
+  linkedJobId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(null).default(null),
+  guaranteedPlacements: Joi.number().integer().min(1).allow(null).default(null),
+  autoApplyOnCompletion: Joi.boolean().default(true),
   clawbackPolicy: Joi.object({
     enabled: Joi.boolean().default(false),
     refundOnDrop: Joi.boolean().default(false),

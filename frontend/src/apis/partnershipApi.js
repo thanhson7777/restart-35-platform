@@ -4,7 +4,7 @@ import { API_ROOT } from '~/utils/constants';
 // ─── Enterprise Partnerships ──────────────────────────────────────────────────────
 
 export const getEnterprisePartnerships = (params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/partnerships/enterprise/my`, { params });
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/partnerships`, { params });
 
 export const createPartnership = (data) =>
   authorizeAxiosInstance.post(`${API_ROOT}/v1/partnerships`, data);

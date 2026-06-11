@@ -21,6 +21,7 @@ export const CourseEnrollmentForm = ({
   course,
   eligibility,
   existingEnrollment,
+  sponsorships = [],
   onSubmit,
   isSubmitting,
 }) => {
@@ -73,15 +74,11 @@ export const CourseEnrollmentForm = ({
       await onSubmit({
         courseId: course._id,
         motivation: motivation.trim() || undefined,
-        source: course?.linkedPartnershipId
+        source: additionalData?.source || (
+          course?.linkedPartnershipId
           ? ENROLLMENT_SOURCE.ENTERPRISE_LINKED
-          : course?.sponsorship?.source === 'ngo'
-          ? ENROLLMENT_SOURCE.NGO_SPONSORED
-          : course?.sponsorship?.source === 'enterprise'
-          ? ENROLLMENT_SOURCE.ENTERPRISE_SPONSORED
-          : course?.sponsorship?.source === 'mixed'
-          ? ENROLLMENT_SOURCE.CO_FUNDED
-          : ENROLLMENT_SOURCE.DIRECT,
+          : ENROLLMENT_SOURCE.DIRECT
+        ),
         ...additionalData, // Pass fundingModel, method, voucherCode if any
       });
     } catch (err) {
@@ -137,6 +134,23 @@ export const CourseEnrollmentForm = ({
 
     switch (funding_model) {
       case 'free':
+        if (sponsorships.length > 0 && sponsorships[0].sponsorType === 'ngo') {
+          return (
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-blue-50 border border-blue-100">
+                <p className="text-sm font-semibold text-blue-900 mb-1">Tài trợ bởi NGO</p>
+                <p className="text-xs text-blue-800">Khóa học này đang được tài trợ. Đăng ký của bạn sẽ được gửi cho tổ chức xét duyệt.</p>
+              </div>
+              <Button
+                onClick={() => handleEnrollSubmit({ source: 'ngo_sponsored', sponsorshipId: sponsorships[0]._id })}
+                disabled={isSubmitting || isLimitReached}
+                className="w-full py-5 rounded-full text-xs font-bold shadow-sm bg-blue-600 hover:bg-blue-700"
+              >
+                {isSubmitting ? 'Đang gửi...' : 'Đăng ký xét duyệt tài trợ'}
+              </Button>
+            </div>
+          );
+        }
         return (
           <FundingSidebarFreeCard
             course={course}
@@ -174,6 +188,23 @@ export const CourseEnrollmentForm = ({
           />
         );
       default:
+        if (sponsorships.length > 0 && sponsorships[0].sponsorType === 'ngo') {
+          return (
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-blue-50 border border-blue-100">
+                <p className="text-sm font-semibold text-blue-900 mb-1">Tài trợ bởi NGO</p>
+                <p className="text-xs text-blue-800">Khóa học này đang được tài trợ. Đăng ký của bạn sẽ được gửi cho tổ chức xét duyệt.</p>
+              </div>
+              <Button
+                onClick={() => handleEnrollSubmit({ source: 'ngo_sponsored', sponsorshipId: sponsorships[0]._id })}
+                disabled={isSubmitting || isLimitReached}
+                className="w-full py-5 rounded-full text-xs font-bold shadow-sm bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {isSubmitting ? 'Đang gửi...' : 'Đăng ký xét duyệt tài trợ'}
+              </Button>
+            </div>
+          );
+        }
         // Default simple registration form
         return (
           <div className="space-y-4">

@@ -16,7 +16,7 @@ import { scheduleRoute } from './scheduleRoute'
 import { reviewRoute } from './reviewRoute'
 import { categoryRoute } from './categoryRoute'
 import { scholarshipRoute } from './scholarshipRoute'
-import { applicationRoute } from './applicationRoute'
+import { workerApplicationRoute } from './workerApplicationRoute'
 import { escoRoute } from './escoRoute'
 import { jobRoute } from './jobRoute'
 import { learningPathRoute } from './learningPathRoute'
@@ -37,6 +37,15 @@ import { lessonProgressRoute } from './lessonProgressRoute'
 import { videoNoteRoute } from './videoNoteRoute'
 import { recommendationFeedbackRoute } from './recommendationFeedbackRoute'
 import { contactRoute } from './contactRoute'
+import { recruitmentJobRoute } from './recruitmentJobRoute'
+import { adminJobRoute } from './adminJobRoute'
+import { publicJobRoute } from './publicJobRoute'
+import { enterpriseApplicationRoute } from './enterpriseApplicationRoute'
+import { interviewRoute } from './interviewRoute'
+import { workerInterviewRoute } from './workerInterviewRoute'
+import { offerRoute } from './offerRoute'
+import { workerOfferRoute } from './workerOfferRoute'
+import eventRoute from './eventRoute'
 
 const Router = express.Router()
 
@@ -91,8 +100,8 @@ Router.use('/schedules', scheduleRoute)
 Router.use('/reviews', reviewRoute)
 Router.use('/categories', categoryRoute)
 Router.use('/scholarships', scholarshipRoute)
-Router.use('/applications', applicationRoute)
 Router.use('/esco', escoRoute)
+Router.use('/jobs', publicJobRoute)
 Router.use('/jobs', jobRoute)
 Router.use('/jobs', learningPathRoute)
 Router.use('/forum', forumRoute)
@@ -112,5 +121,17 @@ Router.use('/lesson-progress', lessonProgressRoute)
 Router.use('/video-notes', videoNoteRoute)
 Router.use('/recommendation-feedback', recommendationFeedbackRoute)
 Router.use('/contacts', contactRoute)
+Router.use('/events', eventRoute)
+
+// Recruitment Module
+Router.use('/recruitments', workerApplicationRoute)
+Router.use('/enterprise/jobs', recruitmentJobRoute)
+Router.use('/admin/jobs', adminJobRoute)
+Router.use('/jobs', publicJobRoute)
+Router.use('/enterprise/applications', enterpriseApplicationRoute)
+Router.use('/enterprise/interviews', interviewRoute)
+Router.use('/my/interviews', workerInterviewRoute)
+Router.use('/enterprise/offers', offerRoute)
+Router.use('/my/offers', workerOfferRoute)
 
 export const APIS_V1 = Router

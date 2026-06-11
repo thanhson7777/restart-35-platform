@@ -116,6 +116,26 @@ const getUsers = async (req, res, next) => {
   }
 }
 
+const getPublicTrainers = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query
+    const result = await userService.getAdminUsers({ 
+      page, 
+      limit, 
+      role: 'trainer', 
+      isActive: 'true' 
+    })
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách trainer thành công',
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 const updateUserStatus = async (req, res, next) => {
   try {
     const userId = req.params.id
@@ -201,6 +221,7 @@ export const userController = {
   refreshToken,
   update,
   getUsers,
+  getPublicTrainers,
   updateUserStatus,
   changePassword,
   getMe,
