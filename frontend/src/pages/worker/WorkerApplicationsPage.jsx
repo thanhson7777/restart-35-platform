@@ -20,39 +20,15 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/Dialog';
+import {
+  applicationStatusConfig,
+  APPLICATION_STATUS_STEPS,
+  formatApplicationDate,
+} from './workerRecruitmentConstants';
 
-const applicationStatusConfig = {
-  new: { label: 'Mới', className: 'bg-blue-100 text-blue-700 border-blue-200' },
-  reviewing: { label: 'Đang xem', className: 'bg-amber-100 text-amber-700 border-amber-200' },
-  shortlisted: { label: 'Shortlist', className: 'bg-purple-100 text-purple-700 border-purple-200' },
-  interview_scheduled: { label: 'Đã lên lịch PV', className: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-  interviewed: { label: 'Đã PV', className: 'bg-teal-100 text-teal-700 border-teal-200' },
-  offered: { label: 'Đã offer', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  hired: { label: 'Đã tuyển', className: 'bg-green-100 text-green-700 border-green-200' },
-  rejected: { label: 'Từ chối', className: 'bg-red-100 text-red-700 border-red-200' },
-  withdrawn: { label: 'Rút đơn', className: 'bg-slate-200 text-slate-600 border-slate-300' }
-};
+// Index của bước hiện tại trong progress bar
+const getStatusStep = (status) => APPLICATION_STATUS_STEPS.indexOf(status);
 
-const statusSteps = [
-  'new',
-  'reviewing',
-  'shortlisted',
-  'interview_scheduled',
-  'interviewed',
-  'offered',
-  'hired'
-];
-
-const formatDateTime = (date) => {
-  if (!date) return '—';
-  return new Date(date).toLocaleDateString('vi-VN', {
-    day: 'numeric', month: 'short', year: 'numeric'
-  });
-};
-
-const getStatusStep = (status) => {
-  return statusSteps.indexOf(status);
-};
 
 export default function WorkerApplicationsPage() {
   const dispatch = useDispatch();
@@ -181,13 +157,12 @@ export default function WorkerApplicationsPage() {
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs text-[hsl(var(--muted-foreground))]">
-                        {formatDateTime(app.appliedAt)}
+                        {formatApplicationDate(app.appliedAt)}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      {statusSteps.map((step, idx) => {
+                      {APPLICATION_STATUS_STEPS.map((step, idx) => {
                         const isActive = idx <= currentStep;
-                        const isCurrent = idx === currentStep;
                         return (
                           <div
                             key={step}
@@ -205,7 +180,7 @@ export default function WorkerApplicationsPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 text-sm text-[hsl(var(--muted-foreground))]">
                       <Clock size={14} />
-                      <span>Ứng tuyển {formatDateTime(app.appliedAt)}</span>
+                      <span>Ứng tuyển {formatApplicationDate(app.appliedAt)}</span>
                       {(app.jobId || app.job?._id) && (
                         <button
                           onClick={(e) => { e.stopPropagation(); navigate(`/community/jobs/${app.jobId || app.job?._id}`); }}

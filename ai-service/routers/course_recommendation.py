@@ -298,6 +298,24 @@ async def normalize_skill(
     }
 
 
+@router.post(
+    "/course-recommendations/sync-embeddings",
+    tags=["Maintenance"],
+    summary="Đồng bộ Vector cho tất cả khóa học",
+    description="Lấy tất cả khóa học APPROVED từ MongoDB và sinh Vector nhúng.",
+)
+async def sync_course_embeddings():
+    """Trigger tạo lại file course_embeddings.npy từ DB."""
+    try:
+        engine = get_engine()
+        result = engine.sync_course_embeddings()
+        return result
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Sync failed: {str(e)}")
+
+
 # =============================================================================
 # LEARNING PATH ENDPOINT
 # =============================================================================

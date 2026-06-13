@@ -6,7 +6,6 @@ import { Button, Badge, Card, CardContent } from '@/components/ui';
 import {
   fetchMyInterviews,
   fetchMyInterviewDetails,
-  rescheduleMyInterview,
   selectMyInterviews,
   selectMyInterviewsTotal,
   selectMyInterviewsLoading,
@@ -27,7 +26,6 @@ import {
 const interviewStatusConfig = {
   pending_confirmation: { label: 'Chờ xác nhận', className: 'bg-amber-100 text-amber-700 border-amber-200' },
   confirmed: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  rescheduled: { label: 'Đã hoãn', className: 'bg-orange-100 text-orange-700 border-orange-200' },
   completed: { label: 'Hoàn thành', className: 'bg-blue-100 text-blue-700 border-blue-200' },
   cancelled: { label: 'Đã hủy', className: 'bg-slate-200 text-slate-600 border-slate-300' },
   no_show: { label: 'Vắng mặt', className: 'bg-red-100 text-red-700 border-red-200' }
@@ -47,6 +45,29 @@ const getMeetingIcon = (type) => {
     case 'office': return Building;
     default: return Video;
   }
+};
+
+/** Trả về class border cho card interview theo trạng thái */
+const getInterviewCardClass = (status) => {
+  if (status === 'confirmed') return 'border-emerald-200 hover:border-emerald-400';
+  if (status === 'pending_confirmation') return 'border-amber-200 hover:border-amber-400';
+  return 'border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]';
+};
+
+/** Trả về class màu icon theo trạng thái */
+const getInterviewIconClass = (status) => {
+  if (status === 'confirmed') return 'text-emerald-600';
+  if (status === 'pending_confirmation') return 'text-amber-600';
+  if (status === 'completed') return 'text-blue-600';
+  return 'text-[hsl(var(--muted-foreground))]';
+};
+
+/** Trả về class bg icon theo trạng thái */
+const getInterviewIconBgClass = (status) => {
+  if (status === 'confirmed') return 'bg-emerald-100';
+  if (status === 'pending_confirmation') return 'bg-amber-100';
+  if (status === 'completed') return 'bg-blue-100';
+  return 'bg-slate-100';
 };
 
 const getCountdown = (scheduledAt) => {
@@ -69,13 +90,9 @@ export default function WorkerInterviewsPage() {
   const total = useSelector(selectMyInterviewsTotal);
   const loading = useSelector(selectMyInterviewsLoading);
   const interviewDetail = useSelector(selectMyInterviewDetails);
-  const detailLoading = useSelector(selectMyInterviewsLoading);
-
   const [statusFilter, setStatusFilter] = useState('upcoming');
   const [confirmModal, setConfirmModal] = useState({ open: false, interview: null });
-  const [rescheduleModal, setRescheduleModal] = useState({ open: false, interview: null, reason: '', preferredTime: '' });
   const [confirming, setConfirming] = useState(false);
-  const [rescheduling, setRescheduling] = useState(false);
 
   const fetchInterviews = useCallback(async () => {
     const params = { limit: 50 };
@@ -112,34 +129,14 @@ export default function WorkerInterviewsPage() {
     }
   };
 
-  const handleReschedule = async () => {
-    if (!rescheduleModal.interview) return;
-    setRescheduling(true);
-    try {
-      await dispatch(rescheduleMyInterview({
-        interviewId: rescheduleModal.interview._id,
-        reason: rescheduleModal.reason,
-        newPreferredTime: rescheduleModal.preferredTime,
-      })).unwrap();
-      toast.success('Đã gửi yêu cầu hoãn lịch. Nhà tuyển dụng sẽ liên hệ lại.');
-      setRescheduleModal({ open: false, interview: null, reason: '', preferredTime: '' });
-      fetchInterviews();
-    } catch (err) {
-      toast.error(err || 'Không thể gửi yêu cầu hoãn. Vui lòng thử lại.');
-    } finally {
-      setRescheduling(false);
-    }
-  };
+
 
   const openConfirmModal = (e, interview) => {
     e.stopPropagation();
     setConfirmModal({ open: true, interview });
   };
 
-  const openRescheduleModal = (e, interview) => {
-    e.stopPropagation();
-    setRescheduleModal({ open: true, interview, reason: '', preferredTime: '' });
-  };
+
 
   // Group by date
   const groupedByDate = interviews.reduce((acc, interview) => {
@@ -155,10 +152,9 @@ export default function WorkerInterviewsPage() {
       <>
         <InterviewDetailView
           interview={interviewDetail}
-          loading={detailLoading}
+          loading={loading}
           onBack={() => navigate('/my/interviews')}
           onOpenConfirmModal={(interview) => setConfirmModal({ open: true, interview })}
-          interviewStatusConfig={interviewStatusConfig}
         />
       </>
     );
@@ -231,30 +227,13 @@ export default function WorkerInterviewsPage() {
                       <div
                         key={interview._id}
                         className={`bg-[hsl(var(--card))] border rounded-xl p-5 transition-all ${
-                          isConfirmed
-                            ? 'border-emerald-200 hover:border-emerald-400'
-                            : interview.status === 'pending_confirmation'
-                            ? 'border-amber-200 hover:border-amber-400'
-                            : 'border-[hsl(var(--border))] hover:border-[hsl(var(--primary))]'
+                          getInterviewCardClass(interview.status)
                         }`}
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-start gap-4">
-                            <div className={`p-3 rounded-lg ${
-                              isConfirmed
-                                ? 'bg-emerald-100'
-                                : interview.status === 'pending_confirmation'
-                                ? 'bg-amber-100'
-                                : interview.status === 'completed'
-                                ? 'bg-blue-100'
-                                : 'bg-slate-100'
-                            }`}>
-                              <MeetingIcon size={24} className={
-                                isConfirmed ? 'text-emerald-600' :
-                                interview.status === 'pending_confirmation' ? 'text-amber-600' :
-                                interview.status === 'completed' ? 'text-blue-600' :
-                                'text-[hsl(var(--muted-foreground))]'
-                              } />
+                            <div className={`p-3 rounded-lg ${getInterviewIconBgClass(interview.status)}`}>
+                              <MeetingIcon size={24} className={getInterviewIconClass(interview.status)} />
                             </div>
                             <div>
                               <div className="flex items-center gap-2 mb-1">
@@ -307,14 +286,6 @@ export default function WorkerInterviewsPage() {
                                 >
                                   <Check size={14} /> Xác nhận
                                 </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={(e) => openRescheduleModal(e, interview)}
-                                  className="gap-1"
-                                >
-                                  <CalendarX size={14} /> Hoãn
-                                </Button>
                               </div>
                             )}
                             <Button
@@ -360,61 +331,14 @@ export default function WorkerInterviewsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Reschedule Request Dialog */}
-      <Dialog open={rescheduleModal.open} onOpenChange={(open) => !open && setRescheduleModal({ open: false, interview: null, reason: '', preferredTime: '' })}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CalendarX size={18} className="text-orange-500" />
-              Yêu cầu hoãn lịch phỏng vấn
-            </DialogTitle>
-            <DialogDescription>
-              Gửi yêu cầu hoãn lịch phỏng vấn cho nhà tuyển dụng. Vui lòng cung cấp lý do và thời gian mong muốn.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Thời gian mong muốn mới</label>
-              <input
-                type="datetime-local"
-                className="w-full h-10 px-3 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-sm"
-                value={rescheduleModal.preferredTime}
-                onChange={(e) => setRescheduleModal(prev => ({ ...prev, preferredTime: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Lý do hoãn</label>
-              <textarea
-                className="w-full px-3 py-2 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-sm min-h-[80px]"
-                placeholder="VD: Có việc đột xuất, lịch hẹn trùng..."
-                value={rescheduleModal.reason}
-                onChange={(e) => setRescheduleModal(prev => ({ ...prev, reason: e.target.value }))}
-              />
-            </div>
-          </div>
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setRescheduleModal({ open: false, interview: null, reason: '', preferredTime: '' })}
-            >
-              Hủy
-            </Button>
-            <Button
-              onClick={handleReschedule}
-              disabled={rescheduling || !rescheduleModal.reason.trim()}
-              className="gap-2"
-            >
-              {rescheduling ? 'Đang gửi...' : 'Gửi yêu cầu'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
     </>
   );
 }
 
 // Detail view component for when :id param exists
-function InterviewDetailView({ interview, loading, onBack, onOpenConfirmModal, interviewStatusConfig }) {
+function InterviewDetailView({ interview, loading, onBack, onOpenConfirmModal }) {
+  // dùng trực tiếp module-level constant, không cần nhận qua props
   if (loading) {
     return (
       <div className="container-page py-8">

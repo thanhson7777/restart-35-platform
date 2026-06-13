@@ -53,7 +53,8 @@ const Navbar = () => {
               { label: 'Trang chủ', to: '/' },
               { label: 'Giới thiệu', to: '/about' },
               { label: 'Việc làm trên thị trường', to: '/jobs' },
-              { label: 'Khóa học', to: '/courses' },
+              { label: 'Bản đồ cơ hội', to: '/opportunity-map' },
+              // { label: 'Khóa học', to: '/courses' },
               { label: 'Diễn đàn & Cộng đồng', to: '/community' },
               { label: 'Liên hệ', to: '/contact' },
             ].map((item) => (

@@ -49,17 +49,32 @@ const createCourse = async (req, res, next) => {
         lng: Joi.number().allow(null)
       }).allow(null)
     }),
-    fee: Joi.number().integer().min(0).default(0),
-    isFree: Joi.boolean().default(false),
-    scholarshipEligibility: Joi.boolean().default(false),
+    scheduleConfig: Joi.object({
+      totalSessions: Joi.number().integer().min(1).required(),
+      sessionsPerWeek: Joi.number().integer().min(1).required(),
+      sessionDurationMinutes: Joi.number().integer().min(30).default(90),
+      preferredDays: Joi.array().items(
+        Joi.string().valid('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
+      ).default([]),
+      preferredTime: Joi.string().valid('Morning', 'Afternoon', 'Evening').allow(null, ''),
+      expectedStartDate: Joi.date().timestamp('javascript').allow(null, '')
+    }).allow(null),
+    fundingConfig: Joi.object({
+      type: Joi.string().valid('FREE', 'PAID', 'SPONSORED').default('FREE'),
+      price: Joi.number().min(0).default(0),
+      sponsorIds: Joi.array().items(Joi.string()).default([]),
+      hasJobGuarantee: Joi.boolean().default(false)
+    }).default({
+      type: 'FREE',
+      price: 0,
+      sponsorIds: [],
+      hasJobGuarantee: false
+    }),
     maxStudents: Joi.number().integer().min(1).default(30),
     enrollmentStartDate: Joi.date().timestamp().allow(null, ''),
     level: Joi.string().valid(...Object.values(COURSE_LEVELS)).default(COURSE_LEVELS.BEGINNER),
     delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)).default(COURSE_DELIVERY_TYPES.VIDEO),
-    funding_model: Joi.string().valid(...Object.values(COURSE_FUNDING_MODELS)).default(COURSE_FUNDING_MODELS.FREE),
     skills: Joi.array().items(Joi.string()).max(20).default([]),
-    prerequisites: Joi.array().items(Joi.string()).max(10).default([]),
-    requirements: Joi.array().items(Joi.string()).max(10).default([]),
     syllabus: Joi.array().items(
       Joi.object({
         week: Joi.number().required(),
@@ -104,17 +119,27 @@ const updateCourse = async (req, res, next) => {
         lng: Joi.number().allow(null)
       }).allow(null)
     }),
-    fee: Joi.number().integer().min(0),
-    isFree: Joi.boolean(),
-    scholarshipEligibility: Joi.boolean(),
+    scheduleConfig: Joi.object({
+      totalSessions: Joi.number().integer().min(1).required(),
+      sessionsPerWeek: Joi.number().integer().min(1).required(),
+      sessionDurationMinutes: Joi.number().integer().min(30),
+      preferredDays: Joi.array().items(
+        Joi.string().valid('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
+      ),
+      preferredTime: Joi.string().valid('Morning', 'Afternoon', 'Evening').allow(null, ''),
+      expectedStartDate: Joi.date().timestamp('javascript').allow(null, '')
+    }).allow(null),
+    fundingConfig: Joi.object({
+      type: Joi.string().valid('FREE', 'PAID', 'SPONSORED'),
+      price: Joi.number().min(0),
+      sponsorIds: Joi.array().items(Joi.string()),
+      hasJobGuarantee: Joi.boolean()
+    }),
     maxStudents: Joi.number().integer().min(1),
     enrollmentStartDate: Joi.date().timestamp().allow(null, ''),
     level: Joi.string().valid(...Object.values(COURSE_LEVELS)),
     delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)),
-    funding_model: Joi.string().valid(...Object.values(COURSE_FUNDING_MODELS)),
     skills: Joi.array().items(Joi.string()).max(20),
-    prerequisites: Joi.array().items(Joi.string()).max(10),
-    requirements: Joi.array().items(Joi.string()).max(10),
     syllabus: Joi.array().items(
       Joi.object({
         week: Joi.number().required(),

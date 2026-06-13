@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { AdminLayout, AdminPageTitle } from '@/components/layout';
+import { AdminPageTitle } from '@/components/layout';
 import {
   AdminLearningStats,
   AdminLearningFilters,
@@ -123,8 +123,8 @@ const AdminLearningRecordsPage = () => {
   ];
 
   return (
-    <AdminLayout>
-      <div className="p-6 space-y-6">
+    <>
+      <div className="p-0 space-y-6">
         <div className="flex items-center justify-between">
           <AdminPageTitle
             title="Learning Records Analytics"
@@ -197,7 +197,7 @@ const AdminLearningRecordsPage = () => {
           <AdminDropoutRiskPanel riskData={riskData} loading={riskLoading} />
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 };
 

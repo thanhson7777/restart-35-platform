@@ -5,6 +5,7 @@ import { userModel } from '~/models/userModel'
 import { workerProfileModel } from '~/models/workerProfileModel'
 import { enrollmentModel } from '~/models/enrollmentModel'
 import { categoryModel } from '~/models/categoryModel'
+import { scheduleService } from '~/services/scheduleService'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
@@ -38,6 +39,17 @@ const createCourse = async (userId, data, reqFile = null) => {
     }
 
     const result = await courseModel.createNew(courseData)
+    
+    // Automatically generate schedule if it's not a video course and has schedule config
+    if (data.delivery_type !== 'video' && data.scheduleConfig && data.scheduleConfig.totalSessions > 0) {
+      try {
+        await scheduleService.generateAutoSchedule(result.insertedId.toString(), userId)
+      } catch (err) {
+        // Log the error but don't fail the course creation
+        console.error('Failed to auto-generate schedule:', err)
+      }
+    }
+
     return await courseModel.findOneById(result.insertedId)
   } catch (error) { throw error }
 }

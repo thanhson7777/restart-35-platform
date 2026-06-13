@@ -1,4 +1,4 @@
-import { LayoutDashboard, Handshake, BadgeDollarSign, Briefcase, Users, Calendar, FileText } from 'lucide-react';
+import { LayoutDashboard, Handshake, BadgeDollarSign, Briefcase, Users, Calendar } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils/cn';
@@ -10,8 +10,7 @@ const navItems = [
   { divider: true },
   { href: '/enterprise/recruitment', label: 'Tin tuyển dụng', icon: Briefcase },
   { href: '/enterprise/applications', label: 'Ứng viên', icon: Users },
-  { href: '/enterprise/interviews', label: 'Phỏng vấn', icon: Calendar },
-  { href: '/enterprise/offers', label: 'Offers', icon: FileText }
+  { href: '/enterprise/interviews', label: 'Phỏng vấn', icon: Calendar }
 ];
 
 const EnterpriseSidebar = ({ collapsed, onToggle }) => {

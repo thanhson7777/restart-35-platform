@@ -1,6 +1,22 @@
 import { scheduleService } from '~/services/scheduleService'
 import { StatusCodes } from 'http-status-codes'
 
+// ============ AUTO GENERATE SCHEDULE ============
+const generateAutoSchedule = async (req, res, next) => {
+  try {
+    const trainerId = req.user._id.toString()
+    const { id: courseId } = req.params
+
+    const schedule = await scheduleService.generateAutoSchedule(courseId, trainerId)
+
+    res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: 'Tự động sắp xếp lịch học thành công!',
+      data: schedule
+    })
+  } catch (error) { next(error) }
+}
+
 // ============ CREATE SCHEDULE ============
 const createSchedule = async (req, res, next) => {
   try {
@@ -305,6 +321,7 @@ export const scheduleController = {
 
   // Trainer
   createSchedule,
+  generateAutoSchedule,
   updateSchedule,
   publishSchedule,
   deleteSchedule,

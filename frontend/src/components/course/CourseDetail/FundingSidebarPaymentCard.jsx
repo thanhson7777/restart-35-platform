@@ -28,7 +28,7 @@ export const FundingSidebarPaymentCard = ({ course, onSubmit, isSubmitting }) =>
         method: 'bank_transfer',
         amount: fee
       });
-      const paymentData = res.data || res;
+      const paymentData = res.data?.data || res.data || res;
       setActivePayment(paymentData);
       setShowQR(true);
     } catch (err) {
@@ -39,18 +39,18 @@ export const FundingSidebarPaymentCard = ({ course, onSubmit, isSubmitting }) =>
     }
   };
 
-  const startPollingStatus = async (paymentId) => {
+  const checkPaymentStatus = async (paymentId) => {
     setVerifying(true);
     setVerifiedStatus('pending');
     const maxAttempts = 20;
     const intervalMs = 2000;
-    let attempt = 0;
 
-    const poll = async () => {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         const res = await getPaymentById(paymentId);
-        const payment = res.data || res;
+        const payment = res.data?.data || res.data || res;
         const status = payment?.status;
+        
         if (status === 'completed') {
           setVerifiedStatus('completed');
           setActivePayment((prev) => ({ ...prev, status }));
@@ -63,28 +63,19 @@ export const FundingSidebarPaymentCard = ({ course, onSubmit, isSubmitting }) =>
           setActivePayment((prev) => ({ ...prev, status }));
           setVerifying(false);
           toast.error('Thanh toán không thành công. Vui lòng kiểm tra lại giao dịch.');
-          return true;
+          return false;
         }
       } catch (err) {
         console.error('Poll payment status error:', err);
       }
-      attempt += 1;
-      if (attempt >= maxAttempts) {
-        setVerifiedStatus('timeout');
-        setVerifying(false);
-        toast.error('Hệ thống chưa xác nhận được thanh toán. Vui lòng thử lại sau.');
-        return true;
-      }
-      return false;
-    };
-
-    const stopped = await poll();
-    if (!stopped) {
-      const timer = setInterval(async () => {
-        const shouldStop = await poll();
-        if (shouldStop) clearInterval(timer);
-      }, intervalMs);
+      
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
     }
+
+    setVerifiedStatus('timeout');
+    setVerifying(false);
+    toast.error('Hệ thống chưa xác nhận được thanh toán. Vui lòng thử lại sau.');
+    return false;
   };
 
   const handleConfirmTransfer = async () => {
@@ -95,8 +86,11 @@ export const FundingSidebarPaymentCard = ({ course, onSubmit, isSubmitting }) =>
         toast.error('Không tìm thấy mã giao dịch để xác nhận.');
         return;
       }
-      await onSubmit({ fundingModel: 'learner_paid', method: 'qr', paymentId });
-      await startPollingStatus(paymentId);
+      
+      const isSuccess = await checkPaymentStatus(paymentId);
+      if (isSuccess) {
+        await onSubmit({ fundingModel: 'learner_paid', method: 'qr', paymentId });
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -158,13 +152,6 @@ export const FundingSidebarPaymentCard = ({ course, onSubmit, isSubmitting }) =>
             )}
           </Button>
 
-          <Button
-            onClick={() => onSubmit({ fundingModel: 'learner_paid', method: 'direct' })}
-            disabled={isSubmitting}
-            className="w-full py-5 rounded-full text-xs font-bold shadow-sm"
-          >
-            {isSubmitting ? 'Đang xử lý...' : 'Đăng ký và Thanh toán sau'}
-          </Button>
         </div>
       ) : (
         <motion.div
@@ -195,7 +182,7 @@ export const FundingSidebarPaymentCard = ({ course, onSubmit, isSubmitting }) =>
                 <p>STK: <span className="font-bold text-zinc-950 dark:text-white font-mono">0701 3957 3585</span></p>
                 <p>Chủ tài khoản: <span className="font-bold text-zinc-950 dark:text-white">NGUYEN THANH SON</span></p>
                 <p>Số tiền: <span className="font-bold text-primary font-mono">{formatPrice(fee)}</span></p>
-                <p className="text-[10px] text-zinc-400">Nội dung: <span className="font-mono bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded font-bold">{activePayment?.qrUrl ? `RESTART35-${(_id || '').toString().toUpperCase()}` : 'Đang tạo...'}</span></p>
+                <p className="text-[10px] text-zinc-400">Nội dung: <span className="font-mono bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded font-bold">{activePayment?.qrUrl ? `RESTART35-${(activePayment?._id || '').toString().toUpperCase()}` : 'Đang tạo...'}</span></p>
               </div>
             </div>
           </div>

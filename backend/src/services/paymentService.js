@@ -17,13 +17,15 @@ const createPayment = async (userId, data) => {
   try {
     const { enrollmentId, courseId, method, amount, installments } = data
 
-    const enrollment = await enrollmentModel.findOneById(enrollmentId)
-    if (!enrollment) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
-    }
+    if (enrollmentId) {
+      const enrollment = await enrollmentModel.findOneById(enrollmentId)
+      if (!enrollment) {
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+      }
 
-    if (enrollment.userId.toString() !== userId.toString()) {
-      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền thanh toán đăng ký này!')
+      if (enrollment.userId.toString() !== userId.toString()) {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền thanh toán đăng ký này!')
+      }
     }
 
     const course = await courseModel.findOneById(courseId)
@@ -33,18 +35,22 @@ const createPayment = async (userId, data) => {
 
     // Tái sử dụng giao dịch đang chờ thanh toán có cùng số tiền
     const db = await GET_DB()
-    const existingPending = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
-      enrollmentId: enrollmentId.toString(),
+    const existingQuery = {
+      userId: userId.toString(),
       amount: parseInt(amount),
       status: PAYMENT_STATUS.PENDING,
       _destroy: { $ne: true }
-    })
+    }
+    if (enrollmentId) existingQuery.enrollmentId = enrollmentId.toString()
+    else existingQuery.courseId = courseId.toString()
+
+    const existingPending = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne(existingQuery)
     if (existingPending) {
       return existingPending
     }
 
     const paymentData = {
-      enrollmentId,
+      enrollmentId: enrollmentId || null,
       userId,
       courseId,
       method,
@@ -53,15 +59,17 @@ const createPayment = async (userId, data) => {
       installments: installments || []
     }
 
+    const result = await paymentModel.createNew(paymentData)
+    const payment = await paymentModel.findOneById(result.insertedId)
+
     if (method === 'bank_transfer') {
       const bankAccountNumber = env.PAYMENT_BANK_ACCOUNT_NUMBER.replace(/\s+/g, '')
       const bankName = env.PAYMENT_BANK_NAME
       const accountName = encodeURIComponent(env.PAYMENT_ACCOUNT_NAME)
-      paymentData.qrUrl = `https://img.vietqr.io/image/${bankName}-${bankAccountNumber}-compact.png?amount=${amount}&addInfo=RESTART35-${enrollmentId.toString().toUpperCase()}&accountName=${accountName}`
+      const qrUrl = `https://img.vietqr.io/image/${bankName}-${bankAccountNumber}-compact.png?amount=${amount}&addInfo=RESTART35-${payment._id.toString().toUpperCase()}&accountName=${accountName}`
+      await paymentModel.update(payment._id.toString(), { qrUrl })
+      payment.qrUrl = qrUrl
     }
-
-    const result = await paymentModel.createNew(paymentData)
-    const payment = await paymentModel.findOneById(result.insertedId)
 
     return payment
   } catch (error) {
@@ -314,13 +322,21 @@ const webhookHandler = async (gateway, payload) => {
       const desc = data.description || data.content || data.addInfo || data.metadata?.description || ''
       const match = desc.match(/RESTART35-([A-Fa-f0-9]{24})/)
       if (match) {
-        const enrollmentId = match[1]
+        const matchedId = match[1]
         const db = await GET_DB()
-        const payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
-          enrollmentId,
+        const { ObjectId } = await import('mongodb')
+        let payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+          _id: new ObjectId(matchedId.toLowerCase()),
           status: PAYMENT_STATUS.PENDING,
           _destroy: { $ne: true }
         })
+        if (!payment) {
+          payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+            enrollmentId: matchedId,
+            status: PAYMENT_STATUS.PENDING,
+            _destroy: { $ne: true }
+          })
+        }
         if (payment) {
           status = PAYMENT_STATUS.COMPLETED
           transactionId = data.transactionId || data.id || data.transaction_id
@@ -336,13 +352,21 @@ const webhookHandler = async (gateway, payload) => {
         const desc = trans.description || ''
         const match = desc.match(/RESTART35-([A-Fa-f0-9]{24})/)
         if (match) {
-          const enrollmentId = match[1]
+          const matchedId = match[1]
           const db = await GET_DB()
-          const payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
-            enrollmentId,
+          const { ObjectId } = await import('mongodb')
+          let payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+            _id: new ObjectId(matchedId.toLowerCase()),
             status: PAYMENT_STATUS.PENDING,
             _destroy: { $ne: true }
           })
+          if (!payment) {
+            payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+              enrollmentId: matchedId,
+              status: PAYMENT_STATUS.PENDING,
+              _destroy: { $ne: true }
+            })
+          }
           if (payment) {
             status = PAYMENT_STATUS.COMPLETED
             transactionId = trans.id.toString()
@@ -359,13 +383,21 @@ const webhookHandler = async (gateway, payload) => {
       const desc = description || ''
       const match = desc.match(/RESTART35-([A-Fa-f0-9]{24})/)
       if (match) {
-        const enrollmentId = match[1]
+        const matchedId = match[1]
         const db = await GET_DB()
-        const payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
-          enrollmentId,
+        const { ObjectId } = await import('mongodb')
+        let payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+          _id: new ObjectId(matchedId.toLowerCase()),
           status: PAYMENT_STATUS.PENDING,
           _destroy: { $ne: true }
         })
+        if (!payment) {
+          payment = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne({
+            enrollmentId: matchedId,
+            status: PAYMENT_STATUS.PENDING,
+            _destroy: { $ne: true }
+          })
+        }
         if (payment) {
           status = PAYMENT_STATUS.COMPLETED
           transactionId = reference || orderCode.toString()

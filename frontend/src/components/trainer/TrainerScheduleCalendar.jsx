@@ -46,9 +46,23 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
             borderColor = '#d97706'; // amber-600
           }
 
+          let title = `${courseTitle} - Buổi ${session.sessionNumber}`;
+          
+          const locType = session.location?.type || schedule.location?.type;
+          if (locType === 'offline') {
+            title = `📍 [Trực tiếp] ${title}`;
+          } else if (locType === 'online') {
+            title = `🌐 [Trực tuyến] ${title}`;
+          }
+
+          if (session.isConflict) {
+            title = `⚠️ TRÙNG LỊCH: ${title}`;
+            className += 'border-red-500 border-2 ';
+          }
+
           events.push({
             id: `${scheduleId}-${session.sessionNumber}`,
-            title: `${courseTitle} - Buổi ${session.sessionNumber}`,
+            title,
             start,
             end,
             backgroundColor,
@@ -59,6 +73,7 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
               sessionNumber: session.sessionNumber,
               courseId,
               courseTitle,
+              locationType: locType,
               session
             }
           });
@@ -76,6 +91,7 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
         sessionNumber: props.sessionNumber,
         courseId: props.courseId,
         courseTitle: props.courseTitle,
+        locationType: props.locationType,
         session: props.session
       });
     }

@@ -1,4 +1,5 @@
 import { userModel } from '~/models/userModel'
+import crypto from 'crypto'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { env } from '~/config/enviroment'
@@ -83,6 +84,83 @@ const createNew = async (reqBody) => {
         <div style="background-color: #fafafa; padding: 30px 20px; text-align: center; font-size: 11px; color: #999999; letter-spacing: 0.5px;">
           <p style="margin-bottom: 10px;">Nếu bạn không yêu cầu tạo tài khoản này, xin vui lòng bỏ qua email.</p>
           <p style="margin: 5px 0;">&copy; 2024 Restart-35 Platform.</p>
+        </div>
+      </div>
+      `
+
+    await BrevoProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
+    return pickUser(getNewUser)
+  } catch (error) { throw error }
+}
+
+const partnerRegister = async (reqBody) => {
+  try {
+    const existUser = await userModel.findOneByEmail(reqBody.email)
+    if (existUser) throw new ApiError(StatusCodes.CONFLICT, 'Email đã tồn tại!')
+
+    // Determine organization type from role
+    let orgType = 'enterprise'
+    if (reqBody.role === USER_ROLES.NGO) orgType = 'ngo'
+    if (reqBody.role === USER_ROLES.TRAINER) orgType = 'training_center'
+
+    const { organizationModel } = await import('~/models/organizationModel')
+    
+    // Create Organization first
+    const newOrg = {
+      name: reqBody.organization.name,
+      taxCode: reqBody.organization.taxCode,
+      address: reqBody.organization.address,
+      type: orgType
+    }
+    const createdOrgResult = await organizationModel.createNew(newOrg)
+    const orgId = createdOrgResult.insertedId.toString()
+
+    const name = reqBody.email.split('@')[0]
+
+    // Create User
+    const newUser = {
+      email: reqBody.email,
+      password: bcryptjs.hashSync(reqBody.password, 10),
+      username: name,
+      phone: reqBody.phone,
+      displayName: reqBody.displayName || name,
+      verifyToken: uuidv4(),
+      role: reqBody.role,
+      isActive: false, // Must be verified by admin and email
+      organizationId: orgId
+    }
+
+    const createdUser = await userModel.createNew(newUser)
+    const getNewUser = await userModel.findOneById(createdUser.insertedId)
+
+    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const customSubject = 'Restart-35: Xác nhận đăng ký tài khoản Đối tác'
+
+    const userName = createdUser.displayName || 'bạn'
+
+    const htmlContent = `
+        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.8; color: #333333; max-width: 600px; margin: 0 auto; border: 1px solid #eaeaea; overflow: hidden; background-color: #ffffff;">
+        <div style="background-color: #2563eb; padding: 35px 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-family: 'Arial', sans-serif; letter-spacing: 2px; text-transform: uppercase;">
+            Restart-35
+          </h1>
+          <p style="color: #bfdbfe; margin: 10px 0 0 0; font-size: 14px;">Hệ thống tài khoản Đối tác</p>
+        </div>
+        <div style="padding: 50px 30px; background-color: #ffffff; text-align: center;">
+          <h2 style="color: #2563eb; margin-top: 0; font-size: 22px;">
+            Xác thực email đăng ký Đối tác
+          </h2>
+          <p style="font-size: 15px; color: #555555; margin-bottom: 25px;">Kính chào <strong>${userName}</strong>,</p>
+          <p style="font-size: 15px; color: #555555;">
+            Cảm ơn bạn đã đăng ký tài khoản Đối tác trên <strong>Restart-35</strong>.
+            Để hoàn tất bước đăng ký ban đầu, vui lòng xác thực email của bạn. Sau đó tài khoản sẽ được Ban quản trị phê duyệt trước khi sử dụng.
+          </p>
+          <div style="margin: 40px 0;">
+            <a href="${verificationLink}" target="_blank" style="background-color: #2563eb; color: #ffffff; padding: 14px 36px; text-decoration: none; font-weight: 500; font-size: 14px; display: inline-block; border-radius: 6px;">
+              Xác Thực Email
+            </a>
+          </div>
+          <p style="font-size: 13px; color: #888888; font-style: italic;">Liên kết này sẽ bảo mật và tự động hết hạn sau 24 giờ.</p>
         </div>
       </div>
       `
@@ -311,8 +389,91 @@ const updateOrganizationId = async (userId, organizationId) => {
   }
 }
 
+const forgotPassword = async (email) => {
+  try {
+    const user = await userModel.findOneByEmail(email)
+    if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy tài khoản với email này!')
+
+    // Create reset token
+    const resetToken = crypto.randomBytes(20).toString('hex')
+    
+    // Hash token to save in DB for security
+    const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+    
+    // Set expire (15 minutes)
+    const resetPasswordExpire = Date.now() + 15 * 60 * 1000
+
+    await userModel.update(user._id, {
+      resetPasswordToken,
+      resetPasswordExpire
+    })
+
+    const resetUrl = `${WEBSITE_DOMAIN}/reset-password/${resetToken}`
+    const customSubject = 'Restart-35: Yêu cầu đặt lại mật khẩu'
+    const userName = user.displayName || 'bạn'
+
+    const htmlContent = `
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.8; color: #333333; max-width: 600px; margin: 0 auto; border: 1px solid #eaeaea; overflow: hidden; background-color: #ffffff;">
+        <div style="background-color: #2563eb; padding: 35px 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-family: 'Arial', sans-serif; letter-spacing: 2px; text-transform: uppercase;">
+            Restart-35
+          </h1>
+          <p style="color: #bfdbfe; margin: 10px 0 0 0; font-size: 14px;">Khôi phục mật khẩu</p>
+        </div>
+        <div style="padding: 50px 30px; background-color: #ffffff; text-align: center;">
+          <h2 style="color: #2563eb; margin-top: 0; font-size: 22px;">
+            Yêu cầu đặt lại mật khẩu
+          </h2>
+          <p style="font-size: 15px; color: #555555; margin-bottom: 25px;">Kính chào <strong>${userName}</strong>,</p>
+          <p style="font-size: 15px; color: #555555;">
+            Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn trên <strong>Restart-35</strong>.
+            Nếu bạn đã yêu cầu điều này, vui lòng nhấn vào nút bên dưới để đặt lại mật khẩu.
+          </p>
+          <div style="margin: 40px 0;">
+            <a href="${resetUrl}" target="_blank" style="background-color: #2563eb; color: #ffffff; padding: 14px 36px; text-decoration: none; font-weight: 500; font-size: 14px; display: inline-block; border-radius: 6px;">
+              Đặt Lại Mật Khẩu
+            </a>
+          </div>
+          <p style="font-size: 13px; color: #888888; font-style: italic;">Liên kết này sẽ tự động hết hạn sau 15 phút vì lý do bảo mật.</p>
+          <p style="font-size: 13px; color: #888888; font-style: italic;">Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng bỏ qua email này.</p>
+        </div>
+      </div>
+    `
+
+    await BrevoProvider.sendEmail(user.email, customSubject, htmlContent)
+    return { message: 'Đã gửi email khôi phục mật khẩu!' }
+  } catch (error) { throw error }
+}
+
+const resetPassword = async (resetToken, newPassword) => {
+  try {
+    // Hash token to compare with DB
+    const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+
+    const user = await userModel.findOneByResetToken(resetPasswordToken)
+    if (!user) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Token không hợp lệ hoặc đã hết hạn!')
+    }
+
+    if (newPassword.length < 6) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Mật khẩu mới phải có ít nhất 6 ký tự!')
+    }
+
+    const newHashedPassword = bcryptjs.hashSync(newPassword, 10)
+
+    await userModel.update(user._id, {
+      password: newHashedPassword,
+      resetPasswordToken: null,
+      resetPasswordExpire: null
+    })
+
+    return { message: 'Đặt lại mật khẩu thành công!' }
+  } catch (error) { throw error }
+}
+
 export const userService = {
   createNew,
+  partnerRegister,
   verifyAccount,
   login,
   verifyToken,
@@ -322,5 +483,7 @@ export const userService = {
   changePassword,
   getMe,
   getUserStats,
-  updateOrganizationId
+  updateOrganizationId,
+  forgotPassword,
+  resetPassword
 }

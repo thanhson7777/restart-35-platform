@@ -29,7 +29,6 @@ import {
 const interviewStatusConfig = {
   pending_confirmation: { label: 'Chờ xác nhận', className: 'bg-amber-100 text-amber-700 border-amber-200' },
   confirmed: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  rescheduled: { label: 'Đã hoãn', className: 'bg-orange-100 text-orange-700 border-orange-200' },
   completed: { label: 'Hoàn thành', className: 'bg-blue-100 text-blue-700 border-blue-200' },
   cancelled: { label: 'Đã hủy', className: 'bg-slate-200 text-slate-600 border-slate-300' },
   no_show: { label: 'Vắng mặt', className: 'bg-red-100 text-red-700 border-red-200' }
@@ -51,7 +50,7 @@ export default function EnterpriseInterviewDetailPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [cancelModal, setCancelModal] = useState({ open: false, reason: '' });
-  const [feedbackModal, setFeedbackModal] = useState({ open: false, rating: 5, comment: '', decision: '' });
+  const [feedbackModal, setFeedbackModal] = useState({ open: false, rating: 5, comment: '', decision: '', salary: '', startDate: '' });
   const [rescheduleModal, setRescheduleModal] = useState({ open: false, date: '', time: '09:00', reason: 'Thay đổi lịch' });
 
   const fetchData = useCallback(async () => {
@@ -119,13 +118,28 @@ export default function EnterpriseInterviewDetailPage() {
     }
     setActionLoading('complete');
     try {
-      await completeInterview(id, {
-        rating: feedbackModal.rating,
-        comment: feedbackModal.comment,
-        decision: feedbackModal.decision
-      });
+      const payload = {
+        enterpriseRating: feedbackModal.rating,
+        enterpriseComment: feedbackModal.comment,
+        enterpriseDecision: feedbackModal.decision
+      };
+
+      if (feedbackModal.decision === 'hire') {
+        if (!feedbackModal.startDate) {
+          toast.error('Vui lòng chọn ngày bắt đầu làm việc');
+          setActionLoading(null);
+          return;
+        }
+        payload.enterpriseStartDate = feedbackModal.startDate;
+        
+        if (interview?.job?.salary?.negotiable && feedbackModal.salary) {
+          payload.enterpriseSalary = Number(feedbackModal.salary);
+        }
+      }
+
+      await completeInterview(id, payload);
       toast.success('Đã cập nhật kết quả phỏng vấn');
-      setFeedbackModal({ open: false, rating: 5, comment: '', decision: '' });
+      setFeedbackModal({ open: false, rating: 5, comment: '', decision: '', salary: '', startDate: '' });
       fetchData();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Có lỗi xảy ra');
@@ -205,7 +219,7 @@ export default function EnterpriseInterviewDetailPage() {
             {interview.status === 'confirmed' && (
               <Button
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={() => setFeedbackModal({ open: true, rating: 5, comment: '', decision: '' })}
+                onClick={() => setFeedbackModal({ open: true, rating: 5, comment: '', decision: '', salary: '', startDate: '' })}
               >
                 <CheckCircle size={14} className="mr-2" /> Hoàn thành
               </Button>
@@ -329,14 +343,14 @@ export default function EnterpriseInterviewDetailPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-[hsl(var(--admin-text-muted))]">Quyết định:</span>
                       <Badge className={
-                        interview.feedback.enterpriseDecision === 'proceed_to_offer'
+                        interview.feedback.enterpriseDecision === 'hire'
                           ? 'bg-emerald-100 text-emerald-700'
                           : interview.feedback.enterpriseDecision === 'reject'
                           ? 'bg-red-100 text-red-700'
                           : 'bg-amber-100 text-amber-700'
                       }>
-                        {interview.feedback.enterpriseDecision === 'proceed_to_offer' ? 'Tiến tới Offer' :
-                         interview.feedback.enterpriseDecision === 'reject' ? 'Từ chối' : 'Cần thêm phỏng vấn'}
+                        {interview.feedback.enterpriseDecision === 'hire' ? 'Đã Nhận' :
+                         interview.feedback.enterpriseDecision === 'reject' ? 'Từ chối' : 'Chưa rõ'}
                       </Badge>
                     </div>
                   )}
@@ -555,15 +569,41 @@ export default function EnterpriseInterviewDetailPage() {
                   <SelectValue placeholder="Chọn quyết định..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="proceed_to_offer">Tiến tới Offer</SelectItem>
+                  <SelectItem value="hire">Nhận ứng viên</SelectItem>
                   <SelectItem value="reject">Từ chối</SelectItem>
-                  <SelectItem value="need_more_interviews">Cần thêm phỏng vấn</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {feedbackModal.decision === 'hire' && (
+              <div className="space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-100 mt-2">
+                {interview?.job?.salary?.negotiable && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Mức lương thỏa thuận (VND) <span className="text-red-500">*</span></label>
+                    <Input
+                      type="number"
+                      placeholder="VD: 15000000"
+                      value={feedbackModal.salary}
+                      onChange={(e) => setFeedbackModal(prev => ({ ...prev, salary: e.target.value }))}
+                      min={0}
+                    />
+                    <p className="text-xs text-[hsl(var(--admin-text-muted))]">Lương gốc đăng tuyển là thỏa thuận, vui lòng chốt mức lương cụ thể.</p>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Ngày bắt đầu làm việc <span className="text-red-500">*</span></label>
+                  <Input
+                    type="date"
+                    value={feedbackModal.startDate}
+                    onChange={(e) => setFeedbackModal(prev => ({ ...prev, startDate: e.target.value }))}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFeedbackModal({ open: false, rating: 5, comment: '', decision: '' })}>
+            <Button variant="outline" onClick={() => setFeedbackModal({ open: false, rating: 5, comment: '', decision: '', salary: '', startDate: '' })}>
               Hủy
             </Button>
             <Button onClick={handleComplete} disabled={actionLoading === 'complete'} className="bg-emerald-600 hover:bg-emerald-700 text-white">

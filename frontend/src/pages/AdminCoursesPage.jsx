@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
 import { AdminLayout, AdminPageTitle } from '@/components/layout';
 import {
   AdminCourseStats,
@@ -15,6 +15,7 @@ import {
   getAdminCourseStats,
   approveCourse,
 } from '@/apis/courseApi';
+import { syncCourseEmbeddingsAPI } from '@/apis/aiAPI';
 
 const AdminCoursesPage = () => {
   // States
@@ -52,6 +53,7 @@ const AdminCoursesPage = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectLoading, setRejectLoading] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   // Fetch stats
   const fetchStats = useCallback(async () => {
@@ -230,12 +232,40 @@ const AdminCoursesPage = () => {
     setFilters((prev) => ({ ...prev, page: 1 }));
   };
 
+  const handleSyncAI = async () => {
+    let toastId;
+    try {
+      setSyncing(true);
+      toastId = toast.loading('Đang đồng bộ Vector AI...');
+      const response = await syncCourseEmbeddingsAPI();
+      toast.success(`Đồng bộ thành công ${response.count || 0} khóa học`, { id: toastId });
+    } catch (error) {
+      console.error('Lỗi đồng bộ AI:', error);
+      toast.error(error.response?.data?.message || 'Lỗi khi đồng bộ Vector AI', { id: toastId });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <AdminLayout>
-      <AdminPageTitle
-        title="Quản lý khóa học"
-        subtitle="Xem xét và duyệt khóa học từ các trung tâm đào tạo"
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <AdminPageTitle
+          title="Quản lý khóa học"
+          subtitle="Xem xét và duyệt khóa học từ các trung tâm đào tạo"
+        />
+        <div className="flex items-center gap-2 mt-4 sm:mt-0">
+          <button
+            onClick={handleSyncAI}
+            disabled={syncing}
+            className="flex items-center gap-2 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] px-4 py-2 rounded-xl text-sm font-medium text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-accent))]/10 hover:border-[hsl(var(--admin-accent))] hover:text-[hsl(var(--admin-accent))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Đồng bộ lại khóa học APPROVED vào hệ thống AI"
+          >
+            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+            <span>Đồng bộ Vector AI</span>
+          </button>
+        </div>
+      </div>
 
       {/* Stats */}
       <AdminCourseStats stats={stats} loading={statsLoading} />

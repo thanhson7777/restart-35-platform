@@ -105,7 +105,9 @@ const validateCompleteInterview = async (req, res, next) => {
   const correctCondition = Joi.object({
     enterpriseRating: Joi.number().integer().min(1).max(5).allow(null),
     enterpriseComment: Joi.string().max(1000).allow('', null),
-    enterpriseDecision: Joi.string().valid('proceed_to_offer', 'reject', 'need_more_interviews').required()
+    enterpriseDecision: Joi.string().valid('hire', 'reject').required(),
+    enterpriseSalary: Joi.number().integer().min(0).allow(null),
+    enterpriseStartDate: Joi.date().timestamp('javascript').allow(null)
   })
 
   try {

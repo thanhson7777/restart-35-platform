@@ -46,6 +46,8 @@ import { workerInterviewRoute } from './workerInterviewRoute'
 import { offerRoute } from './offerRoute'
 import { workerOfferRoute } from './workerOfferRoute'
 import eventRoute from './eventRoute'
+import { mapRoute } from './mapRoute'
+import { adminAnalyticsRoute } from './adminAnalyticsRoute'
 
 const Router = express.Router()
 
@@ -80,7 +82,8 @@ Router.get('/', (req, res) => {
       placements: '/v1/placements',
       partnerships: '/v1/partnerships',
       courseSponsorships: '/v1/course-sponsorships',
-      contacts: '/v1/contacts'
+      contacts: '/v1/contacts',
+      adminAnalytics: '/v1/admin-analytics'
     }
   })
 })
@@ -122,6 +125,8 @@ Router.use('/video-notes', videoNoteRoute)
 Router.use('/recommendation-feedback', recommendationFeedbackRoute)
 Router.use('/contacts', contactRoute)
 Router.use('/events', eventRoute)
+Router.use('/map', mapRoute)
+Router.use('/admin-analytics', adminAnalyticsRoute)
 
 // Recruitment Module
 Router.use('/recruitments', workerApplicationRoute)

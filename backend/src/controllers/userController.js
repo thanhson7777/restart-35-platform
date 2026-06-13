@@ -14,6 +14,17 @@ const createNew = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const partnerRegister = async (req, res, next) => {
+  try {
+    const createdPartner = await userService.partnerRegister(req.body)
+    res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: 'Tạo tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
+      data: createdPartner
+    })
+  } catch (error) { next(error) }
+}
+
 const verifyAccount = async (req, res, next) => {
   try {
     const result = await userService.verifyAccount(req.body)
@@ -213,8 +224,29 @@ const getUserStats = async (req, res, next) => {
   }
 }
 
+const forgotPassword = async (req, res, next) => {
+  try {
+    const result = await userService.forgotPassword(req.body.email)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.message
+    })
+  } catch (error) { next(error) }
+}
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const result = await userService.resetPassword(req.params.token, req.body.password)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.message
+    })
+  } catch (error) { next(error) }
+}
+
 export const userController = {
   createNew,
+  partnerRegister,
   verifyAccount,
   login,
   logout,
@@ -226,5 +258,7 @@ export const userController = {
   changePassword,
   getMe,
   getUserStats,
-  updateOrganizationId
+  updateOrganizationId,
+  forgotPassword,
+  resetPassword
 }

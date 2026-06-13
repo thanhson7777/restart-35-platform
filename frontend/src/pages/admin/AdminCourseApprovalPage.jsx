@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { AlertCircle, CheckCircle, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle, ArrowLeft, ShieldCheck, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout, AdminPageTitle } from '@/components/layout';
 import { AdminApprovalList } from '@/components/admin/AdminApprovalList';
@@ -12,6 +12,7 @@ import {
   getAdminPendingCourses,
   approveCourse,
 } from '@/apis/courseApi';
+import { syncCourseEmbeddingsAPI } from '@/apis/aiAPI';
 
 const AdminCourseApprovalPage = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const AdminCourseApprovalPage = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectLoading, setRejectLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   // Fetch pending courses
   const fetchPendingCourses = useCallback(async () => {
@@ -124,6 +126,21 @@ const AdminCourseApprovalPage = () => {
     }
   };
 
+  const handleSyncAI = async () => {
+    let toastId;
+    try {
+      setSyncing(true);
+      toastId = toast.loading('Đang đồng bộ Vector AI...');
+      const response = await syncCourseEmbeddingsAPI();
+      toast.success(`Đồng bộ thành công ${response.count || 0} khóa học`, { id: toastId });
+    } catch (error) {
+      console.error('Lỗi đồng bộ AI:', error);
+      toast.error(error.response?.data?.message || 'Lỗi khi đồng bộ Vector AI', { id: toastId });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <AdminLayout>
       {/* Header */}
@@ -141,11 +158,22 @@ const AdminCourseApprovalPage = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2 bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))]/30 px-4 py-2 rounded-full self-start sm:self-center">
-          <ShieldCheck className="w-4 h-4 text-[hsl(var(--admin-accent))]" />
-          <span className="text-xs font-mono text-[hsl(var(--admin-accent))] font-bold">
-            {courses.length} Khóa học chờ duyệt
-          </span>
+        <div className="flex flex-col sm:flex-row items-center gap-2 self-start sm:self-center">
+          <button
+            onClick={handleSyncAI}
+            disabled={syncing}
+            className="flex items-center gap-2 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] px-4 py-2 rounded-full text-sm font-medium text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-accent))]/10 hover:border-[hsl(var(--admin-accent))] hover:text-[hsl(var(--admin-accent))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Đồng bộ lại khóa học APPROVED vào hệ thống AI"
+          >
+            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+            <span>Đồng bộ Vector AI</span>
+          </button>
+          <div className="flex items-center gap-2 bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))]/30 px-4 py-2 rounded-full">
+            <ShieldCheck className="w-4 h-4 text-[hsl(var(--admin-accent))]" />
+            <span className="text-xs font-mono text-[hsl(var(--admin-accent))] font-bold">
+              {courses.length} Khóa học chờ duyệt
+            </span>
+          </div>
         </div>
       </div>
 

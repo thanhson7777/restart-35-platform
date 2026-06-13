@@ -743,6 +743,14 @@ export const getCourseRecommendationsAPI = async ({ skill_gaps, constraints = {}
 }
 
 /**
+ * Admin: Đồng bộ lại Course Embeddings từ DB sang file npy
+ */
+export const syncCourseEmbeddingsAPI = async () => {
+  const response = await authorizeAxiosInstance.post(`${AI_BASE_URL}/sync-embeddings`)
+  return response.data
+}
+
+/**
  * Get full job learning path (job info + skill gaps + course recommendations)
  * @param {Object} params - { jobId, userSkills, userAge, constraints }
  */

@@ -55,7 +55,7 @@ Router.get('/map-data', async (req, res, next) => {
 });
 
 const parseMultipartBody = (req, res, next) => {
-  const jsonFields = ['duration', 'location', 'skills', 'prerequisites', 'requirements', 'syllabus', 'outcomes']
+  const jsonFields = ['duration', 'location', 'skills', 'prerequisites', 'requirements', 'syllabus', 'outcomes', 'scheduleConfig', 'fundingConfig']
   const booleanFields = ['isFree', 'scholarshipEligibility']
   const numberFields = ['fee', 'maxStudents']
   

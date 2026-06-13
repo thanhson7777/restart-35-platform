@@ -33,8 +33,7 @@ const EDUCATION_OPTIONS = [
 
 const MEETING_TYPE_OPTIONS = [
   { value: 'google_meet', label: 'Google Meet' },
-  { value: 'office', label: 'Tại văn phòng' },
-  { value: 'phone', label: 'Điện thoại' }
+  { value: 'office', label: 'Tại văn phòng' }
 ];
 
 const sections = [
@@ -42,9 +41,7 @@ const sections = [
   { id: 2, title: 'Yêu cầu ứng viên' },
   { id: 3, title: 'Lương & Phúc lợi' },
   { id: 4, title: 'Địa điểm làm việc' },
-  { id: 5, title: 'Cấu hình phỏng vấn' },
-  { id: 6, title: 'Gợi ý khóa học' },
-  { id: 7, title: 'Thưởng tuyển dụng' }
+  { id: 5, title: 'Cấu hình phỏng vấn' }
 ];
 
 const initialFormData = {
@@ -152,6 +149,7 @@ export default function EnterpriseJobCreatePage() {
     languages: '',
     benefitsList: ''
   });
+  const [useWorkingAddress, setUseWorkingAddress] = useState(false);
 
   // Fetch job data when in edit mode
   useEffect(() => {
@@ -655,107 +653,62 @@ export default function EnterpriseJobCreatePage() {
                     </Select>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                    Địa chỉ phỏng vấn (nếu tại văn phòng)
-                  </label>
-                  <Input
-                    placeholder="VD: Tầng 5, Tòa nhà ABC, 123 Nguyễn Huệ"
-                    value={formData.interviewConfig.officeAddress}
-                    onChange={(e) => updateFormData('interviewConfig.officeAddress', e.target.value)}
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                {formData.interviewConfig.meetingType === 'office' && (
+                  <div className="space-y-2 mt-4">
+                    <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
+                      Địa chỉ phỏng vấn (tại văn phòng)
+                    </label>
+                    <div className="flex items-center gap-2 mb-2">
                       <input
                         type="checkbox"
-                        checked={formData.interviewConfig.allowReschedule}
-                        onChange={(e) => updateFormData('interviewConfig.allowReschedule', e.target.checked)}
-                        className="w-4 h-4"
+                        checked={useWorkingAddress}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setUseWorkingAddress(checked);
+                          if (checked) {
+                            const addressParts = [
+                              formData.location.address,
+                              formData.location.ward,
+                              formData.location.district,
+                              formData.location.province
+                            ].filter(Boolean);
+                            updateFormData('interviewConfig.officeAddress', addressParts.join(', '));
+                          } else {
+                            updateFormData('interviewConfig.officeAddress', '');
+                          }
+                        }}
+                        className="w-4 h-4 cursor-pointer rounded border-[hsl(var(--admin-border))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))]"
                       />
-                      <span className="text-sm">Cho phép hoãn lịch</span>
-                    </label>
-                  </div>
-                  {formData.interviewConfig.allowReschedule && (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                        Số lần hoãn tối đa
-                      </label>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={5}
-                        value={formData.interviewConfig.maxReschedules}
-                        onChange={(e) => updateFormData('interviewConfig.maxReschedules', parseInt(e.target.value) || 2)}
-                      />
+                      <span className="text-sm text-[hsl(var(--admin-text-primary))] cursor-pointer" onClick={() => {
+                        const checked = !useWorkingAddress;
+                        setUseWorkingAddress(checked);
+                        if (checked) {
+                          const addressParts = [
+                            formData.location.address,
+                            formData.location.ward,
+                            formData.location.district,
+                            formData.location.province
+                          ].filter(Boolean);
+                          updateFormData('interviewConfig.officeAddress', addressParts.join(', '));
+                        } else {
+                          updateFormData('interviewConfig.officeAddress', '');
+                        }
+                      }}>
+                        Lấy địa chỉ làm việc làm nơi phỏng vấn
+                      </span>
                     </div>
-                  )}
-                </div>
-              </>
-            )}
-
-            {/* Section 6: Target Courses */}
-            {currentSection === 6 && (
-              <div className="text-center py-12">
-                <p className="text-[hsl(var(--admin-text-muted))]">
-                  Tính năng gợi ý khóa học liên kết sẽ được phát triển trong giai đoạn tiếp theo.
-                </p>
-                <p className="text-sm text-[hsl(var(--admin-text-faint))] mt-2">
-                  Hiện tại, bạn có thể bỏ qua bước này.
-                </p>
-              </div>
-            )}
-
-            {/* Section 7: Hiring Bonus */}
-            {currentSection === 7 && (
-              <>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.hiringBonus.enabled}
-                      onChange={(e) => updateFormData('hiringBonus.enabled', e.target.checked)}
-                      className="w-4 h-4"
+                    <Input
+                      placeholder="VD: Tầng 5, Tòa nhà ABC, 123 Nguyễn Huệ"
+                      value={formData.interviewConfig.officeAddress}
+                      onChange={(e) => updateFormData('interviewConfig.officeAddress', e.target.value)}
+                      disabled={useWorkingAddress}
+                      className={useWorkingAddress ? "bg-slate-50 opacity-70" : ""}
                     />
-                    <span className="text-sm font-medium">Kích hoạt thưởng tuyển dụng</span>
-                  </label>
-                </div>
-                {formData.hiringBonus.enabled && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                        Số tiền thưởng (VND)
-                      </label>
-                      <Input
-                        type="number"
-                        min={0}
-                        placeholder="VD: 5000000"
-                        value={formData.hiringBonus.amount || ''}
-                        onChange={(e) => updateFormData('hiringBonus.amount', e.target.value ? parseInt(e.target.value) : null)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                        Điều kiện thanh toán
-                      </label>
-                      <Select
-                        value={formData.hiringBonus.payoutCondition}
-                        onValueChange={(v) => updateFormData('hiringBonus.payoutCondition', v)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="on_hire">Khi tuyển thành công</SelectItem>
-                          <SelectItem value="on_probation_complete">Khi hết thử việc</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
                 )}
               </>
             )}
+
           </CardContent>
         </Card>
 
@@ -768,7 +721,7 @@ export default function EnterpriseJobCreatePage() {
           >
             <ChevronLeft size={14} className="mr-2" /> Bước trước
           </Button>
-          {currentSection < 7 ? (
+          {currentSection < 5 ? (
             <Button onClick={() => setCurrentSection(currentSection + 1)}>
               Bước tiếp <ChevronRight size={14} className="ml-2" />
             </Button>

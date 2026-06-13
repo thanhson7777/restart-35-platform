@@ -7,6 +7,7 @@ import {
 } from '~/utils/validator'
 import {
   ENROLLMENT_STATUS,
+  ENROLLMENT_STATUS_V2,
   ENROLLMENT_PAYMENT_STATUS,
   ENROLLMENT_SOURCE,
   COMPLETION_STATUS,
@@ -23,7 +24,8 @@ const createEnrollment = async (req, res, next) => {
     source: Joi.string()
       .valid(...Object.values(ENROLLMENT_SOURCE))
       .default(ENROLLMENT_SOURCE.DIRECT),
-    scholarshipId: Joi.string().allow(null, '')
+    scholarshipId: Joi.string().allow(null, ''),
+    paymentId: Joi.string().allow(null, '').pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   })
 
   try {
@@ -71,7 +73,7 @@ const updateProgress = async (req, res, next) => {
 const updateStatus = async (req, res, next) => {
   const correctCondition = Joi.object({
     status: Joi.string()
-      .valid(...Object.values(ENROLLMENT_STATUS))
+      .valid(...Object.values(ENROLLMENT_STATUS), ...Object.values(ENROLLMENT_STATUS_V2))
       .required(),
     dropReason: Joi.string().max(1000).allow('', null),
     notes: Joi.string().max(2000).allow('', null),
@@ -123,7 +125,7 @@ const queryEnrollments = async (req, res, next) => {
   const correctCondition = Joi.object({
     page: Joi.number().integer().min(1).default(1),
     limit: Joi.number().integer().min(1).max(MAX_ITEM_PER_PAGE).default(10),
-    status: Joi.string().valid(...Object.values(ENROLLMENT_STATUS)),
+    status: Joi.string().valid(...Object.values(ENROLLMENT_STATUS), ...Object.values(ENROLLMENT_STATUS_V2)),
     source: Joi.string().valid(...Object.values(ENROLLMENT_SOURCE)),
     courseId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     startDate: Joi.date().timestamp(),

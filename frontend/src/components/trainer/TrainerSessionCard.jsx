@@ -8,7 +8,9 @@ import {
   ExternalLink, 
   FileText, 
   Info,
-  ChevronRight
+  ChevronRight,
+  AlertTriangle,
+  Globe
 } from 'lucide-react';
 import { Button, Card, CardContent, Badge } from '@/components/ui';
 
@@ -76,7 +78,7 @@ export const TrainerSessionCard = ({
         return <Badge className="bg-amber-500/10 text-[hsl(var(--admin-warning))] border border-amber-500/20 font-medium">Đổi lịch</Badge>;
       case 'scheduled':
       default:
-        return <Badge className="bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] border border-[hsl(var(--admin-accent))]/20 font-medium">Chờ diễn ra</Badge>;
+        return <Badge className="bg-[hsl(var(--admin-success))] text-white border border-[hsl(var(--admin-success))]/20 font-medium">Chờ diễn ra</Badge>;
     }
   };
 
@@ -111,11 +113,26 @@ export const TrainerSessionCard = ({
                   className="p-3 bg-[hsl(var(--admin-surface-elevated))]/60 hover:bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))] rounded-xl cursor-pointer transition-all duration-150 flex items-center justify-between group"
                 >
                   <div className="space-y-1.5 flex-1 min-w-0 pr-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[10px] font-mono font-bold text-[hsl(var(--admin-accent))] bg-[hsl(var(--admin-accent-subtle))] px-1.5 py-0.5 rounded">
                         Buổi {item.session.sessionNumber}
                       </span>
                       {getStatusBadge(item.session.status)}
+                      {item.locationType === 'online' && (
+                        <Badge className="bg-blue-500/10 text-blue-500 border border-blue-500/20 font-medium px-1.5">
+                          <Globe className="h-3 w-3 mr-1" /> Online
+                        </Badge>
+                      )}
+                      {item.locationType === 'offline' && (
+                        <Badge className="bg-orange-500/10 text-orange-500 border border-orange-500/20 font-medium px-1.5">
+                          <MapPin className="h-3 w-3 mr-1" /> Offline
+                        </Badge>
+                      )}
+                      {item.session.isConflict && (
+                        <Badge className="bg-[hsl(var(--admin-danger-subtle))] text-[hsl(var(--admin-danger))] border border-[hsl(var(--admin-danger))]/20 font-medium px-1.5">
+                          <AlertTriangle className="h-3 w-3 mr-1" /> Trùng
+                        </Badge>
+                      )}
                     </div>
                     <h4 className="text-xs font-bold text-[hsl(var(--admin-text-primary))] truncate group-hover:text-[hsl(var(--admin-text-primary))] transition-colors">
                       {item.courseTitle}
@@ -135,7 +152,7 @@ export const TrainerSessionCard = ({
     );
   }
 
-  const { session, courseTitle, scheduleId, sessionNumber } = selectedSession;
+  const { session, courseTitle, scheduleId, sessionNumber, locationType } = selectedSession;
   const isCancelled = session.status === 'cancelled';
   const attendanceCount = session.attendance?.length || 0;
   const presentCount = session.attendance?.filter(a => a.status === 'present').length || 0;
@@ -157,7 +174,26 @@ export const TrainerSessionCard = ({
                 {courseTitle}
               </p>
             </div>
-            {getStatusBadge(session.status)}
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex flex-wrap items-center gap-2 justify-end">
+                {getStatusBadge(session.status)}
+                {locationType === 'online' && (
+                  <Badge className="bg-blue-500/10 text-blue-500 border border-blue-500/20 font-medium">
+                    <Globe className="h-3.5 w-3.5 mr-1.5" /> Học Online
+                  </Badge>
+                )}
+                {locationType === 'offline' && (
+                  <Badge className="bg-orange-500/10 text-orange-500 border border-orange-500/20 font-medium">
+                    <MapPin className="h-3.5 w-3.5 mr-1.5" /> Học Offline
+                  </Badge>
+                )}
+              </div>
+              {session.isConflict && (
+                <Badge className="bg-[hsl(var(--admin-danger-subtle))] text-[hsl(var(--admin-danger))] border border-[hsl(var(--admin-danger))]/20 font-medium">
+                  <AlertTriangle className="h-3.5 w-3.5 mr-1.5" /> Trùng lịch dạy
+                </Badge>
+              )}
+            </div>
           </div>
 
           {/* Time & Location details */}

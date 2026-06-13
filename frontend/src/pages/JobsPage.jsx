@@ -574,6 +574,32 @@ const JobsPage = () => {
             </Card>
           )}
 
+          {/* Missing Age Banner - Profile Completed but age is missing */}
+          {activeTab === 'career' && isProfileCompleted && !formData?.basicInfo?.age && (
+            <Card className="mb-6 border-warning/50 bg-warning/5">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">Thiếu thông tin độ tuổi</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      AI cần biết độ tuổi của bạn để đưa ra lộ trình phù hợp. Vui lòng cập nhật thông tin này trong hồ sơ.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/worker-profile?step=1')}
+                    className="shrink-0"
+                  >
+                    Cập nhật độ tuổi
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Missing Skills Banner - Chỉ hiển thị khi thực sự không có skills */}
           {activeTab === 'recommended' && !hasProfileForRecommendations && (
             <Card className="mb-6 border-primary/50 bg-primary/5">

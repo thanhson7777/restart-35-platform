@@ -65,6 +65,14 @@ Router.get(
   videoNoteController.getNotesByEnrollment
 )
 
+// Đánh dấu hoàn thành một hạng mục
+Router.post(
+  '/:id/complete-item',
+  authMiddleware.isAuthorized,
+  enrollmentValidation.checkId,
+  enrollmentController.completeItem
+)
+
 // Hủy đăng ký (legacy)
 Router.put(
   '/:id/cancel',

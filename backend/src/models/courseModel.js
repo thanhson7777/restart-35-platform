@@ -22,43 +22,43 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
     value: Joi.number().required().min(1),
     unit: Joi.string().valid(...Object.values(DURATION_UNITS)).required()
   }),
-  schedule: Joi.string().allow(null, ''),
+  // Lịch học tự động
+  scheduleConfig: Joi.object({
+    totalSessions: Joi.number().integer().min(1).required(),
+    sessionsPerWeek: Joi.number().integer().min(1).required(),
+    sessionDurationMinutes: Joi.number().integer().min(30).default(90),
+    preferredDays: Joi.array().items(
+      Joi.string().valid('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
+    ).default([]),
+    preferredTime: Joi.string().valid('Morning', 'Afternoon', 'Evening').allow(null, ''),
+    expectedStartDate: Joi.date().timestamp('javascript').allow(null, '')
+  }).allow(null),
   location: Joi.object({
     type: Joi.string().valid(...Object.values(LOCATION_TYPES)).required(),
     address: Joi.string().allow(null, ''),
-    link: Joi.string().uri().allow(null, '')
+    link: Joi.string().uri().allow(null, ''),
+    coordinates: Joi.object({
+      lat: Joi.number().allow(null),
+      lng: Joi.number().allow(null)
+    }).allow(null)
   }),
   // Hinh thuc giao duc & mo hinh tai chinh
   delivery_type: Joi.string()
     .valid(...Object.values(COURSE_DELIVERY_TYPES))
     .default(COURSE_DELIVERY_TYPES.VIDEO),
-  funding_model: Joi.string()
-    .valid(...Object.values(COURSE_FUNDING_MODELS))
-    .default(COURSE_FUNDING_MODELS.FREE),
-  // Hoc phi
-  fee: Joi.number().min(0).default(0),
-  isFree: Joi.boolean().default(false),
-  scholarshipEligibility: Joi.boolean().default(false),
-  linkedPartnershipId: Joi.string().allow(null, ''),
-  linkedEnterpriseId: Joi.string().allow(null, ''),
-  sponsorship: Joi.object({
-    hasSponsorship: Joi.boolean().default(false),
-    hasJobGuarantee: Joi.boolean().default(false),
-    sponsorTypes: Joi.array().items(Joi.string()).default([]),
-    activeSponsorshipIds: Joi.array().items(Joi.string()).default([]),
-    priorityRecruitment: Joi.boolean().default(false),
-    badgeLabel: Joi.string().allow('', null).default(null)
+  fundingConfig: Joi.object({
+    type: Joi.string().valid('FREE', 'PAID', 'SPONSORED').default('FREE'),
+    price: Joi.number().min(0).default(0),
+    sponsorIds: Joi.array().items(Joi.string()).default([]),
+    hasJobGuarantee: Joi.boolean().default(false)
   }).default({
-    hasSponsorship: false,
-    hasJobGuarantee: false,
-    sponsorTypes: [],
-    activeSponsorshipIds: [],
-    priorityRecruitment: false,
-    badgeLabel: null
+    type: 'FREE',
+    price: 0,
+    sponsorIds: [],
+    hasJobGuarantee: false
   }),
   // Tuyen sinh
   maxStudents: Joi.number().integer().min(1).default(30),
-  currentStudents: Joi.number().integer().min(0).default(0),
   enrollmentStartDate: Joi.date().timestamp('javascript').allow(null, ''),
   // Nội dung
   level: Joi.string().valid(...Object.values(COURSE_LEVELS)).default(COURSE_LEVELS.BEGINNER),
@@ -66,8 +66,6 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
     .items(Joi.string().min(2).max(100))
     .max(20)
     .default([]),
-  prerequisites: Joi.array().items(Joi.string()).max(10),
-  requirements: Joi.array().items(Joi.string()).max(10),
   syllabus: Joi.array().items(
     Joi.object({
       week: Joi.number().required(),
@@ -96,26 +94,7 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   enrollmentCount: Joi.number().integer().min(0).default(0),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
-  _destroy: Joi.boolean().default(false),
-  // ── Scraped source tracking ────────────────────────────────────────
-  // ID từ nền tảng gốc (externalId trong scraper)
-  externalId: Joi.string().allow(null, ''),
-  // Nền tảng nguồn: 'udemy' | 'coursera' | 'linkedin' | 'pluralsight'
-  platform: Joi.string().allow(null, ''),
-  // URL gốc trên nền tảng
-  sourceUrl: Joi.string().uri().allow(null, ''),
-  // Metadata về quá trình scrape
-  _sourceMeta: Joi.object({
-    scrapedAt:   Joi.date().timestamp('javascript').allow(null),
-    rawFields:   Joi.array().items(Joi.string()).default([]),
-    missingFields: Joi.array().items(Joi.string()).default([]),
-    scraperVersion: Joi.string().allow(null, '')
-  }).default({
-    scrapedAt: null,
-    rawFields: [],
-    missingFields: [],
-    scraperVersion: null
-  })
+  _destroy: Joi.boolean().default(false)
 })
 
 // Helper tạo slug
@@ -360,7 +339,7 @@ const findBySkillGaps = async (missingSkills, limit = 20) => {
         _id: 1, title: 1, shortDescription: 1,
         skills: 1, fee: 1, duration: 1,
         level: 1, rating: 1, enrollmentCount: 1,
-        'location.type': 1
+        'location.type': 1, 'location.coordinates': 1
       })
       .sort({ rating: -1, enrollmentCount: -1 })
       .limit(limit)
@@ -446,6 +425,12 @@ const update = async (courseId, data) => {
       ...data,
       updatedAt: Date.now()
     }
+    
+    // Transform categoryId from string to ObjectId if present
+    if (updateData.categoryId) {
+      updateData.categoryId = new ObjectId(updateData.categoryId)
+    }
+    
     const result = await GET_DB().collection(COURSE_COLLECTION_NAME).findOneAndUpdate(
       { _id: objectId },
       { $set: updateData },

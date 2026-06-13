@@ -13,7 +13,7 @@ import {
 // ============ Create Payment Validation ============
 const createPayment = async (req, res, next) => {
   const correctCondition = Joi.object({
-    enrollmentId: Joi.string().required()
+    enrollmentId: Joi.string().optional().allow(null, '')
       .pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     courseId: Joi.string().required()
       .pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),

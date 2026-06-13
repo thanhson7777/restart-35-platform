@@ -6,7 +6,7 @@ import { PAYMENT_METHOD, PAYMENT_STATUS } from '~/utils/constants'
 
 const PAYMENT_COLLECTION_NAME = 'payments'
 const PAYMENT_COLLECTION_SCHEMA = Joi.object({
-  enrollmentId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+  enrollmentId: Joi.string().allow(null, '').optional().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   userId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   method: Joi.string()

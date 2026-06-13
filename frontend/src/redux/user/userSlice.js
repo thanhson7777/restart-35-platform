@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { authorizeAxiosInstance, publicAxiosInstance, resetInterceptorState } from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
-import { loginAPI, registerAPI } from '~/apis/authAPI'
+import { loginAPI, registerAPI, partnerRegisterAPI } from '~/apis/authAPI'
 import { clearAllSessionData } from '~/utils/logout'
 import { resetProfile } from '~/redux/profile/profileSlice'
 import { resetAIState } from '~/redux/ai/aiSlice'
@@ -59,7 +59,12 @@ export const registerUserAPI = createAsyncThunk(
   'user/register',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await registerAPI(data)
+      let response
+      if (data.role && data.role !== 'worker') {
+        response = await partnerRegisterAPI(data)
+      } else {
+        response = await registerAPI(data)
+      }
       return response.data || response
     } catch (error) {
       const message = error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.'

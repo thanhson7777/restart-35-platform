@@ -220,7 +220,7 @@ const checkId = async (req, res, next) => {
   })
 
   try {
-    await condition.validateAsync(req.params)
+    await condition.validateAsync(req.params, { allowUnknown: true })
     next()
   } catch (error) {
     next(new ApiError(StatusCodes.BAD_REQUEST, error.message))
@@ -234,7 +234,7 @@ const checkSessionNumber = async (req, res, next) => {
   })
 
   try {
-    await condition.validateAsync(req.params)
+    await condition.validateAsync(req.params, { allowUnknown: true })
     next()
   } catch (error) {
     next(new ApiError(StatusCodes.BAD_REQUEST, error.message))
@@ -248,7 +248,7 @@ const checkCourseId = async (req, res, next) => {
   })
 
   try {
-    await condition.validateAsync(req.params)
+    await condition.validateAsync(req.params, { allowUnknown: true })
     next()
   } catch (error) {
     next(new ApiError(StatusCodes.BAD_REQUEST, error.message))

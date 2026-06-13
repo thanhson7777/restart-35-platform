@@ -14,6 +14,109 @@ import {
   USER_ROLES
 } from '~/utils/constants'
 
+// ============ AUTO GENERATE SCHEDULE ============
+const generateAutoSchedule = async (courseId, trainerId) => {
+  try {
+    const course = await courseModel.findOneById(courseId)
+    if (!course) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Khóa học không tồn tại!')
+    }
+
+    if (course.providerId.toString() !== trainerId) {
+      const user = await userModel.findOneById(trainerId)
+      if (user.role !== USER_ROLES.ADMIN) {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền tự động tạo lịch cho khóa học này!')
+      }
+    }
+
+    const scheduleConfig = course.scheduleConfig
+    if (!scheduleConfig || !scheduleConfig.totalSessions || !scheduleConfig.sessionsPerWeek || scheduleConfig.preferredDays.length === 0) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Khóa học chưa cấu hình lịch tự động hợp lệ (scheduleConfig)!')
+    }
+
+    const existingSchedule = await scheduleModel.findByCourse(courseId)
+    if (existingSchedule && !existingSchedule._destroy) {
+      throw new ApiError(StatusCodes.CONFLICT, 'Khóa học này đã có lịch học, không thể tạo tự động đè lên!')
+    }
+
+    // Mapping preferredDays to JS Date.getDay() (0 = Sunday, 1 = Monday...)
+    const dayMap = {
+      'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+      'Thursday': 4, 'Friday': 5, 'Saturday': 6
+    }
+    const allowedDays = scheduleConfig.preferredDays.map(d => dayMap[d])
+
+    let currentDate = scheduleConfig.expectedStartDate ? new Date(scheduleConfig.expectedStartDate) : new Date()
+    currentDate.setHours(0, 0, 0, 0)
+    
+    // Ensure we start on an allowed day or find the next one
+    while (!allowedDays.includes(currentDate.getDay())) {
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
+
+    const startDate = new Date(currentDate)
+    const sessions = []
+    
+    // Determine start/end time based on preferredTime
+    let startHour = 8, startMinute = 0; // default Morning
+    if (scheduleConfig.preferredTime === 'Afternoon') {
+      startHour = 13; startMinute = 30;
+    } else if (scheduleConfig.preferredTime === 'Evening') {
+      startHour = 18; startMinute = 0;
+    }
+
+    let sessionDuration = scheduleConfig.sessionDurationMinutes || 90;
+
+    for (let i = 1; i <= scheduleConfig.totalSessions; i++) {
+      // Create session
+      const sessionDate = new Date(currentDate)
+      
+      const startTimeStr = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`
+      // Calculate end time
+      const endTotalMinutes = startHour * 60 + startMinute + sessionDuration
+      const endHour = Math.floor(endTotalMinutes / 60)
+      const endMinute = endTotalMinutes % 60
+      const endTimeStr = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`
+
+      sessions.push({
+        sessionNumber: i,
+        title: `Buổi ${i}`,
+        date: sessionDate,
+        startTime: startTimeStr,
+        endTime: endTimeStr,
+        duration: sessionDuration,
+        instructorId: course.providerId.toString(),
+        location: course.location || { type: 'online' },
+        status: SESSION_STATUS.SCHEDULED,
+        attendance: []
+      })
+
+      // Move to next allowed day
+      do {
+        currentDate.setDate(currentDate.getDate() + 1)
+      } while (!allowedDays.includes(currentDate.getDay()))
+    }
+
+    const scheduleData = {
+      courseId: courseId,
+      providerId: course.providerId.toString(),
+      title: `Lịch học - ${course.title}`,
+      description: 'Lịch học được tạo tự động bởi hệ thống',
+      status: SCHEDULE_STATUS.DRAFT,
+      startDate: startDate,
+      endDate: currentDate, // last session's date
+      totalSessions: sessions.length,
+      completedSessions: 0,
+      location: course.location || { type: 'online' },
+      sessions: sessions,
+      reminders: []
+    }
+
+    const result = await scheduleModel.createNew(scheduleData)
+    return await scheduleModel.findOneById(result.insertedId)
+  } catch (error) { throw error }
+}
+
 // ============ CREATE SCHEDULE ============
 const createSchedule = async (courseId, data, trainerId) => {
   try {
@@ -564,6 +667,16 @@ const recordAttendance = async (scheduleId, sessionNumber, attendanceData, train
       const studentEnroll = await enrollmentModel.findOneByUserAndCourse(record.userId, schedule.courseId)
       if (studentEnroll) {
         await syncEnrollmentAttendance(studentEnroll._id, schedule.courseId, record.userId, updated)
+
+        // Auto mark session as completed if student was present or late
+        if (record.status === 'present' || record.status === 'late') {
+          try {
+            const { enrollmentService } = await import('~/services/enrollmentService')
+            await enrollmentService.completeItem(studentEnroll._id, session._id.toString(), record.userId)
+          } catch (err) {
+            console.error(`Failed to auto-complete session for user ${record.userId}:`, err)
+          }
+        }
       }
     }
 
@@ -614,6 +727,14 @@ const studentCheckin = async (scheduleId, sessionNumber, studentId, pin) => {
 
     // Sync stats into enrollment
     await syncEnrollmentAttendance(studentEnrollment._id, schedule.courseId, studentId, updatedSchedule)
+
+    // Auto mark session as completed for self check-in
+    try {
+      const { enrollmentService } = await import('~/services/enrollmentService')
+      await enrollmentService.completeItem(studentEnrollment._id, session._id.toString(), studentId)
+    } catch (err) {
+      console.error(`Failed to auto-complete session for self check-in ${studentId}:`, err)
+    }
 
     return updatedSchedule
   } catch (error) { throw error }
@@ -684,6 +805,67 @@ const getTrainerSchedules = async (trainerId, queryParams) => {
       })
     )
 
+    // Conflict Check Logic
+    // We only check within the returned schedules for simplicity, 
+    // or ideally fetch all active schedules for the provider.
+    // Let's fetch all active schedules for thorough conflict checking.
+    const allProviderSchedules = await scheduleModel.findByProvider(trainerId, 0, 1000)
+    const allSessions = []
+    
+    // Flatten all sessions
+    if (allProviderSchedules && allProviderSchedules.schedules) {
+      allProviderSchedules.schedules.forEach(sch => {
+        if (sch.status !== SCHEDULE_STATUS.COMPLETED && sch.sessions) {
+          sch.sessions.forEach(sess => {
+            if (sess.status !== SESSION_STATUS.CANCELLED && sess.status !== SESSION_STATUS.COMPLETED) {
+              allSessions.push({ ...sess, scheduleId: sch._id.toString() })
+            }
+          })
+        }
+      })
+    }
+
+    const parseMinutes = (timeStr) => {
+      if (!timeStr) return 0
+      const [h, m] = timeStr.split(':').map(Number)
+      return h * 60 + m
+    }
+
+    const checkTimeOverlap = (sess1, sess2) => {
+      const d1 = new Date(sess1.date).setHours(0,0,0,0)
+      const d2 = new Date(sess2.date).setHours(0,0,0,0)
+      if (d1 !== d2) return false
+
+      const start1 = parseMinutes(sess1.startTime)
+      const end1 = parseMinutes(sess1.endTime)
+      const start2 = parseMinutes(sess2.startTime)
+      const end2 = parseMinutes(sess2.endTime)
+
+      return (start1 < end2 && start2 < end1)
+    }
+
+    // Flag conflicts in the enrichedSchedules
+    enrichedSchedules.forEach(schedule => {
+      if (schedule.sessions) {
+        schedule.sessions.forEach(sess => {
+          if (sess.status === SESSION_STATUS.CANCELLED || sess.status === SESSION_STATUS.COMPLETED) return
+          
+          // Check against all other sessions
+          const hasConflict = allSessions.some(otherSess => {
+            // skip if same session
+            if (otherSess.scheduleId === schedule._id.toString() && otherSess.sessionNumber === sess.sessionNumber) {
+              return false
+            }
+            return checkTimeOverlap(sess, otherSess)
+          })
+
+          if (hasConflict) {
+            sess.isConflict = true
+          }
+        })
+      }
+    })
+
     return {
       schedules: enrichedSchedules,
       pagination: {
@@ -706,6 +888,7 @@ const getScheduleStats = async (trainerId) => {
 export const scheduleService = {
   // Create
   createSchedule,
+  generateAutoSchedule,
 
   // Read
   getScheduleByCourse,

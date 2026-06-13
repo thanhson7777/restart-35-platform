@@ -65,7 +65,7 @@ export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPa
         method: 'bank_transfer',
         amount: installment.amount
       });
-      const paymentData = res.data || res;
+      const paymentData = res.data?.data || res.data || res;
       setActivePayment(paymentData);
     } catch (err) {
       console.error(err);
@@ -76,18 +76,18 @@ export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPa
     }
   };
 
-  const startPollingStatus = async (paymentId) => {
+  const checkPaymentStatus = async (paymentId) => {
     setVerifying(true);
     setVerifiedStatus('pending');
     const maxAttempts = 20;
     const intervalMs = 2000;
-    let attempt = 0;
 
-    const poll = async () => {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         const res = await getPaymentById(paymentId);
-        const payment = res.data || res;
+        const payment = res.data?.data || res.data || res;
         const status = payment?.status;
+        
         if (status === 'completed') {
           setVerifiedStatus('completed');
           setActivePayment((prev) => ({ ...prev, status }));
@@ -101,28 +101,19 @@ export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPa
           setActivePayment((prev) => ({ ...prev, status }));
           setVerifying(false);
           toast.error('Thanh toán không thành công. Vui lòng kiểm tra lại giao dịch.');
-          return true;
+          return false;
         }
       } catch (err) {
         console.error('Poll payment status error:', err);
       }
-      attempt += 1;
-      if (attempt >= maxAttempts) {
-        setVerifiedStatus('timeout');
-        setVerifying(false);
-        toast.error('Hệ thống chưa xác nhận được thanh toán. Vui lòng thử lại sau.');
-        return true;
-      }
-      return false;
-    };
-
-    const stopped = await poll();
-    if (!stopped) {
-      const timer = setInterval(async () => {
-        const shouldStop = await poll();
-        if (shouldStop) clearInterval(timer);
-      }, intervalMs);
+      
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
     }
+
+    setVerifiedStatus('timeout');
+    setVerifying(false);
+    toast.error('Hệ thống chưa xác nhận được thanh toán. Vui lòng thử lại sau.');
+    return false;
   };
 
   const handleConfirmTransfer = async () => {
@@ -130,7 +121,7 @@ export const PaymentTracker = ({ installments = [], enrollmentId, courseId, onPa
       toast.error('Không tìm thấy mã giao dịch để xác nhận.');
       return;
     }
-    await startPollingStatus(activePayment._id);
+    await checkPaymentStatus(activePayment._id);
   };
 
   const handleClosePayment = () => {

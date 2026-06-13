@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Plus, RefreshCw } from 'lucide-react';
-import NgoLayout from '@/components/ngo/NgoLayout';
 import SponsorshipBadge from '@/components/shared/SponsorshipBadge';
 import { Button, Badge } from '@/components/ui';
 import { getSponsorships } from '@/apis/courseSponsorshipApi';
@@ -37,8 +36,7 @@ export default function NgoSponsorshipsPage() {
   useEffect(() => { fetchSponsorships(); }, [fetchSponsorships]);
 
   return (
-    <NgoLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Quản lý Sponsorship</h1>
@@ -102,6 +100,5 @@ export default function NgoSponsorshipsPage() {
           </div>
         )}
       </div>
-    </NgoLayout>
   );
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import NgoLayout from '@/components/ngo/NgoLayout';
 import { Button } from '@/components/ui';
 import { getSponsorshipById, getSponsorshipLearners, decideSponsorshipLearner } from '@/apis/courseSponsorshipApi';
 import toast from 'react-hot-toast';
@@ -49,8 +48,7 @@ export default function NgoSponsorshipLearnersPage() {
   };
 
   return (
-    <NgoLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <Button variant="ghost" onClick={() => navigate('/ngo/sponsorships')} className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] pl-0 gap-2">
           <ArrowLeft size={16} /> Quay lại
         </Button>
@@ -114,6 +112,5 @@ export default function NgoSponsorshipLearnersPage() {
           </>
         )}
       </div>
-    </NgoLayout>
   );
 }

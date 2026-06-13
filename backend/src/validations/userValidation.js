@@ -17,7 +17,39 @@ const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
     email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
     password: Joi.string().required().pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE),
-    phone: Joi.string().required().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE)
+    phone: Joi.string().required().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
+    displayName: Joi.string().required().min(2),
+    role: Joi.string().valid(USER_ROLES.WORKER).default(USER_ROLES.WORKER),
+    basicInfo: Joi.object({
+      age: Joi.number().integer().min(35).max(65).required(),
+      gender: Joi.string().valid('male', 'female', 'other').required(),
+      province: Joi.string().required(),
+      district: Joi.string().allow('', null),
+      education: Joi.string().required(),
+      maritalStatus: Joi.string().valid('single', 'married', 'divorced', 'widowed').required()
+    }).optional()
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, stripUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details?.[0]?.message || error.message))
+  }
+}
+
+const partnerRegister = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
+    password: Joi.string().required().pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE),
+    phone: Joi.string().required().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
+    displayName: Joi.string().required().min(2),
+    role: Joi.string().valid(USER_ROLES.ENTERPRISE, USER_ROLES.NGO, USER_ROLES.TRAINER).required(),
+    organization: Joi.object({
+      name: Joi.string().required().min(3).max(255),
+      taxCode: Joi.string().required().max(50),
+      address: Joi.string().required().max(500)
+    }).required()
   })
 
   try {
@@ -133,13 +165,42 @@ const checkId = async (req, res, next) => {
   }
 }
 
+const forgotPassword = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE)
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, stripUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details?.[0]?.message || error.message))
+  }
+}
+
+const resetPassword = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    password: Joi.string().required().pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE)
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false, stripUnknown: true })
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details?.[0]?.message || error.message))
+  }
+}
+
 export const userValidation = {
   createNew,
+  partnerRegister,
   verifyAccount,
   login,
   update,
   updateUserStatus,
   updateOrganizationId,
   checkProductId,
-  checkId
+  checkId,
+  forgotPassword,
+  resetPassword
 }

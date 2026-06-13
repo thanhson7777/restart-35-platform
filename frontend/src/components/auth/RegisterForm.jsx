@@ -217,6 +217,122 @@ function BasicInfoStep({ basicInfo, setBasicInfo, errors, touched, onChange }) {
   )
 }
 
+// ===== Step 2: OrganizationInfo =====
+const initialOrganizationInfo = {
+  name: '',
+  taxCode: '',
+  address: ''
+}
+
+function OrganizationInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
+  const [isChecking, setIsChecking] = useState(false)
+
+  const checkTaxCode = async () => {
+    if (!orgInfo.taxCode.trim()) {
+      toast.error('Vui lòng nhập mã số thuế để kiểm tra.')
+      return
+    }
+    setIsChecking(true)
+    try {
+      const response = await fetch(`https://api.vietqr.io/v2/business/${orgInfo.taxCode}`)
+      const data = await response.json()
+      if (data.code === '00' && data.data) {
+        setOrgInfo(prev => ({
+          ...prev,
+          name: data.data.name || prev.name,
+          address: data.data.address || prev.address
+        }))
+        toast.success('Lấy thông tin doanh nghiệp thành công!')
+        onChange('name', '')
+        onChange('address', '')
+      } else {
+        toast.error('Không tìm thấy thông tin doanh nghiệp hoặc mã số thuế không hợp lệ.')
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi kiểm tra mã số thuế.')
+    } finally {
+      setIsChecking(false)
+    }
+  }
+
+  const handleChange = (field, value) => {
+    setOrgInfo(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) onChange(field, '')
+  }
+
+  return (
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-4">
+      {/* Tax Code */}
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <label htmlFor="reg-taxCode" className="block text-sm font-medium text-foreground">
+          Mã số thuế <span className="text-destructive">*</span>
+        </label>
+        <div className="flex gap-2">
+          <input
+            id="reg-taxCode"
+            type="text"
+            placeholder="Nhập mã số thuế"
+            value={orgInfo.taxCode}
+            onChange={(e) => handleChange('taxCode', e.target.value)}
+            className={`
+              flex-1 bg-background border rounded-lg px-4 py-2.5 text-sm
+              focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
+              transition-colors duration-200
+              ${touched.taxCode && errors.taxCode ? 'border-destructive' : 'border-input'}
+            `}
+          />
+          <Button type="button" variant="outline" onClick={checkTaxCode} isLoading={isChecking}>
+            Tra cứu
+          </Button>
+        </div>
+        {touched.taxCode && errors.taxCode && <p className="text-xs text-destructive">{errors.taxCode}</p>}
+      </motion.div>
+
+      {/* Name */}
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <label htmlFor="reg-orgName" className="block text-sm font-medium text-foreground">
+          Tên tổ chức / Doanh nghiệp <span className="text-destructive">*</span>
+        </label>
+        <input
+          id="reg-orgName"
+          type="text"
+          placeholder="Công ty CP..."
+          value={orgInfo.name}
+          onChange={(e) => handleChange('name', e.target.value)}
+          className={`
+            w-full bg-background border rounded-lg px-4 py-2.5 text-sm
+            focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
+            transition-colors duration-200
+            ${touched.name && errors.name ? 'border-destructive' : 'border-input'}
+          `}
+        />
+        {touched.name && errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+      </motion.div>
+
+      {/* Address */}
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <label htmlFor="reg-orgAddress" className="block text-sm font-medium text-foreground">
+          Địa chỉ trụ sở <span className="text-destructive">*</span>
+        </label>
+        <input
+          id="reg-orgAddress"
+          type="text"
+          placeholder="Số nhà, đường, phường, quận..."
+          value={orgInfo.address}
+          onChange={(e) => handleChange('address', e.target.value)}
+          className={`
+            w-full bg-background border rounded-lg px-4 py-2.5 text-sm
+            focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
+            transition-colors duration-200
+            ${touched.address && errors.address ? 'border-destructive' : 'border-input'}
+          `}
+        />
+        {touched.address && errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
+      </motion.div>
+    </motion.div>
+  )
+}
+
 // ===== Main RegisterForm =====
 function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelection }) {
   const dispatch = useDispatch()
@@ -238,6 +354,11 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
   const [basicInfo, setBasicInfo] = useState(initialBasicInfo)
   const [basicInfoErrors, setBasicInfoErrors] = useState({})
   const [basicInfoTouched, setBasicInfoTouched] = useState({})
+
+  // Step 2: OrganizationInfo
+  const [orgInfo, setOrgInfo] = useState(initialOrganizationInfo)
+  const [orgInfoErrors, setOrgInfoErrors] = useState({})
+  const [orgInfoTouched, setOrgInfoTouched] = useState({})
 
   const validateAccount = () => {
     const newErrors = {}
@@ -304,6 +425,14 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
     return newErrors
   }
 
+  const validateOrganizationInfo = () => {
+    const newErrors = {}
+    if (!orgInfo.name.trim()) newErrors.name = 'Tên tổ chức là bắt buộc.'
+    if (!orgInfo.taxCode.trim()) newErrors.taxCode = 'Mã số thuế là bắt buộc.'
+    if (!orgInfo.address.trim()) newErrors.address = 'Địa chỉ là bắt buộc.'
+    return newErrors
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -318,20 +447,38 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
     }
   }
 
+  const handleOrgInfoChange = (field, value) => {
+    if (orgInfoErrors[field]) {
+      setOrgInfoErrors((prev) => ({ ...prev, [field]: '' }))
+    }
+  }
+
   const handleAccountSubmit = (e) => {
     e.preventDefault()
     setSuccessMessage('')
     const accountErrors = validateAccount()
     setErrors(accountErrors)
     if (Object.keys(accountErrors).length > 0) return
-    // Move to step 2 — let user fill basicInfo
-    setBasicInfoTouched({ age: true, gender: true, province: true, education: true, maritalStatus: true })
-    const biErrors = validateBasicInfo()
-    setBasicInfoErrors(biErrors)
-    if (Object.keys(biErrors).length > 0) {
-      toast.error('Vui lòng điền đầy đủ thông tin cơ bản.')
-      return
+    
+    // Move to step 2 — let user fill basicInfo or orgInfo
+    if (selectedRole === 'worker') {
+      setBasicInfoTouched({ age: true, gender: true, province: true, education: true, maritalStatus: true })
+      const biErrors = validateBasicInfo()
+      setBasicInfoErrors(biErrors)
+      if (Object.keys(biErrors).length > 0) {
+        toast.error('Vui lòng điền đầy đủ thông tin cơ bản.')
+        return
+      }
+    } else {
+      setOrgInfoTouched({ name: true, taxCode: true, address: true })
+      const orgErrors = validateOrganizationInfo()
+      setOrgInfoErrors(orgErrors)
+      if (Object.keys(orgErrors).length > 0) {
+        toast.error('Vui lòng điền đầy đủ thông tin tổ chức.')
+        return
+      }
     }
+
     // Both steps valid — submit
     handleFullSubmit()
   }
@@ -355,6 +502,12 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
         education: basicInfo.education,
         maritalStatus: basicInfo.maritalStatus
       }
+    } else {
+      payload.organization = {
+        name: orgInfo.name,
+        taxCode: orgInfo.taxCode,
+        address: orgInfo.address
+      }
     }
 
     const result = await dispatch(registerUserAPI(payload))
@@ -366,6 +519,9 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
       setBasicInfo(initialBasicInfo)
       setBasicInfoErrors({})
       setBasicInfoTouched({})
+      setOrgInfo(initialOrganizationInfo)
+      setOrgInfoErrors({})
+      setOrgInfoTouched({})
       setTimeout(() => onSwitchTab(), 2500)
     } else {
       toast.error(typeof result.payload === 'string' ? result.payload : result.payload?.message || 'Đăng ký thất bại.')
@@ -492,8 +648,8 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
         </motion.div>
       </motion.div>
 
-      {/* ===== Step 2: BasicInfo ===== */}
-      {selectedRole === 'worker' && (
+      {/* ===== Step 2: BasicInfo / OrgInfo ===== */}
+      {selectedRole === 'worker' ? (
         <div className="pt-2 border-t border-border/50">
           <p className="text-sm font-medium text-foreground mb-3">
             Thông tin cơ bản <span className="text-destructive">*</span>
@@ -504,6 +660,19 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
             errors={basicInfoErrors}
             touched={basicInfoTouched}
             onChange={handleBasicInfoChange}
+          />
+        </div>
+      ) : (
+        <div className="pt-2 border-t border-border/50">
+          <p className="text-sm font-medium text-foreground mb-3">
+            Thông tin Tổ chức / Doanh nghiệp <span className="text-destructive">*</span>
+          </p>
+          <OrganizationInfoStep
+            orgInfo={orgInfo}
+            setOrgInfo={setOrgInfo}
+            errors={orgInfoErrors}
+            touched={orgInfoTouched}
+            onChange={handleOrgInfoChange}
           />
         </div>
       )}

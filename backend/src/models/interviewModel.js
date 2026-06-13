@@ -64,8 +64,10 @@ const INTERVIEW_COLLECTION_SCHEMA = Joi.object({
     workerComment: Joi.string().max(1000).allow('', null),
     enterpriseComment: Joi.string().max(1000).allow('', null),
     enterpriseDecision: Joi.string()
-      .valid('proceed_to_offer', 'reject', 'need_more_interviews')
+      .valid('hire', 'reject')
       .allow(null),
+    enterpriseSalary: Joi.number().integer().min(0).allow(null),
+    enterpriseStartDate: Joi.date().timestamp('javascript').allow(null),
     submittedAt: Joi.date().timestamp('javascript').allow(null)
   }).default({}),
 

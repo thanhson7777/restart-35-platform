@@ -1,0 +1,159 @@
+{
+  "success": true,
+  "courses": [
+    {
+      "course_id": "6a2438dbb2a25ee27d1daaf1",
+      "title": "AI For Everyone",
+      "score": 0.175,
+      "covered_skills": [],
+      "missing_skills_covered": 0,
+      "priority_coverage": 0.0,
+      "reason": "Phù hợp với lộ trình phát triển nghề nghiệp",
+      "score_breakdown": {
+        "essential_coverage": 0.0,
+        "important_coverage": 0.0,
+        "count_coverage": 0.0,
+        "semantic_relevance": 0.5,
+        "learner_fit": 1.0
+      },
+      "metadata": {
+        "fee": 0.0,
+        "duration": {
+          "value": 0,
+          "unit": "hours"
+        },
+        "level": "beginner",
+        "location_type": "online",
+        "rating": {
+          "average": 0.0,
+          "count": 0
+        },
+        "thumbnail": ""
+      }
+    },
+    {
+      "course_id": "6a2438dbb2a25ee27d1daaf2",
+      "title": "Financial Markets",
+      "score": 0.175,
+      "covered_skills": [],
+      "missing_skills_covered": 0,
+      "priority_coverage": 0.0,
+      "reason": "Phù hợp với lộ trình phát triển nghề nghiệp",
+      "score_breakdown": {
+        "essential_coverage": 0.0,
+        "important_coverage": 0.0,
+        "count_coverage": 0.0,
+        "semantic_relevance": 0.5,
+        "learner_fit": 1.0
+      },
+      "metadata": {
+        "fee": 0.0,
+        "duration": {
+          "value": 0,
+          "unit": "hours"
+        },
+        "level": "beginner",
+        "location_type": "online",
+        "rating": {
+          "average": 0.0,
+          "count": 0
+        },
+        "thumbnail": "https://s3.amazonaws.com/coursera-course-photos/d6/3c007460bf408f8515c9ea9f9760c0/BC-5768_VisMerch-Phase-3-Assets_Youtube_FinancialMarkets.png"
+      }
+    },
+    {
+      "course_id": "6a2438dbb2a25ee27d1daaf3",
+      "title": "Prompt Engineering for ChatGPT",
+      "score": 0.175,
+      "covered_skills": [],
+      "missing_skills_covered": 0,
+      "priority_coverage": 0.0,
+      "reason": "Phù hợp với lộ trình phát triển nghề nghiệp",
+      "score_breakdown": {
+        "essential_coverage": 0.0,
+        "important_coverage": 0.0,
+        "count_coverage": 0.0,
+        "semantic_relevance": 0.5,
+        "learner_fit": 1.0
+      },
+      "metadata": {
+        "fee": 0.0,
+        "duration": {
+          "value": 0,
+          "unit": "hours"
+        },
+        "level": "beginner",
+        "location_type": "online",
+        "rating": {
+          "average": 0.0,
+          "count": 0
+        },
+        "thumbnail": "https://s3.amazonaws.com/coursera-course-photos/dc/5cfbab2092477dbffc99ba51d82747/sparc.png"
+      }
+    },
+    {
+      "course_id": "6a2447e7b2a25ee27d1dabdb",
+      "title": "Python for Data Science and Machine Learning Bootcamp",
+      "score": 0.175,
+      "covered_skills": [],
+      "missing_skills_covered": 0,
+      "priority_coverage": 0.0,
+      "reason": "Phù hợp với lộ trình phát triển nghề nghiệp",
+      "score_breakdown": {
+        "essential_coverage": 0.0,
+        "important_coverage": 0.0,
+        "count_coverage": 0.0,
+        "semantic_relevance": 0.5,
+        "learner_fit": 1.0
+      },
+      "metadata": {
+        "fee": 0.0,
+        "duration": {
+          "value": 0,
+          "unit": "hours"
+        },
+        "level": "beginner",
+        "location_type": "online",
+        "rating": {
+          "average": 0.0,
+          "count": 0
+        },
+        "thumbnail": "https://img-c.udemycdn.com/course/480x270/903744_8eb2.jpg"
+      }
+    },
+    {
+      "course_id": "6a2447e7b2a25ee27d1dabdc",
+      "title": "The Complete Python Bootcamp From Zero to Hero in Python",
+      "score": 0.175,
+      "covered_skills": [],
+      "missing_skills_covered": 0,
+      "priority_coverage": 0.0,
+      "reason": "Phù hợp với lộ trình phát triển nghề nghiệp",
+      "score_breakdown": {
+        "essential_coverage": 0.0,
+        "important_coverage": 0.0,
+        "count_coverage": 0.0,
+        "semantic_relevance": 0.5,
+        "learner_fit": 1.0
+      },
+      "metadata": {
+        "fee": 0.0,
+        "duration": {
+          "value": 0,
+          "unit": "hours"
+        },
+        "level": "beginner",
+        "location_type": "online",
+        "rating": {
+          "average": 0.0,
+          "count": 0
+        },
+        "thumbnail": "https://img-c.udemycdn.com/course/480x270/567828_67d0.jpg"
+      }
+    }
+  ],
+  "total_candidates": 5,
+  "skill_gaps_normalized": [
+    "bán hàng"
+  ]
+}

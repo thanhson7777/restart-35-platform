@@ -114,6 +114,7 @@ const TrainerCourseFormPage = () => {
           categories={categories}
           onSubmit={handleSubmit}
           isSubmitting={submitting}
+          isEditMode={isEditMode}
         />
       )}
     </div>

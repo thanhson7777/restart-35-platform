@@ -126,7 +126,7 @@ export const getLessonProgress = (enrollmentId) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/lesson-progress/enrollments/${enrollmentId}/progress`);
 
 export const markLessonComplete = (enrollmentId, lessonId) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${enrollmentId}/lessons/${lessonId}/complete`);
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/enrollments/${enrollmentId}/complete-item`, { itemId: lessonId });
 
 // ─── Video Notes ──────────────────────────────────────────────────────
 export const createVideoNote = (data) =>
@@ -261,10 +261,14 @@ export const getMyCourses = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/me/my-courses`, { params });
 
 export const createCourse = (data) =>
-  authorizeAxiosInstance.post(`${API_ROOT}/v1/courses`, data);
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/courses`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
 
 export const updateCourse = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/courses/${id}`, data);
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/courses/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
 
 export const deleteCourse = (id) =>
   authorizeAxiosInstance.delete(`${API_ROOT}/v1/courses/${id}`);

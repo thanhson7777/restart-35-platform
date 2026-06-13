@@ -44,4 +44,7 @@ export const waitlistApplication = (id) =>
 // ─── Admin ───────────────────────────────────────────────────────────────────
 
 export const getAllApplications = (params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/applications/admin/all`, { params });
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/admin/jobs/applications`, { params });
+
+export const getEnterpriseApplicationStats = () =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/admin/jobs/applications/enterprise-stats`);

@@ -1014,6 +1014,20 @@ const getSkillGapHealth = async (req, res, next) => {
 // ============================================================================
 
 /**
+ * Admin: Đồng bộ Vector cho khóa học
+ * POST /v1/ai/sync-embeddings
+ */
+const syncCourseEmbeddings = async (req, res, next) => {
+  try {
+    const response = await axios.post(`${env.AI_SERVICE_URL}/api/v1/ai/course-recommendations/sync-embeddings`)
+    res.status(StatusCodes.OK).json(response.data)
+  } catch (error) {
+    console.error('[AIController] syncCourseEmbeddings error:', error.message)
+    next(error)
+  }
+}
+
+/**
  * Get course recommendations based on skill gaps
  * POST /v1/ai/course-recommendations
  */
@@ -1028,17 +1042,23 @@ const getCourseRecommendations = async (req, res, next) => {
       })
     }
 
-    console.log(`[Course Recommendations] Request with ${skill_gaps.length} skill gaps`)
+    console.log(`[Course Recommendations] Calling AI Service (Semantic Search) for ${skill_gaps.length} skill gaps`)
 
-    const result = await aiService.getCourseRecommendations({
-      skill_gaps,
+    // Format if they are string arrays
+    const formatted_gaps = skill_gaps.map(g => {
+      if (typeof g === 'string') return { skill_name: g, priority: 'essential' }
+      return { skill_name: g.skill_name || g.name || 'Unknown', priority: g.priority || 'essential' }
+    })
+
+    const response = await axios.post(`${env.AI_SERVICE_URL}/api/v1/ai/course-recommendations`, {
+      skill_gaps: formatted_gaps,
       constraints: constraints || {},
       limit: limit || 10
     })
 
-    res.status(StatusCodes.OK).json(result)
+    res.status(StatusCodes.OK).json(response.data)
   } catch (error) {
-    console.error('[AIController] getCourseRecommendations error:', error)
+    console.error('[AIController] getCourseRecommendations error:', error.message)
     next(error)
   }
 }
@@ -1150,6 +1170,7 @@ export const aiController = {
   getSkillGapHealth,
   // Course Recommendations
   getCourseRecommendations,
+  syncCourseEmbeddings,
   getLearningPath,
   // Federated Career Analysis (Phase 3)
   federatedCareerAnalysis

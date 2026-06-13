@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import toast from 'react-hot-toast'
 import { RefreshCw, ArrowUp, ArrowDown, Minus } from 'lucide-react'
 import { Button } from '@/components/ui'
-import { AdminLayout, AdminPageTitle } from '@/components/layout'
+import { AdminPageTitle } from '@/components/layout'
 import {
   getRecommendationMetricsAPI,
   getTimelineAPI,
@@ -79,7 +79,7 @@ const RecommendationAnalyticsPage = () => {
   }, [fetchData])
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-8">
 
         {/* Header row */}
@@ -172,7 +172,7 @@ const RecommendationAnalyticsPage = () => {
         {/* Top courses table */}
         <TopCoursesTable courses={topCourses} loading={loading} period={period} />
       </div>
-    </AdminLayout>
+    </>
   )
 }
 
