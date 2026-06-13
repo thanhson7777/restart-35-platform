@@ -17,6 +17,9 @@ export const getAdminCourseSchedule = (courseId) =>
 export const createSchedule = (data) =>
   authorizeAxiosInstance.post(`${API_ROOT}/v1/schedules`, data);
 
+export const autoGenerateSchedule = (courseId) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/schedules/course/${courseId}/auto-generate`);
+
 export const updateSchedule = (id, data) =>
   authorizeAxiosInstance.put(`${API_ROOT}/v1/schedules/${id}`, data);
 

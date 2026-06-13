@@ -101,6 +101,9 @@ export const getEnterpriseInterviewById = (id) =>
 export const createInterview = (data) =>
   authorizeAxiosInstance.post(`${API_ROOT}/v1/enterprise/interviews`, data);
 
+export const updateInterviewEnterprise = (id, data) =>
+  authorizeAxiosInstance.patch(`${API_ROOT}/v1/enterprise/interviews/${id}`, data);
+
 export const rescheduleInterviewEnterprise = (id, data) =>
   authorizeAxiosInstance.patch(`${API_ROOT}/v1/enterprise/interviews/${id}/reschedule`, data);
 

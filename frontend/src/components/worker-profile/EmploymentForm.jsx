@@ -79,10 +79,10 @@ function EmploymentForm({ onNext }) {
     if (saved && typeof saved === 'object' && !Array.isArray(saved) && saved.status === 'không có') {
       return true
     }
-    if (Array.isArray(saved) && (saved.length === 0 || (saved.length === 1 && !saved[0].companyName))) {
-      return true
+    if (!saved || (Array.isArray(saved) && (saved.length === 0 || (saved.length === 1 && !saved[0].companyName)))) {
+      return null
     }
-    return null
+    return false
   })
 
   // Đã xác nhận skip (đã bấm nút Tiếp tục với "Không có")
@@ -144,6 +144,9 @@ function EmploymentForm({ onNext }) {
       )
       return updated
     })
+    if (hasNoExperience === null) {
+      setHasNoExperience(false)
+    }
     triggerAutosave()
   }
 

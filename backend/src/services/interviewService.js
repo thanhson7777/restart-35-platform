@@ -9,8 +9,10 @@ import {
   DEFAULT_ITEM_PER_PAGE,
   RECRUITMENT_INTERVIEW_STATUS,
   RECRUITMENT_APPLICATION_STATUS,
+  PLACEMENT_STATUS,
   USER_ROLES
 } from '~/utils/constants'
+import { placementModel } from '~/models/placementModel'
 
 // ============ ENTERPRISE: INTERVIEW MANAGEMENT ============
 
@@ -134,6 +136,23 @@ const rescheduleInterview = async (interviewId, enterpriseId, newTime, reason = 
   } catch (error) { throw error }
 }
 
+// Cập nhật lịch phỏng vấn (không giới hạn như hoãn)
+const updateInterview = async (interviewId, enterpriseId, updateData) => {
+  try {
+    const interview = await interviewModel.findOneByIdAndEnterprise(interviewId, enterpriseId)
+    if (!interview) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy lịch phỏng vấn')
+    }
+    
+    // Only update specific fields
+    const payload = {}
+    if (updateData.scheduledAt) payload.scheduledAt = updateData.scheduledAt
+    
+    const result = await interviewModel.update(interviewId, payload)
+    return result
+  } catch (error) { throw error }
+}
+
 // Hủy phỏng vấn
 const cancelInterview = async (interviewId, enterpriseId, reason = null) => {
   try {
@@ -156,13 +175,68 @@ const completeInterview = async (interviewId, enterpriseId, feedback) => {
   try {
     const result = await interviewModel.completeInterview(interviewId, enterpriseId, feedback)
 
-    // Update application status
-    await applicationModel.updateStatus(
-      result.applicationId,
-      RECRUITMENT_APPLICATION_STATUS.INTERVIEWED,
-      enterpriseId,
-      'Phỏng vấn đã hoàn thành'
-    )
+    if (feedback.enterpriseDecision === 'reject') {
+      await applicationModel.updateStatus(
+        result.applicationId,
+        RECRUITMENT_APPLICATION_STATUS.REJECTED,
+        enterpriseId,
+        'Không trúng tuyển sau phỏng vấn'
+      )
+    } else if (feedback.enterpriseDecision === 'hire') {
+      await applicationModel.updateStatus(
+        result.applicationId,
+        RECRUITMENT_APPLICATION_STATUS.HIRED,
+        enterpriseId,
+        'Đã trúng tuyển trực tiếp sau phỏng vấn'
+      )
+
+      // Fetch job and enterprise info to create placement
+      const job = await recruitmentJobModel.findOneById(result.jobId)
+      const enterprise = await userModel.findOneById(enterpriseId)
+
+      const placementData = {
+        workerId: result.workerId,
+        enterpriseId: result.enterpriseId,
+        jobId: result.jobId,
+        applicationId: result.applicationId,
+        employer: {
+          name: enterprise?.organization?.name || enterprise?.displayName || enterprise?.username || 'Doanh nghiệp',
+          logo: enterprise?.organization?.logo || '',
+          industry: enterprise?.organization?.industry || '',
+          contactPerson: '',
+          contactEmail: enterprise?.email || '',
+          contactPhone: enterprise?.phone || ''
+        },
+        job: {
+          title: job?.job?.title || 'Công việc',
+          position: job?.job?.category || 'Nhân viên',
+          salary: {
+            amount: feedback.enterpriseSalary || job?.job?.salary?.min || 0,
+            currency: job?.job?.salary?.currency || 'VND',
+            paymentType: 'monthly'
+          },
+          startDate: feedback.enterpriseStartDate || new Date(),
+          location: job?.location?.address || ''
+        },
+        status: PLACEMENT_STATUS.ACCEPTED,
+        acceptedAt: Date.now(),
+        startedAt: feedback.enterpriseStartDate || new Date(),
+        referralSource: 'recruitment_platform'
+      }
+
+      const placement = await placementModel.createNew(placementData)
+      await applicationModel.update(result.applicationId, {
+        placementId: placement.insertedId.toString()
+      })
+    } else {
+      // Default fallback
+      await applicationModel.updateStatus(
+        result.applicationId,
+        RECRUITMENT_APPLICATION_STATUS.INTERVIEWED,
+        enterpriseId,
+        'Phỏng vấn đã hoàn thành'
+      )
+    }
 
     return result
   } catch (error) { throw error }
@@ -273,6 +347,7 @@ export const interviewService = {
   getInterviews,
   getInterviewById,
   rescheduleInterview,
+  updateInterview,
   cancelInterview,
   completeInterview,
   markNoShow,

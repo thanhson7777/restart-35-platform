@@ -49,6 +49,14 @@ Router.post('/:id/cancel',
   interviewController.cancelInterview
 )
 
+// Cập nhật phỏng vấn
+Router.patch('/:id',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedEnterprise,
+  interviewValidation.checkId,
+  interviewController.updateInterview
+)
+
 // Hoàn thành phỏng vấn
 Router.post('/:id/complete',
   authMiddleware.isAuthorized,

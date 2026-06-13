@@ -31,13 +31,8 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
     completionStatus: Joi.string()
       .valid(...Object.values(COMPLETION_STATUS))
       .default(COMPLETION_STATUS.NOT_STARTED),
-    currentLesson: Joi.number().integer().min(0).default(0),
-    totalLessons: Joi.number().integer().min(0).default(0),
-    byDelivery: Joi.object({
-      video: Joi.number().min(0).max(100).default(0),
-      live: Joi.number().min(0).max(100).default(0),
-      offline: Joi.number().min(0).max(100).default(0)
-    }).default({ video: 0, live: 0, offline: 0 })
+    completedItems: Joi.array().items(Joi.string()).default([]),
+    currentLessonId: Joi.string().allow(null, '')
   }),
 
   attendance: Joi.object({
@@ -219,10 +214,6 @@ const findByUser = async (userId, skip = 0, limit = 10, filters = {}) => {
       .limit(limit)
       .toArray()
 
-    // #region agent debug log
-    fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1e17d2'},body:JSON.stringify({sessionId:'1e17d2',location:'enrollmentModel.js:findByUser',message:'findByUser raw courseIds',data:{userId,total:enrollments.length,courseIds:enrollments.map(e=>e.courseId)},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-
     const totalEnrollments = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).countDocuments(query)
 
     return { enrollments, totalEnrollments }
@@ -363,6 +354,52 @@ const updateProgress = async (enrollmentId, progressData) => {
     )
 
     return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const markItemCompleted = async (enrollmentId, itemId, totalItems) => {
+  try {
+    const objectId = new ObjectId(enrollmentId)
+    
+    await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).updateOne(
+      { _id: objectId },
+      { $addToSet: { 'progress.completedItems': String(itemId) } }
+    )
+
+    const enrollment = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).findOne({ _id: objectId });
+    if (!enrollment) return null;
+
+    const completedCount = enrollment.progress?.completedItems?.length || 0;
+    const safeTotal = totalItems > 0 ? totalItems : 1;
+    let newPercentage = Math.round((completedCount / safeTotal) * 100);
+    if (newPercentage > 100) newPercentage = 100;
+
+    let completionStatus = COMPLETION_STATUS.IN_PROGRESS;
+    let completedAt = enrollment.completedAt;
+
+    if (newPercentage >= 100) {
+      completionStatus = COMPLETION_STATUS.COMPLETED;
+      completedAt = completedAt || Date.now();
+    } else if (newPercentage === 0) {
+      completionStatus = COMPLETION_STATUS.NOT_STARTED;
+    }
+
+    const finalResult = await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).findOneAndUpdate(
+      { _id: objectId },
+      { 
+        $set: { 
+          'progress.percentage': newPercentage,
+          'progress.completionStatus': completionStatus,
+          completedAt: completedAt,
+          updatedAt: Date.now()
+        } 
+      },
+      { returnDocument: 'after' }
+    )
+
+    return finalResult;
   } catch (error) {
     throw new Error(error.message)
   }
@@ -926,6 +963,7 @@ export const enrollmentModel = {
   // Update
   update,
   updateProgress,
+  markItemCompleted,
   updateAttendance,
   updateStatus,
   updatePaymentStatus,

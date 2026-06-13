@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import { Agentation } from 'agentation';
 import AuthPage from '@/pages/AuthPage';
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
+import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import WorkerProfilePage from '@/pages/WorkerProfilePage';
 import WorkerDashboardPage from '@/pages/worker/WorkerDashboardPage';
 import WorkerAccountSettingsPage from '@/pages/worker/WorkerAccountSettingsPage';
@@ -39,9 +41,8 @@ import ContactPage from '@/pages/ContactPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
 import AdminCoursesPage from '@/pages/AdminCoursesPage';
-import AdminCourseApprovalPage from '@/pages/admin/AdminCourseApprovalPage';
 import AdminEnrollmentsPage from '@/pages/admin/AdminEnrollmentsPage';
-import RecommendationAnalyticsPage from '@/pages/admin/RecommendationAnalyticsPage';
+import AdminAnalyticsPage from '@/pages/admin/AdminAnalyticsPage';
 import ScheduleBuilderPage from '@/pages/admin/ScheduleBuilderPage';
 import AdminScholarshipsPage from '@/pages/AdminScholarshipsPage';
 import AdminOrganizationsPage from '@/pages/admin/AdminOrganizationsPage';
@@ -87,6 +88,7 @@ import WorkerApplicationsPage from '@/pages/worker/WorkerApplicationsPage';
 import WorkerApplicationDetailPage from '@/pages/worker/WorkerApplicationDetailPage';
 import WorkerInterviewsPage from '@/pages/worker/WorkerInterviewsPage';
 import WorkerOffersPage from '@/pages/worker/WorkerOffersPage';
+import WorkerAnalyticsPage from '@/pages/worker/WorkerAnalyticsPage';
 import CommunityHubPage from '@/pages/CommunityHubPage';
 import CommunityJobDetailPage from '@/pages/community/CommunityJobDetailPage';
 import EventDetailPage from '@/pages/community/EventDetailPage';
@@ -171,15 +173,16 @@ function App() {
       <Routes>
         {/* Auth Page */}
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/courses" element={<AdminCoursesPage />} />
-        <Route path="/admin/courses/approval" element={<AdminCourseApprovalPage />} />
         <Route path="/admin/courses/:id/schedule" element={<ScheduleBuilderPage />} />
         <Route path="/admin/courses/:id/schedule/session/:sessionNumber/attendance" element={<AttendancePage />} />
         <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
-        <Route path="/admin/recommendation-analytics" element={<RecommendationAnalyticsPage />} />
+        <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
         <Route path="/admin/applications" element={<AdminApplicationsPage />} />
         <Route path="/admin/jobs/pending" element={<AdminPendingJobsPage />} />
         <Route path="/admin/jobs/:id/review" element={<AdminJobReviewPage />} />
@@ -191,7 +194,7 @@ function App() {
         <Route path="/admin/certificates" element={<AdminCertificatesPage />} />
         <Route path="/admin/placements" element={<AdminPlacementsPage />} />
         <Route path="/admin/reviews" element={<AdminReviewsModerationPage />} />
-        <Route path="/admin/learning-records" element={<AdminLearningRecordsPage />} />
+
         <Route path="/admin/interactions" element={<AdminInteractionsPage />} />
         <Route path="/admin/esco-sync" element={<AdminEscoSyncPage />} />
 
@@ -246,6 +249,7 @@ function App() {
         <Route path="/worker" element={<WorkerLayout><WorkerDashboardPage /></WorkerLayout>} />
         <Route path="/worker/profile" element={<WorkerLayout><WorkerProfilePage /></WorkerLayout>} />
         <Route path="/worker/account-settings" element={<WorkerLayout><WorkerAccountSettingsPage /></WorkerLayout>} />
+        <Route path="/worker/analytics" element={<WorkerLayout><WorkerAnalyticsPage /></WorkerLayout>} />
         <Route path="/worker/community" element={<WorkerLayout />}>
           <Route index element={<Navigate to="/worker/community/forum" replace />} />
           <Route path="forum" element={<ForumPage />} />
@@ -266,7 +270,7 @@ function App() {
         <Route path="/my/offers" element={<WorkerLayout><WorkerOffersPage /></WorkerLayout>} />
         <Route path="/my/offers/:id" element={<WorkerLayout><WorkerOffersPage /></WorkerLayout>} />
         {/* Courses */}
-        <Route path="/courses" element={<CoursesPage />} />
+        <Route path="/courses" element={<WorkerLayout><CoursesPage /></WorkerLayout>} />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
         <Route path="/courses/:id/curriculum" element={<CourseCurriculumPage />} />
         {/* My ISA */}
@@ -288,11 +292,10 @@ function App() {
         <Route path="/verify-certificate" element={<WorkerLayout><CertificateVerifyPage /></WorkerLayout>} />
         <Route path="/account/verification" element={<WorkerLayout><AccountVerificationPage /></WorkerLayout>} />
         <Route path="/opportunity-map" element={
-          <WorkerLayout>
-            <ProtectedRoute allowedRoles={['worker', 'admin']}>
-              <OpportunityMapPage />
-            </ProtectedRoute>
-          </WorkerLayout>
+          <div className="min-h-screen bg-background flex flex-col">
+            <Navbar />
+            <OpportunityMapPage />
+          </div>
         } />
         {/* Scholarships */}
         <Route path="/scholarships" element={<ScholarshipPage />} />

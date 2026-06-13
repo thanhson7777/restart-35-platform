@@ -134,9 +134,6 @@ export default function WorkerAccountSettingsPage() {
 
   // ── Init form with current user + worker profile ───────────
   useEffect(() => {
-    // #region agent debug log
-    fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3b3da8'},body:JSON.stringify({sessionId:'3b3da8',location:'WorkerAccountSettingsPage.jsx:useEffect_mount',message:'useEffect triggered',data:{hasCurrentUser:!!currentUser,hasMyProfile:!!myProfile,myProfileBasicInfo:myProfile?.basicInfo},timestamp:Date.now(),hypothesisId:'E',runId:'init'})}).catch(()=>{});
-    // #endregion
     if (!currentUser) return
 
     // Prefer worker profile basicInfo; fall back to top-level user fields
@@ -151,10 +148,6 @@ export default function WorkerAccountSettingsPage() {
     const district = profileBasicInfo.district || userBasicInfo.district || ''
     const education = profileBasicInfo.education || userBasicInfo.education || ''
     const maritalStatus = profileBasicInfo.maritalStatus || userBasicInfo.maritalStatus || ''
-
-    // #region agent debug log
-    fetch('http://127.0.0.1:7657/ingest/50723660-d880-4eec-a288-d8347939a202',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3b3da8'},body:JSON.stringify({sessionId:'3b3da8',location:'WorkerAccountSettingsPage.jsx:useEffect_setFormData',message:'computed formData',data:{displayName,phone,age,gender,province,district,education,maritalStatus},timestamp:Date.now(),hypothesisId:'E2',runId:'init'})}).catch(()=>{});
-    // #endregion
 
     setFormData({ displayName, phone, age, gender, province, district, education, maritalStatus })
     setAvatarPreview(currentUser.avatar || '')

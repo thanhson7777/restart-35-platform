@@ -16,6 +16,7 @@ import {
   Map as MapIcon,
   ChevronDown,
 } from 'lucide-react'
+import { API_ROOT } from '@/utils/constants'
 
 // Fix Leaflet default icon broken in Vite/Webpack bundlers
 // eslint-disable-next-line no-unused-vars
@@ -58,14 +59,29 @@ export default function OpportunityMapPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const base = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
-      const [jobsRes, coursesRes] = await Promise.all([
-        fetch(`${base}/v1/jobs/map-data`).catch(() => ({ ok: false, json: async () => ({ data: [] }) })),
-        fetch(`${base}/v1/courses/map-data`).catch(() => ({ ok: false, json: async () => ({ data: [] }) })),
-      ])
-      const [jobsData, coursesData] = await Promise.all([jobsRes.json(), coursesRes.json()])
-      setJobs(jobsData.data || [])
-      setCourses(coursesData.data || [])
+      const res = await fetch(`${API_ROOT}/v1/map/opportunities`)
+      const json = await res.json()
+      if (json.success) {
+        // Map data to match expected format (flatten coordinates)
+        const mappedJobs = (json.data.jobs || []).map(j => ({
+          ...j,
+          lat: j.location?.coordinates?.lat,
+          lng: j.location?.coordinates?.lng,
+          location: j.location?.address,
+          price: null,
+          salaryText: j.salary ? `${j.salary.min || 0} - ${j.salary.max || 'Thỏa thuận'}` : 'Thỏa thuận'
+        }))
+        const mappedCourses = (json.data.courses || []).map(c => ({
+          ...c,
+          lat: c.location?.coordinates?.lat,
+          lng: c.location?.coordinates?.lng,
+          location: c.location?.address,
+          price: c.fee,
+          salaryText: null
+        }))
+        setJobs(mappedJobs)
+        setCourses(mappedCourses)
+      }
     } catch (err) {
       console.warn('Map data fetch error:', err)
     } finally {
@@ -106,11 +122,10 @@ export default function OpportunityMapPage() {
         <div className="flex items-center bg-muted rounded-lg p-0.5 ml-2">
           <button
             onClick={() => { setActiveTab('jobs'); setSelected(null) }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === 'jobs'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === 'jobs'
+              ? 'bg-background text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
+              }`}
           >
             <Briefcase className="w-3.5 h-3.5" />
             Việc làm
@@ -122,11 +137,10 @@ export default function OpportunityMapPage() {
           </button>
           <button
             onClick={() => { setActiveTab('courses'); setSelected(null) }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-              activeTab === 'courses'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === 'courses'
+              ? 'bg-background text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
+              }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
             Khóa học
@@ -219,8 +233,8 @@ export default function OpportunityMapPage() {
                     {item.venue && (
                       <p className="text-xs text-gray-500 mt-0.5">{item.venue}</p>
                     )}
-                    {item.salary && (
-                      <p className="text-xs font-medium text-green-700 mt-1">{item.salary}</p>
+                    {item.salaryText && (
+                      <p className="text-xs font-medium text-green-700 mt-1">{item.salaryText}</p>
                     )}
                     {item.price !== undefined && item.price !== null && (
                       <p className="text-xs font-medium text-primary mt-1">
@@ -228,7 +242,7 @@ export default function OpportunityMapPage() {
                       </p>
                     )}
                     <a
-                      href={activeTab === 'jobs' ? `/jobs/${item._id}` : `/courses/${item._id}`}
+                      href={activeTab === 'jobs' ? `/community/jobs/${item._id}` : `/courses/${item._id}`}
                       className="text-xs text-blue-600 hover:underline mt-1.5 block"
                     >
                       Xem chi tiết
@@ -270,11 +284,10 @@ export default function OpportunityMapPage() {
                   <div
                     key={item._id}
                     onClick={() => setSelected(item)}
-                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                      selected?._id === item._id
-                        ? 'border-primary bg-primary/5 shadow-sm'
-                        : 'border-border hover:border-primary/50'
-                    }`}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all ${selected?._id === item._id
+                      ? 'border-primary bg-primary/5 shadow-sm'
+                      : 'border-border hover:border-primary/50'
+                      }`}
                   >
                     <div className="flex items-start gap-3">
                       <div
@@ -289,9 +302,9 @@ export default function OpportunityMapPage() {
                           {item.location || item.venue || item.companyName || ''}
                         </p>
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                          {item.salary && (
+                          {item.salaryText && (
                             <span className="text-xs font-medium text-green-600 dark:text-green-400">
-                              {item.salary}
+                              {item.salaryText}
                             </span>
                           )}
                           {item.price !== undefined && item.price !== null && (

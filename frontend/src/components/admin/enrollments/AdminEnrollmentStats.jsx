@@ -206,7 +206,7 @@ const AdminEnrollmentStats = ({ stats, loading }) => {
             </h3>
             {topCourses.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={topCourses.slice(0, 5)} layout="vertical" margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                <BarChart data={topCourses.slice(0, 5)} layout="vertical" margin={{ top: 5, right: 15, left: 15, bottom: 5 }}>
                   <defs>
                     <linearGradient id="barGlow" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stopColor="hsl(var(--admin-accent))" stopOpacity={0.3} />
@@ -218,9 +218,9 @@ const AdminEnrollmentStats = ({ stats, loading }) => {
                   <YAxis
                     type="category"
                     dataKey="title"
-                    width={100}
-                    tick={{ fontSize: 10, fill: 'hsl(var(--admin-text-muted))' }}
-                    tickFormatter={(value) => value.length > 12 ? value.substring(0, 12) + '...' : value}
+                    width={130}
+                    tick={{ fontSize: 11, fill: 'hsl(var(--admin-text-muted))' }}
+                    tickFormatter={(value) => value.length > 18 ? value.substring(0, 18) + '...' : value}
                     stroke="hsl(var(--admin-border))"
                   />
                   <Tooltip

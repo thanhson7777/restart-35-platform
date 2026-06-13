@@ -64,6 +64,13 @@ Router.post(
 
 // ============ TRAINER ROUTES (Auth Required) ============
 
+// Tự động tạo lịch học từ course scheduleConfig
+Router.post(
+  '/course/:id/auto-generate',
+  authMiddleware.isAuthorized,
+  scheduleController.generateAutoSchedule
+)
+
 // Tạo lịch học mới
 Router.post(
   '/',

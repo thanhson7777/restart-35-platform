@@ -65,6 +65,17 @@ const rescheduleInterview = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const updateInterview = async (req, res, next) => {
+  try {
+    const result = await interviewService.updateInterview(req.params.id, req.user._id, req.body)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Cập nhật lịch phỏng vấn thành công!',
+      data: result
+    })
+  } catch (error) { next(error) }
+}
+
 const cancelInterview = async (req, res, next) => {
   try {
     const result = await interviewService.cancelInterview(req.params.id, req.user._id, req.body.reason)
@@ -191,6 +202,7 @@ export const interviewController = {
   getInterviews,
   getInterviewById,
   rescheduleInterview,
+  updateInterview,
   cancelInterview,
   completeInterview,
   markNoShow,

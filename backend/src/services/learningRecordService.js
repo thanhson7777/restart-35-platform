@@ -30,9 +30,11 @@ const recordEvent = async (userId, data) => {
       metadata: metadata || {}
     }
 
-    const result = await learningRecordModel.createNew(recordData)
-    const record = { _id: result.insertedId, ...recordData }
-    return record
+    // [HIDE] Temporarily disabled Event Logging to reduce DB bloat
+    // const result = await learningRecordModel.createNew(recordData)
+    // const record = { _id: result.insertedId, ...recordData }
+    // return record
+    return { status: 'disabled', message: 'Event logging is temporarily disabled' }
   } catch (error) {
     throw error
   }

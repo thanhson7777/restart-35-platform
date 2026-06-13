@@ -103,6 +103,27 @@ const updateStatus = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ============ COMPLETE ITEM ============
+const completeItem = async (req, res, next) => {
+  try {
+    const enrollmentId = req.params.id
+    const userId = req.user._id.toString()
+    const { itemId } = req.body
+
+    if (!itemId) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Thiếu itemId cần hoàn thành!')
+    }
+
+    const enrollment = await enrollmentService.completeItem(enrollmentId, itemId, userId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đánh dấu hoàn thành thành công!',
+      data: enrollment
+    })
+  } catch (error) { next(error) }
+}
+
 // ============ CANCEL ENROLLMENT ============
 const cancelEnrollment = async (req, res, next) => {
   try {
@@ -384,6 +405,7 @@ export const enrollmentController = {
   enrollCourse,
   getMyEnrollments,
   getEnrollmentById,
+  completeItem,
   cancelEnrollment,
   dropEnrollment,
   getEnrollmentRiskDetail,

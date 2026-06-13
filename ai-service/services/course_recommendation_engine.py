@@ -199,6 +199,67 @@ class CourseRecommendationEngine:
             logger.warning(f"FAISS index build failed: {e} — using numpy fallback")
             self._faiss_loaded = False
 
+    def sync_course_embeddings(self) -> Dict[str, Any]:
+        """
+        Fetch all APPROVED courses from MongoDB, extract text (skills & title),
+        generate sentence embeddings, and save to course_embeddings.npy.
+        """
+        self._connect_mongodb()
+        if self._courses_coll is None:
+            raise ValueError("Cannot connect to MongoDB courses collection")
+
+        logger.info("Fetching courses from MongoDB for syncing embeddings...")
+        courses = list(self._courses_coll.find({"status": {"$in": ["approved", "APPROVED"]}, "_destroy": False}))
+        if not courses:
+            return {"success": True, "count": 0, "message": "No approved courses found"}
+
+        texts_to_encode = []
+        labels = []
+        
+        for course in courses:
+            skills = course.get("skills", [])
+            title = course.get("title", "")
+            
+            # Combine title and skills for encoding
+            combined_text = f"{title} " + " ".join(skills)
+            texts_to_encode.append(combined_text.strip())
+            
+            labels.append({
+                "course_id": str(course["_id"]),
+                "skills": skills,
+                "title": title
+            })
+
+        logger.info(f"Generating embeddings for {len(texts_to_encode)} courses...")
+        semantic = self._get_semantic()
+        embeddings = semantic.encode(texts_to_encode, batch_size=32)
+        
+        if embeddings is None:
+            raise ValueError("Failed to generate embeddings")
+
+        # Save to data dir
+        data_dir = Path(__file__).parent.parent / "data"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        
+        npy_path = data_dir / "course_embeddings.npy"
+        json_path = data_dir / "course_labels.json"
+
+        np.save(npy_path, embeddings)
+        import json
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(labels, f, ensure_ascii=False, indent=2)
+
+        # Reload state
+        self._load_course_embeddings()
+        self._load_faiss_index()
+
+        logger.info(f"Successfully synced {len(courses)} course embeddings.")
+        return {
+            "success": True,
+            "count": len(courses),
+            "message": f"Synced {len(courses)} courses successfully"
+        }
+
     # -------------------------------------------------------------------------
     # Main entry point
     # -------------------------------------------------------------------------
@@ -358,6 +419,7 @@ class CourseRecommendationEngine:
                 skill_ors.append(
                     {"skills": {"$regex": re.escape(skill.lower()), "$options": "i"}}
                 )
+        # Allow strict regex filter to filter out completely unrelated courses
         if skill_ors:
             query["$or"] = skill_ors
 
@@ -588,6 +650,7 @@ class CourseRecommendationEngine:
                 "location_type": course.get("location", {}).get("type", ""),
                 "rating": course.get("rating", {}),
                 "thumbnail": course.get("thumbnail") or course.get("imageUrl", ""),
+                "url": course.get("url", ""),
             }
             scored_candidates.append(result)
 
@@ -599,13 +662,12 @@ class CourseRecommendationEngine:
         """Check if a normalized skill matches any skill in a course."""
         # Use diacritic-stripped key for cross-compatibility
         def norm_key(text: str) -> str:
-            return (
-                unicodedata.normalize("NFD", text.lower())
-                .replace("\u0300-\u036f", "")
-                .replace(" ", "_")
-                .replace(r"[^a-z0-9_]", "")
-                .replace("_", "")
-            )
+            text = unicodedata.normalize("NFD", text.lower())
+            text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+            text = text.replace(" ", "_")
+            text = re.sub(r"[^a-z0-9_]", "", text)
+            text = text.replace("_", "")
+            return text
 
         key = norm_key(canonical_skill)
         for cs in course_skills:

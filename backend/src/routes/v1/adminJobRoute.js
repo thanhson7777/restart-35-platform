@@ -37,4 +37,18 @@ Router.post('/:id/reject',
   recruitmentJobController.rejectJob
 )
 
+// Thống kê đơn ứng tuyển theo doanh nghiệp
+Router.get('/applications/enterprise-stats',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  recruitmentJobController.getEnterpriseApplicationStats
+)
+
+// Lấy danh sách tất cả đơn ứng tuyển
+Router.get('/applications',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  recruitmentJobController.getAllApplicationsAdmin
+)
+
 export const adminJobRoute = Router

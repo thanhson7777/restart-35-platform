@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { RefreshCw, Eye, CheckCircle, XCircle, Clock, X } from 'lucide-react';
 import { Button, Badge } from '@/components/ui';
 import { AdminLayout, AdminPageTitle } from '@/components/layout';
-import { getAllApplications, approveApplication, rejectApplication } from '@/apis/applicationApi';
+import { approveApplication, rejectApplication, getEnterpriseApplicationStats, getAllApplications } from '@/apis/applicationApi';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
@@ -17,36 +17,42 @@ const formatDate = (date) => {
 };
 
 const statusConfig = {
-  submitted: { label: 'Đã nộp', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
-  pending: { label: 'Chờ duyệt', className: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
-  approved: { label: 'Đã duyệt', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  new: { label: 'Mới', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+  reviewing: { label: 'Đang xem', className: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+  shortlisted: { label: 'Shortlist', className: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },
+  interview_scheduled: { label: 'Đã lên lịch PV', className: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20' },
+  interviewed: { label: 'Đã PV', className: 'bg-teal-500/10 text-teal-500 border-teal-500/20' },
+  offered: { label: 'Đã offer', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  hired: { label: 'Đã tuyển', className: 'bg-green-500/10 text-green-500 border-green-500/20' },
   rejected: { label: 'Từ chối', className: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
-  waitlisted: { label: 'Danh sách chờ', className: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },
+  withdrawn: { label: 'Rút đơn', className: 'bg-slate-500/10 text-slate-500 border-slate-500/20' }
 };
 
 const STATUS_TABS = [
   { key: 'all', label: 'Tất cả' },
-  { key: 'submitted', label: 'Đã nộp' },
-  { key: 'pending', label: 'Chờ duyệt' },
-  { key: 'approved', label: 'Đã duyệt' },
+  { key: 'new', label: 'Mới' },
+  { key: 'shortlisted', label: 'Shortlist' },
+  { key: 'interview_scheduled', label: 'Lên lịch PV' },
+  { key: 'hired', label: 'Đã tuyển' },
   { key: 'rejected', label: 'Từ chối' },
-  { key: 'waitlisted', label: 'Danh sách chờ' },
 ];
 
 const AdminApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState(null);
   const [pagination, setPagination] = useState({
-    currentPage: 1,
+    page: 1,
     limit: DEFAULT_LIMIT,
     totalRecords: 0,
-    totalPages: 0,
+    totalPages: 1,
   });
+  const [enterpriseStats, setEnterpriseStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
   const [filters, setFilters] = useState({
     status: '',
     search: '',
+    enterpriseId: '',
     sortBy: 'createdAt',
     sortOrder: 'desc',
     page: DEFAULT_PAGE,
@@ -56,9 +62,11 @@ const AdminApplicationsPage = () => {
   const [selectedApp, setSelectedApp] = useState(null);
 
   const fetchStats = useCallback(async () => {
+    setStatsLoading(true);
+    
     try {
-      setStatsLoading(true);
-      const res = await getAllApplications({ limit: 1 });
+      const response = await getAllApplications({ limit: 1 });
+      const res = response.data;
       if (res.success) {
         setStats({
           total: res.pagination?.totalRecords || 0,
@@ -68,10 +76,20 @@ const AdminApplicationsPage = () => {
         });
       }
     } catch (error) {
-      console.error('Error fetching stats:', error);
-    } finally {
-      setStatsLoading(false);
+      console.error('Error fetching scholarship stats:', error);
     }
+
+    try {
+      const response = await getEnterpriseApplicationStats();
+      const entRes = response.data;
+      if (entRes.success) {
+        setEnterpriseStats(entRes.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching enterprise stats:', error);
+    }
+
+    setStatsLoading(false);
   }, []);
 
   const fetchApplications = useCallback(async () => {
@@ -83,12 +101,14 @@ const AdminApplicationsPage = () => {
       };
       if (filters.status) params.status = filters.status;
       if (filters.search) params.search = filters.search;
+      if (filters.enterpriseId) params.enterpriseId = filters.enterpriseId;
       if (filters.sortBy) params.sortBy = filters.sortBy;
       if (filters.sortOrder) params.sortOrder = filters.sortOrder;
 
-      const res = await getAllApplications(params);
+      const response = await getAllApplications(params);
+      const res = response.data;
       if (res.success) {
-        setApplications(res.data || []);
+        setApplications(res.applications || res.data || []);
 
         const statsData = res.stats || {};
         setStats((s) => ({
@@ -213,6 +233,58 @@ const AdminApplicationsPage = () => {
         ))}
       </div>
 
+      {/* Enterprise Stats Section */}
+      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden mb-6">
+        <div className="p-4 border-b border-[hsl(var(--admin-border))]">
+          <h3 className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">Thống kê theo doanh nghiệp (Việc làm)</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
+              <tr>
+                <th className="px-4 py-3 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Doanh nghiệp</th>
+                <th className="px-4 py-3 text-right text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Tổng đơn</th>
+                <th className="px-4 py-3 text-right text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Chờ xử lý</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[hsl(var(--admin-border))]">
+              {statsLoading ? (
+                <tr>
+                  <td colSpan="3" className="px-4 py-6 text-center text-sm text-[hsl(var(--admin-text-muted))] animate-pulse">Đang tải dữ liệu...</td>
+                </tr>
+              ) : enterpriseStats.length === 0 ? (
+                <tr>
+                  <td colSpan="3" className="px-4 py-6 text-center text-sm text-[hsl(var(--admin-text-muted))]">Chưa có dữ liệu thống kê doanh nghiệp</td>
+                </tr>
+              ) : (
+                enterpriseStats.map((ent) => (
+                  <tr key={ent._id} className="hover:bg-[hsl(var(--admin-surface-hover))] transition-colors">
+                    <td className="px-4 py-3">
+                      <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">{ent.enterpriseName}</p>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))]">{ent.enterpriseEmail || 'N/A'}</p>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-lg bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))]">
+                        {ent.totalApplications} đơn
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {ent.pendingApplications > 0 ? (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                          {ent.pendingApplications} chờ duyệt
+                        </span>
+                      ) : (
+                        <span className="text-xs text-[hsl(var(--admin-text-muted))]">-</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-4 mb-6">
         <div className="flex gap-3 mb-4">
@@ -228,6 +300,20 @@ const AdminApplicationsPage = () => {
               focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]/30 text-sm"
           />
           <Button onClick={handleSearch} size="sm" className="h-10">Tìm kiếm</Button>
+          <select
+            value={filters.enterpriseId}
+            onChange={(e) => setFilters((f) => ({ ...f, enterpriseId: e.target.value }))}
+            className="w-64 px-4 py-2.5 border border-[hsl(var(--admin-border))] rounded-xl
+              bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))]
+              focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]/30 text-sm"
+          >
+            <option value="">Tất cả doanh nghiệp</option>
+            {enterpriseStats.map((ent) => (
+              <option key={ent._id} value={ent.enterpriseId}>
+                {ent.enterpriseName}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex flex-wrap gap-2">
           {STATUS_TABS.map((tab) => {
@@ -255,7 +341,7 @@ const AdminApplicationsPage = () => {
           <table className="w-full">
             <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
               <tr>
-                {['Học viên', 'Khóa học', 'Học bổng', 'Trạng thái', 'Ngày nộp', 'Thao tác'].map((h) => (
+                {['Ứng viên', 'Vị trí', 'Doanh nghiệp', 'Trạng thái', 'Ngày nộp', 'Thao tác'].map((h) => (
                   <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -283,7 +369,7 @@ const AdminApplicationsPage = () => {
             <table className="w-full">
               <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
                 <tr>
-                  {['Học viên', 'Khóa học', 'Học bổng', 'Trạng thái', 'Ngày nộp', 'Thao tác'].map((h) => (
+                  {['Ứng viên', 'Vị trí', 'Doanh nghiệp', 'Trạng thái', 'Ngày nộp', 'Thao tác'].map((h) => (
                     <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -296,21 +382,21 @@ const AdminApplicationsPage = () => {
                       <td className="px-4 py-3">
                         <div>
                           <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
-                            {app.workerId?.displayName || app.workerName || 'N/A'}
+                            {app.worker?.displayName || app.workerName || 'N/A'}
                           </p>
                           <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-                            {app.workerId?.email || app.workerEmail || ''}
+                            {app.worker?.email || app.workerEmail || ''}
                           </p>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-sm text-[hsl(var(--admin-text-secondary))]">
-                          {app.courseId?.title || app.courseName || '-'}
+                          {app.job?.title || app.jobTitle || '-'}
                         </p>
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-sm text-[hsl(var(--admin-text-secondary))]">
-                          {app.scholarshipId?.title || '-'}
+                          {app.enterprise?.displayName || app.enterpriseName || '-'}
                         </p>
                       </td>
                       <td className="px-4 py-3">
@@ -332,26 +418,6 @@ const AdminApplicationsPage = () => {
                           >
                             <Eye className="w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
                           </button>
-                          {(app.status === 'submitted' || app.status === 'pending') && (
-                            <>
-                              <button
-                                onClick={() => handleApprove(app)}
-                                disabled={actionLoading}
-                                className="p-1.5 hover:bg-emerald-500/10 rounded-lg transition-colors"
-                                title="Duyệt"
-                              >
-                                <CheckCircle className="w-4 h-4 text-emerald-500" />
-                              </button>
-                              <button
-                                onClick={() => handleReject(app)}
-                                disabled={actionLoading}
-                                className="p-1.5 hover:bg-rose-500/10 rounded-lg transition-colors"
-                                title="Từ chối"
-                              >
-                                <XCircle className="w-4 h-4 text-rose-500" />
-                              </button>
-                            </>
-                          )}
                         </div>
                       </td>
                     </tr>

@@ -13,26 +13,43 @@ import {
 import { Building2 } from 'lucide-react';
 import { Badge } from '@/components/ui';
 
-const adminNavItems = [
-  { title: 'Tổng quan', href: '/admin', icon: GridFour },
-  { title: 'Quản lý người dùng', href: '/admin/users', icon: Users, badge: '2.4k' },
-  { title: 'Quản lý khóa học', href: '/admin/courses', icon: BookOpenText },
-  { title: 'Duyệt khóa học', href: '/admin/courses/approval', icon: CheckSquare },
-  { title: 'Quản lý tuyển sinh', href: '/admin/enrollments', icon: GraduationCap, badge: '12' },
-  { title: 'Đối tác', href: '/admin/organizations', icon: Building2 },
-  { title: 'Thanh toán', href: '/admin/payments', icon: CreditCard },
-  { title: 'Đơn ứng tuyển', href: '/admin/applications', icon: FileText, badge: '5' },
-  { title: 'Duyệt tin tuyển dụng', href: '/admin/jobs/pending', icon: Megaphone },
-  { title: 'Học bổng', href: '/admin/scholarships', icon: Medal },
-  { title: 'ISA Repayments', href: '/admin/isa-repayments', icon: TrendUp },
-  { title: 'Funding Cấu hình', href: '/admin/funding-configs', icon: Wallet },
-  { title: 'Chứng chỉ', href: '/admin/certificates', icon: Certificate },
-  { title: 'Placements', href: '/admin/placements', icon: Briefcase },
-  { title: 'Duyệt Reviews', href: '/admin/reviews', icon: ChatCircle },
-  { title: 'Analytics Khóa học', href: '/admin/recommendation-analytics', icon: ChartBar },
-  { title: 'Learning Analytics', href: '/admin/learning-records', icon: Brain },
-  { title: 'Interactions', href: '/admin/interactions', icon: TrendUp },
-  { title: 'ESCO Sync', href: '/admin/esco-sync', icon: ArrowsClockwise },
+const adminNavGroups = [
+  {
+    group: '',
+    items: [
+      { title: 'Tổng quan', href: '/admin', icon: GridFour },
+    ]
+  },
+  {
+    group: 'Người dùng & Đối tác',
+    items: [
+      { title: 'Quản lý người dùng', href: '/admin/users', icon: Users },
+      { title: 'Đối tác', href: '/admin/organizations', icon: Building2 },
+    ]
+  },
+  {
+    group: 'Đào tạo',
+    items: [
+      { title: 'Quản lý khóa học', href: '/admin/courses', icon: BookOpenText },
+      { title: 'Quản lý tuyển sinh', href: '/admin/enrollments', icon: GraduationCap },
+      { title: 'Chứng chỉ', href: '/admin/certificates', icon: Certificate },
+    ]
+  },
+  {
+    group: 'Tuyển dụng',
+    items: [
+      { title: 'Đơn ứng tuyển', href: '/admin/applications', icon: FileText },
+      { title: 'Duyệt tin tuyển dụng', href: '/admin/jobs/pending', icon: Megaphone },
+      { title: 'Placements', href: '/admin/placements', icon: Briefcase },
+    ]
+  },
+  {
+    group: 'Tài chính & Analytics',
+    items: [
+      { title: 'Thanh toán', href: '/admin/payments', icon: CreditCard },
+      { title: 'Analytics', href: '/admin/analytics', icon: ChartBar },
+    ]
+  }
 ];
 
 const bottomNavItems = [
@@ -77,66 +94,80 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
 
       {/* Navigation */}
       <nav className="flex-1 py-4 overflow-y-auto custom-scrollbar">
-        <ul className="space-y-0.5 px-3">
-          {adminNavItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-            return (
-              <li key={item.href}>
-                <motion.div
-                  initial={false} animate={{ x: 0 }}
-                  whileHover={!active ? { x: 2 } : {}}
-                  transition={{ duration: 0.15, ease: [0.32, 0.72, 0, 1] }}
-                >
-                  <Link
-                    to={item.href}
-                    className={cn(
-                      'flex items-center gap-3 rounded-xl transition-all duration-200 relative group',
-                      active
-                        ? 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))]'
-                        : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]',
-                      collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5'
-                    )}
-                  >
-                    {active && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[hsl(var(--admin-accent))] rounded-r-full" />
-                    )}
-                    <Icon
-                      className={cn(
-                        'w-[18px] h-[18px] shrink-0',
-                        active ? 'text-[hsl(var(--admin-accent))]' : 'text-[hsl(var(--admin-text-muted))] group-hover:text-[hsl(var(--admin-text-secondary))]'
-                      )}
-                    />
-                    {!collapsed && (
-                      <>
-                        <span className={cn('font-medium text-[13px] flex-1 leading-none', active ? 'font-semibold' : '')}>
-                          {item.title}
-                        </span>
-                        {item.badge && (
-                          <Badge
+        <div className="space-y-4">
+          {adminNavGroups.map((navGroup, groupIdx) => (
+            <div key={groupIdx}>
+              {navGroup.group && !collapsed && (
+                <h3 className="px-5 mb-2 text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))]">
+                  {navGroup.group}
+                </h3>
+              )}
+              {navGroup.group && collapsed && groupIdx > 0 && (
+                <div className="mx-3 mb-2 mt-2 h-px bg-[hsl(var(--admin-border))]" />
+              )}
+              <ul className="space-y-0.5 px-3">
+                {navGroup.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
+                  return (
+                    <li key={item.href}>
+                      <motion.div
+                        initial={false} animate={{ x: 0 }}
+                        whileHover={!active ? { x: 2 } : {}}
+                        transition={{ duration: 0.15, ease: [0.32, 0.72, 0, 1] }}
+                      >
+                        <Link
+                          to={item.href}
+                          className={cn(
+                            'flex items-center gap-3 rounded-xl transition-all duration-200 relative group',
+                            active
+                              ? 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))]'
+                              : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]',
+                            collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5'
+                          )}
+                        >
+                          {active && (
+                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[hsl(var(--admin-accent))] rounded-r-full" />
+                          )}
+                          <Icon
                             className={cn(
-                              'text-[10px] px-2 py-0.5 font-semibold leading-none',
-                              active
-                                ? 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))]/20'
-                                : 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-border))]'
+                              'w-[18px] h-[18px] shrink-0',
+                              active ? 'text-[hsl(var(--admin-accent))]' : 'text-[hsl(var(--admin-text-muted))] group-hover:text-[hsl(var(--admin-text-secondary))]'
                             )}
-                          >
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </>
-                    )}
-                    {collapsed && item.badge && (
-                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[hsl(var(--admin-accent))] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                </motion.div>
-              </li>
-            );
-          })}
-        </ul>
+                          />
+                          {!collapsed && (
+                            <>
+                              <span className={cn('font-medium text-[13px] flex-1 leading-none', active ? 'font-semibold' : '')}>
+                                {item.title}
+                              </span>
+                              {item.badge && (
+                                <Badge
+                                  className={cn(
+                                    'text-[10px] px-2 py-0.5 font-semibold leading-none',
+                                    active
+                                      ? 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))]/20'
+                                      : 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-border))]'
+                                  )}
+                                >
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </>
+                          )}
+                          {collapsed && item.badge && (
+                            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[hsl(var(--admin-accent))] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+                      </motion.div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
       </nav>
 
       {/* Bottom Navigation */}

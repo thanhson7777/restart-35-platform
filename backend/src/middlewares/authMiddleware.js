@@ -46,8 +46,15 @@ const verifyRoleAccess = async (allowedRoles, req, next) => {
   try {
     const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
 
-    if (!accessTokenDecoded || !allowedRoles.includes(accessTokenDecoded.role)) {
-      next(new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập!'))
+    // Log for debugging
+    console.log('[DEBUG ROLE] accessTokenDecoded:', accessTokenDecoded);
+    console.log('[DEBUG ROLE] allowedRoles:', allowedRoles);
+
+    const userRole = accessTokenDecoded?.role?.toLowerCase() || '';
+    const allowedRolesLower = allowedRoles.map(r => r.toLowerCase());
+
+    if (!userRole || !allowedRolesLower.includes(userRole)) {
+      next(new ApiError(StatusCodes.FORBIDDEN, `Bạn không có quyền truy cập! (Quyền hiện tại: ${accessTokenDecoded?.role || 'Không xác định'})`))
       return
     }
 

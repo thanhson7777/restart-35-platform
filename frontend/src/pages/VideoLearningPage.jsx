@@ -70,30 +70,31 @@ export default function VideoLearningPage() {
     fetchLearningData();
   }, [id]);
 
-  // Throttled API progress sync — debounced save every 10s while playing
+  // Throttled API progress sync — [HIDE] Disabled in new simplified progress flow
   const saveProgress = useCallback(
     debounce(async (position) => {
-      if (!enrollment?._id || !currentLesson?._id) return;
-      try {
-        await recordVideoProgress(enrollment._id, currentLesson._id, {
-          watchedSeconds: Math.floor(position),
-        });
-      } catch (err) {
-        console.warn('Progress save failed:', err);
-      }
+      // if (!enrollment?._id || !currentLesson?._id) return;
+      // try {
+      //   await recordVideoProgress(enrollment._id, currentLesson._id, {
+      //     watchedSeconds: Math.floor(position),
+      //   });
+      // } catch (err) {
+      //   console.warn('Progress save failed:', err);
+      // }
     }, 10000),
     [enrollment?._id, currentLesson?._id]
   );
 
   // Listen to video timeupdate for debounced save
+  // [HIDE] Disabled in new simplified progress flow
   useEffect(() => {
-    if (!isPlaying || !videoRef.current) return;
-    const handleTimeUpdate = () => {
-      saveProgress(videoRef.current.currentTime);
-    };
-    const video = videoRef.current;
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    return () => video.removeEventListener('timeupdate', handleTimeUpdate);
+    // if (!isPlaying || !videoRef.current) return;
+    // const handleTimeUpdate = () => {
+    //   saveProgress(videoRef.current.currentTime);
+    // };
+    // const video = videoRef.current;
+    // video.addEventListener('timeupdate', handleTimeUpdate);
+    // return () => video.removeEventListener('timeupdate', handleTimeUpdate);
   }, [isPlaying, saveProgress]);
 
   // Restore video position from saved progress

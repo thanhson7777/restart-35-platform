@@ -238,6 +238,72 @@ const getApplicationWithJob = async (applicationId) => {
   } catch (error) { throw error }
 }
 
+const getEnterpriseApplicationStats = async () => {
+  return await applicationModel.getEnterpriseApplicationStats()
+}
+
+const getAllApplicationsAdmin = async (queryParams) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      jobId,
+      workerId,
+      enterpriseId
+    } = queryParams
+
+    const currentPage = parseInt(page, 10) || 1
+    const recordLimit = parseInt(limit, 10) || 10
+    const skip = (currentPage - 1) * recordLimit
+
+    const filters = {}
+    if (status) filters.status = status
+    if (jobId) filters.jobId = jobId
+    if (workerId) filters.workerId = workerId
+    if (enterpriseId) filters.enterpriseId = enterpriseId
+
+    const result = await applicationModel.findAll(skip, recordLimit, filters)
+
+    // Enrich data
+    const enrichedApplications = await Promise.all(
+      result.applications.map(async (app) => {
+        const worker = await userModel.findOneById(app.workerId)
+        const job = await recruitmentJobModel.findOneById(app.jobId)
+        const enterprise = await userModel.findOneById(app.enterpriseId)
+        return {
+          ...app,
+          worker: worker ? {
+            _id: worker._id,
+            displayName: worker.displayName,
+            email: worker.email,
+            avatar: worker.avatar
+          } : null,
+          job: job ? {
+            _id: job._id,
+            title: job?.job?.title || 'Vị trí công việc'
+          } : null,
+          enterprise: enterprise ? {
+            _id: enterprise._id,
+            displayName: enterprise.displayName,
+            email: enterprise.email
+          } : null
+        }
+      })
+    )
+
+    return {
+      applications: enrichedApplications,
+      pagination: {
+        totalRecords: result.totalApplications,
+        totalPages: Math.ceil(result.totalApplications / recordLimit),
+        currentPage,
+        limit: recordLimit
+      }
+    }
+  } catch (error) { throw error }
+}
+
 export const applicationService = {
   // Worker
   applyToJob,
@@ -255,5 +321,9 @@ export const applicationService = {
   getApplicationInterview,
 
   // Common
-  getApplicationWithJob
+  getApplicationWithJob,
+
+  // Admin
+  getEnterpriseApplicationStats,
+  getAllApplicationsAdmin
 }

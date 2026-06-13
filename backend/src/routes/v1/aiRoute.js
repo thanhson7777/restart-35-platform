@@ -326,6 +326,17 @@ Router.get('/skill-gap/health', aiController.getSkillGapHealth)
 // ============================================================================
 
 /**
+ * @route   POST /v1/ai/sync-embeddings
+ * @desc    Admin: Đồng bộ AI embeddings cho tất cả khóa học
+ * @access  Private (Admin)
+ */
+Router.post(
+  '/sync-embeddings',
+  authMiddleware.isAuthorizedAdmin,
+  aiController.syncCourseEmbeddings
+)
+
+/**
  * @route   POST /v1/ai/course-recommendations
  * @desc    Get course recommendations based on skill gaps
  * @access  Public

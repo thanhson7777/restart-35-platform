@@ -20,7 +20,7 @@ import {
   shortlistApplication,
   rejectApplication,
   createInterview,
-  rescheduleInterviewEnterprise
+  updateInterviewEnterprise
 } from '@/apis/recruitmentAPI';
 import {
   Dialog,
@@ -131,7 +131,7 @@ export default function EnterpriseApplicationDetailPage() {
 
       // Step 2: Create or update interview
       if (scheduleModal.mode === 'update') {
-        await rescheduleInterviewEnterprise(currentInterview._id, {
+        await updateInterviewEnterprise(currentInterview._id, {
           scheduledAt: formData.scheduledAt,
           reason: 'Cập nhật lịch phỏng vấn'
         });
@@ -175,7 +175,8 @@ export default function EnterpriseApplicationDetailPage() {
   }
 
   const status = applicationStatusConfig[application.status] || applicationStatusConfig.new;
-  const profile = workerProfile || application.workerProfile || {};
+  const profileData = workerProfile?.profile || application.workerProfile || {};
+  const userData = workerProfile?.user || application.worker || {};
 
   return (
     <>
@@ -313,28 +314,28 @@ export default function EnterpriseApplicationDetailPage() {
                     <Mail size={16} className="text-[hsl(var(--admin-text-muted))]" />
                     <div>
                       <p className="text-xs text-[hsl(var(--admin-text-muted))]">Email</p>
-                      <p className="text-sm">{profile.email || application.workerEmail || '—'}</p>
+                      <p className="text-sm">{userData.email || application.workerEmail || '—'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone size={16} className="text-[hsl(var(--admin-text-muted))]" />
                     <div>
                       <p className="text-xs text-[hsl(var(--admin-text-muted))]">Điện thoại</p>
-                      <p className="text-sm">{profile.phone || profile.basicInfo?.phone || '—'}</p>
+                      <p className="text-sm">{userData.phone || profileData.basicInfo?.phone || '—'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Calendar size={16} className="text-[hsl(var(--admin-text-muted))]" />
                     <div>
-                      <p className="text-xs text-[hsl(var(--admin-text-muted))]">Ngày sinh</p>
-                      <p className="text-sm">{formatDate(profile.dateOfBirth || profile.basicInfo?.dateOfBirth)}</p>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))]">Tuổi</p>
+                      <p className="text-sm">{userData.age ? `${userData.age} tuổi` : (profileData.basicInfo?.age ? `${profileData.basicInfo.age} tuổi` : '—')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <MapPin size={16} className="text-[hsl(var(--admin-text-muted))]" />
                     <div>
                       <p className="text-xs text-[hsl(var(--admin-text-muted))]">Địa chỉ</p>
-                      <p className="text-sm">{profile.address || profile.basicInfo?.address || '—'}</p>
+                      <p className="text-sm">{profileData.province || '—'}</p>
                     </div>
                   </div>
                 </div>
@@ -342,7 +343,7 @@ export default function EnterpriseApplicationDetailPage() {
             </Card>
 
             {/* Skills */}
-            {(profile.skills?.length > 0 || profile.interests?.skills?.length > 0) && (
+            {((profileData.aspirations?.skills?.length > 0) || (profileData.employmentHistory?.[0]?.skills?.length > 0)) && (
               <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -351,18 +352,21 @@ export default function EnterpriseApplicationDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {(profile.skills || profile.interests?.skills || []).map((skill, idx) => (
-                      <Badge key={idx} variant="outline" className="border-[hsl(var(--admin-border))]">
-                        {skill}
-                      </Badge>
-                    ))}
+                    {(profileData.aspirations?.skills || profileData.employmentHistory?.[0]?.skills || []).map((skill, idx) => {
+                      const skillName = typeof skill === 'object' ? skill.titleVi || skill.titleEn || skill.uri : skill;
+                      return (
+                        <Badge key={idx} variant="outline" className="border-[hsl(var(--admin-border))]">
+                          {skillName}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Aspirations */}
-            {(profile.aspirations) && (
+            {(profileData.aspirations) && (
               <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -372,22 +376,26 @@ export default function EnterpriseApplicationDetailPage() {
                 <CardContent className="space-y-3">
                   <div>
                     <p className="text-xs text-[hsl(var(--admin-text-muted))]">Vị trí mong muốn</p>
-                    <p className="text-sm">{profile.aspirations.targetJob || '—'}</p>
+                    <p className="text-sm">
+                      {typeof profileData.aspirations.targetJob === 'object' 
+                        ? profileData.aspirations.targetJob?.titleVi || profileData.aspirations.targetJob?.titleEn || '—' 
+                        : profileData.aspirations.targetJob || '—'}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-[hsl(var(--admin-text-muted))]">Loại hình công việc</p>
-                    <p className="text-sm">{profile.aspirations.preferredJobType || '—'}</p>
+                    <p className="text-sm">{profileData.aspirations.preferredJobType || '—'}</p>
                   </div>
                   <div>
                     <p className="text-xs text-[hsl(var(--admin-text-muted))]">Mức lương mong muốn</p>
-                    <p className="text-sm">{profile.aspirations.targetSalary ? `${profile.aspirations.targetSalary.toLocaleString()} VND` : '—'}</p>
+                    <p className="text-sm">{profileData.aspirations.targetSalary ? `${profileData.aspirations.targetSalary.toLocaleString()} VND` : '—'}</p>
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Barriers */}
-            {(profile.barriers && Object.keys(profile.barriers).length > 0) && (
+            {(profileData.barriers && Object.values(profileData.barriers).some(v => v === true || (typeof v === 'string' && v.length > 0))) && (
               <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -396,34 +404,34 @@ export default function EnterpriseApplicationDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {profile.barriers.familyResponsibilities && (
+                    {profileData.barriers.family && (
                       <li className="flex items-start gap-2 text-sm">
                         <XCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
                         Trách nhiệm gia đình
                       </li>
                     )}
-                    {profile.barriers.healthIssues && (
+                    {profileData.barriers.health && (
                       <li className="flex items-start gap-2 text-sm">
                         <XCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
                         Vấn đề sức khỏe
                       </li>
                     )}
-                    {profile.barriers.transportation && (
+                    {profileData.barriers.location && (
                       <li className="flex items-start gap-2 text-sm">
                         <XCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
                         Khó khăn di chuyển
                       </li>
                     )}
-                    {profile.barriers.ageDiscrimination && (
+                    {profileData.barriers.techGap && (
                       <li className="flex items-start gap-2 text-sm">
                         <XCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
-                        Phân biệt tuổi tác
+                        Hạn chế công nghệ
                       </li>
                     )}
-                    {profile.barriers.lackOfExperience && (
+                    {profileData.barriers.other && (
                       <li className="flex items-start gap-2 text-sm">
                         <XCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
-                        Thiếu kinh nghiệm
+                        Khác: {profileData.barriers.otherDescription}
                       </li>
                     )}
                   </ul>

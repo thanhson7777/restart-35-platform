@@ -90,12 +90,11 @@ ABBREVIATIONS: Dict[str, str] = {
 
 def normalize_text(text: str) -> str:
     """Lowercase + NFD decompose + strip diacritics."""
-    return (
-        unicodedata.normalize("NFD", text.lower())
-        .replace("\u0300-\u036f", "")
-        .replace(" ", "_")
-        .replace(r"[^a-z0-9_]", "")
-    )
+    text = unicodedata.normalize("NFD", text.lower())
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    text = text.replace(" ", "_")
+    text = re.sub(r"[^a-z0-9_]", "", text)
+    return text
 
 
 def normalize_skill_key(text: str) -> str:

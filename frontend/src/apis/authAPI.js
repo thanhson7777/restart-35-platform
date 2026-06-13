@@ -20,6 +20,15 @@ export const registerAPI = async (data) => {
 }
 
 /**
+ * Đăng ký tài khoản Đối tác (Enterprise, NGO, Trainer)
+ * @param {Object} data 
+ */
+export const partnerRegisterAPI = async (data) => {
+  const response = await publicAxiosInstance.post(`${API_ROOT}/v1/users/partner-register`, data)
+  return response.data
+}
+
+/**
  * Xác thực tài khoản qua email
  * @param {Object} data - { email, token }
  */

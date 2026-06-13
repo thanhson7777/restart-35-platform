@@ -183,6 +183,25 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
           </div>
         )}
 
+        {/* Skill Gaps Preview Loading */}
+        {loading && (!skillGaps || skillGaps.length === 0) && (
+          <div className="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500">
+            <div className="flex items-center gap-2 mb-3">
+              <Target size={15} weight="duotone" className="text-orange-500 shrink-0" />
+              <p className="text-sm font-medium text-orange-800">Kỹ năng cần phát triển</p>
+            </div>
+            <div className="animate-pulse flex flex-wrap gap-2 mb-3">
+              <div className="h-6 w-24 bg-orange-200/60 rounded"></div>
+              <div className="h-6 w-32 bg-orange-200/60 rounded"></div>
+              <div className="h-6 w-20 bg-orange-200/60 rounded"></div>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-orange-600">
+              <CircleNotch size={12} className="animate-spin" />
+              <span>Đang phân tích kỹ năng...</span>
+            </div>
+          </div>
+        )}
+
         {/* Skill Gaps Preview - ESCO-based */}
         {skillGaps?.length > 0 && (() => {
           const essential = skillGaps.filter(g => g.priority === 'essential').slice(0, 3)
@@ -234,22 +253,16 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
         })()}
 
         {/* What to Learn: Cần học thêm — thay bằng course recommendations */}
-        {courses !== undefined && (
+        {(courses !== undefined || loading) && (
           <CourseRecommendationSection
-            courses={courses}
-            loading={loading}
+            courses={courses || []}
+            loading={loading && (!courses || courses.length === 0)}
             skillGapTotal={(path.what_to_learn || path.learning_path || path.missing_skills)?.length || skillGaps?.length || 0}
             jobTitle={path.job_title || path.title}
           />
         )}
 
-        {/* Learning Path — timeline nhiều bước */}
-        {learningPath && (
-          <LearningPathSection
-            learningPath={learningPath}
-            loading={loading}
-          />
-        )}
+
 
         {/* Required Skills: Kỹ năng bắt buộc (Federated API) */}
         {path.required_skills?.length > 0 && (
@@ -398,7 +411,7 @@ const LoadingState = ({ isRAG }) => (
   </div>
 )
 
-const EmptyState = ({ onRetry, type }) => (
+const EmptyState = ({ onRetry, type, missingAge }) => (
   <div className="flex flex-col items-center justify-center py-8 text-center">
     <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
       {type === 'rag' || type === 'career' ? (
@@ -409,14 +422,16 @@ const EmptyState = ({ onRetry, type }) => (
         <TrendUp size={24} className="text-slate-400" />
       )}
     </div>
-    <p className="text-sm text-muted-foreground mb-3">
-      {type === 'rag' || type === 'career'
+    <p className="text-sm text-muted-foreground mb-3 max-w-sm">
+      {missingAge
+        ? 'Vui lòng cập nhật độ tuổi trong hồ sơ của bạn để AI có thể đưa ra gợi ý phù hợp.'
+        : type === 'rag' || type === 'career'
         ? 'Chưa có gợi ý từ AI'
         : type === 'startup'
           ? 'Chưa có gợi ý lập nghiệp'
           : 'Chưa có gợi ý lộ trình sự nghiệp'}
     </p>
-    {onRetry && (
+    {!missingAge && onRetry && (
       <button
         onClick={onRetry}
         className="text-sm text-primary hover:underline"
@@ -449,7 +464,7 @@ const ErrorState = ({ error, onRetry }) => (
 // STARTUP CARD COMPONENT
 // ============================================================================
 
-const StartupCard = ({ idea, index, onViewAllSkills }) => {
+const StartupCard = ({ idea, index, onViewAllSkills, courses, learningPath, loading }) => {
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -474,11 +489,6 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h4 className="font-medium text-foreground">{idea.name}</h4>
-            {idea.match_score && (
-              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                Match: {(idea.match_score * 100).toFixed(0)}%
-              </span>
-            )}
           </div>
         </div>
       </div>
@@ -523,26 +533,17 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
           </div>
         )}
 
-        {/* What to Learn: Cần học thêm */}
-        {idea.what_to_learn?.length > 0 && (
-          <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
-            <div className="flex items-center gap-2 mb-2">
-              <BookOpenText size={14} className="text-purple-600" />
-              <p className="text-sm font-medium text-purple-800">Cần học thêm</p>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {idea.what_to_learn.map((skill, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs"
-                >
-                  <ArrowRight size={10} />
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
+        {/* What to Learn: Cần học thêm — thay bằng course recommendations */}
+        {(courses !== undefined || loading) && (
+          <CourseRecommendationSection
+            courses={courses || []}
+            loading={loading && (!courses || courses.length === 0)}
+            skillGapTotal={idea.required_skills?.length || idea.what_to_learn?.length || 0}
+            jobTitle={idea.name}
+          />
         )}
+
+
 
         {/* Skill Gaps Preview - Startup-specific */}
         {idea.required_skills?.length > 0 && (() => {
@@ -627,29 +628,7 @@ const StartupCard = ({ idea, index, onViewAllSkills }) => {
         )}
       </div>
 
-      {/* Footer: Basic Info - Compact */}
-      <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-border text-xs">
-        {idea.required_capital && (
-          <div className="flex items-center gap-1">
-            <CurrencyDollar size={12} className="text-muted-foreground" />
-            <span className="text-muted-foreground">Vốn:</span>
-            <span className="font-medium">{idea.required_capital}</span>
-          </div>
-        )}
-        {idea.timeline && (
-          <div className="flex items-center gap-1">
-            <Clock size={12} className="text-muted-foreground" />
-            <span className="text-muted-foreground">Thời gian:</span>
-            <span className="font-medium">{idea.timeline}</span>
-          </div>
-        )}
-        {idea.expected_profit && (
-          <div className="flex items-center gap-1 text-green-600">
-            <TrendUp size={12} />
-            <span className="font-medium">{idea.expected_profit}</span>
-          </div>
-        )}
-      </div>
+
     </motion.div>
   )
 }
@@ -713,8 +692,14 @@ function CareerRecommendations({ className, userProfile }) {
   const handleOpenStartupSkillModal = (startupName, skills) => setStartupSkillModal({ isOpen: true, startupName, skills })
   const handleCloseStartupSkillModal = () => setStartupSkillModal({ isOpen: false, startupName: null, skills: null })
 
-  // Check if user wants to see startup suggestions
-  const wantsToStartBusiness = userProfile?.aspirations?.wantsToStartBusiness || false
+  const profileData = userProfile || careerPath?.user_profile
+  // Check if user wants to see startup suggestions (robust check for all formats)
+  const wantsToStartBusiness = 
+    profileData?.aspirations?.wants_to_start_business ||
+    profileData?.aspirations?.wantsToStartBusiness ||
+    profileData?.wantsToStartBusiness ||
+    userProfile?.aspirations?.wantsToStartBusiness || 
+    false
 
   // Refs to prevent infinite loops
   const hasFetchedRAG = useRef(false)
@@ -955,18 +940,26 @@ function CareerRecommendations({ className, userProfile }) {
       }
     }
 
-    if (userSkills.length === 0) return
-
+    // If still empty, try to get from general profile
+    if (userSkills.length === 0) {
+      const generalSkills = profileData?.skills || profileData?.basicInfo?.skills || profileData?.aspirations?.skills || []
+      if (Array.isArray(generalSkills)) {
+        for (const skill of generalSkills) {
+          if (typeof skill === 'string') userSkills.push(skill)
+          else if (skill?.name) userSkills.push(skill.name)
+        }
+      }
+    }
     const occupationSet = new Set()
       ;[...bestFits, ...incomeBoost, ...progression, ...startupIdeas].forEach(item => {
-        const title = item.job_title || item.title || ''
-        if (title) occupationSet.add(title)
+        const title = item.job_title || item.title || item.name || ''
+        if (title && !courseRecommendationsMap[title]) occupationSet.add(title)
       })
     if (Array.isArray(employmentHistory) && employmentHistory.length > 0) {
       const empOcc = employmentHistory[0].occupation?.titleVi || employmentHistory[0].occupation?.titleEn || employmentHistory[0].role || employmentHistory[0].jobTitle || employmentHistory[0].position || ''
-      if (empOcc) occupationSet.add(empOcc)
+      if (empOcc && !courseRecommendationsMap[empOcc]) occupationSet.add(empOcc)
     }
-    const occupations = Array.from(occupationSet).slice(0, 8)
+    const occupations = Array.from(occupationSet).slice(0, 15)
     if (occupations.length === 0) return
 
     const age = profileData?.basicInfo?.age || profileData?.age || 30
@@ -985,49 +978,81 @@ function CareerRecommendations({ className, userProfile }) {
         analyzeSkillGapsFromEscoAPI(userSkills, occ, age, 15, careerContext).catch(() => null)
       )
     )
-    const skillGapsObj = {}
+    const skillGapsObj = { ...skillGapsMapRedux }
     escResults.forEach((r, i) => {
       if (r?.success) skillGapsObj[occupations[i]] = r
     })
     dispatch(setSkillGaps(skillGapsObj))
 
     const allGaps = Object.values(skillGapsObj).flatMap(r => r?.skill_gaps || []).slice(0, 15)
-    const topGaps = allGaps.map(g => ({ skill_name: g.skill_name, priority: g.priority }))
+    const fallbackGaps = allGaps.map(g => ({ skill_name: g.skill_name, priority: g.priority }))
 
     // Step 2: Batch course recommendations + learning paths (parallel)
     const [courseResults, learningPathResults] = await Promise.all([
-      Promise.all(occupations.map(occ =>
-        getCourseRecommendationsAPI({ skill_gaps: topGaps, limit: 5 }).catch(() => null)
-      )),
-      Promise.all(occupations.map(occ =>
-        getLearningPathAPI({ skill_gaps: topGaps, job_title: occ, max_steps: 5 }).catch(() => null)
-      ))
+      Promise.all(occupations.map(occ => {
+        const startupIdea = startupIdeas.find(idea => idea.name === occ)
+        let occGaps = []
+        if (startupIdea && startupIdea.required_skills?.length > 0) {
+          occGaps = startupIdea.required_skills
+            .slice(0, 15)
+            .map(g => ({ skill_name: g.skill_name, priority: g.priority }))
+        } else {
+          occGaps = (skillGapsObj[occ]?.skill_gaps || [])
+            .slice(0, 15)
+            .map(g => ({ skill_name: g.skill_name, priority: g.priority }))
+        }
+        const targetGaps = occGaps.length > 0 ? occGaps : fallbackGaps
+        return getCourseRecommendationsAPI({ skill_gaps: targetGaps, limit: 5 }).catch(() => null)
+      })),
+      Promise.all(occupations.map(occ => {
+        const startupIdea = startupIdeas.find(idea => idea.name === occ)
+        let occGaps = []
+        if (startupIdea && startupIdea.required_skills?.length > 0) {
+          occGaps = startupIdea.required_skills
+            .slice(0, 15)
+            .map(g => ({ skill_name: g.skill_name, priority: g.priority }))
+        } else {
+          occGaps = (skillGapsObj[occ]?.skill_gaps || [])
+            .slice(0, 15)
+            .map(g => ({ skill_name: g.skill_name, priority: g.priority }))
+        }
+        const targetGaps = occGaps.length > 0 ? occGaps : fallbackGaps
+        return getLearningPathAPI({ skill_gaps: targetGaps, job_title: occ, max_steps: 5 }).catch(() => null)
+      }))
     ])
 
-    const courseMap = {}
+    const courseMap = { ...courseRecommendationsMap }
     courseResults.forEach((r, i) => {
-      if (r) courseMap[occupations[i]] = r.courses || []
+      courseMap[occupations[i]] = r?.courses || []
     })
     dispatch(setCourseRecommendations(courseMap))
 
-    const learningPathMap = {}
+    const learningPathMap = { ...learningPathsMap }
     learningPathResults.forEach((r, i) => {
-      if (r) learningPathMap[occupations[i]] = r.learning_path || null
+      learningPathMap[occupations[i]] = r?.learning_path || null
     })
     dispatch(setLearningPaths(learningPathMap))
 
     dispatch(setCourseLoading(false))
   }
 
-  // Trigger batch fetch when RAG data is available
-  const hasFetchedAllData = useRef(false)
+  // Trigger batch fetch when RAG data or Startup data is available
   useEffect(() => {
-    const hasRAGData = bestFits.length > 0 || incomeBoost.length > 0 || progression.length > 0
-    if (!hasRAGData || !userProfile || hasFetchedAllData.current) return
+    if (!userProfile) return
 
-    hasFetchedAllData.current = true
+    const occupationSet = new Set()
+    ;[...bestFits, ...incomeBoost, ...progression, ...startupIdeas].forEach(item => {
+      const title = item.job_title || item.title || item.name || ''
+      if (title && !courseRecommendationsMap[title]) {
+        occupationSet.add(title)
+      }
+    })
+
+    if (occupationSet.size === 0) return
+    if (courseLoading) return
+
     fetchAllCareerData(userProfile)
-  }, [bestFits.length, incomeBoost.length, progression.length, userProfile])
+  }, [bestFits, incomeBoost, progression, startupIdeas, userProfile, courseRecommendationsMap, courseLoading])
 
   // Manual refresh
   const handleRefresh = async () => {
@@ -1073,7 +1098,6 @@ function CareerRecommendations({ className, userProfile }) {
     hasFetchedRAG.current = false
     hasFetchedLegacy.current = false
     hasFetchedStartup.current = false
-    hasFetchedAllData.current = false
     dispatch(clearCourseRecommendations())
     prevProfileRef.current = null
 
@@ -1115,6 +1139,9 @@ function CareerRecommendations({ className, userProfile }) {
   const error = errorRAG || startupError
   const hasData = hasLegacyData || hasRAGData
 
+  const profileDataForRender = userProfile || careerPath?.user_profile
+  const hasAgeForRender = profileDataForRender?.basicInfo?.age || profileDataForRender?.age
+
   if (isLoading) {
     return (
       <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
@@ -1150,7 +1177,7 @@ function CareerRecommendations({ className, userProfile }) {
   if (!hasData && !careerPath && !ragRecommendation) {
     return (
       <div className={cn('bg-white rounded-xl border border-border p-6', className)}>
-        <EmptyState onRetry={handleRetry} type={activeTab} />
+        <EmptyState onRetry={handleRetry} type={activeTab} missingAge={!hasAgeForRender} />
       </div>
     )
   }
@@ -1290,18 +1317,26 @@ function CareerRecommendations({ className, userProfile }) {
               ) : startupIdeas.length > 0 ? (
                 <div className="space-y-3">
                   {startupIdeas.map((idea, i) => (
-                    <StartupCard key={`startup-${i}`} idea={idea} index={i} onViewAllSkills={handleOpenStartupSkillModal} />
+                    <StartupCard 
+                      key={`startup-${i}`} 
+                      idea={idea} 
+                      index={i} 
+                      courses={courseRecommendationsMap[idea.name]}
+                      learningPath={learningPathsMap[idea.name]}
+                      loading={courseLoading}
+                      onViewAllSkills={handleOpenStartupSkillModal} 
+                    />
                   ))}
                 </div>
               ) : (
-                <EmptyState type="startup" />
+                <EmptyState type="startup" missingAge={!hasAgeForRender} />
               )}
             </div>
           )}
 
           {/* Show empty state if no RAG data */}
           {bestFits.length === 0 && incomeBoost.length === 0 && progression.length === 0 && !isLoadingRAG && !errorRAG && (
-            <EmptyState type="rag" />
+            <EmptyState type="rag" missingAge={!hasAgeForRender} />
           )}
         </div>
       )}

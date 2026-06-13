@@ -1,5 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import { recruitmentJobService } from '~/services/recruitmentJobService'
+import { applicationService } from '~/services/applicationService'
 
 // ============ ENTERPRISE: JOB CRUD ============
 
@@ -249,6 +250,28 @@ const getRecommendedJobs = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getEnterpriseApplicationStats = async (req, res, next) => {
+  try {
+    const stats = await applicationService.getEnterpriseApplicationStats()
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thống kê đơn ứng tuyển theo doanh nghiệp thành công!',
+      data: stats
+    })
+  } catch (error) { next(error) }
+}
+
+const getAllApplicationsAdmin = async (req, res, next) => {
+  try {
+    const result = await applicationService.getAllApplicationsAdmin(req.query)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách đơn ứng tuyển thành công!',
+      ...result
+    })
+  } catch (error) { next(error) }
+}
+
 export const recruitmentJobController = {
   // Enterprise
   createJob,
@@ -267,6 +290,8 @@ export const recruitmentJobController = {
   approveJob,
   rejectJob,
   getRejectedJobs,
+  getEnterpriseApplicationStats,
+  getAllApplicationsAdmin,
 
   // Public
   getPublishedJobs,

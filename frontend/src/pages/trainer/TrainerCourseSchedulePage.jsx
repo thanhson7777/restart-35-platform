@@ -12,7 +12,8 @@ import {
   Edit, 
   AlertTriangle,
   ArrowRight,
-  BookOpen
+  BookOpen,
+  RefreshCw
 } from 'lucide-react';
 import { 
   Button, 
@@ -30,7 +31,8 @@ import { getAdminCourseSchedule,
   updateScheduleSession,
   cancelScheduleSession,
   rescheduleSession,
-  markSessionComplete
+  markSessionComplete,
+  autoGenerateSchedule
 } from '@/apis/trainerApi';
 import { getCourseById } from '@/apis/courseApi';
 import toast from 'react-hot-toast';
@@ -173,6 +175,19 @@ const TrainerCourseSchedulePage = () => {
     } catch (err) {
       console.error('Error creating schedule:', err);
       toast.error(err.response?.data?.message || 'Không thể tạo lịch học.');
+    }
+  };
+
+  // 1b. Auto Generate Schedule
+  const handleAutoGenerate = async () => {
+    const loadingToast = toast.loading('Đang tự động xếp lịch học...');
+    try {
+      await autoGenerateSchedule(id);
+      toast.success('Tự động xếp lịch thành công!', { id: loadingToast });
+      fetchData();
+    } catch (err) {
+      console.error('Error auto-generating schedule:', err);
+      toast.error(err.response?.data?.message || 'Không thể tự động xếp lịch. Vui lòng kiểm tra cấu hình lịch dạy.', { id: loadingToast });
     }
   };
 
@@ -418,13 +433,23 @@ const TrainerCourseSchedulePage = () => {
             <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Khóa học chưa được tạo lịch dạy</h3>
             <p className="text-sm text-[hsl(var(--admin-text-muted))]">Khởi tạo lịch để thêm các buổi học và điểm danh học viên.</p>
           </div>
-          <Button
-            onClick={() => setShowInitModal(true)}
-            className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white font-semibold border-none"
-          >
-            <Plus className="mr-1.5 h-4 w-4" />
-            Khởi tạo lịch học
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setShowInitModal(true)}
+              variant="outline"
+              className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))] font-semibold"
+            >
+              <Plus className="mr-1.5 h-4 w-4" />
+              Tạo thủ công
+            </Button>
+            <Button
+              onClick={handleAutoGenerate}
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold border-none"
+            >
+              <RefreshCw className="mr-1.5 h-4 w-4" />
+              Tự động xếp lịch
+            </Button>
+          </div>
         </div>
       ) : (
         /* Schedule details */
@@ -458,6 +483,13 @@ const TrainerCourseSchedulePage = () => {
                       Công bố lịch học
                     </Button>
                   )}
+                  <Button
+                    onClick={handleAutoGenerate}
+                    className="bg-purple-600 hover:bg-purple-700 text-white border-none font-semibold flex items-center gap-1.5"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Xếp lịch tự động
+                  </Button>
                   <Button
                     onClick={openAddModal}
                     className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white border-none font-semibold flex items-center gap-1.5"

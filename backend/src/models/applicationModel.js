@@ -537,6 +537,89 @@ const deleteApplication = async (applicationId) => {
   }
 }
 
+const getEnterpriseApplicationStats = async () => {
+  try {
+    const pipeline = [
+      {
+        $match: {
+          _destroy: { $ne: true },
+          enterpriseId: { $exists: true, $type: 'string', $regex: /^[0-9a-fA-F]{24}$/ }
+        }
+      },
+      {
+        $group: {
+          _id: '$enterpriseId',
+          totalApplications: { $sum: 1 },
+          pendingApplications: {
+            $sum: {
+              $cond: [
+                { $in: ['$status', [RECRUITMENT_APPLICATION_STATUS.NEW, RECRUITMENT_APPLICATION_STATUS.SHORTLISTED]] },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          enterpriseObjectId: { $toObjectId: '$_id' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'enterpriseObjectId',
+          foreignField: '_id',
+          as: 'enterpriseInfo'
+        }
+      },
+      {
+        $unwind: {
+          path: '$enterpriseInfo',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          enterpriseId: '$_id',
+          enterpriseName: { $ifNull: ['$enterpriseInfo.displayName', 'Unknown Enterprise'] },
+          enterpriseEmail: { $ifNull: ['$enterpriseInfo.email', ''] },
+          totalApplications: 1,
+          pendingApplications: 1
+        }
+      },
+      { $sort: { totalApplications: -1 } }
+    ]
+    return await GET_DB().collection(APPLICATION_COLLECTION_NAME).aggregate(pipeline).toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const findAll = async (skip = 0, limit = 10, filters = {}) => {
+  try {
+    const query = {
+      _destroy: { $ne: true },
+      ...filters
+    }
+
+    const applications = await GET_DB().collection(APPLICATION_COLLECTION_NAME)
+      .find(query)
+      .sort({ appliedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+
+    const totalApplications = await GET_DB().collection(APPLICATION_COLLECTION_NAME).countDocuments(query)
+
+    return { applications, totalApplications }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 export const applicationModel = {
   APPLICATION_COLLECTION_NAME,
   APPLICATION_COLLECTION_SCHEMA,
@@ -554,6 +637,7 @@ export const applicationModel = {
   findByJob,
   findByEnterprise,
   checkExistingApplication,
+  findAll,
 
   // Update
   update,
@@ -572,6 +656,12 @@ export const applicationModel = {
   // Delete
   deleteApplication,
 
+  // Delete
+  deleteApplication,
+
   // Helpers
-  validateBeforeCreate
+  validateBeforeCreate,
+  
+  getEnterpriseApplicationStats,
+  findAll
 }

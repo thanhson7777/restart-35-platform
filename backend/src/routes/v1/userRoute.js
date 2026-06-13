@@ -12,6 +12,12 @@ Router.route('/register')
     userController.createNew
   )
 
+Router.route('/partner-register')
+  .post(
+    userValidation.partnerRegister,
+    userController.partnerRegister
+  )
+
 Router.route('/verify')
   .put(
     userValidation.verifyAccount,
@@ -22,6 +28,18 @@ Router.route('/login')
   .post(
     userValidation.login,
     userController.login
+  )
+
+Router.route('/forgot-password')
+  .post(
+    userValidation.forgotPassword,
+    userController.forgotPassword
+  )
+
+Router.route('/reset-password/:token')
+  .post(
+    userValidation.resetPassword,
+    userController.resetPassword
   )
 
 Router.route('/logout')

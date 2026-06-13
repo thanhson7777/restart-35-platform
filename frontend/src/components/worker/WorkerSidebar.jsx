@@ -5,19 +5,11 @@ import {
   Calendar,
   FileText,
   FileCheck,
-  Target,
-  Gift,
-  DollarSign,
-  BadgeDollarSign,
-  MessageSquare,
-  Users,
-  CalendarCheck,
-  Award,
-  GraduationCap,
   Settings,
-  Briefcase,
   BriefcaseBusiness,
-  UsersRound
+  UsersRound,
+  GraduationCap,
+  BarChart2,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui';
@@ -25,9 +17,10 @@ import { cn } from '@/utils/cn';
 
 const navGroups = [
   {
-    section: 'NAVIGATE',
+    section: 'CHUNG',
     items: [
       { href: '/worker', label: 'Tổng quan', icon: LayoutDashboard, end: true },
+      { href: '/worker/analytics', label: 'Thống kê', icon: BarChart2 },
       { href: '/worker/profile', label: 'Hồ sơ của tôi', icon: UserCircle },
       { href: '/worker/account-settings', label: 'Cài đặt tài khoản', icon: Settings },
     ],
@@ -35,41 +28,16 @@ const navGroups = [
   {
     section: 'HỌC TẬP',
     items: [
-      { href: '/my-enrollments', label: 'Ghi danh của tôi', icon: ClipboardList },
+      { href: '/my-enrollments', label: 'Khóa học của tôi', icon: ClipboardList },
       { href: '/my-schedules', label: 'Lịch học', icon: Calendar },
-      { href: '/my-learning-records', label: 'Bản ghi học tập', icon: FileText },
+      { href: '/my-learning-records', label: 'Hồ sơ học tập', icon: FileText },
     ],
   },
   {
     section: 'VIỆC LÀM',
     items: [
-      { href: '/community', label: 'Cộng đồng', icon: Briefcase },
       { href: '/my/applications', label: 'Đơn ứng tuyển', icon: FileCheck },
       { href: '/my/interviews', label: 'Lịch phỏng vấn', icon: UsersRound },
-      { href: '/my/offers', label: 'Offers', icon: BriefcaseBusiness },
-      { href: '/my-placements', label: 'Vị trí việc làm', icon: Target },
-    ],
-  },
-  {
-    section: 'TÀI CHÍNH',
-    items: [
-      { href: '/scholarships', label: 'Học bổng', icon: Gift },
-      { href: '/my-isa', label: 'ISA của tôi', icon: DollarSign },
-      { href: '/my-sponsorships', label: 'Tài trợ', icon: BadgeDollarSign },
-    ],
-  },
-  {
-    section: 'CỘNG ĐỒNG',
-    items: [
-      { href: '/community/forum', label: 'Diễn đàn', icon: MessageSquare },
-      { href: '/mentor/booking', label: 'Đặt lịch Mentor', icon: Users },
-      { href: '/my-mentor-sessions', label: 'Lịch sử Mentor', icon: CalendarCheck },
-    ],
-  },
-  {
-    section: 'CÔNG CỤ',
-    items: [
-      { href: '/verify-certificate', label: 'Xác minh chứng chỉ', icon: Award },
       { href: '/my-outcomes', label: 'Kết quả tuyển dụng', icon: GraduationCap },
     ],
   },

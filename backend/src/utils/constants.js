@@ -4,7 +4,7 @@ import { env } from '~/config/enviroment'
 // ============ PAGINATION DEFAULTS ============
 export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEM_PER_PAGE = 10
-export const MAX_ITEM_PER_PAGE = 50
+export const MAX_ITEM_PER_PAGE = 1000
 
 // ============ USER ROLES ============
 export const USER_ROLES = {

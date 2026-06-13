@@ -280,6 +280,23 @@ const enrollCourse = async (userId, courseId, data) => {
       throw new ApiError(StatusCodes.CONFLICT, 'Bạn đã đăng ký khóa học này rồi!')
     }
 
+    if (course.funding_model === 'learner_paid' && source !== 'enterprise_linked' && source !== 'ngo_sponsored') {
+      if (!data.paymentId) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn phải hoàn tất thanh toán để ghi danh khóa học này!')
+      }
+      try {
+        const db = GET_DB()
+        const { ObjectId } = await import('mongodb')
+        const payment = await db.collection('payments').findOne({ _id: new ObjectId(data.paymentId) })
+        if (!payment || payment.status !== 'completed') {
+          throw new ApiError(StatusCodes.BAD_REQUEST, 'Thanh toán chưa được xác nhận hoàn tất. Vui lòng kiểm tra lại!')
+        }
+      } catch (error) {
+        if (error instanceof ApiError) throw error
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Mã giao dịch không hợp lệ!')
+      }
+    }
+
     const profile = await workerProfileModel.findOneByUserId(userId)
     if (!profile) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng hoàn thành hồ sơ trước khi đăng ký!')
@@ -356,6 +373,26 @@ const enrollCourse = async (userId, courseId, data) => {
     }
 
     const enrollment = await enrollmentModel.findOneById(result.insertedId)
+
+    if (data.paymentId) {
+      const db = GET_DB()
+      const { ObjectId } = await import('mongodb')
+      await db.collection('payments').updateOne(
+        { _id: new ObjectId(data.paymentId) },
+        { $set: { enrollmentId: enrollment._id.toString() } }
+      )
+      const payment = await db.collection('payments').findOne({ _id: new ObjectId(data.paymentId) })
+      if (payment && payment.status === 'completed') {
+        const totalFee = enrollment.fee?.total || course.fee || 0
+        if (payment.amount >= totalFee) {
+          await enrollmentModel.updatePaymentStatus(enrollment._id.toString(), ENROLLMENT_PAYMENT_STATUS.PAID)
+          enrollment.payment_status = ENROLLMENT_PAYMENT_STATUS.PAID
+        } else {
+          await enrollmentModel.updatePaymentStatus(enrollment._id.toString(), ENROLLMENT_PAYMENT_STATUS.INSTALLMENT_ACTIVE)
+          enrollment.payment_status = ENROLLMENT_PAYMENT_STATUS.INSTALLMENT_ACTIVE
+        }
+      }
+    }
 
     if (fundingMetadata.sponsorships.length > 0) {
       await emitEnrollmentNotifications(
@@ -735,6 +772,40 @@ const updateStatus = async (enrollmentId, status, additionalData, trainerId) => 
   } catch (error) { throw error }
 }
 
+// ============ COMPLETE ITEM ============
+const completeItem = async (enrollmentId, itemId, userId) => {
+  try {
+    const enrollment = await enrollmentModel.findOneById(enrollmentId)
+    if (!enrollment) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Đăng ký không tồn tại!')
+    }
+
+    if (enrollment.userId.toString() !== userId.toString()) {
+      const course = await courseModel.findOneById(enrollment.courseId)
+      const user = await userModel.findOneById(userId)
+      if (course?.providerId.toString() !== userId.toString() && user?.role !== USER_ROLES.ADMIN) {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền thao tác với đăng ký này!')
+      }
+    }
+
+    // Get total items from existing progress or default to 1
+    const totalItems = enrollment.progress?.totalLessons || 1;
+
+    const updatedEnrollmentResult = await enrollmentModel.markItemCompleted(enrollmentId, itemId, totalItems)
+    const updatedEnrollment = updatedEnrollmentResult?.value || updatedEnrollmentResult
+
+    if (updatedEnrollment?.progress?.completionStatus === COMPLETION_STATUS.COMPLETED && enrollment.status !== ENROLLMENT_STATUS_V2.COMPLETED) {
+      await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.COMPLETED, {
+        completedAt: Date.now()
+      })
+      await courseModel.decrementEnrollmentCount(enrollment.courseId)
+      await processEnrollmentCompletionTriggers(updatedEnrollment)
+    }
+
+    return updatedEnrollment
+  } catch (error) { throw error }
+}
+
 // ============ CANCEL ENROLLMENT ============
 const cancelEnrollment = async (enrollmentId, userId, reason) => {
   try {
@@ -960,7 +1031,12 @@ const checkCapacity = async (course) => {
 
 // ============ GET ADMIN STATS ============
 const getAdminStats = async () => {
-  return await enrollmentModel.getAdminStats()
+  const stats = await enrollmentModel.getAdminStats()
+  const monthlyTrend = await enrollmentModel.getMonthlyTrend(6)
+  return {
+    ...stats,
+    monthlyTrend
+  }
 }
 
 const getMonthlyTrend = async (months = 6) => {
@@ -1233,10 +1309,7 @@ const getTrainerEnrollments = async (queryParams, trainerId) => {
     const db = GET_DB()
 
     // 1. Get all courses owned by the trainer
-    const courses = await db.collection(courseModel.COURSE_COLLECTION_NAME).find({
-      providerId: trainerId,
-      _destroy: { $ne: true }
-    }).toArray()
+    const { courses } = await courseModel.findByProvider(trainerId, 0, 10000)
     const ownedCourseIds = courses.map(c => c._id.toString())
 
     // If no courses, return empty
@@ -1360,6 +1433,7 @@ export const enrollmentService = {
 
   // Update
   updateProgress,
+  completeItem,
   updateStatus,
   cancelEnrollment,
   dropEnrollment,

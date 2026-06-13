@@ -2,7 +2,7 @@ import { authorizeAxiosInstance } from '~/utils/authorizeAxios';
 import { API_ROOT } from '~/utils/constants';
 
 export const getEnterpriseDashboard = () =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/enterprise/dashboard`);
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/enterprise/dashboard/overview`);
 
 export const getEnterpriseDashboardGraduates = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/enterprise/dashboard/graduates`, { params });

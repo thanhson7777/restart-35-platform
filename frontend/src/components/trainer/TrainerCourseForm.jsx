@@ -25,7 +25,7 @@ import {
 } from '@/components/ui';
 import LocationPicker from '@/components/location/LocationPicker';
 
-const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmitting = false }) => {
+const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmitting = false, isEditMode = false }) => {
   const [activeTab, setActiveTab] = useState('basic');
   const [title, setTitle] = useState('');
   const [categoryId, setCategoryId] = useState('');
@@ -43,26 +43,26 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
   const [locationProvince, setLocationProvince] = useState('');
   const [locationWard, setLocationWard] = useState('');
   const [locationCoordinates, setLocationCoordinates] = useState({ lat: null, lng: null });
-  const [enrollmentStartDate, setEnrollmentStartDate] = useState('');
-  const [scheduleText, setScheduleText] = useState('');
+  const [expectedStartDate, setExpectedStartDate] = useState('');
+  
+  // Schedule Config
+  const [scheduleTotalSessions, setScheduleTotalSessions] = useState(10);
+  const [scheduleSessionsPerWeek, setScheduleSessionsPerWeek] = useState(2);
+  const [scheduleDurationMinutes, setScheduleDurationMinutes] = useState(90);
+  const [schedulePreferredDays, setSchedulePreferredDays] = useState([]);
+  const [schedulePreferredTime, setSchedulePreferredTime] = useState('Morning');
 
-  // Financial & Capacity
-  const [fundingModel, setFundingModel] = useState('free');
-  const [fee, setFee] = useState(0);
+  // Funding Config
+  const [fundingType, setFundingType] = useState('FREE');
+  const [fundingPrice, setFundingPrice] = useState(0);
+  const [fundingHasJobGuarantee, setFundingHasJobGuarantee] = useState(false);
   const [maxStudents, setMaxStudents] = useState(30);
-  const [isFree, setIsFree] = useState(true);
-  const [scholarshipEligibility, setScholarshipEligibility] = useState(false);
 
   // Syllabus
   const [syllabus, setSyllabus] = useState([]);
 
-  // Tag inputs (arrays of strings)
   const [skills, setSkills] = useState([]);
   const [skillInput, setSkillInput] = useState('');
-  const [prerequisites, setPrerequisites] = useState([]);
-  const [prereqInput, setPrereqInput] = useState('');
-  const [requirements, setRequirements] = useState([]);
-  const [reqInput, setReqInput] = useState('');
   const [outcomes, setOutcomes] = useState([]);
   const [outcomeInput, setOutcomeInput] = useState('');
   const [certificate, setCertificate] = useState('');
@@ -97,31 +97,39 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       if (initialData.enrollmentStartDate) {
         const dateObj = new Date(initialData.enrollmentStartDate);
         if (!isNaN(dateObj.getTime())) {
-          setEnrollmentStartDate(dateObj.toISOString().split('T')[0]);
+          setExpectedStartDate(dateObj.toISOString().split('T')[0]);
         }
       }
 
-      setScheduleText(initialData.schedule || '');
-      setFundingModel(initialData.funding_model || 'free');
-      setFee(initialData.fee || 0);
+      if (initialData.scheduleConfig) {
+        setScheduleTotalSessions(initialData.scheduleConfig.totalSessions || 10);
+        setScheduleSessionsPerWeek(initialData.scheduleConfig.sessionsPerWeek || 2);
+        setScheduleDurationMinutes(initialData.scheduleConfig.sessionDurationMinutes || 90);
+        setSchedulePreferredDays(initialData.scheduleConfig.preferredDays || []);
+        setSchedulePreferredTime(initialData.scheduleConfig.preferredTime || 'Morning');
+        if (initialData.scheduleConfig.expectedStartDate) {
+          const expectedObj = new Date(initialData.scheduleConfig.expectedStartDate);
+          if (!isNaN(expectedObj.getTime())) {
+            setExpectedStartDate(expectedObj.toISOString().split('T')[0]);
+          }
+        }
+      }
+
+      if (initialData.fundingConfig) {
+        setFundingType(initialData.fundingConfig.type || 'FREE');
+        setFundingPrice(initialData.fundingConfig.price || 0);
+        setFundingHasJobGuarantee(initialData.fundingConfig.hasJobGuarantee || false);
+      }
+      
       setMaxStudents(initialData.maxStudents || 30);
-      setIsFree(initialData.isFree ?? true);
-      setScholarshipEligibility(initialData.scholarshipEligibility || false);
       setSyllabus(initialData.syllabus || []);
       setSkills(initialData.skills || []);
-      setPrerequisites(initialData.prerequisites || []);
-      setRequirements(initialData.requirements || []);
       setOutcomes(initialData.outcomes || []);
       setCertificate(initialData.certificate || '');
     }
   }, [initialData]);
 
-  // Sync fee and isFree when model changes (removed fundingModel effect)
-  useEffect(() => {
-    if (isFree) {
-      setFee(0);
-    }
-  }, [isFree]);
+  // isFree state changes are now handled directly in the radio button onChange to prevent race conditions during initial load.
 
   // Handle image upload change
   const handleThumbnailChange = (e) => {
@@ -192,7 +200,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
     if (!description.trim() || description.length < 50) {
       newErrors.description = 'Mô tả chi tiết là bắt buộc và phải có ít nhất 50 ký tự';
     }
-    if (!isFree && (!fee || fee <= 0)) {
+    if (fundingType !== 'FREE' && (!fundingPrice || fundingPrice <= 0)) {
       newErrors.fee = 'Học phí phải lớn hơn 0 nếu không phải khóa học miễn phí';
     }
     if (maxStudents <= 0) {
@@ -229,11 +237,18 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
     payload.append('level', level);
     payload.append('delivery_type', deliveryType);
     
-    // Always append scheduleText unless it's video
+    // Always append scheduleConfig
     if (deliveryType !== 'video') {
-      payload.append('schedule', scheduleText.trim());
+      payload.append('scheduleConfig', JSON.stringify({
+        totalSessions: Number(scheduleTotalSessions),
+        sessionsPerWeek: Number(scheduleSessionsPerWeek),
+        sessionDurationMinutes: Number(scheduleDurationMinutes),
+        preferredDays: schedulePreferredDays,
+        preferredTime: schedulePreferredTime,
+        expectedStartDate: expectedStartDate ? new Date(expectedStartDate).getTime() : null
+      }));
     } else {
-      payload.append('schedule', '');
+      payload.append('scheduleConfig', JSON.stringify(null));
     }
 
     payload.append('certificate', certificate.trim());
@@ -243,16 +258,20 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       payload.append('status', statusOverride);
     }
 
-    // Numeric & Boolean
-    payload.append('fee', fee);
-    payload.append('isFree', isFree);
-    payload.append('scholarshipEligibility', scholarshipEligibility);
+    // Funding Config
+    payload.append('fundingConfig', JSON.stringify({
+      type: fundingType,
+      price: Number(fundingPrice),
+      sponsorIds: [],
+      hasJobGuarantee: fundingHasJobGuarantee
+    }));
+
     payload.append('maxStudents', maxStudents);
 
     // Date
-    if (enrollmentStartDate) {
+    if (expectedStartDate) {
       // Send as timestamp
-      const timestamp = new Date(enrollmentStartDate).getTime();
+      const timestamp = new Date(expectedStartDate).getTime();
       payload.append('enrollmentStartDate', timestamp);
     }
 
@@ -277,12 +296,10 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
     
     payload.append('location', JSON.stringify(locationData));
 
-    payload.append('funding_model', isFree ? 'free' : 'learner_paid');
+
 
     // Arrays
     payload.append('skills', JSON.stringify(skills));
-    payload.append('prerequisites', JSON.stringify(prerequisites));
-    payload.append('requirements', JSON.stringify(requirements));
     payload.append('outcomes', JSON.stringify(outcomes));
     payload.append('syllabus', JSON.stringify(syllabus));
 
@@ -517,7 +534,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="durationValue" className="text-[hsl(var(--admin-text-secondary))]">
-                    {deliveryType === 'video' ? 'Thời lượng ước tính hoàn thành' : 'Thời lượng khóa học'} <span className="text-[hsl(var(--admin-danger))]">*</span>
+                    Thời lượng ước tính hoàn thành <span className="text-[hsl(var(--admin-danger))]">*</span>
                   </Label>
                   <div className="flex gap-2">
                     <Input
@@ -538,55 +555,109 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                       <option value="months">Tháng</option>
                     </select>
                   </div>
-                  {errors.duration && (
-                    <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      {errors.duration}
-                    </p>
-                  )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="enrollmentStartDate" className="text-[hsl(var(--admin-text-secondary))]">
-                    {deliveryType === 'video' ? 'Ngày ra mắt khóa học (Không bắt buộc)' : 'Ngày bắt đầu đăng ký'}
+                  <Label htmlFor="expectedStartDate" className="text-[hsl(var(--admin-text-secondary))]">
+                    Ngày dự kiến khai giảng (Bắt buộc với khóa dạy) <span className="text-[hsl(var(--admin-danger))]">*</span>
                   </Label>
                   <Input
-                    id="enrollmentStartDate"
+                    id="expectedStartDate"
                     type="date"
-                    value={enrollmentStartDate}
-                    onChange={(e) => setEnrollmentStartDate(e.target.value)}
+                    value={expectedStartDate}
+                    onChange={(e) => setExpectedStartDate(e.target.value)}
                     className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                   />
                 </div>
               </div>
 
-              {(deliveryType === 'offline' || deliveryType === 'hybrid') && (
-                <div className="border-t border-[hsl(var(--admin-border))] pt-4">
-                  <LocationPicker
-                    address={locationAddress}
-                    province={locationProvince}
-                    ward={locationWard}
-                    coordinates={locationCoordinates}
-                    onAddressChange={setLocationAddress}
-                    onProvinceChange={(v) => { setLocationProvince(v); setLocationWard(''); }}
-                    onWardChange={setLocationWard}
-                    onCoordinatesChange={setLocationCoordinates}
-                    errors={{ address: errors.location }}
-                  />
-                </div>
-              )}
-
               {deliveryType !== 'video' && (
-                <div className="space-y-2 border-t border-[hsl(var(--admin-border))] pt-4">
-                  <Label htmlFor="scheduleText" className="text-[hsl(var(--admin-text-secondary))]">Lịch học dự kiến (Hiển thị giới thiệu)</Label>
-                  <Textarea
-                    id="scheduleText"
-                    placeholder="Ví dụ: Tối thứ 2 - 4 - 6 từ 19:30 đến 21:30"
-                    value={scheduleText}
-                    onChange={(e) => setScheduleText(e.target.value)}
-                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
-                    rows={2}
-                  />
+                <div className="space-y-6 border-t border-[hsl(var(--admin-border))] pt-6 mt-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock className="h-5 w-5 text-[hsl(var(--admin-accent))]" />
+                    <h4 className="font-semibold text-[hsl(var(--admin-text-primary))]">Cấu hình lịch học tự động</h4>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-[hsl(var(--admin-text-secondary))]">Tổng số buổi <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={scheduleTotalSessions}
+                        onChange={(e) => setScheduleTotalSessions(Number(e.target.value))}
+                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[hsl(var(--admin-text-secondary))]">Số buổi/tuần <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={scheduleSessionsPerWeek}
+                        onChange={(e) => setScheduleSessionsPerWeek(Number(e.target.value))}
+                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[hsl(var(--admin-text-secondary))]">Thời lượng 1 buổi (phút)</Label>
+                      <Input
+                        type="number"
+                        min="30"
+                        step="15"
+                        value={scheduleDurationMinutes}
+                        onChange={(e) => setScheduleDurationMinutes(Number(e.target.value))}
+                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-[hsl(var(--admin-text-secondary))]">Khung giờ ưu tiên</Label>
+                      <select
+                        value={schedulePreferredTime}
+                        onChange={(e) => setSchedulePreferredTime(e.target.value)}
+                        className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
+                      >
+                        <option value="Morning">Sáng (08:00 - 12:00)</option>
+                        <option value="Afternoon">Chiều (13:30 - 17:30)</option>
+                        <option value="Evening">Tối (18:00 - 21:00)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-[hsl(var(--admin-text-secondary))]">Thứ giảng dạy trong tuần</Label>
+                      <div className="border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] rounded-md p-2">
+                        <div className="flex flex-wrap gap-2">
+                          {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
+                            const labels = {
+                              'Monday': 'Thứ 2', 'Tuesday': 'Thứ 3', 'Wednesday': 'Thứ 4',
+                              'Thursday': 'Thứ 5', 'Friday': 'Thứ 6', 'Saturday': 'Thứ 7', 'Sunday': 'Chủ nhật'
+                            };
+                            const isChecked = schedulePreferredDays.includes(day);
+                            return (
+                              <label key={day} className={`cursor-pointer px-3 py-1 text-xs rounded-full border transition-colors ${isChecked ? 'bg-[hsl(var(--admin-accent-subtle))] border-[hsl(var(--admin-accent))] text-[hsl(var(--admin-accent))] font-medium' : 'bg-transparent border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))]'}`}>
+                                <input
+                                  type="checkbox"
+                                  className="hidden"
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSchedulePreferredDays([...schedulePreferredDays, day]);
+                                    } else {
+                                      setSchedulePreferredDays(schedulePreferredDays.filter(d => d !== day));
+                                    }
+                                  }}
+                                />
+                                {labels[day]}
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -602,25 +673,34 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-[hsl(var(--admin-text-secondary))]">Loại học phí</Label>
-                  <div className="flex gap-4 mt-2">
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Loại hình học phí</Label>
+                  <div className="flex flex-col gap-3 mt-2">
                     <label className="flex items-center gap-2 cursor-pointer text-sm text-[hsl(var(--admin-text-primary))]">
                       <input
                         type="radio"
-                        checked={isFree}
-                        onChange={() => { setIsFree(true); setFee(0); }}
+                        checked={fundingType === 'FREE'}
+                        onChange={() => { setFundingType('FREE'); setFundingPrice(0); }}
                         className="h-4 w-4 accent-[hsl(var(--admin-accent))]"
                       />
-                      <span>Miễn phí hoàn toàn</span>
+                      <span>Miễn phí hoàn toàn (FREE)</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer text-sm text-[hsl(var(--admin-text-primary))]">
                       <input
                         type="radio"
-                        checked={!isFree}
-                        onChange={() => setIsFree(false)}
+                        checked={fundingType === 'PAID'}
+                        onChange={() => setFundingType('PAID')}
                         className="h-4 w-4 accent-[hsl(var(--admin-accent))]"
                       />
-                      <span>Có thu học phí</span>
+                      <span>Học viên tự chi trả (PAID)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm text-[hsl(var(--admin-text-primary))]">
+                      <input
+                        type="radio"
+                        checked={fundingType === 'SPONSORED'}
+                        onChange={() => { setFundingType('SPONSORED'); setFundingPrice(0); }}
+                        className="h-4 w-4 accent-[hsl(var(--admin-accent))]"
+                      />
+                      <span>Được tài trợ 100% (SPONSORED)</span>
                     </label>
                   </div>
                 </div>
@@ -644,7 +724,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 </div>
               </div>
 
-              {!isFree && (
+              {fundingType === 'PAID' && (
                 <div className="space-y-2 md:w-1/2">
                   <Label htmlFor="fee" className="text-[hsl(var(--admin-text-secondary))]">Học phí (VND) <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                   <div className="relative">
@@ -653,8 +733,8 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                       id="fee"
                       type="number"
                       min="0"
-                      value={fee}
-                      onChange={(e) => setFee(Number(e.target.value))}
+                      value={fundingPrice}
+                      onChange={(e) => setFundingPrice(Number(e.target.value))}
                       className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] pl-12"
                     />
                   </div>
@@ -671,13 +751,13 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 <div className="flex items-center space-x-3">
                   <input
                     type="checkbox"
-                    id="scholarshipEligibility"
-                    checked={scholarshipEligibility}
-                    onChange={(e) => setScholarshipEligibility(e.target.checked)}
+                    id="hasJobGuarantee"
+                    checked={fundingHasJobGuarantee}
+                    onChange={(e) => setFundingHasJobGuarantee(e.target.checked)}
                     className="h-4 w-4 rounded border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))]"
                   />
-                  <Label htmlFor="scholarshipEligibility" className="text-[hsl(var(--admin-text-secondary))] cursor-pointer">
-                    Hỗ trợ tài trợ học bổng học phí (từ quỹ NGO hoặc Chính phủ)
+                  <Label htmlFor="hasJobGuarantee" className="text-[hsl(var(--admin-text-secondary))] cursor-pointer">
+                    Khóa học có Cam kết việc làm đầu ra (Job Guarantee)
                   </Label>
                 </div>
               </div>
@@ -704,13 +784,13 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     className="border-dashed border-[hsl(var(--admin-accent))] text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent)/10%)]"
                   >
                     <Plus className="mr-1 h-4 w-4" />
-                    Thêm tuần học mới
+                    {deliveryType === 'video' ? 'Thêm chương/bài mới' : 'Thêm buổi học mới'}
                   </Button>
                 </div>
 
                 {syllabus.length === 0 ? (
                   <div className="border border-dashed border-[hsl(var(--admin-border))] rounded-lg p-6 text-center text-[hsl(var(--admin-text-faint))]">
-                    Chưa có giáo trình nào. Hãy nhấn nút để thêm bài học.
+                    Chưa có giáo trình nào. Hãy nhấn nút để thêm {deliveryType === 'video' ? 'chương/bài' : 'buổi học'}.
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -727,7 +807,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                         
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pr-8">
                           <div className="md:col-span-1 space-y-2">
-                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Tuần học</Label>
+                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">
+                              {deliveryType === 'video' ? 'Chương/Bài số' : 'Buổi số'}
+                            </Label>
                             <Input
                               type="number"
                               value={item.week}
@@ -758,9 +840,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Nội dung chi tiết bài giảng</Label>
+                          <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Nội dung chi tiết</Label>
                           <Textarea
-                            placeholder="Mô tả tóm tắt nội dung học viên sẽ học trong tuần/chương này..."
+                            placeholder={`Mô tả tóm tắt nội dung học viên sẽ học trong ${deliveryType === 'video' ? 'chương/bài' : 'buổi'} này...`}
                             value={item.content}
                             onChange={(e) => updateSyllabusItem(index, 'content', e.target.value)}
                             className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
@@ -835,65 +917,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                   </div>
                 </div>
 
-                {/* Prerequisites */}
-                <div className="space-y-3">
-                  <Label className="text-[hsl(var(--admin-text-secondary))]">Điều kiện tiên quyết (Prerequisites)</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Nhấn Enter hoặc nút thêm"
-                      value={prereqInput}
-                      onChange={(e) => setPrereqInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem(prerequisites, setPrerequisites, prereqInput, setPrereqInput))}
-                      className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => addArrayItem(prerequisites, setPrerequisites, prereqInput, setPrereqInput)}
-                      className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))]"
-                    >
-                      Thêm
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {prerequisites.map((item, idx) => (
-                      <span key={idx} className="flex items-center gap-1 bg-[hsl(var(--admin-warning)/10%)] text-[hsl(var(--admin-warning))] text-xs border border-[hsl(var(--admin-warning)/20%)] px-2 py-1 rounded-md">
-                        {item}
-                        <button type="button" onClick={() => removeArrayItem(prerequisites, setPrerequisites, idx)} className="text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))]">×</button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Requirements */}
-                <div className="space-y-3">
-                  <Label className="text-[hsl(var(--admin-text-secondary))]">Yêu cầu đầu vào (Requirements)</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Nhấn Enter hoặc nút thêm"
-                      value={reqInput}
-                      onChange={(e) => setReqInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem(requirements, setRequirements, reqInput, setReqInput))}
-                      className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => addArrayItem(requirements, setRequirements, reqInput, setReqInput)}
-                      className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))]"
-                    >
-                      Thêm
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {requirements.map((item, idx) => (
-                      <span key={idx} className="flex items-center gap-1 bg-[hsl(var(--admin-success)/10%)] text-[hsl(var(--admin-success))] text-xs border border-[hsl(var(--admin-success)/20%)] px-2 py-1 rounded-md">
-                        {item}
-                        <button type="button" onClick={() => removeArrayItem(requirements, setRequirements, idx)} className="text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))]">×</button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               {/* Certificate */}
@@ -922,23 +946,25 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               Hủy bỏ
             </Button>
             
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isSubmitting}
-              className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]"
-              onClick={() => handleSave('draft')}
-            >
-              Lưu nháp
-            </Button>
+            {isEditMode && (
+              <Button
+                type="button"
+                disabled={isSubmitting}
+                className="bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent))] border-none font-semibold px-6"
+                onClick={() => handleSave('draft')}
+              >
+                {isSubmitting ? 'Đang lưu...' : 'Lưu cập nhật'}
+              </Button>
+            )}
 
             <Button
               type="button"
-              disabled={isSubmitting}
-              className="bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent))] font-semibold px-6"
+              disabled={isSubmitting || isEditMode}
+              className={`${isEditMode ? 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] cursor-not-allowed border-[hsl(var(--admin-border))]' : 'bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent))] border-none'} font-semibold px-6`}
               onClick={() => handleSave('pending')}
+              title={isEditMode ? 'Gửi duyệt khóa học (Đã vô hiệu hóa trong chế độ sửa)' : ''}
             >
-              {isSubmitting ? 'Đang xử lý...' : 'Gửi duyệt khóa học'}
+              {isSubmitting && !isEditMode ? 'Đang xử lý...' : 'Gửi duyệt khóa học'}
             </Button>
           </div>
         </form>

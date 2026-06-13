@@ -23,6 +23,9 @@ const TrainerSchedulePage = () => {
   // Selected course filter
   const [selectedCourseId, setSelectedCourseId] = useState('all');
   
+  // Location type filter
+  const [selectedLocationType, setSelectedLocationType] = useState('all');
+  
   // Selected session for details and attendance modal
   const [selectedSession, setSelectedSession] = useState(null);
   
@@ -113,8 +116,14 @@ const TrainerSchedulePage = () => {
 
   // Filter schedules client-side by course selection
   const getFilteredSchedules = () => {
-    if (selectedCourseId === 'all') return schedules;
-    return schedules.filter(s => s.courseId === selectedCourseId);
+    let filtered = schedules;
+    if (selectedCourseId !== 'all') {
+      filtered = filtered.filter(s => s.courseId === selectedCourseId);
+    }
+    if (selectedLocationType !== 'all') {
+      filtered = filtered.filter(s => s.location?.type === selectedLocationType);
+    }
+    return filtered;
   };
 
   // Handle attendance modal opening
@@ -243,21 +252,35 @@ const TrainerSchedulePage = () => {
                   <Filter className="h-4 w-4 text-[hsl(var(--admin-accent))]" />
                   Bộ lọc khóa học
                 </div>
-                <select
-                  value={selectedCourseId}
-                  onChange={(e) => {
-                    setSelectedCourseId(e.target.value);
-                    setSelectedSession(null); // Reset detail session view on filter change
-                  }}
-                  className="w-full rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3.5 py-2.5 text-xs text-[hsl(var(--admin-text-primary))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--admin-accent))]/50"
-                >
-                  <option value="all">Tất cả khóa học</option>
-                  {courses.map((course) => (
-                    <option key={course._id} value={course._id}>
-                      {course.title}
-                    </option>
-                  ))}
-                </select>
+                <div className="grid grid-cols-2 gap-3">
+                  <select
+                    value={selectedCourseId}
+                    onChange={(e) => {
+                      setSelectedCourseId(e.target.value);
+                      setSelectedSession(null); // Reset detail session view on filter change
+                    }}
+                    className="w-full rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3.5 py-2.5 text-xs text-[hsl(var(--admin-text-primary))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--admin-accent))]/50"
+                  >
+                    <option value="all">Tất cả khóa học</option>
+                    {courses.map((course) => (
+                      <option key={course._id} value={course._id}>
+                        {course.title}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedLocationType}
+                    onChange={(e) => {
+                      setSelectedLocationType(e.target.value);
+                      setSelectedSession(null);
+                    }}
+                    className="w-full rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3.5 py-2.5 text-xs text-[hsl(var(--admin-text-primary))] focus:outline-none focus:ring-1 focus:ring-[hsl(var(--admin-accent))]/50"
+                  >
+                    <option value="all">Tất cả hình thức</option>
+                    <option value="offline">Trực tiếp (Offline)</option>
+                    <option value="online">Trực tuyến (Online)</option>
+                  </select>
+                </div>
               </CardContent>
             </Card>
 

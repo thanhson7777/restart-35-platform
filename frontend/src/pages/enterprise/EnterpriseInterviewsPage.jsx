@@ -15,7 +15,6 @@ import toast from 'react-hot-toast';
 const interviewStatusConfig = {
   pending_confirmation: { label: 'Chờ xác nhận', className: 'bg-amber-100 text-amber-700 border-amber-200' },
   confirmed: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  rescheduled: { label: 'Đã hoãn', className: 'bg-orange-100 text-orange-700 border-orange-200' },
   completed: { label: 'Hoàn thành', className: 'bg-blue-100 text-blue-700 border-blue-200' },
   cancelled: { label: 'Đã hủy', className: 'bg-slate-200 text-slate-600 border-slate-300' },
   no_show: { label: 'Vắng mặt', className: 'bg-red-100 text-red-700 border-red-200' }
@@ -49,15 +48,15 @@ export default function EnterpriseInterviewsPage() {
 
   const fetchInterviews = useCallback(async () => {
     const params = { limit: 50 };
-    if (statusFilter !== 'all') params.status = statusFilter;
     dispatch(fetchEnterpriseInterviews(params));
-  }, [dispatch, statusFilter]);
+  }, [dispatch]);
 
   useEffect(() => {
     fetchInterviews();
   }, [fetchInterviews]);
 
   const filteredInterviews = interviews.filter(interview => {
+    if (statusFilter !== 'all' && interview.status !== statusFilter) return false;
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (

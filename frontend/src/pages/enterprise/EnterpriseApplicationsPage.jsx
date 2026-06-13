@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Users, Search, Filter, Eye, CheckCircle, XCircle, RefreshCw, ChevronDown } from 'lucide-react';
 
-import { Button, Badge, Input, Card, CardContent } from '@/components/ui';
+import { Button, Badge, Input, Card, CardContent, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui';
 import {
   fetchEnterpriseApplications,
   selectEnterpriseApplications,
@@ -44,20 +44,28 @@ export default function EnterpriseApplicationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [jobFilter, setJobFilter] = useState(jobIdFromUrl || 'all');
+  const [jobs, setJobs] = useState([]);
+
+  useEffect(() => {
+    import('@/apis/recruitmentAPI').then(({ getEnterpriseJobs }) => {
+      getEnterpriseJobs({ limit: 50, status: 'published' }).then(res => {
+        if (res.data?.data) setJobs(res.data.data);
+      }).catch(err => console.error(err));
+    });
+  }, []);
 
   const fetchApplications = useCallback(async () => {
     const params = { limit: 50 };
-    if (statusFilter !== 'all') params.status = statusFilter;
     if (jobFilter !== 'all') params.jobId = jobFilter;
-    if (searchQuery) params.search = searchQuery;
     dispatch(fetchEnterpriseApplications(params));
-  }, [dispatch, statusFilter, jobFilter, searchQuery]);
+  }, [dispatch, jobFilter]);
 
   useEffect(() => {
     fetchApplications();
   }, [fetchApplications]);
 
   const filteredApplications = applications.filter(app => {
+    if (statusFilter !== 'all' && app.status !== statusFilter) return false;
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -92,8 +100,8 @@ export default function EnterpriseApplicationsPage() {
           {[
             { key: 'all', label: 'Tất cả', className: 'bg-slate-100 text-slate-700' },
             { key: 'new', label: 'Mới', className: 'bg-blue-100 text-blue-700' },
-            { key: 'reviewing', label: 'Đang xem', className: 'bg-amber-100 text-amber-700' },
             { key: 'shortlisted', label: 'Shortlist', className: 'bg-purple-100 text-purple-700' },
+            { key: 'interviewed', label: 'Đã PV', className: 'bg-teal-100 text-teal-700' },
             { key: 'rejected', label: 'Từ chối', className: 'bg-red-100 text-red-700' }
           ].map(stat => (
             <button
@@ -121,6 +129,21 @@ export default function EnterpriseApplicationsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
+          </div>
+          <div className="w-full sm:w-64">
+            <Select value={jobFilter} onValueChange={setJobFilter}>
+              <SelectTrigger className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
+                <SelectValue placeholder="Tất cả tin tuyển dụng" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả tin tuyển dụng</SelectItem>
+                {jobs.map(job => (
+                  <SelectItem key={job._id} value={job._id}>
+                    {job.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <Button variant="outline" onClick={fetchApplications} className="border-[hsl(var(--admin-border))] gap-2">
             <RefreshCw size={13} /> Làm mới

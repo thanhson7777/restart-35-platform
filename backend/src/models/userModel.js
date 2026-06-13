@@ -17,6 +17,8 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   role: Joi.string().valid(...Object.values(USER_ROLES)).default(USER_ROLES.WORKER),
   isActive: Joi.boolean().default(false),
   verifyToken: Joi.string(),
+  resetPasswordToken: Joi.string().default(null),
+  resetPasswordExpire: Joi.date().timestamp('javascript').default(null),
 
   // BasicInfo fields
   age: Joi.number().integer().min(35).max(65),
@@ -65,6 +67,17 @@ const findOneByEmail = async (emailValue) => {
   try {
     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
       email: emailValue,
+      _destroy: { $ne: true }
+    })
+    return result
+  } catch (error) { throw error }
+}
+
+const findOneByResetToken = async (resetToken) => {
+  try {
+    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
+      resetPasswordToken: resetToken,
+      resetPasswordExpire: { $gt: Date.now() },
       _destroy: { $ne: true }
     })
     return result
@@ -205,6 +218,7 @@ export const userModel = {
   createNew,
   findOneById,
   findOneByEmail,
+  findOneByResetToken,
   update,
   countUsersByRole,
   getUsers,
