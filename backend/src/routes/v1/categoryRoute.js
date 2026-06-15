@@ -13,11 +13,6 @@ Router.get(
   categoryController.getAllCategories
 )
 
-// Lấy cây danh mục (nested structure)
-Router.get(
-  '/tree',
-  categoryController.getCategoryTree
-)
 
 // Lấy danh mục nổi bật
 Router.get(
@@ -25,12 +20,6 @@ Router.get(
   categoryController.getFeaturedCategories
 )
 
-// Lấy danh mục con
-Router.get(
-  '/subcategories',
-  categoryValidation.queryCategories,
-  categoryController.getSubcategories
-)
 
 // Lấy danh mục theo slug
 Router.get(
@@ -51,7 +40,7 @@ Router.get(
 // Tạo danh mục mới
 Router.post(
   '/',
-  authMiddleware.isAuthorizedAdmin,
+  authMiddleware.isAuthorizedTrainerOrAdmin,
   categoryValidation.createCategory,
   categoryController.createCategory
 )

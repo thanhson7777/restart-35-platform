@@ -9,12 +9,6 @@ const STATUS_CONFIG = {
   rejected: { label: 'Từ chối', bg: 'bg-rose-500/10', text: 'text-rose-500' },
 };
 
-const LEVEL_LABELS = {
-  beginner: 'Người mới bắt đầu',
-  intermediate: 'Trung cấp',
-  advanced: 'Nâng cao',
-};
-
 const AdminCourseDetailModal = ({ course, onClose, onApprove, onReject }) => {
   if (!course) return null;
 
@@ -77,7 +71,7 @@ const AdminCourseDetailModal = ({ course, onClose, onApprove, onReject }) => {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm font-medium text-[hsl(var(--admin-accent))]">
-                    {course.isFree || course.fee === 0 ? 'Miễn phí' : formatPrice(course.fee)}
+                    {course.fundingConfig?.type === 'FREE' ? 'Miễn phí' : formatPrice(course.fundingConfig?.price || 0)}
                   </div>
                 </div>
               </div>
@@ -100,10 +94,7 @@ const AdminCourseDetailModal = ({ course, onClose, onApprove, onReject }) => {
                 <p className="text-sm text-[hsl(var(--admin-text-muted))] mb-1">Danh mục</p>
                 <p className="text-[hsl(var(--admin-text-primary))]">{course.category?.name || '-'}</p>
               </div>
-              <div>
-                <p className="text-sm text-[hsl(var(--admin-text-muted))] mb-1">Cấp độ</p>
-                <p className="text-[hsl(var(--admin-text-primary))]">{LEVEL_LABELS[course.level] || course.level || '-'}</p>
-              </div>
+
               <div>
                 <p className="text-sm text-[hsl(var(--admin-text-muted))] mb-1">Hình thức</p>
                 <p className="text-[hsl(var(--admin-text-primary))] capitalize">

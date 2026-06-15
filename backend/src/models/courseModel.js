@@ -2,7 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import {
-  COURSE_STATUS, COURSE_LEVELS, DURATION_UNITS, LOCATION_TYPES,
+  COURSE_STATUS, DURATION_UNITS, LOCATION_TYPES,
   COURSE_DELIVERY_TYPES, COURSE_FUNDING_MODELS
 } from '~/utils/constants'
 
@@ -61,7 +61,6 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   maxStudents: Joi.number().integer().min(1).default(30),
   enrollmentStartDate: Joi.date().timestamp('javascript').allow(null, ''),
   // Nội dung
-  level: Joi.string().valid(...Object.values(COURSE_LEVELS)).default(COURSE_LEVELS.BEGINNER),
   skills: Joi.array()
     .items(Joi.string().min(2).max(100))
     .max(20)
@@ -70,8 +69,10 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
     Joi.object({
       week: Joi.number().required(),
       title: Joi.string().required(),
-      content: Joi.string(),
-      duration: Joi.string()
+      content: Joi.string().allow('', null),
+      duration: Joi.string().allow('', null),
+      fileUrl: Joi.string().uri().allow('', null),
+      fileName: Joi.string().allow('', null)
     })
   ).max(50),
   certificate: Joi.string().allow(''),
@@ -614,10 +615,48 @@ const getCourseStats = async (courseId) => {
 }
 
 // Admin aggregate functions
+const getProviderCourseStats = async (providerId) => {
+  try {
+    let objectIdProvider = null;
+    if (ObjectId.isValid(providerId)) {
+      objectIdProvider = new ObjectId(providerId);
+    }
+    const matchStage = { _destroy: { $ne: true } };
+    if (objectIdProvider) {
+      matchStage.$or = [ { providerId: providerId }, { providerId: objectIdProvider } ];
+    } else {
+      matchStage.providerId = providerId;
+    }
+
+    const stats = await GET_DB().collection(COURSE_COLLECTION_NAME).aggregate([
+      { $match: matchStage },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).toArray();
+
+    const result = {
+      total: 0,
+      draft: 0,
+      pending: 0,
+      approved: 0,
+      rejected: 0,
+      archived: 0
+    };
+
+    stats.forEach(stat => {
+      result[stat._id] = stat.count;
+      result.total += stat.count;
+    });
+
+    return result;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 const getAdminCourseStats = async () => {
   try {
     const stats = await GET_DB().collection(COURSE_COLLECTION_NAME).aggregate([
-      { $match: { _destroy: { $ne: true } } },
+      { $match: { _destroy: { $ne: true }, status: { $ne: COURSE_STATUS.DRAFT } } },
       {
         $group: {
           _id: '$status',
@@ -649,7 +688,8 @@ const getAdminCourseStats = async () => {
 const getAdminCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, sort = { createdAt: -1 }) => {
   try {
     const matchStage = {
-      _destroy: { $ne: true }
+      _destroy: { $ne: true },
+      status: { $ne: COURSE_STATUS.DRAFT }
     }
 
     // Search by title/description
@@ -701,7 +741,6 @@ export const courseModel = {
   COURSE_COLLECTION_NAME,
   COURSE_COLLECTION_SCHEMA,
   COURSE_STATUS,
-  COURSE_LEVELS,
   DURATION_UNITS,
   LOCATION_TYPES,
   COURSE_DELIVERY_TYPES,
@@ -721,6 +760,7 @@ export const courseModel = {
   findRelated,
   getPendingCourses,
   getAdminCourseStats,
+  getProviderCourseStats,
   getAdminCourses,
   // Update
   update,

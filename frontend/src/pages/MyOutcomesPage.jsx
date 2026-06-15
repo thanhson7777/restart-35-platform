@@ -13,8 +13,7 @@ import {
 import { selectCurrentUser } from '@/redux/user/userSlice'
 import { Card, CardContent, Badge, Button } from '@/components/ui'
 import { Skeleton } from '@/components/ui/Skeleton'
-import Navbar from '@/components/landing/Navbar'
-import Footer from '@/components/layout/Footer'
+
 import toast from 'react-hot-toast'
 import { Briefcase, MapPin, DollarSign, CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -75,7 +74,7 @@ export default function MyOutcomesPage() {
 
   return (
     <>
-      <Navbar />
+
       <div className="min-h-screen bg-background">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-border">
@@ -233,7 +232,7 @@ export default function MyOutcomesPage() {
           )}
         </main>
       </div>
-      <Footer />
+
     </>
   )
 }

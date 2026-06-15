@@ -7,7 +7,6 @@ import {
 } from '~/utils/validator'
 import {
   COURSE_STATUS,
-  COURSE_LEVELS,
   DURATION_UNITS,
   LOCATION_TYPES,
   MAX_ITEM_PER_PAGE,
@@ -72,7 +71,6 @@ const createCourse = async (req, res, next) => {
     }),
     maxStudents: Joi.number().integer().min(1).default(30),
     enrollmentStartDate: Joi.date().timestamp().allow(null, ''),
-    level: Joi.string().valid(...Object.values(COURSE_LEVELS)).default(COURSE_LEVELS.BEGINNER),
     delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)).default(COURSE_DELIVERY_TYPES.VIDEO),
     skills: Joi.array().items(Joi.string()).max(20).default([]),
     syllabus: Joi.array().items(
@@ -137,7 +135,6 @@ const updateCourse = async (req, res, next) => {
     }),
     maxStudents: Joi.number().integer().min(1),
     enrollmentStartDate: Joi.date().timestamp().allow(null, ''),
-    level: Joi.string().valid(...Object.values(COURSE_LEVELS)),
     delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)),
     skills: Joi.array().items(Joi.string()).max(20),
     syllabus: Joi.array().items(
@@ -187,7 +184,6 @@ const queryCourses = async (req, res, next) => {
     search: Joi.string().max(200).allow(''),
     category: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     provider: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    level: Joi.string().valid(...Object.values(COURSE_LEVELS)),
     minFee: Joi.number().integer().min(0),
     maxFee: Joi.number().integer().min(0),
     isFree: Joi.boolean(),

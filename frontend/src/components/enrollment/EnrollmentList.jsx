@@ -43,7 +43,8 @@ export const EnrollmentList = ({
 
   // Compute stats metrics
   const totalCount = list.length;
-  const activeCount = list.filter((e) => e.status === ENROLLMENT_STATUS.IN_PROGRESS).length;
+  const isLearningStatus = (s) => s === ENROLLMENT_STATUS.IN_PROGRESS || s === ENROLLMENT_STATUS.ACTIVE;
+  const activeCount = list.filter((e) => isLearningStatus(e.status)).length;
   const completedCount = list.filter((e) => e.status === ENROLLMENT_STATUS.COMPLETED).length;
   
   // Calculate total tuition paid (summarize from paid installments)
@@ -59,7 +60,11 @@ export const EnrollmentList = ({
 
   // Apply filters
   const filtered = list.filter((e) => {
-    const matchesStatus = activeStatusTab === 'all' || e.status === activeStatusTab;
+    const matchesStatus = activeStatusTab === 'all' 
+      ? true 
+      : (activeStatusTab === ENROLLMENT_STATUS.IN_PROGRESS 
+          ? isLearningStatus(e.status) 
+          : e.status === activeStatusTab);
     const matchesDelivery = activeDeliveryFilter === 'all' || e.course?.delivery_type === activeDeliveryFilter;
     return matchesStatus && matchesDelivery;
   });
@@ -79,56 +84,48 @@ export const EnrollmentList = ({
       {/* ─── Stats Dashboard Header ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total enrollments */}
-        <div className="p-1 rounded-[16px] bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/80">
-          <Card className="p-4 rounded-[12px] bg-white dark:bg-zinc-950 border border-zinc-150/40 dark:border-zinc-900 shadow-sm flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-500 shrink-0">
-              <BookOpen className="w-5 h-5 stroke-[1.5]" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 block">Tổng số khóa</span>
-              <span className="text-lg font-extrabold text-zinc-800 dark:text-zinc-200">{totalCount}</span>
-            </div>
-          </Card>
-        </div>
+        <Card className="p-4 bg-white dark:bg-zinc-950 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-500 shrink-0">
+            <BookOpen className="w-5 h-5 stroke-[1.5]" />
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 block">Tổng số khóa</span>
+            <span className="text-lg font-extrabold text-zinc-800 dark:text-zinc-200">{totalCount}</span>
+          </div>
+        </Card>
 
         {/* Active learning */}
-        <div className="p-1 rounded-[16px] bg-primary/5 border border-primary/10">
-          <Card className="p-4 rounded-[12px] bg-white dark:bg-zinc-950 border border-zinc-150/40 dark:border-zinc-900 shadow-sm flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-              <Play className="w-5 h-5 stroke-[1.5]" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-primary/75 block">Đang học tập</span>
-              <span className="text-lg font-extrabold text-primary">{activeCount}</span>
-            </div>
-          </Card>
-        </div>
+        <Card className="p-4 bg-white dark:bg-zinc-950 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <Play className="w-5 h-5 stroke-[1.5]" />
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-wider text-primary/75 block">Đang học tập</span>
+            <span className="text-lg font-extrabold text-primary">{activeCount}</span>
+          </div>
+        </Card>
 
         {/* Completed courses */}
-        <div className="p-1 rounded-[16px] bg-emerald-500/5 border border-emerald-500/10">
-          <Card className="p-4 rounded-[12px] bg-white dark:bg-zinc-950 border border-zinc-150/40 dark:border-zinc-900 shadow-sm flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
-              <GraduationCap className="w-5 h-5 stroke-[1.5]" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-500/75 block">Hoàn thành</span>
-              <span className="text-lg font-extrabold text-emerald-500">{completedCount}</span>
-            </div>
-          </Card>
-        </div>
+        <Card className="p-4 bg-white dark:bg-zinc-950 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
+            <GraduationCap className="w-5 h-5 stroke-[1.5]" />
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-500/75 block">Hoàn thành</span>
+            <span className="text-lg font-extrabold text-emerald-500">{completedCount}</span>
+          </div>
+        </Card>
 
         {/* Tuition fee paid */}
-        <div className="p-1 rounded-[16px] bg-amber-500/5 border border-amber-500/10">
-          <Card className="p-4 rounded-[12px] bg-white dark:bg-zinc-950 border border-zinc-150/40 dark:border-zinc-900 shadow-sm flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
-              <DollarSign className="w-5 h-5 stroke-[1.5]" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-amber-500/75 block">Đã thanh toán</span>
-              <span className="text-sm font-extrabold text-zinc-800 dark:text-zinc-200 truncate block">{formatPrice(totalPaid)}</span>
-            </div>
-          </Card>
-        </div>
+        <Card className="p-4 bg-white dark:bg-zinc-950 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
+            <DollarSign className="w-5 h-5 stroke-[1.5]" />
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-wider text-amber-500/75 block">Đã thanh toán</span>
+            <span className="text-sm font-extrabold text-zinc-800 dark:text-zinc-200 truncate block">{formatPrice(totalPaid)}</span>
+          </div>
+        </Card>
       </div>
 
       {/* ─── Filters & Selectors Panel ─── */}
@@ -162,7 +159,11 @@ export const EnrollmentList = ({
           <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 dark:text-zinc-500 block">Trạng thái lớp học</span>
           <div className="flex gap-2 overflow-x-auto pb-1.5 scrollbar-thin">
             {STATUS_TABS.map((tab) => {
-              const count = tab.key === 'all' ? list.length : list.filter(e => e.status === tab.key).length;
+              const count = tab.key === 'all' 
+                ? list.length 
+                : (tab.key === ENROLLMENT_STATUS.IN_PROGRESS 
+                    ? list.filter(e => isLearningStatus(e.status)).length 
+                    : list.filter(e => e.status === tab.key).length);
               return (
                 <button
                   key={tab.key}
@@ -214,7 +215,7 @@ export const EnrollmentList = ({
                 onViewProgress={onViewProgress}
                 onViewDetail={onViewDetail}
               />
-              <EnrollmentFundingSummary enrollment={enrollment} />
+
             </div>
           ))}
         </div>

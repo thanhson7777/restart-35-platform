@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Avatar, Skeleton, SafeImage } from '@/components/ui';
+import { Badge, Avatar, Skeleton, SafeImage } from '@/components/ui';
 import { CourseCard } from '@/components/course/CourseCard';
 import { CourseEnrollmentForm } from '@/components/course/CourseDetail/CourseEnrollmentForm';
 import { CourseInfo } from '@/components/course/CourseDetail/CourseInfo';
 import { DeliveryTypeBadge } from '@/components/course/DeliveryTypeBadge';
 import { FundingModelChip } from '@/components/course/FundingModelChip';
+import { JobGuaranteeHighlight } from '@/components/course/CourseDetail/JobGuaranteeHighlight';
 import { SyllabusAccordion } from '@/components/course/CourseDetail/SyllabusAccordion';
 import { VideoPreviewSection } from '@/components/course/CourseDetail/VideoPreviewSection';
 import { ScheduleSessionList } from '@/components/course/CourseDetail/ScheduleSessionList';
@@ -25,6 +26,12 @@ export default function CourseDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const currentUser = useSelector(selectCurrentUser);
+
+  const overviewRef = useRef(null);
+  const curriculumRef = useRef(null);
+  const previewRef = useRef(null);
+  const scheduleRef = useRef(null);
+  const instructorRef = useRef(null);
 
   const [course, setCourse] = useState(null);
   const [relatedCourses, setRelatedCourses] = useState([]);
@@ -227,18 +234,42 @@ export default function CourseDetailPage() {
   const isApproved = status === 'approved';
   const nextSession = sessions.filter(s => s.status !== 'completed')[0];
 
+  const scrollTo = (ref) => {
+    if (ref && ref.current) {
+      const yOffset = -80; // height of sticky nav
+      const y = ref.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <>
+    <div className="min-h-screen bg-background flex flex-col font-sans">
       <Navbar />
-      <div className="min-h-screen bg-background">
-        {/* Light Gradient Header */}
-        <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50 border-b border-[hsl(var(--admin-border))] shadow-sm py-12">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.05),transparent_45%)] pointer-events-none" />
-          <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Left Column: Course info details */}
-            <div className="lg:col-span-2">
-              <div className="flex flex-wrap items-center gap-2 mb-4">
+      
+      {/* 1. Cinematic Hero Section */}
+      <section className="relative w-full min-h-[80vh] flex items-center pt-24 pb-16 overflow-hidden bg-zinc-950 text-white dark">
+        {/* Background Layer */}
+        {thumbnail && (
+          <div className="absolute inset-0 z-0">
+            <SafeImage 
+              src={thumbnail} 
+              alt="Course Background" 
+              className="w-full h-full object-cover opacity-30 scale-105" 
+            />
+            {/* Cinematic Gradient Mask */}
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/60 to-transparent" />
+          </div>
+        )}
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Content (8 cols) */}
+            <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+              
+              {/* Badges / Meta */}
+              <div className="flex flex-wrap items-center gap-3">
                 {course.delivery_type && (
                   <DeliveryTypeBadge deliveryType={course.delivery_type} size="md" />
                 )}
@@ -246,267 +277,210 @@ export default function CourseDetailPage() {
                   <FundingModelChip fundingModel={course.funding_model} size="md" />
                 )}
                 {level && (
-                  <Badge 
-                    variant="outline" 
-                    className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] text-xs px-2.5 py-0.5 rounded-full font-medium"
-                  >
+                  <Badge variant="outline" className="border-zinc-700 text-zinc-300 text-xs px-3 py-1 rounded-full font-medium tracking-wide">
                     {level === 'beginner' ? 'Người mới' : level === 'intermediate' ? 'Trung bình' : 'Nâng cao'}
                   </Badge>
                 )}
                 {isApproved && (
-                  <Badge className="bg-emerald-600 border-0 text-xs px-2.5 py-0.5 rounded-full font-medium">
+                  <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1 rounded-full font-medium">
                     Đã kiểm duyệt
-                  </Badge>
-                )}
-                {sponsorships.length > 0 && (
-                  <Badge className="bg-blue-600 border-0 text-xs px-2.5 py-0.5 rounded-full font-medium">
-                    Được tài trợ bởi {sponsorships[0].title}
                   </Badge>
                 )}
               </div>
 
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] mb-4 leading-tight">
+              {/* Huge Title */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-white leading-[1.1]">
                 {title}
               </h1>
 
-              {/* Skills badges taught by course */}
+              {/* Skills */}
               {skills?.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-4">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {skills.slice(0, 5).map((skill, idx) => (
                     <Badge
                       key={idx}
                       variant="secondary"
-                      className="bg-blue-50 border border-blue-100 text-blue-600 text-[10.5px] px-2 py-0.5 font-medium"
+                      className="bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-200 border-0 text-xs px-3 py-1 font-medium transition-colors"
                     >
                       {skill}
                     </Badge>
                   ))}
                   {skills.length > 5 && (
-                    <Badge variant="secondary" className="bg-white/5 border border-white/10 text-zinc-400 text-[10.5px]">
+                    <Badge variant="secondary" className="bg-zinc-800/50 text-zinc-400 border-0 text-xs">
                       +{skills.length - 5}
                     </Badge>
                   )}
                 </div>
               )}
 
-              {/* Stats row */}
-              <div className="flex flex-wrap items-center gap-4 text-xs text-[hsl(var(--admin-text-muted))] border-t border-[hsl(var(--admin-border))] pt-4">
+              {/* Sponsor / Job Guarantee Banner */}
+              <div className="max-w-2xl mt-4">
+                <JobGuaranteeHighlight sponsorships={sponsorships} />
+              </div>
+
+              {/* Bento Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 border-t border-zinc-800/50 pt-8">
                 {rating?.average && (
-                  <span className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="font-bold text-[hsl(var(--admin-text-primary))]">{rating.average.toFixed(1)}</span>
-                    <span>({rating.count} đánh giá)</span>
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">Đánh giá</span>
+                    <span className="flex items-center gap-1.5 text-xl font-bold">
+                      <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                      {rating.average.toFixed(1)}
+                    </span>
+                  </div>
                 )}
                 {enrollmentCount != null && (
-                  <span className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4" strokeWidth={1.5} />
-                    <span>{enrollmentCount} học viên đã ghi danh</span>
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">Học viên</span>
+                    <span className="flex items-center gap-1.5 text-xl font-bold">
+                      <Users className="w-5 h-5 text-blue-400" />
+                      {enrollmentCount}
+                    </span>
+                  </div>
                 )}
                 {duration && (
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4" strokeWidth={1.5} />
-                    <span>{formatDuration(duration)}</span>
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">Thời lượng</span>
+                    <span className="flex items-center gap-1.5 text-xl font-bold">
+                      <Clock className="w-5 h-5 text-emerald-400" />
+                      {formatDuration(duration)}
+                    </span>
+                  </div>
                 )}
                 {viewCount != null && (
-                  <span className="flex items-center gap-1.5">
-                    <Eye className="w-4 h-4" strokeWidth={1.5} />
-                    <span>{viewCount} lượt xem</span>
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">Lượt xem</span>
+                    <span className="flex items-center gap-1.5 text-xl font-bold">
+                      <Eye className="w-5 h-5 text-purple-400" />
+                      {viewCount}
+                    </span>
+                  </div>
                 )}
               </div>
 
-              {/* Provider Info */}
-              {provider && (
-                <div className="flex items-center gap-2 mt-4">
-                  <Avatar fallback={provider.displayName?.[0] || 'T'} size="sm" className="border border-[hsl(var(--admin-border))]" />
-                  <span className="text-xs text-[hsl(var(--admin-text-muted))] font-semibold flex items-center gap-1">
-                    {provider.displayName}
-                    {provider.verified && <span className="text-emerald-500 font-bold" title="Verified partner">✓</span>}
-                  </span>
-                </div>
-              )}
+            </div>
 
-              {/* Type-Specific Layout Additions inside Header */}
-
-              {/* Curriculum Button */}
-              <button
-                onClick={() => navigate(`/courses/${id}/curriculum`)}
-                className="mt-4 w-full py-2 px-4 text-sm font-medium bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors text-center"
-              >
-                Xem giáo trình
-              </button>
-
-              {/* VIDEO layout play previews overlay */}
-              {course.delivery_type === 'video' && (
-                <div className="mt-6">
-                  <div 
-                    className="relative max-w-sm aspect-video rounded-2xl overflow-hidden bg-slate-100 border border-[hsl(var(--admin-border))] cursor-pointer group shadow-lg"
-                    onClick={() => {
-                      const tab = document.querySelector('[role="tab"][value="preview"]');
-                      if (tab) tab.click();
-                    }}
-                  >
-                    {thumbnail ? (
-                      <SafeImage
-                        src={thumbnail}
-                        alt="Xem trước video bài giảng"
-                        className="w-full h-full object-cover opacity-85 transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
-                        <BookOpen className="w-10 h-10" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-center bg-blue-50/30 group-hover:bg-blue-50/50 transition-colors">
-                      <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        <Play className="w-4.5 h-4.5 fill-current ml-0.5" strokeWidth={2} />
-                      </div>
-                    </div>
-                    <span className="absolute bottom-3 right-3 bg-primary/90 text-white text-[9px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded shadow-sm font-mono">
-                      Xem học thử
-                    </span>
+            {/* Right Content (4 cols) - Floating Enrollment Card */}
+            <div className="lg:col-span-5 xl:col-span-4 relative z-20">
+              <div className="sticky top-24">
+                <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-1 rounded-3xl shadow-2xl overflow-hidden ring-1 ring-white/10">
+                  <div className="bg-white dark:bg-zinc-950 rounded-[22px] overflow-hidden">
+                    <CourseEnrollmentForm
+                      course={course}
+                      eligibility={eligibility}
+                      existingEnrollment={existingEnrollment}
+                      sponsorships={sponsorships}
+                      onSubmit={handleEnroll}
+                      isSubmitting={enrolling}
+                    />
                   </div>
                 </div>
-              )}
-
-              {/* LIVE layout next session countdown */}
-              {course.delivery_type === 'live' && nextSession && (
-                <LiveSessionCountdown session={nextSession} />
-              )}
-
-              {/* OFFLINE layout venue info */}
-              {course.delivery_type === 'offline' && location?.address && (
-                <div className="flex items-center gap-2 text-[hsl(var(--admin-text-muted))] text-xs mt-5 bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-border))] px-3.5 py-2.5 rounded-xl max-w-md shadow-sm">
-                  <MapPin className="w-4 h-4 text-primary shrink-0" strokeWidth={1.5} />
-                  <span>Địa điểm lớp: <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{location.address}</span></span>
-                </div>
-              )}
+              </div>
             </div>
 
-            {/* Right Column: Enrollment Card (Desktop) */}
-            <div className="lg:col-span-1 hidden lg:block" id="enrollment-section">
-              <Card className="p-0 overflow-hidden bg-white border border-[hsl(var(--admin-border))] shadow-xl">
-                {thumbnail && course.delivery_type !== 'video' && (
-                  <SafeImage
-                    src={thumbnail}
-                    alt={title}
-                    className="w-full aspect-video object-cover border-b border-[hsl(var(--admin-border))]"
-                  />
-                )}
-                <div className="p-6">
-                  <CourseEnrollmentForm
-                    course={course}
-                    eligibility={eligibility}
-                    existingEnrollment={existingEnrollment}
-                    sponsorships={sponsorships}
-                    onSubmit={handleEnroll}
-                    isSubmitting={enrolling}
-                  />
-                </div>
-              </Card>
-            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Sticky Navigation Bar */}
+      <div className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-xl border-b border-border shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-6 overflow-x-auto no-scrollbar py-4">
+            <button onClick={() => scrollTo(overviewRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
+              Tổng quan
+            </button>
+            <button onClick={() => scrollTo(curriculumRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
+              Giáo trình
+            </button>
+            {['video', 'live'].includes(course.delivery_type) && (
+              <button onClick={() => scrollTo(previewRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
+                Học thử
+              </button>
+            )}
+            {['live', 'offline', 'blended'].includes(course.delivery_type) && (
+              <button onClick={() => scrollTo(scheduleRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
+                Lịch học
+              </button>
+            )}
+            <button onClick={() => scrollTo(instructorRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
+              Giảng viên
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Page Main Content Area */}
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column Tabs Content */}
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="overview">
-              <TabsList className="mb-6 flex flex-wrap gap-1 p-1 bg-zinc-100 rounded-xl border border-zinc-200">
-                <TabsTrigger value="overview" className="rounded-lg text-xs font-semibold px-4 py-2">
-                  Tổng quan
-                </TabsTrigger>
-                
-                <TabsTrigger value="curriculum" className="rounded-lg text-xs font-semibold px-4 py-2">
-                  Giáo trình
-                </TabsTrigger>
-
-                {/* Conditional Preview Tab */}
-                {['video', 'live'].includes(course.delivery_type) && (
-                  <TabsTrigger value="preview" className="rounded-lg text-xs font-semibold px-4 py-2">
-                    Học thử
-                  </TabsTrigger>
-                )}
-
-                {/* Conditional Schedule Tab */}
-                {['live', 'offline', 'blended'].includes(course.delivery_type) && (
-                  <TabsTrigger value="schedule" className="rounded-lg text-xs font-semibold px-4 py-2">
-                    Lịch học
-                  </TabsTrigger>
-                )}
-
-                <TabsTrigger value="instructor" className="rounded-lg text-xs font-semibold px-4 py-2">
-                  Giảng viên
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Tab: Overview */}
-              <TabsContent value="overview" className="focus:outline-none">
-                <CourseInfo 
-                  course={course} 
-                  isEnrolled={!!existingEnrollment} 
-                  lessons={courseLessons} 
-                />
-              </TabsContent>
-
-              {/* Tab: Curriculum */}
-              <TabsContent value="curriculum" className="focus:outline-none">
-                <SyllabusAccordion
-                  syllabus={course?.syllabus || []}
-                  delivery_type={course.delivery_type}
-                  courseId={course._id}
-                  isEnrolled={!!existingEnrollment}
-                  lessons={courseLessons}
-                />
-              </TabsContent>
-
-              {/* Tab: Video Preview */}
-              {['video', 'live'].includes(course.delivery_type) && (
-                <TabsContent value="preview" className="focus:outline-none">
-                  <VideoPreviewSection courseId={id} />
-                </TabsContent>
-              )}
-
-              {/* Tab: Schedule */}
-              {['live', 'offline', 'blended'].includes(course.delivery_type) && (
-                <TabsContent value="schedule" className="focus:outline-none">
-                  <ScheduleSessionList courseId={id} delivery_type={course.delivery_type} />
-                </TabsContent>
-              )}
-
-              {/* Tab: Instructor */}
-              <TabsContent value="instructor" className="focus:outline-none">
-                <CourseInstructorInfo provider={provider} />
-              </TabsContent>
-            </Tabs>
+      {/* 3. Main Storytelling Content */}
+      <main className="container mx-auto px-4 py-16 max-w-7xl flex flex-col gap-24">
+        
+        {/* Overview Section */}
+        <section ref={overviewRef} className="scroll-mt-24 max-w-4xl">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold tracking-tight mb-2">Về khóa học này</h2>
+            <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
           </div>
+          <CourseInfo 
+            course={course} 
+            isEnrolled={!!existingEnrollment} 
+            lessons={courseLessons} 
+          />
+        </section>
 
-          {/* Right Column: Enrollment Form (Mobile/Tablet display only) */}
-          <div className="lg:col-span-1 lg:hidden">
-            <div className="sticky top-4">
-              <CourseEnrollmentForm
-                course={course}
-                eligibility={eligibility}
-                existingEnrollment={existingEnrollment}
-                sponsorships={sponsorships}
-                onSubmit={handleEnroll}
-                isSubmitting={enrolling}
-              />
+        {/* Curriculum Section */}
+        <section ref={curriculumRef} className="scroll-mt-24 max-w-4xl">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold tracking-tight mb-2">Giáo trình</h2>
+            <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
+            <p className="text-muted-foreground mt-4 text-lg">Hành trình chi tiết từ lúc bắt đầu đến khi thành thạo.</p>
+          </div>
+          <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl p-6 md:p-10 border border-border">
+            <SyllabusAccordion
+              syllabus={course?.syllabus || []}
+              delivery_type={course.delivery_type}
+              courseId={course._id}
+              isEnrolled={!!existingEnrollment}
+              lessons={courseLessons}
+            />
+          </div>
+        </section>
+
+        {/* Preview Section */}
+        {['video', 'live'].includes(course.delivery_type) && (
+          <section ref={previewRef} className="scroll-mt-24 max-w-5xl">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold tracking-tight mb-2">Học thử ngay</h2>
+              <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
             </div>
-          </div>
-        </div>
+            <div className="bg-black rounded-3xl overflow-hidden shadow-2xl ring-1 ring-border">
+              <VideoPreviewSection courseId={id} />
+            </div>
+          </section>
+        )}
 
-        {/* Related courses list */}
+        {/* Schedule Section */}
+        {['live', 'offline', 'blended'].includes(course.delivery_type) && (
+          <section ref={scheduleRef} className="scroll-mt-24 max-w-5xl">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold tracking-tight mb-2">Lịch học sắp tới</h2>
+              <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
+            </div>
+            <ScheduleSessionList courseId={id} delivery_type={course.delivery_type} />
+          </section>
+        )}
+
+        {/* Instructor Section */}
+        <section ref={instructorRef} className="scroll-mt-24 max-w-4xl">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold tracking-tight mb-2">Người dẫn dắt</h2>
+            <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
+          </div>
+          <CourseInstructorInfo provider={provider} />
+        </section>
+
+        {/* Related Courses Section */}
         {relatedCourses.length > 0 && (
-          <section className="mt-16 pt-10 border-t border-zinc-200">
-            <h3 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white mb-6">
-              Khóa học liên quan
+          <section className="pt-16 border-t border-border mt-8">
+            <h3 className="text-2xl font-bold tracking-tight mb-8">
+              Các khóa học liên quan
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedCourses.slice(0, 4).map((rc) => (
@@ -519,9 +493,10 @@ export default function CourseDetailPage() {
             </div>
           </section>
         )}
+
       </main>
-      </div>
+
       <Footer />
-    </>
+    </div>
   );
 }

@@ -22,6 +22,31 @@ const upload = multer({
   }
 })
 
+const uploadResource = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
+  fileFilter: (req, file, cb) => {
+    // Allow images, PDFs, word, excel, ppt, zip, rar
+    const allowedMimeTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/zip',
+      'application/x-zip-compressed',
+      'application/x-rar-compressed'
+    ]
+    if (file.mimetype.startsWith('image/') || allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true)
+    } else {
+      cb(new Error('Chỉ chấp nhận file hình ảnh, PDF, Word, Excel, PPT hoặc tệp nén (ZIP/RAR)!'), false)
+    }
+  }
+})
+
 /**
  * @route   GET /v1/courses/map-data
  * @desc    Lấy dữ liệu khóa học có địa điểm cho bản đồ
@@ -181,6 +206,13 @@ Router.post(
   courseController.createCourse
 )
 
+// Thống kê khóa học của tôi
+Router.get(
+  '/me/my-courses/stats',
+  authMiddleware.isAuthorized,
+  courseController.getMyCourseStats
+)
+
 // Khóa học của tôi
 Router.get(
   '/me/my-courses',
@@ -214,6 +246,14 @@ Router.put(
   authMiddleware.isAuthorized,
   courseValidation.checkId,
   courseController.submitForApproval
+)
+
+// Upload tài liệu giáo trình
+Router.post(
+  '/upload-resource',
+  authMiddleware.isAuthorized,
+  uploadResource.single('file'),
+  courseController.uploadCourseResource
 )
 
 // ============ ADMIN ROUTES (Auth + Admin Required) ============

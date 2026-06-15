@@ -7,8 +7,6 @@ const TABS = [
   { key: 'pending', label: 'Chờ duyệt' },
   { key: 'approved', label: 'Đã duyệt' },
   { key: 'rejected', label: 'Từ chối' },
-  { key: 'draft', label: 'Nháp' },
-  { key: 'archived', label: 'Lưu trữ' },
 ];
 
 const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
@@ -128,16 +126,6 @@ const AdminCourseFilters = ({ filters, onChange, onSearch, stats }) => {
           <option value="marketing">Marketing</option>
         </select>
 
-        <select
-          value={filters.level || ''}
-          onChange={(e) => handleFilterChange('level', e.target.value)}
-          className="px-3 py-2 border border-[hsl(var(--admin-border))] rounded-xl bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--admin-accent))]/30 h-10"
-        >
-          <option value="">Tất cả cấp độ</option>
-          <option value="beginner">Người mới bắt đầu</option>
-          <option value="intermediate">Trung cấp</option>
-          <option value="advanced">Nâng cao</option>
-        </select>
 
         <select
           value={filters.location || ''}

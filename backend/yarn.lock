@@ -2653,6 +2653,11 @@ data-view-byte-offset@^1.0.1:
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
 
+dayjs@^1.11.13:
+  version "1.11.21"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.21.tgz#57f87562e62de76f3c704bd2b8d522fc33068eb2"
+  integrity sha512-98IT+HOahAisibz/yjKbzuOBwYcjJ7BCLPzARyHiyEBmRz4fatF+KPJszEHXsGYjUG234aH/cOjW1wwTbKUZlA==
+
 debug@2.6.9:
   version "2.6.9"
   resolved "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz"
@@ -6418,6 +6423,13 @@ victory-vendor@^37.0.2:
     d3-shape "^3.1.0"
     d3-time "^3.0.0"
     d3-timer "^3.0.1"
+
+vnpay@^2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/vnpay/-/vnpay-2.5.0.tgz#cb2ebe7dc828b1bc0e26b8bf4775056238c7006b"
+  integrity sha512-kyUYxG0pyEnRu/ha0gSVqkPCajmql523W2PQzgCkH4ct4XdEuzdiQnssi/k9XMcv+TvoPzuweEJG+4hWNU2DAQ==
+  dependencies:
+    dayjs "^1.11.13"
 
 walker@^1.0.8:
   version "1.0.8"

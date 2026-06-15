@@ -5,6 +5,7 @@ import TabNavigation from '@/components/community/TabNavigation';
 import RecruitmentSection from '@/components/community/RecruitmentSection';
 import EventListSection from '@/components/community/EventListSection';
 import CommunityCourseSection from '@/components/community/CommunityCourseSection';
+import CommunityForumSection from '@/components/community/CommunityForumSection';
 
 const TABS = [
   { id: 'jobs', label: 'Doanh nghiệp tuyển dụng', icon: Users, description: 'Việc làm từ các doanh nghiệp' },
@@ -30,12 +31,17 @@ export default function CommunityHubPage() {
     <>
       <Navbar />
       <div className="min-h-screen bg-background">
-        {/* Light Gradient Header */}
-        <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50 border-b border-[hsl(var(--admin-border))] shadow-sm py-10">
-          <div className="container mx-auto px-4">
-            <h1 className="text-3xl font-bold text-[hsl(var(--admin-text-primary))] mb-2">Cộng đồng</h1>
-            <p className="text-[hsl(var(--admin-text-muted))]">
-              Kết nối, học hỏi và phát triển cùng cộng đồng người lao động 35+
+        {/* Premium Hero Section */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 border-b border-slate-800 py-16 lg:py-24">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <div className="absolute top-0 right-0 p-32 bg-blue-500 rounded-full blur-[150px] opacity-20 -mr-20 -mt-20"></div>
+          
+          <div className="container relative mx-auto px-6 text-center">
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-white mb-4 tracking-tight drop-shadow-sm">
+              Cộng đồng <span className="text-blue-400">Restart 35+</span>
+            </h1>
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed">
+              Không gian chia sẻ, học hỏi và phát triển sự nghiệp dành riêng cho lực lượng lao động giàu kinh nghiệm. Mở ra cơ hội mới cùng hàng ngàn thành viên.
             </p>
           </div>
         </div>
@@ -53,11 +59,7 @@ export default function CommunityHubPage() {
             )}
 
             {activeTab === 'community' && (
-              <EmptyState
-                icon={MessageCircle}
-                title="Chia sẻ kinh nghiệm"
-                description="Tính năng chia sẻ kinh nghiệm sẽ sớm được cập nhật."
-              />
+              <CommunityForumSection />
             )}
 
             {activeTab === 'events' && (

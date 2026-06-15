@@ -9,11 +9,9 @@ const CATEGORY_COLLECTION_SCHEMA = Joi.object({
   slug: Joi.string().allow(null, '').trim().lowercase().max(100),
   description: Joi.string().allow(null, '').max(500),
   icon: Joi.string().allow(null, '').max(255),
-
-  parentId: Joi.string().allow(null),
-  level: Joi.number().integer().min(0).max(2).default(0),
   order: Joi.number().integer().min(0).default(0),
 
+  status: Joi.string().valid('pending', 'approved', 'rejected').default('approved'),
   courseCount: Joi.number().integer().min(0).default(0),
 
   isActive: Joi.boolean().default(true),

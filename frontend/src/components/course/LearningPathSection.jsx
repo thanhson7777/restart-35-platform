@@ -5,14 +5,6 @@
 import React from 'react';
 import { BookOpenText, Clock, CheckCircle, CircleNotch } from '@phosphor-icons/react';
 
-const LEVEL_LABELS = {
-  BEGINNER: 'Sơ cấp',
-  INTERMEDIATE: 'Trung cấp',
-  ADVANCED: 'Nâng cao',
-  beginner: 'Sơ cấp',
-  intermediate: 'Trung cấp',
-  advanced: 'Nâng cao',
-};
 
 const LearningPathSection = ({ learningPath, loading }) => {
   if (loading) {
@@ -97,7 +89,6 @@ const LearningPathStep = ({ step, index, isLast }) => {
   const { course, skills_covered, skills_remaining, reason, step: stepNum } = step;
 
   const isFree = course.fee === 0 || course.fee === '0';
-  const levelLabel = LEVEL_LABELS[course.level] || course.level || '';
 
   return (
     <div className="flex gap-3">

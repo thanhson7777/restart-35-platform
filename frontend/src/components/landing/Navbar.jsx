@@ -108,7 +108,7 @@ const Navbar = () => {
                       <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">{currentUser?.email}</p>
                     </div>
                     <div className="py-1.5">
-                      <Link to="/worker" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl bg-[hsl(var(--primary))]/5 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10 transition-colors text-sm font-medium">
+                      <Link to="/worker/analytics" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl bg-[hsl(var(--primary))]/5 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10 transition-colors text-sm font-medium">
                         <Briefcase size={17} className="shrink-0" />Đến trang người lao động
                       </Link>
 

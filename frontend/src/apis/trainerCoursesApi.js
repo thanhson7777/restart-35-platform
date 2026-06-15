@@ -6,6 +6,9 @@ import { API_ROOT } from '~/utils/constants';
 export const getMyCourses = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/me/my-courses`, { params });
 
+export const getMyCourseStats = () =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/courses/me/my-courses/stats`);
+
 export const createCourse = (data) =>
   authorizeAxiosInstance.post(`${API_ROOT}/v1/courses`, data, {
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -21,6 +24,14 @@ export const deleteCourse = (id) =>
 
 export const submitCourse = (id) =>
   authorizeAxiosInstance.put(`${API_ROOT}/v1/courses/${id}/submit`);
+
+export const uploadCourseResource = (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return authorizeAxiosInstance.post(`${API_ROOT}/v1/courses/upload-resource`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+};
 
 // ─── Trainer Reviews ──────────────────────────────────────────────────────────
 

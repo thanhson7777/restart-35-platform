@@ -43,10 +43,11 @@ const STATUS_CONFIG = {
   },
 };
 
-const LEVEL_LABELS = {
-  beginner: 'Người mới bắt đầu',
-  intermediate: 'Trung cấp',
-  advanced: 'Nâng cao',
+const DURATION_LABELS = {
+  hours: 'giờ',
+  weeks: 'tuần',
+  months: 'tháng',
+  days: 'ngày',
 };
 
 const LOCATION_LABELS = {
@@ -109,9 +110,6 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
       <td className="px-4 py-3">
         <div className="text-sm">
           <p className="text-[hsl(var(--admin-text-secondary))]">{course.category?.name || '-'}</p>
-          <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-            {LEVEL_LABELS[course.level] || course.level || '-'}
-          </p>
         </div>
       </td>
 
@@ -128,9 +126,9 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
 
       <td className="px-4 py-3">
         <span className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
-          {course.isFree || course.fee === 0
+          {course.fundingConfig?.type === 'FREE'
             ? 'Miễn phí'
-            : formatPrice(course.fee)}
+            : formatPrice(course.fundingConfig?.price || 0)}
         </span>
       </td>
 
@@ -179,22 +177,6 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
               </TooltipTrigger>
               <TooltipContent className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">
                 Xem chi tiết
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => window.location.href = `/admin/courses/${course._id}/schedule`}
-                  className="h-10 w-10 p-0 rounded-lg hover:bg-[hsl(var(--admin-surface-elevated))]"
-                >
-                  <Calendar className="w-5 h-5 text-[hsl(var(--admin-text-muted))]" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">
-                Lập lịch học
               </TooltipContent>
             </Tooltip>
 

@@ -215,15 +215,34 @@ export default function WorkerAnalyticsPage() {
       }))
   })()
 
-  /** Progress bars: tiến độ từng khóa (chỉ khóa đang học, tối đa 8) */
-  const progressData = enrollments
-    .filter(e => e.status === 'active' || !e.status)
+  /** Thống kê hình thức học */
+  const formatCounts = { video: 0, live: 0, offline: 0, blended: 0 }
+  enrollments.forEach(e => {
+    const type = e.course?.delivery_type || 'video'
+    formatCounts[type] = (formatCounts[type] || 0) + 1
+  })
+
+  const formatData = [
+    { label: 'Khóa học Video', count: formatCounts.video, color: PALETTE.blue, key: 'video' },
+    { label: 'Trực tuyến (Meet)', count: formatCounts.live, color: PALETTE.teal, key: 'live' },
+    { label: 'Học Trực tiếp (Offline)', count: formatCounts.offline, color: PALETTE.amber, key: 'offline' },
+    { label: 'Học Kết hợp', count: formatCounts.blended, color: PALETTE.purple, key: 'blended' }
+  ].filter(f => f.count > 0)
+  
+  const TYPE_BADGES = {
+    video: { label: 'Video', class: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' },
+    live: { label: 'Google Meet', class: 'bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-900/30 dark:text-teal-400 dark:border-teal-800' },
+    offline: { label: 'Offline', class: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' },
+    blended: { label: 'Kết hợp', class: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' }
+  }
+
+  const activeCourses = enrollments
+    .filter(e => e.status === 'active' || e.status === 'in_progress')
     .slice(0, 8)
     .map(e => ({
       name: e.course?.title || e.courseName || 'Khóa học',
-      progress: Math.round(e.progress ?? e.completionPercentage ?? 0),
+      type: e.course?.delivery_type || 'video'
     }))
-    .sort((a, b) => b.progress - a.progress)
 
   // ── Summary numbers ───────────────────────────────────────────────────────
   const totalApps        = applications.length
@@ -465,45 +484,68 @@ export default function WorkerAnalyticsPage() {
               </Card>
             )}
 
-            {/* Progress bars từng khóa */}
+            {/* Format Distribution & Active Courses */}
             {loading ? <div className="lg:col-span-2"><ChartSkeleton /></div> : (
               <Card className="lg:col-span-2 border-[hsl(var(--border))]">
                 <CardHeader className="pb-2 pt-4 px-5">
-                  <CardTitle className="text-sm font-semibold">Tiến độ khóa học</CardTitle>
+                  <CardTitle className="text-sm font-semibold">Khóa học đang diễn ra</CardTitle>
                   <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                    Các khóa đang học, sắp xếp theo tiến độ
+                    Danh sách các khóa học hiện tại phân theo hình thức
                   </p>
                 </CardHeader>
                 <CardContent className="px-5 pb-5">
-                  {progressData.length === 0 ? (
-                    <EmptyChart message="Không có khóa đang học" />
-                  ) : (
-                    <div className="space-y-4 pt-1">
-                      {progressData.map(({ name, progress }) => (
-                        <div key={name}>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-sm font-medium truncate max-w-[75%]" title={name}>
-                              {name}
-                            </span>
-                            <span className="text-sm font-bold text-emerald-500">{progress}%</span>
-                          </div>
-                          <div className="h-2.5 bg-[hsl(var(--muted))] rounded-full overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-700"
-                              style={{
-                                width: `${progress}%`,
-                                background: progress >= 80
-                                  ? PALETTE.emerald
-                                  : progress >= 40
-                                  ? PALETTE.teal
-                                  : PALETTE.blue,
-                              }}
-                            />
-                          </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Format Chart */}
+                    <div>
+                      {formatData.length === 0 ? (
+                        <EmptyChart message="Chưa có dữ liệu" />
+                      ) : (
+                        <div className="space-y-3 pt-2">
+                          {formatData.map(({ label, count, color }) => {
+                            const max = Math.max(...formatData.map(f => f.count)) || 1
+                            const pct = (count / max) * 100
+                            return (
+                              <div key={label} className="flex items-center gap-3">
+                                <span className="text-xs font-medium text-[hsl(var(--muted-foreground))] w-28 shrink-0">
+                                  {label}
+                                </span>
+                                <div className="flex-1 h-6 bg-[hsl(var(--muted))] rounded-md overflow-hidden">
+                                  <div
+                                    className="h-full rounded-md flex items-center px-2 transition-all duration-700"
+                                    style={{ width: `${Math.max(pct, 5)}%`, background: color }}
+                                  >
+                                    <span className="text-white text-[10px] font-bold">{count}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
-                      ))}
+                      )}
                     </div>
-                  )}
+                    
+                    {/* Active Courses List */}
+                    <div className="border-t md:border-t-0 md:border-l border-[hsl(var(--border))] md:pl-6 pt-4 md:pt-0">
+                      <h4 className="text-xs font-bold text-[hsl(var(--foreground))] mb-3 uppercase tracking-wider">Đang học tập ({activeCourses.length})</h4>
+                      {activeCourses.length === 0 ? (
+                        <p className="text-sm text-[hsl(var(--muted-foreground))] italic">Không có khóa nào đang học</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {activeCourses.map((course, i) => {
+                            const badge = TYPE_BADGES[course.type] || TYPE_BADGES.video
+                            return (
+                              <div key={i} className="flex items-start justify-between gap-2 p-2 hover:bg-[hsl(var(--muted))] rounded-lg transition-colors">
+                                <span className="text-sm font-medium line-clamp-2 leading-tight">{course.name}</span>
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border whitespace-nowrap ${badge.class}`}>
+                                  {badge.label}
+                                </span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}

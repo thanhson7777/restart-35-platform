@@ -55,7 +55,7 @@ export default function EnterpriseApplicationsPage() {
   }, []);
 
   const fetchApplications = useCallback(async () => {
-    const params = { limit: 50 };
+    const params = { limit: 100 };
     if (jobFilter !== 'all') params.jobId = jobFilter;
     dispatch(fetchEnterpriseApplications(params));
   }, [dispatch, jobFilter]);
@@ -65,7 +65,11 @@ export default function EnterpriseApplicationsPage() {
   }, [fetchApplications]);
 
   const filteredApplications = applications.filter(app => {
-    if (statusFilter !== 'all' && app.status !== statusFilter) return false;
+    if (statusFilter === 'new' && !['new'].includes(app.status)) return false;
+    if (statusFilter === 'reviewing' && !['reviewing', 'shortlisted'].includes(app.status)) return false;
+    if (statusFilter === 'interviewing' && !['interview_scheduled', 'interviewed'].includes(app.status)) return false;
+    if (statusFilter === 'hired' && !['offered', 'hired'].includes(app.status)) return false;
+    if (statusFilter === 'rejected' && !['rejected', 'withdrawn'].includes(app.status)) return false;
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -77,10 +81,15 @@ export default function EnterpriseApplicationsPage() {
   });
 
   // Group by status for stats
-  const statusStats = applications.reduce((acc, app) => {
-    acc[app.status] = (acc[app.status] || 0) + 1;
+  const stats = applications.reduce((acc, app) => {
+    acc.all++;
+    if (['new'].includes(app.status)) acc.new++;
+    if (['reviewing', 'shortlisted'].includes(app.status)) acc.reviewing++;
+    if (['interview_scheduled', 'interviewed'].includes(app.status)) acc.interviewing++;
+    if (['offered', 'hired'].includes(app.status)) acc.hired++;
+    if (['rejected', 'withdrawn'].includes(app.status)) acc.rejected++;
     return acc;
-  }, {});
+  }, { all: 0, new: 0, reviewing: 0, interviewing: 0, hired: 0, rejected: 0 });
 
   return (
     <>
@@ -96,13 +105,14 @@ export default function EnterpriseApplicationsPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {[
             { key: 'all', label: 'Tất cả', className: 'bg-slate-100 text-slate-700' },
             { key: 'new', label: 'Mới', className: 'bg-blue-100 text-blue-700' },
-            { key: 'shortlisted', label: 'Shortlist', className: 'bg-purple-100 text-purple-700' },
-            { key: 'interviewed', label: 'Đã PV', className: 'bg-teal-100 text-teal-700' },
-            { key: 'rejected', label: 'Từ chối', className: 'bg-red-100 text-red-700' }
+            { key: 'reviewing', label: 'Đang xem xét', className: 'bg-amber-100 text-amber-700' },
+            { key: 'interviewing', label: 'Phỏng vấn', className: 'bg-indigo-100 text-indigo-700' },
+            { key: 'hired', label: 'Tuyển dụng', className: 'bg-emerald-100 text-emerald-700' },
+            { key: 'rejected', label: 'Từ chối / Rút', className: 'bg-red-100 text-red-700' }
           ].map(stat => (
             <button
               key={stat.key}
@@ -113,7 +123,7 @@ export default function EnterpriseApplicationsPage() {
                   : `${stat.className} opacity-70 hover:opacity-100`
               }`}
             >
-              <p className="text-xl font-bold">{stat.key === 'all' ? total : (statusStats[stat.key] || 0)}</p>
+              <p className="text-xl font-bold">{stats[stat.key] || 0}</p>
               <p className="text-xs">{stat.label}</p>
             </button>
           ))}

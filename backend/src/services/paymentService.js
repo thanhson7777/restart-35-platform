@@ -46,6 +46,18 @@ const createPayment = async (userId, data) => {
 
     const existingPending = await db.collection(paymentModel.PAYMENT_COLLECTION_NAME).findOne(existingQuery)
     if (existingPending) {
+      if (method === 'vnpay') {
+        const { vnpayInstance } = await import('~/config/vnpayConfig')
+        const paymentUrl = vnpayInstance.buildPaymentUrl({
+          vnp_Amount: existingPending.amount,
+          vnp_IpAddr: '127.0.0.1',
+          vnp_TxnRef: `${existingPending._id.toString()}_${Date.now()}`,
+          vnp_OrderInfo: `Thanh toan khoa hoc ${courseId}`,
+          vnp_OrderType: 'other',
+          vnp_ReturnUrl: env.VNP_RETURN_URL || 'http://localhost:5173/payment/vnpay-return',
+        })
+        existingPending.paymentUrl = paymentUrl
+      }
       return existingPending
     }
 
@@ -69,6 +81,18 @@ const createPayment = async (userId, data) => {
       const qrUrl = `https://img.vietqr.io/image/${bankName}-${bankAccountNumber}-compact.png?amount=${amount}&addInfo=RESTART35-${payment._id.toString().toUpperCase()}&accountName=${accountName}`
       await paymentModel.update(payment._id.toString(), { qrUrl })
       payment.qrUrl = qrUrl
+    } else if (method === 'vnpay') {
+      const { vnpayInstance } = await import('~/config/vnpayConfig')
+      const paymentUrl = vnpayInstance.buildPaymentUrl({
+        vnp_Amount: amount,
+        vnp_IpAddr: '127.0.0.1',
+        vnp_TxnRef: `${payment._id.toString()}_${Date.now()}`,
+        vnp_OrderInfo: `Thanh toan khoa hoc ${courseId}`,
+        vnp_OrderType: 'other',
+        vnp_ReturnUrl: env.VNP_RETURN_URL || 'http://localhost:5173/payment/vnpay-return',
+      })
+      // Cập nhật vào payment (nếu DB hỗ trợ lưu link) hoặc cứ trả về trực tiếp
+      payment.paymentUrl = paymentUrl
     }
 
     return payment

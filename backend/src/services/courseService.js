@@ -119,7 +119,6 @@ const getCourses = async (queryParams) => {
       search = '',
       category,
       provider,
-      level,
       minFee,
       maxFee,
       isFree,
@@ -143,7 +142,6 @@ const getCourses = async (queryParams) => {
     const filters = {}
     if (category) filters.category = category
     if (provider) filters.provider = provider
-    if (level) filters.level = level
     // Convert string "false" to boolean false
     if (isFree !== undefined && isFree !== '') filters.isFree = isFree === true || isFree === 'true'
     if (hasScholarship && hasScholarship !== '' && hasScholarship !== 'false') filters.hasScholarship = true
@@ -214,6 +212,13 @@ const getMyCourses = async (userId, queryParams) => {
         limit: recordLimit
       }
     }
+  } catch (error) { throw error }
+}
+
+const getMyCourseStats = async (userId) => {
+  try {
+    const stats = await courseModel.getProviderCourseStats(userId)
+    return stats
   } catch (error) { throw error }
 }
 
@@ -414,10 +419,11 @@ const getPendingCourses = async (queryParams) => {
 
     const { courses, totalCourses } = await courseModel.getPendingCourses(skip, recordLimit)
 
-    // Enrich with provider info
+    // Enrich with provider and category info
     const enrichedCourses = await Promise.all(
       courses.map(async (course) => {
         const providerInfo = await userModel.findOneById(course.providerId)
+        const categoryInfo = await categoryModel.findOneById(course.categoryId)
         return {
           ...course,
           provider: providerInfo ? {
@@ -425,6 +431,10 @@ const getPendingCourses = async (queryParams) => {
             displayName: providerInfo.displayName,
             email: providerInfo.email,
             avatar: providerInfo.avatar
+          } : null,
+          category: categoryInfo ? {
+            _id: categoryInfo._id,
+            name: categoryInfo.name
           } : null
         }
       })
@@ -457,7 +467,6 @@ const getAdminCourses = async (queryParams) => {
       search = '',
       status,
       category,
-      level,
       location,
       isFree,
       sortBy = 'createdAt',
@@ -472,7 +481,6 @@ const getAdminCourses = async (queryParams) => {
     const filters = {}
     if (status) filters.status = status
     if (category) filters.category = category
-    if (level) filters.level = level
     if (location) filters.location = location
     if (isFree !== undefined) filters.isFree = isFree
 
@@ -641,6 +649,7 @@ export const courseService = {
   getCourseWithDetails,
   getCourses,
   getMyCourses,
+  getMyCourseStats,
   getRecommendedCourses,
   getPopularCourses,
   getNewCourses,

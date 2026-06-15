@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Progress, Avatar, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
 import { HeroSection, CoreProblemsSection, StatsBar, SolutionsSection, LandingLayout, Navbar, CourseCategories, PopularCourses, CTASection, HowItWorksSection, FeaturesSection, TestimonialsSection, Footer } from '@/components/landing';
 import { StatsCard, CourseProgressCard, JobCard, ActivityItem, SkillBadge, QuickAction } from '@/components/dashboard';
@@ -11,7 +11,7 @@ import AuthPage from '@/pages/AuthPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import WorkerProfilePage from '@/pages/WorkerProfilePage';
-import WorkerDashboardPage from '@/pages/worker/WorkerDashboardPage';
+
 import WorkerAccountSettingsPage from '@/pages/worker/WorkerAccountSettingsPage';
 import JobsPage from '@/pages/JobsPage';
 import JobDetailPage from '@/pages/JobDetailPage';
@@ -89,6 +89,7 @@ import WorkerApplicationDetailPage from '@/pages/worker/WorkerApplicationDetailP
 import WorkerInterviewsPage from '@/pages/worker/WorkerInterviewsPage';
 import WorkerOffersPage from '@/pages/worker/WorkerOffersPage';
 import WorkerAnalyticsPage from '@/pages/worker/WorkerAnalyticsPage';
+import WorkerPostsPage from '@/pages/worker/WorkerPostsPage';
 import CommunityHubPage from '@/pages/CommunityHubPage';
 import CommunityJobDetailPage from '@/pages/community/CommunityJobDetailPage';
 import EventDetailPage from '@/pages/community/EventDetailPage';
@@ -100,6 +101,7 @@ import NgoEventsPage from '@/pages/ngo/NgoEventsPage';
 import NgoEventCreatePage from '@/pages/ngo/NgoEventCreatePage';
 import CertificateVerifyPage from '@/pages/CertificateVerifyPage';
 import AccountVerificationPage from '@/pages/AccountVerificationPage';
+import { VNPayReturnPage } from '@/pages/payment/VNPayReturnPage';
 import AdminPendingJobsPage from '@/pages/admin/AdminPendingJobsPage';
 import AdminJobReviewPage from '@/pages/admin/AdminJobReviewPage';
 import AdminIsaRepaymentsPage from '@/pages/admin/AdminIsaRepaymentsPage';
@@ -110,6 +112,8 @@ import AdminReviewsModerationPage from '@/pages/admin/AdminReviewsModerationPage
 import AdminLearningRecordsPage from '@/pages/admin/AdminLearningRecordsPage';
 import AdminInteractionsPage from '@/pages/admin/AdminInteractionsPage';
 import AdminEscoSyncPage from '@/pages/admin/AdminEscoSyncPage';
+import AdminJobCategoriesPage from '@/pages/admin/AdminJobCategoriesPage';
+import AdminCourseCategoriesPage from '@/pages/admin/AdminCourseCategoriesPage';
 import IsaDashboardPage from '@/pages/IsaDashboardPage';
 import WorkerLayout from '@/components/worker/WorkerLayout';
 
@@ -179,6 +183,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/courses" element={<AdminCoursesPage />} />
+        <Route path="/admin/course-categories" element={<ProtectedRoute allowedRoles={['admin']}><AdminCourseCategoriesPage /></ProtectedRoute>} />
         <Route path="/admin/courses/:id/schedule" element={<ScheduleBuilderPage />} />
         <Route path="/admin/courses/:id/schedule/session/:sessionNumber/attendance" element={<AttendancePage />} />
         <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
@@ -186,13 +191,14 @@ function App() {
         <Route path="/admin/applications" element={<AdminApplicationsPage />} />
         <Route path="/admin/jobs/pending" element={<AdminPendingJobsPage />} />
         <Route path="/admin/jobs/:id/review" element={<AdminJobReviewPage />} />
-        <Route path="/admin/organizations" element={<AdminOrganizationsPage />} />
+        <Route path="/admin/organizations" element={<ProtectedRoute allowedRoles={['admin']}><AdminOrganizationsPage /></ProtectedRoute>} />
+        <Route path="/admin/job-categories" element={<ProtectedRoute allowedRoles={['admin']}><AdminJobCategoriesPage /></ProtectedRoute>} />
         <Route path="/admin/payments" element={<AdminPaymentsPage />} />
         <Route path="/admin/scholarships" element={<AdminScholarshipsPage />} />
         <Route path="/admin/isa-repayments" element={<AdminIsaRepaymentsPage />} />
         <Route path="/admin/funding-configs" element={<AdminFundingConfigsPage />} />
         <Route path="/admin/certificates" element={<AdminCertificatesPage />} />
-        <Route path="/admin/placements" element={<AdminPlacementsPage />} />
+        <Route path="/admin/placements" element={<ProtectedRoute allowedRoles={['admin']}><AdminPlacementsPage /></ProtectedRoute>} />
         <Route path="/admin/reviews" element={<AdminReviewsModerationPage />} />
 
         <Route path="/admin/interactions" element={<AdminInteractionsPage />} />
@@ -246,18 +252,20 @@ function App() {
         <Route path="/ngo/events/create" element={<NgoLayout><NgoEventCreatePage /></NgoLayout>} />
 
         {/* Worker Layout Routes */}
-        <Route path="/worker" element={<WorkerLayout><WorkerDashboardPage /></WorkerLayout>} />
+        <Route path="/worker" element={<Navigate to="/my-enrollments" replace />} />
         <Route path="/worker/profile" element={<WorkerLayout><WorkerProfilePage /></WorkerLayout>} />
         <Route path="/worker/account-settings" element={<WorkerLayout><WorkerAccountSettingsPage /></WorkerLayout>} />
         <Route path="/worker/analytics" element={<WorkerLayout><WorkerAnalyticsPage /></WorkerLayout>} />
-        <Route path="/worker/community" element={<WorkerLayout />}>
+        <Route path="/worker/community" element={<WorkerLayout><Outlet /></WorkerLayout>}>
           <Route index element={<Navigate to="/worker/community/forum" replace />} />
           <Route path="forum" element={<ForumPage />} />
           <Route path="forum/:id" element={<ForumPostDetailPage />} />
           <Route path="mentors" element={<MentorFindPage />} />
+          <Route path="my-posts" element={<WorkerPostsPage />} />
         </Route>
         {/* Community Hub */}
         <Route path="/community" element={<CommunityHubPage />} />
+        <Route path="/community/forum/:id" element={<ForumPostDetailPage />} />
         <Route path="/community/jobs/:id" element={<CommunityJobDetailPage />} />
         <Route path="/community/events/:id" element={<EventDetailPage />} />
         {/* Jobs Page */}
@@ -307,6 +315,8 @@ function App() {
         <Route path="/jobs" element={<JobsPage />} />
         {/* Contact */}
         <Route path="/contact" element={<ContactPage />} />
+        {/* Payment Return */}
+        <Route path="/payment/vnpay-return" element={<VNPayReturnPage />} />
         {/* My Placements */}
         <Route path="/my-placements" element={<WorkerLayout><MyPlacementsPage /></WorkerLayout>} />
         {/* My Learning Records */}
@@ -635,7 +645,6 @@ function CoursesExample() {
               rating={course.rating}
               students={course.students}
               duration={course.duration}
-              level={course.level}
               isFree={course.isFree}
               isBestseller={course.isBestseller}
               thumbnail={course.thumbnail}

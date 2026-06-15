@@ -18,26 +18,12 @@ export const getCategoryByIdAPI = async (id) => {
 }
 
 export const createCategoryAPI = async (data) => {
-  const formData = new FormData()
-  if (data.name) formData.append('name', data.name)
-  if (data.description) formData.append('description', data.description)
-  if (data.image) formData.append('image', data.image)
-
-  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/categories`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/categories`, data)
   return response.data
 }
 
 export const updateCategoryAPI = async (id, data) => {
-  const formData = new FormData()
-  if (data.name) formData.append('name', data.name)
-  if (data.description) formData.append('description', data.description)
-  if (data.image) formData.append('image', data.image)
-
-  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/categories/${id}`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/categories/${id}`, data)
   return response.data
 }
 
@@ -502,3 +488,6 @@ export * from './learningRecordApi';
 
 // ESCO API exports
 export * from './escoApi';
+
+// Job Category API exports
+export * from './jobCategoryApi';

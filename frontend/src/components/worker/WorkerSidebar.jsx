@@ -10,6 +10,7 @@ import {
   UsersRound,
   GraduationCap,
   BarChart2,
+  MessageSquare
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui';
@@ -19,7 +20,6 @@ const navGroups = [
   {
     section: 'CHUNG',
     items: [
-      { href: '/worker', label: 'Tổng quan', icon: LayoutDashboard, end: true },
       { href: '/worker/analytics', label: 'Thống kê', icon: BarChart2 },
       { href: '/worker/profile', label: 'Hồ sơ của tôi', icon: UserCircle },
       { href: '/worker/account-settings', label: 'Cài đặt tài khoản', icon: Settings },
@@ -30,7 +30,6 @@ const navGroups = [
     items: [
       { href: '/my-enrollments', label: 'Khóa học của tôi', icon: ClipboardList },
       { href: '/my-schedules', label: 'Lịch học', icon: Calendar },
-      { href: '/my-learning-records', label: 'Hồ sơ học tập', icon: FileText },
     ],
   },
   {
@@ -38,7 +37,12 @@ const navGroups = [
     items: [
       { href: '/my/applications', label: 'Đơn ứng tuyển', icon: FileCheck },
       { href: '/my/interviews', label: 'Lịch phỏng vấn', icon: UsersRound },
-      { href: '/my-outcomes', label: 'Kết quả tuyển dụng', icon: GraduationCap },
+    ],
+  },
+  {
+    section: 'CỘNG ĐỒNG',
+    items: [
+      { href: '/worker/community/my-posts', label: 'Bài viết của tôi', icon: MessageSquare },
     ],
   },
 ];

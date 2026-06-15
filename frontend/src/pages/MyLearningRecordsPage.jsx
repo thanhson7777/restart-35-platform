@@ -5,8 +5,7 @@ import { fetchMyLearningRecords, selectLearningRecords, selectLearningRecordsLoa
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import { BookOpen, Clock, CheckCircle, PlayCircle, FileText, Calendar, Award } from 'lucide-react';
 import { formatDate } from '@/utils/formatter';
-import Navbar from '@/components/landing/Navbar';
-import Footer from '@/components/layout/Footer';
+
 
 const EVENT_TYPE_CONFIG = {
   lesson_started: {
@@ -90,7 +89,7 @@ export default function MyLearningRecordsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -187,7 +186,7 @@ export default function MyLearningRecordsPage() {
           })}
         </div>
       </main>
-      <Footer />
+
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getMySchedules } from '@/apis/scheduleApi'
-import Navbar from '@/components/landing/Navbar'
-import Footer from '@/components/layout/Footer'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { Badge, Button } from '@/components/ui'
 import { Calendar, Clock, Video, MapPin, User, Filter } from 'lucide-react'
@@ -17,7 +16,9 @@ const MySchedulesPage = () => {
       setLoading(true)
       try {
         const res = await getMySchedules()
-        setSchedules(res.data || [])
+        const data = res.data || res
+        const scheduleList = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : [])
+        setSchedules(scheduleList)
       } catch (err) {
         toast.error('Không thể tải lịch học')
       } finally {
@@ -81,7 +82,7 @@ const MySchedulesPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -164,7 +165,7 @@ const MySchedulesPage = () => {
           </div>
         )}
       </div>
-      <Footer />
+
     </div>
   )
 }

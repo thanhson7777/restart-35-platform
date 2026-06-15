@@ -8,9 +8,10 @@ import {
   FileText, Medal, Gear, Question, SignOut,
   CaretLeft, CaretRight, CheckSquare, ChartBar,
   CreditCard, TrendUp, Wallet, Certificate,
-  Briefcase, ChatCircle, Brain, ArrowsClockwise, Megaphone
+  Briefcase, ChatCircle, Brain, ArrowsClockwise, Megaphone,
+  FolderOpen
 } from '@phosphor-icons/react';
-import { Building2 } from 'lucide-react';
+import { Building2, Tags } from 'lucide-react';
 import { Badge } from '@/components/ui';
 
 const adminNavGroups = [
@@ -31,6 +32,7 @@ const adminNavGroups = [
     group: 'Đào tạo',
     items: [
       { title: 'Quản lý khóa học', href: '/admin/courses', icon: BookOpenText },
+      { title: 'Danh mục khóa học', href: '/admin/course-categories', icon: Tags },
       { title: 'Quản lý tuyển sinh', href: '/admin/enrollments', icon: GraduationCap },
       { title: 'Chứng chỉ', href: '/admin/certificates', icon: Certificate },
     ]
@@ -40,6 +42,7 @@ const adminNavGroups = [
     items: [
       { title: 'Đơn ứng tuyển', href: '/admin/applications', icon: FileText },
       { title: 'Duyệt tin tuyển dụng', href: '/admin/jobs/pending', icon: Megaphone },
+      { title: 'Danh mục việc làm', href: '/admin/job-categories', icon: FolderOpen },
       { title: 'Placements', href: '/admin/placements', icon: Briefcase },
     ]
   },

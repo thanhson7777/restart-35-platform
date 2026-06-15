@@ -12,7 +12,7 @@ const createCategory = async (req, res, next) => {
     name: Joi.string().required().trim().max(100),
     description: Joi.string().allow(null, '').max(500),
     icon: Joi.string().allow(null, '').max(255),
-    parentId: Joi.string().allow(null).pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    status: Joi.string().valid('pending', 'approved', 'rejected').default('approved'),
     order: Joi.number().integer().min(0).default(0),
     isActive: Joi.boolean().default(true),
     isFeatured: Joi.boolean().default(false)
@@ -32,7 +32,7 @@ const updateCategory = async (req, res, next) => {
     name: Joi.string().trim().max(100),
     description: Joi.string().allow(null, '').max(500),
     icon: Joi.string().allow(null, '').max(255),
-    parentId: Joi.string().allow(null).pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    status: Joi.string().valid('pending', 'approved', 'rejected'),
     order: Joi.number().integer().min(0),
     isActive: Joi.boolean(),
     isFeatured: Joi.boolean()
@@ -97,7 +97,7 @@ const checkSlug = async (req, res, next) => {
 const queryCategories = async (req, res, next) => {
   const correctCondition = Joi.object({
     includeInactive: Joi.boolean().default(false),
-    parentId: Joi.string().allow(null)
+    status: Joi.string().valid('pending', 'approved', 'rejected', 'all').default('all')
   })
 
   try {

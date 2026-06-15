@@ -93,6 +93,7 @@ export const ENROLLMENT_STATUS = {
   WAITLIST: 'waitlist',
   ENROLLED: 'enrolled',
   IN_PROGRESS: 'in_progress',
+  ACTIVE: 'active',
   COMPLETED: 'completed',
   DROPPED: 'dropped',
   CANCELLED: 'cancelled',
@@ -108,15 +109,6 @@ export const COURSE_STATUS = {
   APPROVED: 'approved',
   REJECTED: 'rejected',
   ARCHIVED: 'archived',
-}
-
-/**
- * Course Levels
- */
-export const COURSE_LEVELS = {
-  BEGINNER: 'beginner',
-  INTERMEDIATE: 'intermediate',
-  ADVANCED: 'advanced',
 }
 
 /**

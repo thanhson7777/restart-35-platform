@@ -476,7 +476,8 @@ const getMyEnrollments = async (userId, queryParams) => {
             duration: course.duration,
             schedule: course.schedule,
             location: course.location,
-            providerId: course.providerId
+            providerId: course.providerId,
+            delivery_type: course.delivery_type
           } : null,
           installments
         }
@@ -563,6 +564,7 @@ const getEnrollmentsByCourse = async (courseId, queryParams, trainerId = null) =
     }
   } catch (error) { throw error }
 }
+
 
 const getInstallmentsForEnrollment = async (enrollmentId, course, enrollment) => {
   if (!course || course.funding_model !== 'learner_paid') {

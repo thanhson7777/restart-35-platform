@@ -20,12 +20,14 @@ import { workerApplicationRoute } from './workerApplicationRoute'
 import { escoRoute } from './escoRoute'
 import { jobRoute } from './jobRoute'
 import { learningPathRoute } from './learningPathRoute'
+import { jobCategoryRoute } from './jobCategoryRoute'
 import forumRoute from './forumRoute'
 import mentorRoute from './mentorRoute'
 import mentorSessionRoute from './mentorSessionRoute'
 import { organizationRoute } from './organizationRoute'
 import { fundingConfigRoute } from './fundingConfigRoute'
 import { paymentRoute } from './paymentRoute'
+import { paymentTestRoute } from './paymentTestRoute'
 import { isaRepaymentRoute } from './isaRepaymentRoute'
 import workerSponsorshipRoute from './workerSponsorshipRoute'
 import { learningRecordRoute } from './learningRecordRoute'
@@ -107,6 +109,7 @@ Router.use('/esco', escoRoute)
 Router.use('/jobs', publicJobRoute)
 Router.use('/jobs', jobRoute)
 Router.use('/jobs', learningPathRoute)
+Router.use('/job-categories', jobCategoryRoute)
 Router.use('/forum', forumRoute)
 Router.use('/mentors', mentorRoute)
 Router.use('/mentor-sessions', mentorSessionRoute)
@@ -114,6 +117,7 @@ Router.use('/worker-sponsorships', workerSponsorshipRoute)
 Router.use('/organizations', organizationRoute)
 Router.use('/funding-configs', fundingConfigRoute)
 Router.use('/payments', paymentRoute)
+Router.use('/paymentTest', paymentTestRoute)
 Router.use('/isa-repayments', isaRepaymentRoute)
 Router.use('/learning-records', learningRecordRoute)
 Router.use('/certificates', certificateRoute)
