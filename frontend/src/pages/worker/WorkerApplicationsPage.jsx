@@ -42,10 +42,8 @@ export default function WorkerApplicationsPage() {
   const [withdrawing, setWithdrawing] = useState(false);
 
   const fetchApplications = useCallback(async () => {
-    const params = {};
-    if (statusFilter !== 'all') params.status = statusFilter;
-    dispatch(fetchMyApplications(params));
-  }, [dispatch, statusFilter]);
+    dispatch(fetchMyApplications({}));
+  }, [dispatch]);
 
   useEffect(() => {
     fetchApplications();
@@ -71,11 +69,29 @@ export default function WorkerApplicationsPage() {
     setWithdrawModal({ open: true, applicationId: app._id, jobTitle: app.jobTitle || app.job?.title });
   };
 
-  // Group by status for stats
-  const statusStats = applications.reduce((acc, app) => {
-    acc[app.status] = (acc[app.status] || 0) + 1;
+  // Group by status for stats using ALL applications
+  const groupedStats = applications.reduce((acc, app) => {
+    let group = 'received';
+    if (['interview_scheduled', 'interviewed'].includes(app.status)) {
+      group = 'interview';
+    } else if (['offered', 'hired', 'rejected', 'withdrawn'].includes(app.status)) {
+      group = 'result';
+    }
+    acc[group] = (acc[group] || 0) + 1;
     return acc;
-  }, {});
+  }, { received: 0, interview: 0, result: 0 });
+
+  const displayedApplications = statusFilter === 'all' 
+    ? applications 
+    : applications.filter(app => {
+        let group = 'received';
+        if (['interview_scheduled', 'interviewed'].includes(app.status)) {
+          group = 'interview';
+        } else if (['offered', 'hired', 'rejected', 'withdrawn'].includes(app.status)) {
+          group = 'result';
+        }
+        return group === statusFilter;
+      });
 
   return (
     <>
@@ -90,22 +106,22 @@ export default function WorkerApplicationsPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { key: 'all', label: 'Tổng', className: 'bg-slate-100 text-slate-700' },
-            { key: 'new', label: 'Mới', className: 'bg-blue-100 text-blue-700' },
-            { key: 'interview_scheduled', label: 'Phỏng vấn', className: 'bg-indigo-100 text-indigo-700' },
-            { key: 'hired', label: 'Đã tuyển', className: 'bg-green-100 text-green-700' }
+            { key: 'all', label: 'Tất cả', className: 'bg-slate-100 text-slate-700' },
+            { key: 'received', label: 'Tiếp nhận', className: 'bg-blue-100 text-blue-700' },
+            { key: 'interview', label: 'Phỏng vấn', className: 'bg-indigo-100 text-indigo-700' },
+            { key: 'result', label: 'Kết quả', className: 'bg-emerald-100 text-emerald-700' }
           ].map(stat => (
             <button
               key={stat.key}
               onClick={() => setStatusFilter(stat.key)}
-              className={`p-4 rounded-xl text-center transition-all ${
+              className={`flex flex-col items-center justify-center p-4 rounded-xl text-center transition-all ${
                 statusFilter === stat.key
                   ? `${stat.className} ring-2 ring-[hsl(var(--primary))]`
                   : `${stat.className} opacity-70 hover:opacity-100`
               }`}
             >
-              <p className="text-2xl font-bold">{stat.key === 'all' ? total : (statusStats[stat.key] || 0)}</p>
-              <p className="text-xs">{stat.label}</p>
+              <p className="text-2xl font-bold mb-1">{stat.key === 'all' ? applications.length : (groupedStats[stat.key] || 0)}</p>
+              <p className="text-xs font-medium uppercase tracking-wider">{stat.label}</p>
             </button>
           ))}
         </div>
@@ -121,19 +137,27 @@ export default function WorkerApplicationsPage() {
               <div key={i} className="h-32 bg-[hsl(var(--muted))] rounded-xl animate-pulse" />
             ))}
           </div>
-        ) : applications.length === 0 ? (
+        ) : displayedApplications.length === 0 ? (
           <div className="text-center py-16">
             <FileText size={48} className="mx-auto text-[hsl(var(--muted))] mb-4" />
-            <p className="text-[hsl(var(--muted-foreground))] mb-4">Bạn chưa ứng tuyển công việc nào.</p>
+            <p className="text-[hsl(var(--muted-foreground))] mb-4">Bạn chưa ứng tuyển công việc nào ở trạng thái này.</p>
             <Button onClick={() => navigate('/community')} className="bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/90]">
               Tìm việc ngay
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
-            {applications.map(app => {
+            {displayedApplications.map(app => {
               const status = applicationStatusConfig[app.status] || applicationStatusConfig.new;
-              const currentStep = getStatusStep(app.status);
+              
+              let currentMajorStep = 0;
+              if (['interview_scheduled', 'interviewed'].includes(app.status)) {
+                currentMajorStep = 1;
+              } else if (['offered', 'hired', 'rejected', 'withdrawn'].includes(app.status)) {
+                currentMajorStep = 2;
+              }
+              
+              const isError = ['rejected', 'withdrawn'].includes(app.status);
               
               return (
                 <div
@@ -161,15 +185,19 @@ export default function WorkerApplicationsPage() {
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      {APPLICATION_STATUS_STEPS.map((step, idx) => {
-                        const isActive = idx <= currentStep;
+                      {[0, 1, 2].map((idx) => {
+                        const isActive = idx <= currentMajorStep;
+                        const isCurrentError = isError && idx === currentMajorStep;
                         return (
                           <div
-                            key={step}
-                            className={`flex-1 h-1 rounded-full ${
-                              isActive ? 'bg-[hsl(var(--primary))]' : 'bg-[hsl(var(--muted))]'
+                            key={idx}
+                            className={`flex-1 h-1.5 rounded-full transition-colors ${
+                              isCurrentError
+                                ? 'bg-red-500'
+                                : isActive
+                                ? 'bg-[hsl(var(--primary))]'
+                                : 'bg-[hsl(var(--muted))]'
                             }`}
-                            title={applicationStatusConfig[step]?.label}
                           />
                         );
                       })}

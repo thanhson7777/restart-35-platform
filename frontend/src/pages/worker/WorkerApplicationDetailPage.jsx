@@ -32,9 +32,13 @@ import {
   formatApplicationDateTime,
 } from './workerRecruitmentConstants';
 
-// Alias ngắn gọn để dùng trong file này
-const statusSteps = APPLICATION_STATUS_STEPS_LABELED;
 const formatDateTime = formatApplicationDateTime;
+
+const MAJOR_STEPS = [
+  { key: 'received', label: 'Tiếp nhận hồ sơ' },
+  { key: 'interview', label: 'Phỏng vấn' },
+  { key: 'result', label: 'Kết quả' },
+];
 
 const formatSalary = (salary) => {
   if (!salary) return 'Thoả thuận';
@@ -158,7 +162,13 @@ export default function WorkerApplicationDetailPage() {
   }
 
   const status = applicationStatusConfig[application.status] || applicationStatusConfig.new;
-  const currentStep = getStatusStepIndex(application.status);
+  
+  let currentMajorStep = 0;
+  if (['interview_scheduled', 'interviewed'].includes(application.status)) {
+    currentMajorStep = 1;
+  } else if (['offered', 'hired', 'rejected', 'withdrawn'].includes(application.status)) {
+    currentMajorStep = 2;
+  }
 
   return (
     <>
@@ -196,33 +206,36 @@ export default function WorkerApplicationDetailPage() {
         <Card className="bg-[hsl(var(--card))] border-[hsl(var(--border))] mb-8">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              {statusSteps.map((step, idx) => {
-                const isActive = idx <= currentStep;
-                const isCurrent = idx === currentStep;
+              {MAJOR_STEPS.map((step, idx) => {
+                const isActive = idx <= currentMajorStep;
+                const isCurrent = idx === currentMajorStep;
+                const isError = isCurrent && ['rejected', 'withdrawn'].includes(application.status);
+                
                 return (
-                  <div key={step.key} className="flex items-center">
+                  <div key={step.key} className="flex items-center w-full last:w-auto">
                     <div className="flex flex-col items-center">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                          isActive
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                          isError
+                            ? 'bg-red-100 text-red-600 ring-4 ring-red-100/50'
+                            : isActive
                             ? 'bg-[hsl(var(--primary))] text-white'
                             : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]'
-                        } ${isCurrent ? 'ring-4 ring-[hsl(var(--primary)/30)]' : ''}`}
+                        } ${isCurrent && !isError ? 'ring-4 ring-[hsl(var(--primary)/30)]' : ''}`}
                       >
-                        {idx + 1}
+                        {isError ? <XCircle size={20} /> : isActive ? <CheckCircle size={20} /> : idx + 1}
                       </div>
-                      <span className={`text-xs mt-2 text-center ${
-                        isActive ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--muted-foreground))]'
+                      <span className={`text-xs mt-3 font-semibold text-center whitespace-nowrap ${
+                        isError ? 'text-red-600' : isActive ? 'text-[hsl(var(--foreground))]' : 'text-[hsl(var(--muted-foreground))]'
                       }`}>
                         {step.label}
                       </span>
                     </div>
-                    {idx < statusSteps.length - 1 && (
+                    {idx < MAJOR_STEPS.length - 1 && (
                       <div
-                        className={`w-full h-0.5 mx-2 ${
-                          idx < currentStep ? 'bg-[hsl(var(--primary))]' : 'bg-[hsl(var(--muted))]'
+                        className={`flex-1 h-1 mx-4 rounded-full transition-all ${
+                          idx < currentMajorStep ? 'bg-[hsl(var(--primary))]' : 'bg-[hsl(var(--muted))]'
                         }`}
-                        style={{ minWidth: '40px' }}
                       />
                     )}
                   </div>

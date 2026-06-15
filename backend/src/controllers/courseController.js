@@ -17,6 +17,31 @@ const createCourse = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const uploadCourseResource = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Vui lòng chọn file tải lên.'
+      })
+    }
+
+    const { CloudinaryProvider } = await import('~/providers/CloudinaryProvider')
+    const uploadResult = await CloudinaryProvider.streamUpload(req.file.buffer, 'course-resources', 'auto')
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Tải file thành công!',
+      data: {
+        url: uploadResult.secure_url,
+        name: req.file.originalname
+      }
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 // ============ READ ============
 const getCourses = async (req, res, next) => {
   try {
@@ -55,6 +80,19 @@ const getMyCourses = async (req, res, next) => {
       message: 'Lấy danh sách khóa học của bạn thành công!',
       data: result.courses,
       pagination: result.pagination
+    })
+  } catch (error) { next(error) }
+}
+
+const getMyCourseStats = async (req, res, next) => {
+  try {
+    const userId = req.user._id.toString()
+    const stats = await courseService.getMyCourseStats(userId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thống kê khóa học thành công!',
+      data: stats
     })
   } catch (error) { next(error) }
 }
@@ -291,6 +329,7 @@ export const courseController = {
   getCourses,
   getCourseById,
   getMyCourses,
+  getMyCourseStats,
   getRecommendedCourses,
   getPopularCourses,
   getNewCourses,
@@ -305,6 +344,7 @@ export const courseController = {
   updateCourse,
   submitForApproval,
   approveCourse,
+  uploadCourseResource,
 
   // Admin
   getPendingCourses,

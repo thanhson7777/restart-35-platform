@@ -245,6 +245,37 @@ const findByCourse = async (courseId, skip = 0, limit = 10, filters = {}) => {
   }
 }
 
+const findByTrainer = async (trainerId, skip = 0, limit = 10, filters = {}) => {
+  try {
+    const db = GET_DB()
+    const courses = await db.collection('courses').find({
+      providerId: trainerId,
+      _destroy: { $ne: true }
+    }).toArray()
+    
+    const courseIds = courses.map(c => c._id.toString())
+
+    const query = {
+      courseId: { $in: courseIds },
+      _destroy: { $ne: true },
+      ...filters
+    }
+
+    const enrollments = await db.collection(ENROLLMENT_COLLECTION_NAME)
+      .find(query)
+      .sort({ enrolledAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+
+    const totalEnrollments = await db.collection(ENROLLMENT_COLLECTION_NAME).countDocuments(query)
+
+    return { enrollments, totalEnrollments }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 const findCompletedByUser = async (userId) => {
   try {
     return await GET_DB().collection(ENROLLMENT_COLLECTION_NAME).find({
@@ -951,12 +982,13 @@ export const enrollmentModel = {
   createNew,
 
   // Read
-  findOneById,
-  findOneByUserAndCourse,
+  findAll,
   findByUser,
   findByCourse,
+  findByTrainer,
+  findOneById,
+  findOneByUserAndCourse,
   findCompletedByUser,
-  findAll,
   findActivePartnershipByEnterpriseAndCourse,
   resolveActivePartnershipForCourse,
 

@@ -32,7 +32,6 @@ const AdminCoursesPage = () => {
     status: 'all',
     search: '',
     category: '',
-    level: '',
     location: '',
     fee: '',
     sortBy: 'createdAt',

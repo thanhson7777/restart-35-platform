@@ -22,14 +22,30 @@ const CourseCurriculumPage = () => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const [courseRes, lessonsRes] = await Promise.all([
-          getCourseById(id),
-          getCourseLessons(id).catch(() => ({ data: [] }))
-        ])
-        setCourse(courseRes.data || courseRes)
-        setLessons(lessonsRes.data || [])
+        const courseRes = await getCourseById(id)
+        const courseData = courseRes.data || courseRes
+        setCourse(courseData)
+        
+        let lessonsData = []
+        try {
+          const lessonsRes = await getCourseLessons(id)
+          lessonsData = lessonsRes?.data || []
+          if (!Array.isArray(lessonsData)) {
+            // If API returns wrapped data
+            lessonsData = lessonsData.data || lessonsData.lessons || []
+          }
+        } catch (err) {
+          // Fallback to course syllabus if API fails
+          console.warn('Could not fetch lessons from API, falling back to course syllabus')
+        }
+        
+        if (!Array.isArray(lessonsData) || lessonsData.length === 0) {
+          lessonsData = courseData.syllabus || []
+        }
+        
+        setLessons(Array.isArray(lessonsData) ? lessonsData : [])
       } catch (err) {
-        toast.error('Không thể tải giáo trình')
+        toast.error('Không thể tải khóa học')
       } finally {
         setLoading(false)
       }

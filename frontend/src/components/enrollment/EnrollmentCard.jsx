@@ -34,16 +34,16 @@ export const EnrollmentCard = ({
     installments = [],
   } = enrollment;
 
-  const isActive = ['enrolled', 'in_progress'].includes(status);
+  const isActive = ['enrolled', 'in_progress', 'active'].includes(status);
   const isCancellable = ['enrolled', 'pending', 'waitlist'].includes(status);
-  const isDropable = status === 'in_progress';
+  const isDropable = ['in_progress', 'active'].includes(status);
   
   const deliveryType = course?.delivery_type || 'video';
   const fundingModel = course?.funding_model || 'free';
 
   // Render type-specific progress panel
   const renderProgressDetail = () => {
-    if (!progress || !['in_progress', 'completed'].includes(status)) return null;
+    if (!progress || !['in_progress', 'active', 'completed'].includes(status)) return null;
 
     switch (deliveryType) {
       case 'video':
@@ -82,7 +82,7 @@ export const EnrollmentCard = ({
           )}
           
           {/* Risk Badge overlayed on image */}
-          {status === 'in_progress' && (
+          {['in_progress', 'active'].includes(status) && (
             <div className="absolute top-2.5 left-2.5 z-10">
               <DropoutRiskBadge risk={dropoutRisk} />
             </div>

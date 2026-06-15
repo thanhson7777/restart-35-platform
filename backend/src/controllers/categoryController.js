@@ -28,18 +28,6 @@ const getAllCategories = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
-// ============ GET CATEGORY TREE ============
-const getCategoryTree = async (req, res, next) => {
-  try {
-    const tree = await categoryService.getCategoryTree()
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: 'Lấy cây danh mục thành công!',
-      data: tree
-    })
-  } catch (error) { next(error) }
-}
 
 // ============ GET CATEGORY BY ID ============
 const getCategoryById = async (req, res, next) => {
@@ -67,19 +55,6 @@ const getCategoryBySlug = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
-// ============ GET SUBCATEGORIES ============
-const getSubcategories = async (req, res, next) => {
-  try {
-    const { parentId } = req.query
-    const subcategories = await categoryService.getSubcategories(parentId || null)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: 'Lấy danh sách danh mục con thành công!',
-      data: subcategories
-    })
-  } catch (error) { next(error) }
-}
 
 // ============ GET FEATURED CATEGORIES ============
 const getFeaturedCategories = async (req, res, next) => {
@@ -135,10 +110,8 @@ const reorderCategories = async (req, res, next) => {
 export const categoryController = {
   // Public
   getAllCategories,
-  getCategoryTree,
   getCategoryById,
   getCategoryBySlug,
-  getSubcategories,
   getFeaturedCategories,
 
   // Admin

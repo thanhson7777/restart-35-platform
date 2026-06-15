@@ -82,13 +82,6 @@ export const COURSE_STATUS = {
   ARCHIVED: 'archived'
 }
 
-//============COURSE LEVELS ============
-export const COURSE_LEVELS = {
-  BEGINNER: 'beginner',
-  INTERMEDIATE: 'intermediate',
-  ADVANCED: 'advanced'
-}
-
 //============DURATION UNITS ============
 export const DURATION_UNITS = {
   HOURS: 'hours',

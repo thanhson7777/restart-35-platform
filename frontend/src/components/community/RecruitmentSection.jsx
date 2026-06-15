@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, DollarSign, Filter, ChevronRight, ChevronLeft, Loader2, Star, Sparkles } from 'lucide-react';
 import { Button, Input, Badge, Card, CardContent } from '@/components/ui';
+import { SelectField } from '@/components/ui/SelectField';
+import { getJobCategoriesAPI } from '@/apis/jobCategoryApi';
 import {
   fetchPublishedJobs,
   selectJobs,
@@ -158,14 +160,30 @@ export default function RecruitmentSection() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [localFilters, setLocalFilters] = useState({
+    categoryId: '',
     province: '',
     jobType: '',
     locationType: '',
     salaryMin: '',
     salaryMax: ''
   });
+  const [categories, setCategories] = useState([]);
 
   const PAGE_SIZE = 12;
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getJobCategoriesAPI();
+        if (res.success) {
+          setCategories(res.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching job categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const fetchJobs = useCallback(async (params = {}, page = 1) => {
     const p = params.page || page;
@@ -173,6 +191,7 @@ export default function RecruitmentSection() {
       page: p,
       limit: PAGE_SIZE,
       search: params.search !== undefined ? params.search : searchQuery,
+      categoryId: params.categoryId !== undefined ? params.categoryId : localFilters.categoryId,
       province: params.province !== undefined ? params.province : localFilters.province,
       type: params.type !== undefined ? params.type : localFilters.jobType,
       locationType: params.locationType !== undefined ? params.locationType : localFilters.locationType,
@@ -220,99 +239,88 @@ export default function RecruitmentSection() {
   const hasFilters = searchQuery || localFilters.province || localFilters.jobType || localFilters.locationType || localFilters.salaryMin || localFilters.salaryMax;
 
   return (
-    <div className="space-y-6">
-      {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
-          <Input
-            placeholder="Tìm kiếm theo tên công việc, địa điểm..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            className="pl-10"
-          />
+    <div className="flex flex-col lg:flex-row gap-6 lg:items-start items-stretch">
+      {/* Sidebar Filters */}
+      <div className="w-full lg:w-1/4 shrink-0 bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl p-5 sticky top-24">
+        <h3 className="font-semibold text-lg mb-4 text-[hsl(var(--foreground))] border-b pb-2">Bộ lọc việc làm</h3>
+        <div className="space-y-5">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[hsl(var(--muted-foreground))]">Tìm kiếm</label>
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
+              <Input
+                placeholder="Tên công việc..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="pl-10 h-10 w-full"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[hsl(var(--muted-foreground))]">Danh mục</label>
+            <SelectField
+              options={[
+                { value: '', label: 'Tất cả danh mục' },
+                ...categories.map(c => ({ value: c._id, label: c.name }))
+              ]}
+              value={localFilters.categoryId}
+              onChange={(val) => handleFilterChange('categoryId', val)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[hsl(var(--muted-foreground))]">Tỉnh/Thành phố</label>
+            <Input
+              placeholder="VD: TP. Hồ Chí Minh"
+              className="h-10"
+              value={localFilters.province}
+              onChange={(e) => handleFilterChange('province', e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[hsl(var(--muted-foreground))]">Loại hình công việc</label>
+            <SelectField
+              options={[
+                { value: '', label: 'Tất cả' },
+                ...JOB_TYPE_OPTIONS
+              ]}
+              value={localFilters.jobType}
+              onChange={(val) => handleFilterChange('jobType', val)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[hsl(var(--muted-foreground))]">Hình thức làm việc</label>
+            <SelectField
+              options={[
+                { value: '', label: 'Tất cả' },
+                { value: 'onsite', label: LOCATION_TYPE_LABELS.onsite },
+                { value: 'remote', label: LOCATION_TYPE_LABELS.remote },
+                { value: 'hybrid', label: LOCATION_TYPE_LABELS.hybrid }
+              ]}
+              value={localFilters.locationType}
+              onChange={(val) => handleFilterChange('locationType', val)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[hsl(var(--muted-foreground))]">Lương tối thiểu (VND)</label>
+            <Input
+              type="number"
+              placeholder="VD: 5000000"
+              className="h-10"
+              value={localFilters.salaryMin}
+              onChange={(e) => handleFilterChange('salaryMin', e.target.value)}
+            />
+          </div>
+          {hasFilters && (
+            <Button variant="outline" className="w-full text-xs mt-4" onClick={handleClearFilters}>
+              Xóa bộ lọc
+            </Button>
+          )}
         </div>
-        <Button
-          variant={showFilters ? 'default' : 'outline'}
-          onClick={() => setShowFilters(!showFilters)}
-          className="gap-2 shrink-0"
-        >
-          <Filter size={14} /> Bộ lọc {hasFilters && <span className="w-2 h-2 rounded-full bg-white" />}
-        </Button>
-        <Button onClick={handleSearch} className="shrink-0">
-          Tìm kiếm
-        </Button>
       </div>
 
-      {/* Filter Panel */}
-      {showFilters && (
-        <Card className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Tỉnh/Thành phố</label>
-                <Input
-                  placeholder="VD: TP. Hồ Chí Minh"
-                  value={localFilters.province}
-                  onChange={(e) => handleFilterChange('province', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Loại hình công việc</label>
-                <select
-                  className="w-full h-10 px-3 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-sm"
-                  value={localFilters.jobType}
-                  onChange={(e) => handleFilterChange('jobType', e.target.value)}
-                >
-                  <option value="">Tất cả</option>
-                  {JOB_TYPE_OPTIONS.map(type => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Hình thức làm việc</label>
-                <select
-                  className="w-full h-10 px-3 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-sm"
-                  value={localFilters.locationType}
-                  onChange={(e) => handleFilterChange('locationType', e.target.value)}
-                >
-                  <option value="">Tất cả</option>
-                  <option value="onsite">{LOCATION_TYPE_LABELS.onsite}</option>
-                  <option value="remote">{LOCATION_TYPE_LABELS.remote}</option>
-                  <option value="hybrid">{LOCATION_TYPE_LABELS.hybrid}</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Lương tối thiểu (VND)</label>
-                <Input
-                  type="number"
-                  placeholder="VD: 5000000"
-                  value={localFilters.salaryMin}
-                  onChange={(e) => handleFilterChange('salaryMin', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Lương tối đa (VND)</label>
-                <Input
-                  type="number"
-                  placeholder="VD: 15000000"
-                  value={localFilters.salaryMax}
-                  onChange={(e) => handleFilterChange('salaryMax', e.target.value)}
-                />
-              </div>
-            </div>
-            {hasFilters && (
-              <div className="mt-3 flex justify-end">
-                <Button variant="ghost" size="sm" onClick={handleClearFilters} className="text-xs">
-                  Xóa bộ lọc
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      {/* Main Content Area */}
+      <div className="w-full lg:w-3/4 space-y-6">
 
       {/* Results Header */}
       <div className="flex items-center justify-between">
@@ -429,6 +437,7 @@ export default function RecruitmentSection() {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

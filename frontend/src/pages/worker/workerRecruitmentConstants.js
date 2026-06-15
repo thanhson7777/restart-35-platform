@@ -5,15 +5,15 @@
  */
 
 export const applicationStatusConfig = {
-  new:                  { label: 'Mới',            className: 'bg-blue-100 text-blue-700 border-blue-200' },
-  reviewing:            { label: 'Đang xem',        className: 'bg-amber-100 text-amber-700 border-amber-200' },
-  shortlisted:          { label: 'Shortlist',       className: 'bg-purple-100 text-purple-700 border-purple-200' },
-  interview_scheduled:  { label: 'Đã lên lịch PV', className: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-  interviewed:          { label: 'Đã PV',           className: 'bg-teal-100 text-teal-700 border-teal-200' },
-  offered:              { label: 'Đã offer',        className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  hired:                { label: 'Đã tuyển',        className: 'bg-green-100 text-green-700 border-green-200' },
-  rejected:             { label: 'Từ chối',         className: 'bg-red-100 text-red-700 border-red-200' },
-  withdrawn:            { label: 'Rút đơn',         className: 'bg-slate-200 text-slate-600 border-slate-300' },
+  new:                  { label: 'Tiếp nhận',       className: 'bg-blue-100 text-blue-700 border-blue-200' },
+  reviewing:            { label: 'Đang xem xét',    className: 'bg-blue-100 text-blue-700 border-blue-200' },
+  shortlisted:          { label: 'Qua vòng hồ sơ',  className: 'bg-blue-100 text-blue-700 border-blue-200' },
+  interview_scheduled:  { label: 'Sắp phỏng vấn',   className: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
+  interviewed:          { label: 'Chờ kết quả PV',  className: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
+  offered:              { label: 'Nhận Offer',      className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+  hired:                { label: 'Trúng tuyển',     className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+  rejected:             { label: 'Chưa phù hợp',    className: 'bg-red-100 text-red-700 border-red-200' },
+  withdrawn:            { label: 'Đã rút đơn',      className: 'bg-slate-200 text-slate-600 border-slate-300' },
 }
 
 /** Thứ tự các trạng thái để render progress bar */

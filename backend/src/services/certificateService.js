@@ -193,7 +193,7 @@ const getCertificateByEnrollment = async (enrollmentId, requestingUserId, role) 
     const byEnrollment = await certificateModel.findByEnrollment(enrollmentId)
 
     if (!byEnrollment || byEnrollment.length === 0) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy chứng chỉ cho đăng ký này!')
+      return []
     }
 
     const cert = byEnrollment[0]

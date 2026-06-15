@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { getCategoriesAPI } from '@/apis';
+import { getCategoriesAPI, createCategoryAPI } from '@/apis';
 import { getCourseById } from '@/apis/courseApi';
 import { createCourse, updateCourse, submitCourse } from '@/apis/trainerApi';
 import TrainerCourseForm from '@/components/trainer/TrainerCourseForm';
@@ -52,6 +52,21 @@ const TrainerCourseFormPage = () => {
     
     try {
       let savedCourseId = id;
+
+      // Handle new category creation
+      const newCategoryName = formData.get('newCategoryName');
+      if (newCategoryName) {
+        // We create a pending category
+        const catRes = await createCategoryAPI({
+          name: newCategoryName,
+          status: 'pending',
+          isActive: false
+        });
+        if (catRes?.data?._id) {
+          formData.set('categoryId', catRes.data._id);
+        }
+        formData.delete('newCategoryName');
+      }
 
       if (isEditMode) {
         // Edit course

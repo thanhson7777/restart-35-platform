@@ -11,10 +11,10 @@ cloudinaryV2.config({
 })
 
 // Uploade file lên cloudinary
-const streamUpload = (fileBuffer, folderName) => {
+const streamUpload = (fileBuffer, folderName, resourceType = 'auto') => {
   return new Promise((resolve, reject) => {
     // Tạo luồng upload lên cloudinary
-    const stream = cloudinaryV2.uploader.upload_stream({ folder: folderName }, (err, result) => {
+    const stream = cloudinaryV2.uploader.upload_stream({ folder: folderName, resource_type: resourceType }, (err, result) => {
       if (err) reject(err)
       else resolve(result)
     })

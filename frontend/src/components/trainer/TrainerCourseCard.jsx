@@ -84,43 +84,44 @@ const TrainerCourseCard = ({ course }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col gap-2 pt-2">
           <Button
             asChild
-            variant="outline"
             size="sm"
-            className="border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]"
+            className="w-full bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white shadow-sm gap-2"
           >
-            <Link to={`/trainer/courses/${_id}/students`}>
-              <Users className="mr-1.5 h-3.5 w-3.5 text-[hsl(var(--admin-text-muted))]" />
-              Học viên
+            <Link to={`/trainer/courses/${_id}/edit`}>
+              <Edit3 className="h-4 w-4 shrink-0" />
+              <span>Chỉnh sửa khóa học</span>
             </Link>
           </Button>
 
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]"
-          >
-            <Link to={`/trainer/courses/${_id}/schedule`}>
-              <Calendar className="mr-1.5 h-3.5 w-3.5 text-[hsl(var(--admin-text-muted))]" />
-              Lịch học
-            </Link>
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="w-full border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] gap-2"
+            >
+              <Link to={`/trainer/courses/${_id}/students`}>
+                <Users className="h-4 w-4 shrink-0" />
+                <span>Học viên</span>
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="w-full border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] gap-2"
+            >
+              <Link to={`/trainer/courses/${_id}/schedule`}>
+                <Calendar className="h-4 w-4 shrink-0" />
+                <span>Lịch học</span>
+              </Link>
+            </Button>
+          </div>
         </div>
-
-        <Button
-          asChild
-          size="sm"
-          className="w-full bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white border-none mt-2 shadow-sm"
-        >
-          <Link to={`/trainer/courses/${_id}/edit`}>
-            <Edit3 className="mr-1.5 h-3.5 w-3.5" />
-            Chỉnh sửa khóa học
-            <ArrowRight className="ml-auto h-3.5 w-3.5" />
-          </Link>
-        </Button>
       </CardContent>
     </Card>
   );

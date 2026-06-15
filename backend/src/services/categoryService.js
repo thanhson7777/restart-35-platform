@@ -10,22 +10,10 @@ const createCategory = async (data) => {
       name: data.name,
       description: data.description || null,
       icon: data.icon || null,
-      parentId: data.parentId || null,
-      level: data.parentId ? 1 : 0,
       order: data.order || 0,
+      status: data.status || 'approved',
       isActive: data.isActive !== undefined ? data.isActive : true,
       isFeatured: data.isFeatured || false
-    }
-
-    if (data.parentId) {
-      const parent = await categoryModel.findOneById(data.parentId)
-      if (!parent) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, 'Danh mục cha không tồn tại!')
-      }
-      if (parent.level >= 2) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, 'Chỉ hỗ trợ tối đa 2 cấp danh mục!')
-      }
-      categoryData.level = parent.level + 1
     }
 
     const result = await categoryModel.createNew(categoryData)
@@ -43,14 +31,6 @@ const getAllCategories = async (includeInactive = false) => {
   } catch (error) { throw error }
 }
 
-// ============ GET CATEGORY TREE ============
-const getCategoryTree = async () => {
-  try {
-    const categories = await categoryModel.findAll(true)
-    const tree = categoryModel.buildTree(categories)
-    return tree
-  } catch (error) { throw error }
-}
 
 // ============ GET CATEGORY BY ID ============
 const getCategoryById = async (categoryId) => {
@@ -74,20 +54,6 @@ const getCategoryBySlug = async (slug) => {
   } catch (error) { throw error }
 }
 
-// ============ GET SUBCATEGORIES ============
-const getSubcategories = async (parentId) => {
-  try {
-    if (parentId) {
-      const parent = await categoryModel.findOneById(parentId)
-      if (!parent) {
-        throw new ApiError(StatusCodes.NOT_FOUND, 'Danh mục cha không tồn tại!')
-      }
-    }
-
-    const subcategories = await categoryModel.findByParent(parentId)
-    return subcategories
-  } catch (error) { throw error }
-}
 
 // ============ GET FEATURED CATEGORIES ============
 const getFeaturedCategories = async () => {
@@ -105,25 +71,6 @@ const updateCategory = async (categoryId, data) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Danh mục không tồn tại!')
     }
 
-    if (data.parentId !== undefined) {
-      if (data.parentId === categoryId) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, 'Danh mục không thể là cha của chính nó!')
-      }
-
-      if (data.parentId) {
-        const newParent = await categoryModel.findOneById(data.parentId)
-        if (!newParent) {
-          throw new ApiError(StatusCodes.BAD_REQUEST, 'Danh mục cha không tồn tại!')
-        }
-        if (newParent.level >= 2) {
-          throw new ApiError(StatusCodes.BAD_REQUEST, 'Chỉ hỗ trợ tối đa 2 cấp danh mục!')
-        }
-        data.level = newParent.level + 1
-      } else {
-        data.level = 0
-        data.parentId = null
-      }
-    }
 
     const updateData = { ...data }
     delete updateData.courseCount
@@ -152,13 +99,6 @@ const deleteCategory = async (categoryId) => {
       )
     }
 
-    const children = await categoryModel.findByParent(categoryId)
-    if (children.length > 0) {
-      throw new ApiError(
-        StatusCodes.CONFLICT,
-        `Danh mục này đang có ${children.length} danh mục con. Vui lòng xóa danh mục con trước!`
-      )
-    }
 
     await categoryModel.deleteCategory(categoryId)
 
@@ -194,10 +134,6 @@ const updateCourseCount = async (categoryId, delta = 1) => {
 
     const updatedCategory = await categoryModel.updateCourseCount(categoryId, delta)
 
-    if (category.parentId) {
-      await categoryModel.updateCourseCount(category.parentId, delta)
-    }
-
     return updatedCategory
   } catch (error) { throw error }
 }
@@ -208,10 +144,8 @@ export const categoryService = {
 
   // Read
   getAllCategories,
-  getCategoryTree,
   getCategoryById,
   getCategoryBySlug,
-  getSubcategories,
   getFeaturedCategories,
 
   // Update

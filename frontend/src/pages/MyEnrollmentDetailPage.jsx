@@ -12,6 +12,7 @@ import { ArrowLeft, PlayCircle, Video, MapPin, Calendar, Clock, DollarSign, Exte
 import toast from 'react-hot-toast';
 import { formatDate, formatPrice } from '@/utils/formatter';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Navbar, Footer } from '@/components/landing';
 
 export default function MyEnrollmentDetailPage() {
   const { id } = useParams();

@@ -55,10 +55,7 @@ const RoleHeader = ({ title, subtitle, onMenuClick, sidebarCollapsed }) => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="hidden md:flex items-center gap-2 rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] px-3 py-2 text-[hsl(var(--admin-text-muted))] min-w-[220px]">
-            <Search size={14} />
-            <span className="text-xs">Tìm nhanh trong dashboard</span>
-          </div>
+
           <Button variant="ghost" size="icon" className="text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]">
             <Bell size={17} />
           </Button>

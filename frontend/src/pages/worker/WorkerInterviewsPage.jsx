@@ -25,6 +25,7 @@ import {
 
 const interviewStatusConfig = {
   pending_confirmation: { label: 'Chờ xác nhận', className: 'bg-amber-100 text-amber-700 border-amber-200' },
+  rescheduled: { label: 'Đã dời lịch (Chờ XN)', className: 'bg-amber-100 text-amber-700 border-amber-200' },
   confirmed: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   completed: { label: 'Hoàn thành', className: 'bg-blue-100 text-blue-700 border-blue-200' },
   cancelled: { label: 'Đã hủy', className: 'bg-slate-200 text-slate-600 border-slate-300' },
@@ -57,7 +58,7 @@ const getInterviewCardClass = (status) => {
 /** Trả về class màu icon theo trạng thái */
 const getInterviewIconClass = (status) => {
   if (status === 'confirmed') return 'text-emerald-600';
-  if (status === 'pending_confirmation') return 'text-amber-600';
+  if (status === 'pending_confirmation' || status === 'rescheduled') return 'text-amber-600';
   if (status === 'completed') return 'text-blue-600';
   return 'text-[hsl(var(--muted-foreground))]';
 };
@@ -65,7 +66,7 @@ const getInterviewIconClass = (status) => {
 /** Trả về class bg icon theo trạng thái */
 const getInterviewIconBgClass = (status) => {
   if (status === 'confirmed') return 'bg-emerald-100';
-  if (status === 'pending_confirmation') return 'bg-amber-100';
+  if (status === 'pending_confirmation' || status === 'rescheduled') return 'bg-amber-100';
   if (status === 'completed') return 'bg-blue-100';
   return 'bg-slate-100';
 };
@@ -95,14 +96,8 @@ export default function WorkerInterviewsPage() {
   const [confirming, setConfirming] = useState(false);
 
   const fetchInterviews = useCallback(async () => {
-    const params = { limit: 50 };
-    if (statusFilter === 'upcoming') {
-      params.status = 'pending_confirmation,confirmed';
-    } else if (statusFilter !== 'all') {
-      params.status = statusFilter;
-    }
-    dispatch(fetchMyInterviews(params));
-  }, [dispatch, statusFilter]);
+    dispatch(fetchMyInterviews({ limit: 100 }));
+  }, [dispatch]);
 
   useEffect(() => {
     fetchInterviews();
@@ -138,8 +133,35 @@ export default function WorkerInterviewsPage() {
 
 
 
+  // Client-side filtering
+  const displayedInterviews = interviews.filter(interview => {
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'upcoming') {
+      return ['pending_confirmation', 'rescheduled', 'confirmed'].includes(interview.status);
+    }
+    if (statusFilter === 'pending_confirmation') {
+      return ['pending_confirmation', 'rescheduled'].includes(interview.status);
+    }
+    return interview.status === statusFilter;
+  });
+
+  // Calculate stats
+  const stats = interviews.reduce((acc, interview) => {
+    acc.all++;
+    if (['pending_confirmation', 'rescheduled', 'confirmed'].includes(interview.status)) {
+      acc.upcoming++;
+    }
+    if (['pending_confirmation', 'rescheduled'].includes(interview.status)) {
+      acc.pending_confirmation++;
+    }
+    if (interview.status === 'completed') {
+      acc.completed++;
+    }
+    return acc;
+  }, { all: 0, upcoming: 0, pending_confirmation: 0, completed: 0 });
+
   // Group by date
-  const groupedByDate = interviews.reduce((acc, interview) => {
+  const groupedByDate = displayedInterviews.reduce((acc, interview) => {
     const dateKey = new Date(interview.scheduledAt).toDateString();
     if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(interview);
@@ -181,13 +203,20 @@ export default function WorkerInterviewsPage() {
             <button
               key={filter.key}
               onClick={() => setStatusFilter(filter.key)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
                 statusFilter === filter.key
                   ? 'bg-[hsl(var(--primary))] text-white'
                   : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
               }`}
             >
-              {filter.label}
+              <span>{filter.label}</span>
+              <span className={`px-2 py-0.5 rounded-full text-xs ${
+                statusFilter === filter.key
+                  ? 'bg-white/20 text-white'
+                  : 'bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))]'
+              }`}>
+                {stats[filter.key] || 0}
+              </span>
             </button>
           ))}
         </div>
@@ -199,7 +228,7 @@ export default function WorkerInterviewsPage() {
               <div key={i} className="h-32 bg-[hsl(var(--muted))] rounded-xl animate-pulse" />
             ))}
           </div>
-        ) : interviews.length === 0 ? (
+        ) : displayedInterviews.length === 0 ? (
           <div className="text-center py-16">
             <Calendar size={48} className="mx-auto text-[hsl(var(--muted))] mb-4" />
             <p className="text-[hsl(var(--muted-foreground))]">
@@ -277,7 +306,7 @@ export default function WorkerInterviewsPage() {
                           </div>
                           <div className="flex flex-col items-end gap-2">
                             <Badge className={`${status.className} text-xs`}>{status.label}</Badge>
-                            {interview.status === 'pending_confirmation' && !isPast && (
+                            {['pending_confirmation', 'rescheduled'].includes(interview.status) && !isPast && (
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
@@ -464,7 +493,7 @@ function InterviewDetailView({ interview, loading, onBack, onOpenConfirmModal })
           </div>
         )}
 
-        {interview.status === 'pending_confirmation' && !isPast && (
+        {['pending_confirmation', 'rescheduled'].includes(interview.status) && !isPast && (
           <div className="flex gap-3 pt-4 border-t border-[hsl(var(--border))]">
             <Button onClick={() => onOpenConfirmModal(interview)} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
               <Check size={16} /> Xác nhận tham gia

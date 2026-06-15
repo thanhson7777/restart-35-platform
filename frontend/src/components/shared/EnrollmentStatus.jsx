@@ -21,6 +21,11 @@ const STATUS_CONFIG = {
     bg: 'bg-purple-100',
     text: 'text-purple-700',
   },
+  active: {
+    label: 'Đang học',
+    bg: 'bg-purple-100',
+    text: 'text-purple-700',
+  },
   completed: {
     label: 'Hoàn thành',
     bg: 'bg-green-100',

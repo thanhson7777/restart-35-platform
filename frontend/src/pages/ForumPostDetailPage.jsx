@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { Avatar } from '@/components/ui'
 import { ArrowLeft, ThumbsUp, MessageCircle, Loader2, Pin, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { forumApi } from '@/apis/forumApi'
 
 const CATEGORY_BADGE = {
   general: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
@@ -41,24 +42,21 @@ const ForumPostDetailPage = () => {
   const [newComment, setNewComment] = useState('')
   const [submittingComment, setSubmittingComment] = useState(false)
 
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
-
   const fetchPost = useCallback(async () => {
     setLoading(true)
     try {
       const [postRes, commentsRes] = await Promise.all([
-        fetch(`${API_BASE}/v1/forum/posts/${id}`),
-        fetch(`${API_BASE}/v1/forum/posts/${id}/comments`),
+        forumApi.getPostDetail(id),
+        forumApi.getComments(id),
       ])
-      const [postData, commentsData] = await Promise.all([postRes.json(), commentsRes.json()])
-      setPost(postData.data || postData)
-      setComments(commentsData.data || [])
+      setPost(postRes.data.data || postRes.data)
+      setComments(commentsRes.data.data || [])
     } catch (err) {
       toast.error('Không thể tải bài viết')
     } finally {
       setLoading(false)
     }
-  }, [id, API_BASE])
+  }, [id])
 
   useEffect(() => { fetchPost() }, [fetchPost])
 
@@ -66,14 +64,9 @@ const ForumPostDetailPage = () => {
     if (reactingId) return
     setReactingId(type)
     try {
-      const res = await fetch(`${API_BASE}/v1/forum/posts/${id}/react`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        setPost(prev => ({ ...prev, reactions: data.data.reactions }))
+      const res = await forumApi.reactToPost(id)
+      if (res.data.success) {
+        setPost(prev => ({ ...prev, reactions: res.data.data.reactions }))
       }
     } catch (err) {
       console.warn('React error:', err)
@@ -87,14 +80,9 @@ const ForumPostDetailPage = () => {
     if (!newComment.trim()) return
     setSubmittingComment(true)
     try {
-      const res = await fetch(`${API_BASE}/v1/forum/posts/${id}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newComment }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        setComments(prev => [...prev, data.data])
+      const res = await forumApi.createComment(id, { content: newComment })
+      if (res.data.success) {
+        setComments(prev => [...prev, res.data.data])
         setPost(prev => ({ ...prev, commentCount: (prev.commentCount || 0) + 1 }))
         setNewComment('')
         toast.success('Đã đăng bình luận')
@@ -125,9 +113,11 @@ const ForumPostDetailPage = () => {
     )
   }
 
-  const categoryLabel = {
-    general: 'Chung', career: 'Nghề nghiệp', skills: 'Kỹ năng', mentor: 'Hỏi Mentor'
-  }[post.category] || post.category
+  const categoryLabel = typeof post.category === 'object' && post.category !== null 
+    ? post.category.name 
+    : ({ general: 'Chung', career: 'Nghề nghiệp', skills: 'Kỹ năng', mentor: 'Hỏi Mentor' }[post.category] || post.category || 'Chung')
+
+  const categoryBadgeClass = CATEGORY_BADGE[typeof post.category === 'object' ? post.category?.slug : post.category] || CATEGORY_BADGE.general
 
   return (
     <div className="min-h-screen bg-background">
@@ -154,7 +144,7 @@ const ForumPostDetailPage = () => {
                     {post.isPinned && <Pin className="inline w-3 h-3 ml-2 text-amber-500" />}
                   </p>
                 </div>
-                <Badge className={`ml-auto text-xs ${CATEGORY_BADGE[post.category] || CATEGORY_BADGE.general}`}>
+                <Badge className={`ml-auto text-xs ${categoryBadgeClass}`}>
                   {categoryLabel}
                 </Badge>
               </div>

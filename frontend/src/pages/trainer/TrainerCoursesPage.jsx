@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Plus, 
-  Search, 
-  Grid, 
-  List, 
-  BookOpen, 
-  CheckCircle, 
-  Clock, 
+import {
+  Plus,
+  Search,
+  Grid,
+  List,
+  BookOpen,
+  CheckCircle,
+  Clock,
   FileText,
   Eye,
   Calendar,
@@ -17,21 +17,21 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { 
-  Button, 
-  Input, 
-  Card, 
-  CardContent, 
-  Badge, 
-  Table, 
-  TableHeader, 
-  TableBody, 
-  TableHead, 
-  TableRow, 
+import {
+  Button,
+  Input,
+  Card,
+  CardContent,
+  Badge,
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
   TableCell,
-  SafeImage 
+  SafeImage
 } from '@/components/ui';
-import { getMyCourses, deleteCourse } from '@/apis/trainerApi';
+import { getMyCourses, getMyCourseStats, deleteCourse } from '@/apis/trainerApi';
 import TrainerCourseCard from '@/components/trainer/TrainerCourseCard';
 import toast from 'react-hot-toast';
 
@@ -39,11 +39,11 @@ const TrainerCoursesPage = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grid');
-  
+
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -61,13 +61,13 @@ const TrainerCoursesPage = () => {
   // Fetch all courses (to compute stats accurately)
   const fetchStats = useCallback(async () => {
     try {
-      const res = await getMyCourses({ limit: 100 });
-      const allCourses = res.data?.data || [];
+      const res = await getMyCourseStats();
+      const statsData = res.data?.data || {};
       setStats({
-        total: allCourses.length,
-        published: allCourses.filter(c => c.status === 'published').length,
-        pending: allCourses.filter(c => c.status === 'pending').length,
-        draft: allCourses.filter(c => c.status === 'draft').length
+        total: statsData.total || 0,
+        published: statsData.approved || 0, // In DB, published courses are "approved"
+        pending: statsData.pending || 0,
+        draft: statsData.draft || 0
       });
     } catch (err) {
       console.error('Error fetching course stats:', err);
@@ -86,10 +86,10 @@ const TrainerCoursesPage = () => {
       if (statusFilter !== 'all') {
         params.status = statusFilter;
       }
-      
+
       const res = await getMyCourses(params);
       setCourses(res.data?.data || []);
-      
+
       const pagination = res.data?.pagination || {};
       setTotalPages(pagination.totalPages || 1);
       setTotalRecords(pagination.totalRecords || 0);
@@ -159,10 +159,10 @@ const TrainerCoursesPage = () => {
         </div>
         <Button
           asChild
-          className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white font-semibold flex items-center gap-2 self-start md:self-auto border-none"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 self-start md:self-auto border-none shadow-sm rounded-lg px-6 py-2 transition-all hover:shadow-md"
         >
-          <Link to="/trainer/courses/new">
-            <Plus className="h-5 w-5" />
+          <Link to="/trainer/courses/new" className="flex items-center justify-center">
+            <Plus className="h-4 w-4 mr-1.5" />
             Tạo khóa học mới
           </Link>
         </Button>
@@ -212,17 +212,16 @@ const TrainerCoursesPage = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-4 rounded-xl">
         <div className="flex flex-wrap items-center gap-2">
           {/* Status filter tabs */}
-          {['all', 'published', 'pending', 'draft'].map((status) => (
+          {['all', 'approved', 'pending', 'draft'].map((status) => (
             <button
               key={status}
               onClick={() => handleFilterChange(status)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${
-                statusFilter === status
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${statusFilter === status
                   ? 'bg-[hsl(var(--admin-accent))] text-white'
                   : 'bg-transparent text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
-              }`}
+                }`}
             >
-              {status === 'all' ? 'Tất cả' : status === 'published' ? 'Đã xuất bản' : status === 'pending' ? 'Chờ duyệt' : 'Bản nháp'}
+              {status === 'all' ? 'Tất cả' : status === 'approved' ? 'Đã xuất bản' : status === 'pending' ? 'Chờ duyệt' : 'Bản nháp'}
             </button>
           ))}
         </div>
@@ -275,9 +274,9 @@ const TrainerCoursesPage = () => {
           </div>
           <Button
             asChild
-            className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white font-semibold border-none"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold border-none shadow-sm rounded-lg px-6 py-2 transition-all hover:shadow-md mt-4"
           >
-            <Link to="/trainer/courses/new">
+            <Link to="/trainer/courses/new" className="flex items-center justify-center">
               <Plus className="mr-1.5 h-4 w-4" />
               Tạo khóa học mới
             </Link>
@@ -340,7 +339,11 @@ const TrainerCoursesPage = () => {
                     </div>
                   </TableCell>
                   <TableCell className="py-4 text-[hsl(var(--admin-text-secondary))] font-medium">
-                    {course.isFree ? 'Miễn phí' : `${course.fee?.toLocaleString('vi-VN')} đ`}
+                    {course.fundingConfig?.type === 'FREE' 
+                      ? 'Miễn phí' 
+                      : course.fundingConfig?.price 
+                        ? `${course.fundingConfig.price.toLocaleString('vi-VN')} đ` 
+                        : 'Không xác định'}
                   </TableCell>
                   <TableCell className="py-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">
@@ -359,9 +362,9 @@ const TrainerCoursesPage = () => {
                           <Edit className="h-4 w-4" />
                         </Link>
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={() => handleDeleteCourse(course._id)}
                         className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-danger-subtle))] hover:text-[hsl(var(--admin-danger))] text-[hsl(var(--admin-text-muted))]"
                         title="Xóa khóa học"

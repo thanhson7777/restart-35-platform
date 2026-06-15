@@ -13,7 +13,10 @@ import {
   AlertCircle,
   FileText,
   Settings,
-  Info
+  Info,
+  Paperclip,
+  Loader2,
+  X
 } from 'lucide-react';
 import { 
   Button, 
@@ -24,14 +27,16 @@ import {
   Checkbox 
 } from '@/components/ui';
 import LocationPicker from '@/components/location/LocationPicker';
+import toast from 'react-hot-toast';
+import { uploadCourseResource } from '@/apis/trainerApi';
 
 const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmitting = false, isEditMode = false }) => {
   const [activeTab, setActiveTab] = useState('basic');
   const [title, setTitle] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [shortDescription, setShortDescription] = useState('');
   const [description, setDescription] = useState('');
-  const [level, setLevel] = useState('beginner');
   const [deliveryType, setDeliveryType] = useState('video');
   const [thumbnailPreview, setThumbnailPreview] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState(null);
@@ -46,11 +51,12 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
   const [expectedStartDate, setExpectedStartDate] = useState('');
   
   // Schedule Config
-  const [scheduleTotalSessions, setScheduleTotalSessions] = useState(10);
-  const [scheduleSessionsPerWeek, setScheduleSessionsPerWeek] = useState(2);
+  const [scheduleTotalSessions, setScheduleTotalSessions] = useState(0);
+  const [scheduleSessionsPerWeek, setScheduleSessionsPerWeek] = useState(1);
   const [scheduleDurationMinutes, setScheduleDurationMinutes] = useState(90);
   const [schedulePreferredDays, setSchedulePreferredDays] = useState([]);
   const [schedulePreferredTime, setSchedulePreferredTime] = useState('Morning');
+  const [enableAutoSchedule, setEnableAutoSchedule] = useState(true);
 
   // Funding Config
   const [fundingType, setFundingType] = useState('FREE');
@@ -60,6 +66,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
   // Syllabus
   const [syllabus, setSyllabus] = useState([]);
+  const [uploadingSyllabusIdx, setUploadingSyllabusIdx] = useState(null);
 
   const [skills, setSkills] = useState([]);
   const [skillInput, setSkillInput] = useState('');
@@ -77,7 +84,6 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       setCategoryId(initialData.categoryId || '');
       setShortDescription(initialData.shortDescription || '');
       setDescription(initialData.description || '');
-      setLevel(initialData.level || 'beginner');
       setDeliveryType(initialData.delivery_type || 'video');
       setThumbnailPreview(initialData.thumbnail || '');
       
@@ -102,8 +108,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       }
 
       if (initialData.scheduleConfig) {
-        setScheduleTotalSessions(initialData.scheduleConfig.totalSessions || 10);
-        setScheduleSessionsPerWeek(initialData.scheduleConfig.sessionsPerWeek || 2);
+        setEnableAutoSchedule(true);
+        setScheduleTotalSessions(initialData.scheduleConfig.totalSessions || 0);
+        setScheduleSessionsPerWeek(initialData.scheduleConfig.sessionsPerWeek || 1);
         setScheduleDurationMinutes(initialData.scheduleConfig.sessionDurationMinutes || 90);
         setSchedulePreferredDays(initialData.scheduleConfig.preferredDays || []);
         setSchedulePreferredTime(initialData.scheduleConfig.preferredTime || 'Morning');
@@ -113,6 +120,8 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
             setExpectedStartDate(expectedObj.toISOString().split('T')[0]);
           }
         }
+      } else {
+        setEnableAutoSchedule(false);
       }
 
       if (initialData.fundingConfig) {
@@ -170,7 +179,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
         week: nextWeek,
         title: '',
         content: '',
-        duration: ''
+        duration: '',
+        fileUrl: '',
+        fileName: ''
       }
     ]);
   };
@@ -181,12 +192,75 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
     setSyllabus(updated);
   };
 
+  const handleResourceUpload = async (index, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('Kích thước file tối đa là 15MB!');
+      e.target.value = '';
+      return;
+    }
+
+    try {
+      setUploadingSyllabusIdx(index);
+      const res = await uploadCourseResource(file);
+      if (res.data?.success) {
+        updateSyllabusItem(index, 'fileUrl', res.data.data.url);
+        updateSyllabusItem(index, 'fileName', res.data.data.name);
+        toast.success('Tải file đính kèm thành công!');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Có lỗi xảy ra khi tải file lên!');
+    } finally {
+      setUploadingSyllabusIdx(null);
+      e.target.value = '';
+    }
+  };
+
+  const removeResource = (index) => {
+    const updated = [...syllabus];
+    updated[index].fileUrl = '';
+    updated[index].fileName = '';
+    setSyllabus(updated);
+  };
+
   const removeSyllabusWeek = (index) => {
     const updated = syllabus
       .filter((_, i) => i !== index)
       .map((item, idx) => ({ ...item, week: idx + 1 })); // Re-index week numbers
     setSyllabus(updated);
   };
+
+  // Auto-sync syllabus length with scheduleTotalSessions (Smart sync)
+  useEffect(() => {
+    if (deliveryType !== 'video' && scheduleTotalSessions > 0) {
+      setSyllabus(prev => {
+        if (prev.length < scheduleTotalSessions) {
+          // Tăng số buổi -> Thêm ô trống
+          const added = Array.from({ length: scheduleTotalSessions - prev.length }).map((_, i) => ({
+            week: prev.length + i + 1,
+            title: '',
+            duration: '',
+            content: ''
+          }));
+          return [...prev, ...added];
+        } else if (prev.length > scheduleTotalSessions) {
+          // Giảm số buổi -> Kiểm tra xem các ô thừa có trống không
+          const itemsToRemove = prev.slice(scheduleTotalSessions);
+          const areAllEmpty = itemsToRemove.every(item => !(item.title?.trim()) && !(item.content?.trim()) && !(item.duration?.trim()));
+          
+          if (areAllEmpty) {
+            // Nếu các ô thừa hoàn toàn trống (chưa nhập liệu) -> An toàn để xóa
+            return prev.slice(0, scheduleTotalSessions);
+          }
+          // Nếu có chứa dữ liệu -> Không xóa, giữ nguyên để kích hoạt Cảnh báo UI
+        }
+        return prev;
+      });
+    }
+  }, [scheduleTotalSessions, deliveryType]);
 
   // Validate form
   const validateForm = () => {
@@ -209,6 +283,16 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
     if (durationValue <= 0) {
       newErrors.duration = 'Thời lượng khóa học không hợp lệ';
     }
+    
+    // Check if delivery is not video and schedule needs validation
+    if (deliveryType !== 'video' && enableAutoSchedule) {
+      if (scheduleSessionsPerWeek !== schedulePreferredDays.length) {
+        newErrors.scheduleDays = `Số buổi/tuần (${scheduleSessionsPerWeek}) phải khớp với số lượng thứ đã chọn (${schedulePreferredDays.length})`;
+      }
+      if (scheduleTotalSessions < scheduleSessionsPerWeek) {
+        newErrors.scheduleTotal = 'Tổng số buổi phải lớn hơn hoặc bằng số buổi/tuần';
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -228,26 +312,31 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       return;
     }
 
-    // Prepare payload
     const payload = new FormData();
     payload.append('title', title.trim());
-    payload.append('categoryId', categoryId);
+    if (categoryId === 'other') {
+      payload.append('newCategoryName', newCategoryName.trim());
+      // we'll send categoryId as empty, the wrapper will handle it
+      payload.append('categoryId', '');
+    } else {
+      payload.append('categoryId', categoryId);
+    }
     payload.append('shortDescription', shortDescription.trim());
     payload.append('description', description);
-    payload.append('level', level);
     payload.append('delivery_type', deliveryType);
     
-    // Always append scheduleConfig
-    if (deliveryType !== 'video') {
+    // Always append scheduleConfig if not video and enableAutoSchedule is true
+    if (deliveryType !== 'video' && enableAutoSchedule) {
       payload.append('scheduleConfig', JSON.stringify({
         totalSessions: Number(scheduleTotalSessions),
         sessionsPerWeek: Number(scheduleSessionsPerWeek),
         sessionDurationMinutes: Number(scheduleDurationMinutes),
         preferredDays: schedulePreferredDays,
         preferredTime: schedulePreferredTime,
-        expectedStartDate: expectedStartDate ? new Date(expectedStartDate).getTime() : null
+        expectedStartDate: expectedStartDate ? new Date(expectedStartDate).toISOString() : null
       }));
-    } else {
+    } else if (deliveryType !== 'video' && !enableAutoSchedule) {
+      // Don't send scheduleConfig
       payload.append('scheduleConfig', JSON.stringify(null));
     }
 
@@ -313,9 +402,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
   const tabs = [
     { id: 'basic', label: 'Thông tin chung', icon: FileText },
-    { id: 'schedule', label: 'Thời gian & Địa điểm', icon: Clock },
+    { id: 'schedule', label: 'Thời gian & Giáo trình', icon: Clock },
     { id: 'financial', label: 'Học phí & Quy mô', icon: DollarSign },
-    { id: 'syllabus', label: 'Giáo trình & Khác', icon: BookOpen }
+    { id: 'syllabus', label: 'Kết quả & Khác', icon: BookOpen }
   ];
 
   return (
@@ -418,7 +507,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-1">
                   <Label htmlFor="category" className="text-[hsl(var(--admin-text-secondary))]">Danh mục <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                   <select
@@ -433,7 +522,23 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                         {cat.name}
                       </option>
                     ))}
+                    <option value="other" className="font-semibold text-[hsl(var(--admin-accent))]">
+                      + Đề xuất danh mục khác...
+                    </option>
                   </select>
+                  {categoryId === 'other' && (
+                    <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-top-2">
+                      <Label htmlFor="newCategoryName" className="text-xs text-[hsl(var(--admin-accent))] font-medium">Tên danh mục đề xuất</Label>
+                      <Input
+                        id="newCategoryName"
+                        placeholder="Nhập tên danh mục mới..."
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        className="bg-[hsl(var(--admin-surface-hover))] border-[hsl(var(--admin-accent))/50] focus:border-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-primary))]"
+                        autoFocus
+                      />
+                    </div>
+                  )}
                   {errors.categoryId && (
                     <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
                       <AlertCircle className="h-3.5 w-3.5" />
@@ -442,19 +547,6 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                   )}
                 </div>
 
-                <div className="space-y-2 md:col-span-1">
-                  <Label htmlFor="level" className="text-[hsl(var(--admin-text-secondary))]">Trình độ</Label>
-                  <select
-                    id="level"
-                    value={level}
-                    onChange={(e) => setLevel(e.target.value)}
-                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
-                  >
-                    <option value="beginner">Cơ bản (Beginner)</option>
-                    <option value="intermediate">Trung cấp (Intermediate)</option>
-                    <option value="advanced">Nâng cao (Advanced)</option>
-                  </select>
-                </div>
 
                 <div className="space-y-2 md:col-span-1">
                   <Label htmlFor="deliveryType" className="text-[hsl(var(--admin-text-secondary))]">Hình thức giảng dạy</Label>
@@ -465,9 +557,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
                   >
                     <option value="video">Học qua Video</option>
-                    <option value="online">Học Online (Zoom/Meet)</option>
+                    <option value="live">Học Online (Zoom/Meet)</option>
                     <option value="offline">Học trực tiếp (Offline)</option>
-                    <option value="hybrid">Kết hợp (Hybrid)</option>
+                    <option value="blended">Kết hợp (Blended)</option>
                   </select>
                 </div>
               </div>
@@ -522,7 +614,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                   </p>
                 </div>
               )}
-              {deliveryType === 'online' && (
+              {deliveryType === 'live' && (
                 <div className="bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))/30] p-4 rounded-lg flex items-start gap-3 text-[hsl(var(--admin-accent))]">
                   <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
                   <p className="text-sm">
@@ -574,11 +666,19 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               {deliveryType !== 'video' && (
                 <div className="space-y-6 border-t border-[hsl(var(--admin-border))] pt-6 mt-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <Clock className="h-5 w-5 text-[hsl(var(--admin-accent))]" />
-                    <h4 className="font-semibold text-[hsl(var(--admin-text-primary))]">Cấu hình lịch học tự động</h4>
+                    <input
+                      type="checkbox"
+                      id="enableAutoSchedule"
+                      checked={enableAutoSchedule}
+                      onChange={(e) => setEnableAutoSchedule(e.target.checked)}
+                      className="h-4 w-4 rounded border-[hsl(var(--admin-border))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))]"
+                    />
+                    <Label htmlFor="enableAutoSchedule" className="font-semibold text-[hsl(var(--admin-text-primary))] cursor-pointer">Sử dụng tính năng Lập lịch học tự động</Label>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {enableAutoSchedule && (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
                       <Label className="text-[hsl(var(--admin-text-secondary))]">Tổng số buổi <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                       <Input
@@ -586,8 +686,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                         min="1"
                         value={scheduleTotalSessions}
                         onChange={(e) => setScheduleTotalSessions(Number(e.target.value))}
-                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                        className={`bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] ${errors.scheduleTotal ? 'border-red-500' : ''}`}
                       />
+                      {errors.scheduleTotal && <p className="text-red-500 text-xs mt-1">{errors.scheduleTotal}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label className="text-[hsl(var(--admin-text-secondary))]">Số buổi/tuần <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
@@ -596,8 +697,9 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                         min="1"
                         value={scheduleSessionsPerWeek}
                         onChange={(e) => setScheduleSessionsPerWeek(Number(e.target.value))}
-                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                        className={`bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] ${errors.scheduleDays ? 'border-red-500' : ''}`}
                       />
+                      {errors.scheduleDays && <p className="text-red-500 text-xs mt-1">{errors.scheduleDays}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label className="text-[hsl(var(--admin-text-secondary))]">Thời lượng 1 buổi (phút)</Label>
@@ -644,6 +746,12 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                                   checked={isChecked}
                                   onChange={(e) => {
                                     if (e.target.checked) {
+                                      if (schedulePreferredDays.length >= scheduleSessionsPerWeek) {
+                                        import('react-hot-toast').then(({ default: toast }) => {
+                                          toast.error(`Bạn chỉ được chọn tối đa ${scheduleSessionsPerWeek} thứ giảng dạy, hãy tăng Số buổi/tuần nếu cần.`);
+                                        });
+                                        return;
+                                      }
                                       setSchedulePreferredDays([...schedulePreferredDays, day]);
                                     } else {
                                       setSchedulePreferredDays(schedulePreferredDays.filter(d => d !== day));
@@ -658,8 +766,160 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                       </div>
                     </div>
                   </div>
+                </>
+              )}
                 </div>
               )}
+              <div className="space-y-6 border-t border-[hsl(var(--admin-border))] pt-6 mt-6">
+              {/* Syllabus Builder */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[hsl(var(--admin-text-secondary))] font-semibold text-base">Nội dung giáo trình bài dạy</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addSyllabusWeek}
+                    size="sm"
+                    className="border-dashed border-[hsl(var(--admin-accent))] text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent)/10%)]"
+                  >
+                    <Plus className="mr-1 h-4 w-4" />
+                    {deliveryType === 'video' ? 'Thêm chương/bài mới' : 'Thêm buổi học mới'}
+                  </Button>
+                </div>
+
+                {deliveryType !== 'video' && syllabus.length > scheduleTotalSessions && scheduleTotalSessions > 0 && (
+                  <div className="bg-[hsl(var(--admin-danger)/10%)] border border-[hsl(var(--admin-danger)/20%)] text-[hsl(var(--admin-danger))] p-3 rounded-md text-sm flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                    <p>Số lượng giáo trình hiện tại ({syllabus.length}) đang lớn hơn Tổng số buổi ({scheduleTotalSessions}). Vui lòng xóa bớt giáo trình dư thừa hoặc tăng Tổng số buổi.</p>
+                  </div>
+                )}
+
+                {syllabus.length === 0 ? (
+                  <div className="border border-dashed border-[hsl(var(--admin-border))] rounded-lg p-6 text-center text-[hsl(var(--admin-text-faint))]">
+                    Chưa có giáo trình nào. Hãy nhấn nút để thêm {deliveryType === 'video' ? 'chương/bài' : 'buổi học'}.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {syllabus.map((item, index) => (
+                      <div key={index} className="border border-[hsl(var(--admin-border))] rounded-lg p-4 bg-[hsl(var(--admin-surface-elevated))]/40 space-y-3 relative">
+                        <button
+                          type="button"
+                          onClick={() => removeSyllabusWeek(index)}
+                          className="absolute right-4 top-4 text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))] transition-colors"
+                          title="Xóa tuần này"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pr-8">
+                          <div className="md:col-span-1 space-y-2">
+                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">
+                              {deliveryType === 'video' ? 'Chương/Bài số' : 'Buổi số'}
+                            </Label>
+                            <Input
+                              type="number"
+                              value={item.week}
+                              onChange={(e) => updateSyllabusItem(index, 'week', Number(e.target.value))}
+                              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                            />
+                          </div>
+                          
+                          <div className="md:col-span-2 space-y-2">
+                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Tiêu đề buổi/chương học</Label>
+                            <Input
+                              placeholder="Ví dụ: Giới thiệu về React component và Props"
+                              value={item.title}
+                              onChange={(e) => updateSyllabusItem(index, 'title', e.target.value)}
+                              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                            />
+                          </div>
+
+                          <div className="md:col-span-1 space-y-2">
+                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Thời lượng ước tính</Label>
+                            <Input
+                              placeholder="Ví dụ: 3 giờ"
+                              value={item.duration}
+                              onChange={(e) => updateSyllabusItem(index, 'duration', e.target.value)}
+                              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Nội dung chi tiết</Label>
+                          <Textarea
+                            placeholder={`Mô tả tóm tắt nội dung học viên sẽ học trong ${deliveryType === 'video' ? 'chương/bài' : 'buổi'} này...`}
+                            value={item.content}
+                            onChange={(e) => updateSyllabusItem(index, 'content', e.target.value)}
+                            className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                            rows={2}
+                          />
+                        </div>
+
+                        {/* File Upload Section */}
+                        <div className="pt-2">
+                          {item.fileUrl ? (
+                            <div className="flex items-center justify-between p-3 bg-[hsl(var(--admin-background))] border border-[hsl(var(--admin-border))] rounded-md">
+                              <div className="flex items-center gap-2 overflow-hidden">
+                                <Paperclip className="h-4 w-4 text-[hsl(var(--admin-accent))] shrink-0" />
+                                <a 
+                                  href={item.fileUrl} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  className="text-sm text-[hsl(var(--admin-accent))] hover:underline truncate"
+                                >
+                                  {item.fileName || 'Tài liệu đính kèm'}
+                                </a>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeResource(index)}
+                                className="text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))] p-1 rounded-full hover:bg-[hsl(var(--admin-danger)/10%)] transition-colors"
+                                title="Xóa tài liệu"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="file"
+                                id={`syllabus-file-${index}`}
+                                className="hidden"
+                                onChange={(e) => handleResourceUpload(index, e)}
+                                disabled={uploadingSyllabusIdx === index}
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,image/*"
+                              />
+                              <label
+                                htmlFor={`syllabus-file-${index}`}
+                                className={`flex items-center gap-2 text-sm px-4 py-2 border border-dashed rounded-md transition-colors cursor-pointer
+                                  ${uploadingSyllabusIdx === index 
+                                    ? 'border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] cursor-not-allowed opacity-70'
+                                    : 'border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] hover:border-[hsl(var(--admin-accent))] hover:text-[hsl(var(--admin-accent))] bg-[hsl(var(--admin-background))] hover:bg-[hsl(var(--admin-accent)/5%)]'
+                                  }`}
+                              >
+                                {uploadingSyllabusIdx === index ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Đang tải lên...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="h-4 w-4" />
+                                    Đính kèm tài liệu (Tối đa 15MB)
+                                  </>
+                                )}
+                              </label>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              </div>
             </div>
           )}
 
@@ -768,91 +1028,8 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
           {activeTab === 'syllabus' && (
             <div className="space-y-6">
               <div className="border-b border-[hsl(var(--admin-border))] pb-4">
-                <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Giáo trình chi tiết & Yêu cầu học</h3>
-                <p className="text-[hsl(var(--admin-text-muted))] text-xs">Xây dựng giáo trình giảng dạy chi tiết theo tuần học và thiết lập các điều kiện đầu vào/kỹ năng đạt được.</p>
-              </div>
-
-              {/* Syllabus Builder */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label className="text-[hsl(var(--admin-text-secondary))] font-semibold text-base">Nội dung giáo trình bài dạy</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={addSyllabusWeek}
-                    size="sm"
-                    className="border-dashed border-[hsl(var(--admin-accent))] text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent)/10%)]"
-                  >
-                    <Plus className="mr-1 h-4 w-4" />
-                    {deliveryType === 'video' ? 'Thêm chương/bài mới' : 'Thêm buổi học mới'}
-                  </Button>
-                </div>
-
-                {syllabus.length === 0 ? (
-                  <div className="border border-dashed border-[hsl(var(--admin-border))] rounded-lg p-6 text-center text-[hsl(var(--admin-text-faint))]">
-                    Chưa có giáo trình nào. Hãy nhấn nút để thêm {deliveryType === 'video' ? 'chương/bài' : 'buổi học'}.
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {syllabus.map((item, index) => (
-                      <div key={index} className="border border-[hsl(var(--admin-border))] rounded-lg p-4 bg-[hsl(var(--admin-surface-elevated))]/40 space-y-3 relative">
-                        <button
-                          type="button"
-                          onClick={() => removeSyllabusWeek(index)}
-                          className="absolute right-4 top-4 text-[hsl(var(--admin-text-faint))] hover:text-[hsl(var(--admin-danger))] transition-colors"
-                          title="Xóa tuần này"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pr-8">
-                          <div className="md:col-span-1 space-y-2">
-                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">
-                              {deliveryType === 'video' ? 'Chương/Bài số' : 'Buổi số'}
-                            </Label>
-                            <Input
-                              type="number"
-                              value={item.week}
-                              onChange={(e) => updateSyllabusItem(index, 'week', Number(e.target.value))}
-                              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
-                            />
-                          </div>
-                          
-                          <div className="md:col-span-2 space-y-2">
-                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Tiêu đề buổi/chương học</Label>
-                            <Input
-                              placeholder="Ví dụ: Giới thiệu về React component và Props"
-                              value={item.title}
-                              onChange={(e) => updateSyllabusItem(index, 'title', e.target.value)}
-                              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
-                            />
-                          </div>
-
-                          <div className="md:col-span-1 space-y-2">
-                            <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Thời lượng ước tính</Label>
-                            <Input
-                              placeholder="Ví dụ: 3 giờ"
-                              value={item.duration}
-                              onChange={(e) => updateSyllabusItem(index, 'duration', e.target.value)}
-                              className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Nội dung chi tiết</Label>
-                          <Textarea
-                            placeholder={`Mô tả tóm tắt nội dung học viên sẽ học trong ${deliveryType === 'video' ? 'chương/bài' : 'buổi'} này...`}
-                            value={item.content}
-                            onChange={(e) => updateSyllabusItem(index, 'content', e.target.value)}
-                            className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
-                            rows={2}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))]">Kết quả & Yêu cầu khác</h3>
+                <p className="text-[hsl(var(--admin-text-muted))] text-xs">Thiết lập các điều kiện đầu vào, kỹ năng đạt được và chứng chỉ.</p>
               </div>
 
               {/* Tags & Lists section */}
@@ -931,6 +1108,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                   className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
                 />
               </div>
+
             </div>
           )}
 
@@ -946,25 +1124,23 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               Hủy bỏ
             </Button>
             
-            {isEditMode && (
-              <Button
-                type="button"
-                disabled={isSubmitting}
-                className="bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent))] border-none font-semibold px-6"
-                onClick={() => handleSave('draft')}
-              >
-                {isSubmitting ? 'Đang lưu...' : 'Lưu cập nhật'}
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSubmitting}
+              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]"
+              onClick={() => handleSave('draft')}
+            >
+              {isSubmitting ? 'Đang lưu...' : 'Lưu bản nháp'}
+            </Button>
 
             <Button
               type="button"
-              disabled={isSubmitting || isEditMode}
-              className={`${isEditMode ? 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] cursor-not-allowed border-[hsl(var(--admin-border))]' : 'bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent))] border-none'} font-semibold px-6`}
+              disabled={isSubmitting}
+              className="bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent))]/90 border-none font-semibold px-6"
               onClick={() => handleSave('pending')}
-              title={isEditMode ? 'Gửi duyệt khóa học (Đã vô hiệu hóa trong chế độ sửa)' : ''}
             >
-              {isSubmitting && !isEditMode ? 'Đang xử lý...' : 'Gửi duyệt khóa học'}
+              {isSubmitting ? 'Đang xử lý...' : 'Gửi duyệt khóa học'}
             </Button>
           </div>
         </form>

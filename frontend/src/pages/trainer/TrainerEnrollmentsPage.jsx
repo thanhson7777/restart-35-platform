@@ -76,8 +76,8 @@ const TrainerEnrollmentsPage = () => {
 
       const res = await getTrainerEnrollments(params);
       if (res.data?.success) {
-        setEnrollments(res.data?.data?.enrollments || []);
-        setPagination(res.data?.data?.pagination || null);
+        setEnrollments(res.data?.data || []);
+        setPagination(res.data?.pagination || null);
       }
     } catch (err) {
       console.error('Failed to fetch enrollments:', err);

@@ -104,7 +104,7 @@ export const CourseEnrollmentForm = ({
           </div>
           <Button
             variant="outline"
-            className="w-full py-4 text-xs font-bold rounded-full border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 bg-white dark:bg-zinc-950"
+            className="w-full py-4 text-xs font-bold rounded-full border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 bg-white dark:bg-zinc-950 text-zinc-900 hover:text-zinc-900 dark:text-zinc-100 dark:hover:text-zinc-100"
             onClick={() => window.location.href = `/my-enrollments`}
           >
             Vào lớp học của tôi
@@ -134,7 +134,38 @@ export const CourseEnrollmentForm = ({
 
     switch (funding_model) {
       case 'free':
-        if (sponsorships.length > 0 && sponsorships[0].sponsorType === 'ngo') {
+        const activeSponsor = sponsorships.length > 0 ? sponsorships[0] : null;
+
+        if (activeSponsor && activeSponsor.sponsorType === 'enterprise') {
+          const quota = activeSponsor.guaranteedPlacements;
+          const used = activeSponsor.stats?.approvedLearners || 0;
+          const remaining = quota ? Math.max(0, quota - used) : null;
+          
+          return (
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
+                <p className="text-sm font-bold text-blue-900 dark:text-blue-300 mb-1">Tài trợ bởi Doanh nghiệp</p>
+                <p className="text-xs text-blue-800 dark:text-blue-400/80 mb-3">Bạn sẽ được học miễn phí và cam kết phỏng vấn nhận việc sau khi hoàn thành.</p>
+                
+                {remaining !== null && (
+                  <div className="flex items-center justify-between text-[11px] font-bold bg-white dark:bg-zinc-950 px-3 py-2 rounded-lg text-blue-600 dark:text-blue-400 shadow-sm border border-blue-50 dark:border-blue-900/20">
+                    <span>Số suất cam kết:</span>
+                    <span>Còn {remaining}/{quota} suất</span>
+                  </div>
+                )}
+              </div>
+              <Button
+                onClick={() => handleEnrollSubmit({ source: 'enterprise_sponsored', sponsorshipId: activeSponsor._id })}
+                disabled={isSubmitting || isLimitReached || (remaining !== null && remaining <= 0)}
+                className="w-full py-5 rounded-full text-xs font-bold shadow-md bg-blue-600 hover:bg-blue-700 text-white border-0"
+              >
+                {isSubmitting ? 'Đang xử lý...' : remaining === 0 ? 'Đã hết suất tài trợ' : '🔥 Nhận tài trợ & Giữ chỗ'}
+              </Button>
+            </div>
+          );
+        }
+
+        if (activeSponsor && activeSponsor.sponsorType === 'ngo') {
           return (
             <div className="space-y-4">
               <div className="p-4 rounded-xl bg-blue-50 border border-blue-100">
@@ -276,17 +307,42 @@ export const CourseEnrollmentForm = ({
         {/* Motivation field integrated inside the sidebar (optional) */}
         {!hasEnrollment && isEligible && activeCount < MAX_CONCURRENT_ENROLLMENTS && (
           <div className="pt-2 border-t border-zinc-100 dark:border-zinc-900">
-            <label className="block text-[10px] uppercase font-bold tracking-wider text-zinc-450 dark:text-zinc-500 mb-1">
-              Thư động lực ngắn <span className="text-zinc-400 font-normal lowercase">(tùy chọn)</span>
+            <label className="block text-[10px] uppercase font-bold tracking-wider text-zinc-450 dark:text-zinc-500 mb-2 text-left">
+              Lý do bạn muốn tham gia khóa học này? <span className="text-zinc-400 font-normal lowercase">(chọn 1 lý do)</span>
             </label>
-            <Textarea
-              placeholder="Ví dụ: Tôi muốn học kỹ năng số để tự tin kinh doanh..."
-              value={motivation}
-              onChange={(e) => setMotivation(e.target.value)}
-              rows={2}
-              maxLength={150}
-              className="text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/20"
-            />
+            <div className="flex flex-col gap-2">
+              {[
+                'Muốn chuyển đổi sang nghề nghiệp ổn định hơn',
+                'Đang thất nghiệp, cần việc làm sau khóa học',
+                'Muốn nâng cao kỹ năng để thăng tiến',
+              ].map((reason, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setMotivation(reason)}
+                  className={`text-left text-xs px-3 py-2.5 rounded-xl border transition-colors ${
+                    motivation === reason 
+                      ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-500/50 dark:bg-blue-500/10 dark:text-blue-300 font-bold shadow-sm' 
+                      : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 font-medium'
+                  }`}
+                >
+                  {reason}
+                </button>
+              ))}
+              <div className="mt-1">
+                 <Textarea
+                  placeholder="Lý do khác (tùy chọn)..."
+                  value={![
+                    'Muốn chuyển đổi sang nghề nghiệp ổn định hơn',
+                    'Đang thất nghiệp, cần việc làm sau khóa học',
+                    'Muốn nâng cao kỹ năng để thăng tiến',
+                    ''
+                  ].includes(motivation) ? motivation : ''}
+                  onChange={(e) => setMotivation(e.target.value)}
+                  rows={1}
+                  className="text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/20 resize-none min-h-[42px]"
+                />
+              </div>
+            </div>
           </div>
         )}
 
