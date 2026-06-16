@@ -4,7 +4,9 @@ const MainLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      {children}
+      <main className="pt-24">
+        {children}
+      </main>
     </div>
   )
 }

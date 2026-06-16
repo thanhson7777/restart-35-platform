@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Progress, Avatar, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
-import { HeroSection, CoreProblemsSection, StatsBar, SolutionsSection, LandingLayout, Navbar, CourseCategories, PopularCourses, CTASection, HowItWorksSection, FeaturesSection, TestimonialsSection, Footer } from '@/components/landing';
+import { HeroSection, CoreProblemsSection, StatsBar, LandingLayout, Navbar, CTASection, HowItWorksSection, FeaturesSection, TestimonialsSection, Footer } from '@/components/landing';
 import { StatsCard, CourseProgressCard, JobCard, ActivityItem, SkillBadge, QuickAction } from '@/components/dashboard';
 import { CourseCard } from '@/components/course';
 import { useState, useEffect } from 'react';
@@ -97,6 +97,7 @@ import NgoImpactDashboardPage from '@/pages/ngo/NgoImpactDashboardPage';
 import NgoSponsorshipsPage from '@/pages/ngo/NgoSponsorshipsPage';
 import NgoSponsorshipCreatePage from '@/pages/ngo/NgoSponsorshipCreatePage';
 import NgoSponsorshipLearnersPage from '@/pages/ngo/NgoSponsorshipLearnersPage';
+import NgoWalletPage from '@/pages/ngo/NgoWalletPage';
 import NgoEventsPage from '@/pages/ngo/NgoEventsPage';
 import NgoEventCreatePage from '@/pages/ngo/NgoEventCreatePage';
 import CertificateVerifyPage from '@/pages/CertificateVerifyPage';
@@ -245,6 +246,7 @@ function App() {
         {/* NGO Routes */}
         <Route path="/ngo" element={<Navigate to="/ngo/dashboard/impact" replace />} />
         <Route path="/ngo/dashboard/impact" element={<NgoLayout><NgoImpactDashboardPage /></NgoLayout>} />
+        <Route path="/ngo/dashboard/wallet" element={<NgoLayout><NgoWalletPage /></NgoLayout>} />
         <Route path="/ngo/sponsorships" element={<NgoLayout><NgoSponsorshipsPage /></NgoLayout>} />
         <Route path="/ngo/sponsorships/create" element={<NgoLayout><NgoSponsorshipCreatePage /></NgoLayout>} />
         <Route path="/ngo/sponsorships/:id/learners" element={<NgoLayout><NgoSponsorshipLearnersPage /></NgoLayout>} />
@@ -333,11 +335,8 @@ function App() {
             <HeroSection />
             <StatsBar />
             <CoreProblemsSection />
-            <SolutionsSection />
-            <HowItWorksSection />
-            <CourseCategories />
-            <PopularCourses />
             <FeaturesSection />
+            <HowItWorksSection />
             <TestimonialsSection />
             <CTASection />
             <Footer />

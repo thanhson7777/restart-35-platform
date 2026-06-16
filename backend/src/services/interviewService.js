@@ -87,8 +87,30 @@ const getInterviews = async (enterpriseId, page = DEFAULT_PAGE, limit = DEFAULT_
     const skip = (page - 1) * limit
     const { interviews, total } = await interviewModel.findByEnterprise(enterpriseId, skip, limit, filters)
 
+    // Enrich interviews with worker and job info
+    const enrichedInterviews = await Promise.all(
+      interviews.map(async (interview) => {
+        const worker = await userModel.findOneById(interview.workerId)
+        const job = await recruitmentJobModel.findOneById(interview.jobId)
+        return {
+          ...interview,
+          worker: worker ? {
+            _id: worker._id,
+            name: worker.displayName || worker.username || 'Ứng viên',
+            email: worker.email,
+            avatar: worker.avatar,
+            phone: worker.phone
+          } : null,
+          job: job ? {
+            _id: job._id,
+            title: job.title || 'Vị trí công việc'
+          } : null
+        }
+      })
+    )
+
     return {
-      interviews,
+      interviews: enrichedInterviews,
       pagination: {
         page,
         limit,
@@ -115,7 +137,24 @@ const getInterviewById = async (interviewId, userId = null, role = null) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy lịch phỏng vấn!')
     }
 
-    return interview
+    // Enrich interview with worker and job info
+    const worker = await userModel.findOneById(interview.workerId)
+    const job = await recruitmentJobModel.findOneById(interview.jobId)
+
+    return {
+      ...interview,
+      worker: worker ? {
+        _id: worker._id,
+        name: worker.displayName || worker.username || 'Ứng viên',
+        email: worker.email,
+        avatar: worker.avatar,
+        phone: worker.phone
+      } : null,
+      job: job ? {
+        _id: job._id,
+        title: job.title || 'Vị trí công việc'
+      } : null
+    }
   } catch (error) { throw error }
 }
 

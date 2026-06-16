@@ -50,12 +50,14 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
     type: Joi.string().valid('FREE', 'PAID', 'SPONSORED').default('FREE'),
     price: Joi.number().min(0).default(0),
     sponsorIds: Joi.array().items(Joi.string()).default([]),
-    hasJobGuarantee: Joi.boolean().default(false)
+    hasJobGuarantee: Joi.boolean().default(false),
+    acceptsSponsorship: Joi.boolean().default(true)
   }).default({
     type: 'FREE',
     price: 0,
     sponsorIds: [],
-    hasJobGuarantee: false
+    hasJobGuarantee: false,
+    acceptsSponsorship: true
   }),
   // Tuyen sinh
   maxStudents: Joi.number().integer().min(1).default(30),
@@ -292,6 +294,9 @@ const searchCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, so
       matchStage['sponsorship.hasSponsorship'] = true
     } else if (filters.hasSponsorship === false) {
       matchStage['sponsorship.hasSponsorship'] = false
+    }
+    if (filters.acceptsSponsorship === true) {
+      matchStage['fundingConfig.acceptsSponsorship'] = { $ne: false } // undefined is treated as true for backward compatibility
     }
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(matchStage)

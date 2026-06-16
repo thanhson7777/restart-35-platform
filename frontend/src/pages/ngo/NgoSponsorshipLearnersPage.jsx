@@ -62,17 +62,39 @@ export default function NgoSponsorshipLearnersPage() {
               <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">Danh sách học viên được tài trợ bởi chương trình này.</p>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { label: 'Ngân sách', value: formatCurrency(sponsorship?.budget) },
-                { label: 'Đã giải ngân', value: formatCurrency(sponsorship?.spent) },
-                { label: 'Còn lại', value: formatCurrency(sponsorship?.remaining) }
-              ].map(item => (
-                <div key={item.label} className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-5 text-center">
-                  <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-2">{item.label}</p>
-                  <p className="text-xl font-bold text-[hsl(var(--admin-text-primary))]">{item.value}</p>
+            {/* Thống kê Tổng quan */}
+            <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6">
+              <div className="flex justify-between items-end mb-4">
+                <div>
+                  <h3 className="font-bold text-[hsl(var(--admin-text-primary))]">Tiến độ Cấp phát Học bổng</h3>
+                  <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-1">Đã duyệt {sponsorship?.stats?.approvedLearners || 0} suất trên tổng số {sponsorship?.targetLearners || 1} suất mục tiêu.</p>
                 </div>
-              ))}
+                <div className="text-right">
+                  <p className="text-3xl font-black text-[hsl(var(--admin-text-primary))]">
+                    {Math.min(100, Math.round(((sponsorship?.stats?.approvedLearners || 0) / (sponsorship?.targetLearners || 1)) * 100))}%
+                  </p>
+                </div>
+              </div>
+              <div className="h-4 w-full bg-[hsl(var(--admin-surface-hover))] rounded-full overflow-hidden shadow-inner">
+                <div 
+                  className={`h-full rounded-full transition-all duration-1000 ease-out ${Math.min(100, Math.round(((sponsorship?.stats?.approvedLearners || 0) / (sponsorship?.targetLearners || 1)) * 100)) >= 90 ? 'bg-rose-500' : 'bg-emerald-500'}`} 
+                  style={{ width: `${Math.min(100, Math.round(((sponsorship?.stats?.approvedLearners || 0) / (sponsorship?.targetLearners || 1)) * 100))}%` }}
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                <div className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl p-4 text-center">
+                  <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1 uppercase tracking-wider font-bold">Mục tiêu</p>
+                  <p className="text-xl font-bold text-[hsl(var(--admin-text-primary))]">{sponsorship?.targetLearners || 0} suất</p>
+                </div>
+                <div className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl p-4 text-center">
+                  <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1 uppercase tracking-wider font-bold">Đã duyệt</p>
+                  <p className="text-xl font-bold text-[hsl(var(--admin-success))]">{sponsorship?.stats?.approvedLearners || 0} suất</p>
+                </div>
+                <div className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl p-4 text-center">
+                  <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1 uppercase tracking-wider font-bold">Còn lại</p>
+                  <p className="text-xl font-bold text-[hsl(var(--admin-warning))]">{(sponsorship?.targetLearners || 0) - (sponsorship?.stats?.approvedLearners || 0)} suất</p>
+                </div>
+              </div>
             </div>
 
             <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
@@ -96,11 +118,13 @@ export default function NgoSponsorshipLearnersPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium text-[hsl(var(--admin-success))]">{formatCurrency(learner.fundedAmount || sponsorship?.maxAmountPerLearner)}</p>
-                        <p className="text-xs text-[hsl(var(--admin-text-muted))]">{learner.status === 'pending_review' ? 'Chờ duyệt' : learner.status}</p>
+                        <Badge variant="outline" className={`mt-1 ${learner.status === 'pending_review' ? 'border-amber-500/30 text-amber-500 bg-amber-500/10' : learner.status === 'approved' ? 'border-emerald-500/30 text-emerald-500 bg-emerald-500/10' : 'border-rose-500/30 text-rose-500 bg-rose-500/10'}`}>
+                          {learner.status === 'pending_review' ? 'Chờ duyệt' : learner.status === 'approved' ? 'Đã duyệt' : 'Từ chối'}
+                        </Badge>
                         {learner.status === 'pending_review' && (
-                          <div className="flex gap-2 mt-2">
-                            <Button size="sm" onClick={() => handleDecision(learner._id, 'approved')} className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700">Chấp nhận</Button>
-                            <Button size="sm" variant="outline" onClick={() => handleDecision(learner._id, 'rejected')} className="h-7 text-xs border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">Từ chối</Button>
+                          <div className="flex gap-2 mt-3">
+                            <Button size="sm" onClick={() => handleDecision(learner._id, 'approved')} className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm border-none">Phê duyệt</Button>
+                            <Button size="sm" variant="outline" onClick={() => handleDecision(learner._id, 'rejected')} className="h-8 text-xs border-[hsl(var(--admin-border))] hover:bg-rose-500 hover:text-white hover:border-rose-500 text-[hsl(var(--admin-text-secondary))]">Từ chối</Button>
                           </div>
                         )}
                       </div>

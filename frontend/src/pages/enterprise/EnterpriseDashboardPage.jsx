@@ -42,6 +42,7 @@ export default function EnterpriseDashboardPage() {
   const funnelData = stats.applicationFunnel || [];
   const trendData = stats.applicationTrend || [];
   const sourceData = stats.applicationSource || [];
+  const jobStatusData = stats.jobStatusData || [];
 
   return (
     <div className="space-y-6 pb-12">
@@ -60,7 +61,7 @@ export default function EnterpriseDashboardPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard 
             icon={Briefcase} 
-            label="Tin tuyển dụng mở" 
+            label="Tổng tin tuyển dụng" 
             value={stats.totalJobs} 
             color={{ bg: 'bg-blue-100/50', text: 'text-blue-600' }} 
           />
@@ -117,37 +118,31 @@ export default function EnterpriseDashboardPage() {
           )}
         </div>
 
-        {/* Source Chart */}
+        {/* Job Status Chart */}
         <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6 shadow-sm">
           <div className="mb-4">
-            <h3 className="font-bold text-[hsl(var(--admin-text-primary))]">Nguồn ứng viên</h3>
-            <p className="text-sm text-[hsl(var(--admin-text-muted))]">Tỷ lệ các kênh thu hút</p>
+            <h3 className="font-bold text-[hsl(var(--admin-text-primary))]">Trạng thái tin tuyển dụng</h3>
+            <p className="text-sm text-[hsl(var(--admin-text-muted))]">Phân bổ tin tuyển dụng theo trạng thái</p>
           </div>
           {loading ? (
             <Skeleton className="h-72 w-full rounded-xl bg-[hsl(var(--admin-surface-elevated))]" />
           ) : (
             <div className="h-72 flex flex-col items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={sourceData}
-                    cx="50%"
-                    cy="45%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={5}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {sourceData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
+                <BarChart data={jobStatusData} margin={{ top: 20, right: 10, left: -20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} interval={0} />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
                   <Tooltip 
+                    cursor={{ fill: 'rgba(0,0,0,0.04)' }}
                     contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
                   />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '13px', color: '#475569' }} />
-                </PieChart>
+                  <Bar dataKey="value" name="Số lượng" fill="#38bdf8" radius={[4, 4, 0, 0]} barSize={32}>
+                    {jobStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           )}

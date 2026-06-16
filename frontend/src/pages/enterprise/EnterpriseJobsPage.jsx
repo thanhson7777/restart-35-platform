@@ -7,7 +7,8 @@ import {
   fetchEnterpriseJobs,
   selectEnterpriseJobs,
   selectEnterpriseJobsTotal,
-  selectEnterpriseJobsLoading
+  selectEnterpriseJobsLoading,
+  selectEnterpriseJobsStats
 } from '@/redux/recruitment/recruitmentSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -66,6 +67,7 @@ export default function EnterpriseJobsPage() {
   const jobs = useSelector(selectEnterpriseJobs);
   const total = useSelector(selectEnterpriseJobsTotal);
   const loading = useSelector(selectEnterpriseJobsLoading);
+  const statsCounts = useSelector(selectEnterpriseJobsStats) || {};
 
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -150,6 +152,22 @@ export default function EnterpriseJobsPage() {
           </Button>
         </div>
 
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {[
+            { label: 'Tổng tin', value: statsCounts.total || 0, color: 'text-[hsl(var(--admin-accent))]' },
+            { label: 'Đã đăng', value: statsCounts.published || 0, color: 'text-emerald-600' },
+            { label: 'Chờ duyệt', value: statsCounts.pending_approval || 0, color: 'text-amber-600' },
+            { label: 'Bản nháp', value: statsCounts.draft || 0, color: 'text-slate-500' },
+            { label: 'Đã đóng', value: statsCounts.closed || 0, color: 'text-red-600' }
+          ].map(stat => (
+            <div key={stat.label} className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-4">
+              <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1">{stat.label}</p>
+              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+            </div>
+          ))}
+        </div>
+
         {/* Tabs & Search */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
@@ -176,21 +194,6 @@ export default function EnterpriseJobsPage() {
               className="pl-10 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Tổng tin', value: total, color: 'text-[hsl(var(--admin-accent))]' },
-            { label: 'Đã đăng', value: jobs.filter(j => j.status === 'published').length, color: 'text-emerald-600' },
-            { label: 'Chờ duyệt', value: jobs.filter(j => j.status === 'pending_approval').length, color: 'text-amber-600' },
-            { label: 'Bản nháp', value: jobs.filter(j => j.status === 'draft').length, color: 'text-slate-500' }
-          ].map(stat => (
-            <div key={stat.label} className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-4">
-              <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1">{stat.label}</p>
-              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            </div>
-          ))}
         </div>
 
         {/* Jobs List */}

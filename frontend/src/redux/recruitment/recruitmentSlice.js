@@ -273,10 +273,13 @@ export const fetchEnterpriseJobs = createAsyncThunk(
   async (params = {}, { rejectWithValue }) => {
     try {
       const response = await getEnterpriseJobs(params);
-      const data = response?.data?.data || response?.data;
+      const jobs = response?.data?.data || [];
+      const pagination = response?.data?.pagination || {};
+      const stats = response?.data?.stats || null;
       return {
-        jobs: data?.jobs || data || [],
-        total: data?.total || 0,
+        jobs,
+        total: pagination.totalItems || 0,
+        stats
       };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch jobs');
@@ -491,6 +494,7 @@ const initialState = {
   // Enterprise state
   enterpriseJobs: [],
   enterpriseJobsTotal: 0,
+  enterpriseJobsStats: null,
   enterpriseJobsLoading: false,
 
   enterpriseJobDetails: null,
@@ -699,6 +703,7 @@ const recruitmentSlice = createSlice({
         state.enterpriseJobsLoading = false;
         state.enterpriseJobs = action.payload.jobs;
         state.enterpriseJobsTotal = action.payload.total;
+        state.enterpriseJobsStats = action.payload.stats;
       })
       .addCase(fetchEnterpriseJobs.rejected, (state) => {
         state.enterpriseJobsLoading = false;
@@ -852,6 +857,7 @@ export const selectMyOfferDetails = (state) => state.recruitment.myOfferDetails;
 
 export const selectEnterpriseJobs = (state) => state.recruitment.enterpriseJobs;
 export const selectEnterpriseJobsTotal = (state) => state.recruitment.enterpriseJobsTotal;
+export const selectEnterpriseJobsStats = (state) => state.recruitment.enterpriseJobsStats;
 export const selectEnterpriseJobsLoading = (state) => state.recruitment.enterpriseJobsLoading;
 export const selectEnterpriseJobDetails = (state) => state.recruitment.enterpriseJobDetails;
 

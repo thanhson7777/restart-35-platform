@@ -126,6 +126,7 @@ const getCourses = async (queryParams) => {
       skill,
       delivery_type,
       funding_model,
+      acceptsSponsorship,
       sortBy = 'createdAt',
       order = 'desc'
     } = queryParams
@@ -148,6 +149,7 @@ const getCourses = async (queryParams) => {
     if (skill) filters.skill = skill
     if (delivery_type) filters.delivery_type = delivery_type
     if (funding_model) filters.funding_model = funding_model
+    if (acceptsSponsorship !== undefined && acceptsSponsorship !== '') filters.acceptsSponsorship = acceptsSponsorship === true || acceptsSponsorship === 'true'
     if (minFee !== undefined || maxFee !== undefined) {
       filters.minFee = minFee
       filters.maxFee = maxFee

@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui';
-import { CreditCard, Sparkles, Loader2 } from 'lucide-react';
+import { CreditCard, Sparkles, Loader2, HeartHandshake } from 'lucide-react';
 import { formatPrice } from '@/utils/formatter';
 import toast from 'react-hot-toast';
 import { createPayment } from '@/apis/courseApi';
 
-export const FundingSidebarPaymentCard = ({ course }) => {
+export const FundingSidebarPaymentCard = ({ course, sponsorships, onSubmit, isSubmitting, isLimitReached }) => {
   const [creating, setCreating] = useState(false);
   const { fee = 15000000, _id } = course || {};
+
+  const ngoSponsors = (sponsorships || []).filter(s => s.sponsorType === 'ngo');
+  const activeNgoSponsor = ngoSponsors.length > 0 ? ngoSponsors[0] : null;
 
   const handleCreatePayment = async () => {
     setCreating(true);
@@ -55,25 +58,45 @@ export const FundingSidebarPaymentCard = ({ course }) => {
         <span className="font-medium">Giảm ngay 40% cho người lao động 35+</span>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3 pt-2">
         <Button
           onClick={handleCreatePayment}
-          disabled={creating}
-          variant="default"
-          className="w-full py-4 text-xs font-bold rounded-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+          disabled={creating || isSubmitting || isLimitReached}
+          variant="outline"
+          className="w-full py-4 text-xs font-bold rounded-full flex items-center justify-center gap-2 border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-900"
         >
           {creating ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Đang kết nối cổng thanh toán...
+              Đang kết nối...
             </>
           ) : (
             <>
-              <CreditCard className="w-4 h-4" />
-              Thanh toán qua VNPay
+              <CreditCard className="w-4 h-4 text-zinc-400" />
+              Tự thanh toán (VNPay)
             </>
           )}
         </Button>
+
+        {activeNgoSponsor && (
+          <Button
+            onClick={() => onSubmit({ source: 'ngo_sponsored', sponsorshipId: activeNgoSponsor._id })}
+            disabled={creating || isSubmitting || isLimitReached}
+            className="w-full py-5 text-xs font-bold rounded-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-md border-0"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Đang gửi hồ sơ...
+              </>
+            ) : (
+              <>
+                <HeartHandshake className="w-4.5 h-4.5" />
+                Xin tài trợ miễn phí ({activeNgoSponsor.title})
+              </>
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );

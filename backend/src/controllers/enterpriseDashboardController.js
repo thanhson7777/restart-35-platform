@@ -22,7 +22,7 @@ const getOverview = async (req, res, next) => {
       courseSponsorshipService.getEnterpriseSponsorshipOverview(enterpriseId),
       db.collection('enrollments').countDocuments({ enterpriseId }),
       db.collection('enrollments').countDocuments({ enterpriseId, status: 'completed' }),
-      db.collection('recruitment_jobs').countDocuments({ enterpriseId, status: 'published' }),
+      db.collection('recruitment_jobs').countDocuments({ enterpriseId, _destroy: { $ne: true } }),
       db.collection('recruitment_applications').countDocuments({ enterpriseId }),
       db.collection('recruitment_interviews').countDocuments({ enterpriseId, status: 'confirmed' }),
       db.collection('recruitment_applications').countDocuments({ enterpriseId, status: 'hired' })
@@ -102,6 +102,42 @@ const getOverview = async (req, res, next) => {
       })
     }
 
+    // Job Status
+    const rawJobStatus = await db.collection('recruitment_jobs').aggregate([
+      { $match: { enterpriseId, _destroy: { $ne: true } } },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).toArray()
+
+    const jobStatusMap = {
+      'draft': 'Bản nháp',
+      'pending_approval': 'Chờ duyệt',
+      'published': 'Đang hiển thị',
+      'closed': 'Đã đóng',
+      'expired': 'Hết hạn'
+    }
+
+    const jobStatusDataMap = {
+      'draft': 0,
+      'pending_approval': 0,
+      'published': 0,
+      'closed': 0,
+      'expired': 0
+    }
+
+    rawJobStatus.forEach(item => {
+      if (jobStatusDataMap[item._id] !== undefined) {
+        jobStatusDataMap[item._id] = item.count;
+      } else {
+        jobStatusDataMap[item._id] = item.count;
+        jobStatusMap[item._id] = item._id; // fallback cho status ko biết
+      }
+    })
+
+    const jobStatusData = Object.keys(jobStatusDataMap).map(key => ({
+      name: jobStatusMap[key],
+      value: jobStatusDataMap[key]
+    }))
+
     res.status(StatusCodes.OK).json({
       success: true,
       message: 'Lấy tổng quan enterprise thành công!',
@@ -118,7 +154,8 @@ const getOverview = async (req, res, next) => {
         totalHired,
         applicationFunnel,
         applicationTrend,
-        applicationSource
+        applicationSource,
+        jobStatusData
       }
     })
   } catch (error) { next(error) }

@@ -114,8 +114,29 @@ const getApplications = async (enterpriseId, page = DEFAULT_PAGE, limit = DEFAUL
     const skip = (page - 1) * limit
     const { applications, total } = await applicationModel.findByEnterprise(enterpriseId, skip, limit, filters)
 
+    // Enrich data with worker and job info
+    const enrichedApplications = await Promise.all(
+      applications.map(async (app) => {
+        const worker = await userModel.findOneById(app.workerId)
+        const job = await recruitmentJobModel.findOneById(app.jobId)
+        return {
+          ...app,
+          worker: worker ? {
+            _id: worker._id,
+            name: worker.displayName || worker.username || 'Ứng viên',
+            email: worker.email,
+            avatar: worker.avatar
+          } : null,
+          job: job ? {
+            _id: job._id,
+            title: job.title || 'Vị trí công việc'
+          } : null
+        }
+      })
+    )
+
     return {
-      applications,
+      applications: enrichedApplications,
       pagination: {
         page,
         limit,
