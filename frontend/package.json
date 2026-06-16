@@ -43,7 +43,7 @@
     "class-variance-authority": "^0.7.1",
     "cross-env": "^7.0.3",
     "date-fns": "^4.1.0",
-    "framer-motion": "^12.38.0",
+    "framer-motion": "^12.40.0",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",

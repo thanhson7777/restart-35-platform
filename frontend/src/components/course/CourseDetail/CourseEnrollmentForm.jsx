@@ -204,6 +204,7 @@ export const CourseEnrollmentForm = ({
         return (
           <FundingSidebarPaymentCard
             course={course}
+            sponsorships={sponsorships}
             onSubmit={handleEnrollSubmit}
             isSubmitting={isSubmitting}
             isLimitReached={isLimitReached}

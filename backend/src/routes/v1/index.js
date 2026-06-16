@@ -50,6 +50,7 @@ import { workerOfferRoute } from './workerOfferRoute'
 import eventRoute from './eventRoute'
 import { mapRoute } from './mapRoute'
 import { adminAnalyticsRoute } from './adminAnalyticsRoute'
+import { walletRoute } from './walletRoute'
 
 const Router = express.Router()
 
@@ -131,6 +132,7 @@ Router.use('/contacts', contactRoute)
 Router.use('/events', eventRoute)
 Router.use('/map', mapRoute)
 Router.use('/admin-analytics', adminAnalyticsRoute)
+Router.use('/wallets', walletRoute)
 
 // Recruitment Module
 Router.use('/recruitments', workerApplicationRoute)

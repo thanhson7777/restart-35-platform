@@ -51,6 +51,7 @@ const COURSE_SPONSORSHIP_COLLECTION_SCHEMA = Joi.object({
     .default(COURSE_SPONSORSHIP_MODEL.ENTERPRISE),
   linkedCourses: Joi.array().items(LINKED_COURSE_SCHEMA).min(1).required(),
   budget: Joi.number().integer().min(0).required(),
+  targetLearners: Joi.number().integer().min(1).required(),
   spent: Joi.number().integer().min(0).default(0),
   remaining: Joi.number().integer().min(0).default(0),
   coverageType: Joi.string()

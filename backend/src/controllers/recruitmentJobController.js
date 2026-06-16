@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { recruitmentJobService } from '~/services/recruitmentJobService'
 import { applicationService } from '~/services/applicationService'
+import { GET_DB } from '~/config/mongodb'
 
 // ============ ENTERPRISE: JOB CRUD ============
 
@@ -23,11 +24,34 @@ const getJobs = async (req, res, next) => {
     if (search) filters.search = search
 
     const result = await recruitmentJobService.getJobs(req.user._id, Number(page) || 1, Number(limit) || 20, filters)
+
+    // Calculate global stats for tabs and overall counting
+    const db = GET_DB()
+    const rawJobStatus = await db.collection('recruitment_jobs').aggregate([
+      { $match: { enterpriseId: { $in: [req.user._id, req.user._id.toString()] }, _destroy: { $ne: true } } },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).toArray()
+
+    const statusCounts = {
+      draft: 0,
+      pending_approval: 0,
+      published: 0,
+      closed: 0,
+      expired: 0,
+      total: 0
+    }
+
+    rawJobStatus.forEach(item => {
+      statusCounts[item._id] = item.count
+      statusCounts.total += item.count
+    })
+
     res.status(StatusCodes.OK).json({
       success: true,
       message: 'Lấy danh sách tin tuyển dụng thành công!',
       data: result.jobs,
-      pagination: result.pagination
+      pagination: result.pagination,
+      stats: statusCounts
     })
   } catch (error) { next(error) }
 }

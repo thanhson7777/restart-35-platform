@@ -1,96 +1,85 @@
-import React, { useRef } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { UserCircle, Brain, PaperPlaneTilt, Briefcase } from '@phosphor-icons/react';
-
-const steps = [
-  {
-    icon: UserCircle,
-    title: 'Tạo hồ sơ',
-    description: 'Nhập kinh nghiệm, kỹ năng và mục tiêu trong 3 phút.',
-  },
-  {
-    icon: Brain,
-    title: 'AI phân tích',
-    description: 'Thuật toán gợi ý việc làm và lộ trình học phù hợp.',
-  },
-  {
-    icon: PaperPlaneTilt,
-    title: 'Ứng tuyển thông minh',
-    description: 'Nộp đơn được cá nhân hóa cho từng vị trí.',
-  },
-  {
-    icon: Briefcase,
-    title: 'Nhận việc mới',
-    description: 'Tăng thu nhập và thăng tiến bền vững.',
-  },
-];
-
-const StepCard = ({ step, index }) => {
-  const ref = useRef(null);
-  const reduce = useReducedMotion();
-
-  return (
-    <motion.div
-      ref={ref}
-      className="relative flex flex-col items-center text-center px-4"
-      initial={reduce ? false : { opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.1,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-    >
-      <div className="w-8 h-8 rounded-full bg-[hsl(var(--primary))] text-white text-sm font-bold flex items-center justify-center mb-4">
-        {index + 1}
-      </div>
-
-      <div className="w-20 h-20 rounded-2xl bg-[hsl(var(--primary))]/10 flex items-center justify-center mb-5">
-        <step.icon size={40} weight="duotone" className="text-[hsl(var(--primary))]" />
-      </div>
-
-      {index < steps.length - 1 && (
-        <div className="hidden lg:block absolute top-[104px] left-[60%] w-[80%] border-t-2 border-dashed border-[hsl(var(--primary))]/20 z-0" />
-      )}
-
-      <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-2">
-        {step.title}
-      </h3>
-
-      <p className="text-sm text-[hsl(var(--muted-foreground))] max-w-[200px] leading-relaxed">
-        {step.description}
-      </p>
-    </motion.div>
-  );
-};
+import React from 'react';
+import { motion } from 'framer-motion';
 
 const HowItWorksSection = () => {
-  const reduce = useReducedMotion();
-  const headerRef = useRef(null);
+  const steps = [
+    {
+      number: "01",
+      title: "Đăng ký & Đánh giá năng lực",
+      description: "Tạo hồ sơ chuyên nghiệp chỉ trong vài phút. Hệ thống sẽ giúp bạn đánh giá các kỹ năng hiện có và định hướng con đường phù hợp nhất."
+    },
+    {
+      number: "02",
+      title: "Nâng cao kỹ năng",
+      description: "Tham gia các khóa học đào tạo nghề và kỹ năng mềm do các chuyên gia hàng đầu giảng dạy. Nhận chứng chỉ ngay sau khi hoàn thành."
+    },
+    {
+      number: "03",
+      title: "Kết nối Việc làm",
+      description: "Hệ thống AI sẽ tự động đề xuất những công việc phù hợp với kỹ năng và định hướng của bạn tại các doanh nghiệp đối tác uy tín."
+    },
+    {
+      number: "04",
+      title: "Làm việc & Thăng tiến",
+      description: "Bắt đầu công việc mới. Tham gia cộng đồng Restart 35+ để học hỏi, chia sẻ và tiếp tục phát triển sự nghiệp bền vững."
+    }
+  ];
 
   return (
-    <section className="py-24 px-8 bg-gradient-to-b from-white to-[hsl(var(--muted))]">
-      <div className="max-w-[1280px] mx-auto" ref={headerRef}>
-        <motion.div
-          className="text-center mb-16"
-          initial={reduce ? false : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-4">
-            Quy trình 4 bước đơn giản
-          </h2>
-          <p className="text-base text-[hsl(var(--muted-foreground))] max-w-[55ch] mx-auto">
-            Từ hồ sơ đến việc làm mới, chúng tôi đồng hành cùng bạn trong suốt hành trình.
-          </p>
-        </motion.div>
+    <section className="bg-white py-32 border-b border-black/5 relative">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col lg:flex-row gap-20">
+          
+          {/* Left: Sticky Header */}
+          <div className="lg:w-1/3">
+            <div className="sticky top-32">
+              <h2 
+                className="text-4xl md:text-5xl lg:text-6xl text-black leading-tight mb-6"
+                style={{ fontFamily: '"Instrument Serif", serif' }}
+              >
+                Hành trình <br/>
+                <span className="italic text-[#6F6F6F]">bắt đầu lại.</span>
+              </h2>
+              <p className="text-[#6F6F6F] text-lg leading-relaxed" style={{ fontFamily: '"Inter", sans-serif' }}>
+                4 bước đơn giản để tìm lại vị thế của bạn trên thị trường lao động. Chúng tôi sẽ đồng hành cùng bạn trên mỗi chặng đường.
+              </p>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
-          {steps.map((step, index) => (
-            <StepCard key={step.title} step={step} index={index} />
-          ))}
+          {/* Right: Scrolling Steps */}
+          <div className="lg:w-2/3">
+            <div className="space-y-12 md:space-y-24">
+              {steps.map((step, index) => (
+                <motion.div 
+                  key={index}
+                  className="flex gap-8 md:gap-12 group"
+                  initial={{ opacity: 0.3, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ margin: "-200px" }}
+                  transition={{ duration: 0.6 }}
+                >
+                  {/* Number */}
+                  <div 
+                    className="text-5xl md:text-7xl font-light text-zinc-200 group-hover:text-[hsl(var(--primary))] transition-colors duration-500"
+                    style={{ fontFamily: '"Instrument Serif", serif' }}
+                  >
+                    {step.number}
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="pt-2 md:pt-4 border-t border-black/10 flex-1">
+                    <h3 className="text-2xl md:text-3xl font-medium text-black mb-4" style={{ fontFamily: '"Inter", sans-serif' }}>
+                      {step.title}
+                    </h3>
+                    <p className="text-lg text-[#6F6F6F] leading-relaxed max-w-lg">
+                      {step.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </section>

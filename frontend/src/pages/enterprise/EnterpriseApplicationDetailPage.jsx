@@ -56,6 +56,28 @@ const formatDateTime = (date) => {
   });
 };
 
+const GENDER_LABELS = {
+  male: 'Nam',
+  female: 'Nữ',
+  other: 'Khác'
+};
+
+const MARITAL_STATUS_LABELS = {
+  single: 'Độc thân',
+  married: 'Đã kết hôn',
+  divorced: 'Ly hôn',
+  widowed: 'Góa'
+};
+
+const EDUCATION_LABELS = {
+  primary: 'Tiểu học',
+  lower_secondary: 'Trung học cơ sở',
+  upper_secondary: 'Trung học phổ thông',
+  college: 'Cao đẳng / Trung cấp',
+  university: 'Đại học',
+  master: 'Thạc sĩ / Tiến sĩ'
+};
+
 export default function EnterpriseApplicationDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -335,12 +357,61 @@ export default function EnterpriseApplicationDetailPage() {
                     <MapPin size={16} className="text-[hsl(var(--admin-text-muted))]" />
                     <div>
                       <p className="text-xs text-[hsl(var(--admin-text-muted))]">Địa chỉ</p>
-                      <p className="text-sm">{profileData.province || '—'}</p>
+                      <p className="text-sm">{profileData.basicInfo?.province || profileData.province || '—'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <User size={16} className="text-[hsl(var(--admin-text-muted))]" />
+                    <div>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))]">Giới tính</p>
+                      <p className="text-sm">{GENDER_LABELS[profileData.basicInfo?.gender] || '—'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <GraduationCap size={16} className="text-[hsl(var(--admin-text-muted))]" />
+                    <div>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))]">Học vấn</p>
+                      <p className="text-sm">{EDUCATION_LABELS[profileData.basicInfo?.education] || '—'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <User size={16} className="text-[hsl(var(--admin-text-muted))]" />
+                    <div>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))]">Hôn nhân</p>
+                      <p className="text-sm">{MARITAL_STATUS_LABELS[profileData.basicInfo?.maritalStatus] || '—'}</p>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Employment History */}
+            {(profileData.employmentHistory && Array.isArray(profileData.employmentHistory) && profileData.employmentHistory.length > 0 && !profileData.employmentHistory.some(h => h.status === 'không có')) && (
+              <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Briefcase size={18} /> Kinh nghiệm làm việc
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {profileData.employmentHistory.map((job, idx) => (
+                      <div key={idx} className="relative pl-4 border-l-2 border-[hsl(var(--admin-border))] pb-2 last:pb-0">
+                        <div className="absolute w-2 h-2 rounded-full bg-[hsl(var(--admin-accent))] -left-[5px] top-1.5"></div>
+                        <h4 className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">
+                          {typeof job.occupation === 'object' ? job.occupation?.titleVi || job.occupation?.titleEn || 'Vị trí công việc' : job.occupation || 'Vị trí công việc'}
+                        </h4>
+                        <p className="text-xs font-medium text-[hsl(var(--admin-text-secondary))] mt-0.5">{job.companyName || 'Công ty/Tổ chức'}</p>
+                        <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">
+                          {job.duration ? `${Math.floor(job.duration / 12) > 0 ? Math.floor(job.duration / 12) + ' năm ' : ''}${job.duration % 12 > 0 ? (job.duration % 12) + ' tháng' : ''}`.trim() : '—'}
+                          {job.jobType ? ` • ${job.jobType}` : ''}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Skills */}
             {((profileData.aspirations?.skills?.length > 0) || (profileData.employmentHistory?.[0]?.skills?.length > 0)) && (
@@ -352,7 +423,7 @@ export default function EnterpriseApplicationDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {(profileData.aspirations?.skills || profileData.employmentHistory?.[0]?.skills || []).map((skill, idx) => {
+                    {(profileData.aspirations?.skills?.length > 0 ? profileData.aspirations.skills : (profileData.employmentHistory?.[0]?.skills || [])).map((skill, idx) => {
                       const skillName = typeof skill === 'object' ? skill.titleVi || skill.titleEn || skill.uri : skill;
                       return (
                         <Badge key={idx} variant="outline" className="border-[hsl(var(--admin-border))]">
@@ -378,17 +449,17 @@ export default function EnterpriseApplicationDetailPage() {
                     <p className="text-xs text-[hsl(var(--admin-text-muted))]">Vị trí mong muốn</p>
                     <p className="text-sm">
                       {typeof profileData.aspirations.targetJob === 'object' 
-                        ? profileData.aspirations.targetJob?.titleVi || profileData.aspirations.targetJob?.titleEn || '—' 
-                        : profileData.aspirations.targetJob || '—'}
+                        ? profileData.aspirations.targetJob?.titleVi || profileData.aspirations.targetJob?.titleEn || 'Không có' 
+                        : profileData.aspirations.targetJob || 'Không có'}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-[hsl(var(--admin-text-muted))]">Loại hình công việc</p>
-                    <p className="text-sm">{profileData.aspirations.preferredJobType || '—'}</p>
+                    <p className="text-sm">{profileData.aspirations.preferredJobType || 'Không có'}</p>
                   </div>
                   <div>
                     <p className="text-xs text-[hsl(var(--admin-text-muted))]">Mức lương mong muốn</p>
-                    <p className="text-sm">{profileData.aspirations.targetSalary ? `${profileData.aspirations.targetSalary.toLocaleString()} VND` : '—'}</p>
+                    <p className="text-sm">{profileData.aspirations.targetSalary ? `${profileData.aspirations.targetSalary.toLocaleString()} VND` : 'Không có'}</p>
                   </div>
                 </CardContent>
               </Card>

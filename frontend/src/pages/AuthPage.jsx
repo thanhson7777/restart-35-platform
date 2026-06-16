@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { AuthSidebar } from '@/components/auth/AuthSidebar'
 import LoginForm from '@/components/auth/LoginForm'
 import RegisterForm from '@/components/auth/RegisterForm'
-import SocialLogin from '@/components/auth/SocialLogin'
 import { clearError } from '@/redux/user/userSlice'
 
 const RestartIcon = ({ className }) => (
@@ -257,10 +256,6 @@ function AuthPage() {
             </AnimatePresence>
           </div>
 
-          {/* Social Login */}
-          <div className="mt-6 space-y-4">
-            <SocialLogin />
-          </div>
 
           {/* Back to home */}
           <div className="mt-6 text-center">

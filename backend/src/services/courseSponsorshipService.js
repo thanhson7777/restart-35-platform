@@ -1,4 +1,6 @@
 import { courseSponsorshipModel } from '~/models/courseSponsorshipModel'
+import { walletModel } from '~/models/walletModel'
+import { transactionModel } from '~/models/transactionModel'
 import { enrollmentModel } from '~/models/enrollmentModel'
 import { userModel } from '~/models/userModel'
 import { StatusCodes } from 'http-status-codes'
@@ -40,6 +42,7 @@ const createCourseSponsorship = async (sponsorId, data) => {
     fundingModel: data.fundingModel,
     linkedCourses: data.linkedCourses,
     budget: data.budget,
+    targetLearners: data.targetLearners,
     remaining: data.budget,
     coverageType: data.coverageType,
     maxAmountPerLearner: data.maxAmountPerLearner || null,
@@ -53,7 +56,37 @@ const createCourseSponsorship = async (sponsorId, data) => {
     status: COURSE_SPONSORSHIP_STATUS.DRAFT
   }
 
+  // Khóa tiền trong ví (Wallet)
+  if (data.budget > 0) {
+    const wallet = await walletModel.findOrCreateByUserId(sponsorId)
+    
+    if (wallet.availableBalance < data.budget) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Số dư khả dụng không đủ để tạo quỹ tài trợ. Vui lòng nạp thêm tiền!')
+    }
+
+    await walletModel.update(sponsorId, {
+      availableBalance: wallet.availableBalance - data.budget,
+      lockedBalance: (wallet.lockedBalance || 0) + data.budget
+    })
+  }
+
   const result = await courseSponsorshipModel.createNew(sponsorshipData)
+  
+  // Lưu Transaction RESERVE
+  if (data.budget > 0) {
+    const wallet = await walletModel.findOrCreateByUserId(sponsorId)
+    await transactionModel.createNew({
+      walletId: String(wallet._id),
+      userId: sponsorId,
+      type: 'RESERVE',
+      amount: data.budget,
+      description: `Lập quỹ tài trợ: ${data.title}`,
+      referenceId: String(result._id),
+      referenceModel: 'Sponsorship',
+      status: 'COMPLETED'
+    })
+  }
+
   return await courseSponsorshipModel.findOneById(result.insertedId)
 }
 
@@ -185,10 +218,55 @@ const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, 
   }
 
   if (status === 'approved') {
+    if ((sponsorship.stats?.approvedLearners || 0) >= sponsorship.targetLearners) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Quỹ tài trợ đã hết suất!')
+    }
+
     await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.ACTIVE, {
       startDate: Date.now()
     })
     await courseModel.incrementEnrollmentCount(enrollment.courseId)
+
+    // Lấy thông tin khóa học để biết số tiền cần giải ngân
+    const course = await courseModel.findOneById(enrollment.courseId)
+    const fee = course?.fee || 0
+
+    if (fee > 0) {
+      // Trừ tiền khóa (lockedBalance) và tăng tiền đã giải ngân
+      const wallet = await walletModel.findOrCreateByUserId(sponsorId)
+      if (wallet && wallet.lockedBalance >= fee) {
+        await walletModel.update(sponsorId, {
+          lockedBalance: wallet.lockedBalance - fee,
+          totalDisbursed: (wallet.totalDisbursed || 0) + fee
+        })
+
+        // Lưu transaction DISBURSE
+        await transactionModel.createNew({
+          walletId: String(wallet._id),
+          userId: sponsorId,
+          type: 'DISBURSE',
+          amount: fee,
+          description: `Giải ngân tài trợ khóa học cho học viên ${enrollment.userId}`,
+          referenceId: sponsorshipId,
+          referenceModel: 'Sponsorship',
+          status: 'COMPLETED'
+        })
+        
+        // Cập nhật ngân sách của Sponsorship
+        await courseSponsorshipModel.update(sponsorshipId, {
+          spent: (sponsorship.spent || 0) + fee,
+          remaining: sponsorship.remaining - fee,
+          'stats.approvedLearners': (sponsorship.stats?.approvedLearners || 0) + 1
+        })
+      } else {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Quỹ không đủ số dư bị phong tỏa để giải ngân!')
+      }
+    } else {
+      // Fee = 0, vẫn tăng approvedLearners
+      await courseSponsorshipModel.update(sponsorshipId, {
+        'stats.approvedLearners': (sponsorship.stats?.approvedLearners || 0) + 1
+      })
+    }
   } else if (status === 'rejected') {
     await enrollmentModel.updateStatus(enrollmentId, ENROLLMENT_STATUS_V2.DROPPED, {
       dropReason: 'Bị từ chối bởi tổ chức tài trợ'

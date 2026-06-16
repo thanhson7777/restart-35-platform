@@ -62,6 +62,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
   const [fundingType, setFundingType] = useState('FREE');
   const [fundingPrice, setFundingPrice] = useState(0);
   const [fundingHasJobGuarantee, setFundingHasJobGuarantee] = useState(false);
+  const [fundingAcceptsSponsorship, setFundingAcceptsSponsorship] = useState(true);
   const [maxStudents, setMaxStudents] = useState(30);
 
   // Syllabus
@@ -128,6 +129,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
         setFundingType(initialData.fundingConfig.type || 'FREE');
         setFundingPrice(initialData.fundingConfig.price || 0);
         setFundingHasJobGuarantee(initialData.fundingConfig.hasJobGuarantee || false);
+        setFundingAcceptsSponsorship(initialData.fundingConfig.acceptsSponsorship !== false); // default true
       }
       
       setMaxStudents(initialData.maxStudents || 30);
@@ -352,7 +354,8 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       type: fundingType,
       price: Number(fundingPrice),
       sponsorIds: [],
-      hasJobGuarantee: fundingHasJobGuarantee
+      hasJobGuarantee: fundingHasJobGuarantee,
+      acceptsSponsorship: fundingAcceptsSponsorship
     }));
 
     payload.append('maxStudents', maxStudents);
@@ -1019,6 +1022,21 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                   <Label htmlFor="hasJobGuarantee" className="text-[hsl(var(--admin-text-secondary))] cursor-pointer">
                     Khóa học có Cam kết việc làm đầu ra (Job Guarantee)
                   </Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="acceptsSponsorship"
+                    checked={fundingAcceptsSponsorship}
+                    onChange={(e) => setFundingAcceptsSponsorship(e.target.checked)}
+                    className="h-4 w-4 rounded border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))]"
+                  />
+                  <div>
+                    <Label htmlFor="acceptsSponsorship" className="text-[hsl(var(--admin-text-secondary))] cursor-pointer">
+                      Cho phép nhận tài trợ từ các tổ chức NGO
+                    </Label>
+                    <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Nếu bật, khóa học của bạn sẽ hiển thị trên hệ thống của các NGO để họ cân nhắc tài trợ học bổng cho người lao động.</p>
+                  </div>
                 </div>
               </div>
             </div>

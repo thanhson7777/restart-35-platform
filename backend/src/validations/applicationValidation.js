@@ -48,7 +48,7 @@ const validateApplyJob = async (req, res, next) => {
 const validateGetApplications = async (req, res, next) => {
   const correctCondition = Joi.object({
     page: Joi.number().integer().min(1).default(1),
-    limit: Joi.number().integer().min(1).max(50).default(10),
+    limit: Joi.number().integer().min(1).max(500).default(10),
     status: Joi.string().valid(...Object.values(RECRUITMENT_APPLICATION_STATUS)),
     jobId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     search: Joi.string().allow('', null)

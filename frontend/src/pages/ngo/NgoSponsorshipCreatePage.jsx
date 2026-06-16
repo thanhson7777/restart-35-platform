@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Wallet } from 'lucide-react';
 import { Button, Input, Label } from '@/components/ui';
 import { createSponsorship } from '@/apis/courseSponsorshipApi';
 import { getCourses } from '@/apis/courseApi';
+import { getMyWallet } from '@/apis/walletApi';
 import toast from 'react-hot-toast';
 
 export default function NgoSponsorshipCreatePage() {
@@ -11,17 +12,25 @@ export default function NgoSponsorshipCreatePage() {
   const [searchParams] = useSearchParams();
   const [submitting, setSubmitting] = useState(false);
   const [courses, setCourses] = useState([]);
+  const [wallet, setWallet] = useState(null);
   const [form, setForm] = useState({
     title: '',
     description: '',
+    targetLearners: 10,
     selectedCourses: searchParams.get('courseId') ? [searchParams.get('courseId')] : []
   });
 
   useEffect(() => {
-    getCourses({ limit: 50, isFree: false })
+    getCourses({ limit: 50, isFree: false, acceptsSponsorship: true })
       .then(res => {
         const paidCourses = (res.data?.data || []).filter(c => c.fee > 0);
         setCourses(paidCourses);
+      })
+      .catch(() => {});
+      
+    getMyWallet()
+      .then(res => {
+        setWallet(res.data);
       })
       .catch(() => {});
   }, []);
@@ -37,17 +46,27 @@ export default function NgoSponsorshipCreatePage() {
     }));
   };
 
+  const calculatedBudget = useMemo(() => {
+    const selectedCourseObjects = courses.filter(c => form.selectedCourses.includes(c._id));
+    const totalFeePerLearner = selectedCourseObjects.reduce((sum, c) => sum + (c.fee || 0), 0);
+    return totalFeePerLearner * (parseInt(form.targetLearners) || 0);
+  }, [form.selectedCourses, form.targetLearners, courses]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) { toast.error('Vui lòng nhập tiêu đề.'); return; }
     if (form.selectedCourses.length === 0) { toast.error('Vui lòng chọn ít nhất 1 khóa học.'); return; }
+    if (!form.targetLearners || parseInt(form.targetLearners) < 1) { toast.error('Số lượng học viên phải lớn hơn 0.'); return; }
+    if (wallet && calculatedBudget > wallet.availableBalance) { toast.error('Số dư ví không đủ để lập quỹ.'); return; }
+
     setSubmitting(true);
     try {
       const payload = {
         title: form.title,
         description: form.description || null,
         sponsorType: 'ngo',
-        budget: 100000000, // Dummy value
+        budget: calculatedBudget,
+        targetLearners: parseInt(form.targetLearners),
         maxAmountPerLearner: null,
         coverageType: 'partial',
         disbursementModel: 'completion',
@@ -80,6 +99,27 @@ export default function NgoSponsorshipCreatePage() {
               <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Tiêu đề *</Label>
               <Input value={form.title} onChange={set('title')} placeholder="VD: Học bổng NGO Việc làm 2026" className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
             </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Số lượng học viên mục tiêu *</Label>
+                <Input type="number" min="1" value={form.targetLearners} onChange={set('targetLearners')} className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]" />
+              </div>
+              
+              <div className="bg-[hsl(var(--admin-surface-hover))] rounded-xl p-4 border border-[hsl(var(--admin-border))]">
+                <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1 font-medium">TỔNG NGÂN SÁCH DỰ KIẾN</p>
+                <p className="text-xl font-bold text-[hsl(var(--admin-text-primary))]">
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(calculatedBudget)}
+                </p>
+                {wallet && (
+                  <div className={`mt-2 flex items-center gap-1.5 text-xs font-medium ${calculatedBudget > wallet.availableBalance ? 'text-rose-500' : 'text-emerald-500'}`}>
+                    <Wallet size={14} />
+                    <span>Số dư ví: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(wallet.availableBalance || 0)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div>
               <Label className="text-[hsl(var(--admin-text-secondary))] mb-1.5 block">Mô tả</Label>
               <textarea
@@ -116,7 +156,7 @@ export default function NgoSponsorshipCreatePage() {
           </div>
 
           <div className="flex gap-3">
-            <Button type="submit" disabled={submitting} className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+            <Button type="submit" disabled={submitting || (wallet && calculatedBudget > wallet.availableBalance) || form.selectedCourses.length === 0} className="bg-emerald-600 hover:bg-emerald-700 gap-2">
               {submitting ? 'Đang tạo...' : 'Tạo Sponsorship'}
             </Button>
             <Button type="button" variant="outline" onClick={() => navigate('/ngo/sponsorships')} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">

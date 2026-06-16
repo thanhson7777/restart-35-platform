@@ -1,53 +1,56 @@
-import React, { useRef } from 'react';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
-import { Lock, Users } from '@phosphor-icons/react';
 
 const CTASection = () => {
-  const reduce = useReducedMotion();
-
   return (
-    <section className="py-24 px-8 bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(221_83%_40%)] relative overflow-hidden">
-      {/* Geometric decorative shapes */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-60px] right-[-60px] w-[400px] h-[400px] rounded-full bg-white/5" />
-        <div className="absolute bottom-[-80px] left-[-40px] w-[300px] h-[300px] rounded-full bg-white/5" />
-        <div className="absolute top-[40%] right-[20%] w-[200px] h-[200px] rounded-full bg-white/5" />
-      </div>
-
-      <div className="max-w-[800px] mx-auto text-center relative z-10">
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 24 }}
+    <section className="bg-blue-950 py-32 relative overflow-hidden">
+      {/* Decorative gradient blur */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-white/5 rounded-full blur-[120px] pointer-events-none" />
+      
+      <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <motion.h2 
+          className="text-5xl md:text-7xl lg:text-8xl text-white leading-[0.95] tracking-tight mb-8"
+          style={{ fontFamily: '"Instrument Serif", serif' }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8 }}
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-            Sẵn sàng bắt đầu hành trình mới?
-          </h2>
-          <p className="text-base md:text-lg text-white/80 mb-10 max-w-[50ch] mx-auto">
-            Đăng ký miễn phí trong 2 phút. Không cần thẻ tín dụng.
-          </p>
+          Bạn đã sẵn sàng <br/>
+          <span className="text-[#A1A1AA] italic">để bắt đầu lại?</span>
+        </motion.h2>
 
-          <Link
-            to="/auth"
-            className="inline-flex items-center justify-center px-10 py-4 bg-white text-[hsl(var(--primary))] font-semibold rounded-full hover:bg-zinc-100 active:scale-[0.98] transition-all duration-200 shadow-xl"
+        <motion.p 
+          className="text-[#A1A1AA] text-lg md:text-xl max-w-2xl mx-auto mb-12"
+          style={{ fontFamily: '"Inter", sans-serif' }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+        >
+          Tham gia cùng hàng ngàn chuyên gia và người lao động khác để tìm kiếm cơ hội mới, hoặc trở thành đối tác doanh nghiệp để tuyển dụng những nhân sự chất lượng.
+        </motion.p>
+
+        <motion.div
+          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <Link 
+            to="/auth" 
+            className="w-full sm:w-auto px-10 py-4 bg-[hsl(var(--primary))] text-white font-medium rounded-full hover:scale-105 transition-transform duration-300 shadow-lg shadow-blue-500/20"
           >
-            Tạo hồ sơ miễn phí
+            Đăng ký Người lao động
           </Link>
-
-          {/* Trust indicators */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-white/70">
-            <div className="flex items-center gap-2 text-sm">
-              <Lock size={16} weight="bold" />
-              <span>Dữ liệu được bảo mật tuyệt đối</span>
-            </div>
-            <div className="hidden sm:block w-px h-4 bg-white/20" />
-            <div className="flex items-center gap-2 text-sm">
-              <Users size={16} weight="bold" />
-              <span>5,000+ chuyên gia đã tham gia</span>
-            </div>
-          </div>
+          <Link 
+            to="/contact" 
+            className="w-full sm:w-auto px-10 py-4 bg-transparent border border-white/20 text-white font-medium rounded-full hover:bg-white/10 transition-colors duration-300"
+          >
+            Trở thành Đối tác
+          </Link>
         </motion.div>
       </div>
     </section>

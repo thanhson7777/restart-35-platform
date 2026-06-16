@@ -76,23 +76,34 @@ export default function NgoSponsorshipsPage() {
                     </div>
                     <Badge className={`${config.className} text-xs`}>{config.label}</Badge>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 text-xs">
-                    <div className="rounded-lg border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-accent-subtle))] p-2.5">
-                      <p className="text-[hsl(var(--admin-text-muted))] mb-0.5">Ngân sách</p>
-                      <p className="font-semibold text-[hsl(var(--admin-text-primary))]">{formatCurrency(sp.budget)}</p>
+                  {/* Tiết độ tài trợ */}
+                  <div className="space-y-2 mt-4">
+                    <div className="flex justify-between text-sm font-semibold">
+                      <span className="text-[hsl(var(--admin-text-secondary))]">Đã duyệt {sp.stats?.approvedLearners || 0} suất</span>
+                      <span className="text-[hsl(var(--admin-text-primary))]">{Math.min(100, Math.round(((sp.stats?.approvedLearners || 0) / (sp.targetLearners || 1)) * 100))}%</span>
                     </div>
-                    <div className="rounded-lg border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-accent-subtle))] p-2.5">
-                      <p className="text-[hsl(var(--admin-text-muted))] mb-0.5">Đã dùng</p>
-                      <p className="font-semibold text-[hsl(var(--admin-warning))]">{formatCurrency(sp.spent)}</p>
+                    <div className="h-3 w-full bg-[hsl(var(--admin-surface-hover))] rounded-full overflow-hidden shadow-inner">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-1000 ease-out ${Math.min(100, Math.round(((sp.stats?.approvedLearners || 0) / (sp.targetLearners || 1)) * 100)) >= 90 ? 'bg-rose-500' : 'bg-emerald-500'}`} 
+                        style={{ width: `${Math.min(100, Math.round(((sp.stats?.approvedLearners || 0) / (sp.targetLearners || 1)) * 100))}%` }}
+                      />
                     </div>
-                    <div className="rounded-lg border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-accent-subtle))] p-2.5">
-                      <p className="text-[hsl(var(--admin-text-muted))] mb-0.5">Còn lại</p>
-                      <p className="font-semibold text-[hsl(var(--admin-success))]">{formatCurrency(sp.remaining)}</p>
-                    </div>
+                    <p className="text-xs text-[hsl(var(--admin-text-muted))] text-right pt-1">
+                      Mục tiêu: {sp.targetLearners || 0} suất
+                    </p>
                   </div>
-                  <div className="text-xs text-[hsl(var(--admin-text-muted))] flex justify-between">
-                    <span>Link khóa: {(sp.linkedCourses || []).length}</span>
-                    <span>Max/người: {formatCurrency(sp.maxAmountPerLearner)}</span>
+
+                  <div className="text-xs text-[hsl(var(--admin-text-muted))] flex justify-between pt-2 border-t border-[hsl(var(--admin-border))] items-center mt-4">
+                    <div className="flex flex-col gap-1">
+                      <span>Max: {formatCurrency(sp.maxAmountPerLearner)} / người</span>
+                      <span>Budget: {formatCurrency(sp.budget)}</span>
+                    </div>
+                    <Button 
+                      onClick={() => navigate(`/ngo/sponsorships/${sp._id}/learners`)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 px-4"
+                    >
+                      Duyệt học viên
+                    </Button>
                   </div>
                 </div>
               );

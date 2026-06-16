@@ -111,17 +111,16 @@ export default function EnterpriseApplicationsPage() {
             { key: 'new', label: 'Mới', className: 'bg-blue-100 text-blue-700' },
             { key: 'reviewing', label: 'Đang xem xét', className: 'bg-amber-100 text-amber-700' },
             { key: 'interviewing', label: 'Phỏng vấn', className: 'bg-indigo-100 text-indigo-700' },
-            { key: 'hired', label: 'Tuyển dụng', className: 'bg-emerald-100 text-emerald-700' },
+            { key: 'hired', label: 'Duyệt', className: 'bg-emerald-100 text-emerald-700' },
             { key: 'rejected', label: 'Từ chối / Rút', className: 'bg-red-100 text-red-700' }
           ].map(stat => (
             <button
               key={stat.key}
               onClick={() => setStatusFilter(stat.key)}
-              className={`p-3 rounded-xl text-center transition-all ${
-                statusFilter === stat.key
+              className={`p-3 rounded-xl text-center transition-all ${statusFilter === stat.key
                   ? `${stat.className} ring-2 ring-offset-2 ring-[hsl(var(--admin-accent))]`
                   : `${stat.className} opacity-70 hover:opacity-100`
-              }`}
+                }`}
             >
               <p className="text-xl font-bold">{stats[stat.key] || 0}</p>
               <p className="text-xs">{stat.label}</p>

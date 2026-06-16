@@ -1,112 +1,99 @@
-import React, { useRef } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { Star } from '@phosphor-icons/react';
-
-const testimonials = [
-  {
-    name: 'Nguyễn Thu Hương',
-    age: 42,
-    from: 'Trưởng phòng Tài chính',
-    to: 'Data Analyst',
-    quote:
-      'Sau 18 năm trong ngành tài chính, tôi tìm được công việc mới với mức lương cao hơn 40%. Khóa học Data Analysis giúp tôi tự tin bước sang lĩnh vực mới.',
-    avatar: 'https://picsum.photos/seed/woman-finance/80/80',
-  },
-  {
-    name: 'Trần Văn Phong',
-    age: 47,
-    from: 'Giám đốc Kinh doanh',
-    to: 'Cloud Engineer',
-    quote:
-      'AI của nền tảng gợi ý đúng lộ trình cho tôi. Chỉ 3 tháng sau khi hoàn thành khóa Cloud Computing, tôi đã nhận được offer từ một công ty fintech.',
-    avatar: 'https://picsum.photos/seed/man-executive/80/80',
-  },
-  {
-    name: 'Phạm Thị Mai Anh',
-    age: 39,
-    from: 'Marketing Manager',
-    to: 'Marketing Director',
-    quote:
-      'Lần đầu tiên có nền tảng thực sự hiểu những lo lắng của chúng tôi khi muốn chuyển nghề. Cộng đồng ở đây rất đồng cảm và hỗ trợ.',
-    avatar: 'https://picsum.photos/seed/woman-manager/80/80',
-  },
-];
-
-const StarRating = () => (
-  <div className="flex gap-0.5">
-    {[0, 1, 2, 3, 4].map((i) => (
-      <Star key={i} size={14} weight="fill" className="text-amber-400" />
-    ))}
-  </div>
-);
-
-const TestimonialCard = ({ testimonial, index }) => {
-  const ref = useRef(null);
-  const reduce = useReducedMotion();
-
-  return (
-    <motion.div
-      ref={ref}
-      className="bg-white rounded-2xl border border-zinc-100 p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
-      initial={reduce ? false : { opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.12,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-    >
-      <StarRating />
-
-      <p className="mt-4 text-sm text-[hsl(var(--foreground))] leading-relaxed line-clamp-3">
-        "{testimonial.quote}"
-      </p>
-
-      <div className="mt-6 flex items-center gap-3">
-        <img
-          src={testimonial.avatar}
-          alt={testimonial.name}
-          className="w-11 h-11 rounded-full object-cover bg-zinc-100"
-        />
-        <div>
-          <p className="text-sm font-semibold text-[hsl(var(--foreground))]">
-            {testimonial.name}
-          </p>
-          <p className="text-xs text-[hsl(var(--muted-foreground))]">
-            {testimonial.age} tuổi · {testimonial.from} → {testimonial.to}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TestimonialsSection = () => {
-  const reduce = useReducedMotion();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const testimonials = [
+    {
+      quote: "Sau 5 năm chấp hành án, tôi tưởng chừng không thể nào xin được việc. Nhờ nền tảng này, tôi không chỉ học được nghề thợ mộc mà còn có một công việc ổn định tại xưởng với mức thu nhập tốt.",
+      author: "Anh Nguyễn Văn Hùng",
+      role: "Thợ mộc tại Xưởng Gỗ Phương Nam",
+      age: 42
+    },
+    {
+      quote: "Ở tuổi 45, bị sa thải do cắt giảm nhân sự khiến tôi rất sốc. Restart 35+ đã giúp tôi tham gia khóa học bán hàng trực tuyến và giờ đây tôi đã tự mở được một cửa hàng nhỏ cho riêng mình.",
+      author: "Chị Trần Thị Mai",
+      role: "Chủ cửa hàng tạp hóa số",
+      age: 45
+    },
+    {
+      quote: "Doanh nghiệp chúng tôi luôn gặp khó khăn trong việc tìm kiếm những người thợ gắn bó lâu dài. Từ khi hợp tác với nền tảng, chúng tôi đã tuyển được những người lao động trung niên cực kỳ trách nhiệm và cẩn thận.",
+      author: "Anh Lê Quốc Bảo",
+      role: "Giám đốc nhân sự, Công ty Cơ khí Tiến Đạt",
+      age: null
+    }
+  ];
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
+  };
 
   return (
-    <section className="py-24 px-8 bg-[hsl(var(--muted))]">
-      <div className="max-w-[1280px] mx-auto">
-        <motion.div
-          className="text-center mb-16"
-          initial={reduce ? false : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-4">
-            Câu chuyện thành công
-          </h2>
-          <p className="text-base text-[hsl(var(--muted-foreground))] max-w-[55ch] mx-auto">
-            Những chuyên gia đã tái khởi động sự nghiệp thành công cùng Restart 35+.
-          </p>
-        </motion.div>
+    <section className="bg-[#FAFAFA] py-32 border-b border-black/5 relative overflow-hidden">
+      {/* Background Giant Quote Mark */}
+      <div 
+        className="absolute top-10 left-10 md:top-20 md:left-20 text-[20rem] md:text-[30rem] leading-none text-[hsl(var(--primary))]/[0.04] select-none pointer-events-none"
+        style={{ fontFamily: '"Instrument Serif", serif' }}
+      >
+        "
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t, index) => (
-            <TestimonialCard key={t.name} testimonial={t} index={index} />
-          ))}
+      <div className="max-w-5xl mx-auto px-6 relative z-10">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            <p 
+              className="text-2xl md:text-4xl lg:text-5xl leading-relaxed text-black mb-12"
+              style={{ fontFamily: '"Instrument Serif", serif' }}
+            >
+              "{testimonials[currentIndex].quote}"
+            </p>
+            
+            <div className="flex flex-col items-center justify-center">
+              <h4 className="text-lg font-medium text-black" style={{ fontFamily: '"Inter", sans-serif' }}>
+                {testimonials[currentIndex].author}
+              </h4>
+              <p className="text-[#6F6F6F] mt-1">
+                {testimonials[currentIndex].role} {testimonials[currentIndex].age && `(${testimonials[currentIndex].age} tuổi)`}
+              </p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation */}
+        <div className="flex justify-center items-center gap-6 mt-16">
+          <button 
+            onClick={handlePrev}
+            className="w-12 h-12 rounded-full border border-black/10 flex items-center justify-center hover:bg-[hsl(var(--primary))] hover:border-[hsl(var(--primary))] hover:text-white transition-colors duration-300"
+          >
+            ←
+          </button>
+          <div className="flex gap-2">
+            {testimonials.map((_, idx) => (
+              <button 
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${idx === currentIndex ? 'bg-[hsl(var(--primary))]' : 'bg-black/10'}`}
+              />
+            ))}
+          </div>
+          <button 
+            onClick={handleNext}
+            className="w-12 h-12 rounded-full border border-black/10 flex items-center justify-center hover:bg-[hsl(var(--primary))] hover:border-[hsl(var(--primary))] hover:text-white transition-colors duration-300"
+          >
+            →
+          </button>
         </div>
       </div>
     </section>
