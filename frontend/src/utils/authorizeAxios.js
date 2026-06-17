@@ -80,7 +80,12 @@ const refreshAccessToken = async () => {
 }
 
 publicAxiosInstance.interceptors.request.use(
-  (config) => config,
+  (config) => {
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
+    }
+    return config
+  },
   (error) => Promise.reject(error)
 )
 
@@ -91,6 +96,11 @@ publicAxiosInstance.interceptors.response.use(
 
 authorizeAxiosInstance.interceptors.request.use(
   (config) => {
+    // If sending FormData, remove default application/json so axios sets multipart/form-data with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
+    }
+
     // Use refreshed token if available, otherwise read from localStorage
     const token = refreshedToken || localStorage.getItem('accessToken')
     if (token) {

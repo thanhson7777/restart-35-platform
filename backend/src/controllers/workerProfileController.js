@@ -136,22 +136,16 @@ const getProfileCompleteness = async (req, res, next) => {
       hasExperience = false
     }
 
-    const interests = profile.interests
-    const hasInterests = interests && interests !== 'không có' &&
-      (interests.length > 0 || (interests.interests && interests.interests.length > 0))
-
     const missingFields = []
     if (!hasExperience) missingFields.push('employmentHistory')
-    if (!hasInterests) missingFields.push('interests')
 
     res.status(StatusCodes.OK).json({
       success: true,
       data: {
-        is_complete: hasExperience && hasInterests,
+        is_complete: hasExperience,
         has_experience: hasExperience,
-        has_interests: hasInterests,
         missing_fields: missingFields,
-        completeness_score: (hasExperience ? 50 : 0) + (hasInterests ? 50 : 0)
+        completeness_score: hasExperience ? 100 : 0
       }
     })
   } catch (error) { next(error) }

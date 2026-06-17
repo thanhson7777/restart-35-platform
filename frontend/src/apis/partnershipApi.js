@@ -16,3 +16,12 @@ export const getPartnershipDetail = (id) =>
 
 export const getPartnershipGraduates = (id, params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/partnerships/${id}/graduates`, { params });
+
+export const confirmPartnership = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/partnerships/${id}/confirm`, data);
+
+export const cancelPartnership = (id, data) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/partnerships/${id}/cancel`, data);
+
+export const getPartnershipLearners = (id, params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/partnerships/${id}/learners`, { params });

@@ -3,26 +3,42 @@ import { API_ROOT } from '~/utils/constants';
 
 // ─── Organizations Admin ───────────────────────────────────────────────────────
 
-export const getOrganizations = (params) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/organizations`, { params });
+export const getOrganizations = async (params) => {
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/organizations`, { params });
+  return response.data;
+};
 
-export const createOrganization = (data) =>
-  authorizeAxiosInstance.post(`${API_ROOT}/v1/organizations`, data);
+export const createOrganization = async (data) => {
+  const response = await authorizeAxiosInstance.post(`${API_ROOT}/v1/organizations`, data);
+  return response.data;
+};
 
-export const getOrganizationById = (id) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/organizations/${id}`);
+export const getOrganizationById = async (id) => {
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/organizations/${id}`);
+  return response.data;
+};
 
-export const updateOrganization = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/organizations/${id}`, data);
+export const updateOrganization = async (id, data) => {
+  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/organizations/${id}`, data);
+  return response.data;
+};
 
-export const deleteOrganization = (id) =>
-  authorizeAxiosInstance.delete(`${API_ROOT}/v1/organizations/${id}`);
+export const deleteOrganization = async (id) => {
+  const response = await authorizeAxiosInstance.delete(`${API_ROOT}/v1/organizations/${id}`);
+  return response.data;
+};
 
-export const getOrganizationMembers = (id) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/organizations/${id}/members`);
+export const getOrganizationMembers = async (id) => {
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/organizations/${id}/members`);
+  return response.data;
+};
 
-export const getOrganizationQuota = (id) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/organizations/${id}/quota`);
+export const getOrganizationQuota = async (id) => {
+  const response = await authorizeAxiosInstance.get(`${API_ROOT}/v1/organizations/${id}/quota`);
+  return response.data;
+};
 
-export const updateOrganizationQuota = (id, data) =>
-  authorizeAxiosInstance.put(`${API_ROOT}/v1/organizations/${id}/quota`, data);
+export const updateOrganizationQuota = async (id, data) => {
+  const response = await authorizeAxiosInstance.put(`${API_ROOT}/v1/organizations/${id}/quota`, data);
+  return response.data;
+};

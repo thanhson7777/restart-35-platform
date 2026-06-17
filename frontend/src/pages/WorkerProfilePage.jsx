@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/Card'
 import StepIndicator from '@/components/worker-profile/StepIndicator'
 import EmploymentForm from '@/components/worker-profile/EmploymentForm'
-import InterestsStep from '@/components/worker-profile/InterestsStep'
 import BarriersForm from '@/components/worker-profile/BarriersForm'
 import AspirationsForm from '@/components/worker-profile/AspirationsForm'
 import {
@@ -18,7 +17,7 @@ import {
   setCurrentStep
 } from '@/redux/profile/profileSlice'
 import { selectCurrentUser } from '@/redux/user/userSlice'
-import { STEP_LABELS } from '~/data/profileData'
+import { STEP_LABELS, STEP_DESCRIPTIONS } from '~/data/profileData'
 import { reopenWorkerProfile } from '@/apis/courseApi'
 import toast from 'react-hot-toast'
 
@@ -62,7 +61,7 @@ function WorkerProfilePage() {
   }, [currentStep])
 
   const handleNext = () => {
-    setActiveStep((prev) => Math.min(prev + 1, 4))
+    setActiveStep((prev) => Math.min(prev + 1, 3))
   }
 
   const handlePrev = () => {
@@ -83,10 +82,8 @@ function WorkerProfilePage() {
       case 1:
         return <EmploymentForm onNext={handleNext} />
       case 2:
-        return <InterestsStep onNext={handleNext} />
-      case 3:
         return <BarriersForm onNext={handleNext} />
-      case 4:
+      case 3:
         return <AspirationsForm />
       default:
         return <EmploymentForm onNext={handleNext} />
@@ -98,25 +95,19 @@ function WorkerProfilePage() {
   }
 
   const getStepDescription = () => {
-    const descriptions = [
-      'Các công việc đã làm trước đây',
-      'Sở thích và đam mê của bạn',
-      'Những khó khăn bạn đang gặp phải',
-      'Công việc và môi trường bạn mong muốn'
-    ]
-    return descriptions[activeStep - 1] || ''
+    return STEP_DESCRIPTIONS[activeStep - 1] || ''
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-blue-50 flex flex-col">
+    <div className="flex flex-col space-y-6 max-w-4xl">
       {/* Main content */}
-      <main className="flex-1 py-6 sm:py-10 px-4 sm:px-6">
-        <div className="max-w-2xl mx-auto">
+      <main className="flex-1">
+        <div>
           {/* Page title */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-6"
+            className="mb-6"
           >
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
               Hồ sơ người lao động
@@ -127,7 +118,7 @@ function WorkerProfilePage() {
           </motion.div>
 
           {/* Step Indicator */}
-          <StepIndicator currentStep={activeStep} totalSteps={4} isProfileCompleted={isCompleted} />
+          <StepIndicator currentStep={activeStep} totalSteps={3} isProfileCompleted={isCompleted} />
 
           {/* Form Card */}
           <motion.div

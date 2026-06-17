@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { EnrollmentCard } from './EnrollmentCard';
 import { CourseCardSkeleton } from '@/components/course/CourseCardSkeleton';
 import { Card } from '@/components/ui';
-import { BookOpen, Award, GraduationCap, DollarSign, Play } from 'lucide-react';
+import { BookOpen, Award, GraduationCap, DollarSign, Play, MonitorPlay, Radio, MapPin, LayoutGrid } from 'lucide-react';
 import { ENROLLMENT_STATUS } from '@/utils/constants';
 import { formatPrice } from '@/utils/formatter';
 import { EnrollmentSourceBadge, EnrollmentFundingSummary } from './EnrollmentSourceBadge';
@@ -17,11 +17,10 @@ const STATUS_TABS = [
 ];
 
 const DELIVERY_TABS = [
-  { key: 'all', label: 'Tất cả hình thức' },
-  { key: 'video', label: '📺 Video tự học' },
-  { key: 'live', label: '🔴 Tương tác Live' },
-  { key: 'offline', label: '📍 Lớp tập trung' },
-  { key: 'blended', label: '🔄 Học kết hợp' },
+  { key: 'all', label: 'Tất cả hình thức', icon: LayoutGrid },
+  { key: 'video', label: 'Video tự học', icon: MonitorPlay },
+  { key: 'live', label: 'Tương tác Live', icon: Radio },
+  { key: 'offline', label: 'Lớp tập trung', icon: MapPin },
 ];
 
 export const EnrollmentList = ({
@@ -136,18 +135,20 @@ export const EnrollmentList = ({
           <div className="flex gap-2 overflow-x-auto pb-1.5 scrollbar-thin">
             {DELIVERY_TABS.map((tab) => {
               const count = tab.key === 'all' ? list.length : list.filter(e => e.course?.delivery_type === tab.key).length;
+              const Icon = tab.icon;
               return (
                 <button
                   key={tab.key}
                   onClick={() => setActiveDeliveryFilter(tab.key)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border transition-all ${
                     activeDeliveryFilter === tab.key
                       ? 'bg-zinc-900 border-zinc-900 text-white dark:bg-white dark:border-white dark:text-zinc-950 shadow-sm'
                       : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900'
                   }`}
                 >
+                  <Icon className="w-3.5 h-3.5" />
                   {tab.label}
-                  <span className="ml-1.5 text-[10px] opacity-60">({count})</span>
+                  <span className="ml-1 text-[10px] opacity-60">({count})</span>
                 </button>
               );
             })}

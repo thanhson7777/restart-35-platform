@@ -65,8 +65,7 @@ const GENDER_LABELS = {
 const MARITAL_STATUS_LABELS = {
   single: 'Độc thân',
   married: 'Đã kết hôn',
-  divorced: 'Ly hôn',
-  widowed: 'Góa'
+  divorced: 'Ly hôn'
 };
 
 const EDUCATION_LABELS = {
@@ -448,8 +447,8 @@ export default function EnterpriseApplicationDetailPage() {
                   <div>
                     <p className="text-xs text-[hsl(var(--admin-text-muted))]">Vị trí mong muốn</p>
                     <p className="text-sm">
-                      {typeof profileData.aspirations.targetJob === 'object' 
-                        ? profileData.aspirations.targetJob?.titleVi || profileData.aspirations.targetJob?.titleEn || 'Không có' 
+                      {typeof profileData.aspirations.targetJob === 'object'
+                        ? profileData.aspirations.targetJob?.titleVi || profileData.aspirations.targetJob?.titleEn || 'Không có'
                         : profileData.aspirations.targetJob || 'Không có'}
                     </p>
                   </div>
@@ -617,8 +616,8 @@ export default function EnterpriseApplicationDetailPage() {
               {scheduleModal.mode === 'shortlist-first'
                 ? 'Ứng viên sẽ được shortlisted và đặt lịch phỏng vấn.'
                 : scheduleModal.mode === 'update'
-                ? 'Cập nhật thông tin lịch phỏng vấn.'
-                : 'Đặt lịch phỏng vấn cho ứng viên.'}
+                  ? 'Cập nhật thông tin lịch phỏng vấn.'
+                  : 'Đặt lịch phỏng vấn cho ứng viên.'}
             </DialogDescription>
           </DialogHeader>
           <div className="py-2">

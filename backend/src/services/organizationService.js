@@ -46,15 +46,120 @@ const getOrganizations = async (query) => {
       ]
     }
 
-    const result = await organizationModel.findByPaginate(matchCondition, skip, limit)
+    const { GET_DB } = await import('~/config/mongodb')
+    const db = await GET_DB()
+    const pipeline = []
+    
+    if (matchCondition.type || matchCondition.$or) {
+      pipeline.push({ $match: matchCondition })
+    } else {
+      pipeline.push({ $match: { _destroy: false } })
+    }
+
+    // Join users to calculate memberCount and status
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'users',
+          let: { orgId: { $toString: '$_id' } },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$organizationId', '$$orgId'] } } }
+          ],
+          as: 'members'
+        }
+      },
+      {
+        $addFields: {
+          memberCount: {
+            $size: {
+              $filter: {
+                input: '$members',
+                as: 'member',
+                cond: { $eq: ['$$member._destroy', false] }
+              }
+            }
+          },
+          ownerId: {
+            $let: {
+              vars: {
+                owner: { $arrayElemAt: ['$members', 0] }
+              },
+              in: '$$owner._id'
+            }
+          },
+          ownerEmail: {
+            $let: {
+              vars: {
+                owner: { $arrayElemAt: ['$members', 0] }
+              },
+              in: '$$owner.email'
+            }
+          },
+          status: {
+            $let: {
+              vars: {
+                owner: { $arrayElemAt: ['$members', 0] }
+              },
+              in: {
+                $cond: {
+                  if: { $not: ['$$owner'] },
+                  then: 'active', // fallback if no owner
+                  else: {
+                    $cond: {
+                      if: { $eq: ['$$owner.adminApprovalStatus', 'pending'] },
+                      then: 'pending',
+                      else: {
+                        $cond: {
+                          if: { $eq: ['$$owner.isActive', false] },
+                          then: 'inactive',
+                          else: 'active'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    )
+
+    // Apply status filter if provided
+    if (query.status) {
+      pipeline.push({ $match: { status: query.status } })
+    }
+
+    // Sorting
+    const sortField = query.sortBy || 'createdAt'
+    const sortDirection = query.sortOrder === 'asc' ? 1 : -1
+    pipeline.push({ $sort: { [sortField]: sortDirection } })
+
+    // Pagination using $facet
+    pipeline.push(
+      {
+        $facet: {
+          metadata: [ { $count: "total" } ],
+          data: [ 
+            { $skip: skip }, 
+            { $limit: limit }, 
+            { $project: { members: 0 } } 
+          ]
+        }
+      }
+    )
+
+    const [result] = await db.collection('organizations').aggregate(pipeline).toArray()
+    const totalCountResult = result?.metadata?.[0]?.total || 0
+    const organizations = result?.data || []
 
     return {
-      organizations: result.organizations,
+      organizations,
       pagination: {
         page: parseInt(page),
         item_per_page: limit,
-        total: result.totalOrganizations,
-        total_pages: Math.ceil(result.totalOrganizations / limit)
+        total: totalCountResult,
+        total_pages: Math.ceil(totalCountResult / limit)
       }
     }
   } catch (error) {

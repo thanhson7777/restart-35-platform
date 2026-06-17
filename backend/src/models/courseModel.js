@@ -5,6 +5,10 @@ import {
   COURSE_STATUS, DURATION_UNITS, LOCATION_TYPES,
   COURSE_DELIVERY_TYPES, COURSE_FUNDING_MODELS
 } from '~/utils/constants'
+import {
+  OBJECT_ID_RULE,
+  OBJECT_ID_RULE_MESSAGE
+} from '~/utils/validator'
 
 const COURSE_COLLECTION_NAME = 'courses'
 const COURSE_COLLECTION_SCHEMA = Joi.object({
@@ -95,6 +99,8 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   // Metadata
   viewCount: Joi.number().integer().min(0).default(0),
   enrollmentCount: Joi.number().integer().min(0).default(0),
+  linkedPartnershipId: Joi.string().pattern(OBJECT_ID_RULE).allow(null, '').default(null),
+  linkedEnterpriseId: Joi.string().pattern(OBJECT_ID_RULE).allow(null, '').default(null),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
   _destroy: Joi.boolean().default(false)
@@ -207,7 +213,7 @@ const findByProvider = async (providerId, skip = 0, limit = 10, filters = {}) =>
 
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(query)
-      .sort({ createdAt: -1 })
+      .sort({ updatedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .toArray()
@@ -262,14 +268,17 @@ const searchCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, so
       matchStage.level = filters.level
     }
     if (filters.isFree === true) {
-      matchStage.isFree = true
+      matchStage.$and = matchStage.$and || []
+      matchStage.$and.push({ $or: [{ isFree: true }, { 'fundingConfig.type': 'FREE' }] })
     } else if (filters.isFree === false) {
-      matchStage.isFree = false
+      matchStage.$and = matchStage.$and || []
+      matchStage.$and.push({ $or: [{ isFree: false }, { 'fundingConfig.type': { $in: ['PAID', 'SPONSORED'] } }] })
+      
       if (filters.minFee !== undefined) {
-        matchStage.fee = { ...matchStage.fee, $gte: filters.minFee }
+        matchStage.$and.push({ $or: [{ fee: { $gte: filters.minFee } }, { 'fundingConfig.price': { $gte: filters.minFee } }] })
       }
       if (filters.maxFee !== undefined) {
-        matchStage.fee = { ...matchStage.fee, $lte: filters.maxFee }
+        matchStage.$and.push({ $or: [{ fee: { $lte: filters.maxFee } }, { 'fundingConfig.price': { $lte: filters.maxFee } }] })
       }
     }
     if (filters.hasScholarship) {

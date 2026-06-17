@@ -1,11 +1,13 @@
-import { LayoutDashboard, Handshake, BadgeDollarSign, Briefcase, Users, Calendar } from 'lucide-react';
+import { LayoutDashboard, Handshake, Briefcase, Users, Calendar, Wallet, Building2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils/cn';
 
 const navItems = [
   { href: '/enterprise/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+  { href: '/enterprise/profile', label: 'Hồ sơ doanh nghiệp', icon: Building2 },
   { href: '/enterprise/partnerships', label: 'Partnerships', icon: Handshake },
+  { href: '/enterprise/wallet', label: 'Ví & Giao dịch', icon: Wallet },
   { divider: true },
   { href: '/enterprise/recruitment', label: 'Tin tuyển dụng', icon: Briefcase },
   { href: '/enterprise/applications', label: 'Ứng viên', icon: Users },

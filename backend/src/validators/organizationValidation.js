@@ -53,7 +53,11 @@ const updateOrganization = async (req, res, next) => {
       .messages({ 'string.email': 'Email liên hệ không hợp lệ' }),
     contactPhone: Joi.string().max(20).trim().allow('', null),
     logo: Joi.string().allow('', null),
-    taxCode: Joi.string().max(50).trim().allow('', null)
+    taxCode: Joi.string().max(50).trim().allow('', null),
+    size: Joi.string().allow('', null),
+    focusAreas: Joi.array().items(Joi.string()).default([]),
+    operatingRegions: Joi.array().items(Joi.string()).default([]),
+    trainingCategories: Joi.array().items(Joi.string()).default([]),
   })
 
   try {

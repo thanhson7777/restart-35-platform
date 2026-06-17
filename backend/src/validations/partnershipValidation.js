@@ -17,7 +17,9 @@ const RECRUITMENT_NEEDS_SCHEMA = Joi.object({
   }).allow(null),
   requirements: Joi.array().items(Joi.string()).default([]),
   targetSkills: Joi.array().items(Joi.string()).default([]),
-  employmentType: Joi.string().allow('', null)
+  employmentType: Joi.string().allow('', null),
+  categoryId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(null),
+  deliveryType: Joi.string().valid('live', 'offline', 'video').allow(null)
 })
 
 const AGREED_TERMS_SCHEMA = Joi.object({

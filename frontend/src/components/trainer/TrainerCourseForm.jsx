@@ -30,7 +30,7 @@ import LocationPicker from '@/components/location/LocationPicker';
 import toast from 'react-hot-toast';
 import { uploadCourseResource } from '@/apis/trainerApi';
 
-const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmitting = false, isEditMode = false }) => {
+const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmitting = false, isEditMode = false, isPartnership = false }) => {
   const [activeTab, setActiveTab] = useState('basic');
   const [title, setTitle] = useState('');
   const [categoryId, setCategoryId] = useState('');
@@ -512,12 +512,13 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-1">
-                  <Label htmlFor="category" className="text-[hsl(var(--admin-text-secondary))]">Danh mục <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
+                  <Label htmlFor="categoryId" className="text-[hsl(var(--admin-text-secondary))]">Danh mục <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
                   <select
-                    id="category"
+                    id="categoryId"
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
+                    disabled={isPartnership && !!initialData?.categoryId}
+                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="">Chọn danh mục</option>
                     {categories.map((cat) => (
@@ -557,12 +558,12 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     id="deliveryType"
                     value={deliveryType}
                     onChange={(e) => setDeliveryType(e.target.value)}
-                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none"
+                    disabled={isPartnership && !!initialData?.delivery_type}
+                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="video">Học qua Video</option>
                     <option value="live">Học Online (Zoom/Meet)</option>
                     <option value="offline">Học trực tiếp (Offline)</option>
-                    <option value="blended">Kết hợp (Blended)</option>
                   </select>
                 </div>
               </div>
@@ -976,7 +977,8 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     min="1"
                     value={maxStudents}
                     onChange={(e) => setMaxStudents(Number(e.target.value))}
-                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
+                    disabled={isPartnership}
+                    className={`bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] ${isPartnership ? 'opacity-70 cursor-not-allowed' : ''}`}
                   />
                   {errors.maxStudents && (
                     <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
@@ -1158,7 +1160,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               className="bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent))]/90 border-none font-semibold px-6"
               onClick={() => handleSave('pending')}
             >
-              {isSubmitting ? 'Đang xử lý...' : 'Gửi duyệt khóa học'}
+              {isSubmitting ? 'Đang xử lý...' : (isPartnership ? 'Gửi Doanh nghiệp duyệt' : 'Gửi duyệt khóa học')}
             </Button>
           </div>
         </form>

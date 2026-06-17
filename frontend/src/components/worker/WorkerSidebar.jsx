@@ -30,6 +30,7 @@ const navGroups = [
     items: [
       { href: '/my-enrollments', label: 'Khóa học của tôi', icon: ClipboardList },
       { href: '/my-schedules', label: 'Lịch học', icon: Calendar },
+      { href: '/worker/transactions', label: 'Lịch sử giao dịch', icon: FileText },
     ],
   },
   {

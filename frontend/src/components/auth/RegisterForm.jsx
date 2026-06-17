@@ -18,7 +18,16 @@ import {
   PHONE_RULE,
   PHONE_RULE_MESSAGE
 } from '~/utils/validators'
-import { EDUCATION_OPTIONS, MARITAL_STATUS_OPTIONS } from '~/data/profileData'
+import { 
+  EDUCATION_OPTIONS, 
+  MARITAL_STATUS_OPTIONS,
+  INDUSTRY_OPTIONS,
+  COMPANY_SIZE_OPTIONS,
+  TRAINER_EXPERIENCE_OPTIONS,
+  TRAINING_CATEGORIES_OPTIONS,
+  NGO_FOCUS_AREAS_OPTIONS,
+  VIETNAM_PROVINCES
+} from '~/data/profileData'
 
 const UserIcon = ({ className }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -91,20 +100,92 @@ const PasswordStrengthIndicator = ({ password }) => {
   )
 }
 
-// ===== Step 2: BasicInfo =====
-const BOOK_ICON = () => (
-  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-  </svg>
-)
+const CheckboxGroup = ({ options, selectedValues, onChange, error, label }) => {
+  const toggleValue = (val) => {
+    if (selectedValues.includes(val)) {
+      onChange(selectedValues.filter(v => v !== val))
+    } else {
+      onChange([...selectedValues, val])
+    }
+  }
 
-const HEART_ICON = () => (
-  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-  </svg>
-)
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium text-foreground">
+        {label} <span className="text-destructive">*</span>
+      </label>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+        {options.map((opt) => (
+          <label key={opt.value} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-border bg-background hover:bg-muted/50 transition-colors">
+            <input
+              type="checkbox"
+              checked={selectedValues.includes(opt.value)}
+              onChange={() => toggleValue(opt.value)}
+              className="w-4 h-4 text-primary rounded border-input focus:ring-primary"
+            />
+            <span className="text-sm font-medium">{opt.label}</span>
+          </label>
+        ))}
+      </div>
+      {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+    </div>
+  )
+}
 
+// ===== Common: Check Tax Code (for Enterprise & Trainer Organization) =====
+const TaxCodeInput = ({ value, onChange, onAutoFill, error, touched, label = "Mã số thuế" }) => {
+  const [isChecking, setIsChecking] = useState(false)
+
+  const checkTaxCode = async () => {
+    if (!value.trim()) {
+      toast.error('Vui lòng nhập mã số thuế để kiểm tra.')
+      return
+    }
+    setIsChecking(true)
+    try {
+      const response = await fetch(`https://api.vietqr.io/v2/business/${value}`)
+      const data = await response.json()
+      if (data.code === '00' && data.data) {
+        onAutoFill(data.data.name, data.data.address)
+        toast.success('Lấy thông tin doanh nghiệp thành công!')
+      } else {
+        toast.error('Không tìm thấy thông tin doanh nghiệp hoặc mã số thuế không hợp lệ.')
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi kiểm tra mã số thuế.')
+    } finally {
+      setIsChecking(false)
+    }
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium text-foreground">
+        {label} <span className="text-destructive">*</span>
+      </label>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          placeholder="Nhập mã số thuế"
+          value={value}
+          onChange={(e) => onChange('taxCode', e.target.value)}
+          className={`
+            flex-1 bg-background border rounded-lg px-4 py-2.5 text-sm
+            focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
+            transition-colors duration-200
+            ${touched && error ? 'border-destructive' : 'border-input'}
+          `}
+        />
+        <Button type="button" variant="outline" onClick={checkTaxCode} isLoading={isChecking}>
+          Tra cứu
+        </Button>
+      </div>
+      {touched && error && <p className="text-xs text-destructive">{error}</p>}
+    </div>
+  )
+}
+
+// ===== Component: BasicInfoStep (Worker) =====
 const initialBasicInfo = {
   age: '',
   gender: '',
@@ -121,62 +202,40 @@ function BasicInfoStep({ basicInfo, setBasicInfo, errors, touched, onChange }) {
     } else {
       setBasicInfo(prev => ({ ...prev, [field]: value }))
     }
-    if (errors[field]) {
-      onChange(field, '') // clear error
-    }
+    if (errors[field]) onChange(field, '')
   }
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="space-y-4"
-    >
-      {/* Age + Gender */}
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-4">
       <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label htmlFor="reg-age" className="block text-sm font-medium text-foreground">
+          <label className="block text-sm font-medium text-foreground">
             Tuổi <span className="text-destructive">*</span>
           </label>
           <input
-            id="reg-age"
             type="number"
-            min="35"
-            max="65"
+            min="35" max="65"
             placeholder="35 - 65"
             value={basicInfo.age}
-            onChange={(e) => {
-              setBasicInfo(prev => ({ ...prev, age: e.target.value }))
-            }}
+            onChange={(e) => setBasicInfo(prev => ({ ...prev, age: e.target.value }))}
             onBlur={(e) => {
               const val = parseInt(e.target.value)
-              if (e.target.value !== '' && (isNaN(val) || val < 35 || val > 65)) {
-                onChange('age', '')
-              }
+              if (e.target.value !== '' && (isNaN(val) || val < 35 || val > 65)) onChange('age', '')
             }}
             className={`
               w-full bg-background border rounded-lg px-4 py-2.5 text-sm
               focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
-              transition-colors duration-200
-              placeholder:text-muted-foreground/60
               ${touched.age && errors.age ? 'border-destructive' : 'border-input'}
             `}
           />
-          {touched.age && errors.age && (
-            <p className="text-xs text-destructive">{errors.age}</p>
-          )}
+          {touched.age && errors.age && <p className="text-xs text-destructive">{errors.age}</p>}
         </div>
-
         <GenderField
           value={basicInfo.gender}
           onChange={(value) => handleChange('gender', value)}
           error={touched.gender ? errors.gender : ''}
         />
       </motion.div>
-
-      {/* Province + District */}
       <motion.div variants={itemVariants}>
         <ProvinceField
           province={basicInfo.province}
@@ -186,29 +245,22 @@ function BasicInfoStep({ basicInfo, setBasicInfo, errors, touched, onChange }) {
           errors={errors}
         />
       </motion.div>
-
-      {/* Education + Marital Status */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <SelectField
-          id="reg-education"
           label="Trình độ học vấn"
           value={basicInfo.education}
           options={EDUCATION_OPTIONS}
           onChange={(val) => handleChange('education', val)}
           placeholder="-- Chọn trình độ --"
-          icon={<BOOK_ICON />}
           error={touched.education ? errors.education : ''}
           required
         />
-
         <SelectField
-          id="reg-maritalStatus"
           label="Tình trạng hôn nhân"
           value={basicInfo.maritalStatus}
           options={MARITAL_STATUS_OPTIONS}
           onChange={(val) => handleChange('maritalStatus', val)}
           placeholder="-- Chọn tình trạng --"
-          icon={<HEART_ICON />}
           error={touched.maritalStatus ? errors.maritalStatus : ''}
           required
         />
@@ -217,44 +269,195 @@ function BasicInfoStep({ basicInfo, setBasicInfo, errors, touched, onChange }) {
   )
 }
 
-// ===== Step 2: OrganizationInfo =====
-const initialOrganizationInfo = {
-  name: '',
-  taxCode: '',
-  address: ''
-}
-
-function OrganizationInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
-  const [isChecking, setIsChecking] = useState(false)
-
-  const checkTaxCode = async () => {
-    if (!orgInfo.taxCode.trim()) {
-      toast.error('Vui lòng nhập mã số thuế để kiểm tra.')
-      return
-    }
-    setIsChecking(true)
-    try {
-      const response = await fetch(`https://api.vietqr.io/v2/business/${orgInfo.taxCode}`)
-      const data = await response.json()
-      if (data.code === '00' && data.data) {
-        setOrgInfo(prev => ({
-          ...prev,
-          name: data.data.name || prev.name,
-          address: data.data.address || prev.address
-        }))
-        toast.success('Lấy thông tin doanh nghiệp thành công!')
-        onChange('name', '')
-        onChange('address', '')
-      } else {
-        toast.error('Không tìm thấy thông tin doanh nghiệp hoặc mã số thuế không hợp lệ.')
-      }
-    } catch (error) {
-      toast.error('Có lỗi xảy ra khi kiểm tra mã số thuế.')
-    } finally {
-      setIsChecking(false)
-    }
+// ===== Component: EnterpriseInfoStep =====
+function EnterpriseInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
+  const handleChange = (field, value) => {
+    setOrgInfo(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) onChange(field, '')
   }
 
+  const handleAutoFill = (name, address) => {
+    setOrgInfo(prev => ({ ...prev, name: name || prev.name, address: address || prev.address }))
+    onChange('name', '')
+    onChange('address', '')
+  }
+
+  return (
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-4">
+      <motion.div variants={itemVariants}>
+        <TaxCodeInput
+          value={orgInfo.taxCode}
+          onChange={handleChange}
+          onAutoFill={handleAutoFill}
+          error={errors.taxCode}
+          touched={touched.taxCode}
+        />
+      </motion.div>
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <label className="block text-sm font-medium text-foreground">
+          Tên doanh nghiệp <span className="text-destructive">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Công ty CP..."
+          value={orgInfo.name}
+          onChange={(e) => handleChange('name', e.target.value)}
+          className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.name && errors.name ? 'border-destructive' : 'border-input'}`}
+        />
+        {touched.name && errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+      </motion.div>
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <label className="block text-sm font-medium text-foreground">
+          Địa chỉ trụ sở <span className="text-destructive">*</span>
+        </label>
+        <input
+          type="text"
+          placeholder="Số nhà, đường, phường, quận..."
+          value={orgInfo.address}
+          onChange={(e) => handleChange('address', e.target.value)}
+          className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.address && errors.address ? 'border-destructive' : 'border-input'}`}
+        />
+        {touched.address && errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
+      </motion.div>
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <SelectField
+          label="Lĩnh vực hoạt động"
+          value={orgInfo.industry}
+          options={INDUSTRY_OPTIONS}
+          onChange={(val) => handleChange('industry', val)}
+          placeholder="-- Chọn lĩnh vực --"
+          error={touched.industry ? errors.industry : ''}
+          required
+        />
+        <SelectField
+          label="Quy mô nhân sự"
+          value={orgInfo.size}
+          options={COMPANY_SIZE_OPTIONS}
+          onChange={(val) => handleChange('size', val)}
+          placeholder="-- Chọn quy mô --"
+        />
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// ===== Component: TrainerInfoStep =====
+function TrainerInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
+  const handleChange = (field, value) => {
+    setOrgInfo(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) onChange(field, '')
+  }
+
+  const handleAutoFill = (name, address) => {
+    setOrgInfo(prev => ({ ...prev, name: name || prev.name, address: address || prev.address }))
+    onChange('name', '')
+    onChange('address', '')
+  }
+
+  return (
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-4">
+      {/* Radio: Individual or Organization */}
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <label className="block text-sm font-medium text-foreground">
+          Loại hình hoạt động <span className="text-destructive">*</span>
+        </label>
+        <div className="flex gap-4 mt-2">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="trainerType"
+              value="organization"
+              checked={orgInfo.trainerType === 'organization'}
+              onChange={(e) => handleChange('trainerType', e.target.value)}
+              className="text-primary focus:ring-primary"
+            />
+            <span className="text-sm">Trung tâm / Tổ chức</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="trainerType"
+              value="individual"
+              checked={orgInfo.trainerType === 'individual'}
+              onChange={(e) => handleChange('trainerType', e.target.value)}
+              className="text-primary focus:ring-primary"
+            />
+            <span className="text-sm">Cá nhân / Chuyên gia</span>
+          </label>
+        </div>
+      </motion.div>
+
+      {orgInfo.trainerType === 'organization' ? (
+        <>
+          <motion.div variants={itemVariants}>
+            <TaxCodeInput
+              value={orgInfo.taxCode}
+              onChange={handleChange}
+              onAutoFill={handleAutoFill}
+              error={errors.taxCode}
+              touched={touched.taxCode}
+            />
+          </motion.div>
+          <motion.div variants={itemVariants} className="space-y-1.5">
+            <label className="block text-sm font-medium text-foreground">
+              Tên trung tâm đào tạo <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Nhập tên trung tâm..."
+              value={orgInfo.name}
+              onChange={(e) => handleChange('name', e.target.value)}
+              className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.name && errors.name ? 'border-destructive' : 'border-input'}`}
+            />
+            {touched.name && errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+          </motion.div>
+        </>
+      ) : (
+        <>
+          <motion.div variants={itemVariants} className="space-y-1.5">
+            <label className="block text-sm font-medium text-foreground">
+              Số CCCD/CMND <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Nhập số CCCD/CMND"
+              value={orgInfo.identityNumber}
+              onChange={(e) => handleChange('identityNumber', e.target.value)}
+              className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.identityNumber && errors.identityNumber ? 'border-destructive' : 'border-input'}`}
+            />
+            {touched.identityNumber && errors.identityNumber && <p className="text-xs text-destructive">{errors.identityNumber}</p>}
+          </motion.div>
+          <motion.div variants={itemVariants} className="space-y-1.5">
+            <label className="block text-sm font-medium text-foreground">
+              Họ và tên chuyên gia <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Nhập họ và tên..."
+              value={orgInfo.name}
+              onChange={(e) => handleChange('name', e.target.value)}
+              className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.name && errors.name ? 'border-destructive' : 'border-input'}`}
+            />
+            {touched.name && errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+          </motion.div>
+        </>
+      )}
+
+      <motion.div variants={itemVariants}>
+        <CheckboxGroup
+          label="Lĩnh vực giảng dạy"
+          options={TRAINING_CATEGORIES_OPTIONS}
+          selectedValues={orgInfo.trainingCategories}
+          onChange={(vals) => handleChange('trainingCategories', vals)}
+          error={touched.trainingCategories ? errors.trainingCategories : ''}
+        />
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// ===== Component: NGOInfoStep =====
+function NGOInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
   const handleChange = (field, value) => {
     setOrgInfo(prev => ({ ...prev, [field]: value }))
     if (errors[field]) onChange(field, '')
@@ -262,78 +465,69 @@ function OrganizationInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-4">
-      {/* Tax Code */}
       <motion.div variants={itemVariants} className="space-y-1.5">
-        <label htmlFor="reg-taxCode" className="block text-sm font-medium text-foreground">
-          Mã số thuế <span className="text-destructive">*</span>
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="reg-taxCode"
-            type="text"
-            placeholder="Nhập mã số thuế"
-            value={orgInfo.taxCode}
-            onChange={(e) => handleChange('taxCode', e.target.value)}
-            className={`
-              flex-1 bg-background border rounded-lg px-4 py-2.5 text-sm
-              focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
-              transition-colors duration-200
-              ${touched.taxCode && errors.taxCode ? 'border-destructive' : 'border-input'}
-            `}
-          />
-          <Button type="button" variant="outline" onClick={checkTaxCode} isLoading={isChecking}>
-            Tra cứu
-          </Button>
-        </div>
-        {touched.taxCode && errors.taxCode && <p className="text-xs text-destructive">{errors.taxCode}</p>}
-      </motion.div>
-
-      {/* Name */}
-      <motion.div variants={itemVariants} className="space-y-1.5">
-        <label htmlFor="reg-orgName" className="block text-sm font-medium text-foreground">
-          Tên tổ chức / Doanh nghiệp <span className="text-destructive">*</span>
+        <label className="block text-sm font-medium text-foreground">
+          Tên tổ chức / Quỹ <span className="text-destructive">*</span>
         </label>
         <input
-          id="reg-orgName"
           type="text"
-          placeholder="Công ty CP..."
+          placeholder="Tổ chức phi chính phủ..."
           value={orgInfo.name}
           onChange={(e) => handleChange('name', e.target.value)}
-          className={`
-            w-full bg-background border rounded-lg px-4 py-2.5 text-sm
-            focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
-            transition-colors duration-200
-            ${touched.name && errors.name ? 'border-destructive' : 'border-input'}
-          `}
+          className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.name && errors.name ? 'border-destructive' : 'border-input'}`}
         />
         {touched.name && errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
       </motion.div>
-
-      {/* Address */}
       <motion.div variants={itemVariants} className="space-y-1.5">
-        <label htmlFor="reg-orgAddress" className="block text-sm font-medium text-foreground">
-          Địa chỉ trụ sở <span className="text-destructive">*</span>
+        <label className="block text-sm font-medium text-foreground">
+          Giấy phép hoạt động / Mã số thuế <span className="text-destructive">*</span>
         </label>
         <input
-          id="reg-orgAddress"
           type="text"
-          placeholder="Số nhà, đường, phường, quận..."
-          value={orgInfo.address}
-          onChange={(e) => handleChange('address', e.target.value)}
-          className={`
-            w-full bg-background border rounded-lg px-4 py-2.5 text-sm
-            focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary
-            transition-colors duration-200
-            ${touched.address && errors.address ? 'border-destructive' : 'border-input'}
-          `}
+          placeholder="Nhập số giấy phép hoặc mã số thuế..."
+          value={orgInfo.taxCode}
+          onChange={(e) => handleChange('taxCode', e.target.value)}
+          className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.taxCode && errors.taxCode ? 'border-destructive' : 'border-input'}`}
         />
-        {touched.address && errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
+        {touched.taxCode && errors.taxCode && <p className="text-xs text-destructive">{errors.taxCode}</p>}
+      </motion.div>
+      <motion.div variants={itemVariants}>
+        <CheckboxGroup
+          label="Mục tiêu hỗ trợ chính"
+          options={NGO_FOCUS_AREAS_OPTIONS}
+          selectedValues={orgInfo.focusAreas}
+          onChange={(vals) => handleChange('focusAreas', vals)}
+          error={touched.focusAreas ? errors.focusAreas : ''}
+        />
+      </motion.div>
+      <motion.div variants={itemVariants}>
+        <CheckboxGroup
+          label="Địa bàn hoạt động"
+          options={VIETNAM_PROVINCES.slice(0, 8)} // Just showing a few for UI demo
+          selectedValues={orgInfo.operatingRegions}
+          onChange={(vals) => handleChange('operatingRegions', vals)}
+          error={touched.operatingRegions ? errors.operatingRegions : ''}
+        />
       </motion.div>
     </motion.div>
   )
 }
 
 // ===== Main RegisterForm =====
+const initialOrganizationInfo = {
+  name: '',
+  taxCode: '',
+  address: '',
+  trainerType: 'organization',
+  identityNumber: '',
+  industry: '',
+  size: '',
+  trainingCategories: [],
+  experience: '',
+  focusAreas: [],
+  operatingRegions: []
+}
+
 function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelection }) {
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -362,95 +556,75 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
 
   const validateAccount = () => {
     const newErrors = {}
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email là bắt buộc.'
-    } else if (!EMAIL_RULE.test(formData.email)) {
-      newErrors.email = EMAIL_RULE_MESSAGE
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Mật khẩu là bắt buộc.'
-    } else if (!PASSWORD_RULE.test(formData.password)) {
-      newErrors.password = PASSWORD_RULE_MESSAGE
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu.'
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp.'
-    }
-
-    if (!formData.displayName.trim()) {
-      newErrors.displayName = 'Họ tên là bắt buộc.'
-    } else if (formData.displayName.trim().length < 2) {
-      newErrors.displayName = 'Họ tên phải có ít nhất 2 ký tự.'
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Số điện thoại là bắt buộc.'
-    } else if (!PHONE_RULE.test(formData.phone)) {
-      newErrors.phone = PHONE_RULE_MESSAGE
-    }
-
+    if (!formData.email.trim()) newErrors.email = 'Email là bắt buộc.'
+    else if (!EMAIL_RULE.test(formData.email)) newErrors.email = EMAIL_RULE_MESSAGE
+    if (!formData.password) newErrors.password = 'Mật khẩu là bắt buộc.'
+    else if (!PASSWORD_RULE.test(formData.password)) newErrors.password = PASSWORD_RULE_MESSAGE
+    if (!formData.confirmPassword) newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu.'
+    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp.'
+    if (!formData.displayName.trim()) newErrors.displayName = 'Họ tên là bắt buộc.'
+    else if (formData.displayName.trim().length < 2) newErrors.displayName = 'Họ tên phải có ít nhất 2 ký tự.'
+    if (!formData.phone.trim()) newErrors.phone = 'Số điện thoại là bắt buộc.'
+    else if (!PHONE_RULE.test(formData.phone)) newErrors.phone = PHONE_RULE_MESSAGE
     return newErrors
   }
 
   const validateBasicInfo = () => {
     const newErrors = {}
-
     const ageStr = String(basicInfo.age ?? '').trim()
-    if (!ageStr) {
-      newErrors.age = 'Tuổi là bắt buộc.'
-    } else {
+    if (!ageStr) newErrors.age = 'Tuổi là bắt buộc.'
+    else {
       const ageNum = parseInt(ageStr, 10)
-      if (isNaN(ageNum) || ageNum < 35 || ageNum > 65) {
-        newErrors.age = 'Tuổi phải từ 35 đến 65.'
-      }
+      if (isNaN(ageNum)) newErrors.age = 'Tuổi phải là một số hợp lệ.'
+      else if (ageNum < 35) newErrors.age = 'Rất tiếc, RESTART-35 là nền tảng dành riêng cho người lao động từ 35 tuổi trở lên.'
+      else if (ageNum > 65) newErrors.age = 'Độ tuổi đăng ký tham gia nền tảng tối đa là 65 tuổi.'
     }
-
-    if (!basicInfo.gender) {
-      newErrors.gender = 'Vui lòng chọn giới tính.'
-    }
-    if (!basicInfo.province) {
-      newErrors.province = 'Vui lòng chọn tỉnh/thành.'
-    }
-    if (!basicInfo.education) {
-      newErrors.education = 'Vui lòng chọn trình độ học vấn.'
-    }
-    if (!basicInfo.maritalStatus) {
-      newErrors.maritalStatus = 'Vui lòng chọn tình trạng hôn nhân.'
-    }
-
+    if (!basicInfo.gender) newErrors.gender = 'Vui lòng chọn giới tính.'
+    if (!basicInfo.province) newErrors.province = 'Vui lòng chọn tỉnh/thành.'
+    if (!basicInfo.education) newErrors.education = 'Vui lòng chọn trình độ học vấn.'
+    if (!basicInfo.maritalStatus) newErrors.maritalStatus = 'Vui lòng chọn tình trạng hôn nhân.'
     return newErrors
   }
 
-  const validateOrganizationInfo = () => {
+  const validateEnterpriseInfo = () => {
     const newErrors = {}
-    if (!orgInfo.name.trim()) newErrors.name = 'Tên tổ chức là bắt buộc.'
+    if (!orgInfo.name.trim()) newErrors.name = 'Tên doanh nghiệp là bắt buộc.'
     if (!orgInfo.taxCode.trim()) newErrors.taxCode = 'Mã số thuế là bắt buộc.'
     if (!orgInfo.address.trim()) newErrors.address = 'Địa chỉ là bắt buộc.'
+    if (!orgInfo.industry) newErrors.industry = 'Vui lòng chọn lĩnh vực hoạt động.'
+    return newErrors
+  }
+
+  const validateTrainerInfo = () => {
+    const newErrors = {}
+    if (!orgInfo.name.trim()) {
+      newErrors.name = orgInfo.trainerType === 'individual' ? 'Tên chuyên gia là bắt buộc.' : 'Tên trung tâm là bắt buộc.'
+    }
+    if (orgInfo.trainerType === 'organization' && !orgInfo.taxCode.trim()) {
+      newErrors.taxCode = 'Mã số thuế / Giấy phép là bắt buộc.'
+    }
+    if (orgInfo.trainerType === 'individual' && !orgInfo.identityNumber.trim()) {
+      newErrors.identityNumber = 'Số CCCD/CMND là bắt buộc.'
+    }
+    if (orgInfo.trainingCategories.length === 0) {
+      newErrors.trainingCategories = 'Vui lòng chọn ít nhất 1 lĩnh vực giảng dạy.'
+    }
+    return newErrors
+  }
+
+  const validateNGOInfo = () => {
+    const newErrors = {}
+    if (!orgInfo.name.trim()) newErrors.name = 'Tên tổ chức là bắt buộc.'
+    if (!orgInfo.taxCode.trim()) newErrors.taxCode = 'Giấy phép hoạt động là bắt buộc.'
+    if (orgInfo.focusAreas.length === 0) newErrors.focusAreas = 'Vui lòng chọn ít nhất 1 lĩnh vực hỗ trợ.'
+    if (orgInfo.operatingRegions.length === 0) newErrors.operatingRegions = 'Vui lòng chọn ít nhất 1 địa bàn hoạt động.'
     return newErrors
   }
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }))
-    }
-  }
-
-  const handleBasicInfoChange = (field, value) => {
-    if (basicInfoErrors[field]) {
-      setBasicInfoErrors((prev) => ({ ...prev, [field]: '' }))
-    }
-  }
-
-  const handleOrgInfoChange = (field, value) => {
-    if (orgInfoErrors[field]) {
-      setOrgInfoErrors((prev) => ({ ...prev, [field]: '' }))
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }))
   }
 
   const handleAccountSubmit = (e) => {
@@ -460,26 +634,34 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
     setErrors(accountErrors)
     if (Object.keys(accountErrors).length > 0) return
     
-    // Move to step 2 — let user fill basicInfo or orgInfo
     if (selectedRole === 'worker') {
       setBasicInfoTouched({ age: true, gender: true, province: true, education: true, maritalStatus: true })
       const biErrors = validateBasicInfo()
       setBasicInfoErrors(biErrors)
       if (Object.keys(biErrors).length > 0) {
-        toast.error('Vui lòng điền đầy đủ thông tin cơ bản.')
+        toast.error(Object.values(biErrors)[0] || 'Vui lòng kiểm tra lại thông tin cơ bản.')
         return
       }
     } else {
-      setOrgInfoTouched({ name: true, taxCode: true, address: true })
-      const orgErrors = validateOrganizationInfo()
+      let orgErrors = {}
+      if (selectedRole === 'enterprise') {
+        setOrgInfoTouched({ name: true, taxCode: true, address: true, industry: true })
+        orgErrors = validateEnterpriseInfo()
+      } else if (selectedRole === 'trainer') {
+        setOrgInfoTouched({ name: true, taxCode: true, identityNumber: true, trainingCategories: true })
+        orgErrors = validateTrainerInfo()
+      } else if (selectedRole === 'ngo') {
+        setOrgInfoTouched({ name: true, taxCode: true, focusAreas: true, operatingRegions: true })
+        orgErrors = validateNGOInfo()
+      }
+
       setOrgInfoErrors(orgErrors)
       if (Object.keys(orgErrors).length > 0) {
-        toast.error('Vui lòng điền đầy đủ thông tin tổ chức.')
+        toast.error(Object.values(orgErrors)[0] || 'Vui lòng kiểm tra lại thông tin tổ chức.')
         return
       }
     }
 
-    // Both steps valid — submit
     handleFullSubmit()
   }
 
@@ -506,7 +688,15 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
       payload.organization = {
         name: orgInfo.name,
         taxCode: orgInfo.taxCode,
-        address: orgInfo.address
+        address: orgInfo.address,
+        trainerType: orgInfo.trainerType,
+        identityNumber: orgInfo.identityNumber,
+        industry: orgInfo.industry,
+        size: orgInfo.size,
+        trainingCategories: orgInfo.trainingCategories,
+        experience: orgInfo.experience,
+        focusAreas: orgInfo.focusAreas,
+        operatingRegions: orgInfo.operatingRegions
       }
     }
 
@@ -531,11 +721,7 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
   return (
     <div className="space-y-4">
       {successMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-3 rounded-lg bg-secondary/10 border border-secondary/20 text-secondary text-sm"
-        >
+        <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-lg bg-secondary/10 border border-secondary/20 text-secondary text-sm">
           {successMessage}
         </motion.div>
       )}
@@ -544,159 +730,77 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
       <motion.div variants={containerVariants} initial="hidden" animate="visible">
         <motion.div variants={itemVariants}>
           <Label htmlFor="displayName" required>
-            Họ và tên
+            {['enterprise', 'ngo'].includes(selectedRole) ? 'Họ tên người đại diện' : 'Họ và tên'}
           </Label>
           <div className="relative mt-1">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <UserIcon className="h-4 w-4 text-muted-foreground" />
             </div>
-            <Input
-              id="displayName"
-              name="displayName"
-              placeholder="Nguyễn Văn A"
-              value={formData.displayName}
-              onChange={handleChange}
-              error={errors.displayName}
-              className="pl-10"
-              inputSize="lg"
-              autoComplete="name"
-            />
+            <Input id="displayName" name="displayName" placeholder="Nguyễn Văn A" value={formData.displayName} onChange={handleChange} error={errors.displayName} className="pl-10" inputSize="lg" autoComplete="name" />
           </div>
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Label htmlFor="email" required>
-            Email
-          </Label>
+          <Label htmlFor="email" required>Email</Label>
           <div className="relative mt-1">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <MailIcon className="h-4 w-4 text-muted-foreground" />
             </div>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="email@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-              className="pl-10"
-              inputSize="lg"
-              autoComplete="email"
-            />
+            <Input id="email" name="email" type="email" placeholder="email@example.com" value={formData.email} onChange={handleChange} error={errors.email} className="pl-10" inputSize="lg" autoComplete="email" />
           </div>
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Label htmlFor="phone" required>
-            Số điện thoại
-          </Label>
+          <Label htmlFor="phone" required>Số điện thoại</Label>
           <div className="relative mt-1">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <PhoneIcon className="h-4 w-4 text-muted-foreground" />
             </div>
-            <Input
-              id="phone"
-              name="phone"
-              type="tel"
-              placeholder="0xxxxxxxxx"
-              value={formData.phone}
-              onChange={handleChange}
-              error={errors.phone}
-              className="pl-10"
-              inputSize="lg"
-              autoComplete="tel"
-            />
+            <Input id="phone" name="phone" type="tel" placeholder="0xxxxxxxxx" value={formData.phone} onChange={handleChange} error={errors.phone} className="pl-10" inputSize="lg" autoComplete="tel" />
           </div>
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Label htmlFor="password" required>
-            Mật khẩu
-          </Label>
+          <Label htmlFor="password" required>Mật khẩu</Label>
           <div className="mt-1">
-            <PasswordInput
-              id="password"
-              name="password"
-              placeholder="Ít nhất 8 ký tự, có chữ và số"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              inputSize="lg"
-              autoComplete="new-password"
-            />
+            <PasswordInput id="password" name="password" placeholder="Ít nhất 8 ký tự, có chữ và số" value={formData.password} onChange={handleChange} error={errors.password} inputSize="lg" autoComplete="new-password" />
           </div>
           <PasswordStrengthIndicator password={formData.password} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Label htmlFor="confirmPassword" required>
-            Xác nhận mật khẩu
-          </Label>
+          <Label htmlFor="confirmPassword" required>Xác nhận mật khẩu</Label>
           <div className="mt-1">
-            <PasswordInput
-              id="confirmPassword"
-              name="confirmPassword"
-              placeholder="Nhập lại mật khẩu"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              inputSize="lg"
-              autoComplete="new-password"
-            />
+            <PasswordInput id="confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu" value={formData.confirmPassword} onChange={handleChange} error={errors.confirmPassword} inputSize="lg" autoComplete="new-password" />
           </div>
         </motion.div>
       </motion.div>
 
-      {/* ===== Step 2: BasicInfo / OrgInfo ===== */}
-      {selectedRole === 'worker' ? (
-        <div className="pt-2 border-t border-border/50">
-          <p className="text-sm font-medium text-foreground mb-3">
-            Thông tin cơ bản <span className="text-destructive">*</span>
-          </p>
-          <BasicInfoStep
-            basicInfo={basicInfo}
-            setBasicInfo={setBasicInfo}
-            errors={basicInfoErrors}
-            touched={basicInfoTouched}
-            onChange={handleBasicInfoChange}
-          />
-        </div>
-      ) : (
-        <div className="pt-2 border-t border-border/50">
-          <p className="text-sm font-medium text-foreground mb-3">
-            Thông tin Tổ chức / Doanh nghiệp <span className="text-destructive">*</span>
-          </p>
-          <OrganizationInfoStep
-            orgInfo={orgInfo}
-            setOrgInfo={setOrgInfo}
-            errors={orgInfoErrors}
-            touched={orgInfoTouched}
-            onChange={handleOrgInfoChange}
-          />
-        </div>
-      )}
+      {/* ===== Step 2: Role Specific Info ===== */}
+      <div className="pt-2 border-t border-border/50">
+        <p className="text-sm font-medium text-foreground mb-3">
+          {selectedRole === 'worker' ? 'Thông tin cơ bản' : 'Thông tin đăng ký đối tác'} <span className="text-destructive">*</span>
+        </p>
+        
+        {selectedRole === 'worker' && <BasicInfoStep basicInfo={basicInfo} setBasicInfo={setBasicInfo} errors={basicInfoErrors} touched={basicInfoTouched} onChange={(f,v) => { if(basicInfoErrors[f]) setBasicInfoErrors(p=>({...p,[f]:''})) }} />}
+        
+        {selectedRole === 'enterprise' && <EnterpriseInfoStep orgInfo={orgInfo} setOrgInfo={setOrgInfo} errors={orgInfoErrors} touched={orgInfoTouched} onChange={(f,v) => { if(orgInfoErrors[f]) setOrgInfoErrors(p=>({...p,[f]:''})) }} />}
+        
+        {selectedRole === 'trainer' && <TrainerInfoStep orgInfo={orgInfo} setOrgInfo={setOrgInfo} errors={orgInfoErrors} touched={orgInfoTouched} onChange={(f,v) => { if(orgInfoErrors[f]) setOrgInfoErrors(p=>({...p,[f]:''})) }} />}
+        
+        {selectedRole === 'ngo' && <NGOInfoStep orgInfo={orgInfo} setOrgInfo={setOrgInfo} errors={orgInfoErrors} touched={orgInfoTouched} onChange={(f,v) => { if(orgInfoErrors[f]) setOrgInfoErrors(p=>({...p,[f]:''})) }} />}
+      </div>
 
       {/* Submit */}
       <motion.div variants={itemVariants}>
-        <Button
-          type="submit"
-          onClick={handleAccountSubmit}
-          isLoading={isLoading}
-          size="xl"
-          className="w-full"
-        >
+        <Button type="submit" onClick={handleAccountSubmit} isLoading={isLoading} size="xl" className="w-full">
           Tạo tài khoản
         </Button>
       </motion.div>
 
       {/* Back to role selection */}
       <motion.div variants={itemVariants} className="text-center">
-        <button
-          type="button"
-          onClick={onBackToRoleSelection}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
-        >
+        <button type="button" onClick={onBackToRoleSelection} className="text-sm text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer">
           Quay lại chọn vai trò
         </button>
       </motion.div>
@@ -704,11 +808,7 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
       <motion.div variants={itemVariants} className="text-center">
         <p className="text-sm text-muted-foreground">
           Đã có tài khoản?{' '}
-          <button
-            type="button"
-            onClick={onSwitchTab}
-            className="text-primary font-medium hover:underline bg-transparent border-none cursor-pointer p-0"
-          >
+          <button type="button" onClick={onSwitchTab} className="text-primary font-medium hover:underline bg-transparent border-none cursor-pointer p-0">
             Đăng nhập
           </button>
         </p>

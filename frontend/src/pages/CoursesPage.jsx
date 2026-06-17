@@ -19,7 +19,7 @@ const DEFAULT_FILTERS = {
   hasScholarship: false,
   delivery_type: '',
   funding_model: '',
-  sortBy: 'enrollmentCount',
+  sortBy: 'createdAt',
   order: 'desc',
   page: 1,
   limit: 12,
@@ -58,7 +58,7 @@ export default function CoursesPage() {
     hasScholarship: searchParams.get('hasScholarship') === 'true',
     delivery_type: searchParams.get('delivery_type') || '',
     funding_model: searchParams.get('funding_model') || '',
-    sortBy: searchParams.get('sortBy') || 'enrollmentCount',
+    sortBy: searchParams.get('sortBy') || 'createdAt',
     order: searchParams.get('order') || 'desc',
     page: parseInt(searchParams.get('page') || '1'),
   }));
@@ -73,7 +73,7 @@ export default function CoursesPage() {
     if (f.hasScholarship) params.hasScholarship = 'true';
     if (f.delivery_type) params.delivery_type = f.delivery_type;
     if (f.funding_model) params.funding_model = f.funding_model;
-    if (f.sortBy && f.sortBy !== 'enrollmentCount') params.sortBy = f.sortBy;
+    if (f.sortBy && f.sortBy !== 'createdAt') params.sortBy = f.sortBy;
     if (f.order && f.order !== 'desc') params.order = f.order;
     if (f.page && f.page > 1) params.page = String(f.page);
     setSearchParams(params, { replace: true });

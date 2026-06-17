@@ -139,7 +139,6 @@ const initialState = {
   formData: {
     basicInfo: {},
     employmentHistory: [],
-    interests: [],
     barriers: {},
     aspirations: {}
   },
@@ -162,9 +161,8 @@ const profileSlice = createSlice({
       const stepFieldMap = {
         1: 'basicInfo',
         2: 'employmentHistory',
-        3: 'interests',
-        4: 'barriers',
-        5: 'aspirations'
+        3: 'barriers',
+        4: 'aspirations'
       }
       if (stepFieldMap[step]) {
         state.formData[stepFieldMap[step]] = data
@@ -189,7 +187,6 @@ const profileSlice = createSlice({
         state.formData = {
           basicInfo: profile.basicInfo || {},
           employmentHistory: profile.employmentHistory || [],
-          interests: profile.interests || [],
           barriers: profile.barriers || {},
           aspirations: profile.aspirations || {}
         }
@@ -219,7 +216,6 @@ const profileSlice = createSlice({
           state.formData = {
             basicInfo: action.payload.basicInfo || {},
             employmentHistory: action.payload.employmentHistory || [],
-            interests: action.payload.interests || [],
             barriers: action.payload.barriers || {},
             aspirations: action.payload.aspirations || {}
           }
@@ -283,9 +279,8 @@ const profileSlice = createSlice({
           const stepFieldMap = {
             1: 'basicInfo',
             2: 'employmentHistory',
-            3: 'interests',
-            4: 'barriers',
-            5: 'aspirations'
+            3: 'barriers',
+            4: 'aspirations'
           }
           const field = stepFieldMap[action.payload.step]
           if (field) {
@@ -320,7 +315,6 @@ const profileSlice = createSlice({
         state.currentStep = profile?.currentStep ?? 5
         if (profile?.basicInfo) state.formData.basicInfo = profile.basicInfo
         if (profile?.employmentHistory) state.formData.employmentHistory = profile.employmentHistory
-        if (profile?.interests) state.formData.interests = profile.interests
         if (profile?.barriers) state.formData.barriers = profile.barriers
         if (profile?.aspirations) state.formData.aspirations = profile.aspirations
       })

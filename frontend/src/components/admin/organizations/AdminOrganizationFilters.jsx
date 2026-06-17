@@ -11,6 +11,7 @@ const TYPE_TABS = [
 const STATUS_TABS = [
   { key: 'all', label: 'Tất cả' },
   { key: 'active', label: 'Hoạt động' },
+  { key: 'pending', label: 'Chờ duyệt' },
   { key: 'inactive', label: 'Không hoạt động' },
   { key: 'suspended', label: 'Tạm ngưng' },
 ];

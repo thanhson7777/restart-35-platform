@@ -1,8 +1,11 @@
 import { ObjectId } from 'mongodb'
 import { partnershipModel } from '~/models/partnershipModel'
+import { courseSponsorshipModel } from '~/models/courseSponsorshipModel'
 import { enrollmentModel } from '~/models/enrollmentModel'
 import { userModel } from '~/models/userModel'
 import { courseModel } from '~/models/courseModel'
+import { walletModel } from '~/models/walletModel'
+import { transactionModel } from '~/models/transactionModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import {
@@ -42,7 +45,7 @@ const buildPartnershipSummary = async (partnership) => {
   const [enterprise, trainer, linkedCourses] = await Promise.all([
     userModel.findOneById(partnership.enterpriseId),
     userModel.findOneById(partnership.trainerId),
-    Promise.all((partnership.linkedCourseIds || []).map(courseId => courseModel.findOneById(courseId)))
+    Promise.all((partnership.linkedCourseIds || []).concat(partnership.proposedCourseIds || []).filter(Boolean).map(courseId => courseModel.findOneById(courseId)))
   ])
 
   return {
@@ -128,11 +131,39 @@ const createPartnership = async (enterpriseId, data) => {
   await ensureEnterprise(enterpriseId)
   await ensureTrainer(data.trainerId)
 
+  // Wallet Escrow logic
+  if (data.proposedSponsorship && data.proposedSponsorship.budget > 0) {
+    const budget = data.proposedSponsorship.budget
+    const wallet = await walletModel.findOneByUserId(enterpriseId)
+    if (!wallet || wallet.availableBalance < budget) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Số dư ví không đủ để tài trợ. Vui lòng nạp thêm tiền!')
+    }
+
+    // Khóa tiền
+    await walletModel.update(enterpriseId, {
+      availableBalance: wallet.availableBalance - budget,
+      lockedBalance: (wallet.lockedBalance || 0) + budget
+    })
+
+    // Lưu lại Transaction để có lịch sử trong ví
+    await transactionModel.createNew({
+      walletId: String(wallet._id),
+      userId: enterpriseId,
+      type: 'RESERVE',
+      amount: budget,
+      description: `Ký quỹ tài trợ cho yêu cầu hợp tác mới`,
+      referenceId: null, // Sẽ update referenceId sau khi có partnershipId
+      referenceModel: 'Partnership',
+      status: 'COMPLETED'
+    })
+  }
+
   const partnershipData = {
     enterpriseId,
     trainerId: data.trainerId,
     requestedCourseIds: data.requestedCourseIds || [],
-    recruitmentNeeds: data.recruitmentNeeds,
+    recruitmentNeeds: data.recruitmentNeeds || null,
+    proposedSponsorship: data.proposedSponsorship || null,
     referralBonus: data.referralBonus || 0,
     tuitionFee: data.tuitionFee || null,
     notes: data.notes || null,
@@ -142,6 +173,16 @@ const createPartnership = async (enterpriseId, data) => {
   }
 
   const result = await partnershipModel.createNew(partnershipData)
+  
+  // Update referenceId for the transaction if it was created
+  if (data.proposedSponsorship && data.proposedSponsorship.budget > 0) {
+    const { GET_DB } = await import('~/config/mongodb')
+    await GET_DB().collection('transactions').updateOne(
+      { userId: enterpriseId, type: 'RESERVE', referenceModel: 'Partnership', referenceId: null },
+      { $set: { referenceId: String(result.insertedId) } }
+    )
+  }
+
   return await partnershipModel.findOneById(result.insertedId)
 }
 
@@ -213,11 +254,129 @@ const confirmPartnership = async (partnershipId, actorId, role, data) => {
   if (![USER_ROLES.ENTERPRISE, USER_ROLES.TRAINER, USER_ROLES.ADMIN].includes(role)) {
     throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền xác nhận partnership!')
   }
+
+  const linkedCourseIds = data.agreedTerms?.linkedCourseIds || data.linkedCourseIds || partnership.proposedCourseIds || partnership.requestedCourseIds || []
+
+  // Xử lý tài trợ và khóa quỹ
+  if (partnership.proposedSponsorship && linkedCourseIds.length > 0) {
+    let totalBudget = partnership.proposedSponsorship.budget || 0;
+    
+    // Nếu budget chưa được tính toán (bằng null hoặc 0) từ bước tạo, ta tính toán dựa trên khóa học được duyệt
+    if (!totalBudget) {
+      const course = await courseModel.findOneById(linkedCourseIds[0]); // Thường 1 partnership link 1 khóa học chính
+      const targetLearners = partnership.proposedSponsorship.targetLearners || 1;
+      
+      if (partnership.proposedSponsorship.coverageType === 'FULL') {
+        const courseFee = course?.fundingConfig?.price || 0;
+        totalBudget = courseFee * targetLearners;
+      } else if (partnership.proposedSponsorship.coverageType === 'FIXED_AMOUNT') {
+        const fixedAmount = partnership.proposedSponsorship.fixedAmountPerLearner || 0;
+        totalBudget = fixedAmount * targetLearners;
+      }
+    }
+
+    if (totalBudget > 0) {
+      // 1. Kiểm tra và khóa ví Doanh nghiệp
+      const wallet = await walletModel.findOneByUserId(partnership.enterpriseId);
+      if (!wallet || wallet.availableBalance < totalBudget) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Số dư ví không đủ để tài trợ khóa học. Vui lòng nạp thêm tiền!');
+      }
+
+      await walletModel.update(partnership.enterpriseId, {
+        availableBalance: wallet.availableBalance - totalBudget,
+        lockedBalance: (wallet.lockedBalance || 0) + totalBudget
+      });
+
+      // 2. Lưu lại Transaction
+      const { transactionModel } = await import('~/models/transactionModel');
+      await transactionModel.createNew({
+        walletId: String(wallet._id),
+        userId: partnership.enterpriseId,
+        type: 'RESERVE',
+        amount: totalBudget,
+        description: `Ký quỹ tài trợ cho chương trình hợp tác ${partnership.title || ''}`,
+        referenceId: partnershipId,
+        referenceModel: 'Partnership',
+        status: 'COMPLETED'
+      });
+
+      // Cập nhật lại budget vào đối tượng partnership để lưu trữ
+      partnership.proposedSponsorship.budget = totalBudget;
+
+      // 3. Tạo Course Sponsorship
+      const { COURSE_SPONSORSHIP_STATUS, SCHOLARSHIP_COVERAGE, ORGANIZATION_TYPES } = await import('~/utils/constants');
+      
+      let coverage = SCHOLARSHIP_COVERAGE.NONE;
+      if (partnership.proposedSponsorship.coverageType === 'FULL') {
+        coverage = SCHOLARSHIP_COVERAGE.FULL;
+      } else if (partnership.proposedSponsorship.coverageType === 'FIXED_AMOUNT') {
+        coverage = SCHOLARSHIP_COVERAGE.PARTIAL;
+      }
+
+      await courseSponsorshipModel.createNew({
+        sponsorType: ORGANIZATION_TYPES.ENTERPRISE,
+        sponsorId: partnership.enterpriseId,
+        title: `Tài trợ từ ${partnership.enterprise?.displayName || 'Doanh nghiệp'}`,
+        linkedCourses: linkedCourseIds.map(cId => ({ courseId: cId, coverage: coverage })),
+        budget: totalBudget,
+        targetLearners: partnership.proposedSponsorship.targetLearners,
+        coverageType: coverage,
+        status: COURSE_SPONSORSHIP_STATUS.ACTIVE
+      });
+    }
+  }
+
+  // Luôn luôn update drafted course status to PENDING (Chờ admin duyệt) sau khi Enterprise xác nhận
+  if (linkedCourseIds.length > 0) {
+    for (const cId of linkedCourseIds) {
+      const course = await courseModel.findOneById(cId)
+      if (course && course.status === 'draft') {
+        await courseModel.updateStatus(cId, 'pending') // COURSE_STATUS.PENDING
+      }
+    }
+  }
+
   return await partnershipModel.confirm(partnershipId, data)
 }
 
 const cancelPartnership = async (partnershipId, actorId, role, reason) => {
-  await getPartnershipById(partnershipId, actorId, role)
+  const partnership = await getPartnershipById(partnershipId, actorId, role)
+  
+  // Hoàn tiền nếu đã khóa
+  if (partnership.proposedSponsorship && partnership.proposedSponsorship.budget > 0) {
+    const wallet = await walletModel.findOneByUserId(partnership.enterpriseId)
+    if (wallet) {
+      const budget = partnership.proposedSponsorship.budget
+      await walletModel.update(partnership.enterpriseId, {
+        availableBalance: wallet.availableBalance + budget,
+        lockedBalance: Math.max(0, wallet.lockedBalance - budget)
+      })
+
+      // Lưu lịch sử hoàn tiền
+      const { transactionModel } = await import('~/models/transactionModel')
+      await transactionModel.createNew({
+        walletId: String(wallet._id),
+        userId: partnership.enterpriseId,
+        type: 'REFUND',
+        amount: budget,
+        description: `Hoàn tiền ký quỹ do hủy hợp tác: ${partnership.title || ''}`,
+        referenceId: partnershipId,
+        referenceModel: 'Partnership',
+        status: 'COMPLETED'
+      })
+
+      // Hủy luôn gói tài trợ nếu đã tạo
+      const { courseSponsorshipModel } = await import('~/models/courseSponsorshipModel')
+      const activeSponsorships = await courseSponsorshipModel.findBySponsor(partnership.enterpriseId, 'enterprise', 0, 100)
+      const linkedSponsorship = activeSponsorships?.sponsorships?.find(s => 
+        s.linkedCourses?.some(c => partnership.linkedCourseIds?.includes(c.courseId) || partnership.agreedTerms?.linkedCourseIds?.includes(c.courseId))
+      )
+      if (linkedSponsorship) {
+        await courseSponsorshipModel.softDelete(linkedSponsorship._id.toString())
+      }
+    }
+  }
+
   return await partnershipModel.cancel(partnershipId, reason)
 }
 

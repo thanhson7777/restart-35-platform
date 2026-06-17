@@ -1,33 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Send, BookOpen, CheckSquare, Square } from 'lucide-react';
+import { ArrowLeft, BookOpen, AlertTriangle, XCircle, CheckCircle } from 'lucide-react';
 import { Button, Textarea, Badge, Skeleton } from '@/components/ui';
-import {
-  getPartnershipDetail,
-  respondPartnership,
-  negotiatePartnership,
-  confirmPartnership,
-  cancelPartnership,
-  getMyCourses
-} from '@/apis/trainerApi';
+import { getPartnershipDetail, cancelPartnership } from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
-
-const STATUS_OPTIONS = [
-  { value: 'negotiating', label: 'Đàm phán' },
-  { value: 'active', label: 'Chấp nhận & kích hoạt' },
-  { value: 'rejected', label: 'Từ chối' }
-];
 
 export default function TrainerPartnershipRespondPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [partnership, setPartnership] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [rejectMode, setRejectMode] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
-  const [responseStatus, setResponseStatus] = useState('negotiating');
-  const [proposedCourseIds, setProposedCourseIds] = useState([]);
-  const [myCourses, setMyCourses] = useState([]);
 
   const fetchPartnership = useCallback(async () => {
     setLoading(true);
@@ -42,57 +27,38 @@ export default function TrainerPartnershipRespondPage() {
     }
   }, [id, navigate]);
 
-  const fetchCourses = useCallback(async () => {
-    try {
-      const res = await getMyCourses({ limit: 50 });
-      setMyCourses(res.data?.data || []);
-    } catch (err) {
-      console.error('Lỗi tải danh sách khóa học:', err);
-    }
-  }, []);
-
   useEffect(() => { 
     fetchPartnership(); 
-    fetchCourses();
-  }, [fetchPartnership, fetchCourses]);
+  }, [fetchPartnership]);
 
-  const handleSubmit = async () => {
-    if (!message.trim()) {
-      toast.error('Vui lòng nhập nội dung phản hồi.');
+  const handleReject = async () => {
+    if (!rejectReason.trim()) {
+      toast.error('Vui lòng nhập lý do từ chối.');
       return;
     }
-
     setSubmitting(true);
     try {
-      const payload = {
-        status: responseStatus,
-        proposedCourseIds: proposedCourseIds,
-        message: message.trim()
-      };
-
-      if (responseStatus === 'negotiating') {
-        await negotiatePartnership(id, payload);
-      } else if (responseStatus === 'active') {
-        await respondPartnership(id, { ...payload, status: 'negotiating' });
-        await confirmPartnership(id, {
-          agreedTerms: {
-            linkedCourseIds: payload.proposedCourseIds,
-            paymentTerms: 'Theo thỏa thuận giữa trainer và enterprise',
-            referralBonus: partnership?.agreedTerms?.referralBonus || partnership?.referralBonus || 0
-          }
-        });
-      } else {
-        await cancelPartnership(id, { reason: message.trim() });
-      }
-
-      toast.success('Đã gửi phản hồi partnership.');
+      await cancelPartnership(id, { reason: rejectReason.trim() });
+      toast.success('Đã từ chối yêu cầu.');
       navigate(`/trainer/partnerships/${id}`);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Phản hồi thất bại.');
+      toast.error(err.response?.data?.message || 'Từ chối thất bại.');
     } finally {
       setSubmitting(false);
     }
   };
+
+  const handleCreateCourse = () => {
+    navigate(`/trainer/courses/new?partnershipId=${id}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-96 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -100,109 +66,82 @@ export default function TrainerPartnershipRespondPage() {
         <ArrowLeft size={16} /> Quay lại chi tiết
       </Button>
 
-      {loading ? (
-        <Skeleton className="h-96 rounded-2xl bg-[hsl(var(--admin-surface-elevated))]" />
-      ) : (
-        <>
+      <div>
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Phản hồi Yêu cầu Tạo Khóa học</h1>
+          <Badge className="bg-[hsl(var(--admin-accent)_/_15%)] text-[hsl(var(--admin-accent))] border border-[hsl(var(--admin-accent)_/_20%)]">
+            {partnership?.status || 'pending'}
+          </Badge>
+        </div>
+        <p className="text-[hsl(var(--admin-text-muted))] text-sm">
+          Từ: {partnership?.enterprise?.displayName || 'Doanh nghiệp'} · Tuyển dụng: {partnership?.recruitmentNeeds?.jobTitle || 'Nhu cầu'} ({partnership?.recruitmentNeeds?.jobQuantity} người)
+        </p>
+      </div>
+
+      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-8 space-y-6 max-w-3xl">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-5 flex gap-4">
+          <BookOpen className="text-blue-500 shrink-0 w-6 h-6" />
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Phản hồi Partnership</h1>
-              <Badge className="bg-[hsl(var(--admin-accent)_/_15%)] text-[hsl(var(--admin-accent))] border border-[hsl(var(--admin-accent)_/_20%]">{partnership?.status || 'pending'}</Badge>
-            </div>
-            <p className="text-[hsl(var(--admin-text-muted))] text-sm">
-              {partnership?.enterprise?.displayName || 'Doanh nghiệp'} · {partnership?.recruitmentNeeds?.jobTitle || 'Nhu cầu tuyển dụng'}
+            <h3 className="text-sm font-bold text-blue-800 dark:text-blue-300">Yêu cầu thiết kế khóa học</h3>
+            <p className="text-sm text-blue-700 dark:text-blue-400 mt-2 leading-relaxed">
+              Doanh nghiệp mong muốn bạn thiết kế một khóa học mới chuyên biệt dành cho <strong>{partnership?.recruitmentNeeds?.jobQuantity} ứng viên</strong> trúng tuyển vị trí <strong>{partnership?.recruitmentNeeds?.jobTitle}</strong>.
+            </p>
+            {partnership?.proposedSponsorship?.budget > 0 && (
+              <p className="text-sm text-blue-700 dark:text-blue-400 mt-2 font-semibold">
+                Ngân sách tài trợ: {new Intl.NumberFormat('vi-VN').format(partnership.proposedSponsorship.budget)} VNĐ
+              </p>
+            )}
+            <p className="text-sm text-blue-700 dark:text-blue-400 mt-4 italic">
+              Nếu bạn chấp nhận, hệ thống sẽ chuyển bạn sang trang soạn thảo Giáo trình và Tự động điền các thông tin của yêu cầu này.
             </p>
           </div>
+        </div>
 
-          <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6 space-y-5 max-w-3xl">
+        {!rejectMode ? (
+          <div className="flex gap-4 pt-4">
+            <Button onClick={handleCreateCourse} size="lg" className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white gap-2 px-8">
+              <CheckCircle size={18} /> Chấp nhận & Soạn giáo trình
+            </Button>
+            <Button onClick={() => setRejectMode(true)} variant="outline" size="lg" className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20 gap-2">
+              <XCircle size={18} /> Từ chối yêu cầu
+            </Button>
+          </div>
+        ) : (
+          <div className="pt-4 border-t border-[hsl(var(--admin-border))] space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Hình thức phản hồi</label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {STATUS_OPTIONS.map(option => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setResponseStatus(option.value)}
-                    className={`rounded-xl border px-4 py-3 text-sm font-medium transition-colors ${
-                      responseStatus === option.value
-                        ? 'border-[hsl(var(--admin-accent))] bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-text-primary))]'
-                        : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))]/60 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Khóa học đề xuất</label>
-              <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar bg-[hsl(var(--admin-surface-elevated))]/60 p-4 rounded-xl border border-[hsl(var(--admin-border-strong))]">
-                {myCourses.length === 0 ? (
-                  <p className="text-sm text-[hsl(var(--admin-text-muted))] italic">Bạn chưa có khóa học nào.</p>
-                ) : (
-                  myCourses.map(course => {
-                    const isSelected = proposedCourseIds.includes(course._id);
-                    return (
-                      <div
-                        key={course._id}
-                        onClick={() => {
-                          setProposedCourseIds(prev =>
-                            isSelected ? prev.filter(id => id !== course._id) : [...prev, course._id]
-                          );
-                        }}
-                        className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                          isSelected
-                            ? 'bg-[hsl(var(--admin-accent))]/10 border-[hsl(var(--admin-accent))]'
-                            : 'bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))]'
-                        }`}
-                      >
-                        <div className="mt-0.5">
-                          {isSelected ? (
-                            <CheckSquare className="text-[hsl(var(--admin-accent))] w-4 h-4" />
-                          ) : (
-                            <Square className="text-[hsl(var(--admin-text-faint))] w-4 h-4" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))] truncate">
-                            {course.title}
-                          </p>
-                          <div className="flex gap-3 mt-1 text-xs text-[hsl(var(--admin-text-muted))]">
-                            <span className="flex items-center gap-1">
-                              <BookOpen size={12} /> {course.duration?.value || 0} {course.duration?.unit || 'giờ'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Nội dung phản hồi</label>
+              <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))] mb-2">Lý do từ chối</label>
               <Textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={6}
-                placeholder="Nhập thông điệp phản hồi cho doanh nghiệp..."
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={4}
+                placeholder="Nhập lý do từ chối. Nếu có ngân sách, tiền sẽ được hoàn trả vào ví doanh nghiệp..."
                 className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]"
               />
             </div>
+            
+            {partnership?.proposedSponsorship?.budget > 0 && (
+              <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start gap-3">
+                <AlertTriangle className="text-amber-600 dark:text-amber-400 shrink-0 w-5 h-5" />
+                <div>
+                  <h4 className="text-sm font-bold text-amber-800 dark:text-amber-300">Hoàn trả tiền tài trợ</h4>
+                  <p className="text-xs text-amber-700 dark:text-amber-400/80 mt-1">
+                    Doanh nghiệp sẽ được hoàn lại số tiền <strong>{new Intl.NumberFormat('vi-VN').format(partnership.proposedSponsorship.budget)} VNĐ</strong> đang đóng băng vào tài khoản khả dụng.
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-3">
-              <Button onClick={handleSubmit} disabled={submitting} className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] gap-2">
-                <Send size={14} /> {submitting ? 'Đang gửi...' : 'Gửi phản hồi'}
+              <Button onClick={handleReject} disabled={submitting} variant="destructive" className="gap-2">
+                {submitting ? 'Đang gửi...' : 'Xác nhận từ chối'}
               </Button>
-              <Button variant="outline" onClick={() => navigate(`/trainer/partnerships/${id}`)} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">
+              <Button variant="outline" onClick={() => setRejectMode(false)} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))]">
                 Hủy
               </Button>
             </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }

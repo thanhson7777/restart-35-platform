@@ -95,6 +95,19 @@ class ScrapedJobModel {
     return collection.deleteOne(query);
   }
 
+  // Cập nhật nhiều document
+  static async updateMany(query, update, options = {}) {
+    const collection = this.getCollection();
+    const result = await collection.updateMany(query, update, options);
+    return result;
+  }
+
+  // Xóa nhiều document
+  static async deleteMany(query) {
+    const collection = this.getCollection();
+    return collection.deleteMany(query);
+  }
+
   // ==================== INSTANCE METHODS ====================
 
   // Tính quality score

@@ -19,6 +19,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   verifyToken: Joi.string(),
   resetPasswordToken: Joi.string().default(null),
   resetPasswordExpire: Joi.date().timestamp('javascript').default(null),
+  adminApprovalStatus: Joi.string().valid('pending', 'approved', 'rejected').default('approved'),
 
   // BasicInfo fields
   age: Joi.number().integer().min(35).max(65),
@@ -212,6 +213,77 @@ const getUserStats = async () => {
   }
 }
 
+const getPublicTrainers = async (skip = 0, limit = 100) => {
+  try {
+    const db = await GET_DB()
+    const matchCondition = { role: 'trainer', isActive: true, _destroy: false }
+    
+    const users = await db.collection(USER_COLLECTION_NAME).aggregate([
+      { $match: matchCondition },
+      {
+        $lookup: {
+          from: 'courses',
+          let: { trainerId: { $toString: '$_id' } },
+          pipeline: [
+            { 
+              $match: { 
+                $expr: { $eq: ['$providerId', '$$trainerId'] },
+                status: 'approved',
+                _destroy: { $ne: true }
+              } 
+            }
+          ],
+          as: 'courses'
+        }
+      },
+      {
+        $addFields: {
+          courseCount: { $size: '$courses' },
+          studentCount: { $sum: '$courses.enrollmentCount' },
+          averageRating: {
+            $let: {
+              vars: {
+                totalRating: {
+                  $sum: {
+                    $map: {
+                      input: '$courses',
+                      as: 'course',
+                      in: {
+                        $multiply: [
+                          { $ifNull: ['$$course.rating.average', 0] },
+                          { $ifNull: ['$$course.rating.count', 0] }
+                        ]
+                      }
+                    }
+                  }
+                },
+                totalCount: { $sum: '$courses.rating.count' }
+              },
+              in: {
+                $cond: [
+                  { $eq: ['$$totalCount', 0] },
+                  0,
+                  { $divide: ['$$totalRating', '$$totalCount'] }
+                ]
+              }
+            }
+          }
+        }
+      },
+      { $project: { password: 0, courses: 0 } },
+      { $sort: { studentCount: -1, courseCount: -1 } },
+      { $skip: skip },
+      { $limit: limit }
+    ]).toArray()
+    
+    const totalUsers = await db.collection(USER_COLLECTION_NAME).countDocuments(matchCondition)
+    
+    return { users, totalUsers }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
@@ -224,6 +296,7 @@ export const userModel = {
   getUsers,
   updateUserStatus,
   countTotalUsers,
-  getUserStats
+  getUserStats,
+  getPublicTrainers
 }
 

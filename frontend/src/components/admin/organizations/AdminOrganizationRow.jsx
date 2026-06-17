@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Eye, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { Badge, Progress } from '@/components/ui';
 
 const typeConfig = {
@@ -21,6 +21,10 @@ const statusConfig = {
     label: 'Không hoạt động',
     className: 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-border))]',
   },
+  pending: {
+    label: 'Chờ duyệt',
+    className: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  },
   suspended: {
     label: 'Tạm ngưng',
     className: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
@@ -36,12 +40,15 @@ const formatDate = (date) => {
   }
 };
 
-const AdminOrganizationRow = ({ organization, onView, onEdit, onDelete }) => {
+const AdminOrganizationRow = ({ organization, onView, onDelete, onApprove, onReject }) => {
   const typeInfo = typeConfig[organization.type] || { label: organization.type, className: '' };
-  const statusInfo = statusConfig[organization.status] || statusConfig.inactive;
-  const quota = organization.quota || {};
-  const quotaUsed = quota.used || 0;
-  const quotaTotal = quota.total || 0;
+  
+  // Organization model doesn't have a direct status field yet, default to active or based on adminApprovalStatus if joined
+  const statusInfo = statusConfig[organization.status || 'active'] || statusConfig.inactive;
+  
+  // Quota is a number in DB, usedQuota might be another number
+  const quotaTotal = typeof organization.quota === 'object' ? (organization.quota?.total || 0) : (organization.quota || 0);
+  const quotaUsed = typeof organization.quota === 'object' ? (organization.quota?.used || 0) : (organization.usedQuota || 0);
   const quotaPercent = quotaTotal > 0 ? Math.round((quotaUsed / quotaTotal) * 100) : 0;
 
   return (
@@ -49,7 +56,7 @@ const AdminOrganizationRow = ({ organization, onView, onEdit, onDelete }) => {
       <td className="px-4 py-3">
         <div>
           <p className="font-medium text-[hsl(var(--admin-text-primary))] text-sm">{organization.name}</p>
-          <p className="text-xs text-[hsl(var(--admin-text-muted))]">{organization.email}</p>
+          <p className="text-xs text-[hsl(var(--admin-text-muted))]">{organization.ownerEmail || organization.contactEmail || organization.email || '-'}</p>
         </div>
       </td>
       <td className="px-4 py-3">
@@ -86,6 +93,24 @@ const AdminOrganizationRow = ({ organization, onView, onEdit, onDelete }) => {
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-1">
+          {organization.status === 'pending' && (
+            <button
+              onClick={() => onApprove?.(organization)}
+              className="p-1.5 hover:bg-blue-500/10 rounded-lg transition-colors"
+              title="Phê duyệt đối tác"
+            >
+              <CheckCircle className="w-4 h-4 text-blue-500" />
+            </button>
+          )}
+          {organization.status === 'pending' && (
+            <button
+              onClick={() => onReject?.(organization)}
+              className="p-1.5 hover:bg-rose-500/10 rounded-lg transition-colors"
+              title="Từ chối đối tác"
+            >
+              <XCircle className="w-4 h-4 text-rose-500" />
+            </button>
+          )}
           <button
             onClick={() => onView?.(organization)}
             className="p-1.5 hover:bg-[hsl(var(--admin-surface-elevated))] rounded-lg transition-colors"
@@ -93,20 +118,15 @@ const AdminOrganizationRow = ({ organization, onView, onEdit, onDelete }) => {
           >
             <Eye className="w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
           </button>
-          <button
-            onClick={() => onEdit?.(organization)}
-            className="p-1.5 hover:bg-[hsl(var(--admin-surface-elevated))] rounded-lg transition-colors"
-            title="Chỉnh sửa"
-          >
-            <Pencil className="w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
-          </button>
-          <button
-            onClick={() => onDelete?.(organization)}
-            className="p-1.5 hover:bg-rose-500/10 rounded-lg transition-colors"
-            title="Xóa"
-          >
-            <Trash2 className="w-4 h-4 text-rose-500" />
-          </button>
+          {organization.status !== 'pending' && (
+            <button
+              onClick={() => onDelete?.(organization)}
+              className="p-1.5 hover:bg-rose-500/10 rounded-lg transition-colors"
+              title="Xóa"
+            >
+              <Trash2 className="w-4 h-4 text-rose-500" />
+            </button>
+          )}
         </div>
       </td>
     </tr>

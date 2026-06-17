@@ -529,18 +529,18 @@ const JobsPage = () => {
                 <div className="flex items-start gap-3">
                   <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
+                    <p className="font-medium text-foreground">Tạo hồ sơ năng lực của bạn</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Để nhận gợi ý chính xác hơn, vui lòng cập nhật đầy đủ thông tin hồ sơ của bạn.
+                      Hệ thống cần thêm thông tin về kinh nghiệm và mục tiêu của bạn để tìm kiếm những cơ hội việc làm phù hợp nhất. Hãy dành chút thời gian hoàn thiện hồ sơ nhé.
                     </p>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/worker/profile')}
+                    onClick={() => navigate('/worker-profile')}
                     className="shrink-0"
                   >
-                    Cập nhật hồ sơ
+                    Tạo hồ sơ ngay
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
@@ -555,9 +555,9 @@ const JobsPage = () => {
                 <div className="flex items-start gap-3">
                   <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">Hồ sơ chưa hoàn thiện</p>
+                    <p className="font-medium text-foreground">Bổ sung thông tin hồ sơ</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Vui lòng hoàn thiện hồ sơ người lao động để xem lộ trình nghề nghiệp phù hợp.
+                      Để AI thiết kế lộ trình sự nghiệp cá nhân hóa chính xác nhất, bạn cần cung cấp thêm thông tin về kinh nghiệm làm việc và mong muốn nghề nghiệp của mình.
                     </p>
                   </div>
                   <Button
@@ -566,7 +566,7 @@ const JobsPage = () => {
                     onClick={() => navigate('/worker-profile')}
                     className="shrink-0"
                   >
-                    Hoàn thiện hồ sơ
+                    Tiếp tục hoàn thiện
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
@@ -581,9 +581,9 @@ const JobsPage = () => {
                 <div className="flex items-start gap-3">
                   <Warning className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">Thiếu thông tin độ tuổi</p>
+                    <p className="font-medium text-foreground">Chỉ còn một bước nhỏ nữa...</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      AI cần biết độ tuổi của bạn để đưa ra lộ trình phù hợp. Vui lòng cập nhật thông tin này trong hồ sơ.
+                      Để AI có thể dự báo và thiết kế lộ trình sự nghiệp tối ưu nhất, vui lòng cho chúng tôi biết độ tuổi hiện tại của bạn.
                     </p>
                   </div>
                   <Button
@@ -607,9 +607,9 @@ const JobsPage = () => {
                 <div className="flex items-start gap-3">
                   <User className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">Chưa có kỹ năng trong hồ sơ</p>
+                    <p className="font-medium text-foreground">Mở khóa sức mạnh của bạn</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Vui lòng thêm kỹ năng trong bước "Kinh nghiệm làm việc" hoặc "Nguyện vọng" để nhận gợi ý việc làm phù hợp.
+                      Hệ thống cần biết những kỹ năng bạn đang có để đề xuất công việc chính xác. Hãy thêm kỹ năng vào mục "Kinh nghiệm làm việc" hoặc "Nguyện vọng" nhé!
                     </p>
                   </div>
                   <Button
@@ -618,7 +618,7 @@ const JobsPage = () => {
                     onClick={() => navigate('/worker-profile?step=3')}
                     className="shrink-0"
                   >
-                    Thêm kỹ năng
+                    Bổ sung kỹ năng
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
@@ -816,23 +816,23 @@ const JobsPage = () => {
                 <CareerRecommendations userProfile={formData} />
               ) : currentJobs.length === 0 ? (
                 <Card>
-                  <CardContent className="p-8 text-center">
-                    <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">
+                  <CardContent className="p-12 text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-5">
+                      <Briefcase className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">
                       {activeTab === 'recommended'
-                        ? 'Không có việc làm gợi ý'
-                        : activeTab === 'saved'
-                          ? 'Chưa có việc làm đã lưu'
-                          : 'Không tìm thấy việc làm'}
+                        ? 'Chưa có công việc phù hợp'
+                        : 'Không tìm thấy kết quả'}
                     </h3>
-                    <p className="text-muted-foreground mb-4">
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                       {activeTab === 'recommended'
-                        ? 'Hãy cập nhật hồ sơ để nhận gợi ý phù hợp hơn.'
-                        : 'Thử thay đổi bộ lọc hoặc quay lại sau.'}
+                        ? 'Hệ thống đang liên tục cập nhật các vị trí mới. Bổ sung thêm kỹ năng trong hồ sơ sẽ giúp bạn tiếp cận nhiều cơ hội hơn.'
+                        : 'Không có công việc nào khớp với tiêu chí của bạn. Hãy thử thay đổi bộ lọc nhé.'}
                     </p>
                     {activeTab === 'recommended' && (
-                      <Button onClick={() => navigate('/worker/profile')}>
-                        Cập nhật hồ sơ
+                      <Button variant="outline" onClick={() => navigate('/worker-profile')}>
+                        Cập nhật hồ sơ năng lực
                       </Button>
                     )}
                   </CardContent>

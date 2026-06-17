@@ -130,11 +130,9 @@ const getUsers = async (req, res, next) => {
 const getPublicTrainers = async (req, res, next) => {
   try {
     const { page, limit } = req.query
-    const result = await userService.getAdminUsers({ 
+    const result = await userService.getPublicTrainers({ 
       page, 
-      limit, 
-      role: 'trainer', 
-      isActive: 'true' 
+      limit
     })
 
     res.status(StatusCodes.OK).json({

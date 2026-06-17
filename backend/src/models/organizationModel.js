@@ -25,6 +25,15 @@ const ORGANIZATION_COLLECTION_SCHEMA = Joi.object({
   quota: Joi.number().integer().min(0).default(0),
   logo: Joi.string().allow('', null),
   taxCode: Joi.string().max(50).trim().allow('', null),
+  
+  // Các trường bổ sung cho Enterprise, Trainer, NGO
+  trainerType: Joi.string().valid('organization', 'individual').allow('', null),
+  identityNumber: Joi.string().max(50).trim().allow('', null),
+  size: Joi.string().allow('', null),
+  focusAreas: Joi.array().items(Joi.string()).default([]),
+  operatingRegions: Joi.array().items(Joi.string()).default([]),
+  trainingCategories: Joi.array().items(Joi.string()).default([]),
+
   _destroy: Joi.boolean().default(false)
 })
 

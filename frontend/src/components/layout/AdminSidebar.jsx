@@ -47,10 +47,11 @@ const adminNavGroups = [
     ]
   },
   {
-    group: 'Tài chính & Analytics',
+    group: 'Tài chính & Hệ thống',
     items: [
       { title: 'Thanh toán', href: '/admin/payments', icon: CreditCard },
       { title: 'Analytics', href: '/admin/analytics', icon: ChartBar },
+      { title: 'Master Data', href: '/admin/master-data', icon: Gear },
     ]
   }
 ];

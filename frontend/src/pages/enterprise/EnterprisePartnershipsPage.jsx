@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Handshake, Plus, RefreshCw } from 'lucide-react';
+import { Handshake, Plus, RefreshCw, Compass } from 'lucide-react';
 
 import PartnershipCard from '@/components/shared/PartnershipCard';
 import { Button } from '@/components/ui';
@@ -37,7 +37,9 @@ export default function EnterprisePartnershipsPage() {
     }
   }, [statusFilter]);
 
-  useEffect(() => { fetchPartnerships(1); }, [fetchPartnerships]);
+  useEffect(() => {
+    fetchPartnerships(1);
+  }, [fetchPartnerships]);
 
   return (
     <>
@@ -54,7 +56,7 @@ export default function EnterprisePartnershipsPage() {
           </Button>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap mb-6 mt-6">
           <div className="flex bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl p-1 gap-1">
             {statusFilters.map(f => (
               <button
@@ -78,11 +80,11 @@ export default function EnterprisePartnershipsPage() {
             ))}
           </div>
         ) : partnerships.length === 0 ? (
-          <div className="flex flex-col items-center py-20 text-center">
+          <div className="flex flex-col items-center py-20 text-center bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl">
             <Handshake size={40} className="text-[hsl(var(--admin-text-faint))] mb-4" />
-            <p className="text-[hsl(var(--admin-text-muted))] font-medium">Chưa có partnership nào.</p>
+            <p className="text-[hsl(var(--admin-text-muted))] font-medium">Bạn chưa gửi yêu cầu hợp tác nào.</p>
             <Button onClick={() => navigate('/enterprise/partnerships/create')} className="mt-4 gap-2 bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white">
-              <Plus size={14} /> Tạo partnership đầu tiên
+              <Plus size={14} /> Tạo Partnership ngay
             </Button>
           </div>
         ) : (

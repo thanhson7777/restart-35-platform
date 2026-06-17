@@ -19,8 +19,7 @@ export const GENDER_OPTIONS = [
 export const MARITAL_STATUS_OPTIONS = [
   { value: 'single', label: 'Độc thân' },
   { value: 'married', label: 'Đã lập gia đình' },
-  { value: 'divorced', label: 'Ly hôn' },
-  { value: 'widowed', label: 'Góa' }
+  { value: 'divorced', label: 'Ly hôn' }
 ]
 
 export const JOB_TYPE_OPTIONS = [
@@ -625,14 +624,45 @@ export const getDistricts = (provinceCode) => {
 // Step labels (BasicInfo removed - now in registration)
 export const STEP_LABELS = [
   'Kinh nghiệm làm việc',
-  'Sở thích',
   'Rào cản & Thách thức',
   'Nguyện vọng'
 ]
 
 export const STEP_DESCRIPTIONS = [
   'Các công việc đã làm trước đây',
-  'Sở thích và đam mê của bạn',
   'Những khó khăn bạn đang gặp phải',
   'Công việc và môi trường bạn mong muốn'
+]
+
+// ============ MOCK DATA FOR ORGANIZATION REGISTRATION ============
+export const COMPANY_SIZE_OPTIONS = [
+  { value: '1-50', label: 'Dưới 50 nhân viên' },
+  { value: '50-200', label: '50 - 200 nhân viên' },
+  { value: '200-500', label: '200 - 500 nhân viên' },
+  { value: '500+', label: 'Trên 500 nhân viên' }
+]
+
+export const TRAINER_EXPERIENCE_OPTIONS = [
+  { value: 'under-3', label: 'Dưới 3 năm' },
+  { value: '3-5', label: '3 - 5 năm' },
+  { value: '5-10', label: '5 - 10 năm' },
+  { value: 'over-10', label: 'Trên 10 năm' }
+]
+
+export const TRAINING_CATEGORIES_OPTIONS = [
+  { value: 'tin-hoc-van-phong', label: 'Tin học văn phòng' },
+  { value: 'ky-nang-mem', label: 'Kỹ năng mềm' },
+  { value: 'nghe-thu-cong', label: 'Nghề thủ công' },
+  { value: 'ky-thuat', label: 'Kỹ thuật / Cơ khí' },
+  { value: 'dich-vu-cham-soc', label: 'Dịch vụ chăm sóc (y tế, người già)' },
+  { value: 'ban-hang', label: 'Bán hàng / Kinh doanh' }
+]
+
+export const NGO_FOCUS_AREAS_OPTIONS = [
+  { value: 'ho-tro-sinh-khe', label: 'Hỗ trợ sinh kế' },
+  { value: 'binh-dang-gioi', label: 'Bình đẳng giới' },
+  { value: 'nguoi-khuyet-tat', label: 'Người khuyết tật' },
+  { value: 'suc-khoe-cong-dong', label: 'Sức khỏe cộng đồng' },
+  { value: 'giao-duc', label: 'Giáo dục & Đào tạo' },
+  { value: 'moi-truong', label: 'Bảo vệ môi trường' }
 ]

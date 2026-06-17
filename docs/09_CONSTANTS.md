@@ -146,8 +146,7 @@ export const MARITAL_STATUS = {
 export const MARITAL_STATUS_LABELS = {
   'single': 'Độc thân',
   'married': 'Đã kết hôn',
-  'divorced': 'Ly hôn',
-  'widowed': 'Góa phụ'
+  'divorced': 'Ly hôn'
 }
 ```
 

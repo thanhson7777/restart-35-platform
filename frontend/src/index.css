@@ -17,10 +17,10 @@
     --secondary-foreground: 0 0% 100%;
     --secondary-hover: 142 71% 39%;
 
-    /* Accent - Cam nhạt (Energy, Action) */
-    --accent: 38 92% 50%;
-    --accent-foreground: 0 0% 0%;
-    --accent-light: 38 92% 95%;
+    /* Accent - Xanh dương nhạt (Dùng cho hover state của nút) */
+    --accent: 221 83% 95%;
+    --accent-foreground: 221 83% 40%;
+    --accent-light: 221 83% 98%;
 
     /* Background & Foreground */
     --background: 0 0% 99%;
@@ -87,8 +87,8 @@
     --secondary-foreground: 222 47% 11%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 38 92% 50%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 217 33% 22%;
+    --accent-foreground: 210 40% 98%;
     --border: 217 33% 17%;
     --input: 217 33% 17%;
   }

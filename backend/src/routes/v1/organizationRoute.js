@@ -23,13 +23,11 @@ Router.route('/')
 Router.route('/:id')
   .get(
     authMiddleware.isAuthorized,
-    authMiddleware.isAuthorizedAdmin,
     organizationValidation.checkOrganizationId,
     organizationController.getOrganizationById
   )
   .put(
     authMiddleware.isAuthorized,
-    authMiddleware.isAuthorizedAdmin,
     organizationValidation.checkOrganizationId,
     organizationValidation.updateOrganization,
     organizationController.updateOrganization

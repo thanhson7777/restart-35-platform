@@ -100,7 +100,7 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
       coverage: Joi.string()
         .valid(...Object.values(SCHOLARSHIP_COVERAGE))
         .default(SCHOLARSHIP_COVERAGE.PARTIAL),
-      status: Joi.string().valid('matched', 'approved', 'disbursed', 'clawback').default('matched'),
+      status: Joi.string().valid('matched', 'approved', 'rejected', 'disbursed', 'clawback').default('matched'),
       disbursements: Joi.array().items(Joi.object()).default([]),
       matchedAt: Joi.date().timestamp('javascript').default(Date.now)
     })

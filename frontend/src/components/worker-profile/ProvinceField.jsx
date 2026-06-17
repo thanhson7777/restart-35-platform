@@ -45,6 +45,8 @@ function ProvinceField({ province, district, onProvinceChange, onDistrictChange,
     })
   }, [])
 
+  const isFirstProvinceLoad = useRef(true)
+
   // Fetch wards when province changes (districts abolished July 2025 — province → ward direct)
   useEffect(() => {
     if (!province) {
@@ -52,7 +54,13 @@ function ProvinceField({ province, district, onProvinceChange, onDistrictChange,
       return
     }
     setLoadingWards(true)
-    onDistrictChange('') // reset district when province changes
+    
+    if (isFirstProvinceLoad.current) {
+      isFirstProvinceLoad.current = false
+    } else {
+      onDistrictChange('') // reset district only on user change
+    }
+
     fetchWards(province).then(data => {
       setWardList(data)
       setLoadingWards(false)

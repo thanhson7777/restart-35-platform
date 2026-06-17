@@ -21,6 +21,7 @@ import { Star, Users, Clock, MapPin, BookOpen, Eye, Play } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Navbar from '@/components/landing/Navbar';
 import Footer from '@/components/layout/Footer';
+import { EnterprisePartnershipModal } from '@/components/enterprise/EnterprisePartnershipModal';
 
 export default function CourseDetailPage() {
   const { id } = useParams();
@@ -42,6 +43,8 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [error, setError] = useState(null);
+  
+  const [isPartnershipModalOpen, setIsPartnershipModalOpen] = useState(false);
 
   const {
     title,
@@ -363,24 +366,50 @@ export default function CourseDetailPage() {
             {/* Right Content (4 cols) - Floating Enrollment Card */}
             <div className="lg:col-span-5 xl:col-span-4 relative z-20">
               <div className="sticky top-24">
-                <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-1 rounded-3xl shadow-2xl overflow-hidden ring-1 ring-white/10">
-                  <div className="bg-white dark:bg-zinc-950 rounded-[22px] overflow-hidden">
-                    <CourseEnrollmentForm
-                      course={course}
-                      eligibility={eligibility}
-                      existingEnrollment={existingEnrollment}
-                      sponsorships={sponsorships}
-                      onSubmit={handleEnroll}
-                      isSubmitting={enrolling}
-                    />
+                {currentUser?.role === 'enterprise' ? (
+                  <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-1 rounded-3xl shadow-2xl overflow-hidden ring-1 ring-white/10">
+                    <div className="bg-white dark:bg-zinc-950 rounded-[22px] overflow-hidden p-6 text-center space-y-4">
+                      <h3 className="font-bold text-lg">Dành cho Doanh nghiệp</h3>
+                      <p className="text-sm text-zinc-500">
+                        Hợp tác với giảng viên để tuyển dụng học viên hoặc tài trợ học phí.
+                      </p>
+                      <button 
+                        onClick={() => setIsPartnershipModalOpen(true)}
+                        className="w-full py-4 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors"
+                      >
+                        Yêu cầu Hợp tác
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-1 rounded-3xl shadow-2xl overflow-hidden ring-1 ring-white/10">
+                    <div className="bg-white dark:bg-zinc-950 rounded-[22px] overflow-hidden">
+                      <CourseEnrollmentForm
+                        course={course}
+                        eligibility={eligibility}
+                        existingEnrollment={existingEnrollment}
+                        sponsorships={sponsorships}
+                        onSubmit={handleEnroll}
+                        isSubmitting={enrolling}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
           </div>
         </div>
       </section>
+
+      {currentUser?.role === 'enterprise' && (
+        <EnterprisePartnershipModal 
+          isOpen={isPartnershipModalOpen}
+          onClose={() => setIsPartnershipModalOpen(false)}
+          course={course}
+          trainerId={provider?._id || provider}
+        />
+      )}
 
       {/* 2. Sticky Navigation Bar */}
       <div className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-xl border-b border-border shadow-sm">

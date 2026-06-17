@@ -20,6 +20,7 @@ import CourseDetailPage from '@/pages/CourseDetailPage';
 import CourseCurriculumPage from '@/pages/CourseCurriculumPage';
 import MyEnrollmentsPage from '@/pages/MyEnrollmentsPage';
 import MyEnrollmentDetailPage from '@/pages/MyEnrollmentDetailPage';
+import WorkerTransactionsPage from '@/pages/worker/WorkerTransactionsPage';
 import VideoLearningPage from '@/pages/VideoLearningPage';
 import CertificatePage from '@/pages/my-enrollments/CertificatePage';
 import OpportunityMapPage from '@/pages/OpportunityMapPage';
@@ -84,6 +85,8 @@ import EnterpriseInterviewDetailPage from '@/pages/enterprise/EnterpriseIntervie
 import EnterpriseOffersPage from '@/pages/enterprise/EnterpriseOffersPage';
 import EnterpriseOfferDetailPage from '@/pages/enterprise/EnterpriseOfferDetailPage';
 import EnterpriseOfferCreatePage from '@/pages/enterprise/EnterpriseOfferCreatePage';
+import EnterpriseWalletPage from '@/pages/enterprise/EnterpriseWalletPage';
+import EnterpriseProfilePage from '@/pages/enterprise/EnterpriseProfilePage';
 import WorkerApplicationsPage from '@/pages/worker/WorkerApplicationsPage';
 import WorkerApplicationDetailPage from '@/pages/worker/WorkerApplicationDetailPage';
 import WorkerInterviewsPage from '@/pages/worker/WorkerInterviewsPage';
@@ -115,6 +118,7 @@ import AdminInteractionsPage from '@/pages/admin/AdminInteractionsPage';
 import AdminEscoSyncPage from '@/pages/admin/AdminEscoSyncPage';
 import AdminJobCategoriesPage from '@/pages/admin/AdminJobCategoriesPage';
 import AdminCourseCategoriesPage from '@/pages/admin/AdminCourseCategoriesPage';
+import AdminMasterDataPage from '@/pages/admin/AdminMasterDataPage';
 import IsaDashboardPage from '@/pages/IsaDashboardPage';
 import WorkerLayout from '@/components/worker/WorkerLayout';
 
@@ -194,6 +198,7 @@ function App() {
         <Route path="/admin/jobs/:id/review" element={<AdminJobReviewPage />} />
         <Route path="/admin/organizations" element={<ProtectedRoute allowedRoles={['admin']}><AdminOrganizationsPage /></ProtectedRoute>} />
         <Route path="/admin/job-categories" element={<ProtectedRoute allowedRoles={['admin']}><AdminJobCategoriesPage /></ProtectedRoute>} />
+        <Route path="/admin/master-data" element={<ProtectedRoute allowedRoles={['admin']}><AdminMasterDataPage /></ProtectedRoute>} />
         <Route path="/admin/payments" element={<AdminPaymentsPage />} />
         <Route path="/admin/scholarships" element={<AdminScholarshipsPage />} />
         <Route path="/admin/isa-repayments" element={<AdminIsaRepaymentsPage />} />
@@ -242,6 +247,8 @@ function App() {
         <Route path="/enterprise/offers" element={<EnterpriseLayout><EnterpriseOffersPage /></EnterpriseLayout>} />
         <Route path="/enterprise/offers/create" element={<EnterpriseLayout><EnterpriseOfferCreatePage /></EnterpriseLayout>} />
         <Route path="/enterprise/offers/:id" element={<EnterpriseLayout><EnterpriseOfferDetailPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/wallet" element={<EnterpriseLayout><EnterpriseWalletPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/profile" element={<EnterpriseLayout><EnterpriseProfilePage /></EnterpriseLayout>} />
 
         {/* NGO Routes */}
         <Route path="/ngo" element={<Navigate to="/ngo/dashboard/impact" replace />} />
@@ -293,14 +300,15 @@ function App() {
         } />
         {/* My Enrollments */}
         <Route path="/my-enrollments" element={<WorkerLayout><MyEnrollmentsPage /></WorkerLayout>} />
+        <Route path="/worker/transactions" element={<WorkerLayout><WorkerTransactionsPage /></WorkerLayout>} />
         <Route path="/my-enrollments/:id" element={<WorkerLayout><MyEnrollmentDetailPage /></WorkerLayout>} />
         <Route path="/my-enrollments/:id/checkin" element={<WorkerLayout><CheckinPage /></WorkerLayout>} />
         <Route path="/my-enrollments/:id/learn" element={<WorkerLayout><VideoLearningPage /></WorkerLayout>} />
         <Route path="/my-enrollments/:id/certificate" element={<WorkerLayout><CertificatePage /></WorkerLayout>} />
-        <Route path="/verify/:code" element={<WorkerLayout><CertificatePage /></WorkerLayout>} />
-        <Route path="/certificates/verify/:code" element={<WorkerLayout><CertificatePage /></WorkerLayout>} />
-        <Route path="/verify-certificate" element={<WorkerLayout><CertificateVerifyPage /></WorkerLayout>} />
-        <Route path="/account/verification" element={<WorkerLayout><AccountVerificationPage /></WorkerLayout>} />
+        <Route path="/verify/:code" element={<CertificatePage />} />
+        <Route path="/certificates/verify/:code" element={<CertificatePage />} />
+        <Route path="/verify-certificate" element={<CertificateVerifyPage />} />
+        <Route path="/account/verification" element={<AccountVerificationPage />} />
         <Route path="/opportunity-map" element={
           <div className="min-h-screen bg-background flex flex-col">
             <Navbar />

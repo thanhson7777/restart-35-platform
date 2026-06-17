@@ -26,7 +26,7 @@ import {
 import { clearRAGRecommendation, clearStartupIdeas } from '@/redux/ai/aiSlice'
 import { invalidateCareerPathCacheAPI, invalidateRAGCacheAPI } from '@/apis/aiAPI'
 
-const STEP_NUMBER = 4
+const STEP_NUMBER = 3
 const AUTOSAVE_DELAY = 1500
 
 const containerVariants = {
@@ -74,25 +74,7 @@ const hasExperience = (savedData) => {
   return true
 }
 
-const WARNING_MESSAGES = {
-  no_experience_no_interests: {
-    title: "Hồ sơ chưa hoàn thiện",
-    message: "Bạn chưa cung cấp thông tin kinh nghiệm làm việc và sở thích. Gợi ý việc làm từ AI dựa trên hồ sơ chưa hoàn thiện sẽ không mang lại kết quả như mong đợi.",
-    checkbox: "Tôi đã hiểu và đồng ý tiếp tục với hồ sơ chưa hoàn thiện",
-    severity: "high"
-  },
-  no_experience_has_interests: {
-    title: "Hồ sơ còn thiếu thông tin",
-    message: "Bạn đã cung cấp sở thích nhưng chưa có kinh nghiệm làm việc. Gợi ý việc làm từ AI sẽ dựa chủ yếu vào sở thích của bạn, chưa có kinh nghiệm thực tế để đề xuất chính xác hơn.",
-    checkbox: "Tôi đã hiểu và đồng ý tiếp tục",
-    severity: "medium"
-  },
-  has_experience_no_interests: {
-    title: "Hồ sơ còn thiếu thông tin",
-    message: "Bạn đã cung cấp kinh nghiệm làm việc nhưng chưa có sở thích. Gợi ý việc làm từ AI sẽ dựa chủ yếu vào kinh nghiệm, chưa có sở thích để cá nhân hóa gợi ý.",
-    checkbox: "Tôi đã hiểu và đồng ý tiếp tục",
-    severity: "medium"
-  },
+const WARNING_CONFIGS = {
   no_experience_wants_entrepreneurship: {
     title: "Cần lưu ý khi chọn khởi nghiệp",
     message: "Với hồ sơ chưa có kinh nghiệm làm việc, khởi nghiệp là lựa chọn khó khăn. Bạn nên cân nhắc tích lũy kinh nghiệm thực tế, kỹ năng chuyên môn và hiểu biết thị trường trước khi bắt đầu dự án kinh doanh riêng.",
@@ -103,13 +85,8 @@ const WARNING_MESSAGES = {
 
 const getWarningCase = (savedData, aspirations) => {
   const exp = hasExperience(savedData)
-  const int = savedData?.interests && savedData.interests !== "không có" &&
-    (savedData.interests.length > 0 || (savedData.interests.interests && savedData.interests.interests.length > 0))
   const wantsKNG = aspirations?.wantsToStartBusiness
 
-  if (!exp && !int) return 'no_experience_no_interests'
-  if (!exp && int) return 'no_experience_has_interests'
-  if (exp && !int) return 'has_experience_no_interests'
   if (!exp && wantsKNG) return 'no_experience_wants_entrepreneurship'
   return null
 }
@@ -350,7 +327,7 @@ function AspirationsForm({ onComplete }) {
           })
           setIsCompleted(true)
           toast.success('Chúc mừng! Bạn đã hoàn thành hồ sơ!')
-          dispatch(setCurrentStep(4))
+          dispatch(setCurrentStep(3))
           onComplete?.()
           setIsRedirecting(true)
           setTimeout(() => navigate('/jobs'), 1500)

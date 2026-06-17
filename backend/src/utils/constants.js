@@ -67,10 +67,9 @@ export const RISK_LEVELS = {
 // BASIC_INFO removed - basicInfo now lives in users collection
 export const WORKER_PROFILE_STEPS = {
   EMPLOYMENT: 1,
-  INTERESTS: 2,
-  BARRIERS: 3,
-  ASPIRATIONS: 4,
-  MAX_STEP: 4
+  BARRIERS: 2,
+  ASPIRATIONS: 3,
+  MAX_STEP: 3
 }
 
 //============= COURSE STATUS ============
@@ -263,8 +262,7 @@ export const ORGANIZATION_TYPES = {
 export const COURSE_DELIVERY_TYPES = {
   VIDEO: 'video',
   LIVE: 'live',
-  OFFLINE: 'offline',
-  BLENDED: 'blended'
+  OFFLINE: 'offline'
 }
 
 // ============ COURSE FUNDING MODELS ============

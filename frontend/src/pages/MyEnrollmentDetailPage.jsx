@@ -57,7 +57,7 @@ export default function MyEnrollmentDetailPage() {
 
       if (courseId) {
         const fetchDetails = [];
-        if (['live', 'offline', 'blended'].includes(enrollData.course?.delivery_type)) {
+        if (['live', 'offline'].includes(enrollData.course?.delivery_type)) {
           const targetScheduleId = enrollData.scheduleId || enrollData.schedule?._id;
           if (targetScheduleId) {
             fetchDetails.push(
@@ -437,7 +437,7 @@ export default function MyEnrollmentDetailPage() {
                 <TabsTrigger value="curriculum" className="rounded-lg text-xs font-semibold px-4 py-2">
                   Giáo trình lộ trình
                 </TabsTrigger>
-                {['live', 'offline', 'blended'].includes(deliveryType) && (
+                {['live', 'offline'].includes(deliveryType) && (
                   <TabsTrigger value="schedules" className="rounded-lg text-xs font-semibold px-4 py-2">
                     Lịch học trực tiếp ({schedule.length} buổi)
                   </TabsTrigger>
@@ -508,7 +508,7 @@ export default function MyEnrollmentDetailPage() {
               )}
 
               {/* Tab: Schedules List */}
-              {['live', 'offline', 'blended'].includes(deliveryType) && (
+              {['live', 'offline'].includes(deliveryType) && (
                 <TabsContent value="schedules" className="focus:outline-none space-y-4">
                   <div className="space-y-3">
                     {schedule.map((session, idx) => {
