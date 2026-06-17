@@ -58,7 +58,7 @@ const getProfileById = async (profileId) => {
 
 const updateStep = async (userId, step, stepData) => {
   try {
-    if (![1, 2, 3, 4].includes(step)) {
+    if (![1, 2, 3].includes(step)) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Số bước không hợp lệ!')
     }
 
@@ -75,9 +75,8 @@ const autosave = async (userId, step, data) => {
   try {
     const stepFieldMap = {
       1: 'employmentHistory',
-      2: 'interests',
-      3: 'barriers',
-      4: 'aspirations'
+      2: 'barriers',
+      3: 'aspirations'
     }
 
     if (!stepFieldMap[step]) {
@@ -136,7 +135,7 @@ const reopenProfile = async (userId) => {
 
     const result = await workerProfileModel.update(profile._id, {
       isCompleted: false,
-      currentStep: 4,
+      currentStep: 3,
       updatedAt: Date.now()
     })
     return result

@@ -21,7 +21,11 @@ const createNew = async (req, res, next) => {
     displayName: Joi.string().required().min(2),
     role: Joi.string().valid(USER_ROLES.WORKER).default(USER_ROLES.WORKER),
     basicInfo: Joi.object({
-      age: Joi.number().integer().min(35).max(65).required(),
+      age: Joi.number().integer().min(35).max(65).required().messages({
+        'number.min': 'Rất tiếc, RESTART-35 là nền tảng dành riêng cho người lao động từ 35 tuổi trở lên.',
+        'number.max': 'Độ tuổi đăng ký tham gia nền tảng tối đa là 65 tuổi.',
+        'any.required': 'Tuổi là bắt buộc.'
+      }),
       gender: Joi.string().valid('male', 'female', 'other').required(),
       province: Joi.string().required(),
       district: Joi.string().allow('', null),
@@ -127,7 +131,8 @@ const updateOrganizationId = async (req, res, next) => {
 const updateUserStatus = async (req, res, next) => {
   const correctCondition = Joi.object({
     isActive: Joi.boolean().strict(),
-    role: Joi.string().valid(...Object.values(USER_ROLES))
+    role: Joi.string().valid(...Object.values(USER_ROLES)),
+    adminApprovalStatus: Joi.string().valid('pending', 'approved', 'rejected')
   }).min(1)
 
   try {

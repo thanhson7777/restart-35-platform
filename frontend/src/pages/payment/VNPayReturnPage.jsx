@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { publicAxiosInstance } from '@/utils/authorizeAxios';
 import { API_ROOT } from '@/utils/constants';
+import { selectCurrentUser } from '@/redux/user/userSlice';
 
 export const VNPayReturnPage = () => {
   const [status, setStatus] = useState('verifying');
   const location = useLocation();
   const navigate = useNavigate();
+  const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -44,6 +47,7 @@ export const VNPayReturnPage = () => {
   }, [location.search]);
 
   const isWallet = new URLSearchParams(location.search).get('type') === 'wallet';
+  const walletPath = currentUser?.role === 'enterprise' ? '/enterprise/wallet' : '/ngo/dashboard/wallet';
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-4">
@@ -63,7 +67,7 @@ export const VNPayReturnPage = () => {
             <p className="text-zinc-500">
               {isWallet ? 'Hệ thống đã ghi nhận số tiền nạp vào Ví tài trợ của bạn.' : 'Hệ thống đã ghi nhận thanh toán. Bạn đã được ghi danh thành công vào lớp học.'}
             </p>
-            <Button onClick={() => navigate(isWallet ? '/ngo/dashboard/wallet' : '/my-enrollments')} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+            <Button onClick={() => navigate(isWallet ? walletPath : '/my-enrollments')} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
               {isWallet ? 'Quay lại Ví tài trợ' : 'Vào lớp học ngay'}
             </Button>
           </div>
@@ -74,7 +78,7 @@ export const VNPayReturnPage = () => {
             <AlertTriangle className="w-16 h-16 text-rose-500 mx-auto" />
             <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Giao dịch thất bại</h2>
             <p className="text-zinc-500">Giao dịch của bạn đã bị hủy hoặc xảy ra lỗi trong quá trình xử lý.</p>
-            <Button variant="outline" onClick={() => navigate(isWallet ? '/ngo/dashboard/wallet' : '/courses')} className="w-full">
+            <Button variant="outline" onClick={() => navigate(isWallet ? walletPath : '/courses')} className="w-full">
               {isWallet ? 'Quay lại Ví tài trợ' : 'Quay lại danh sách khóa học'}
             </Button>
           </div>

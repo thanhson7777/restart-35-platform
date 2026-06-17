@@ -1,5 +1,7 @@
 import { organizationService } from '~/services/organizationService'
+import { userModel } from '~/models/userModel'
 import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 
 // ============ CREATE ============
 const createOrganization = async (req, res, next) => {
@@ -36,6 +38,13 @@ const getOrganizations = async (req, res, next) => {
 const getOrganizationById = async (req, res, next) => {
   try {
     const { id } = req.params
+
+    // Check permission
+    const currentUser = await userModel.findOneById(req.user._id)
+    if (req.user.role !== 'admin' && currentUser?.organizationId?.toString() !== id) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập tổ chức này!')
+    }
+
     const organization = await organizationService.getOrganizationById(id)
 
     res.status(StatusCodes.OK).json({
@@ -53,6 +62,13 @@ const updateOrganization = async (req, res, next) => {
   try {
     const { id } = req.params
     const adminId = req.user._id.toString()
+
+    // Check permission
+    const currentUser = await userModel.findOneById(req.user._id)
+    if (req.user.role !== 'admin' && currentUser?.organizationId?.toString() !== id) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền cập nhật tổ chức này!')
+    }
+
     const organization = await organizationService.updateOrganization(id, adminId, req.body)
 
     res.status(StatusCodes.OK).json({

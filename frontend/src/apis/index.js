@@ -491,3 +491,6 @@ export * from './escoApi';
 
 // Job Category API exports
 export * from './jobCategoryApi';
+
+// Master Data API exports
+export * from './masterDataApi';

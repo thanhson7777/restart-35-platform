@@ -23,8 +23,12 @@ export default function AccountVerificationPage() {
 
     const verify = async () => {
       try {
-        await verifyAccountAPI({ email, token })
-        setStatus('success')
+        const res = await verifyAccountAPI({ email, token })
+        if (res.data?.adminApprovalStatus === 'pending') {
+          setStatus('pending_admin')
+        } else {
+          setStatus('success')
+        }
       } catch (err) {
         const msg =
           err?.response?.data?.message ||
@@ -85,6 +89,35 @@ export default function AccountVerificationPage() {
                 </div>
                 <Button asChild className="w-full">
                   <Link to="/auth">Đăng nhập ngay</Link>
+                </Button>
+              </>
+            )}
+
+            {status === 'pending_admin' && (
+              <>
+                <div className="flex justify-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                  >
+                    <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center">
+                      <ShieldCheck className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                    </div>
+                  </motion.div>
+                </div>
+                <div className="space-y-2">
+                  <h1 className="text-xl font-bold text-foreground">Hồ sơ đang chờ phê duyệt!</h1>
+                  <p className="text-sm text-muted-foreground">
+                    Xác thực email thành công. Đội ngũ Admin đang kiểm tra thông tin Đối tác của bạn.
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    ⏱️ Thời gian dự kiến: 1 - 2 ngày làm việc.<br/>
+                    📧 Kết quả sẽ được gửi trực tiếp đến email của bạn.
+                  </p>
+                </div>
+                <Button asChild variant="outline" className="w-full mt-4">
+                  <Link to="/">Quay về trang chủ</Link>
                 </Button>
               </>
             )}

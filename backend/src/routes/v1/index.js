@@ -51,6 +51,7 @@ import eventRoute from './eventRoute'
 import { mapRoute } from './mapRoute'
 import { adminAnalyticsRoute } from './adminAnalyticsRoute'
 import { walletRoute } from './walletRoute'
+import { masterDataRoute } from './masterDataRoute'
 
 const Router = express.Router()
 
@@ -116,6 +117,7 @@ Router.use('/mentors', mentorRoute)
 Router.use('/mentor-sessions', mentorSessionRoute)
 Router.use('/worker-sponsorships', workerSponsorshipRoute)
 Router.use('/organizations', organizationRoute)
+Router.use('/master-data', masterDataRoute)
 Router.use('/funding-configs', fundingConfigRoute)
 Router.use('/payments', paymentRoute)
 Router.use('/paymentTest', paymentTestRoute)

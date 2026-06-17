@@ -116,14 +116,14 @@ const HeroSection = () => {
             fontWeight: 400,
           }}
         >
-          <span className="text-[hsl(var(--primary))]">Tái hòa nhập. </span>
-          <span className="text-[#6F6F6F] italic">Lập nghiệp vững chắc.</span>
+          <span className="text-[hsl(var(--primary))]">Tái hòa nhập - </span>
+          <span className="text-[hsl(var(--primary))]">Lập nghiệp vững chắc</span>
         </motion.h1>
 
         {/* Description */}
         <motion.p
           variants={fadeRiseVariants}
-          className="mt-8 max-w-2xl text-[#6F6F6F] text-base sm:text-lg leading-relaxed"
+          className="mt-8 max-w-2xl text-[#fefae0] text-base sm:text-lg leading-relaxed"
           style={{ fontFamily: '"Inter", sans-serif' }}
         >
           Nền tảng hỗ trợ tái hòa nhập và lập nghiệp cho lao động trung niên (35+) thông qua kết nối việc làm, đào tạo và sinh kế bền vững.

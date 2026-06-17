@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Save, Send } from 'lucide-react';
 import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { createJob, updateJob, getEnterpriseJobById, submitJobForApproval } from '@/apis/recruitmentAPI';
+import { getJobCategoriesAPI } from '@/apis/jobCategoryApi';
 import LocationPicker from '@/components/location/LocationPicker';
 import toast from 'react-hot-toast';
 
@@ -139,6 +140,7 @@ export default function EnterpriseJobCreatePage() {
   const isEditMode = Boolean(id);
 
   const [currentSection, setCurrentSection] = useState(1);
+  const [jobCategories, setJobCategories] = useState([]);
   const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
   const [tagInputs, setTagInputs] = useState({
@@ -150,6 +152,21 @@ export default function EnterpriseJobCreatePage() {
     benefitsList: ''
   });
   const [useWorkingAddress, setUseWorkingAddress] = useState(false);
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getJobCategoriesAPI();
+        if (res.success && Array.isArray(res.data)) {
+          setJobCategories(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch job categories', err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Fetch job data when in edit mode
   useEffect(() => {
@@ -411,18 +428,17 @@ export default function EnterpriseJobCreatePage() {
                     <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
                       Ngành nghề
                     </label>
-                    <Input
-                      placeholder="VD: F&B, IT, Kế toán..."
-                      value={formData.category}
-                      onChange={(e) => updateFormData('category', e.target.value)}
-                    />
+                    <Select value={formData.category} onValueChange={(v) => updateFormData('category', v)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn ngành nghề" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {jobCategories.map(cat => (
+                          <SelectItem key={cat._id} value={cat.name}>{cat.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                    Yêu cầu công việc
-                  </label>
-                  <TagInput field="requirements" value={tagInputs.requirements} onChange={(v) => handleTagInputChange('requirements', v)} tags={formData.requirements} onAdd={(v) => addTag('requirements', v)} onRemove={(tag) => removeTag('requirements', tag)} />
                 </div>
               </>
             )}
@@ -511,18 +527,6 @@ export default function EnterpriseJobCreatePage() {
                     ))}
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                    Chứng chỉ
-                  </label>
-                  <TagInput field="certifications" value={tagInputs.certifications} onChange={(v) => handleTagInputChange('certifications', v)} tags={formData.certifications} onAdd={(v) => addTag('certifications', v)} onRemove={(tag) => removeTag('certifications', tag)} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                    Ngôn ngữ
-                  </label>
-                  <TagInput field="languages" value={tagInputs.languages} onChange={(v) => handleTagInputChange('languages', v)} tags={formData.languages} onAdd={(v) => addTag('languages', v)} onRemove={(tag) => removeTag('languages', tag)} />
-                </div>
               </>
             )}
 
@@ -565,12 +569,6 @@ export default function EnterpriseJobCreatePage() {
                       <span className="text-sm">Thương lượng được</span>
                     </label>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                    Phúc lợi
-                  </label>
-                  <TagInput field="benefitsList" value={tagInputs.benefitsList} onChange={(v) => handleTagInputChange('benefitsList', v)} tags={formData.benefitsList} onAdd={(v) => addTag('benefitsList', v)} onRemove={(tag) => removeTag('benefitsList', tag)} />
                 </div>
               </>
             )}

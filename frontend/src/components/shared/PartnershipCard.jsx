@@ -9,10 +9,19 @@ const statusMap = {
   expired: 'Hết hạn'
 };
 
+const statusColors = {
+  pending: 'bg-amber-100 text-amber-800 border-amber-200',
+  negotiating: 'bg-blue-100 text-blue-800 border-blue-200',
+  active: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  cancelled: 'bg-rose-100 text-rose-800 border-rose-200',
+  expired: 'bg-slate-100 text-slate-800 border-slate-200'
+};
+
 const PartnershipCard = ({ partnership, onClick, actionLabel = 'Xem chi tiết' }) => {
   const recruitment = partnership?.recruitmentNeeds || {};
   const stats = partnership?.stats || {};
-  const statusLabel = statusMap[partnership?.status] || partnership?.status || 'N/A';
+  const statusLower = (partnership?.status || '').toLowerCase();
+  const statusLabel = statusMap[statusLower] || partnership?.status || 'N/A';
 
   return (
     <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] shadow-[var(--admin-shadow-lg)]">
@@ -26,7 +35,9 @@ const PartnershipCard = ({ partnership, onClick, actionLabel = 'Xem chi tiết' 
               {recruitment.jobTitle || 'Chưa có vị trí tuyển dụng cụ thể'}
             </p>
           </div>
-          <Badge className="bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))]/20">{statusLabel}</Badge>
+          <Badge className={`${statusColors[statusLower] || 'bg-gray-100 text-gray-800 border-gray-200'} whitespace-nowrap shrink-0 border`}>
+            {statusLabel}
+          </Badge>
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-sm">

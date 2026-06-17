@@ -29,6 +29,8 @@ const createNew = async (reqBody) => {
       displayName: reqBody.displayName || name,
       verifyToken: uuidv4(),
       role: reqBody.role || USER_ROLES.WORKER,
+      isActive: false,
+      adminApprovalStatus: 'approved',
       ...(reqBody.basicInfo && {
         age: reqBody.basicInfo.age,
         gender: reqBody.basicInfo.gender,
@@ -46,7 +48,7 @@ const createNew = async (reqBody) => {
     const createdUser = await userModel.createNew(newUser)
     const getNewUser = await userModel.findOneById(createdUser.insertedId)
 
-    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${encodeURIComponent(getNewUser.email)}&token=${encodeURIComponent(getNewUser.verifyToken)}`
     const customSubject = 'Restart-35: Xác thực tài khoản của bạn'
 
     const userName = createdUser.displayName || 'bạn'
@@ -104,13 +106,20 @@ const partnerRegister = async (reqBody) => {
     if (reqBody.role === USER_ROLES.TRAINER) orgType = 'training_center'
 
     const { organizationModel } = await import('~/models/organizationModel')
-    
+
     // Create Organization first
     const newOrg = {
       name: reqBody.organization.name,
       taxCode: reqBody.organization.taxCode,
       address: reqBody.organization.address,
-      type: orgType
+      type: orgType,
+      ...(reqBody.organization.trainerType && { trainerType: reqBody.organization.trainerType }),
+      ...(reqBody.organization.identityNumber && { identityNumber: reqBody.organization.identityNumber }),
+      ...(reqBody.organization.industry && { industry: reqBody.organization.industry }),
+      ...(reqBody.organization.size && { size: reqBody.organization.size }),
+      ...(reqBody.organization.focusAreas && { focusAreas: reqBody.organization.focusAreas }),
+      ...(reqBody.organization.operatingRegions && { operatingRegions: reqBody.organization.operatingRegions }),
+      ...(reqBody.organization.trainingCategories && { trainingCategories: reqBody.organization.trainingCategories })
     }
     const createdOrgResult = await organizationModel.createNew(newOrg)
     const orgId = createdOrgResult.insertedId.toString()
@@ -126,14 +135,15 @@ const partnerRegister = async (reqBody) => {
       displayName: reqBody.displayName || name,
       verifyToken: uuidv4(),
       role: reqBody.role,
-      isActive: false, // Must be verified by admin and email
+      isActive: false, // Must be verified by email and admin
+      adminApprovalStatus: 'pending', // Needs admin approval
       organizationId: orgId
     }
 
     const createdUser = await userModel.createNew(newUser)
     const getNewUser = await userModel.findOneById(createdUser.insertedId)
 
-    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${encodeURIComponent(getNewUser.email)}&token=${encodeURIComponent(getNewUser.verifyToken)}`
     const customSubject = 'Restart-35: Xác nhận đăng ký tài khoản Đối tác'
 
     const userName = createdUser.displayName || 'bạn'
@@ -157,7 +167,7 @@ const partnerRegister = async (reqBody) => {
           </p>
           <div style="margin: 40px 0;">
             <a href="${verificationLink}" target="_blank" style="background-color: #2563eb; color: #ffffff; padding: 14px 36px; text-decoration: none; font-weight: 500; font-size: 14px; display: inline-block; border-radius: 6px;">
-              Xác Thực Email
+              Xác Thực
             </a>
           </div>
           <p style="font-size: 13px; color: #888888; font-style: italic;">Liên kết này sẽ bảo mật và tự động hết hạn sau 24 giờ.</p>
@@ -179,7 +189,7 @@ const verifyAccount = async (reqBody) => {
     if (reqBody.token !== existUser.verifyToken) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Token xác thực không hợp lệ!')
 
     const updateData = {
-      isActive: true,
+      isActive: existUser.adminApprovalStatus === 'approved', // Only activate if admin already approved (or if worker)
       verifyToken: null
     }
 
@@ -194,7 +204,18 @@ const login = async (reqBody) => {
     const existUser = await userModel.findOneByEmail(reqBody.email)
     if (!existUser) throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email hoặc mật khẩu không chính xác!')
 
-    if (!existUser.isActive) throw new ApiError(StatusCodes.FORBIDDEN, 'Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email!')
+    if (!existUser.isActive) {
+      if (existUser.verifyToken) {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Tài khoản chưa được xác thực. Vui lòng kiểm tra email!')
+      }
+      if (existUser.adminApprovalStatus === 'pending') {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Tài khoản của bạn đã xác thực email và đang trong quá trình chờ Admin phê duyệt (dự kiến 1-2 ngày làm việc).')
+      }
+      if (existUser.adminApprovalStatus === 'rejected') {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Tài khoản của bạn đã bị từ chối phê duyệt. Vui lòng liên hệ Admin để biết thêm chi tiết.')
+      }
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Tài khoản của bạn hiện đang bị khóa!')
+    }
 
     const isMatch = await bcryptjs.compare(reqBody.password, existUser.password)
     if (!isMatch) throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email hoặc mật khẩu không chính xác!')
@@ -308,14 +329,75 @@ const getAdminUsers = async ({ page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAG
   } catch (error) { throw error }
 }
 
+const getPublicTrainers = async ({ page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE }) => {
+  try {
+    const currentPage = parseInt(page, 10) || DEFAULT_PAGE
+    const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
+    const skip = (currentPage - 1) * recordLimit
+
+    const { users, totalUsers } = await userModel.getPublicTrainers(skip, recordLimit)
+
+    return {
+      users,
+      pagination: {
+        totalRecords: totalUsers,
+        totalPages: Math.ceil(totalUsers / recordLimit),
+        currentPage: currentPage,
+        limit: recordLimit
+      }
+    }
+  } catch (error) { throw error }
+}
+
 const updateUserStatus = async (userId, updateData) => {
   try {
     const dataToUpdate = {}
     if (updateData.role !== undefined) dataToUpdate.role = updateData.role
     if (updateData.isActive !== undefined) dataToUpdate.isActive = updateData.isActive
+    if (updateData.adminApprovalStatus !== undefined) dataToUpdate.adminApprovalStatus = updateData.adminApprovalStatus
 
     if (Object.keys(dataToUpdate).length === 0) {
       throw new Error('Không có dữ liệu hợp lệ để cập nhật!')
+    }
+
+    const user = await userModel.findOneById(userId)
+    if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy người dùng')
+
+    // Handle admin approval status email sending
+    if (dataToUpdate.adminApprovalStatus && dataToUpdate.adminApprovalStatus !== user.adminApprovalStatus) {
+      if (dataToUpdate.adminApprovalStatus === 'approved') {
+        dataToUpdate.isActive = true // Activate user when approved
+        
+        // Send approval email
+        const approvalSubject = 'Restart-35: Chúc mừng! Tài khoản của bạn đã được phê duyệt 🎉'
+        const approvalHtml = `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h2 style="color: #2563eb;">Chào ${user.displayName || 'bạn'},</h2>
+            <p>Tuyệt vời! Hồ sơ Đối tác của bạn đã được Admin xác thực thành công.</p>
+            <p>Giờ đây bạn đã có thể đăng nhập vào nền tảng và bắt đầu sử dụng các tính năng dành cho Đối tác.</p>
+            <div style="margin: 30px 0;">
+              <a href="${WEBSITE_DOMAIN}/login" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Đăng nhập ngay</a>
+            </div>
+            <p>Trân trọng,<br>Ban quản trị Restart-35</p>
+          </div>
+        `
+        BrevoProvider.sendEmail(user.email, approvalSubject, approvalHtml).catch(console.error)
+
+      } else if (dataToUpdate.adminApprovalStatus === 'rejected') {
+        dataToUpdate.isActive = false // Deactivate user
+        
+        // Send rejection email
+        const rejectSubject = 'Restart-35: Cập nhật yêu cầu xác thực tài khoản ⚠️'
+        const rejectHtml = `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h2 style="color: #ea580c;">Chào ${user.displayName || 'bạn'},</h2>
+            <p>Cảm ơn bạn đã gửi thông tin đăng ký Đối tác trên hệ thống Restart-35.</p>
+            <p>Tuy nhiên, chúng tôi chưa thể phê duyệt hồ sơ của bạn lúc này. Vui lòng kiểm tra lại thông tin tổ chức/giấy tờ liên quan và liên hệ với chúng tôi để được hỗ trợ thêm.</p>
+            <p>Trân trọng,<br>Ban quản trị Restart-35</p>
+          </div>
+        `
+        BrevoProvider.sendEmail(user.email, rejectSubject, rejectHtml).catch(console.error)
+      }
     }
 
     const updatedUser = await userModel.updateUserStatus(userId, dataToUpdate)
@@ -396,10 +478,10 @@ const forgotPassword = async (email) => {
 
     // Create reset token
     const resetToken = crypto.randomBytes(20).toString('hex')
-    
+
     // Hash token to save in DB for security
     const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
-    
+
     // Set expire (15 minutes)
     const resetPasswordExpire = Date.now() + 15 * 60 * 1000
 
@@ -479,6 +561,7 @@ export const userService = {
   verifyToken,
   update,
   getAdminUsers,
+  getPublicTrainers,
   updateUserStatus,
   changePassword,
   getMe,

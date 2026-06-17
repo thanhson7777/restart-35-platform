@@ -16,8 +16,10 @@ const RECRUITMENT_NEEDS_SCHEMA = Joi.object({
   }).default(null),
   requirements: Joi.array().items(Joi.string().trim()).default([]),
   targetSkills: Joi.array().items(Joi.string().trim()).default([]),
-  employmentType: Joi.string().trim().allow('', null).default(null)
-}).required()
+  employmentType: Joi.string().trim().allow('', null).default(null),
+  categoryId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(null).default(null),
+  deliveryType: Joi.string().valid('live', 'offline', 'video').allow(null).default(null)
+}) // Bỏ .required() để cho phép Doanh nghiệp chỉ tài trợ mà không tuyển dụng
 
 const AGREED_TERMS_SCHEMA = Joi.object({
   linkedCourseIds: Joi.array().items(
@@ -42,8 +44,14 @@ const PARTNERSHIP_COLLECTION_SCHEMA = Joi.object({
   linkedCourseIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
-  recruitmentNeeds: RECRUITMENT_NEEDS_SCHEMA,
+  recruitmentNeeds: RECRUITMENT_NEEDS_SCHEMA.allow(null).default(null),
   agreedTerms: AGREED_TERMS_SCHEMA,
+  proposedSponsorship: Joi.object({
+    targetLearners: Joi.number().integer().min(1).default(1),
+    coverageType: Joi.string().valid('FULL', 'PARTIAL', 'FIXED_AMOUNT').default('FULL'),
+    budget: Joi.number().min(0).allow(null).default(null),
+    fixedAmountPerLearner: Joi.number().min(0).allow(null).default(null)
+  }).allow(null).default(null),
   status: Joi.string()
     .valid(...Object.values(PARTNERSHIP_STATUS))
     .default(PARTNERSHIP_STATUS.PENDING),

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from '@/components/ui';
-import { Play, Video, MapPin, Layers } from 'lucide-react';
+import { Play, Video, MapPin } from 'lucide-react';
 
 const DELIVERY_CONFIG = {
   video: {
@@ -17,11 +17,6 @@ const DELIVERY_CONFIG = {
     label: 'Học tại lớp (Offline)',
     icon: MapPin,
     className: 'bg-orange-50 text-orange-600 border border-orange-100 dark:bg-orange-950/30 dark:text-orange-400 dark:border-orange-900/40',
-  },
-  blended: {
-    label: 'Học kết hợp (Blended)',
-    icon: Layers,
-    className: 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/40',
   },
 };
 

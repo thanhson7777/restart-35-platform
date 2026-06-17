@@ -11,7 +11,6 @@ import { PaymentTracker } from './PaymentTracker';
 import { VideoProgressDetail } from './VideoProgressDetail';
 import { LiveProgressDetail } from './LiveProgressDetail';
 import { OfflineProgressDetail } from './OfflineProgressDetail';
-import { BlendedProgressDetail } from './BlendedProgressDetail';
 
 export const EnrollmentCard = ({
   enrollment,
@@ -52,8 +51,6 @@ export const EnrollmentCard = ({
         return <LiveProgressDetail enrollment={enrollment} />;
       case 'offline':
         return <OfflineProgressDetail enrollment={enrollment} />;
-      case 'blended':
-        return <BlendedProgressDetail enrollment={enrollment} />;
       default:
         return <VideoProgressDetail enrollment={enrollment} />;
     }

@@ -65,14 +65,7 @@ const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
     }).unknown(true)
   ),
 
-  interests: Joi.alternatives().try(
-    Joi.array().items(Joi.string()),
-    Joi.object({
-      interests: Joi.array().items(Joi.string()),
-      status: Joi.string().valid('không có')
-    }),
-    Joi.string().valid('không có')
-  ).optional(),
+
 
   barriers: Joi.object({
     health: Joi.boolean().default(false),
@@ -200,11 +193,9 @@ const updateStep = async (userId, step, stepData) => {
 
     if (existingProfile) {
       const stepFieldMap = {
-        1: 'basicInfo',
-        2: 'employmentHistory',
-        3: 'interests',
-        4: 'barriers',
-        5: 'aspirations'
+        1: 'employmentHistory',
+        2: 'barriers',
+        3: 'aspirations'
       }
 
       const fieldName = stepFieldMap[step]
@@ -230,11 +221,9 @@ const updateStep = async (userId, step, stepData) => {
       return result
     } else {
       const stepFieldMap = {
-        1: 'basicInfo',
-        2: 'employmentHistory',
-        3: 'interests',
-        4: 'barriers',
-        5: 'aspirations'
+        1: 'employmentHistory',
+        2: 'barriers',
+        3: 'aspirations'
       }
 
       const fieldName = stepFieldMap[step]

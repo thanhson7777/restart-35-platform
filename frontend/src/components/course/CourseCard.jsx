@@ -22,6 +22,7 @@ export const CourseCard = ({
   matchScore,
   onClick,
   onEnroll,
+  actionSlot,
   variant = 'vertical', // 'vertical' | 'horizontal'
 }) => {
   const {
@@ -42,7 +43,15 @@ export const CourseCard = ({
     provider,
     delivery_type,
     funding_model,
+    fundingConfig,
   } = course;
+
+  // Migration fallbacks
+  const actualIsFree = fundingConfig?.type === 'FREE' || isFree || fee === 0;
+  const actualFee = fundingConfig?.price ?? fee ?? 0;
+  const isSponsored = fundingConfig?.type === 'SPONSORED' || course.sponsorship?.hasSponsorship;
+  const hasJobGuarantee = fundingConfig?.hasJobGuarantee || course.sponsorship?.hasJobGuarantee;
+  const acceptsSponsorship = fundingConfig?.acceptsSponsorship;
 
   const isHorizontal = variant === 'horizontal';
 
@@ -100,23 +109,33 @@ export const CourseCard = ({
               )
             )}
             
-            {course.sponsorship?.hasSponsorship && (
+            {isSponsored && (
               <Badge
                 variant="secondary"
                 className="bg-rose-500/95 hover:bg-rose-600 text-white text-[10px] px-2 py-0.5 shadow-sm border-0 font-medium flex items-center gap-1"
               >
                 <Heart className="w-3 h-3 fill-white" />
-                Được tài trợ
+                Được tài trợ {course.sponsorshipData?.amount ? formatPrice(course.sponsorshipData.amount) : ''}
               </Badge>
             )}
 
-            {course.sponsorship?.hasJobGuarantee && (
+            {hasJobGuarantee && (
               <Badge
                 variant="secondary"
                 className="bg-emerald-500/95 hover:bg-emerald-600 text-white text-[10px] px-2 py-0.5 shadow-sm border-0 font-medium flex items-center gap-1"
               >
                 <Briefcase className="w-3 h-3 fill-white" />
                 Cam kết việc làm
+              </Badge>
+            )}
+
+            {acceptsSponsorship && !isSponsored && (
+              <Badge
+                variant="secondary"
+                className="bg-blue-500/95 hover:bg-blue-600 text-white text-[10px] px-2 py-0.5 shadow-sm border-0 font-medium flex items-center gap-1"
+              >
+                <Heart className="w-3 h-3 fill-white" />
+                Chờ tài trợ
               </Badge>
             )}
             
@@ -185,7 +204,7 @@ export const CourseCard = ({
             {/* Fee */}
             <div>
               <span className="text-lg font-bold text-primary">
-                {isFree || fee === 0 ? 'Miễn phí' : formatPrice(fee)}
+                {actualIsFree ? 'Miễn phí' : formatPrice(actualFee)}
               </span>
             </div>
 
@@ -221,6 +240,7 @@ export const CourseCard = ({
               </span>
             )}
           </div>
+          {actionSlot && <div className="mt-3">{actionSlot}</div>}
         </div>
       </Card>
     </div>

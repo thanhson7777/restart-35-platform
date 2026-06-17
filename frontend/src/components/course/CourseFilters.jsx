@@ -1,48 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui';
-import { Search, SlidersHorizontal, X, Play, Video, MapPin, Layers, Building2, Handshake, HeartHandshake } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const LEVEL_OPTIONS = [
-  { value: '', label: 'Tất cả cấp độ' },
-  { value: 'beginner', label: 'Người mới bắt đầu' },
-  { value: 'intermediate', label: 'Trung bình / Đã biết' },
-  { value: 'advanced', label: 'Nâng cao / Chuyên sâu' },
-];
 
 const SORT_OPTIONS = [
   { value: 'enrollmentCount', label: 'Phổ biến nhất' },
   { value: 'rating', label: 'Đánh giá tốt nhất' },
   { value: 'createdAt', label: 'Mới cập nhật' },
   { value: 'fee', label: 'Học phí thấp nhất' },
-];
-
-const FUNDING_OPTIONS = [
-  { value: '', label: 'Tất cả hỗ trợ tài chính' },
-  { value: 'free', label: 'Miễn phí' },
-  { value: 'learner_paid', label: 'Trả phí' },
-  { value: 'isa', label: 'ISA - Học trước trả sau' },
-  { value: 'enterprise_funded', label: 'Doanh nghiệp chi trả' },
-  { value: 'batch', label: 'Đóng phí theo đợt' },
-  { value: 'partnership_linked', label: 'Partnership liên kết' },
-  { value: 'ngo_funded', label: 'NGO tài trợ' },
-  { value: 'co_funded', label: 'Đồng tài trợ' },
-];
-
-const DELIVERY_TYPES = [
-  { value: '', label: 'Tất cả', icon: null },
-  { value: 'video', label: 'Video bài giảng', icon: Play },
-  { value: 'live', label: 'Live trực tuyến', icon: Video },
-  { value: 'offline', label: 'Tại lớp (Offline)', icon: MapPin },
-  { value: 'blended', label: 'Học kết hợp (Blended)', icon: Layers },
-];
-
-const FUNDING_CHIPS = [
-  { value: '', label: 'Tất cả', icon: null },
-  { value: 'enterprise_funded', label: 'DN tài trợ', icon: Building2 },
-  { value: 'ngo_funded', label: 'NGO tài trợ', icon: HeartHandshake },
-  { value: 'co_funded', label: 'Đồng tài trợ', icon: Handshake },
-  { value: 'partnership_linked', label: 'Partnership linked', icon: Layers }
 ];
 
 export const CourseFilters = ({ filters, onChange, categories = [] }) => {
@@ -75,12 +40,7 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
     const cleared = {
       search: '',
       category: '',
-      level: '',
-      isFree: false,
-      hasScholarship: false,
-      delivery_type: '',
-      funding_model: '',
-      sortBy: 'enrollmentCount',
+      sortBy: 'createdAt',
       order: 'desc',
       page: 1,
     };
@@ -90,12 +50,7 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
 
   const hasActiveFilters = Boolean(
     filters.search ||
-    filters.category ||
-    filters.level ||
-    filters.isFree ||
-    filters.hasScholarship ||
-    filters.delivery_type ||
-    filters.funding_model
+    filters.category
   );
 
   return (
@@ -156,53 +111,6 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
           ))}
         </select>
 
-        {/* Level */}
-        <select
-          value={filters.level || ''}
-          onChange={(e) => handleChange('level', e.target.value)}
-          className="px-3.5 py-2 rounded-xl border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
-        >
-          {LEVEL_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-
-        {/* Funding Model */}
-        <select
-          value={filters.funding_model || ''}
-          onChange={(e) => handleChange('funding_model', e.target.value)}
-          className="px-3.5 py-2 rounded-xl border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
-        >
-          {FUNDING_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-
-        {/* Free checkbox */}
-        <label className="flex items-center gap-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 cursor-pointer select-none px-1">
-          <input
-            type="checkbox"
-            checked={filters.isFree || false}
-            onChange={(e) => handleChange('isFree', e.target.checked)}
-            className="w-4 h-4 accent-primary rounded border-zinc-300 focus:ring-primary/25"
-          />
-          Miễn phí
-        </label>
-
-        {/* Has scholarship checkbox */}
-        <label className="flex items-center gap-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 cursor-pointer select-none px-1">
-          <input
-            type="checkbox"
-            checked={filters.hasScholarship || false}
-            onChange={(e) => handleChange('hasScholarship', e.target.checked)}
-            className="w-4 h-4 accent-primary rounded border-zinc-300 focus:ring-primary/25"
-          />
-          Học bổng
-        </label>
 
         {/* Clear Filters (Desktop) */}
         {hasActiveFilters && (
@@ -216,52 +124,6 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
         )}
       </div>
 
-      {/* Desktop Delivery Type Chip Selection */}
-      <div className="hidden md:flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-900">
-        <span className="text-[11px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-semibold mr-2">Hình thức học:</span>
-        {DELIVERY_TYPES.map((dt) => {
-          const Icon = dt.icon;
-          const isActive = filters.delivery_type === dt.value || (dt.value === '' && !filters.delivery_type);
-          
-          return (
-            <button
-              key={dt.value}
-              onClick={() => handleChange('delivery_type', dt.value)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all duration-300 select-none ${
-                isActive
-                  ? 'bg-zinc-900 border-zinc-900 text-white shadow-sm dark:bg-white dark:border-white dark:text-zinc-900'
-                  : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
-              }`}
-            >
-              {Icon && <Icon className="w-3 h-3" strokeWidth={2.0} />}
-              <span>{dt.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="hidden md:flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-900">
-        <span className="text-[11px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-semibold mr-2">Nguồn tài trợ:</span>
-        {FUNDING_CHIPS.map((chip) => {
-          const Icon = chip.icon;
-          const isActive = filters.funding_model === chip.value || (chip.value === '' && !filters.funding_model);
-
-          return (
-            <button
-              key={chip.value}
-              onClick={() => handleChange('funding_model', chip.value)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-all duration-300 select-none ${
-                isActive
-                  ? 'bg-zinc-900 border-zinc-900 text-white shadow-sm dark:bg-white dark:border-white dark:text-zinc-900'
-                  : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
-              }`}
-            >
-              {Icon ? <Icon className="w-3 h-3" strokeWidth={2.0} /> : null}
-              <span>{chip.label}</span>
-            </button>
-          );
-        })}
-      </div>
 
       {/* Mobile Filters Drawer */}
       <AnimatePresence>
@@ -291,85 +153,6 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
                 </select>
               </div>
 
-              {/* Level */}
-              <div className="space-y-1">
-                <span className="text-[10px] uppercase font-semibold tracking-wider text-zinc-400">Trình độ</span>
-                <select
-                  value={filters.level || ''}
-                  onChange={(e) => handleChange('level', e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-sm text-zinc-700 dark:text-zinc-350"
-                >
-                  {LEVEL_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Funding Model */}
-              <div className="space-y-1">
-                <span className="text-[10px] uppercase font-semibold tracking-wider text-zinc-400">Mô hình tài chính</span>
-                <select
-                  value={filters.funding_model || ''}
-                  onChange={(e) => handleChange('funding_model', e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-sm text-zinc-700 dark:text-zinc-350"
-                >
-                  {FUNDING_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Mobile Delivery Type Chips */}
-              <div className="space-y-2">
-                <span className="text-[10px] uppercase font-semibold tracking-wider text-zinc-400 block">Hình thức học</span>
-                <div className="flex flex-wrap gap-2">
-                  {DELIVERY_TYPES.map((dt) => {
-                    const Icon = dt.icon;
-                    const isActive = filters.delivery_type === dt.value || (dt.value === '' && !filters.delivery_type);
-
-                    return (
-                      <button
-                        key={dt.value}
-                        onClick={() => handleChange('delivery_type', dt.value)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                          isActive
-                            ? 'bg-zinc-900 border-zinc-900 text-white dark:bg-white dark:border-white dark:text-zinc-950'
-                            : 'bg-white border-zinc-200 text-zinc-600 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-400'
-                        }`}
-                      >
-                        {Icon && <Icon className="w-3 h-3" strokeWidth={2.0} />}
-                        <span>{dt.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Checkboxes */}
-              <div className="flex items-center gap-4 pt-1">
-                <label className="flex items-center gap-2 text-xs font-semibold text-zinc-650 dark:text-zinc-350 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.isFree || false}
-                    onChange={(e) => handleChange('isFree', e.target.checked)}
-                    className="w-4 h-4 accent-primary"
-                  />
-                  Miễn phí
-                </label>
-                <label className="flex items-center gap-2 text-xs font-semibold text-zinc-650 dark:text-zinc-350 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.hasScholarship || false}
-                    onChange={(e) => handleChange('hasScholarship', e.target.checked)}
-                    className="w-4 h-4 accent-primary"
-                  />
-                  Học bổng
-                </label>
-              </div>
 
               {hasActiveFilters && (
                 <button
@@ -390,7 +173,7 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground font-medium">Sắp xếp theo:</span>
           <select
-            value={`${filters.sortBy || 'enrollmentCount'}-${filters.order || 'desc'}`}
+            value={`${filters.sortBy || 'createdAt'}-${filters.order || 'desc'}`}
             onChange={(e) => {
               const [sortBy, order] = e.target.value.split('-');
               handleChange('sortBy', sortBy);

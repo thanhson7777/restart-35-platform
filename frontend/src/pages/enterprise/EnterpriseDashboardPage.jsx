@@ -205,7 +205,7 @@ export default function EnterpriseDashboardPage() {
         <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-[hsl(var(--admin-text-primary))] mb-4">Thao tác nhanh</h3>
           <div className="space-y-3">
-            <button onClick={() => navigate('/enterprise/recruitment/jobs/create')} className="w-full text-left px-4 py-3 rounded-xl bg-[hsl(var(--admin-primary))] text-white font-medium hover:bg-blue-600 transition-colors flex items-center gap-2 shadow-sm">
+            <button onClick={() => navigate('/enterprise/recruitment/jobs/create')} className="w-full text-left px-4 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm">
               <UserPlus size={18} /> Đăng tin tuyển dụng mới
             </button>
             <button onClick={() => navigate('/enterprise/recruitment/interviews')} className="w-full text-left px-4 py-3 rounded-xl bg-[hsl(var(--admin-surface-elevated))] hover:bg-slate-100 text-[hsl(var(--admin-text-secondary))] font-medium transition-colors border border-slate-200">

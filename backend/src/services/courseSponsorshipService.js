@@ -1,4 +1,6 @@
 import { courseSponsorshipModel } from '~/models/courseSponsorshipModel'
+import { GET_DB } from '~/config/mongodb'
+import { ObjectId } from 'mongodb'
 import { walletModel } from '~/models/walletModel'
 import { transactionModel } from '~/models/transactionModel'
 import { enrollmentModel } from '~/models/enrollmentModel'
@@ -229,24 +231,59 @@ const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, 
 
     // Lấy thông tin khóa học để biết số tiền cần giải ngân
     const course = await courseModel.findOneById(enrollment.courseId)
-    const fee = course?.fee || 0
+    const basePrice = course?.fundingConfig?.price ?? course?.fee ?? 0
+    
+    let sponsoredAmount = 0
+    const lc = sponsorship.linkedCourses?.find(item => String(item.courseId) === String(course._id))
+    if (lc) {
+      if (lc.coverage === 'FULL' || sponsorship.coverageType === 'FULL') {
+        sponsoredAmount = basePrice
+      } else {
+        sponsoredAmount = lc.maxAmount || sponsorship.maxAmountPerLearner || 0
+      }
+    } else {
+      sponsoredAmount = sponsorship.maxAmountPerLearner || 0
+    }
 
-    if (fee > 0) {
+    // Không tài trợ vượt quá học phí
+    if (sponsoredAmount > basePrice) {
+      sponsoredAmount = basePrice
+    }
+
+    if (sponsoredAmount > 0) {
       // Trừ tiền khóa (lockedBalance) và tăng tiền đã giải ngân
       const wallet = await walletModel.findOrCreateByUserId(sponsorId)
-      if (wallet && wallet.lockedBalance >= fee) {
+      if (wallet && wallet.lockedBalance >= sponsoredAmount) {
         await walletModel.update(sponsorId, {
-          lockedBalance: wallet.lockedBalance - fee,
-          totalDisbursed: (wallet.totalDisbursed || 0) + fee
+          lockedBalance: wallet.lockedBalance - sponsoredAmount,
+          totalDisbursed: (wallet.totalDisbursed || 0) + sponsoredAmount
         })
 
-        // Lưu transaction DISBURSE
+        // Lưu transaction DISBURSE cho Doanh nghiệp
         await transactionModel.createNew({
           walletId: String(wallet._id),
           userId: sponsorId,
           type: 'DISBURSE',
-          amount: fee,
+          amount: sponsoredAmount,
           description: `Giải ngân tài trợ khóa học cho học viên ${enrollment.userId}`,
+          referenceId: sponsorshipId,
+          referenceModel: 'Sponsorship',
+          status: 'COMPLETED'
+        })
+        
+        // Cộng tiền vào ví Trainer
+        const trainerWallet = await walletModel.findOrCreateByUserId(course.providerId)
+        await walletModel.update(course.providerId, {
+          availableBalance: (trainerWallet.availableBalance || 0) + sponsoredAmount
+        })
+
+        // Lưu transaction RECEIVE cho Trainer
+        await transactionModel.createNew({
+          walletId: String(trainerWallet._id),
+          userId: course.providerId,
+          type: 'DEPOSIT',
+          amount: sponsoredAmount,
+          description: `Nhận tiền tài trợ khóa học cho học viên ${enrollment.userId} từ doanh nghiệp`,
           referenceId: sponsorshipId,
           referenceModel: 'Sponsorship',
           status: 'COMPLETED'
@@ -254,8 +291,8 @@ const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, 
         
         // Cập nhật ngân sách của Sponsorship
         await courseSponsorshipModel.update(sponsorshipId, {
-          spent: (sponsorship.spent || 0) + fee,
-          remaining: sponsorship.remaining - fee,
+          spent: (sponsorship.spent || 0) + sponsoredAmount,
+          remaining: sponsorship.remaining - sponsoredAmount,
           'stats.approvedLearners': (sponsorship.stats?.approvedLearners || 0) + 1
         })
       } else {
@@ -274,6 +311,12 @@ const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, 
   } else {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Trạng thái quyết định không hợp lệ!')
   }
+
+  // Cập nhật trạng thái trong mảng sponsorships của enrollment
+  await GET_DB().collection('enrollments').updateOne(
+    { _id: new ObjectId(enrollmentId), 'sponsorships.sponsorshipId': sponsorshipId },
+    { $set: { 'sponsorships.$.status': status } }
+  )
 
   return await enrollmentModel.findOneById(enrollmentId)
 }

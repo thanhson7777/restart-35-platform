@@ -82,7 +82,9 @@ const createCourse = async (req, res, next) => {
       })
     ).max(50).default([]),
     certificate: Joi.string().max(200).allow(''),
-    outcomes: Joi.array().items(Joi.string()).max(20).default([])
+    outcomes: Joi.array().items(Joi.string()).max(20).default([]),
+    linkedPartnershipId: Joi.string().pattern(OBJECT_ID_RULE).allow(null, '').message(OBJECT_ID_RULE_MESSAGE),
+    linkedEnterpriseId: Joi.string().pattern(OBJECT_ID_RULE).allow(null, '').message(OBJECT_ID_RULE_MESSAGE)
   })
 
   try {
@@ -182,15 +184,15 @@ const queryCourses = async (req, res, next) => {
     page: Joi.number().integer().min(1).default(1),
     limit: Joi.number().integer().min(1).max(MAX_ITEM_PER_PAGE).default(10),
     search: Joi.string().max(200).allow(''),
-    category: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    provider: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    category: Joi.string().pattern(OBJECT_ID_RULE).allow('').message(OBJECT_ID_RULE_MESSAGE),
+    provider: Joi.string().pattern(OBJECT_ID_RULE).allow('').message(OBJECT_ID_RULE_MESSAGE),
     minFee: Joi.number().integer().min(0),
     maxFee: Joi.number().integer().min(0),
     isFree: Joi.boolean(),
     hasScholarship: Joi.boolean(),
-    skill: Joi.string().max(100),
-    delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)),
-    funding_model: Joi.string().valid(...Object.values(COURSE_FUNDING_MODELS)),
+    skill: Joi.string().max(100).allow(''),
+    delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)).allow(''),
+    funding_model: Joi.string().valid(...Object.values(COURSE_FUNDING_MODELS)).allow(''),
     sortBy: Joi.string().valid('createdAt', 'title', 'fee', 'rating', 'enrollmentCount').default('createdAt'),
     order: Joi.string().valid('asc', 'desc').default('desc')
   })

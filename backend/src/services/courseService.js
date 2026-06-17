@@ -7,9 +7,11 @@ import { enrollmentModel } from '~/models/enrollmentModel'
 import { categoryModel } from '~/models/categoryModel'
 import { scheduleService } from '~/services/scheduleService'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
+import { partnershipModel } from '~/models/partnershipModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
-import { DEFAULT_PAGE, DEFAULT_ITEM_PER_PAGE, COURSE_STATUS } from '~/utils/constants'
+import { DEFAULT_PAGE, DEFAULT_ITEM_PER_PAGE, COURSE_STATUS, PARTNERSHIP_STATUS } from '~/utils/constants'
+import { GET_DB } from '~/config/mongodb'
 
 // ============ CREATE ============
 const createCourse = async (userId, data, reqFile = null) => {
@@ -47,6 +49,23 @@ const createCourse = async (userId, data, reqFile = null) => {
       } catch (err) {
         // Log the error but don't fail the course creation
         console.error('Failed to auto-generate schedule:', err)
+      }
+    }
+
+    // Handle B2B Partnership Link
+    if (data.linkedPartnershipId) {
+      try {
+        const existingPartnership = await partnershipModel.findOneById(data.linkedPartnershipId)
+        const updatedCourseIds = existingPartnership?.proposedCourseIds 
+          ? [...existingPartnership.proposedCourseIds, result.insertedId.toString()]
+          : [result.insertedId.toString()]
+          
+        await partnershipModel.update(data.linkedPartnershipId, {
+          status: PARTNERSHIP_STATUS.NEGOTIATING,
+          proposedCourseIds: updatedCourseIds
+        })
+      } catch (err) {
+        console.error('Failed to link course to partnership:', err)
       }
     }
 
@@ -163,12 +182,34 @@ const getCourses = async (queryParams) => {
       sortOptions
     )
 
-    // Enrich with provider info
+    // Fetch active sponsorships for these courses
+    const courseIds = courses.map(c => c._id.toString())
+    const activeSponsorships = await GET_DB().collection('course_sponsorships').find({
+      'linkedCourses.courseId': { $in: courseIds },
+      status: 'active',
+      _destroy: { $ne: true }
+    }).toArray()
+
+    // Enrich with provider info & sponsorship
     const enrichedCourses = await Promise.all(
       courses.map(async (course) => {
         const providerInfo = await userModel.findOneById(course.providerId)
+        
+        // Find matching sponsorship
+        const sponsorshipsForCourse = activeSponsorships.filter(s => 
+          s.linkedCourses?.some(lc => lc.courseId === course._id.toString())
+        )
+        let sponsorshipData = null
+        if (sponsorshipsForCourse.length > 0) {
+          const sp = sponsorshipsForCourse[0]
+          const lc = sp.linkedCourses.find(item => item.courseId === course._id.toString())
+          const amount = lc.maxAmount || sp.maxAmountPerLearner || 0
+          sponsorshipData = { amount, coverageType: lc.coverage || sp.coverageType }
+        }
+
         return {
           ...course,
+          sponsorshipData,
           provider: providerInfo ? {
             _id: providerInfo._id,
             displayName: providerInfo.displayName,
@@ -205,8 +246,30 @@ const getMyCourses = async (userId, queryParams) => {
 
     const { courses, totalCourses } = await courseModel.findByProvider(userId, skip, recordLimit, filters)
 
+    // Fetch active sponsorships for these courses
+    const courseIds = courses.map(c => c._id.toString())
+    const activeSponsorships = await GET_DB().collection('course_sponsorships').find({
+      'linkedCourses.courseId': { $in: courseIds },
+      status: 'active',
+      _destroy: { $ne: true }
+    }).toArray()
+
+    const enrichedCourses = courses.map(course => {
+      const sponsorshipsForCourse = activeSponsorships.filter(s => 
+        s.linkedCourses?.some(lc => lc.courseId === course._id.toString())
+      )
+      let sponsorshipData = null
+      if (sponsorshipsForCourse.length > 0) {
+        const sp = sponsorshipsForCourse[0]
+        const lc = sp.linkedCourses.find(item => item.courseId === course._id.toString())
+        const amount = lc.maxAmount || sp.maxAmountPerLearner || 0
+        sponsorshipData = { amount, coverageType: lc.coverage || sp.coverageType }
+      }
+      return { ...course, sponsorshipData }
+    })
+
     return {
-      courses,
+      courses: enrichedCourses,
       pagination: {
         totalRecords: totalCourses,
         totalPages: Math.ceil(totalCourses / recordLimit),

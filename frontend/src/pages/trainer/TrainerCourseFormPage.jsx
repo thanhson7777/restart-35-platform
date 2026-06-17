@@ -4,13 +4,15 @@ import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { getCategoriesAPI, createCategoryAPI } from '@/apis';
 import { getCourseById } from '@/apis/courseApi';
-import { createCourse, updateCourse, submitCourse } from '@/apis/trainerApi';
+import { createCourse, updateCourse, submitCourse, getPartnershipDetail } from '@/apis/trainerApi';
 import TrainerCourseForm from '@/components/trainer/TrainerCourseForm';
 import toast from 'react-hot-toast';
+import { useLocation } from 'react-router-dom';
 
 const TrainerCourseFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const isEditMode = !!id;
 
   const [categories, setCategories] = useState([]);
@@ -29,6 +31,42 @@ const TrainerCourseFormPage = () => {
       if (isEditMode) {
         const courseRes = await getCourseById(id);
         setCourseData(courseRes.data?.data || null);
+      } else {
+        // 3. Handle Partnership auto-fill
+        const searchParams = new URLSearchParams(location.search);
+        const partnershipId = searchParams.get('partnershipId');
+        if (partnershipId) {
+          try {
+            const pRes = await getPartnershipDetail(partnershipId);
+            const p = pRes.data?.data;
+            if (p) {
+              let dType = p.recruitmentNeeds?.deliveryType || 'video';
+              if (dType === 'online') dType = 'live';
+              if (dType === 'hybrid') dType = 'offline';
+
+              setCourseData({
+                title: `Khóa đào tạo ${p.recruitmentNeeds?.jobTitle || ''}`,
+                categoryId: p.recruitmentNeeds?.categoryId || '',
+                delivery_type: dType,
+                maxStudents: p.recruitmentNeeds?.jobQuantity || 30,
+                fundingConfig: {
+                  type: 'SPONSORED',
+                  price: p.proposedSponsorship?.fixedAmountPerLearner || 0,
+                  hasJobGuarantee: true,
+                  acceptsSponsorship: false
+                },
+                skills: p.recruitmentNeeds?.targetSkills || [],
+                description: `<p>Khóa học được thiết kế đặc biệt theo yêu cầu tuyển dụng của doanh nghiệp <strong>${p.enterprise?.displayName || 'đối tác'}</strong>.</p><p>Mục tiêu: Đào tạo ứng viên đạt tiêu chuẩn cho vị trí <strong>${p.recruitmentNeeds?.jobTitle || ''}</strong>.</p>`,
+                linkedPartnershipId: partnershipId,
+                linkedEnterpriseId: p.enterpriseId
+              });
+              toast.success('Đã tự động điền thông tin từ Yêu cầu Doanh nghiệp!');
+            }
+          } catch (err) {
+            console.error('Error fetching partnership:', err);
+            toast.error('Không thể tự động điền dữ liệu từ Partnership.');
+          }
+        }
       }
     } catch (err) {
       console.error('Error fetching course form data:', err);
@@ -74,16 +112,27 @@ const TrainerCourseFormPage = () => {
         toast.success('Cập nhật khóa học thành công!');
       } else {
         // Create course
+        // Append linked partnership details if they exist in courseData
+        if (courseData?.linkedPartnershipId) {
+          formData.append('linkedPartnershipId', courseData.linkedPartnershipId);
+          formData.append('linkedEnterpriseId', courseData.linkedEnterpriseId);
+        }
+        
         const res = await createCourse(formData);
         const newCourse = res.data?.data;
         savedCourseId = newCourse?._id;
         toast.success('Tạo khóa học thành công!');
       }
 
-      // If user clicked "Gửi duyệt", perform the submission transition
+      // If user clicked "Gửi duyệt" or "Gửi Doanh nghiệp Duyệt", perform the submission transition
       if (actionType === 'pending' && savedCourseId) {
-        await submitCourse(savedCourseId);
-        toast.success('Đã gửi yêu cầu phê duyệt khóa học!');
+        if (courseData?.linkedPartnershipId) {
+          // It's a B2B course, the backend will handle changing status to DRAFT and Partnership to NEGOTIATING
+          toast.success('Đã gửi bản thảo cho Doanh nghiệp phê duyệt!');
+        } else {
+          await submitCourse(savedCourseId);
+          toast.success('Đã gửi yêu cầu phê duyệt khóa học cho Admin!');
+        }
       }
 
       // Redirect back to courses list
@@ -130,6 +179,7 @@ const TrainerCourseFormPage = () => {
           onSubmit={handleSubmit}
           isSubmitting={submitting}
           isEditMode={isEditMode}
+          isPartnership={!!courseData?.linkedPartnershipId}
         />
       )}
     </div>

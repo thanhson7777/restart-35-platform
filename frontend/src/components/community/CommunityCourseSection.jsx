@@ -98,6 +98,8 @@ export default function CommunityCourseSection() {
           filtered = filtered.filter(c => c.delivery_type === deliveryType);
         }
         
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
         const totalPages = Math.ceil(filtered.length / limit) || 1;
         const start = (page - 1) * limit;
         setCourses(filtered.slice(start, start + limit));
@@ -109,7 +111,9 @@ export default function CommunityCourseSection() {
       try {
         const params = {
           limit,
-          page
+          page,
+          sortBy: 'createdAt',
+          order: 'desc'
         };
         if (debouncedSearch) params.search = debouncedSearch;
         if (categoryId) params.categoryId = categoryId;

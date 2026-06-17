@@ -11,6 +11,7 @@ import {
   AdminOrganizationDetailModal,
 } from '@/components/admin/organizations';
 import * as organizationApi from '@/apis/organizationApi';
+import { updateUserStatusAPI } from '@/apis';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
@@ -41,6 +42,7 @@ const AdminOrganizationsPage = () => {
   const [showFormModal, setShowFormModal] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -127,25 +129,83 @@ const AdminOrganizationsPage = () => {
     setShowDetailModal(true);
   };
 
-  const handleEdit = (org) => {
-    setSelectedOrg(org);
-    setShowFormModal(true);
+  const handleDelete = (org) => {
+    setConfirmAction({
+      title: 'Xác nhận xóa',
+      message: `Bạn có chắc muốn xóa đối tác "${org.name}"? Hành động này không thể hoàn tác.`,
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          setDeleteLoading(true);
+          await organizationApi.deleteOrganization(org._id);
+          toast.success('Xóa đối tác thành công');
+          fetchOrganizations();
+          fetchStats();
+        } catch (error) {
+          console.error('Error deleting organization:', error);
+          toast.error('Không thể xóa đối tác');
+        } finally {
+          setDeleteLoading(false);
+          setConfirmAction(null);
+        }
+      }
+    });
   };
 
-  const handleDelete = async (org) => {
-    if (!window.confirm(`Bạn có chắc muốn xóa đối tác "${org.name}"?`)) return;
-    try {
-      setDeleteLoading(true);
-      await organizationApi.deleteOrganization(org._id);
-      toast.success('Xóa đối tác thành công');
-      fetchOrganizations();
-      fetchStats();
-    } catch (error) {
-      console.error('Error deleting organization:', error);
-      toast.error('Không thể xóa đối tác');
-    } finally {
-      setDeleteLoading(false);
+  const handleApprove = (org) => {
+    if (!org.ownerId) {
+      toast.error('Không tìm thấy tài khoản chủ để duyệt!');
+      return;
     }
+    
+    setConfirmAction({
+      title: 'Duyệt đối tác',
+      message: `Bạn có chắc muốn phê duyệt đối tác "${org.name}"? Hệ thống sẽ gửi email thông báo và kích hoạt tài khoản này.`,
+      isDestructive: false,
+      onConfirm: async () => {
+        try {
+          setLoading(true);
+          await updateUserStatusAPI(org.ownerId, { adminApprovalStatus: 'approved' });
+          toast.success('Duyệt đối tác thành công! Đã gửi email thông báo.');
+          fetchOrganizations();
+          fetchStats();
+        } catch (error) {
+          console.error('Error approving organization:', error);
+          toast.error('Không thể duyệt đối tác');
+        } finally {
+          setLoading(false);
+          setConfirmAction(null);
+        }
+      }
+    });
+  };
+
+  const handleReject = (org) => {
+    if (!org.ownerId) {
+      toast.error('Không tìm thấy tài khoản chủ để từ chối!');
+      return;
+    }
+    
+    setConfirmAction({
+      title: 'Từ chối đối tác',
+      message: `Bạn có chắc muốn từ chối phê duyệt đối tác "${org.name}"? Hệ thống sẽ gửi email thông báo từ chối.`,
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          setLoading(true);
+          await updateUserStatusAPI(org.ownerId, { adminApprovalStatus: 'rejected' });
+          toast.success('Đã từ chối đối tác và gửi email thông báo.');
+          fetchOrganizations();
+          fetchStats();
+        } catch (error) {
+          console.error('Error rejecting organization:', error);
+          toast.error('Không thể từ chối đối tác');
+        } finally {
+          setLoading(false);
+          setConfirmAction(null);
+        }
+      }
+    });
   };
 
   const handleCreate = () => {
@@ -217,8 +277,9 @@ const AdminOrganizationsPage = () => {
         pagination={pagination}
         onPageChange={handlePageChange}
         onView={handleView}
-        onEdit={handleEdit}
         onDelete={handleDelete}
+        onApprove={handleApprove}
+        onReject={handleReject}
       />
 
       <AdminOrganizationDetailModal
@@ -238,6 +299,38 @@ const AdminOrganizationsPage = () => {
         organization={selectedOrg}
         loading={formLoading}
       />
+
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-[hsl(var(--admin-surface))] rounded-2xl w-full max-w-md overflow-hidden shadow-xl border border-[hsl(var(--admin-border))] animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-[hsl(var(--admin-text-primary))] mb-2">
+                {confirmAction.title}
+              </h3>
+              <p className="text-[hsl(var(--admin-text-secondary))] text-sm">
+                {confirmAction.message}
+              </p>
+            </div>
+            <div className="flex justify-end gap-3 px-6 py-4 bg-[hsl(var(--admin-surface-elevated))] border-t border-[hsl(var(--admin-border))]">
+              <Button 
+                variant="outline" 
+                onClick={() => setConfirmAction(null)}
+                disabled={loading || deleteLoading}
+              >
+                Hủy
+              </Button>
+              <Button 
+                onClick={confirmAction.onConfirm} 
+                disabled={loading || deleteLoading}
+                className={confirmAction.isDestructive ? 'bg-rose-500 hover:bg-rose-600 text-white border-transparent' : ''}
+              >
+                {loading || deleteLoading ? 'Đang xử lý...' : 'Xác nhận'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 };

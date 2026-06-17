@@ -10,8 +10,9 @@ const AdminOrganizationTable = ({
   pagination,
   onPageChange,
   onView,
-  onEdit,
   onDelete,
+  onApprove,
+  onReject,
 }) => {
   if (loading) {
     return (
@@ -79,8 +80,9 @@ const AdminOrganizationTable = ({
                 key={org._id}
                 organization={org}
                 onView={onView}
-                onEdit={onEdit}
                 onDelete={onDelete}
+                onApprove={onApprove}
+                onReject={onReject}
               />
             ))}
           </tbody>

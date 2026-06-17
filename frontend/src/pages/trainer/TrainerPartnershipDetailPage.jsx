@@ -123,7 +123,8 @@ export default function TrainerPartnershipDetailPage() {
 
   if (!partnership) return null;
 
-  const config = STATUS_CONFIG[partnership.status] || STATUS_CONFIG.pending;
+  const statusLower = (partnership.status || '').toLowerCase();
+  const config = STATUS_CONFIG[statusLower] || STATUS_CONFIG.pending;
   const summary = partnership.summary || {};
   const recruitment = partnership.recruitmentNeeds || {};
   const agreedTerms = partnership.agreedTerms || {};
@@ -159,39 +160,34 @@ export default function TrainerPartnershipDetailPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/trainer/partnerships/${id}/respond`)}
-            className="border-[hsl(var(--admin-accent))]/40 text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-subtle))] text-sm gap-2"
-          >
-            <MessageSquare size={14} /> Màn hình phản hồi
-          </Button>
-          {partnership.status === 'pending' && (
+          {(partnership.status || '').toLowerCase() === 'pending' && (
             <>
               <Button
-                onClick={() => setShowResponseModal(true)}
-                className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white border-none gap-2 text-sm font-semibold"
+                onClick={() => navigate(`/trainer/partnerships/${id}/respond`)}
+                className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))]/90 text-white border-none gap-2 text-sm font-semibold"
               >
-                <MessageSquare size={14} /> Phản hồi nhanh
+                <BookOpen size={14} /> Tiếp nhận & Tạo khóa học
               </Button>
               <Button
                 variant="outline"
-                onClick={handleCancel}
-                disabled={actionLoading}
-                className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] text-sm"
+                onClick={() => {
+                  setResponseStatus('rejected');
+                  setShowResponseModal(true);
+                }}
+                className="border-[hsl(var(--admin-danger))]/40 text-[hsl(var(--admin-danger))] hover:bg-[hsl(var(--admin-danger))]/10 text-sm gap-2"
               >
-                Hủy
+                Từ chối
               </Button>
             </>
           )}
-          {partnership.status === 'negotiating' && (
+          {(partnership.status || '').toLowerCase() === 'negotiating' && (
             <>
               <Button
                 variant="outline"
-                onClick={() => setShowResponseModal(true)}
-                className="border-[hsl(var(--admin-accent))]/40 text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-subtle))] text-sm gap-2"
+                disabled
+                className="bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] border-none text-sm gap-2"
               >
-                <TrendingUp size={14} /> Tiếp tục đàm phán
+                <TrendingUp size={14} /> Đang chờ Doanh nghiệp duyệt khóa học
               </Button>
               <Button
                 variant="outline"
@@ -199,9 +195,19 @@ export default function TrainerPartnershipDetailPage() {
                 disabled={actionLoading}
                 className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] text-sm"
               >
-                Hủy
+                Hủy hợp tác
               </Button>
             </>
+          )}
+          {(partnership.status || '').toLowerCase() === 'active' && (
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              disabled={actionLoading}
+              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] text-sm"
+            >
+              Hủy hợp tác
+            </Button>
           )}
         </div>
       </div>
@@ -439,16 +445,18 @@ export default function TrainerPartnershipDetailPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs text-[hsl(var(--admin-text-muted))] mb-1.5">Khóa học đề xuất (IDs, cách nhau bởi dấu phẩy)</label>
-                <input
-                  type="text"
-                  value={proposedCourseIds}
-                  onChange={e => setProposedCourseIds(e.target.value)}
-                  placeholder="courseId1, courseId2"
-                  className="w-full bg-[hsl(var(--admin-surface-elevated))]/60 border border-[hsl(var(--admin-border))] rounded-xl px-4 py-2.5 text-sm text-[hsl(var(--admin-text-primary))] placeholder:text-[hsl(var(--admin-text-muted))] focus:outline-none focus:border-[hsl(var(--admin-accent))]/60"
-                />
-              </div>
+              {responseStatus !== 'rejected' && (
+                <div>
+                  <label className="block text-xs text-[hsl(var(--admin-text-muted))] mb-1.5">Khóa học đề xuất (IDs, cách nhau bởi dấu phẩy)</label>
+                  <input
+                    type="text"
+                    value={proposedCourseIds}
+                    onChange={e => setProposedCourseIds(e.target.value)}
+                    placeholder="courseId1, courseId2"
+                    className="w-full bg-[hsl(var(--admin-surface-elevated))]/60 border border-[hsl(var(--admin-border))] rounded-xl px-4 py-2.5 text-sm text-[hsl(var(--admin-text-primary))] placeholder:text-[hsl(var(--admin-text-muted))] focus:outline-none focus:border-[hsl(var(--admin-accent))]/60"
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs text-[hsl(var(--admin-text-muted))] mb-1.5">Nội dung phản hồi</label>

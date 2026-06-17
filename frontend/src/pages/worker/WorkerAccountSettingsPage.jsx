@@ -29,6 +29,7 @@ import {
   UserIcon,
   BookIcon,
   HeartIcon,
+  Loader2,
 } from 'lucide-react'
 
 // ── Animation Variants (matching RegisterForm) ──────────────
@@ -132,6 +133,13 @@ export default function WorkerAccountSettingsPage() {
   const [passwordErrors, setPasswordErrors] = useState({})
   const [savingPassword, setSavingPassword] = useState(false)
 
+  const getAvatarUrl = (url) => {
+    if (!url || typeof url !== 'string') return '';
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    // ensure url starts with slash
+    return url.startsWith('/') ? `${API_ROOT}${url}` : `${API_ROOT}/${url}`;
+  }
+
   // ── Init form with current user + worker profile ───────────
   useEffect(() => {
     if (!currentUser) return
@@ -150,7 +158,7 @@ export default function WorkerAccountSettingsPage() {
     const maritalStatus = profileBasicInfo.maritalStatus || userBasicInfo.maritalStatus || ''
 
     setFormData({ displayName, phone, age, gender, province, district, education, maritalStatus })
-    setAvatarPreview(currentUser.avatar || '')
+    setAvatarPreview(getAvatarUrl(currentUser.avatar))
   }, [currentUser, myProfile])
 
   // ── Profile handlers ──────────────────────────────────────
@@ -295,7 +303,7 @@ export default function WorkerAccountSettingsPage() {
     : '—'
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div className="space-y-6 max-w-5xl">
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Cài đặt tài khoản</h1>
@@ -327,16 +335,23 @@ export default function WorkerAccountSettingsPage() {
               <form onSubmit={handleSaveProfile} className="space-y-5">
                 {/* Avatar upload */}
                 <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-border">
-                  <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                  <div className={`relative group cursor-pointer w-24 h-24 rounded-full shrink-0 ${savingProfile ? 'pointer-events-none' : ''}`} onClick={() => fileInputRef.current?.click()}>
                     <Avatar
                       src={avatarPreview}
                       alt={currentUser?.displayName}
                       size="xl"
-                      className="w-24 h-24 text-3xl"
+                      className={`w-full h-full text-3xl transition-opacity ${savingProfile ? 'opacity-50' : ''}`}
                     />
-                    <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Camera size={24} className="text-white" />
-                    </div>
+                    {!savingProfile && (
+                      <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Camera size={24} className="text-white" />
+                      </div>
+                    )}
+                    {savingProfile && (
+                      <div className="absolute inset-0 rounded-full bg-black/20 flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                      </div>
+                    )}
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -353,7 +368,7 @@ export default function WorkerAccountSettingsPage() {
                         type="button"
                         onClick={() => {
                           setAvatarFile(null)
-                          setAvatarPreview(currentUser?.avatar || '')
+                          setAvatarPreview(getAvatarUrl(currentUser?.avatar))
                           if (fileInputRef.current) fileInputRef.current.value = ''
                         }}
                         className="mt-2 text-xs text-destructive hover:underline"

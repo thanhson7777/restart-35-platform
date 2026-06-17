@@ -1,73 +1,28 @@
-# Restart-35 Platform - Tài liệu dự án
+# Restart-35 Platform
 
-> **Cập nhật:** 2026-04-10
+**Restart-35** là một nền tảng số được phát triển nhằm hỗ trợ quá trình tái hòa nhập, nâng cao kỹ năng và lập nghiệp cho người lao động độ tuổi trung niên (từ 35 tuổi trở lên). Nền tảng hoạt động như một hệ sinh thái kết nối các bên liên quan, giúp giải quyết bài toán việc làm, đào tạo lại kỹ năng và tài trợ xã hội.
 
-## Mục lục
+## 🌟 Tầm nhìn và Sứ mệnh
+- **Sứ mệnh:** Cung cấp cơ hội học tập, nâng cấp kỹ năng (upskill/reskill) và tìm kiếm việc làm phù hợp cho lao động trung niên – nhóm đối tượng thường gặp nhiều rào cản và định kiến trên thị trường lao động hiện đại.
+- **Tầm nhìn:** Trở thành cầu nối công nghệ hàng đầu, kết nối nguồn nhân lực giàu kinh nghiệm sinh sống với các doanh nghiệp, trung tâm đào tạo và các tổ chức phi chính phủ (NGO) để tạo ra giá trị bền vững.
 
-| # | File | Mô tả |
-|---|------|-------|
-| 00 | [00_OVERVIEW.md](./00_OVERVIEW.md) | Tổng quan dự án, vai trò, tiến độ |
-| 01 | [01_ARCHITECTURE.md](./01_ARCHITECTURE.md) | Kiến trúc hệ thống, stack công nghệ |
-| 02 | [02_STRUCTURE.md](./02_STRUCTURE.md) | Cấu trúc thư mục Backend/Frontend/AI |
-| 03 | [03_DATABASE.md](./03_DATABASE.md) | MongoDB Collections & Data Models |
-| 04 | [04_API.md](./04_API.md) | API Endpoints |
-| 05 | [05_AUTH.md](./05_AUTH.md) | Authentication & JWT |
-| 06 | [06_CODING_STYLE.md](./06_CODING_STYLE.md) | Coding Conventions & Patterns |
-| 07 | [07_COMPONENTS.md](./07_COMPONENTS.md) | Frontend Components |
-| 08 | [08_REDUX.md](./08_REDUX.md) | Redux Store & Slices |
-| 09 | [09_CONSTANTS.md](./09_CONSTANTS.md) | Constants & Enums |
-| 10 | [10_BUGS.md](./10_BUGS.md) | Bug History (đã fix) |
-| 11 | [11_AI_SERVICE.md](./11_AI_SERVICE.md) | AI Service & ML hiện tại |
-| 12 | [12_ML_PIPELINE.md](./12_ML_PIPELINE.md) | ML Pipeline chi tiết |
-| 13 | [13_ML_CHANGES.md](./13_ML_CHANGES.md) | Các thay đổi cần thiết cho ML |
+## 🎯 Các vai trò trong hệ thống (Roles)
+Hệ thống được thiết kế với nhiều phân hệ tương tác chặt chẽ với nhau:
+- **👷 Người lao động (Worker):** Đối tượng trọng tâm của nền tảng (trên 35 tuổi). Có thể tạo hồ sơ, phân tích năng lực cá nhân, tham gia các khóa đào tạo, ứng tuyển việc làm, nhận tài trợ và tham gia cộng đồng.
+- **🏢 Doanh nghiệp (Enterprise):** Đăng tin tuyển dụng, tìm kiếm và tiếp cận nguồn ứng viên phù hợp với tiêu chí, đồng thời có thể hợp tác tài trợ các chương trình đào tạo.
+- **🏫 Trung tâm đào tạo (Trainer):** Xây dựng và cung cấp các khóa học thực tiễn nhằm thu hẹp khoảng cách kỹ năng (skill gap) cho người lao động, giúp họ đáp ứng đúng nhu cầu tuyển dụng của doanh nghiệp.
+- **🤝 Tổ chức phi chính phủ (NGO):** Đóng góp quỹ tài trợ (thông qua hệ thống ví Wallet) để hỗ trợ học phí, phí sinh hoạt hoặc các chương trình hỗ trợ sinh kế cho lao động có hoàn cảnh khó khăn.
+- **🛡️ Quản trị viên (Admin):** Quản lý, kiểm duyệt toàn bộ thông tin người dùng, khóa học, tin tuyển dụng và điều phối hoạt động chung của hệ thống.
 
----
+## 🛠 Công nghệ cốt lõi
+- **Frontend:** React, Tailwind CSS, Redux (Quản lý trạng thái), Vite.
+- **Backend:** Node.js, Express.js.
+- **Cơ sở dữ liệu:** MongoDB (NoSQL).
+- **AI/Machine Learning (AI Service):** Python. Ứng dụng AI/ML trong việc phân tích năng lực cốt lõi, đánh giá khoảng cách kỹ năng (Skill Gap Analysis), và hệ thống gợi ý thông minh (Recommend jobs/courses).
 
-## Tổng quan dự án
-
-### Mục tiêu
-Nền tảng hỗ trợ tái hòa nhập và lập nghiệp cho lao động trung niên (35+).
-
-### Các vai trò
-- `worker` - Người lao động >35 tuổi ✅
-- `enterprise` - Doanh nghiệp 🔜
-- `trainer` - Trung tâm dạy nghề 🔜
-- `ngo` - Tổ chức phi chính phủ 🔜
-- `admin` - Quản trị ✅
-
----
-
-## Quick Links
-
-### Development
-- [Kiến trúc](./01_ARCHITECTURE.md) - Hiểu luồng dữ liệu
-- [Cấu trúc](./02_STRUCTURE.md) - Tìm file cần chỉnh sửa
-- [Coding Style](./06_CODING_STYLE.md) - Quy tắc viết code
-
-### API & Database
-- [API Endpoints](./04_API.md) - Tất cả endpoints
-- [Database](./03_DATABASE.md) - Collections & schemas
-- [Auth](./05_AUTH.md) - JWT & Authentication
-
-### Frontend
-- [Components](./07_COMPONENTS.md) - React components
-- [Redux](./08_REDUX.md) - State management
-- [Constants](./09_CONSTANTS.md) - Enums & constants
-
-### ML & AI
-- [AI Service](./11_AI_SERVICE.md) - AI hiện tại (rule-based)
-- [ML Pipeline](./12_ML_PIPELINE.md) - Xây dựng ML thực sự
-- [ML Changes](./13_ML_CHANGES.md) - Cần thay đổi gì
-
----
-
-## Bug History
-
-Xem [10_BUGS.md](./10_BUGS.md) để biết các lỗi đã fix và cách tránh.
-
----
-
-## Liên hệ
-
-- **Tác giả:** Thanh Sơn
+## 👨‍💻 Thông tin Tác giả
+- **Tác giả:** Nguyễn Thanh Sơn
 - **Dự án:** Restart-35 Platform
+
+---
+> *Tài liệu này cung cấp cái nhìn tổng quan nhất về mục tiêu, ý nghĩa và các thành phần cấu thành của dự án Restart-35 Platform.*

@@ -17,7 +17,8 @@ const formatCurrency = (amount) => {
 
 const TrainerPartnershipCard = ({ partnership, onClick }) => {
   const config = STATUS_CONFIG[partnership.status] || STATUS_CONFIG.pending;
-  const recruitment = partnership.recruitmentNeeds || {};
+  const recruitment = partnership.recruitmentNeeds || null;
+  const sponsorship = partnership.proposedSponsorship || null;
 
   return (
     <button
@@ -49,27 +50,30 @@ const TrainerPartnershipCard = ({ partnership, onClick }) => {
       </div>
 
       <div className="p-5 space-y-3 flex-1">
-        {recruitment.jobTitle && (
+        {recruitment && recruitment.targetLearners && (
           <div>
-            <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-0.5">Vị trí tuyển dụng</p>
-            <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">{recruitment.jobTitle}</p>
+            <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-0.5">Cam kết tuyển dụng</p>
+            <div className="flex items-center gap-2">
+              <Users size={13} className="text-[hsl(var(--admin-accent))] shrink-0" />
+              <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">
+                {recruitment.targetLearners} học viên
+              </p>
+            </div>
           </div>
         )}
 
-        {recruitment.salaryRange && (recruitment.salaryRange.min || recruitment.salaryRange.max) && (
+        {sponsorship && sponsorship.budget > 0 && (
           <div>
-            <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-0.5">Mức lương</p>
-            <p className="text-sm font-medium text-[hsl(var(--admin-success))]">
-              {formatCurrency(recruitment.salaryRange.min)}
-              {recruitment.salaryRange.max ? ` - ${formatCurrency(recruitment.salaryRange.max)}` : '+'}
-            </p>
-          </div>
-        )}
-
-        {recruitment.jobQuantity && (
-          <div className="flex items-center gap-2">
-            <Users size={13} className="text-[hsl(var(--admin-text-muted))] shrink-0" />
-            <p className="text-xs text-[hsl(var(--admin-text-muted))]">Cần tuyển {recruitment.jobQuantity} người</p>
+            <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-0.5">Cam kết tài trợ</p>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+              <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                {formatCurrency(sponsorship.budget)} 
+                <span className="text-xs text-[hsl(var(--admin-text-muted))] ml-1">
+                  ({sponsorship.targetLearners} suất)
+                </span>
+              </p>
+            </div>
           </div>
         )}
 
