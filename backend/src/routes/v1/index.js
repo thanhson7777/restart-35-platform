@@ -52,6 +52,7 @@ import { mapRoute } from './mapRoute'
 import { adminAnalyticsRoute } from './adminAnalyticsRoute'
 import { walletRoute } from './walletRoute'
 import { masterDataRoute } from './masterDataRoute'
+import { servicePackageRoute } from './servicePackageRoute'
 
 const Router = express.Router()
 
@@ -135,6 +136,7 @@ Router.use('/events', eventRoute)
 Router.use('/map', mapRoute)
 Router.use('/admin-analytics', adminAnalyticsRoute)
 Router.use('/wallets', walletRoute)
+Router.use('/service-packages', servicePackageRoute)
 
 // Recruitment Module
 Router.use('/recruitments', workerApplicationRoute)

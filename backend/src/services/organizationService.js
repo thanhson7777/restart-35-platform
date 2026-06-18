@@ -14,6 +14,19 @@ const createOrganization = async (adminId, data) => {
     }
     const result = await organizationModel.createNew(organizationData)
     const organization = await organizationModel.findOneById(result.insertedId)
+
+    try {
+      const { servicePackageModel } = await import('~/models/servicePackageModel')
+      const { servicePackageService } = await import('~/services/servicePackageService')
+      const activePackages = await servicePackageModel.findAll(false)
+      const freePackage = activePackages.find(p => p.price === 0)
+      if (freePackage) {
+        await servicePackageService.applyPackageToOrganization(String(organization._id), freePackage)
+      }
+    } catch (err) {
+      console.error('Lỗi khi cấp gói Free mặc định cho tổ chức:', err)
+    }
+
     return organization
   } catch (error) {
     throw error

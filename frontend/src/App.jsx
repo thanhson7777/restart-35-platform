@@ -87,6 +87,7 @@ import EnterpriseOfferDetailPage from '@/pages/enterprise/EnterpriseOfferDetailP
 import EnterpriseOfferCreatePage from '@/pages/enterprise/EnterpriseOfferCreatePage';
 import EnterpriseWalletPage from '@/pages/enterprise/EnterpriseWalletPage';
 import EnterpriseProfilePage from '@/pages/enterprise/EnterpriseProfilePage';
+import EnterprisePackagesPage from '@/pages/enterprise/EnterprisePackagesPage';
 import WorkerApplicationsPage from '@/pages/worker/WorkerApplicationsPage';
 import WorkerApplicationDetailPage from '@/pages/worker/WorkerApplicationDetailPage';
 import WorkerInterviewsPage from '@/pages/worker/WorkerInterviewsPage';
@@ -119,6 +120,7 @@ import AdminEscoSyncPage from '@/pages/admin/AdminEscoSyncPage';
 import AdminJobCategoriesPage from '@/pages/admin/AdminJobCategoriesPage';
 import AdminCourseCategoriesPage from '@/pages/admin/AdminCourseCategoriesPage';
 import AdminMasterDataPage from '@/pages/admin/AdminMasterDataPage';
+import AdminServicePackagesPage from '@/pages/admin/AdminServicePackagesPage';
 import IsaDashboardPage from '@/pages/IsaDashboardPage';
 import WorkerLayout from '@/components/worker/WorkerLayout';
 
@@ -197,6 +199,7 @@ function App() {
         <Route path="/admin/jobs/pending" element={<AdminPendingJobsPage />} />
         <Route path="/admin/jobs/:id/review" element={<AdminJobReviewPage />} />
         <Route path="/admin/organizations" element={<ProtectedRoute allowedRoles={['admin']}><AdminOrganizationsPage /></ProtectedRoute>} />
+        <Route path="/admin/service-packages" element={<ProtectedRoute allowedRoles={['admin']}><AdminServicePackagesPage /></ProtectedRoute>} />
         <Route path="/admin/job-categories" element={<ProtectedRoute allowedRoles={['admin']}><AdminJobCategoriesPage /></ProtectedRoute>} />
         <Route path="/admin/master-data" element={<ProtectedRoute allowedRoles={['admin']}><AdminMasterDataPage /></ProtectedRoute>} />
         <Route path="/admin/payments" element={<AdminPaymentsPage />} />
@@ -248,6 +251,7 @@ function App() {
         <Route path="/enterprise/offers/create" element={<EnterpriseLayout><EnterpriseOfferCreatePage /></EnterpriseLayout>} />
         <Route path="/enterprise/offers/:id" element={<EnterpriseLayout><EnterpriseOfferDetailPage /></EnterpriseLayout>} />
         <Route path="/enterprise/wallet" element={<EnterpriseLayout><EnterpriseWalletPage /></EnterpriseLayout>} />
+        <Route path="/enterprise/packages" element={<EnterpriseLayout><EnterprisePackagesPage /></EnterpriseLayout>} />
         <Route path="/enterprise/profile" element={<EnterpriseLayout><EnterpriseProfilePage /></EnterpriseLayout>} />
 
         {/* NGO Routes */}

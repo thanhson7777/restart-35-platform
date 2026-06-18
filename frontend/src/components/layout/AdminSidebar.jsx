@@ -49,6 +49,7 @@ const adminNavGroups = [
   {
     group: 'Tài chính & Hệ thống',
     items: [
+      { title: 'Gói dịch vụ', href: '/admin/service-packages', icon: CreditCard },
       { title: 'Thanh toán', href: '/admin/payments', icon: CreditCard },
       { title: 'Analytics', href: '/admin/analytics', icon: ChartBar },
       { title: 'Master Data', href: '/admin/master-data', icon: Gear },

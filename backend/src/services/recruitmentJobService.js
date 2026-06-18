@@ -20,6 +20,35 @@ const createJob = async (enterpriseId, data) => {
       throw new ApiError(StatusCodes.FORBIDDEN, 'Chỉ doanh nghiệp mới được tạo tin tuyển dụng!')
     }
 
+    const { organizationModel } = await import('~/models/organizationModel')
+    const organization = await organizationModel.findOneById(user.organizationId)
+    
+    if (!organization) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy thông tin tổ chức/doanh nghiệp!')
+    }
+
+    // Kiểm tra thời hạn gói
+    if (organization.subscriptionEndDate && Date.now() > organization.subscriptionEndDate) {
+      throw new ApiError(StatusCodes.PAYMENT_REQUIRED, 'Gói dịch vụ của bạn đã hết hạn. Vui lòng gia hạn để tiếp tục đăng tin.')
+    }
+
+    // Lazy Reset Quota
+    const currentMonth = new Date().toISOString().slice(0, 7) // YYYY-MM
+    let usedQuota = organization.currentMonthUsedJobQuota || 0
+    let monthlyQuota = organization.monthlyJobQuota || 0
+
+    if (organization.quotaMonth !== currentMonth) {
+      usedQuota = 0
+    }
+
+    if (usedQuota >= monthlyQuota && monthlyQuota > 0) {
+      // If monthlyQuota is 0, we assume it's free/unlimited or maybe we should block it?
+      // Usually monthlyQuota=0 means no package, so we should block.
+      throw new ApiError(StatusCodes.PAYMENT_REQUIRED, 'Bạn đã hết hạn mức đăng tin trong tháng. Vui lòng nâng cấp gói.')
+    } else if (monthlyQuota === 0) {
+      throw new ApiError(StatusCodes.PAYMENT_REQUIRED, 'Bạn chưa có gói dịch vụ nào hoặc gói đã hết hạn mức. Vui lòng nâng cấp gói.')
+    }
+
     const jobData = {
       enterpriseId,
       enterpriseInfo: {
@@ -86,6 +115,12 @@ const createJob = async (enterpriseId, data) => {
 
     const result = await recruitmentJobModel.createNew(jobData)
     const job = await recruitmentJobModel.findOneById(result.insertedId)
+
+    if (organization.quotaMonth !== currentMonth) {
+      await organizationModel.resetAndIncrementQuota(organization._id, currentMonth)
+    } else {
+      await organizationModel.incrementQuotaUsage(organization._id)
+    }
 
     return job
   } catch (error) { throw error }
