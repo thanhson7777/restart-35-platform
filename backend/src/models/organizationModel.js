@@ -22,6 +22,16 @@ const ORGANIZATION_COLLECTION_SCHEMA = Joi.object({
   contactEmail: Joi.string().email().max(255).trim().lowercase().allow('', null)
     .messages({ 'string.email': 'Email liên hệ không hợp lệ' }),
   contactPhone: Joi.string().max(20).trim().allow('', null),
+  
+  // Quota & Service Package Fields
+  currentPackageId: Joi.string().allow('', null),
+  subscriptionStartDate: Joi.date().timestamp('javascript').allow(null),
+  subscriptionEndDate: Joi.date().timestamp('javascript').allow(null),
+  monthlyJobQuota: Joi.number().integer().min(0).default(0),
+  currentMonthUsedJobQuota: Joi.number().integer().min(0).default(0),
+  quotaMonth: Joi.string().pattern(/^\d{4}-\d{2}$/).allow('', null),
+  
+  // Legacy quota field (kept for backward compatibility, optionally remove later)
   quota: Joi.number().integer().min(0).default(0),
   logo: Joi.string().allow('', null),
   taxCode: Joi.string().max(50).trim().allow('', null),
@@ -120,6 +130,41 @@ const countMembers = async (organizationId) => {
   }
 }
 
+const resetAndIncrementQuota = async (organizationId, newMonth) => {
+  try {
+    const result = await GET_DB().collection(ORGANIZATION_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(organizationId)), _destroy: { $ne: true } },
+      { 
+        $set: { 
+          currentMonthUsedJobQuota: 1, 
+          quotaMonth: newMonth,
+          updatedAt: Date.now() 
+        } 
+      },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+const incrementQuotaUsage = async (organizationId) => {
+  try {
+    const result = await GET_DB().collection(ORGANIZATION_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(organizationId)), _destroy: { $ne: true } },
+      { 
+        $inc: { currentMonthUsedJobQuota: 1 },
+        $set: { updatedAt: Date.now() } 
+      },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const organizationModel = {
   ORGANIZATION_COLLECTION_NAME,
   ORGANIZATION_COLLECTION_SCHEMA,
@@ -129,5 +174,7 @@ export const organizationModel = {
   findByPaginate,
   update,
   softDelete,
-  countMembers
+  countMembers,
+  resetAndIncrementQuota,
+  incrementQuotaUsage
 }

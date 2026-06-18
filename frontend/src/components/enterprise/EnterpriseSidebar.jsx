@@ -6,6 +6,7 @@ import { cn } from '@/utils/cn';
 const navItems = [
   { href: '/enterprise/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
   { href: '/enterprise/profile', label: 'Hồ sơ doanh nghiệp', icon: Building2 },
+  { href: '/enterprise/packages', label: 'Gói dịch vụ', icon: Briefcase }, // Can use another icon later
   { href: '/enterprise/partnerships', label: 'Partnerships', icon: Handshake },
   { href: '/enterprise/wallet', label: 'Ví & Giao dịch', icon: Wallet },
   { divider: true },

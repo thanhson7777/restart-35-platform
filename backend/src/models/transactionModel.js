@@ -7,7 +7,7 @@ const TRANSACTION_COLLECTION_NAME = 'transactions'
 const TRANSACTION_COLLECTION_SCHEMA = Joi.object({
   walletId: Joi.string().required().pattern(/^[a-f\d]{24}$/i),
   userId: Joi.string().required().pattern(/^[a-f\d]{24}$/i),
-  type: Joi.string().valid('DEPOSIT', 'WITHDRAW', 'RESERVE', 'DISBURSE', 'REFUND').required(),
+  type: Joi.string().valid('DEPOSIT', 'WITHDRAW', 'RESERVE', 'DISBURSE', 'REFUND', 'PAYMENT').required(),
   amount: Joi.number().min(0).required(),
   description: Joi.string().allow(null, ''),
   referenceId: Joi.string().allow(null, ''), // VD: vnpay_txn_id hoặc courseSponsorship_id

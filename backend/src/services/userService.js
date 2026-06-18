@@ -368,6 +368,27 @@ const updateUserStatus = async (userId, updateData) => {
       if (dataToUpdate.adminApprovalStatus === 'approved') {
         dataToUpdate.isActive = true // Activate user when approved
         
+        // Cấp gói Free mặc định cho tổ chức nếu chưa có gói
+        if (user.organizationId) {
+          try {
+            const { servicePackageModel } = await import('~/models/servicePackageModel')
+            const { servicePackageService } = await import('~/services/servicePackageService')
+            const { organizationModel } = await import('~/models/organizationModel')
+            
+            const org = await organizationModel.findOneById(user.organizationId)
+            // Nếu tổ chức chưa được áp dụng gói nào
+            if (org && !org.currentPackageId) {
+              const activePackages = await servicePackageModel.findAll(false)
+              const freePackage = activePackages.find(p => p.price === 0)
+              if (freePackage) {
+                await servicePackageService.applyPackageToOrganization(String(user.organizationId), freePackage)
+              }
+            }
+          } catch (err) {
+            console.error('Lỗi khi cấp gói Free mặc định:', err)
+          }
+        }
+
         // Send approval email
         const approvalSubject = 'Restart-35: Chúc mừng! Tài khoản của bạn đã được phê duyệt 🎉'
         const approvalHtml = `
