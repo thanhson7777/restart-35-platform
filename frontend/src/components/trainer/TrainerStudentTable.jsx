@@ -19,7 +19,8 @@ export const TrainerStudentTable = ({
   enrollments = [],
   loading = false,
   pagination = null,
-  onPageChange = () => {}
+  onPageChange = () => {},
+  hideCourseColumn = false
 }) => {
   const navigate = useNavigate();
 
@@ -91,19 +92,20 @@ export const TrainerStudentTable = ({
         <Table>
           <TableHeader className="bg-[hsl(var(--admin-surface-elevated))]/40 border-b border-[hsl(var(--admin-border))]">
             <TableRow className="hover:bg-transparent border-[hsl(var(--admin-border))]">
-              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Học viên</TableHead>
-              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Khóa học</TableHead>
-              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Tiến độ</TableHead>
-              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Trạng thái</TableHead>
-              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Nguy cơ bỏ học</TableHead>
-              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Ngày đăng ký</TableHead>
-              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4 text-right">Thao tác</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4 w-[250px]">Học viên</TableHead>
+              {!hideCourseColumn && (
+                <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4">Khóa học</TableHead>
+              )}
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4 w-[180px]">Tiến độ</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4 w-[140px]">Trạng thái</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4 w-[160px]">Nguy cơ bỏ học</TableHead>
+              <TableHead className="text-[hsl(var(--admin-text-secondary))] font-semibold py-4 text-right w-[120px]">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {enrollments.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={7} className="h-48 text-center text-[hsl(var(--admin-text-muted))] py-8">
+                <TableCell colSpan={hideCourseColumn ? 5 : 6} className="h-48 text-center text-[hsl(var(--admin-text-muted))] py-8">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <BookOpen size={24} className="text-[hsl(var(--admin-text-muted))]" />
                     <span>Không tìm thấy học viên nào phù hợp.</span>
@@ -135,27 +137,46 @@ export const TrainerStudentTable = ({
                       </div>
                     </div>
                   </TableCell>
+                  {!hideCourseColumn && (
+                    <TableCell className="py-4">
+                      <span className="text-sm text-[hsl(var(--admin-text-secondary))] max-w-[200px] block truncate">
+                        {item.course?.title || 'N/A'}
+                      </span>
+                    </TableCell>
+                  )}
                   <TableCell className="py-4">
-                    <span className="text-sm text-[hsl(var(--admin-text-secondary))] max-w-[200px] block truncate">
-                      {item.course?.title || 'N/A'}
-                    </span>
-                  </TableCell>
-                  <TableCell className="py-4">
-                    <div className="flex flex-col gap-1 w-32">
-                      <div className="flex items-center justify-between text-xs font-mono">
-                        <span className="text-[hsl(var(--admin-text-muted))]">
-                          {item.progress?.currentLesson || 0}/{item.progress?.totalLessons || 0} bài
-                        </span>
-                        <span className="font-semibold text-[hsl(var(--admin-text-primary))]">
-                          {item.progress?.percentage || 0}%
-                        </span>
-                      </div>
-                      <Progress
-                        value={item.progress?.percentage || 0}
-                        className="h-1.5 bg-[hsl(var(--admin-surface-elevated))]"
-                        indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500"
-                      />
-                    </div>
+                    {(() => {
+                      const isOffline = item.course?.delivery_type !== 'video';
+                      let current = item.progress?.currentLesson || 0;
+                      let total = item.progress?.totalLessons || 0;
+                      let percentage = item.progress?.percentage || 0;
+                      let label = 'bài';
+                      
+                      if (isOffline && item.attendance && item.attendance.totalSessions > 0) {
+                        current = (item.attendance.present || 0) + (item.attendance.late || 0);
+                        total = item.attendance.totalSessions;
+                        percentage = Math.round((current / total) * 100) || 0;
+                        label = 'buổi';
+                      }
+
+                      return (
+                        <div className="flex flex-col gap-1 w-32">
+                          <div className="flex items-center justify-between text-xs font-mono">
+                            <span className="text-[hsl(var(--admin-text-muted))]">
+                              {current}/{total} {label}
+                            </span>
+                            <span className="font-semibold text-[hsl(var(--admin-text-primary))]">
+                              {percentage}%
+                            </span>
+                          </div>
+                          <Progress
+                            value={percentage}
+                            className="h-1.5 bg-[hsl(var(--admin-surface-elevated))]"
+                            indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500"
+                          />
+                        </div>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell className="py-4">
                     <Badge variant={getStatusBadgeVariant(item.status)} className="px-2.5 py-0.5 rounded-md text-xs font-semibold">
@@ -167,12 +188,6 @@ export const TrainerStudentTable = ({
                       level={item.dropout_risk?.level}
                       score={item.dropout_risk?.score}
                     />
-                  </TableCell>
-                  <TableCell className="py-4">
-                    <div className="flex items-center gap-1.5 text-[hsl(var(--admin-text-muted))] text-xs font-mono">
-                      <Calendar size={13} className="text-[hsl(var(--admin-text-muted))]" />
-                      <span>{formatDate(item.enrolledAt)}</span>
-                    </div>
                   </TableCell>
                   <TableCell className="py-4 text-right">
                     <Button

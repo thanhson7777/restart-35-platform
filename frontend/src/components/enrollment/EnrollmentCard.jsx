@@ -33,12 +33,16 @@ export const EnrollmentCard = ({
     installments = [],
   } = enrollment;
 
-  const isActive = ['enrolled', 'in_progress', 'active'].includes(status);
-  const isCancellable = ['enrolled', 'pending', 'waitlist'].includes(status);
-  const isDropable = ['in_progress', 'active'].includes(status);
+  const isCompleted = status === 'completed' || progress?.completionStatus === 'completed';
+  const isActive = !isCompleted && ['enrolled', 'in_progress', 'active'].includes(status);
+  const isCancellable = !isCompleted && ['enrolled', 'pending', 'waitlist'].includes(status);
+  const isDropable = !isCompleted && ['in_progress', 'active'].includes(status);
   
   const deliveryType = course?.delivery_type || 'video';
-  const fundingModel = course?.funding_model || 'free';
+  const actualIsFree = course?.fundingConfig?.type === 'FREE' || course?.isFree || course?.fee === 0 || enrollment?.fee === 0;
+  const fundingModel = actualIsFree 
+    ? 'free' 
+    : (course?.funding_model === 'free' ? 'learner_paid' : (course?.funding_model || (course?.fundingConfig?.type === 'PAID' ? 'learner_paid' : 'learner_paid')));
 
   // Render type-specific progress panel
   const renderProgressDetail = () => {
@@ -48,9 +52,9 @@ export const EnrollmentCard = ({
       case 'video':
         return <VideoProgressDetail enrollment={enrollment} />;
       case 'live':
-        return <LiveProgressDetail enrollment={enrollment} />;
+        return <LiveProgressDetail enrollment={enrollment} schedule={enrollment.schedule} />;
       case 'offline':
-        return <OfflineProgressDetail enrollment={enrollment} />;
+        return <OfflineProgressDetail enrollment={enrollment} schedule={enrollment.schedule} />;
       default:
         return <VideoProgressDetail enrollment={enrollment} />;
     }
@@ -93,9 +97,6 @@ export const EnrollmentCard = ({
             <div className="flex flex-wrap items-center gap-2 mb-2.5">
               {deliveryType && (
                 <DeliveryTypeBadge deliveryType={deliveryType} size="sm" />
-              )}
-              {fundingModel && (
-                <FundingModelChip fundingModel={fundingModel} size="sm" />
               )}
               <div className="ml-auto shrink-0">
                 <EnrollmentStatus status={status} />
@@ -167,7 +168,7 @@ export const EnrollmentCard = ({
                   Xem tiến độ học
                 </Button>
               )}
-              {status === 'completed' && (
+              {isCompleted && (
                 <Button
                   variant="default"
                   size="sm"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Calendar, AlertTriangle } from 'lucide-react';
+import { Plus, Calendar } from 'lucide-react';
 import { BezelCard } from '@/components/ui';
 
 export const TrainerQuickActions = () => {
@@ -22,13 +22,6 @@ export const TrainerQuickActions = () => {
       colorClass: 'from-purple-600/20 to-indigo-600/10 hover:from-purple-600/30 hover:to-indigo-600/20 border-purple-500/20 hover:border-purple-500/40 text-purple-300',
       iconColor: '#C084FC',
     },
-    {
-      label: 'Học viên có nguy cơ',
-      icon: AlertTriangle,
-      onClick: () => navigate('/trainer/enrollments?risk=high'),
-      colorClass: 'from-[hsl(var(--admin-danger))]/20 to-orange-600/10 hover:from-[hsl(var(--admin-danger))]/30 hover:to-orange-600/20 border-[hsl(var(--admin-danger))]/20 hover:border-[hsl(var(--admin-danger))]/40 text-[hsl(var(--admin-danger))]',
-      iconColor: '#F87171',
-    },
   ];
 
   return (
@@ -36,10 +29,11 @@ export const TrainerQuickActions = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="h-full flex-1 flex flex-col"
     >
-      <BezelCard className="w-full" padding="default">
-        <h3 className="text-sm font-bold text-[hsl(var(--admin-text-primary))] tracking-tight uppercase mb-4">Thao tác nhanh</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <BezelCard className="w-full h-full flex flex-col justify-center" padding="default">
+        <h3 className="text-sm font-bold text-[hsl(var(--admin-text-primary))] tracking-tight uppercase mb-6">Thao tác nhanh</h3>
+        <div className="grid grid-cols-1 gap-4">
           {actions.map((action, idx) => {
             const IconComponent = action.icon;
             return (

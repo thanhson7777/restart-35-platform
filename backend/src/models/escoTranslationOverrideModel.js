@@ -16,8 +16,8 @@ const ESCO_TRANSLATION_OVERRIDE_COLLECTION_SCHEMA = Joi.object({
   reviewedBy: Joi.string().allow(''),
   isApproved: Joi.boolean().default(false),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now())
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now)
 })
 
 const validateBeforeCreate = async (data) => {

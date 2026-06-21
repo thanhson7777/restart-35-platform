@@ -2,10 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { selectCurrentUser } from '@/redux/user/userSlice';
-import { getEnrollmentStats, getMyCourses, getTrainerSchedules, getEnterpriseStudents } from '@/apis/trainerApi';
+import { getEnrollmentStats, getMyCourses, getTrainerSchedules, getEnterpriseStudents, getMyCourseStats } from '@/apis/trainerApi';
 import { getDropoutRisk } from '@/apis/learningRecordApi';
 import { TrainerStatsCards } from '@/components/trainer/TrainerStatsCards';
 import { TrainerEnrollmentTrendChart } from '@/components/trainer/TrainerEnrollmentTrendChart';
+import { TrainerRevenueChart } from '@/components/trainer/TrainerRevenueChart';
+import { TrainerCourseStatusChart } from '@/components/trainer/TrainerCourseStatusChart';
+import { TrainerPartnershipTrendChart } from '@/components/trainer/TrainerPartnershipTrendChart';
 import { TrainerRecentStudents } from '@/components/trainer/TrainerRecentStudents';
 import { TrainerQuickActions } from '@/components/trainer/TrainerQuickActions';
 import { TrainerEnterpriseStudentsWidget } from '@/components/trainer/TrainerEnterpriseStudentsWidget';
@@ -17,6 +20,7 @@ const TrainerDashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({});
   const [courses, setCourses] = useState([]);
+  const [courseStats, setCourseStats] = useState({});
   const [schedules, setSchedules] = useState([]);
   const [dropoutRisk, setDropoutRisk] = useState({});
   const [enterpriseStudents, setEnterpriseStudents] = useState(null);
@@ -24,7 +28,7 @@ const TrainerDashboardPage = () => {
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     try {
-      const [statsRes, coursesRes, schedulesRes, riskRes, enterpriseRes] = await Promise.all([
+      const [statsRes, coursesRes, courseStatsRes, schedulesRes, riskRes, enterpriseRes] = await Promise.all([
         getEnrollmentStats().catch(err => {
           console.error('Error fetching enrollment stats:', err);
           return { data: { data: {} } };
@@ -32,6 +36,10 @@ const TrainerDashboardPage = () => {
         getMyCourses().catch(err => {
           console.error('Error fetching courses:', err);
           return { data: { data: [] } };
+        }),
+        getMyCourseStats().catch(err => {
+          console.error('Error fetching course stats:', err);
+          return { data: { data: {} } };
         }),
         getTrainerSchedules({ limit: 100 }).catch(err => {
           console.error('Error fetching schedules:', err);
@@ -49,6 +57,7 @@ const TrainerDashboardPage = () => {
 
       setStats(statsRes.data?.data || {});
       setCourses(coursesRes.data?.data || []);
+      setCourseStats(courseStatsRes.data?.data || {});
       setSchedules(schedulesRes.data?.data || []);
       setDropoutRisk(riskRes.data?.data || {});
       setEnterpriseStudents(enterpriseRes.data?.data || null);
@@ -157,27 +166,41 @@ const TrainerDashboardPage = () => {
       <TrainerStatsCards
         stats={stats}
         courses={courses}
+        courseStats={courseStats}
         schedules={schedules}
         dropoutRisk={dropoutRisk}
+        enterpriseStudents={enterpriseStudents}
       />
 
-      {/* Dashboard Charts and Recent Lists */}
+      {/* Row 2: Trends & Revenue */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TrainerEnrollmentTrendChart data={stats.monthlyTrend || []} />
+        <TrainerRevenueChart data={stats.revenueByMonth || []} />
+      </div>
+
+      {/* Row 3: Course Status & Partnership Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <TrainerEnrollmentTrendChart data={stats.monthlyTrend || []} />
+        <div className="lg:col-span-1">
+          <TrainerCourseStatusChart courses={courses} courseStats={courseStats} />
         </div>
-        <div>
-          <TrainerRecentStudents students={stats.recentEnrollments || []} />
+        <div className="lg:col-span-2">
+          <TrainerPartnershipTrendChart data={enterpriseStudents?.trend || []} />
         </div>
       </div>
 
-      {/* Enterprise Students Widget */}
-      {enterpriseStudents && enterpriseStudents.total > 0 && (
-        <TrainerEnterpriseStudentsWidget data={enterpriseStudents} />
-      )}
-
-      {/* Quick Action Buttons */}
-      <TrainerQuickActions />
+      {/* Row 4: Recent Students & Enterprise Widget */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <TrainerRecentStudents students={stats.recentEnrollments || []} />
+        </div>
+        <div className="lg:col-span-1 flex flex-col gap-6">
+          {enterpriseStudents && enterpriseStudents.total > 0 && (
+            <TrainerEnterpriseStudentsWidget data={enterpriseStudents} />
+          )}
+          {/* Quick Action Buttons */}
+          <TrainerQuickActions />
+        </div>
+      </div>
     </div>
   );
 };

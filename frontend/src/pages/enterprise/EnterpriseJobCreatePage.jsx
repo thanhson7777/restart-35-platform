@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Save, Send } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Save, Send, Trash2, XCircle } from 'lucide-react';
 
 import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
-import { createJob, updateJob, getEnterpriseJobById, submitJobForApproval } from '@/apis/recruitmentAPI';
+import { createJob, updateJob, getEnterpriseJobById, submitJobForApproval, cancelJobApproval, deleteJob } from '@/apis/recruitmentAPI';
 import { getJobCategoriesAPI } from '@/apis/jobCategoryApi';
 import LocationPicker from '@/components/location/LocationPicker';
+import { fetchProvinceByCode, fetchWards } from '@/services/locationService';
 import toast from 'react-hot-toast';
 
 const JOB_TYPE_OPTIONS = [
@@ -16,11 +17,6 @@ const JOB_TYPE_OPTIONS = [
   { value: 'freelance', label: 'Tự do' }
 ];
 
-const LOCATION_TYPE_OPTIONS = [
-  { value: 'onsite', label: 'Tại văn phòng' },
-  { value: 'remote', label: 'Từ xa' },
-  { value: 'hybrid', label: 'Kết hợp' }
-];
 
 const EDUCATION_OPTIONS = [
   { value: 'none', label: 'Không yêu cầu' },
@@ -40,7 +36,7 @@ const MEETING_TYPE_OPTIONS = [
 const sections = [
   { id: 1, title: 'Thông tin cơ bản' },
   { id: 2, title: 'Yêu cầu ứng viên' },
-  { id: 3, title: 'Lương & Phúc lợi' },
+  { id: 3, title: 'Lương thỏa thuận' },
   { id: 4, title: 'Địa điểm làm việc' },
   { id: 5, title: 'Cấu hình phỏng vấn' }
 ];
@@ -99,7 +95,9 @@ const initialFormData = {
     enabled: false,
     amount: null,
     payoutCondition: 'on_hire'
-  }
+  },
+
+  status: 'draft'
 };
 
 const TagInput = ({ field, value, onChange, tags, onAdd, onRemove }) => (
@@ -153,6 +151,38 @@ export default function EnterpriseJobCreatePage() {
   });
   const [useWorkingAddress, setUseWorkingAddress] = useState(false);
 
+  const resolveWorkingAddressLabel = async () => {
+    if (!formData.location) return '';
+    const { address, province, ward } = formData.location;
+    let provLabel = '';
+    let wardLabel = '';
+
+    if (province) {
+      const provObj = await fetchProvinceByCode(province);
+      if (provObj) provLabel = provObj.label;
+    }
+    if (province && ward) {
+      const wardsList = await fetchWards(province);
+      const wardObj = wardsList.find(w => w.value === ward);
+      if (wardObj) wardLabel = wardObj.label;
+    }
+
+    return [address, wardLabel, provLabel].filter(Boolean).join(', ');
+  };
+
+  useEffect(() => {
+    if (!useWorkingAddress) return;
+    let active = true;
+    const updateAddress = async () => {
+      const fullAddr = await resolveWorkingAddressLabel();
+      if (active) {
+        updateFormData('interviewConfig.officeAddress', fullAddr);
+      }
+    };
+    updateAddress();
+    return () => { active = false; };
+  }, [useWorkingAddress, formData.location.address, formData.location.province, formData.location.ward]);
+
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
@@ -183,34 +213,34 @@ export default function EnterpriseJobCreatePage() {
         // Flatten backend's flat location fields back into nested location
         setFormData({
           ...job,
-          title:        job.job?.title || '',
-          description:  job.job?.description || '',
-          type:         job.job?.type || 'full-time',
-          quantity:     job.job?.quantity || 1,
-          category:     job.job?.category || '',
+          title: job.job?.title || '',
+          description: job.job?.description || '',
+          type: job.job?.type || 'full-time',
+          quantity: job.job?.quantity || 1,
+          category: job.job?.category || '',
           requirements: Array.isArray(job.job?.requirements) ? job.job.requirements : [],
-          benefits:     Array.isArray(job.job?.benefits)     ? job.job.benefits     : [],
-          salary:       job.job?.salary || { min: null, max: null, negotiable: false, currency: 'VND' },
+          benefits: Array.isArray(job.job?.benefits) ? job.job.benefits : [],
+          salary: job.job?.salary || { min: null, max: null, negotiable: false, currency: 'VND' },
           benefitsList: Array.isArray(job.job?.benefitsList) ? job.job.benefitsList : [],
-          gender:       job.job?.gender || 'any',
-          ageMin:       job.job?.ageMin ?? null,
-          ageMax:       job.job?.ageMax ?? null,
-          education:    job.requirements?.education || '',
-          experience:   job.requirements?.experience ?? 0,
-          skills:       Array.isArray(job.requirements?.skills)        ? job.requirements.skills        : [],
-          certifications:Array.isArray(job.requirements?.certifications)? job.requirements.certifications : [],
-          languages:    Array.isArray(job.requirements?.languages)    ? job.requirements.languages     : [],
+          gender: job.job?.gender || 'any',
+          ageMin: job.job?.ageMin ?? null,
+          ageMax: job.job?.ageMax ?? null,
+          education: job.requirements?.education || '',
+          experience: job.requirements?.experience ?? 0,
+          skills: Array.isArray(job.requirements?.skills) ? job.requirements.skills : [],
+          certifications: Array.isArray(job.requirements?.certifications) ? job.requirements.certifications : [],
+          languages: Array.isArray(job.requirements?.languages) ? job.requirements.languages : [],
           location: {
-            address:     job.location?.address    || '',
-            province:    job.location?.province    || '',
-            district:    job.location?.district    || '',
-            ward:        job.location?.ward        || '',
-            type:        job.location?.type        || 'onsite',
-            coordinates: job.location?.coordinates  || { lat: null, lng: null }
+            address: job.location?.address || '',
+            province: job.location?.province || '',
+            district: job.location?.district || '',
+            ward: job.location?.ward || '',
+            type: job.location?.type || 'onsite',
+            coordinates: job.location?.coordinates || { lat: null, lng: null }
           },
           interviewConfig: job.interviewConfig || initialFormData.interviewConfig,
-          targetCourses:   Array.isArray(job.targetCourses) ? job.targetCourses : [],
-          hiringBonus:     job.hiringBonus || initialFormData.hiringBonus,
+          targetCourses: Array.isArray(job.targetCourses) ? job.targetCourses : [],
+          hiringBonus: job.hiringBonus || initialFormData.hiringBonus,
           deadline: job.deadline ? new Date(job.deadline).toISOString().split('T')[0] : ''
         });
       } catch (err) {
@@ -295,7 +325,13 @@ export default function EnterpriseJobCreatePage() {
         }
         toast.success(submitForApproval ? 'Tin đã được gửi để duyệt' : 'Cập nhật thành công');
       } else {
-        await createJob(payload);
+        const res = await createJob(payload);
+        if (submitForApproval) {
+          const newJobId = res.data?.data?._id || res.data?._id;
+          if (newJobId) {
+            await submitJobForApproval(newJobId);
+          }
+        }
         toast.success(submitForApproval ? 'Tin đã được gửi để duyệt' : 'Lưu bản nháp thành công');
       }
       navigate('/enterprise/recruitment');
@@ -304,6 +340,76 @@ export default function EnterpriseJobCreatePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancelApproval = async () => {
+    if (!id) return;
+    if (!window.confirm('Bạn có chắc muốn hủy gửi duyệt? Tin sẽ trở về trạng thái nháp.')) return;
+    setLoading(true);
+    try {
+      await cancelJobApproval(id);
+      toast.success('Hủy duyệt thành công. Tin đang ở trạng thái nháp.');
+      setFormData(prev => ({ ...prev, status: 'draft' }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể hủy duyệt');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    if (!window.confirm('Bạn có chắc chắn muốn xóa bản nháp này?')) return;
+    setLoading(true);
+    try {
+      await deleteJob(id);
+      toast.success('Đã xóa bản nháp');
+      navigate('/enterprise/recruitment');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Không thể xóa');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderActionButtons = () => {
+    const status = formData.status;
+    if (status === 'pending_approval') {
+      return (
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={handleCancelApproval} disabled={loading} className="text-amber-600 border-amber-600 hover:bg-amber-50">
+            <XCircle size={14} className="mr-2" /> Hủy yêu cầu duyệt
+          </Button>
+        </div>
+      );
+    }
+
+    if (status === 'published' || status === 'closed' || status === 'expired') {
+      return (
+        <div className="flex gap-3">
+           <Button variant="outline" onClick={() => handleSubmit(false)} disabled={loading}>
+            <Save size={14} className="mr-2" /> Lưu thay đổi
+          </Button>
+        </div>
+      );
+    }
+
+    // Default: draft
+    return (
+      <div className="flex gap-3">
+        {isEditMode && (
+          <Button variant="destructive" onClick={handleDelete} disabled={loading}>
+            <Trash2 size={14} className="mr-2" /> Xóa
+          </Button>
+        )}
+        <Button variant="outline" onClick={() => handleSubmit(false)} disabled={loading}>
+          <Save size={14} className="mr-2" /> Lưu nháp
+        </Button>
+        <Button onClick={() => handleSubmit(true)} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+          <Send size={14} className="mr-2" /> Gửi duyệt
+        </Button>
+      </div>
+    );
   };
 
   return (
@@ -319,14 +425,7 @@ export default function EnterpriseJobCreatePage() {
               {isEditMode ? 'Cập nhật thông tin tin tuyển dụng.' : 'Điền thông tin để tạo tin tuyển dụng mới.'}
             </p>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => handleSubmit(false)} disabled={loading}>
-              <Save size={14} className="mr-2" /> Lưu nháp
-            </Button>
-            <Button onClick={() => handleSubmit(true)} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-              <Send size={14} className="mr-2" /> Gửi duyệt
-            </Button>
-          </div>
+          {renderActionButtons()}
         </div>
 
         {/* Progress Steps */}
@@ -586,26 +685,7 @@ export default function EnterpriseJobCreatePage() {
                   onWardChange={(v) => updateFormData('location.ward', v)}
                   onCoordinatesChange={(coords) => updateFormData('location.coordinates', coords)}
                 />
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                    Hình thức làm việc <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex gap-6">
-                    {LOCATION_TYPE_OPTIONS.map(opt => (
-                      <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="locationType"
-                          value={opt.value}
-                          checked={formData.location.type === opt.value}
-                          onChange={(e) => updateFormData('location.type', e.target.value)}
-                          className="w-4 h-4"
-                        />
-                        <span className="text-sm">{opt.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+
               </>
             )}
 
@@ -663,15 +743,7 @@ export default function EnterpriseJobCreatePage() {
                         onChange={(e) => {
                           const checked = e.target.checked;
                           setUseWorkingAddress(checked);
-                          if (checked) {
-                            const addressParts = [
-                              formData.location.address,
-                              formData.location.ward,
-                              formData.location.district,
-                              formData.location.province
-                            ].filter(Boolean);
-                            updateFormData('interviewConfig.officeAddress', addressParts.join(', '));
-                          } else {
+                          if (!checked) {
                             updateFormData('interviewConfig.officeAddress', '');
                           }
                         }}
@@ -680,15 +752,7 @@ export default function EnterpriseJobCreatePage() {
                       <span className="text-sm text-[hsl(var(--admin-text-primary))] cursor-pointer" onClick={() => {
                         const checked = !useWorkingAddress;
                         setUseWorkingAddress(checked);
-                        if (checked) {
-                          const addressParts = [
-                            formData.location.address,
-                            formData.location.ward,
-                            formData.location.district,
-                            formData.location.province
-                          ].filter(Boolean);
-                          updateFormData('interviewConfig.officeAddress', addressParts.join(', '));
-                        } else {
+                        if (!checked) {
                           updateFormData('interviewConfig.officeAddress', '');
                         }
                       }}>
@@ -723,16 +787,7 @@ export default function EnterpriseJobCreatePage() {
             <Button onClick={() => setCurrentSection(currentSection + 1)}>
               Bước tiếp <ChevronRight size={14} className="ml-2" />
             </Button>
-          ) : (
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => handleSubmit(false)} disabled={loading}>
-                <Save size={14} className="mr-2" /> Lưu nháp
-              </Button>
-              <Button onClick={() => handleSubmit(true)} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                <Send size={14} className="mr-2" /> Gửi duyệt
-              </Button>
-            </div>
-          )}
+          ) : renderActionButtons()}
         </div>
       </div>
     </>

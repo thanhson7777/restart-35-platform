@@ -190,6 +190,7 @@ const queryCourses = async (req, res, next) => {
     maxFee: Joi.number().integer().min(0),
     isFree: Joi.boolean(),
     hasScholarship: Joi.boolean(),
+    status: Joi.string().valid(...Object.values(COURSE_STATUS)).allow(''),
     skill: Joi.string().max(100).allow(''),
     delivery_type: Joi.string().valid(...Object.values(COURSE_DELIVERY_TYPES)).allow(''),
     funding_model: Joi.string().valid(...Object.values(COURSE_FUNDING_MODELS)).allow(''),

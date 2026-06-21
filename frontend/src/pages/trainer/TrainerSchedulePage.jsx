@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Calendar as CalendarIcon, 
   BookOpen, 
@@ -9,13 +10,14 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { Card, CardContent, Button } from '@/components/ui';
-import { getTrainerSchedules, getTrainerScheduleStats, getMyCourses } from '@/apis/trainerApi';
+import { getTrainerSchedules, getTrainerScheduleStats, getMyCourses, markSessionComplete } from '@/apis/trainerApi';
 import { TrainerScheduleCalendar } from '@/components/trainer/TrainerScheduleCalendar';
 import { TrainerSessionCard } from '@/components/trainer/TrainerSessionCard';
 import { TrainerAttendanceModal } from '@/components/trainer/TrainerAttendanceModal';
 import toast from 'react-hot-toast';
 
 const TrainerSchedulePage = () => {
+  const navigate = useNavigate();
   const [schedules, setSchedules] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -161,6 +163,19 @@ const TrainerSchedulePage = () => {
     }
   };
 
+  const handleCompleteSession = async (sessionInfo) => {
+    try {
+      await markSessionComplete(sessionInfo.scheduleId, sessionInfo.sessionNumber, {
+        notes: ''
+      });
+      toast.success('Đã đánh dấu hoàn thành buổi học!');
+      handleAttendanceSaved(); // reuse the refetch logic
+    } catch (err) {
+      console.error('Error marking complete:', err);
+      toast.error(err.response?.data?.message || 'Không thể đánh dấu hoàn thành.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Title & Header */}
@@ -281,6 +296,15 @@ const TrainerSchedulePage = () => {
                     <option value="online">Trực tuyến (Online)</option>
                   </select>
                 </div>
+                {selectedCourseId !== 'all' && (
+                  <Button
+                    onClick={() => navigate(`/trainer/courses/${selectedCourseId}/schedule`)}
+                    className="w-full mt-2 bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))]/90 text-white border-none font-semibold flex items-center justify-center gap-1.5"
+                  >
+                    <CalendarIcon className="h-4 w-4" />
+                    Sắp xếp / Sửa lịch học khóa này
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
@@ -290,6 +314,7 @@ const TrainerSchedulePage = () => {
               allSchedules={getFilteredSchedules()}
               onTakeAttendance={handleOpenAttendance}
               onSessionSelect={setSelectedSession}
+              onCompleteSession={handleCompleteSession}
             />
           </div>
         </div>

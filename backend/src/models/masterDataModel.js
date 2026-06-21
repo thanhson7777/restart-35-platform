@@ -13,8 +13,8 @@ const MASTER_DATA_COLLECTION_SCHEMA = Joi.object({
 
   isActive: Joi.boolean().default(true),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 

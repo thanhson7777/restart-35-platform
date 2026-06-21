@@ -32,6 +32,9 @@ const AdminPaymentDetailModal = ({ payment, open, onClose, onApprove, onReject, 
 
   const statusInfo = statusConfig[payment.status] || { label: payment.status, className: '' };
   const gatewayInfo = gatewayConfig[payment.gateway] || { label: payment.gateway, className: '' };
+  const adminRevenue = Math.round(payment.amount * 0.2);
+  const trainerRevenue = payment.amount - adminRevenue;
+  const isAutoGateway = ['vnpay', 'momo', 'payos', 'zalopay'].includes(payment.gateway);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -58,16 +61,24 @@ const AdminPaymentDetailModal = ({ payment, open, onClose, onApprove, onReject, 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {/* Status & Amount */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl text-center">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl text-center flex flex-col items-center justify-center">
               <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full border ${statusInfo.className}`}>
                 {statusInfo.label}
               </span>
               <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-2">Trạng thái</p>
             </div>
             <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl text-center">
-              <p className="text-2xl font-bold text-[hsl(var(--admin-accent))]">{formatCurrency(payment.amount)}</p>
-              <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Số tiền</p>
+              <p className="text-2xl font-bold text-[hsl(var(--admin-text-primary))]">{formatCurrency(payment.amount)}</p>
+              <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Tổng tiền</p>
+            </div>
+            <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl text-center">
+              <p className="text-2xl font-bold text-[hsl(var(--admin-accent))]">{formatCurrency(adminRevenue)}</p>
+              <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Admin (20%)</p>
+            </div>
+            <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl text-center">
+              <p className="text-2xl font-bold text-emerald-500">{formatCurrency(trainerRevenue)}</p>
+              <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Trainer (80%)</p>
             </div>
           </div>
 
@@ -161,7 +172,7 @@ const AdminPaymentDetailModal = ({ payment, open, onClose, onApprove, onReject, 
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[hsl(var(--admin-border))]">
-          {payment.status === 'pending' && (
+          {payment.status === 'pending' && !isAutoGateway && (
             <>
               <Button
                 variant="outline"

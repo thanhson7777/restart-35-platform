@@ -35,15 +35,15 @@ const APPLICATION_COLLECTION_SCHEMA = Joi.object({
   statusHistory: Joi.array().items(
     Joi.object({
       status: Joi.string(),
-      changedAt: Joi.date().timestamp('javascript').default(Date.now()),
+      changedAt: Joi.date().timestamp('javascript').default(Date.now),
       changedBy: Joi.string().allow(null),
       note: Joi.string().allow('', null)
     })
   ).default([]),
 
   // Timestamps
-  appliedAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  appliedAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 

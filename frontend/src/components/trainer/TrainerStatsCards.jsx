@@ -1,34 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, BookOpen, Calendar, AlertTriangle } from 'lucide-react';
+import { Users, BookOpen, DollarSign, Handshake } from 'lucide-react';
 import { BezelCard } from '@/components/ui';
 
-export const TrainerStatsCards = ({ stats = {}, courses = [], schedules = [], dropoutRisk = {} }) => {
+export const TrainerStatsCards = ({ stats = {}, courses = [], courseStats = {}, schedules = [], dropoutRisk = {}, enterpriseStudents = {} }) => {
   // 1. Active students count
   const activeStudents = stats.byStatus?.active || 0;
 
   // 2. Active courses count
-  const activeCourses = courses.filter(course => course.status === 'published').length;
+  const activeCourses = courseStats.approved || courses.filter(course => course.status === 'approved').length;
 
-  // 3. Upcoming sessions in next 7 days
-  const now = new Date();
-  const nextWeek = new Date();
-  nextWeek.setDate(now.getDate() + 7);
+  // 3. Partnerships
+  const partnershipsCount = enterpriseStudents?.total || 0;
 
-  let upcomingSessions = 0;
-  schedules.forEach(schedule => {
-    if (schedule.status === 'published' && schedule.sessions) {
-      schedule.sessions.forEach(session => {
-        const sessionDate = new Date(session.date);
-        if (sessionDate >= now && sessionDate <= nextWeek && session.status === 'scheduled') {
-          upcomingSessions++;
-        }
-      });
-    }
-  });
-
-  // 4. High dropout risk students count
-  const highRiskStudents = dropoutRisk.highRisk || 0;
+  // 4. Revenue (if available in stats, otherwise default to 0)
+  const totalRevenue = stats.totalRevenue || 0;
 
   const cardData = [
     {
@@ -48,20 +34,20 @@ export const TrainerStatsCards = ({ stats = {}, courses = [], schedules = [], dr
       iconColor: '#C084FC',
     },
     {
-      title: 'Buổi học sắp tới',
-      value: upcomingSessions,
-      sub: 'Diễn ra trong 7 ngày tới',
-      icon: Calendar,
-      colorClass: 'text-[hsl(var(--admin-warning))] bg-[hsl(var(--admin-warning))]/10 border-[hsl(var(--admin-warning))]/20',
-      iconColor: '#FBBF24',
+      title: 'Doanh thu (VNĐ)',
+      value: new Intl.NumberFormat('vi-VN').format(totalRevenue),
+      sub: 'Tổng doanh thu hệ thống',
+      icon: DollarSign,
+      colorClass: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+      iconColor: '#10B981',
     },
     {
-      title: 'Nguy cơ bỏ học cao',
-      value: highRiskStudents,
-      sub: 'Cần can thiệp khẩn cấp',
-      icon: AlertTriangle,
-      colorClass: 'text-[hsl(var(--admin-danger))] bg-[hsl(var(--admin-danger))]/10 border-[hsl(var(--admin-danger))]/20',
-      iconColor: '#F87171',
+      title: 'Đối tác doanh nghiệp',
+      value: partnershipsCount,
+      sub: 'Doanh nghiệp liên kết',
+      icon: Handshake,
+      colorClass: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
+      iconColor: '#F97316',
     },
   ];
 

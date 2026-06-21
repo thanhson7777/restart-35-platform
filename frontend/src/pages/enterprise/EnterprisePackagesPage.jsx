@@ -13,7 +13,7 @@ const EnterprisePackagesPage = () => {
   const currentUser = useSelector(selectCurrentUser)
   const [packages, setPackages] = useState([])
   const [orgData, setOrgData] = useState(null)
-  
+
   const [openPaymentModal, setOpenPaymentModal] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState('wallet')
@@ -62,9 +62,9 @@ const EnterprisePackagesPage = () => {
     if (!selectedPackage) return
     setIsProcessing(true)
     try {
-      const returnUrl = `${window.location.origin}/payment/vnpay-return`
+      const returnUrl = `${window.location.origin}/payment/vnpay-return?type=package`
       const res = await servicePackageApi.buyPackage(selectedPackage._id, paymentMethod, returnUrl)
-      
+
       if (paymentMethod === 'vnpay' && res.data?.paymentUrl) {
         window.location.href = res.data.paymentUrl
       } else if (paymentMethod === 'vnpay' && res.paymentUrl) {
@@ -121,7 +121,7 @@ const EnterprisePackagesPage = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div>
                     <div className="flex justify-between text-sm mb-1">
@@ -131,7 +131,7 @@ const EnterprisePackagesPage = () => {
                       </span>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-1.5">
-                      <div 
+                      <div
                         className="bg-blue-600 h-1.5 rounded-full transition-all"
                         style={{ width: `${Math.min(100, ((orgData.currentMonthUsedJobQuota || 0) / (orgData.monthlyJobQuota || 1)) * 100)}%` }}
                       />
@@ -160,22 +160,61 @@ const EnterprisePackagesPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           {packages.map((pkg, idx) => {
             const isHighlighted = isPremium(pkg.price);
-            const isCurrent = orgData?.currentPackageId === pkg._id || (pkg.price === 0 && (!orgData?.currentPackageId))
+
+            // Evaluate active package status
+            const activePackage = orgData?.currentPackageId ? packages.find(p => p._id === orgData.currentPackageId) : packages.find(p => p.price === 0)
+            const isExpired = orgData?.subscriptionEndDate ? moment(orgData.subscriptionEndDate).isBefore(moment()) : false
+
+            const isCurrent = (!isExpired && activePackage && activePackage._id === pkg._id) || (isExpired && pkg.price === 0)
+            const isDowngrade = !isExpired && activePackage && pkg.price < activePackage.price
+            const isUpgrade = !isExpired && activePackage && pkg.price > activePackage.price
+
+            // Define button appearance and text
+            let buttonText = 'Chọn gói này'
+            let isDisabled = false
+            let buttonStyles = "bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 hover:bg-gray-50"
+
+            if (isDowngrade) {
+              buttonText = 'Không khả dụng'
+              isDisabled = true
+              buttonStyles = "bg-gray-100 text-gray-400 cursor-not-allowed border-none"
+            } else if (isCurrent) {
+              if (pkg.price === 0) {
+                buttonText = 'Đang áp dụng'
+                isDisabled = true
+                buttonStyles = "bg-gray-100 text-gray-500 cursor-not-allowed border-none"
+              } else {
+                buttonText = 'Mua thêm'
+                buttonStyles = "bg-blue-50 text-blue-700 border-2 border-blue-200 hover:bg-blue-100"
+              }
+            } else if (isUpgrade) {
+              buttonText = 'Nâng cấp'
+              buttonStyles = "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg shadow-blue-600/20 border-none"
+            } else if (isHighlighted) {
+              buttonStyles = "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg shadow-blue-600/20 border-none"
+            }
 
             return (
-              <div 
-                key={pkg._id} 
+              <div
+                key={pkg._id}
                 className={cn(
-                  "relative bg-white rounded-3xl transition-all duration-300 flex flex-col",
-                  "border border-gray-200 shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)]",
-                  isHighlighted && "border-blue-200 shadow-[0_20px_40px_-15px_rgba(37,99,235,0.15)] md:-mt-4 md:mb-4"
+                  "relative bg-white rounded-3xl transition-all duration-300 flex flex-col h-full",
+                  "border shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)]",
+                  isCurrent ? "border-2 border-green-500 shadow-xl shadow-green-500/10 z-10" : 
+                  isHighlighted ? "border-2 border-blue-500 shadow-xl shadow-blue-500/10 z-10" : "border-gray-200"
                 )}
               >
                 {/* Highlight Badge */}
-                {isHighlighted && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full flex items-center gap-1 shadow-lg shadow-blue-500/30">
-                      <Crown className="w-3.5 h-3.5" /> Khuyên dùng
+                {(isHighlighted || isCurrent) && (
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                    <div className={cn(
+                      "text-white text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full flex items-center gap-1 shadow-lg",
+                      isCurrent 
+                        ? "bg-gradient-to-r from-green-500 to-emerald-600 shadow-green-500/30" 
+                        : "bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/30"
+                    )}>
+                      {isCurrent ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Crown className="w-3.5 h-3.5" />} 
+                      {isCurrent ? 'Đang sử dụng' : 'Khuyên dùng'}
                     </div>
                   </div>
                 )}
@@ -226,21 +265,17 @@ const EnterprisePackagesPage = () => {
                   </div>
 
                   <div className="mt-auto pt-4">
-                    <Button 
+                    <Button
                       className={cn(
                         "w-full rounded-xl py-6 font-semibold transition-all",
-                        isCurrent 
-                          ? "bg-gray-100 text-gray-500 hover:bg-gray-100 cursor-not-allowed" 
-                          : isHighlighted 
-                            ? "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg shadow-blue-600/20"
-                            : "bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 hover:bg-gray-50"
+                        buttonStyles
                       )}
                       onClick={() => {
-                        if (!isCurrent) handleOpenPayment(pkg)
+                        if (!isDisabled) handleOpenPayment(pkg)
                       }}
-                      disabled={isCurrent}
+                      disabled={isDisabled}
                     >
-                      {isCurrent ? 'Đang sử dụng' : 'Chọn gói này'}
+                      {buttonText}
                     </Button>
                   </div>
                 </div>
@@ -248,7 +283,7 @@ const EnterprisePackagesPage = () => {
             )
           })}
         </div>
-        
+
         {packages.length === 0 && (
           <div className="text-center py-20">
             <p className="text-gray-500">Chưa có gói dịch vụ nào được cấu hình.</p>
@@ -263,7 +298,7 @@ const EnterprisePackagesPage = () => {
             <h3 className="text-xl font-bold mb-1">Xác nhận thanh toán</h3>
             <p className="text-blue-100 text-sm">Chọn phương thức thanh toán an toàn</p>
           </div>
-          
+
           <div className="p-6">
             {selectedPackage && (
               <div className="space-y-6">
@@ -283,10 +318,10 @@ const EnterprisePackagesPage = () => {
                         "flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-all",
                         paymentMethod === 'wallet' ? "border-blue-600 bg-blue-50/50" : "border-gray-200 hover:border-gray-300"
                       )}>
-                        <input 
-                          type="radio" 
-                          name="paymentMethod" 
-                          value="wallet" 
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="wallet"
                           checked={paymentMethod === 'wallet'}
                           onChange={(e) => setPaymentMethod(e.target.value)}
                           className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-600"
@@ -300,10 +335,10 @@ const EnterprisePackagesPage = () => {
                         "flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-all",
                         paymentMethod === 'vnpay' ? "border-blue-600 bg-blue-50/50" : "border-gray-200 hover:border-gray-300"
                       )}>
-                        <input 
-                          type="radio" 
-                          name="paymentMethod" 
-                          value="vnpay" 
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="vnpay"
                           checked={paymentMethod === 'vnpay'}
                           onChange={(e) => setPaymentMethod(e.target.value)}
                           className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-600"
@@ -319,12 +354,12 @@ const EnterprisePackagesPage = () => {
               </div>
             )}
           </div>
-          
+
           <div className="p-6 bg-gray-50 flex justify-end gap-3 rounded-b-2xl border-t border-gray-100">
             <Button variant="outline" className="rounded-xl border-gray-200" onClick={handleClosePayment} disabled={isProcessing}>
               Hủy bỏ
             </Button>
-            <Button 
+            <Button
               className="rounded-xl bg-gray-900 text-white hover:bg-gray-800"
               onClick={handleBuyPackage}
               disabled={isProcessing}

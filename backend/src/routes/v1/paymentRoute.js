@@ -24,6 +24,14 @@ Router.get(
 
 // ============ ADMIN ROUTES ============
 
+// Thống kê cho Admin
+Router.get(
+  '/stats',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  paymentController.getAdminStats
+)
+
 // Danh sách tất cả thanh toán
 Router.get(
   '/',

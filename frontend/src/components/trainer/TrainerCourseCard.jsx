@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Users, Calendar, Edit3, ArrowRight } from 'lucide-react';
+import { BookOpen, Users, Calendar, Edit3, ArrowRight, Video, Globe, MapPin, XCircle } from 'lucide-react';
 import { Card, CardContent, Badge, Button, SafeImage } from '@/components/ui';
 
-const TrainerCourseCard = ({ course }) => {
+const TrainerCourseCard = ({ course, onRefresh, onCancelApproval }) => {
   const {
     _id,
     title,
@@ -12,7 +12,8 @@ const TrainerCourseCard = ({ course }) => {
     currentStudents = 0,
     maxStudents = 30,
     syllabus = [],
-    createdAt
+    createdAt,
+    delivery_type
   } = course;
 
   // Format creation date
@@ -34,6 +35,20 @@ const TrainerCourseCard = ({ course }) => {
 
   const currentStatus = statusConfig[status] || statusConfig.draft;
 
+  const getDeliveryTypeBadge = () => {
+    switch (delivery_type) {
+      case 'video':
+        return { text: 'Video', icon: <Video className="w-3 h-3 mr-1" />, color: 'bg-blue-500/80 text-white' };
+      case 'live':
+        return { text: 'Trực tuyến', icon: <Globe className="w-3 h-3 mr-1" />, color: 'bg-purple-500/80 text-white' };
+      case 'offline':
+        return { text: 'Trực tiếp', icon: <MapPin className="w-3 h-3 mr-1" />, color: 'bg-orange-500/80 text-white' };
+      default:
+        return { text: 'Khác', icon: null, color: 'bg-gray-500/80 text-white' };
+    }
+  };
+  const deliveryBadge = getDeliveryTypeBadge();
+
   return (
     <Card className="group overflow-hidden border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] transition-all duration-300 hover:-translate-y-1 hover:border-[hsl(var(--admin-border))] hover:shadow-xl hover:shadow-black/40">
       {/* Course Thumbnail */}
@@ -54,6 +69,14 @@ const TrainerCourseCard = ({ course }) => {
         <div className="absolute left-3 top-3">
           <Badge variant="outline" className={`backdrop-blur-md px-2.5 py-1 ${currentStatus.className}`}>
             {currentStatus.text}
+          </Badge>
+        </div>
+
+        {/* Delivery Type Badge overlay */}
+        <div className="absolute right-3 top-3">
+          <Badge variant="secondary" className={`backdrop-blur-md px-2.5 py-1 border-none font-medium flex items-center ${deliveryBadge.color} hover:${deliveryBadge.color}`}>
+            {deliveryBadge.icon}
+            {deliveryBadge.text}
           </Badge>
         </div>
       </div>
@@ -84,43 +107,65 @@ const TrainerCourseCard = ({ course }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col gap-2 pt-2">
+        <div className="grid grid-cols-2 gap-2 pt-2">
+          {status === 'pending' ? (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled
+                className="bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-faint))] cursor-not-allowed shadow-sm gap-1.5 border-[hsl(var(--admin-border))] px-2"
+                title="Khóa học đang chờ duyệt"
+              >
+                <Edit3 className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Chỉnh sửa</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onCancelApproval && onCancelApproval(_id)}
+                className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-warning))] text-[hsl(var(--admin-text-secondary))] shadow-sm px-2 gap-1.5"
+                title="Rút yêu cầu duyệt"
+              >
+                <XCircle className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Hủy duyệt</span>
+              </Button>
+            </>
+          ) : (
+            <Button
+              size="sm"
+              className="col-span-2 bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white shadow-sm p-0"
+            >
+              <Link to={`/trainer/courses/${_id}/edit`} className="flex items-center justify-center gap-2 w-full h-full">
+                <Edit3 className="h-4 w-4 shrink-0" />
+                <span>Chỉnh sửa khóa học</span>
+              </Link>
+            </Button>
+          )}
+
           <Button
-            asChild
+            variant="outline"
             size="sm"
-            className="w-full bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white shadow-sm gap-2"
+            className={`border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] p-0 ${delivery_type === 'video' ? 'col-span-2' : ''}`}
           >
-            <Link to={`/trainer/courses/${_id}/edit`}>
-              <Edit3 className="h-4 w-4 shrink-0" />
-              <span>Chỉnh sửa khóa học</span>
+            <Link to={`/trainer/courses/${_id}/students`} className="flex items-center justify-center gap-2 w-full h-full">
+              <Users className="h-4 w-4 shrink-0" />
+              <span>Học viên</span>
             </Link>
           </Button>
 
-          <div className="grid grid-cols-2 gap-2">
+          {delivery_type !== 'video' && (
             <Button
-              asChild
               variant="outline"
               size="sm"
-              className="w-full border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] gap-2"
+              className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] p-0"
             >
-              <Link to={`/trainer/courses/${_id}/students`}>
-                <Users className="h-4 w-4 shrink-0" />
-                <span>Học viên</span>
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="w-full border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] gap-2"
-            >
-              <Link to={`/trainer/courses/${_id}/schedule`}>
+              <Link to={`/trainer/courses/${_id}/schedule`} className="flex items-center justify-center gap-2 w-full h-full">
                 <Calendar className="h-4 w-4 shrink-0" />
                 <span>Lịch học</span>
               </Link>
             </Button>
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>

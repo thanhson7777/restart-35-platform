@@ -241,31 +241,7 @@ export const TrainerAttendanceModal = ({
                                 Có mặt
                               </button>
 
-                              {/* Late Button */}
-                              <button
-                                onClick={() => handleStatusChange(student.userId, 'late')}
-                                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1 transition-all duration-150 ${
-                                  student.status === 'late'
-                                    ? 'bg-amber-600/15 border-amber-500/30 text-[hsl(var(--admin-warning))]'
-                                    : 'border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))]/40 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]'
-                                }`}
-                              >
-                                <Clock className="h-3.5 w-3.5" />
-                                Muộn
-                              </button>
 
-                              {/* Excused Button */}
-                              <button
-                                onClick={() => handleStatusChange(student.userId, 'excused')}
-                                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1 transition-all duration-150 ${
-                                  student.status === 'excused'
-                                    ? 'bg-[hsl(var(--admin-accent))]/15 border-[hsl(var(--admin-accent))]/30 text-[hsl(var(--admin-accent))]'
-                                    : 'border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))]/40 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))]'
-                                }`}
-                              >
-                                <Check className="h-3.5 w-3.5" />
-                                Phép
-                              </button>
 
                               {/* Absent Button */}
                               <button

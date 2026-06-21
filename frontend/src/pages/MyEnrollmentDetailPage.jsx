@@ -1,18 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Badge, Button, Tabs, TabsList, TabsTrigger, TabsContent, Skeleton } from '@/components/ui';
-import { getEnrollmentById, getCourseSchedule, getCourseLessons, getMyIsaRepayments, submitIncome, createPayment, getScheduleById, cancelEnrollment, dropEnrollment } from '@/apis/courseApi';
+import { getEnrollmentById, getCourseById, getCourseSchedule, getCourseLessons, getMyIsaRepayments, submitIncome, createPayment, getScheduleById, cancelEnrollment, dropEnrollment } from '@/apis/courseApi';
+import { getMySchedules } from '@/apis/scheduleApi';
 import { DeliveryTypeBadge } from '@/components/course/DeliveryTypeBadge';
 import { FundingModelChip } from '@/components/course/FundingModelChip';
 import { DropoutRiskBadge } from '@/components/enrollment/DropoutRiskBadge';
 import { PaymentTracker } from '@/components/enrollment/PaymentTracker';
 import { SyllabusAccordion } from '@/components/course/CourseDetail/SyllabusAccordion';
 import { CourseInstructorInfo } from '@/components/course/CourseDetail/CourseInstructorInfo';
-import { ArrowLeft, PlayCircle, Video, MapPin, Calendar, Clock, DollarSign, ExternalLink, Navigation, Award, FileText, QrCode, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Video, MapPin, Calendar, Clock, DollarSign, ExternalLink, Navigation, Award, FileText, QrCode, X, Loader2, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { formatDate, formatPrice } from '@/utils/formatter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Navbar, Footer } from '@/components/landing';
+
 
 export default function MyEnrollmentDetailPage() {
   const { id } = useParams();
@@ -49,55 +50,55 @@ export default function MyEnrollmentDetailPage() {
     setLoading(true);
     try {
       const enrollRes = await getEnrollmentById(id);
-      const enrollData = enrollRes.data || enrollRes;
-      setEnrollment(enrollData);
+      let enrollData = enrollRes.data?.data || enrollRes.data || enrollRes;
 
       const courseId = enrollData.courseId || enrollData.course?._id;
+      
+      if (courseId) {
+        try {
+          const courseRes = await getCourseById(courseId);
+          if (courseRes.data?.data) {
+            enrollData = {
+              ...enrollData,
+              course: { ...enrollData.course, ...courseRes.data.data }
+            };
+          }
+        } catch (err) {
+          console.warn('Full course fetch error:', err);
+        }
+      }
+
+      setEnrollment(enrollData);
       const fundingModel = enrollData.course?.funding_model || 'free';
 
       if (courseId) {
         const fetchDetails = [];
         if (['live', 'offline'].includes(enrollData.course?.delivery_type)) {
-          const targetScheduleId = enrollData.scheduleId || enrollData.schedule?._id;
-          if (targetScheduleId) {
-            fetchDetails.push(
-              getScheduleById(targetScheduleId)
-                .then((res) => {
-                  const scheduleObj = res.data?.data || res.data || res;
-                  const list = Array.isArray(scheduleObj?.sessions)
-                    ? scheduleObj.sessions
-                    : [];
-                  setSchedule(list);
-                  // Store schedule ID in localStorage for CheckinPage fallback
-                  localStorage.setItem(`restart35_schedule_${id}`, targetScheduleId);
-                })
-                .catch((err) => {
-                  console.warn('Schedule by ID fetch error, falling back to public:', err);
-                  return getCourseSchedule(courseId)
-                    .then((res) => {
-                      const list = Array.isArray(res.data) 
-                        ? res.data 
-                        : Array.isArray(res?.data?.data)
-                        ? res.data.data
-                        : [];
-                      setSchedule(list);
-                    });
-                })
-            );
-          } else {
-            fetchDetails.push(
-              getCourseSchedule(courseId)
-                .then((res) => {
-                  const list = Array.isArray(res.data) 
-                    ? res.data 
-                    : Array.isArray(res?.data?.data)
-                    ? res.data.data
-                    : [];
-                  setSchedule(list);
-                })
-                .catch((err) => console.warn('Schedule fetch error:', err))
-            );
-          }
+          fetchDetails.push(
+            getMySchedules({ courseId })
+              .then((res) => {
+                const schedules = res.data?.data?.schedules || res.data?.schedules || [];
+                const scheduleObj = schedules[0];
+                const list = Array.isArray(scheduleObj?.sessions) ? scheduleObj.sessions : [];
+                setSchedule(list);
+                if (scheduleObj?._id) {
+                  localStorage.setItem(`restart35_schedule_${id}`, scheduleObj._id);
+                }
+              })
+              .catch((err) => {
+                console.warn('getMySchedules error, falling back to public schedule:', err);
+                return getCourseSchedule(courseId)
+                  .then((res) => {
+                    const list = Array.isArray(res.data) 
+                      ? res.data 
+                      : Array.isArray(res?.data?.data)
+                      ? res.data.data
+                      : [];
+                    setSchedule(list);
+                  })
+                  .catch((err2) => console.warn('Fallback schedule fetch error:', err2));
+              })
+          );
         }
 
         fetchDetails.push(
@@ -126,13 +127,11 @@ export default function MyEnrollmentDetailPage() {
           );
         }
 
-        // Fetch dropout risk if enrollment is in_progress
+        // Fetch dropout risk asynchronously without blocking main page load
         if (enrollData.status === 'in_progress') {
-          fetchDetails.push(
-            getEnrollmentRisk(id)
-              .then((res) => setRiskData(res.data?.data || null))
-              .catch(() => setRiskData(null))
-          );
+          getEnrollmentRisk(id)
+            .then((res) => setRiskData(res.data?.data || null))
+            .catch(() => setRiskData(null));
         }
 
         await Promise.all(fetchDetails);
@@ -254,7 +253,7 @@ export default function MyEnrollmentDetailPage() {
 
   if (!enrollment) return null;
 
-  const { course, status, progress, installments = [], dropoutRisk = 'low', enrolledAt } = enrollment;
+  const { course, status, progress, installments = [], dropoutRisk = 'low', enrolledAt, createdAt } = enrollment;
   const courseId = course?._id || enrollment.courseId;
   const deliveryType = course?.delivery_type || 'video';
   const fundingModel = course?.funding_model || 'free';
@@ -263,13 +262,24 @@ export default function MyEnrollmentDetailPage() {
   const nextSession = upcomingSessions[0];
 
   const repaymentAmtPreview = calculateRepaymentPreview();
+  const enrollmentDate = enrolledAt || createdAt || new Date().toISOString();
+  const hasRightColumnItems = (fundingModel === 'learner_paid' && installments?.length > 0) || (fundingModel === 'isa' && isaRecord) || (deliveryType === 'offline' && course?.location) || nextSession;
 
   const renderAttendanceStatus = (session) => {
     // 1. Find if user has an attendance record for this session
     const userIdStr = enrollment.userId?._id || enrollment.userId;
-    const attRecord = session.attendance?.find(
-      (a) => (a.userId?._id || a.userId)?.toString() === userIdStr?.toString()
-    );
+    let attStatus = session.myAttendance;
+
+    if (!attStatus) {
+      const attRecord = session.attendance?.find(
+        (a) => (a.userId?._id || a.userId)?.toString() === userIdStr?.toString()
+      );
+      if (attRecord) attStatus = attRecord.status;
+    }
+
+    if (!attStatus && session.status === 'completed') {
+      attStatus = 'absent';
+    }
 
     // 2. Determine if session date is today
     const sessionDate = new Date(session.date);
@@ -280,26 +290,17 @@ export default function MyEnrollmentDetailPage() {
       sessionDate.getFullYear() === today.getFullYear();
 
     // 3. Render status badge if record exists
-    if (attRecord) {
+    if (attStatus && attStatus !== 'upcoming' && attStatus !== 'unrecorded') {
       const statusMap = {
         present: { label: 'Có mặt', class: 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' },
         late: { label: 'Đi muộn', class: 'bg-amber-500/10 text-amber-600 border border-amber-500/20' },
         excused: { label: 'Nghỉ phép', class: 'bg-blue-500/10 text-blue-600 border border-blue-500/20' },
         absent: { label: 'Vắng mặt', class: 'bg-rose-500/10 text-rose-600 border border-rose-500/20' },
       };
-      const info = statusMap[attRecord.status] || { label: 'Đã điểm danh', class: 'bg-zinc-100 text-zinc-500 dark:bg-zinc-900 border border-zinc-200' };
+      const info = statusMap[attStatus] || { label: 'Đã điểm danh', class: 'bg-zinc-100 text-zinc-500 dark:bg-zinc-900 border border-zinc-200' };
       return (
         <Badge className={`${info.class} px-2 py-0.5 rounded-full text-[10.5px] font-bold`}>
           {info.label}
-        </Badge>
-      );
-    }
-
-    // 4. If session status is completed and no record exists, they were absent
-    if (session.status === 'completed') {
-      return (
-        <Badge className="bg-rose-500/10 text-rose-600 border border-rose-500/20 px-2 py-0.5 rounded-full text-[10.5px] font-bold">
-          Vắng mặt
         </Badge>
       );
     }
@@ -326,7 +327,7 @@ export default function MyEnrollmentDetailPage() {
     }
 
     return (
-      <Badge className="bg-zinc-150/40 text-zinc-500 dark:bg-zinc-900/60 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-800 px-2 py-0.5 rounded-full text-[10.5px] font-medium">
+      <Badge className="bg-blue-100 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full text-[10.5px] font-medium">
         Chưa diễn ra
       </Badge>
     );
@@ -334,7 +335,6 @@ export default function MyEnrollmentDetailPage() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-background">
         {/* Light Gradient Header */}
         <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50 border-b border-[hsl(var(--admin-border))] shadow-sm py-6">
@@ -351,7 +351,6 @@ export default function MyEnrollmentDetailPage() {
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-2.5">
                   <DeliveryTypeBadge deliveryType={deliveryType} size="sm" />
-                  <FundingModelChip fundingModel={fundingModel} size="sm" />
                   {status === 'in_progress' && <DropoutRiskBadge risk={dropoutRisk} />}
                 </div>
 
@@ -360,22 +359,9 @@ export default function MyEnrollmentDetailPage() {
                 </h1>
                 
                 <p className="text-xs text-[hsl(var(--admin-text-muted))] font-medium">
-                  Ghi danh ngày: {enrolledAt ? formatDate(enrolledAt) : 'Chưa rõ'}
+                  Ghi danh ngày: {enrollmentDate ? formatDate(enrollmentDate) : 'Chưa rõ'}
                 </p>
               </div>
-
-              {/* Launch Learning Workspace Button (only for video classes) */}
-              {deliveryType === 'video' && status === 'in_progress' && (
-                <Button
-                  variant="default"
-                  size="lg"
-                  className="rounded-xl text-xs font-bold px-6 py-4 shadow-lg shrink-0 flex items-center gap-2"
-                  onClick={() => navigate(`/my-enrollments/${id}/learn`)}
-                >
-                  <PlayCircle className="w-5 h-5 fill-current" />
-                  Vào không gian học tập
-                </Button>
-              )}
 
               {/* View Certificate Button (for completed course) */}
               {status === 'completed' && (
@@ -430,153 +416,154 @@ export default function MyEnrollmentDetailPage() {
       {/* Main Grid */}
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Tabs curriculum & schedules */}
-          <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="curriculum">
-              <TabsList className="mb-6 flex flex-wrap gap-1 p-1 bg-zinc-100 dark:bg-zinc-900/50 rounded-xl border border-zinc-200/50 dark:border-zinc-800">
-                <TabsTrigger value="curriculum" className="rounded-lg text-xs font-semibold px-4 py-2">
-                  Giáo trình lộ trình
-                </TabsTrigger>
-                {['live', 'offline'].includes(deliveryType) && (
-                  <TabsTrigger value="schedules" className="rounded-lg text-xs font-semibold px-4 py-2">
-                    Lịch học trực tiếp ({schedule.length} buổi)
-                  </TabsTrigger>
-                )}
-                <TabsTrigger value="instructor" className="rounded-lg text-xs font-semibold px-4 py-2">
-                  Đơn vị giảng dạy
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Tab: Curriculum Accordion */}
-              <TabsContent value="curriculum" className="focus:outline-none">
-                {course?.syllabus?.length > 0 ? (
-                  <SyllabusAccordion
-                    syllabus={course.syllabus}
-                    delivery_type={deliveryType}
-                    courseId={courseId}
-                    isEnrolled={true}
-                    lessons={lessons}
-                  />
-                ) : (
-                  <div className="text-center py-12 text-zinc-500 text-sm">
-                    Khóa học hiện tại chưa cập nhật giáo trình cụ thể.
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* Dropout Risk Section */}
-              {status === 'in_progress' && riskData && (
-                <Card className="mt-4 border-l-4 border-l-orange-400">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-semibold text-foreground">Mức độ hoàn thành khóa học</h3>
-                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                        riskData.score >= 0.7
-                          ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                          : riskData.score >= 0.4
-                          ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
-                          : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                      }`}>
-                        {riskData.score >= 0.7 ? 'Nguy hiểm' : riskData.score >= 0.4 ? 'Trung bình' : 'Ổn định'}
-                        ({Math.round(riskData.score * 100)}%)
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-2">
-                      <div
-                        className={`h-2.5 rounded-full transition-all ${
-                          riskData.score >= 0.7
-                            ? 'bg-red-500'
-                            : riskData.score >= 0.4
-                            ? 'bg-yellow-500'
-                            : 'bg-green-500'
-                        }`}
-                        style={{ width: `${Math.round((1 - riskData.score) * 100)}%` }}
-                      />
-                    </div>
-                    {riskData.factors && riskData.factors.length > 0 && (
-                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        <p className="font-medium mb-1">Yếu tố ảnh hưởng:</p>
-                        <ul className="list-disc list-inside space-y-0.5">
-                          {riskData.factors.map((f, i) => (
-                            <li key={i}>{f}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+          {/* Left Column: Stacked Sections */}
+          <div className={`${hasRightColumnItems ? 'lg:col-span-2' : 'lg:col-span-3'} space-y-10`}>
+            
+            {/* Curriculum Section */}
+            <section>
+              <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
+                Giáo trình lộ trình
+              </h3>
+              {course?.syllabus?.length > 0 ? (
+                <SyllabusAccordion
+                  syllabus={course.syllabus}
+                  delivery_type={deliveryType}
+                  courseId={courseId}
+                  isEnrolled={true}
+                  enrollmentId={id}
+                  lessons={lessons}
+                />
+              ) : (
+                <div className="text-center py-12 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-zinc-500 text-sm">
+                  Khóa học hiện tại chưa cập nhật giáo trình cụ thể.
+                </div>
               )}
+            </section>
 
-              {/* Tab: Schedules List */}
-              {['live', 'offline'].includes(deliveryType) && (
-                <TabsContent value="schedules" className="focus:outline-none space-y-4">
-                  <div className="space-y-3">
-                    {schedule.map((session, idx) => {
-                      const isCompleted = session.status === 'completed';
-                      return (
-                        <div 
-                          key={session._id || idx}
-                          className="flex items-center justify-between p-4 rounded-xl border border-zinc-250/60 dark:border-zinc-850 bg-white dark:bg-zinc-950/20 shadow-sm gap-4"
-                        >
-                          <div className="flex gap-3">
-                            <div className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0 ${
-                              isCompleted 
-                                ? 'bg-zinc-100 text-zinc-500 dark:bg-zinc-900' 
-                                : 'bg-primary/5 text-primary border border-primary/10'
-                            }`}>
-                              <span className="text-[9px] font-bold uppercase tracking-wider leading-none">
-                                {new Date(session.date).toLocaleDateString('vi-VN', { month: 'short' })}
-                              </span>
-                              <span className="text-lg font-extrabold font-mono mt-0.5 leading-none">
-                                {new Date(session.date).getDate()}
-                              </span>
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-0.5">
-                                <span>Buổi {session.sessionNumber}</span>
-                                <span>•</span>
-                                <span className="font-mono">{session.startTime} - {session.endTime || '21:00'}</span>
-                              </div>
-                              <h5 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 line-clamp-1">
-                                {session.title}
-                              </h5>
-                              {session.instructorName && (
-                                <p className="text-xs text-zinc-450 mt-1">Giảng viên: {session.instructorName}</p>
-                              )}
-                            </div>
+            {/* Dropout Risk Section */}
+            {status === 'in_progress' && riskData && (
+              <Card className="border-l-4 border-l-orange-400">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-foreground">Mức độ hoàn thành khóa học</h3>
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                      riskData.score >= 0.7
+                        ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                        : riskData.score >= 0.4
+                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                        : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                    }`}>
+                      {riskData.score >= 0.7 ? 'Nguy hiểm' : riskData.score >= 0.4 ? 'Trung bình' : 'Ổn định'}
+                      ({Math.round(riskData.score * 100)}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-2">
+                    <div
+                      className={`h-2.5 rounded-full transition-all ${
+                        riskData.score >= 0.7
+                          ? 'bg-red-500'
+                          : riskData.score >= 0.4
+                          ? 'bg-yellow-500'
+                          : 'bg-green-500'
+                      }`}
+                      style={{ width: `${Math.round((1 - riskData.score) * 100)}%` }}
+                    />
+                  </div>
+                  {riskData.factors && riskData.factors.length > 0 && (
+                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                      <p className="font-medium mb-1">Yếu tố ảnh hưởng:</p>
+                      <ul className="list-disc list-inside space-y-0.5">
+                        {riskData.factors.map((f, i) => (
+                          <li key={i}>{f}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Schedules Section */}
+            {['live', 'offline'].includes(deliveryType) && schedule.length > 0 && (
+              <section>
+                <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
+                  Lịch học trực tiếp ({schedule.length} buổi)
+                </h3>
+                <div className="space-y-3">
+                  {schedule.map((session, idx) => {
+                    const isCompleted = session.status === 'completed';
+                    return (
+                      <div 
+                        key={session._id || idx}
+                        className="flex items-center justify-between p-4 rounded-xl border border-zinc-250/60 dark:border-zinc-850 bg-white dark:bg-zinc-950/20 shadow-sm gap-4"
+                      >
+                        <div className="flex gap-3">
+                          <div className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0 ${
+                            isCompleted 
+                              ? 'bg-zinc-100 text-zinc-500 dark:bg-zinc-900' 
+                              : 'bg-primary/5 text-primary border border-primary/10'
+                          }`}>
+                            <span className="text-[9px] font-bold uppercase tracking-wider leading-none">
+                              {new Date(session.date).toLocaleDateString('vi-VN', { month: 'short' })}
+                            </span>
+                            <span className="text-lg font-extrabold font-mono mt-0.5 leading-none">
+                              {new Date(session.date).getDate()}
+                            </span>
                           </div>
-
-                          <div className="shrink-0 flex items-center gap-2">
-                            {renderAttendanceStatus(session)}
-                            {!isCompleted && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-xs px-3 py-1.5 h-8 gap-1.5 rounded-xl border-zinc-200 hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900 bg-white dark:bg-zinc-950"
-                                onClick={() => window.open(session.location || 'https://meet.google.com', '_blank')}
-                              >
-                                {deliveryType === 'offline' ? <MapPin className="w-3.5 h-3.5" /> : <Video className="w-3.5 h-3.5" />}
-                                <span>{deliveryType === 'offline' ? 'Xem vị trí' : 'Vào lớp Live'}</span>
-                                <ExternalLink className="w-3 h-3 text-zinc-400" />
-                              </Button>
+                          <div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-0.5">
+                              <span>Buổi {session.sessionNumber}</span>
+                              <span>•</span>
+                              <span className="font-mono">{session.startTime} - {session.endTime || '21:00'}</span>
+                            </div>
+                            <h5 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 line-clamp-1">
+                              {session.title}
+                            </h5>
+                            {session.instructorName && (
+                              <p className="text-xs text-zinc-450 mt-1">Giảng viên: {session.instructorName}</p>
                             )}
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </TabsContent>
-              )}
 
-              {/* Tab: Instructor Info */}
-              <TabsContent value="instructor" className="focus:outline-none">
-                <CourseInstructorInfo provider={course?.provider} />
-              </TabsContent>
-            </Tabs>
+                        <div className="shrink-0 flex items-center gap-2">
+                          {renderAttendanceStatus(session)}
+                          {!isCompleted && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs px-3 py-1.5 h-8 gap-1.5 rounded-xl border-zinc-200 hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900 bg-white dark:bg-zinc-950"
+                              onClick={() => {
+                                const link = typeof session.location === 'object' 
+                                  ? (session.location?.link || session.location?.address || 'https://meet.google.com')
+                                  : (session.location || 'https://meet.google.com');
+                                window.open(link, '_blank');
+                              }}
+                            >
+                              {deliveryType === 'offline' ? <MapPin className="w-3.5 h-3.5" /> : <Video className="w-3.5 h-3.5" />}
+                              <span>{deliveryType === 'offline' ? 'Xem vị trí' : 'Vào lớp Live'}</span>
+                              <ExternalLink className="w-3 h-3 text-zinc-400" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Instructor Info Section */}
+            <section>
+              <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
+                Đơn vị giảng dạy
+              </h3>
+              <CourseInstructorInfo provider={course?.provider} />
+            </section>
           </div>
 
           {/* Right Column: Invoices & schedules */}
-          <div className="lg:col-span-1 space-y-6">
+          {hasRightColumnItems && (
+            <div className="lg:col-span-1 lg:sticky lg:top-24 space-y-6 h-fit self-start">
             {/* Payment Timelines Card */}
             {fundingModel === 'learner_paid' && installments?.length > 0 && (
               <div className="p-1 rounded-[24px] bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/85">
@@ -725,36 +712,8 @@ export default function MyEnrollmentDetailPage() {
               </div>
             )}
 
-            {/* Next session widget */}
-            {nextSession && (
-              <div className="p-1 rounded-[24px] bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-zinc-800/85">
-                <Card className="p-5 rounded-[18px] bg-white dark:bg-zinc-950 border border-zinc-150/60 dark:border-zinc-900 shadow-sm space-y-3">
-                  <h4 className="font-bold text-sm text-zinc-850 dark:text-zinc-200 flex items-center gap-1.5">
-                    <Calendar className="w-4.5 h-4.5 text-zinc-500" />
-                    Sự kiện học tập sắp tới
-                  </h4>
-                  <div className="p-3.5 bg-rose-500/5 border border-rose-500/10 rounded-xl space-y-2">
-                    <span className="text-[9px] uppercase font-extrabold tracking-wider text-rose-500 block">
-                      Buổi {nextSession.sessionNumber}: {deliveryType === 'offline' ? 'Lớp thực hành' : 'Lớp học trực tuyến'}
-                    </span>
-                    <p className="text-xs font-bold text-zinc-850 dark:text-zinc-250 leading-snug line-clamp-2">
-                      {nextSession.title}
-                    </p>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-zinc-500 font-semibold pt-1 border-t border-rose-500/5">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {formatDate(nextSession.date)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        {nextSession.startTime} - {nextSession.endTime || '21:00'}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            )}
           </div>
+        )}
         </div>
       </main>
 
@@ -1004,7 +963,6 @@ export default function MyEnrollmentDetailPage() {
       )}
 
       </div>
-      <Footer />
     </>
   );
 }

@@ -31,17 +31,32 @@ export default function CommunityHubPage() {
     <>
       <Navbar />
       <div className="min-h-screen bg-background">
-        {/* Premium Hero Section */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 border-b border-slate-800 py-16 lg:py-24">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-          <div className="absolute top-0 right-0 p-32 bg-blue-500 rounded-full blur-[150px] opacity-20 -mr-20 -mt-20"></div>
+        {/* Premium Bright Hero Section */}
+        <div className="relative overflow-hidden bg-white border-b border-zinc-200/80 pt-24 pb-20 lg:pt-32 lg:pb-28">
+          {/* Subtle Grid Background */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
           
-          <div className="container relative mx-auto px-6 text-center">
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-white mb-4 tracking-tight drop-shadow-sm">
-              Cộng đồng <span className="text-blue-400">Restart 35+</span>
+          {/* Soft Mesh Blobs */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-blue-100/50 rounded-full blur-[100px] opacity-60"></div>
+          
+          <div className="container relative mx-auto px-4 flex flex-col items-center text-center z-10">
+            {/* Pill Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50/50 border border-blue-100/80 text-blue-600 text-xs font-bold uppercase tracking-wider mb-8 shadow-sm backdrop-blur-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              Nơi kết nối và phát triển
+            </div>
+
+            {/* Headline */}
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-zinc-900 mb-6 leading-[1.1] max-w-4xl mx-auto">
+              Cộng đồng <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Restart 35+</span>
             </h1>
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed">
-              Không gian chia sẻ, học hỏi và phát triển sự nghiệp dành riêng cho lực lượng lao động giàu kinh nghiệm. Mở ra cơ hội mới cùng hàng ngàn thành viên.
+            
+            {/* Subheadline */}
+            <p className="text-lg lg:text-xl text-zinc-500 max-w-2xl mx-auto font-medium leading-relaxed">
+              Không gian chia sẻ, học hỏi và phát triển sự nghiệp dành riêng cho lực lượng lao động giàu kinh nghiệm. Khám phá việc làm, khóa học và sự kiện nổi bật.
             </p>
           </div>
         </div>

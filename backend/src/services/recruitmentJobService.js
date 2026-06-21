@@ -52,11 +52,11 @@ const createJob = async (enterpriseId, data) => {
     const jobData = {
       enterpriseId,
       enterpriseInfo: {
-        name: user.organization?.name || user.name || 'Doanh nghiệp',
-        logo: user.organization?.logo || '',
-        industry: user.organization?.industry || '',
-        size: user.organization?.size || '',
-        verified: user.organization?.verified || false
+        name: organization?.name || user.name || 'Doanh nghiệp',
+        logo: organization?.logo || '',
+        industry: organization?.industry || '',
+        size: organization?.size || '',
+        verified: organization?.verified || false
       },
       job: {
         title: data.title,
@@ -284,6 +284,14 @@ const submitForApproval = async (jobId, enterpriseId) => {
     }
 
     const result = await recruitmentJobModel.submitForApproval(jobId, enterpriseId)
+    return result
+  } catch (error) { throw error }
+}
+
+// Hủy gửi duyệt tin
+const cancelApproval = async (jobId, enterpriseId) => {
+  try {
+    const result = await recruitmentJobModel.cancelApproval(jobId, enterpriseId)
     return result
   } catch (error) { throw error }
 }
@@ -517,6 +525,7 @@ export const recruitmentJobService = {
   getJobById,
   deleteJob,
   submitForApproval,
+  cancelApproval,
   closeJob,
   getJobApplications,
   getJobStats,

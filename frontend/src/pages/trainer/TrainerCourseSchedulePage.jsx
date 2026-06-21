@@ -32,7 +32,8 @@ import { getAdminCourseSchedule,
   cancelScheduleSession,
   rescheduleSession,
   markSessionComplete,
-  autoGenerateSchedule
+  autoGenerateSchedule,
+  updateCourse
 } from '@/apis/trainerApi';
 import { getCourseById } from '@/apis/courseApi';
 import toast from 'react-hot-toast';
@@ -48,6 +49,14 @@ const TrainerCourseSchedulePage = () => {
 
   // Modals state
   const [showInitModal, setShowInitModal] = useState(false);
+  const [showAutoGenerateModal, setShowAutoGenerateModal] = useState(false);
+  const [autoGenForm, setAutoGenForm] = useState({
+    startDate: '',
+    sessionsPerWeek: 1,
+    preferredDays: [],
+    startTime: '18:00',
+    endTime: '20:00'
+  });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -89,21 +98,26 @@ const TrainerCourseSchedulePage = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     setHasNoSchedule(false);
-    try {
-      const courseRes = await getCourseById(id);
-      setCourse(courseRes.data?.data || null);
-
       try {
-        const scheduleRes = await getAdminCourseSchedule(id);
-        setSchedule(scheduleRes.data || null);
-      } catch (scheduleErr) {
-        if (scheduleErr.response?.status === 404) {
-          setHasNoSchedule(true);
-        } else {
-          throw scheduleErr;
+        const courseRes = await getCourseById(id);
+        setCourse(courseRes.data?.data || null);
+
+        try {
+          const scheduleRes = await getAdminCourseSchedule(id);
+          const schedData = scheduleRes.data?.data;
+          if (!schedData) {
+            setHasNoSchedule(true);
+          } else {
+            setSchedule(schedData);
+          }
+        } catch (scheduleErr) {
+          if (scheduleErr.response?.status === 404) {
+            setHasNoSchedule(true);
+          } else {
+            throw scheduleErr;
+          }
         }
-      }
-    } catch (err) {
+      } catch (err) {
       console.error('Error fetching schedule page details:', err);
       toast.error('Không thể tải thông tin lịch học.');
     } finally {
@@ -178,16 +192,78 @@ const TrainerCourseSchedulePage = () => {
     }
   };
 
-  // 1b. Auto Generate Schedule
-  const handleAutoGenerate = async () => {
-    const loadingToast = toast.loading('Đang tự động xếp lịch học...');
+  const WEEKDAYS = [
+    { value: 'Monday', label: 'Thứ 2' },
+    { value: 'Tuesday', label: 'Thứ 3' },
+    { value: 'Wednesday', label: 'Thứ 4' },
+    { value: 'Thursday', label: 'Thứ 5' },
+    { value: 'Friday', label: 'Thứ 6' },
+    { value: 'Saturday', label: 'Thứ 7' },
+    { value: 'Sunday', label: 'Chủ nhật' }
+  ];
+
+  const handleOpenAutoGenerateModal = () => {
+    const config = course?.scheduleConfig;
+    let startDate = '';
+    if (config?.expectedStartDate) {
+      startDate = new Date(config.expectedStartDate).toISOString().split('T')[0];
+    }
+    
+    let startTime = '18:00';
+    let endTime = '20:00';
+    if (config?.preferredTime && config.preferredTime.includes(' - ')) {
+       const parts = config.preferredTime.split(' - ');
+       startTime = parts[0];
+       endTime = parts[1];
+    }
+
+    setAutoGenForm({
+      startDate,
+      sessionsPerWeek: config?.sessionsPerWeek || 1,
+      preferredDays: config?.preferredDays || [],
+      startTime,
+      endTime
+    });
+    setShowAutoGenerateModal(true);
+  };
+
+  const submitAutoGenerate = async () => {
+    if (!autoGenForm.startDate || !autoGenForm.preferredDays.length || !autoGenForm.startTime || !autoGenForm.endTime || !autoGenForm.sessionsPerWeek) {
+      toast.error('Vui lòng điền đầy đủ các thông tin bắt buộc.');
+      return;
+    }
+
+    if (autoGenForm.preferredDays.length < autoGenForm.sessionsPerWeek) {
+      toast.error('Số ngày chọn trong tuần phải lớn hơn hoặc bằng số buổi học một tuần.');
+      return;
+    }
+
+    const loadingToast = toast.loading('Đang lưu cấu hình và xếp lịch...');
     try {
+      const payload = new FormData();
+      
+      const [startH, startM] = autoGenForm.startTime.split(':').map(Number);
+      const [endH, endM] = autoGenForm.endTime.split(':').map(Number);
+      const durationMin = (endH * 60 + endM) - (startH * 60 + startM);
+      
+      payload.append('scheduleConfig', JSON.stringify({
+        totalSessions: course?.totalSessions || 0,
+        sessionsPerWeek: Number(autoGenForm.sessionsPerWeek),
+        sessionDurationMinutes: durationMin > 0 ? durationMin : 60,
+        preferredDays: autoGenForm.preferredDays,
+        preferredTime: autoGenForm.startTime + ' - ' + autoGenForm.endTime,
+        expectedStartDate: new Date(autoGenForm.startDate).getTime()
+      }));
+
+      await updateCourse(id, payload);
       await autoGenerateSchedule(id);
+      
       toast.success('Tự động xếp lịch thành công!', { id: loadingToast });
+      setShowAutoGenerateModal(false);
       fetchData();
     } catch (err) {
       console.error('Error auto-generating schedule:', err);
-      toast.error(err.response?.data?.message || 'Không thể tự động xếp lịch. Vui lòng kiểm tra cấu hình lịch dạy.', { id: loadingToast });
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.', { id: loadingToast });
     }
   };
 
@@ -340,7 +416,7 @@ const TrainerCourseSchedulePage = () => {
     }
     try {
       await rescheduleSession(schedule._id, activeSession.sessionNumber, {
-        newDate: rescheduleForm.newDate,
+        newDate: new Date(rescheduleForm.newDate).getTime(),
         newStartTime: rescheduleForm.newStartTime,
         newEndTime: rescheduleForm.newEndTime,
         reason: rescheduleForm.reason
@@ -381,15 +457,53 @@ const TrainerCourseSchedulePage = () => {
     setShowCompleteModal(true);
   };
 
+  const getDynamicSessionStatus = (session) => {
+    if (!session) return 'scheduled';
+    if (session.status === 'completed' || session.status === 'cancelled' || session.status === 'rescheduled') {
+      return session.status;
+    }
+    if (!session.date || !session.startTime || !session.endTime) return session.status || 'scheduled';
+
+    const now = new Date();
+    const sessionDate = new Date(session.date);
+    const [startHour, startMin] = session.startTime.split(':').map(Number);
+    const startDateTime = new Date(sessionDate);
+    startDateTime.setHours(startHour, startMin, 0, 0);
+
+    const [endHour, endMin] = session.endTime.split(':').map(Number);
+    const endDateTime = new Date(sessionDate);
+    endDateTime.setHours(endHour, endMin, 0, 0);
+
+    if (now > endDateTime) return 'overdue';
+    if (now >= startDateTime && now <= endDateTime) return 'in_progress';
+    return 'scheduled';
+  };
+
   // Status mapping for sessions
-  const getSessionBadge = (status) => {
+  const getSessionBadge = (session) => {
+    const status = getDynamicSessionStatus(session);
     const statusMap = {
       scheduled: { text: 'Chờ diễn ra', className: 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))]/20 border' },
       completed: { text: 'Đã hoàn thành', className: 'bg-[hsl(var(--admin-success-subtle))] text-[hsl(var(--admin-success))] border-[hsl(var(--admin-success))]/20 border' },
       cancelled: { text: 'Đã hủy', className: 'bg-[hsl(var(--admin-danger-subtle))] text-[hsl(var(--admin-danger))] border-[hsl(var(--admin-danger))]/20 border' },
-      rescheduled: { text: 'Đổi lịch', className: 'bg-[hsl(var(--admin-warning)_/_10%)] text-[hsl(var(--admin-warning))] border-[hsl(var(--admin-warning))]/20 border' }
+      rescheduled: { text: 'Đổi lịch', className: 'bg-[hsl(var(--admin-warning)_/_10%)] text-[hsl(var(--admin-warning))] border-[hsl(var(--admin-warning))]/20 border' },
+      in_progress: { text: 'Đang diễn ra', className: 'bg-purple-500/10 text-purple-500 border border-purple-500/20' },
+      overdue: { text: 'Chưa hoàn thành', className: 'bg-orange-500/10 text-orange-500 border border-orange-500/20' }
     };
     const current = statusMap[status] || statusMap.scheduled;
+    
+    if (status === 'in_progress') {
+      return (
+        <Badge variant="outline" className={`${current.className} flex items-center gap-1.5`}>
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+          </span>
+          {current.text}
+        </Badge>
+      );
+    }
+
     return (
       <Badge variant="outline" className={current.className}>
         {current.text}
@@ -421,6 +535,19 @@ const TrainerCourseSchedulePage = () => {
         </div>
       </div>
 
+      {!loading && course?.status === 'pending' && (
+        <div className="p-4 mb-2 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3 text-amber-600">
+          <AlertTriangle className="h-5 w-5 mt-0.5 shrink-0" />
+          <div className="text-sm">
+            <strong className="block font-bold">Khóa học đang chờ duyệt</strong>
+            <p className="mt-1 text-amber-600/90 leading-relaxed">
+              Bạn có thể tạo và sắp xếp lịch học bình thường. Lịch học này sẽ chỉ hiển thị với học viên <strong>sau khi khóa học được Quản trị viên phê duyệt</strong>.
+              Nếu khóa học bị từ chối duyệt, lịch học có thể cần được điều chỉnh lại cho phù hợp.
+            </p>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="h-96 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl flex items-center justify-center text-[hsl(var(--admin-text-muted))] animate-pulse">
           Đang tải thông tin lịch học...
@@ -443,7 +570,7 @@ const TrainerCourseSchedulePage = () => {
               Tạo thủ công
             </Button>
             <Button
-              onClick={handleAutoGenerate}
+              onClick={handleOpenAutoGenerateModal}
               className="bg-purple-600 hover:bg-purple-700 text-white font-semibold border-none"
             >
               <RefreshCw className="mr-1.5 h-4 w-4" />
@@ -475,27 +602,12 @@ const TrainerCourseSchedulePage = () => {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  {schedule.status === 'draft' && (
-                    <Button
-                      onClick={handlePublishSchedule}
-                      className="bg-[hsl(var(--admin-success))] hover:bg-[hsl(var(--admin-success))] text-white border-none font-semibold"
-                    >
-                      Công bố lịch học
-                    </Button>
-                  )}
                   <Button
-                    onClick={handleAutoGenerate}
-                    className="bg-purple-600 hover:bg-purple-700 text-white border-none font-semibold flex items-center gap-1.5"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                    Xếp lịch tự động
-                  </Button>
-                  <Button
-                    onClick={openAddModal}
+                    onClick={() => navigate(`/trainer/courses/${id}/attendance`)}
                     className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white border-none font-semibold flex items-center gap-1.5"
                   >
-                    <Plus className="h-4 w-4" />
-                    Thêm buổi học
+                    <BookOpen className="h-4 w-4" />
+                    Lịch sử điểm danh
                   </Button>
                 </div>
               </div>
@@ -545,7 +657,11 @@ const TrainerCourseSchedulePage = () => {
                 {schedule.sessions
                   .slice()
                   .sort((a, b) => a.sessionNumber - b.sessionNumber)
-                  .map((sess) => (
+                  .map((sess) => {
+                    const sessionStatus = getDynamicSessionStatus(sess);
+                    const isActionDisabled = sessionStatus === 'in_progress' || sessionStatus === 'overdue' || sessionStatus === 'completed' || (sess.attendance && sess.attendance.length > 0);
+                    
+                    return (
                     <div key={sess.sessionNumber} className="relative">
                       {/* Timeline dot */}
                       <span className={`absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full ring-4 ring-[hsl(var(--admin-surface))] ${
@@ -561,7 +677,7 @@ const TrainerCourseSchedulePage = () => {
                                 Buổi {sess.sessionNumber}
                               </span>
                               <h4 className="text-base font-semibold text-[hsl(var(--admin-text-primary))]">{sess.title}</h4>
-                              {getSessionBadge(sess.status)}
+                              {getSessionBadge(sess)}
                             </div>
 
                             <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 text-xs text-[hsl(var(--admin-text-muted))]">
@@ -591,51 +707,46 @@ const TrainerCourseSchedulePage = () => {
                           {/* Session actions */}
                           {sess.status !== 'cancelled' && (
                             <div className="flex items-center gap-1.5 self-end md:self-auto">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openEditModal(sess)}
-                                className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))] flex items-center gap-1"
-                              >
-                                <Edit className="h-3.5 w-3.5" />
-                                Sửa
-                              </Button>
-                              
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openCancelModal(sess)}
-                                className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-danger-subtle))] hover:text-[hsl(var(--admin-danger))] text-[hsl(var(--admin-text-muted))] flex items-center gap-1"
-                              >
-                                <X className="h-3.5 w-3.5" />
-                                Hủy buổi
-                              </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={isActionDisabled}
+                                  onClick={() => openEditModal(sess)}
+                                  className={`flex items-center gap-1 ${isActionDisabled ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400' : 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300'}`}
+                                >
+                                  <Edit className="h-3.5 w-3.5" />
+                                  Sửa
+                                </Button>
+                                
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={isActionDisabled}
+                                  onClick={() => openCancelModal(sess)}
+                                  className={`flex items-center gap-1 ${isActionDisabled ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400' : 'border-red-200 bg-red-50 text-red-700 hover:bg-red-100 hover:border-red-300'}`}
+                                >
+                                  <X className="h-3.5 w-3.5" />
+                                  Hủy buổi
+                                </Button>
 
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openRescheduleModal(sess)}
-                                className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-accent-subtle))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] flex items-center gap-1"
-                              >
-                                <Calendar className="h-3.5 w-3.5" />
-                                Đổi lịch
-                              </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={isActionDisabled}
+                                  onClick={() => openRescheduleModal(sess)}
+                                  className={`flex items-center gap-1 ${isActionDisabled ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400' : 'border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 hover:border-orange-300'}`}
+                                >
+                                  <Calendar className="h-3.5 w-3.5" />
+                                  Đổi lịch
+                                </Button>
 
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openCompleteModal(sess)}
-                                className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-success-subtle))] hover:text-[hsl(var(--admin-success))] text-[hsl(var(--admin-text-secondary))] flex items-center gap-1"
-                              >
-                                <Check className="h-3.5 w-3.5" />
-                                Hoàn thành
-                              </Button>
+
                             </div>
                           )}
                         </CardContent>
                       </Card>
                     </div>
-                  ))}
+                  )})}
               </div>
             )}
           </div>
@@ -706,6 +817,17 @@ const TrainerCourseSchedulePage = () => {
                   />
                 </div>
               )}
+              {initForm.locationType !== 'offline' && (
+                <div className="space-y-2">
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Link phòng học (Meet, Zoom...)</Label>
+                  <Input
+                    placeholder="https://meet.google.com/..."
+                    value={initForm.locationLink}
+                    onChange={(e) => setInitForm({ ...initForm, locationLink: e.target.value })}
+                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -721,6 +843,110 @@ const TrainerCourseSchedulePage = () => {
                 className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white border-none font-semibold"
               >
                 Khởi tạo lịch
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AUTO GENERATE MODAL */}
+      {showAutoGenerateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-6 space-y-6 shadow-[var(--admin-shadow-lg)]">
+            <div>
+              <h3 className="text-lg font-bold text-[hsl(var(--admin-text-primary))]">Tự động xếp lịch</h3>
+              <p className="text-[hsl(var(--admin-text-muted))] text-xs">Cấu hình các tham số để tự động sinh lịch học.</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-[hsl(var(--admin-text-secondary))]">Tổng số buổi học</Label>
+                <Input
+                  value={course?.totalSessions || 0}
+                  disabled
+                  className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[hsl(var(--admin-text-secondary))]">Ngày khai giảng dự kiến</Label>
+                <Input
+                  type="date"
+                  value={autoGenForm.startDate}
+                  onChange={(e) => setAutoGenForm({ ...autoGenForm, startDate: e.target.value })}
+                  className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[hsl(var(--admin-text-secondary))]">Số buổi học trong tuần</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max={Math.min(course?.totalSessions || 7, 7)}
+                  value={autoGenForm.sessionsPerWeek}
+                  onChange={(e) => setAutoGenForm({ ...autoGenForm, sessionsPerWeek: Number(e.target.value) })}
+                  className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[hsl(var(--admin-text-secondary))]">Các ngày học trong tuần</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {WEEKDAYS.map(day => (
+                    <label key={day.value} className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text-primary))]">
+                      <input
+                        type="checkbox"
+                        checked={autoGenForm.preferredDays.includes(day.value)}
+                        onChange={(e) => {
+                          const newDays = e.target.checked 
+                            ? [...autoGenForm.preferredDays, day.value] 
+                            : autoGenForm.preferredDays.filter(d => d !== day.value);
+                          setAutoGenForm({ ...autoGenForm, preferredDays: newDays });
+                        }}
+                        className="rounded border-[hsl(var(--admin-border))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))]"
+                      />
+                      {day.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Giờ bắt đầu</Label>
+                  <Input
+                    type="time"
+                    value={autoGenForm.startTime}
+                    onChange={(e) => setAutoGenForm({ ...autoGenForm, startTime: e.target.value })}
+                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Giờ kết thúc</Label>
+                  <Input
+                    type="time"
+                    value={autoGenForm.endTime}
+                    onChange={(e) => setAutoGenForm({ ...autoGenForm, endTime: e.target.value })}
+                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowAutoGenerateModal(false)}
+                className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))]"
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={submitAutoGenerate}
+                className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))] text-white border-none font-semibold"
+              >
+                Xác nhận & Tự động tạo lịch
               </Button>
             </div>
           </div>
@@ -786,6 +1012,45 @@ const TrainerCourseSchedulePage = () => {
                     onChange={(e) => setSessionForm({ ...sessionForm, endTime: e.target.value })}
                     className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Hình thức học</Label>
+                  <select
+                    value={sessionForm.locationType}
+                    onChange={(e) => setSessionForm({ ...sessionForm, locationType: e.target.value })}
+                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:outline-none"
+                  >
+                    <option value="online">Trực tuyến (Online)</option>
+                    <option value="offline">Trực tiếp (Offline)</option>
+                    <option value="hybrid">Học kết hợp (Hybrid)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  {sessionForm.locationType !== 'online' && (
+                    <>
+                      <Label className="text-[hsl(var(--admin-text-secondary))]">Địa chỉ</Label>
+                      <Input
+                        placeholder="Nhập địa chỉ"
+                        value={sessionForm.locationAddress}
+                        onChange={(e) => setSessionForm({ ...sessionForm, locationAddress: e.target.value })}
+                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                      />
+                    </>
+                  )}
+                  {sessionForm.locationType !== 'offline' && (
+                    <>
+                      <Label className="text-[hsl(var(--admin-text-secondary))]">Link phòng học</Label>
+                      <Input
+                        placeholder="https://meet.google.com/..."
+                        value={sessionForm.locationLink}
+                        onChange={(e) => setSessionForm({ ...sessionForm, locationLink: e.target.value })}
+                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                      />
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -865,6 +1130,45 @@ const TrainerCourseSchedulePage = () => {
                     onChange={(e) => setSessionForm({ ...sessionForm, endTime: e.target.value })}
                     className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[hsl(var(--admin-text-secondary))]">Hình thức học</Label>
+                  <select
+                    value={sessionForm.locationType}
+                    onChange={(e) => setSessionForm({ ...sessionForm, locationType: e.target.value })}
+                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:outline-none"
+                  >
+                    <option value="online">Trực tuyến (Online)</option>
+                    <option value="offline">Trực tiếp (Offline)</option>
+                    <option value="hybrid">Học kết hợp (Hybrid)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  {sessionForm.locationType !== 'online' && (
+                    <>
+                      <Label className="text-[hsl(var(--admin-text-secondary))]">Địa chỉ</Label>
+                      <Input
+                        placeholder="Nhập địa chỉ"
+                        value={sessionForm.locationAddress}
+                        onChange={(e) => setSessionForm({ ...sessionForm, locationAddress: e.target.value })}
+                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                      />
+                    </>
+                  )}
+                  {sessionForm.locationType !== 'offline' && (
+                    <>
+                      <Label className="text-[hsl(var(--admin-text-secondary))]">Link phòng học</Label>
+                      <Input
+                        placeholder="https://meet.google.com/..."
+                        value={sessionForm.locationLink}
+                        onChange={(e) => setSessionForm({ ...sessionForm, locationLink: e.target.value })}
+                        className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                      />
+                    </>
+                  )}
                 </div>
               </div>
 

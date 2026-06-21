@@ -20,8 +20,8 @@ const ESCO_SKILL_COLLECTION_SCHEMA = Joi.object({
   // Status
   translationStatus: Joi.string().valid('manual', 'llm', 'pending').default('pending'),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now())
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now)
 })
 
 const validateBeforeCreate = async (data) => {

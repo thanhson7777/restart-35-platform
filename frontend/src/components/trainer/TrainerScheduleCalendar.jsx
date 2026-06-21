@@ -73,6 +73,7 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
               sessionNumber: session.sessionNumber,
               courseId,
               courseTitle,
+              courseStatus: schedule.course?.status,
               locationType: locType,
               session
             }
@@ -91,6 +92,7 @@ export const TrainerScheduleCalendar = ({ schedules = [], onSessionSelect }) => 
         sessionNumber: props.sessionNumber,
         courseId: props.courseId,
         courseTitle: props.courseTitle,
+        courseStatus: props.courseStatus,
         locationType: props.locationType,
         session: props.session
       });

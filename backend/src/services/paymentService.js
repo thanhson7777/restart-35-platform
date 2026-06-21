@@ -194,8 +194,26 @@ const updatePaymentStatus = async (id, status, transactionId) => {
 
     // Auto-update enrollment.payment_status
     if (status === PAYMENT_STATUS.COMPLETED) {
-      const enrollment = await enrollmentModel.findOneById(payment.enrollmentId)
-      if (enrollment) {
+      if (!payment.enrollmentId && payment.courseId && payment.userId) {
+        // Handle auto-enrollment for direct purchases where enrollment wasn't created yet
+        const { enrollmentService } = await import('~/services/enrollmentService')
+        try {
+          await enrollmentService.enrollCourse(payment.userId.toString(), payment.courseId.toString(), {
+            paymentId: id,
+            source: 'direct'
+          })
+        } catch (error) {
+          console.error('Auto-enroll error after payment success:', error.message)
+        }
+
+        // Trigger Revenue Share
+        if (payment.amount > 0) {
+          const { revenueShareService } = await import('~/services/revenueShareService')
+          await revenueShareService.processRevenueShare(payment)
+        }
+      } else {
+        const enrollment = await enrollmentModel.findOneById(payment.enrollmentId)
+        if (enrollment) {
         const course = await courseModel.findOneById(enrollment.courseId)
         const fundingModel = course?.funding_model || 'free'
         
@@ -208,6 +226,10 @@ const updatePaymentStatus = async (id, status, transactionId) => {
           const totalFee = enrollment.fee?.total || course?.fee || 0
           if (completedAmount >= totalFee) {
             await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
+            
+            // Trigger Revenue Share
+            const { revenueShareService } = await import('~/services/revenueShareService')
+            await revenueShareService.processRevenueShare(payment)
           } else {
             await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.INSTALLMENT_ACTIVE)
           }
@@ -239,6 +261,13 @@ const updatePaymentStatus = async (id, status, transactionId) => {
           }
         } else {
           await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
+          
+          // Trigger Revenue Share (if any direct paid enrollment uses this default else block)
+          if (payment.amount > 0) {
+            const { revenueShareService } = await import('~/services/revenueShareService')
+            await revenueShareService.processRevenueShare(payment)
+          }
+          }
         }
       }
     } else if (status === PAYMENT_STATUS.REFUNDED) {
@@ -329,6 +358,59 @@ const getPaymentStats = async (courseId) => {
     ]
     const result = await db.collection('payments').aggregate(pipeline).toArray()
     return result
+  } catch (error) {
+    throw error
+  }
+}
+
+const getAdminStats = async () => {
+  try {
+    const db = await (await import('~/config/mongodb')).GET_DB()
+    const pipeline = [
+      { $match: { _destroy: false } },
+      {
+        $group: {
+          _id: '$status',
+          totalAmount: { $sum: '$amount' },
+          count: { $sum: 1 }
+        }
+      }
+    ]
+    const result = await db.collection('payments').aggregate(pipeline).toArray()
+    
+    const stats = {
+      totalRevenue: 0,
+      adminRevenue: 0,
+      pending: 0,
+      completed: 0,
+      totalRefund: 0
+    }
+
+    result.forEach(item => {
+      if (item._id === PAYMENT_STATUS.COMPLETED) {
+        stats.completed = item.count
+        stats.totalRevenue = item.totalAmount
+        stats.adminRevenue = Math.round(item.totalAmount * 0.2) // 20% admin commission
+      } else if (item._id === PAYMENT_STATUS.PENDING) {
+        stats.pending = item.count
+      } else if (item._id === PAYMENT_STATUS.REFUNDED) {
+        stats.totalRefund = item.count
+      }
+    })
+
+    // Lấy doanh thu từ việc bán Gói Dịch Vụ
+    const packageTransactions = await db.collection('transactions').aggregate([
+      { $match: { referenceModel: 'ServicePackage', status: 'COMPLETED', _destroy: { $ne: true } } },
+      { $group: { _id: null, totalAmount: { $sum: '$amount' } } }
+    ]).toArray()
+
+    if (packageTransactions && packageTransactions.length > 0) {
+      const packageRevenue = packageTransactions[0].totalAmount
+      stats.totalRevenue += packageRevenue
+      stats.adminRevenue += packageRevenue
+    }
+
+    return stats
   } catch (error) {
     throw error
   }
@@ -484,5 +566,6 @@ export const paymentService = {
   refundPayment,
   generateInvoice,
   getPaymentStats,
+  getAdminStats,
   webhookHandler
 }

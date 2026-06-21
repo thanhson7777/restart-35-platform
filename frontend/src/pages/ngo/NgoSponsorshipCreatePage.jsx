@@ -11,6 +11,7 @@ export default function NgoSponsorshipCreatePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [submitting, setSubmitting] = useState(false);
+  const [loadingCourses, setLoadingCourses] = useState(true);
   const [courses, setCourses] = useState([]);
   const [wallet, setWallet] = useState(null);
   const [form, setForm] = useState({
@@ -23,10 +24,15 @@ export default function NgoSponsorshipCreatePage() {
   useEffect(() => {
     getCourses({ limit: 50, isFree: false, acceptsSponsorship: true })
       .then(res => {
-        const paidCourses = (res.data?.data || []).filter(c => c.fee > 0);
+        const paidCourses = (res.data?.data || []).filter(c => 
+          c.fee > 0 && 
+          c.funding_model !== 'enterprise_funded' && 
+          c.sponsorshipData?.sponsorType !== 'enterprise'
+        );
         setCourses(paidCourses);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoadingCourses(false));
       
     getMyWallet()
       .then(res => {
@@ -150,7 +156,11 @@ export default function NgoSponsorshipCreatePage() {
                     </div>
                   </label>
                 ))}
-                {courses.length === 0 && <p className="text-sm text-[hsl(var(--admin-text-muted))]">Đang tải danh sách khóa học...</p>}
+                {loadingCourses ? (
+                  <p className="text-sm text-[hsl(var(--admin-text-muted))]">Đang tải danh sách khóa học...</p>
+                ) : courses.length === 0 ? (
+                  <p className="text-sm text-rose-500">Không tìm thấy khóa học nào đủ điều kiện nhận tài trợ (Cần là khóa học có phí và cho phép tài trợ).</p>
+                ) : null}
               </div>
             </div>
           </div>

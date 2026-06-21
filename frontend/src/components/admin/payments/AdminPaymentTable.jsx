@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Eye, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { Button, Badge } from '@/components/ui';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Inbox } from 'lucide-react';
@@ -12,7 +12,13 @@ const formatCurrency = (value) => {
 
 const formatDate = (date) => {
   if (!date) return '-';
-  try { return format(new Date(date), 'dd/MM/yyyy HH:mm', { locale: vi }); }
+  try { 
+    let d = date;
+    if (typeof d === 'string' && /^\d+$/.test(d)) {
+      d = parseInt(d, 10);
+    }
+    return format(new Date(d), 'dd/MM/yyyy HH:mm', { locale: vi }); 
+  }
   catch { return '-'; }
 };
 
@@ -27,6 +33,7 @@ const gatewayConfig = {
   vnpay: { label: 'VNPay', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
   momo: { label: 'MoMo', className: 'bg-pink-500/10 text-pink-500 border-pink-500/20' },
   bank_transfer: { label: 'Chuyển khoản', className: 'bg-green-500/10 text-green-500 border-green-500/20' },
+  wallet: { label: 'Ví nội bộ', className: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },
 };
 
 const AdminPaymentTable = ({
@@ -41,30 +48,11 @@ const AdminPaymentTable = ({
 }) => {
   if (loading) {
     return (
-      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
-              <tr>
-                {['Mã GD', 'Học viên', 'Số tiền', 'Cổng', 'Trạng thái', 'Ngày', 'Thao tác'].map((h) => (
-                  <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[1, 2, 3, 4, 5].map((i) => (
-                <tr key={i} className="border-b border-[hsl(var(--admin-border))]">
-                  <td className="px-4 py-3"><Skeleton className="w-20 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
-                  <td className="px-4 py-3"><Skeleton className="w-24 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
-                  <td className="px-4 py-3"><Skeleton className="w-20 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
-                  <td className="px-4 py-3"><Skeleton className="w-16 h-6 bg-[hsl(var(--admin-surface-elevated))] rounded-full" /></td>
-                  <td className="px-4 py-3"><Skeleton className="w-20 h-6 bg-[hsl(var(--admin-surface-elevated))] rounded-full" /></td>
-                  <td className="px-4 py-3"><Skeleton className="w-24 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
-                  <td className="px-4 py-3"><Skeleton className="w-16 h-8 bg-[hsl(var(--admin-surface-elevated))] rounded" /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-12 text-center">
+        <div className="flex flex-col items-center justify-center space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="w-full h-12 bg-[hsl(var(--admin-surface-elevated))]" />
+          ))}
         </div>
       </div>
     );
@@ -90,7 +78,7 @@ const AdminPaymentTable = ({
         <table className="w-full">
           <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
             <tr>
-              {['Mã GD', 'Học viên', 'Số tiền', 'Cổng', 'Trạng thái', 'Ngày', 'Thao tác'].map((h) => (
+              {['Mã GD', 'Tổng tiền', 'Admin (20%)', 'Trainer (80%)', 'Trạng thái', 'Ngày', 'Thao tác'].map((h) => (
                 <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">{h}</th>
               ))}
             </tr>
@@ -98,7 +86,12 @@ const AdminPaymentTable = ({
           <tbody className="divide-y divide-[hsl(var(--admin-border))]">
             {payments.map((payment) => {
               const statusInfo = statusConfig[payment.status] || { label: payment.status, className: '' };
-              const gatewayInfo = gatewayConfig[payment.gateway] || { label: payment.gateway, className: '' };
+              const methodOrGateway = payment.method || payment.gateway;
+              const gatewayInfo = gatewayConfig[methodOrGateway] || { label: methodOrGateway, className: '' };
+              const isPackage = payment.referenceModel === 'ServicePackage' || !payment.courseId;
+              const adminRevenue = isPackage ? payment.amount : Math.round(payment.amount * 0.2);
+              const trainerRevenue = isPackage ? 0 : payment.amount - adminRevenue;
+              const isAutoGateway = ['vnpay', 'momo', 'payos', 'zalopay', 'wallet'].includes(methodOrGateway);
               return (
                 <tr key={payment._id} className="hover:bg-[hsl(var(--admin-surface-hover))] transition-colors">
                   <td className="px-4 py-3">
@@ -107,23 +100,18 @@ const AdminPaymentTable = ({
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div>
-                      <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
-                        {payment.workerName || payment.workerId?.displayName || '-'}
-                      </p>
-                      <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-                        {payment.workerEmail || payment.workerId?.email || ''}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">
+                    <span className="text-sm font-bold text-[hsl(var(--admin-text-primary))]">
                       {formatCurrency(payment.amount)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full border ${gatewayInfo.className}`}>
-                      {gatewayInfo.label}
+                    <span className="text-sm font-semibold text-[hsl(var(--admin-accent))]">
+                      +{formatCurrency(adminRevenue)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-sm font-semibold text-emerald-500">
+                      +{formatCurrency(trainerRevenue)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -132,14 +120,14 @@ const AdminPaymentTable = ({
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm text-[hsl(var(--admin-text-muted))]">{formatDate(payment.paidAt || payment.createdAt)}</span>
+                    <span className="text-sm text-[hsl(var(--admin-text-muted))]">{formatDate(payment.paidAt || payment.completedAt || payment.createdAt || payment.updatedAt)}</span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button onClick={() => onView?.(payment)} className="p-1.5 hover:bg-[hsl(var(--admin-surface-elevated))] rounded-lg transition-colors" title="Xem chi tiết">
                         <Eye className="w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
                       </button>
-                      {payment.status === 'pending' && (
+                      {payment.status === 'pending' && !isAutoGateway && (
                         <>
                           <button onClick={() => onApprove?.(payment)} className="p-1.5 hover:bg-emerald-500/10 rounded-lg transition-colors" title="Duyệt">
                             <CheckCircle className="w-4 h-4 text-emerald-500" />
@@ -148,11 +136,6 @@ const AdminPaymentTable = ({
                             <XCircle className="w-4 h-4 text-rose-500" />
                           </button>
                         </>
-                      )}
-                      {payment.status === 'completed' && (
-                        <button onClick={() => onRefund?.(payment)} className="p-1.5 hover:bg-purple-500/10 rounded-lg transition-colors" title="Hoàn tiền">
-                          <RotateCcw className="w-4 h-4 text-purple-500" />
-                        </button>
                       )}
                     </div>
                   </td>

@@ -389,15 +389,6 @@ function TrainerInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
 
       {orgInfo.trainerType === 'organization' ? (
         <>
-          <motion.div variants={itemVariants}>
-            <TaxCodeInput
-              value={orgInfo.taxCode}
-              onChange={handleChange}
-              onAutoFill={handleAutoFill}
-              error={errors.taxCode}
-              touched={touched.taxCode}
-            />
-          </motion.div>
           <motion.div variants={itemVariants} className="space-y-1.5">
             <label className="block text-sm font-medium text-foreground">
               Tên trung tâm đào tạo <span className="text-destructive">*</span>
@@ -410,6 +401,15 @@ function TrainerInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
               className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.name && errors.name ? 'border-destructive' : 'border-input'}`}
             />
             {touched.name && errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <TaxCodeInput
+              value={orgInfo.taxCode}
+              onChange={handleChange}
+              onAutoFill={handleAutoFill}
+              error={errors.taxCode}
+              touched={touched.taxCode}
+            />
           </motion.div>
         </>
       ) : (
@@ -429,7 +429,7 @@ function TrainerInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
           </motion.div>
           <motion.div variants={itemVariants} className="space-y-1.5">
             <label className="block text-sm font-medium text-foreground">
-              Họ và tên chuyên gia <span className="text-destructive">*</span>
+              Họ tên đầy đủ (Chuyên gia) <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
@@ -539,7 +539,8 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
     password: '',
     confirmPassword: '',
     displayName: '',
-    phone: ''
+    phone: '',
+    acceptTerms: false
   })
   const [errors, setErrors] = useState({})
   const [successMessage, setSuccessMessage] = useState('')
@@ -562,10 +563,19 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
     else if (!PASSWORD_RULE.test(formData.password)) newErrors.password = PASSWORD_RULE_MESSAGE
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu.'
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp.'
-    if (!formData.displayName.trim()) newErrors.displayName = 'Họ tên là bắt buộc.'
-    else if (formData.displayName.trim().length < 2) newErrors.displayName = 'Họ tên phải có ít nhất 2 ký tự.'
+    if (selectedRole !== 'trainer') {
+      if (!formData.displayName.trim()) newErrors.displayName = 'Họ tên là bắt buộc.'
+      else if (formData.displayName.trim().length < 2) newErrors.displayName = 'Họ tên phải có ít nhất 2 ký tự.'
+    }
     if (!formData.phone.trim()) newErrors.phone = 'Số điện thoại là bắt buộc.'
     else if (!PHONE_RULE.test(formData.phone)) newErrors.phone = PHONE_RULE_MESSAGE
+    
+    if (!formData.acceptTerms) {
+      newErrors.acceptTerms = selectedRole === 'trainer' 
+        ? 'Bạn phải đồng ý với Quy định và Điều khoản dành cho Chuyên gia giảng dạy.' 
+        : 'Bạn phải đồng ý với Điều khoản dịch vụ.'
+    }
+    
     return newErrors
   }
 
@@ -671,7 +681,7 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
       email: formData.email,
       password: formData.password,
       phone: formData.phone,
-      displayName: formData.displayName,
+      displayName: selectedRole === 'trainer' ? orgInfo.name : formData.displayName,
       role: selectedRole || 'worker'
     }
 
@@ -728,17 +738,23 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
 
       {/* ===== Step 1: Account Info ===== */}
       <motion.div variants={containerVariants} initial="hidden" animate="visible">
-        <motion.div variants={itemVariants}>
-          <Label htmlFor="displayName" required>
-            {['enterprise', 'ngo'].includes(selectedRole) ? 'Họ tên người đại diện' : 'Họ và tên'}
-          </Label>
-          <div className="relative mt-1">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <UserIcon className="h-4 w-4 text-muted-foreground" />
+        {selectedRole !== 'trainer' && (
+          <motion.div variants={itemVariants}>
+            <Label htmlFor="displayName" required>
+              {selectedRole === 'worker' 
+                ? 'Họ và tên đầy đủ' 
+                : ['enterprise', 'ngo'].includes(selectedRole)
+                  ? 'Họ tên người đại diện'
+                  : 'Họ và tên đầy đủ (cá nhân) / Người đại diện (tổ chức)'}
+            </Label>
+            <div className="relative mt-1">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <UserIcon className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <Input id="displayName" name="displayName" placeholder="Nguyễn Văn A" value={formData.displayName} onChange={handleChange} error={errors.displayName} className="pl-10" inputSize="lg" autoComplete="name" />
             </div>
-            <Input id="displayName" name="displayName" placeholder="Nguyễn Văn A" value={formData.displayName} onChange={handleChange} error={errors.displayName} className="pl-10" inputSize="lg" autoComplete="name" />
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         <motion.div variants={itemVariants}>
           <Label htmlFor="email" required>Email</Label>
@@ -790,6 +806,33 @@ function RegisterForm({ onSwitchTab, selectedRole = 'worker', onBackToRoleSelect
         
         {selectedRole === 'ngo' && <NGOInfoStep orgInfo={orgInfo} setOrgInfo={setOrgInfo} errors={orgInfoErrors} touched={orgInfoTouched} onChange={(f,v) => { if(orgInfoErrors[f]) setOrgInfoErrors(p=>({...p,[f]:''})) }} />}
       </div>
+
+      {/* Terms and Conditions Checkbox */}
+      <motion.div variants={itemVariants} className="flex items-start gap-2 pt-2">
+        <input
+          type="checkbox"
+          id="acceptTerms"
+          name="acceptTerms"
+          checked={formData.acceptTerms}
+          onChange={(e) => {
+            setFormData(prev => ({ ...prev, acceptTerms: e.target.checked }))
+            if (errors.acceptTerms) setErrors(prev => ({ ...prev, acceptTerms: '' }))
+          }}
+          className="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"
+        />
+        <label htmlFor="acceptTerms" className="text-sm text-muted-foreground cursor-pointer select-none">
+          Tôi đã đọc và đồng ý với{' '}
+          <a href="/terms" target="_blank" className="text-primary hover:underline font-medium">Điều khoản dịch vụ</a>
+          {' '}và{' '}
+          <a href="/privacy" target="_blank" className="text-primary hover:underline font-medium">Chính sách bảo mật</a>
+          {selectedRole === 'trainer' && ' dành cho Chuyên gia giảng dạy'}.
+        </label>
+      </motion.div>
+      {errors.acceptTerms && (
+        <motion.div variants={itemVariants}>
+          <p className="text-sm text-destructive font-medium">{errors.acceptTerms}</p>
+        </motion.div>
+      )}
 
       {/* Submit */}
       <motion.div variants={itemVariants}>

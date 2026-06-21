@@ -129,7 +129,15 @@ function WorkerTransactionsPage() {
                       <td className="px-6 py-4 text-muted-foreground">
                         <div className="flex items-center gap-1.5 whitespace-nowrap">
                           <Calendar className="w-3.5 h-3.5" />
-                          {format(new Date(payment.createdAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                          {(() => {
+                            let dateVal = payment.createdAt || payment.date || payment.updatedAt;
+                            if (typeof dateVal === 'string' && /^\d+$/.test(dateVal)) {
+                              dateVal = parseInt(dateVal, 10);
+                            }
+                            return dateVal && !isNaN(new Date(dateVal).getTime()) 
+                              ? format(new Date(dateVal), 'dd/MM/yyyy HH:mm', { locale: vi })
+                              : 'Không xác định';
+                          })()}
                         </div>
                       </td>
                       <td className="px-6 py-4 font-medium text-foreground">

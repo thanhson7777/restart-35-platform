@@ -156,6 +156,7 @@ async function createSponsorship(sponsorId, sponsorType, courseId, overrides = {
       { courseId: courseId.toString(), coverage: SCHOLARSHIP_COVERAGE.FULL, maxAmount: 5000000 }
     ],
     budget: overrides.budget || 50000000,
+    targetLearners: overrides.targetLearners || 10,
     spent: overrides.spent || 0,
     remaining: overrides.remaining ?? (overrides.budget || 50000000),
     coverageType: overrides.coverageType || SCHOLARSHIP_COVERAGE.FULL,
@@ -415,7 +416,40 @@ describe('Phase 5 — enrollmentService integration', () => {
       })
       const enrollmentId = result.enrollment._id.toString()
 
-      await enrollmentService.completeEnrollment(enrollmentId, trainerId)
+      // Simulate disbursement on active enrollment
+      await enrollmentModel.update(enrollmentId, {
+        sponsorships: [
+          {
+            sponsorshipId: sponsorship.insertedId.toString(),
+            sponsorType: ORGANIZATION_TYPES.ENTERPRISE,
+            fundedAmount: 5000000,
+            disbursedAmount: 5000000,
+            clawbackAmount: 0,
+            coverage: SCHOLARSHIP_COVERAGE.FULL,
+            status: 'disbursed',
+            disbursements: [
+              {
+                amount: 5000000,
+                type: 'disbursement',
+                status: 'completed',
+                createdAt: Date.now()
+              }
+            ],
+            matchedAt: Date.now()
+          }
+        ]
+      })
+
+      await courseSponsorshipModel.addDisbursement(sponsorship.insertedId.toString(), {
+        enrollmentId: enrollmentId,
+        courseId: directCourseId,
+        amount: 5000000,
+        type: 'disbursement',
+        status: 'completed',
+        createdAt: Date.now()
+      })
+      await courseSponsorshipModel.incrementSpent(sponsorship.insertedId.toString(), 5000000)
+
       await enrollmentService.cancelEnrollment(enrollmentId, workerId, 'Cancel after completion')
 
       const updatedEnrollment = await enrollmentModel.findOneById(enrollmentId)
@@ -442,7 +476,40 @@ describe('Phase 5 — enrollmentService integration', () => {
       })
       const enrollmentId = result.enrollment._id.toString()
 
-      await enrollmentService.completeEnrollment(enrollmentId, trainerId)
+      // Simulate disbursement on active enrollment
+      await enrollmentModel.update(enrollmentId, {
+        sponsorships: [
+          {
+            sponsorshipId: sponsorship.insertedId.toString(),
+            sponsorType: ORGANIZATION_TYPES.ENTERPRISE,
+            fundedAmount: 5000000,
+            disbursedAmount: 5000000,
+            clawbackAmount: 0,
+            coverage: SCHOLARSHIP_COVERAGE.FULL,
+            status: 'disbursed',
+            disbursements: [
+              {
+                amount: 5000000,
+                type: 'disbursement',
+                status: 'completed',
+                createdAt: Date.now()
+              }
+            ],
+            matchedAt: Date.now()
+          }
+        ]
+      })
+
+      await courseSponsorshipModel.addDisbursement(sponsorship.insertedId.toString(), {
+        enrollmentId: enrollmentId,
+        courseId: directCourseId,
+        amount: 5000000,
+        type: 'disbursement',
+        status: 'completed',
+        createdAt: Date.now()
+      })
+      await courseSponsorshipModel.incrementSpent(sponsorship.insertedId.toString(), 5000000)
+
       await enrollmentService.failEnrollment(enrollmentId, trainerId, 'Did not pass assessment')
 
       const updatedEnrollment = await enrollmentModel.findOneById(enrollmentId)
@@ -479,7 +546,40 @@ describe('Phase 5 — enrollmentService integration', () => {
       })
       const enrollmentId = result.enrollment._id.toString()
 
-      await enrollmentService.completeEnrollment(enrollmentId, trainerId)
+      // Simulate disbursement on active enrollment
+      await enrollmentModel.update(enrollmentId, {
+        sponsorships: [
+          {
+            sponsorshipId: sponsorship.insertedId.toString(),
+            sponsorType: ORGANIZATION_TYPES.ENTERPRISE,
+            fundedAmount: 5000000,
+            disbursedAmount: 5000000,
+            clawbackAmount: 0,
+            coverage: SCHOLARSHIP_COVERAGE.FULL,
+            status: 'disbursed',
+            disbursements: [
+              {
+                amount: 5000000,
+                type: 'disbursement',
+                status: 'completed',
+                createdAt: Date.now()
+              }
+            ],
+            matchedAt: Date.now()
+          }
+        ]
+      })
+
+      await courseSponsorshipModel.addDisbursement(sponsorship.insertedId.toString(), {
+        enrollmentId: enrollmentId,
+        courseId: linkedCourseId,
+        amount: 5000000,
+        type: 'disbursement',
+        status: 'completed',
+        createdAt: Date.now()
+      })
+      await courseSponsorshipModel.incrementSpent(sponsorship.insertedId.toString(), 5000000)
+
       await enrollmentService.dropEnrollment(enrollmentId, workerId, 'Dropped out')
 
       const updatedEnrollment = await enrollmentModel.findOneById(enrollmentId)

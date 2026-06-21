@@ -43,9 +43,14 @@ export const encodeImageUrl = (url) => {
 
 // ─── Course & Enrollment formatters ────────────────────────────────────────────
 
+export const formatCurrency = (amount) => {
+  if (amount == null) return '0 đ';
+  return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+};
+
 export const formatPrice = (amount) => {
   if (amount === 0 || amount == null) return 'Miễn phí';
-  return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+  return formatCurrency(amount);
 };
 
 export const formatDuration = (duration) => {

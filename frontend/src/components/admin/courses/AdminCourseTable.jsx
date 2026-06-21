@@ -24,8 +24,7 @@ const AdminCourseTable = ({
                 <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Danh mục</th>
                 <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Hình thức</th>
                 <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Học phí</th>
-                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Học viên</th>
-                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Đánh giá</th>
+                <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Số lượng</th>
                 <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Ngày tạo</th>
                 <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Thao tác</th>
               </tr>
@@ -47,7 +46,6 @@ const AdminCourseTable = ({
                   <td className="px-4 py-3"><Skeleton className="w-16 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
                   <td className="px-4 py-3"><Skeleton className="w-20 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
                   <td className="px-4 py-3"><Skeleton className="w-16 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
-                  <td className="px-4 py-3"><Skeleton className="w-12 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
                   <td className="px-4 py-3"><Skeleton className="w-20 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
@@ -89,8 +87,7 @@ const AdminCourseTable = ({
               <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Danh mục</th>
               <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Hình thức</th>
               <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Học phí</th>
-              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Học viên</th>
-              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Đánh giá</th>
+              <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Số lượng</th>
               <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Ngày tạo</th>
               <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Thao tác</th>
             </tr>

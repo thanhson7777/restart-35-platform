@@ -118,9 +118,6 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
           <p className="text-[hsl(var(--admin-text-secondary))]">
             {LOCATION_LABELS[course.location?.type] || '-'}
           </p>
-          <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-            {course.duration ? formatDuration(course.duration) : '-'}
-          </p>
         </div>
       </td>
 
@@ -134,25 +131,12 @@ const AdminCourseRow = ({ course, onView, onApprove, onReject }) => {
 
       <td className="px-4 py-3">
         <div className="text-sm">
-          <span className="font-medium text-[hsl(var(--admin-text-primary))]">{course.currentStudents || 0}</span>
-          <span className="text-[hsl(var(--admin-text-muted))]">/{course.maxStudents || '-'} </span>
-          <span className="text-xs text-[hsl(var(--admin-text-muted))]">học viên</span>
+          <span className="font-medium text-[hsl(var(--admin-text-primary))]">{course.maxStudents || '-'}</span>
+          <span className="text-xs text-[hsl(var(--admin-text-muted))] ml-1">học viên</span>
         </div>
       </td>
 
-      <td className="px-4 py-3">
-        {course.rating?.average ? (
-          <div className="flex items-center gap-1 text-sm">
-            <span className="text-amber-500">
-              <Star className="w-3.5 h-3.5 fill-amber-500" />
-            </span>
-            <span className="font-medium text-[hsl(var(--admin-text-primary))]">{course.rating.average.toFixed(1)}</span>
-            <span className="text-[hsl(var(--admin-text-muted))]">({course.rating.count})</span>
-          </div>
-        ) : (
-          <span className="text-sm text-[hsl(var(--admin-text-muted))]">-</span>
-        )}
-      </td>
+
 
       <td className="px-4 py-3">
         <div className="text-sm">

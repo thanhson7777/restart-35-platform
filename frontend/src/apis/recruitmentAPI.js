@@ -23,6 +23,9 @@ export const deleteJob = (id) =>
 export const submitJobForApproval = (id) =>
   authorizeAxiosInstance.post(`${API_ROOT}/v1/enterprise/jobs/${id}/submit`);
 
+export const cancelJobApproval = (id) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/enterprise/jobs/${id}/cancel-approval`);
+
 export const closeJob = (id) =>
   authorizeAxiosInstance.post(`${API_ROOT}/v1/enterprise/jobs/${id}/close`);
 

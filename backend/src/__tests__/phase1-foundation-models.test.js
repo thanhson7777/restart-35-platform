@@ -73,6 +73,7 @@ describe('phase1 foundation models', () => {
           }
         ],
         budget: 50000000,
+        targetLearners: 10,
         coverageType: SCHOLARSHIP_COVERAGE.FULL,
         disbursementModel: DISBURSEMENT_MODEL.UPFRONT
       }
@@ -88,6 +89,7 @@ describe('phase1 foundation models', () => {
         sponsorId: new ObjectId().toString(),
         title: 'NGO hỗ trợ học phí',
         budget: 10000000,
+        targetLearners: 5,
         linkedCourses: []
       })).rejects.toThrow()
     })

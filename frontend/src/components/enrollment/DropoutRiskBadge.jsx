@@ -20,7 +20,9 @@ const RISK_CONFIG = {
 };
 
 export const DropoutRiskBadge = ({ risk = 'low' }) => {
-  const normalizedRisk = risk?.toLowerCase();
+  const normalizedRisk = risk?.toLowerCase() || 'low';
+  if (normalizedRisk === 'low') return null;
+
   const config = RISK_CONFIG[normalizedRisk] || RISK_CONFIG.low;
   const Icon = config.icon;
 

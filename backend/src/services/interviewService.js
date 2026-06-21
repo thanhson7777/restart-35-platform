@@ -50,9 +50,9 @@ const createInterview = async (enterpriseId, data) => {
         phone: data.interviewerPhone || '',
         position: data.interviewerPosition || ''
       },
-      workerConfirmed: false,
+      workerConfirmed: true,
       enterpriseConfirmed: true,
-      status: RECRUITMENT_INTERVIEW_STATUS.PENDING_CONFIRMATION,
+      status: RECRUITMENT_INTERVIEW_STATUS.CONFIRMED,
       notes: data.notes || ''
     }
 
@@ -234,10 +234,10 @@ const completeInterview = async (interviewId, enterpriseId, feedback) => {
       const enterprise = await userModel.findOneById(enterpriseId)
 
       const placementData = {
-        workerId: result.workerId,
-        enterpriseId: result.enterpriseId,
-        jobId: result.jobId,
-        applicationId: result.applicationId,
+        userId: String(result.workerId),
+        enterpriseId: String(result.enterpriseId),
+        jobId: String(result.jobId),
+        applicationId: String(result.applicationId),
         employer: {
           name: enterprise?.organization?.name || enterprise?.displayName || enterprise?.username || 'Doanh nghiệp',
           logo: enterprise?.organization?.logo || '',
@@ -249,18 +249,18 @@ const completeInterview = async (interviewId, enterpriseId, feedback) => {
         job: {
           title: job?.job?.title || 'Công việc',
           position: job?.job?.category || 'Nhân viên',
-          salary: {
-            amount: feedback.enterpriseSalary || job?.job?.salary?.min || 0,
-            currency: job?.job?.salary?.currency || 'VND',
-            paymentType: 'monthly'
-          },
-          startDate: feedback.enterpriseStartDate || new Date(),
-          location: job?.location?.address || ''
+          salary: Number(feedback.enterpriseSalary) || Number(job?.job?.salary?.min) || 0,
+          currency: job?.job?.salary?.currency || 'VND',
+          employmentType: job?.job?.employmentType || 'full_time'
         },
         status: PLACEMENT_STATUS.ACCEPTED,
-        acceptedAt: Date.now(),
-        startedAt: feedback.enterpriseStartDate || new Date(),
-        referralSource: 'recruitment_platform'
+        offerDetails: {
+          offeredDate: Date.now(),
+          offeredSalary: Number(feedback.enterpriseSalary) || Number(job?.job?.salary?.min) || 0,
+          startDate: feedback.enterpriseStartDate || Date.now()
+        },
+        startedDate: feedback.enterpriseStartDate || Date.now(),
+        referralSource: null
       }
 
       const placement = await placementModel.createNew(placementData)

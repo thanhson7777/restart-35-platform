@@ -500,7 +500,7 @@ const JobsPage = () => {
                 {currentUser && (
                   <Button
                     variant="outline"
-                    onClick={() => navigate('/worker-profile')}
+                    onClick={() => navigate('/worker/profile')}
                     className="shrink-0"
                   >
                     <User className="w-4 h-4 mr-2" />

@@ -1,6 +1,5 @@
 import { lessonProgressModel } from '~/models/lessonProgressModel'
 import { enrollmentModel } from '~/models/enrollmentModel'
-import { courseVideoLessonModel } from '~/models/courseVideoLessonModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 
@@ -150,14 +149,13 @@ const markLessonComplete = async (enrollmentId, lessonId, userId) => {
       })
       return updated
     } else {
-      const lesson = await courseVideoLessonModel.findOneById(lessonId)
       const newProgress = {
         enrollmentId: String(enrollmentId),
         lessonId: String(lessonId),
         courseId: enrollment.courseId.toString(),
         userId: String(userId),
         watchedSeconds: 0,
-        totalSeconds: lesson?.duration || 0,
+        totalSeconds: 0,
         percentComplete: 100,
         completed: true,
         completedAt: Date.now(),

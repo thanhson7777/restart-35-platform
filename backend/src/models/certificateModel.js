@@ -17,7 +17,7 @@ const CERTIFICATE_COLLECTION_SCHEMA = Joi.object({
       'any.required': 'Loại chứng chỉ là bắt buộc'
     }),
   certificateNumber: Joi.string().required().trim(),
-  issuedDate: Joi.date().timestamp('javascript').default(Date.now()),
+  issuedDate: Joi.date().timestamp('javascript').default(Date.now),
   expiryDate: Joi.date().timestamp('javascript').allow(null),
   score: Joi.number().min(0).max(100).allow(null),
   skills: Joi.array().items(Joi.string().trim()).default([]),

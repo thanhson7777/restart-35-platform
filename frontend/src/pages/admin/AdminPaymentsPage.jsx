@@ -46,18 +46,14 @@ const AdminPaymentsPage = () => {
   const fetchStats = useCallback(async () => {
     try {
       setStatsLoading(true);
-      const res = await paymentApi.getPayments({ limit: 1, status: '' });
-      if (res.success) {
-        const allRes = await paymentApi.getPayments({ limit: 1 });
-        const pendingRes = await paymentApi.getPayments({ limit: 1, status: 'pending' });
-        const refundRes = await paymentApi.getPayments({ limit: 1, status: 'refunded' });
-        const completedRes = await paymentApi.getPayments({ limit: 1, status: 'completed' });
-
+      const res = await paymentApi.getAdminPaymentStats();
+      if (res.data?.success && res.data?.data) {
         setStats({
-          totalRevenue: res.data?.[0]?.totalRevenue || 0,
-          pending: pendingRes.pagination?.totalRecords || 0,
-          completed: completedRes.pagination?.totalRecords || 0,
-          totalRefund: refundRes.pagination?.totalRecords || 0,
+          totalRevenue: res.data.data.totalRevenue || 0,
+          adminRevenue: res.data.data.adminRevenue || 0,
+          pending: res.data.data.pending || 0,
+          completed: res.data.data.completed || 0,
+          totalRefund: res.data.data.totalRefund || 0,
         });
       }
     } catch (error) {
@@ -83,9 +79,9 @@ const AdminPaymentsPage = () => {
       if (filters.sortOrder) params.sortOrder = filters.sortOrder;
 
       const res = await paymentApi.getPayments(params);
-      if (res.success) {
-        setPayments(res.data || []);
-        setPagination(res.pagination || {
+      if (res.data?.success) {
+        setPayments(res.data.data || []);
+        setPagination(res.data.pagination || {
           currentPage: 1,
           limit: DEFAULT_LIMIT,
           totalRecords: 0,

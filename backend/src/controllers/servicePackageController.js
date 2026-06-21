@@ -1,6 +1,8 @@
 import { servicePackageService } from '~/services/servicePackageService'
 import { vnpayInstance } from '~/config/vnpayConfig'
 import { transactionModel } from '~/models/transactionModel'
+import { organizationModel } from '~/models/organizationModel'
+import { userModel } from '~/models/userModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 
@@ -56,9 +58,20 @@ const getActivePackages = async (req, res, next) => {
 const buyPackage = async (req, res, next) => {
   try {
     const userId = req.user._id
-    const organizationId = req.user.organizationId
+    const dbUser = await userModel.findOneById(userId)
+    let organizationId = dbUser.organizationId
+
     if (!organizationId) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'User does not belong to any organization')
+      // Auto create an organization
+      const orgData = {
+        name: dbUser.displayName || 'Tổ chức của tôi',
+        type: dbUser.role === 'trainer' ? 'training_center' : dbUser.role === 'ngo' ? 'ngo' : 'enterprise',
+        contactEmail: dbUser.email,
+        contactPhone: dbUser.phone || ''
+      }
+      const newOrg = await organizationModel.createNew(orgData)
+      organizationId = newOrg.insertedId.toString()
+      await userModel.update(userId, { organizationId })
     }
 
     const { method, returnUrl } = req.body
@@ -95,6 +108,12 @@ const vnpayIpn = async (req, res, next) => {
     if (verifyResult.vnp_ResponseCode === '00' && verifyResult.vnp_TransactionStatus === '00') {
       // Thanh toán thành công
       await transactionModel.updateStatus(txId, 'COMPLETED')
+      
+      const { paymentModel } = await import('~/models/paymentModel')
+      const payment = await paymentModel.findByTransactionId(txId)
+      if (payment) {
+        await paymentModel.updateStatus(payment._id, 'completed', verifyResult.vnp_TransactionNo)
+      }
 
       const packageItem = await import('~/models/servicePackageModel').then(m => m.servicePackageModel.findOneById(tx.referenceId))
       
@@ -103,6 +122,14 @@ const vnpayIpn = async (req, res, next) => {
         const user = await import('~/models/userModel').then(m => m.userModel.findOneById(tx.userId))
         if (user && user.organizationId) {
           await servicePackageService.applyPackageToOrganization(user.organizationId, packageItem)
+          
+          // Chuyển tiền cho Admin
+          const { revenueShareService } = await import('~/services/revenueShareService')
+          await revenueShareService.processPackageRevenue(
+            packageItem.price,
+            `Doanh thu từ doanh nghiệp mua gói dịch vụ: ${packageItem.name}`,
+            String(packageItem._id)
+          )
         }
       }
 
@@ -110,6 +137,13 @@ const vnpayIpn = async (req, res, next) => {
     } else {
       // Thất bại
       await transactionModel.updateStatus(txId, 'FAILED')
+      
+      const { paymentModel } = await import('~/models/paymentModel')
+      const payment = await paymentModel.findByTransactionId(txId)
+      if (payment) {
+        await paymentModel.updateStatus(payment._id, 'failed', verifyResult.vnp_TransactionNo)
+      }
+      
       return res.status(200).json({ RspCode: '00', Message: 'Confirm Success but payment failed' })
     }
   } catch (error) {

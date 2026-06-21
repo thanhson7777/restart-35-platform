@@ -248,6 +248,14 @@ Router.put(
   courseController.submitForApproval
 )
 
+// Hủy yêu cầu duyệt khóa học
+Router.put(
+  '/:id/cancel-submit',
+  authMiddleware.isAuthorized,
+  courseValidation.checkId,
+  courseController.cancelSubmitCourse
+)
+
 // Upload tài liệu giáo trình
 Router.post(
   '/upload-resource',

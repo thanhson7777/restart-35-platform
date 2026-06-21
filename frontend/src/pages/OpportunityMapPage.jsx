@@ -110,7 +110,7 @@ export default function OpportunityMapPage() {
   const iconColor = activeTab === 'jobs' ? VIOLATION_COLOR : COURSE_COLOR
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+    <div className="flex flex-col flex-1 overflow-hidden">
       {/* Header bar */}
       <div className="flex items-center gap-3 px-4 py-3 border-b bg-background shrink-0">
         <div className="flex items-center gap-2">

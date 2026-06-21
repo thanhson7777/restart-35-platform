@@ -239,8 +239,8 @@ const INTERACTION_COLLECTION_SCHEMA = Joi.object({
   rejectedAt: Joi.date().timestamp('javascript').allow(null).default(null),
 
   // Timestamps
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 
   // Soft delete
   _destroy: Joi.boolean().default(false)

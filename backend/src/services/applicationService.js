@@ -28,8 +28,12 @@ const applyToJob = async (jobId, workerId, data = {}) => {
     }
 
     // Kiểm tra deadline
-    if (job.deadline && new Date(job.deadline) < new Date()) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Tin tuyển dụng đã hết hạn nộp đơn!')
+    if (job.deadline) {
+      const deadlineDate = new Date(job.deadline);
+      deadlineDate.setHours(23, 59, 59, 999);
+      if (deadlineDate < new Date()) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Tin tuyển dụng đã hết hạn nộp đơn!')
+      }
     }
 
     // Kiểm tra worker đã ứng tuyển chưa

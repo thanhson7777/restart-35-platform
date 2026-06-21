@@ -1,18 +1,22 @@
-import { LayoutDashboard, Handshake, Briefcase, Users, Calendar, Wallet, Building2 } from 'lucide-react';
+import { LayoutDashboard, Handshake, Briefcase, Users, Calendar, Wallet, Building2, Package } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils/cn';
 
 const navItems = [
+  // Nhóm 1: Quản lý chung
   { href: '/enterprise/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
   { href: '/enterprise/profile', label: 'Hồ sơ doanh nghiệp', icon: Building2 },
-  { href: '/enterprise/packages', label: 'Gói dịch vụ', icon: Briefcase }, // Can use another icon later
-  { href: '/enterprise/partnerships', label: 'Partnerships', icon: Handshake },
-  { href: '/enterprise/wallet', label: 'Ví & Giao dịch', icon: Wallet },
   { divider: true },
+  // Nhóm 2: Tuyển dụng & Đào tạo
   { href: '/enterprise/recruitment', label: 'Tin tuyển dụng', icon: Briefcase },
   { href: '/enterprise/applications', label: 'Ứng viên', icon: Users },
-  { href: '/enterprise/interviews', label: 'Phỏng vấn', icon: Calendar }
+  { href: '/enterprise/interviews', label: 'Phỏng vấn', icon: Calendar },
+  { href: '/enterprise/partnerships', label: 'Chương trình tài trợ', icon: Handshake },
+  { divider: true },
+  // Nhóm 3: Tài chính & Dịch vụ
+  { href: '/enterprise/packages', label: 'Gói dịch vụ', icon: Package },
+  { href: '/enterprise/wallet', label: 'Ví & Giao dịch', icon: Wallet }
 ];
 
 const EnterpriseSidebar = ({ collapsed, onToggle }) => {

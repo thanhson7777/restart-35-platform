@@ -48,6 +48,20 @@ const buildPartnershipSummary = async (partnership) => {
     Promise.all((partnership.linkedCourseIds || []).concat(partnership.proposedCourseIds || []).filter(Boolean).map(courseId => courseModel.findOneById(courseId)))
   ])
 
+  let organizationName = null;
+  let industry = null;
+  let address = enterprise?.address || null;
+
+  if (enterprise?.organizationId) {
+    const { organizationModel } = await import('~/models/organizationModel');
+    const org = await organizationModel.findOneById(enterprise.organizationId);
+    if (org) {
+      if (org.name) organizationName = org.name;
+      if (org.industry) industry = org.industry;
+      if (org.address) address = org.address;
+    }
+  }
+
   return {
     ...partnership,
     enterprise: enterprise ? {
@@ -56,7 +70,10 @@ const buildPartnershipSummary = async (partnership) => {
       email: enterprise.email,
       phone: enterprise.phone,
       avatar: enterprise.avatar,
-      organizationId: enterprise.organizationId || null
+      organizationId: enterprise.organizationId || null,
+      organizationName: organizationName,
+      industry: industry,
+      address: address
     } : null,
     trainer: trainer ? {
       _id: trainer._id?.toString?.() || partnership.trainerId,
@@ -116,12 +133,25 @@ const buildPartnershipDetail = async (partnership) => {
     })
   ])
 
+  const activeLearners = learnerResult.enrollments.filter(item => item.status === ENROLLMENT_STATUS_V2.ACTIVE).length;
+  const pendingSponsorships = learnerResult.enrollments.filter(item => {
+    const s = item.sponsorships?.find(s => s.sponsorType === 'enterprise') || item.sponsorships?.[0];
+    return s?.status === 'matched';
+  }).length;
+  const rejectedSponsorships = learnerResult.enrollments.filter(item => {
+    const s = item.sponsorships?.find(s => s.sponsorType === 'enterprise') || item.sponsorships?.[0];
+    return s?.status === 'rejected';
+  }).length;
+
   return {
     ...summary,
     summary: {
       totalLearners: learnerResult.totalEnrollments,
       totalGraduates: graduateResult.totalEnrollments,
-      pendingLearners: learnerResult.enrollments.filter(item => item.status === ENROLLMENT_STATUS_V2.ACTIVE).length,
+      activeLearners: activeLearners,
+      pendingLearners: activeLearners, // Kept for backward compatibility
+      pendingSponsorships: pendingSponsorships,
+      rejectedSponsorships: rejectedSponsorships,
       completedLearners: graduateResult.totalEnrollments
     }
   }
@@ -313,14 +343,24 @@ const confirmPartnership = async (partnershipId, actorId, role, data) => {
         coverage = SCHOLARSHIP_COVERAGE.PARTIAL;
       }
 
+      let sponsorTitle = `Tài trợ từ ${partnership.enterprise?.displayName || 'Doanh nghiệp'}`;
+      if (partnership.enterprise?.organizationId) {
+        const { organizationModel } = await import('~/models/organizationModel');
+        const org = await organizationModel.findOneById(partnership.enterprise.organizationId);
+        if (org && org.name) {
+          sponsorTitle = `Tài trợ từ ${org.name}`;
+        }
+      }
+
       await courseSponsorshipModel.createNew({
         sponsorType: ORGANIZATION_TYPES.ENTERPRISE,
         sponsorId: partnership.enterpriseId,
-        title: `Tài trợ từ ${partnership.enterprise?.displayName || 'Doanh nghiệp'}`,
+        title: sponsorTitle,
         linkedCourses: linkedCourseIds.map(cId => ({ courseId: cId, coverage: coverage })),
         budget: totalBudget,
         targetLearners: partnership.proposedSponsorship.targetLearners,
         coverageType: coverage,
+        maxAmountPerLearner: partnership.proposedSponsorship.fixedAmountPerLearner || null,
         status: COURSE_SPONSORSHIP_STATUS.ACTIVE
       });
     }
@@ -467,7 +507,7 @@ const getEnterpriseActivePartnerships = async (enterpriseId) => {
   const { partnerships } = await partnershipModel.findByEnterprise(enterpriseId, 0, 50, {
     status: PARTNERSHIP_STATUS.ACTIVE
   })
-  return partnerships
+  return await Promise.all(partnerships.map(buildPartnershipSummary))
 }
 
 const getTrainerActivePartnerships = async (trainerId) => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Users, GraduationCap, BookOpen, TrendingUp,
-  MessageSquare, Send, Briefcase, CheckCircle2
+  MessageSquare, Send, Briefcase, CheckCircle2, Gift
 } from 'lucide-react';
 import { Button, Badge, Tabs, TabsList, TabsTrigger, TabsContent, Textarea } from '@/components/ui';
 import { getPartnershipDetail,
@@ -22,6 +22,17 @@ const STATUS_CONFIG = {
   active: { label: 'Đang hợp tác', color: 'text-[hsl(var(--admin-success))] bg-[hsl(var(--admin-success)_/_15%)]', border: 'border-[hsl(var(--admin-success)_/_30%)]' },
   cancelled: { label: 'Đã hủy', color: 'text-[hsl(var(--admin-text-muted))] bg-[hsl(var(--admin-text-muted)_/_15%)]', border: 'border-[hsl(var(--admin-text-muted)_/_30%)]' },
   expired: { label: 'Đã hết hạn', color: 'text-[hsl(var(--admin-danger))] bg-[hsl(var(--admin-danger)_/_15%)]', border: 'border-[hsl(var(--admin-danger)_/_30%)]' }
+};
+
+const INDUSTRY_MAP = {
+  bao_ve: 'Bảo Vệ & An Ninh',
+  lai_xe: 'Lái Xe & Vận Tải',
+  co_khi: 'Cơ Khí & Sản Xuất',
+  ban_hang: 'Bán Hàng & Kinh Doanh',
+  phuc_vu: 'Phục Vụ & Nhà Hàng',
+  hanh_chinh: 'Hành Chính',
+  nhan_su: 'Nhân Sự & HR',
+  tu_van: 'Tư Vấn'
 };
 
 const formatCurrency = (amount) => {
@@ -146,7 +157,7 @@ export default function TrainerPartnershipDetailPage() {
         <div className="min-w-0">
           <div className="flex items-center gap-3 flex-wrap mb-1">
             <h1 className="text-3xl font-extrabold tracking-tight text-[hsl(var(--admin-text-primary))] truncate">
-              {partnership.enterprise?.displayName || 'Partnership'}
+              {partnership.enterprise?.organizationName || partnership.enterprise?.displayName || 'Partnership'}
             </h1>
             <Badge className={`${config.color} ${config.border} border text-xs font-bold`}>
               {config.label}
@@ -212,23 +223,7 @@ export default function TrainerPartnershipDetailPage() {
         </div>
       </div>
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Tổng học viên', value: partnershipStats?.totalLearners ?? summary.totalLearners ?? 0, icon: Users, color: 'text-[hsl(var(--admin-accent))]' },
-          { label: 'Đang học', value: partnershipStats?.pendingLearners ?? summary.pendingLearners ?? 0, icon: BookOpen, color: 'text-[hsl(var(--admin-warning))]' },
-          { label: 'Đã tốt nghiệp', value: partnershipStats?.totalGraduates ?? summary.totalGraduates ?? 0, icon: GraduationCap, color: 'text-[hsl(var(--admin-success))]' },
-          { label: 'Revenue', value: formatCurrency(partnershipStats?.revenue ?? 0), icon: TrendingUp, color: 'text-purple-500' }
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`p-2 rounded-lg bg-[hsl(var(--admin-surface-elevated))]`}><Icon size={16} className={color} /></div>
-              <p className="text-xs text-[hsl(var(--admin-text-muted))] font-medium">{label}</p>
-            </div>
-            <p className="text-2xl font-bold text-[hsl(var(--admin-text-primary))]">{value}</p>
-          </div>
-        ))}
-      </div>
+
 
       {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -285,6 +280,49 @@ export default function TrainerPartnershipDetailPage() {
             </div>
           </div>
 
+          {/* Sponsorship */}
+          {partnership.proposedSponsorship && (
+            <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-5">
+              <h3 className="font-bold text-[hsl(var(--admin-text-primary))] text-sm mb-4 flex items-center gap-2">
+                <Gift size={15} className="text-rose-500" /> Tài trợ từ doanh nghiệp
+              </h3>
+              <div className="space-y-3">
+                {partnership.proposedSponsorship.coverageType && (
+                  <div>
+                    <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-0.5">Hình thức tài trợ</p>
+                    <p className="text-sm font-semibold text-rose-600">
+                      {partnership.proposedSponsorship.coverageType === 'FULL' ? 'Toàn phần (100%)' : 'Hỗ trợ một phần'}
+                    </p>
+                  </div>
+                )}
+                {partnership.proposedSponsorship.coverageType === 'FIXED_AMOUNT' && partnership.proposedSponsorship.fixedAmountPerLearner > 0 && (
+                  <div>
+                    <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-0.5">Mức hỗ trợ / Học viên</p>
+                    <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
+                      {formatCurrency(partnership.proposedSponsorship.fixedAmountPerLearner)}
+                    </p>
+                  </div>
+                )}
+                {partnership.proposedSponsorship.targetLearners > 0 && (
+                  <div>
+                    <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-0.5">Số lượng tài trợ</p>
+                    <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
+                      {partnership.proposedSponsorship.targetLearners} học viên
+                    </p>
+                  </div>
+                )}
+                {partnership.proposedSponsorship.budget > 0 && (
+                  <div>
+                    <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-0.5">Tổng ngân sách dự kiến</p>
+                    <p className="text-sm font-semibold text-emerald-600">
+                      {formatCurrency(partnership.proposedSponsorship.budget)}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Agreement Terms */}
           {partnership.status !== 'pending' && agreedTerms && (
             <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-5">
@@ -318,95 +356,46 @@ export default function TrainerPartnershipDetailPage() {
         <div className="lg:col-span-2">
           <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
             <div className="px-5 pt-5">
-              <Tabs value={tab} onValueChange={setTab} className="w-full">
-                <TabsList className="bg-[hsl(var(--admin-surface-elevated))]/60 border border-[hsl(var(--admin-border))] mb-4">
-                  <TabsTrigger value="learners" className="data-[state=active]:bg-[hsl(var(--admin-accent))] data-[state=active]:text-white gap-1.5">
-                    <Users size={13} /> Học viên ({learners.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="graduates" className="data-[state=active]:bg-[hsl(var(--admin-accent))] data-[state=active]:text-white gap-1.5">
-                    <GraduationCap size={13} /> Tốt nghiệp ({graduates.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="courses" className="data-[state=active]:bg-[hsl(var(--admin-accent))] data-[state=active]:text-white gap-1.5">
-                    <BookOpen size={13} /> Khóa học ({partnership.linkedCourses?.length || 0})
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="learners">
-                  {learners.length === 0 ? (
-                    <p className="text-[hsl(var(--admin-text-muted))] text-sm py-8 text-center">Chưa có học viên.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {learners.map(l => (
-                        <div key={l._id} className="flex items-center justify-between p-4 bg-[hsl(var(--admin-surface-elevated))]/40 rounded-xl border border-[hsl(var(--admin-border))]">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-[hsl(var(--admin-accent)_/_20%)] rounded-full flex items-center justify-center text-[hsl(var(--admin-accent))] font-bold text-xs">
-                              {l.user?.displayName?.charAt(0)?.toUpperCase() || '?'}
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">{l.user?.displayName || 'Học viên'}</p>
-                              <p className="text-xs text-[hsl(var(--admin-text-muted))]">{l.user?.email || ''}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xs text-[hsl(var(--admin-text-muted))]">{l.course?.title || ''}</p>
-                            <p className="text-xs text-[hsl(var(--admin-accent))]">{l.progress?.percentage || 0}% hoàn thành</p>
-                          </div>
-                        </div>
-                      ))}
+              <div className="pb-5">
+                <h3 className="font-bold text-[hsl(var(--admin-text-primary))] text-sm mb-4 flex items-center gap-2">
+                  <Users size={15} className="text-[hsl(var(--admin-accent))]" /> Thông tin doanh nghiệp
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-[hsl(var(--admin-surface-elevated))] flex items-center justify-center text-xl font-bold text-[hsl(var(--admin-text-muted))]">
+                      {partnership.enterprise?.avatar ? (
+                        <img src={partnership.enterprise.avatar} alt="avatar" className="w-full h-full rounded-xl object-cover" />
+                      ) : (
+                        (partnership.enterprise?.displayName?.[0] || '?').toUpperCase()
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg text-[hsl(var(--admin-text-primary))]">{partnership.enterprise?.organizationName || partnership.enterprise?.displayName || 'Đang cập nhật'}</h4>
+                      <p className="text-sm text-[hsl(var(--admin-text-muted))]">{partnership.enterprise?.email || 'Đang cập nhật'}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[hsl(var(--admin-border))]">
+                    <div>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1">Điện thoại</p>
+                      <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">{partnership.enterprise?.phone || 'Đang cập nhật'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1">Lĩnh vực hoạt động</p>
+                      <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">{partnership.enterprise?.industry ? (INDUSTRY_MAP[partnership.enterprise.industry] || partnership.enterprise.industry) : 'Đang cập nhật'}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1">Địa chỉ</p>
+                      <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">{partnership.enterprise?.address || 'Đang cập nhật'}</p>
+                    </div>
+                  </div>
+                  {partnership.message && (
+                    <div className="pt-4 border-t border-[hsl(var(--admin-border))]">
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1">Lời nhắn từ doanh nghiệp</p>
+                      <p className="text-sm text-[hsl(var(--admin-text-secondary))] whitespace-pre-wrap">{partnership.message}</p>
                     </div>
                   )}
-                </TabsContent>
-
-                <TabsContent value="graduates">
-                  {graduates.length === 0 ? (
-                    <p className="text-[hsl(var(--admin-text-muted))] text-sm py-8 text-center">Chưa có học viên tốt nghiệp.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {graduates.map(g => (
-                        <div key={g._id} className="flex items-center justify-between p-4 bg-[hsl(var(--admin-surface-elevated))]/40 rounded-xl border border-[hsl(var(--admin-success)_/_20%)]">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-[hsl(var(--admin-success)_/_20%)] rounded-full flex items-center justify-center text-[hsl(var(--admin-success))] font-bold text-xs">
-                              {g.user?.displayName?.charAt(0)?.toUpperCase() || '?'}
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">{g.user?.displayName || 'Học viên'}</p>
-                              <p className="text-xs text-[hsl(var(--admin-text-muted))]">{g.user?.email || ''}</p>
-                            </div>
-                          </div>
-                          <Badge className="bg-[hsl(var(--admin-success)_/_15%)] text-[hsl(var(--admin-success))] border-[hsl(var(--admin-success)_/_30%)] border text-xs font-semibold">
-                            <GraduationCap size={11} /> Đã tốt nghiệp
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="courses">
-                  {(!partnership.linkedCourses || partnership.linkedCourses.length === 0) ? (
-                    <p className="text-[hsl(var(--admin-text-muted))] text-sm py-8 text-center">Chưa có khóa học liên kết.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {partnership.linkedCourses.map(c => (
-                        <div key={c._id} className="flex items-center justify-between p-4 bg-[hsl(var(--admin-surface-elevated))]/40 rounded-xl border border-[hsl(var(--admin-border))]">
-                          <div>
-                            <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">{c.title}</p>
-                            <Badge className="mt-1 bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-secondary))] border-[hsl(var(--admin-border))] text-xs">{c.status}</Badge>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate(`/trainer/courses/${c._id}/students`)}
-                            className="text-[hsl(var(--admin-accent))] hover:text-[hsl(var(--admin-accent))] text-xs gap-1"
-                          >
-                            Xem học viên <ArrowLeft size={12} className="rotate-180" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
+                </div>
+              </div>
             </div>
           </div>
         </div>

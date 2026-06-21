@@ -10,8 +10,8 @@ const SERVICE_PACKAGE_COLLECTION_SCHEMA = Joi.object({
   durationMonths: Joi.number().integer().min(1).max(120).required(),
   monthlyJobQuota: Joi.number().integer().min(1).max(10000).required(),
   isActive: Joi.boolean().default(true),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 

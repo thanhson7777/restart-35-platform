@@ -3,7 +3,8 @@ import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import {
   COURSE_STATUS, DURATION_UNITS, LOCATION_TYPES,
-  COURSE_DELIVERY_TYPES, COURSE_FUNDING_MODELS
+  COURSE_DELIVERY_TYPES, COURSE_FUNDING_MODELS,
+  ORGANIZATION_TYPES
 } from '~/utils/constants'
 import {
   OBJECT_ID_RULE,
@@ -63,6 +64,8 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
     hasJobGuarantee: false,
     acceptsSponsorship: true
   }),
+  isFree: Joi.boolean().default(true),
+  fee: Joi.number().min(0).default(0),
   // Tuyen sinh
   maxStudents: Joi.number().integer().min(1).default(30),
   enrollmentStartDate: Joi.date().timestamp('javascript').allow(null, ''),
@@ -73,12 +76,15 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
     .default([]),
   syllabus: Joi.array().items(
     Joi.object({
+      _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).default(() => new ObjectId().toString()),
       week: Joi.number().required(),
       title: Joi.string().required(),
       content: Joi.string().allow('', null),
       duration: Joi.string().allow('', null),
       fileUrl: Joi.string().uri().allow('', null),
-      fileName: Joi.string().allow('', null)
+      fileName: Joi.string().allow('', null),
+      videoUrl: Joi.string().allow('', null),
+      videoDuration: Joi.number().integer().min(0).allow(null).default(0)
     })
   ).max(50),
   certificate: Joi.string().allow(''),
@@ -96,13 +102,27 @@ const COURSE_COLLECTION_SCHEMA = Joi.object({
   rejectionReason: Joi.string().allow(null, ''),
   approvedBy: Joi.string().allow(null),
   approvedAt: Joi.date().timestamp().allow(null),
+  funding_model: Joi.string().valid(...Object.values(COURSE_FUNDING_MODELS)).allow('', null).default(COURSE_FUNDING_MODELS.FREE),
+  sponsorship: Joi.object({
+    hasSponsorship: Joi.boolean().default(false),
+    sponsorTypes: Joi.array().items(Joi.string().valid(...Object.values(ORGANIZATION_TYPES))).default([]),
+    activeSponsorshipIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
+    priorityRecruitment: Joi.boolean().default(false),
+    badgeLabel: Joi.string().allow('', null).default(null)
+  }).default({
+    hasSponsorship: false,
+    sponsorTypes: [],
+    activeSponsorshipIds: [],
+    priorityRecruitment: false,
+    badgeLabel: null
+  }),
   // Metadata
   viewCount: Joi.number().integer().min(0).default(0),
   enrollmentCount: Joi.number().integer().min(0).default(0),
   linkedPartnershipId: Joi.string().pattern(OBJECT_ID_RULE).allow(null, '').default(null),
   linkedEnterpriseId: Joi.string().pattern(OBJECT_ID_RULE).allow(null, '').default(null),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 
@@ -246,6 +266,7 @@ const findByCategory = async (categoryId, skip = 0, limit = 10, additionalFilter
 
 const searchCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, sort = { createdAt: -1 }) => {
   try {
+    const finalSort = { ...sort, _id: -1 };
     const matchStage = {
       status: COURSE_STATUS.APPROVED,
       _destroy: { $ne: true }
@@ -309,7 +330,7 @@ const searchCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, so
     }
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(matchStage)
-      .sort(sort)
+      .sort(finalSort)
       .skip(skip)
       .limit(limit)
       .toArray()
@@ -701,6 +722,7 @@ const getAdminCourseStats = async () => {
 
 const getAdminCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, sort = { createdAt: -1 }) => {
   try {
+    const finalSort = { ...sort, _id: -1 };
     const matchStage = {
       _destroy: { $ne: true },
       status: { $ne: COURSE_STATUS.DRAFT }
@@ -739,7 +761,7 @@ const getAdminCourses = async (searchQuery, filters = {}, skip = 0, limit = 10, 
 
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(matchStage)
-      .sort(sort)
+      .sort(finalSort)
       .skip(skip)
       .limit(limit)
       .toArray()
@@ -759,6 +781,8 @@ export const courseModel = {
   LOCATION_TYPES,
   COURSE_DELIVERY_TYPES,
   COURSE_FUNDING_MODELS,
+  // Validation
+  validateBeforeCreate,
   // Create
   createNew,
   // Read

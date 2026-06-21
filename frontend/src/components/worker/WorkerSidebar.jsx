@@ -38,6 +38,7 @@ const navGroups = [
     items: [
       { href: '/my/applications', label: 'Đơn ứng tuyển', icon: FileCheck },
       { href: '/my/interviews', label: 'Lịch phỏng vấn', icon: UsersRound },
+      { href: '/my-placements', label: 'Việc làm đối tác', icon: BriefcaseBusiness },
     ],
   },
   {

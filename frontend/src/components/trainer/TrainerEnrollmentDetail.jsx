@@ -171,15 +171,6 @@ export const TrainerEnrollmentDetail = ({
             <Badge variant={getStatusBadgeVariant(status)} className="px-3 py-1 text-xs font-semibold rounded-md">
               {getStatusLabel(status)}
             </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onUpdateStatus}
-              className="text-[hsl(var(--admin-accent))] hover:text-[hsl(var(--admin-accent))] text-xs gap-1 mt-2"
-            >
-              <Activity size={12} />
-              Đổi trạng thái
-            </Button>
 
             <div className="w-full border-t border-[hsl(var(--admin-border))]/80 my-5" />
 
@@ -199,12 +190,22 @@ export const TrainerEnrollmentDetail = ({
                   <CreditCard size={14} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] text-[hsl(var(--admin-text-faint))] uppercase tracking-wider">Học phí & Trạng thái</span>
+                  <span className="text-[10px] text-[hsl(var(--admin-text-faint))] uppercase tracking-wider">
+                    {enrollment.source === 'enterprise_sponsored' ? 'Nguồn học phí' : 'Học phí & Trạng thái'}
+                  </span>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs font-semibold text-[hsl(var(--admin-text-secondary))] font-mono">{formatCurrency(fee?.total)}</span>
-                    <Badge variant={getPaymentStatusVariant(payment_status)} className="px-1.5 py-px text-[10px] font-semibold rounded">
-                      {getPaymentStatusLabel(payment_status)}
-                    </Badge>
+                    {enrollment.source === 'enterprise_sponsored' ? (
+                      <Badge variant="success" className="px-1.5 py-px text-[10px] font-semibold rounded bg-[hsl(var(--admin-success)/20%)] text-[hsl(var(--admin-success))] border-none">
+                        Tài trợ bởi Doanh nghiệp
+                      </Badge>
+                    ) : (
+                      <>
+                        <span className="text-xs font-semibold text-[hsl(var(--admin-text-secondary))] font-mono">{formatCurrency(fee?.total)}</span>
+                        <Badge variant={getPaymentStatusVariant(payment_status)} className="px-1.5 py-px text-[10px] font-semibold rounded">
+                          {getPaymentStatusLabel(payment_status)}
+                        </Badge>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -253,29 +254,18 @@ export const TrainerEnrollmentDetail = ({
               indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500"
             />
 
-            <div className="flex items-center justify-end mt-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onUpdateProgress}
-                className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-subtle))] text-xs gap-1.5"
-              >
-                <TrendingUp size={12} />
-                Cập nhật tiến độ
-              </Button>
-            </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
               <div className="bg-[hsl(var(--admin-surface-elevated))]/40 border border-[hsl(var(--admin-border))] p-3.5 rounded-2xl">
-                <span className="text-[10px] text-[hsl(var(--admin-text-faint))] uppercase tracking-wider block">Bài học hiện tại</span>
+                <span className="text-[10px] text-[hsl(var(--admin-text-faint))] uppercase tracking-wider block">Buổi học hiện tại</span>
                 <span className="text-lg font-bold text-[hsl(var(--admin-text-primary))] font-mono mt-1 block">
-                  {progress?.currentLesson || 0}
+                  {enrollment.attendance?.present || progress?.currentLesson || 0}
                 </span>
               </div>
               <div className="bg-[hsl(var(--admin-surface-elevated))]/40 border border-[hsl(var(--admin-border))] p-3.5 rounded-2xl">
-                <span className="text-[10px] text-[hsl(var(--admin-text-faint))] uppercase tracking-wider block">Tổng số bài học</span>
+                <span className="text-[10px] text-[hsl(var(--admin-text-faint))] uppercase tracking-wider block">Tổng số buổi học</span>
                 <span className="text-lg font-bold text-[hsl(var(--admin-text-primary))] font-mono mt-1 block">
-                  {progress?.totalLessons || 0}
+                  {enrollment.attendance?.totalSessions || progress?.totalLessons || 0}
                 </span>
               </div>
               <div className="bg-[hsl(var(--admin-surface-elevated))]/40 border border-[hsl(var(--admin-border))] p-3.5 rounded-2xl col-span-2 sm:col-span-1">
@@ -287,97 +277,7 @@ export const TrainerEnrollmentDetail = ({
             </div>
           </BezelCard>
 
-          {/* Intervention & Dropout Risk Analytics */}
-          <BezelCard className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] p-6" padding="default">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[hsl(var(--admin-border))]/60">
-              <div>
-                <h3 className="text-base font-bold text-[hsl(var(--admin-text-primary))] tracking-tight flex items-center gap-2">
-                  <AlertOctagon size={18} className="text-orange-500" />
-                  Mức độ nguy cơ bỏ học
-                </h3>
-                <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Phân tích dựa trên tương tác và thời gian vắng mặt</p>
-              </div>
-              <TrainerRiskAlert level={risk?.level} score={risk?.score} />
-            </div>
 
-            {/* Quick Interventions */}
-            <div className="space-y-4 mb-6">
-              <h4 className="text-sm font-semibold text-[hsl(var(--admin-text-secondary))] flex items-center gap-1.5">
-                <Zap size={15} className="text-[hsl(var(--admin-accent))]" />
-                Can thiệp nhanh
-              </h4>
-              <p className="text-xs text-[hsl(var(--admin-text-muted))]">Kích hoạt các hành động can thiệp tự động để nhắc nhở học viên qua các kênh kết nối.</p>
-              <div className="flex flex-wrap gap-3 mt-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isInterventionLoading}
-                  onClick={() => onTriggerIntervention('zalo_reminder')}
-                  className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] transition-all duration-200 font-semibold"
-                >
-                  Gửi nhắc nhở Zalo
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isInterventionLoading}
-                  onClick={() => onTriggerIntervention('email_alert')}
-                  className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] transition-all duration-200 font-semibold"
-                >
-                  Gửi cảnh báo Email
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isInterventionLoading}
-                  onClick={() => onTriggerIntervention('trainer_notified')}
-                  className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] transition-all duration-200 font-semibold"
-                >
-                  Báo cáo hệ thống
-                </Button>
-              </div>
-            </div>
-
-            {/* Intervention Logs */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-[hsl(var(--admin-text-secondary))] flex items-center gap-1.5">
-                <TrendingDown size={15} className="text-[hsl(var(--admin-text-muted))]" />
-                Lịch sử can thiệp
-              </h4>
-              
-              {(!risk?.interventions_sent || risk.interventions_sent.length === 0) ? (
-                <div className="text-xs text-[hsl(var(--admin-text-faint))] italic p-4 text-center border border-dashed border-[hsl(var(--admin-border))] rounded-xl bg-[hsl(var(--admin-surface-elevated))]/10">
-                  Chưa thực hiện biện pháp can thiệp nào cho học viên này.
-                </div>
-              ) : (
-                <div className="overflow-hidden border border-[hsl(var(--admin-border))] rounded-xl bg-[hsl(var(--admin-surface-elevated))]/20">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="bg-[hsl(var(--admin-surface-elevated))]/50 border-b border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] font-medium">
-                        <th className="p-3">Biện pháp</th>
-                        <th className="p-3">Thời gian thực hiện</th>
-                        <th className="p-3 text-right">Trạng thái</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[hsl(var(--admin-border))]">
-                      {risk.interventions_sent.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-[hsl(var(--admin-surface-elevated))]/20 text-[hsl(var(--admin-text-secondary))]">
-                          <td className="p-3 font-semibold">{getInterventionLabel(item.type)}</td>
-                          <td className="p-3 font-mono text-[hsl(var(--admin-text-muted))]">{formatDate(item.sent_at)}</td>
-                          <td className="p-3 text-right">
-                            <span className="inline-flex items-center gap-1 text-[hsl(var(--admin-success))] font-medium">
-                              <Clock size={11} className="text-[hsl(var(--admin-text-faint))]" style={{ animationDuration: '3s' }} />
-                              Đã xử lý
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </BezelCard>
         </div>
       </div>
 

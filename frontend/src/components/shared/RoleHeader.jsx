@@ -71,7 +71,9 @@ const RoleHeader = ({ title, subtitle, onMenuClick, sidebarCollapsed }) => {
                 className="h-8 w-8"
               />
               <div className="hidden sm:block leading-tight">
-                <p className="text-xs font-semibold text-[hsl(var(--admin-text-primary))]">{currentUser?.displayName || 'Người dùng'}</p>
+                <p className="text-xs font-semibold text-[hsl(var(--admin-text-primary))]">
+                  {['enterprise', 'ngo', 'trainer'].includes(currentUser?.role) ? (currentUser?.organization?.name || currentUser?.companyName || currentUser?.displayName) : (currentUser?.displayName || 'Người dùng')}
+                </p>
                 <p className="text-[11px] text-[hsl(var(--admin-text-muted))] capitalize">{currentUser?.role || 'member'}</p>
               </div>
               <svg
@@ -101,7 +103,7 @@ const RoleHeader = ({ title, subtitle, onMenuClick, sidebarCollapsed }) => {
                       />
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-[hsl(var(--foreground))] text-sm truncate">
-                          {currentUser?.displayName || currentUser?.username || 'Người dùng'}
+                          {['enterprise', 'ngo', 'trainer'].includes(currentUser?.role) ? (currentUser?.organization?.name || currentUser?.companyName || currentUser?.displayName) : (currentUser?.displayName || currentUser?.username || 'Người dùng')}
                         </p>
                         <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">{currentUser?.email}</p>
                       </div>

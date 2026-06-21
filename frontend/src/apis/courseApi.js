@@ -49,8 +49,13 @@ export const getMyEnrollments = (params) =>
 export const enrollCourse = (data) =>
   authorizeAxiosInstance.post(`${API_ROOT}/v1/enrollments`, data);
 
-export const getEnrollmentById = (id) =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/${id}`);
+export const getEnrollmentById = (id) => {
+  if (!id || id === '[object Object]' || typeof id === 'object') {
+    console.error('[ERROR] getEnrollmentById called with invalid ID:', id);
+    return Promise.reject(new Error('Invalid ID provided to getEnrollmentById'));
+  }
+  return authorizeAxiosInstance.get(`${API_ROOT}/v1/enrollments/${id}`);
+};
 
 export const cancelEnrollment = (id, data) =>
   authorizeAxiosInstance.put(`${API_ROOT}/v1/enrollments/${id}/cancel`, data);

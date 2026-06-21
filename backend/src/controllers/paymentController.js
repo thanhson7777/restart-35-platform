@@ -20,13 +20,30 @@ const createPayment = async (req, res, next) => {
 // ============ READ ============
 const getPayments = async (req, res, next) => {
   try {
+    console.log('GET /payments QUERY:', req.query)
     const result = await paymentService.getPayments(req.query)
+    console.log('GET /payments RESULT COUNT:', result.payments.length)
 
     res.status(StatusCodes.OK).json({
       success: true,
       message: 'Lấy danh sách thanh toán thành công!',
       data: result.payments,
       pagination: result.pagination
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getAdminStats = async (req, res, next) => {
+  try {
+    const stats = await paymentService.getAdminStats()
+    console.log('GET /payments/stats RESULT:', stats)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thống kê thanh toán thành công!',
+      data: stats
     })
   } catch (error) {
     next(error)
@@ -156,6 +173,7 @@ const handleWebhook = async (req, res, next) => {
 export const paymentController = {
   createPayment,
   getPayments,
+  getAdminStats,
   getMyPayments,
   getPaymentById,
   updatePaymentStatus,

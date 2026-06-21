@@ -16,14 +16,21 @@ export const CourseInstructorInfo = ({ provider }) => {
     verified,
     email,
     website,
+    stats,
+    organization,
     bio = 'Giảng viên chuyên môn giàu kinh nghiệm đào tạo thực tế, tận tâm hỗ trợ học viên 35+ trong việc tiếp cận kiến thức mới và tái cấu trúc định hướng nghề nghiệp.',
-    stats = {
-      coursesCount: 12,
-      averageRating: 4.8,
-      totalStudents: 1420,
-    },
-    expertise = ['Chuyển đổi số', 'Kỹ năng số', 'Định hướng nghề nghiệp', 'Kỹ năng thực hành'],
   } = provider;
+
+  const displayStats = stats || {
+    coursesCount: 12,
+    averageRating: 4.8,
+    totalStudents: 1420,
+  };
+
+  const expertise = organization?.focusAreas || ['Chuyển đổi số', 'Kỹ năng số', 'Định hướng nghề nghiệp', 'Kỹ năng thực hành'];
+  const displayWebsite = website || organization?.website;
+  const industry = organization?.industry || 'Đơn vị đào tạo đối tác';
+  const displayBio = organization?.name ? `Đại diện từ ${organization.name}. ${bio}` : bio;
 
   return (
     // Double-Bezel Nested Hardware Card
@@ -53,7 +60,7 @@ export const CourseInstructorInfo = ({ provider }) => {
               {displayName}
             </h4>
             <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-              Đơn vị đào tạo đối tác
+              {industry}
             </p>
           </div>
 
@@ -64,8 +71,8 @@ export const CourseInstructorInfo = ({ provider }) => {
                 <Mail className="w-4 h-4" strokeWidth={1.5} />
               </a>
             )}
-            {website && (
-              <a href={website} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+            {displayWebsite && (
+              <a href={displayWebsite} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
                 <Globe className="w-4 h-4" strokeWidth={1.5} />
               </a>
             )}
@@ -77,7 +84,7 @@ export const CourseInstructorInfo = ({ provider }) => {
           <div className="space-y-2">
             <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 dark:text-zinc-500 block">Tiểu sử & Kinh nghiệm</span>
             <p className="text-sm leading-relaxed text-zinc-650 dark:text-zinc-350">
-              {bio}
+              {displayBio}
             </p>
           </div>
 
@@ -89,7 +96,7 @@ export const CourseInstructorInfo = ({ provider }) => {
                 <span className="text-[10px] font-semibold uppercase tracking-wide">Khóa học</span>
               </div>
               <p className="text-lg font-bold text-zinc-900 dark:text-white">
-                {stats.coursesCount}
+                {displayStats.coursesCount}
               </p>
             </div>
 
@@ -99,7 +106,7 @@ export const CourseInstructorInfo = ({ provider }) => {
                 <span className="text-[10px] font-semibold uppercase tracking-wide">Đánh giá</span>
               </div>
               <p className="text-lg font-bold text-zinc-900 dark:text-white">
-                {stats.averageRating.toFixed(1)}
+                {Number(displayStats.averageRating || 0).toFixed(1)}
               </p>
             </div>
 
@@ -109,7 +116,7 @@ export const CourseInstructorInfo = ({ provider }) => {
                 <span className="text-[10px] font-semibold uppercase tracking-wide">Học viên</span>
               </div>
               <p className="text-lg font-bold text-zinc-900 dark:text-white">
-                {stats.totalStudents.toLocaleString()}+
+                {Number(displayStats.totalStudents || 0).toLocaleString()}
               </p>
             </div>
           </div>

@@ -178,13 +178,6 @@ const TrainerHeader = ({ onMenuClick, sidebarCollapsed }) => {
                   >
                     Hồ sơ cá nhân
                   </Link>
-                  <Link
-                    to="/trainer/settings"
-                    className="block px-4 py-2 text-xs text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] transition-colors"
-                    onClick={() => setShowProfile(false)}
-                  >
-                    Cài đặt
-                  </Link>
                 </div>
                 <div className="py-1 border-t border-[hsl(var(--admin-border))]">
                   <button

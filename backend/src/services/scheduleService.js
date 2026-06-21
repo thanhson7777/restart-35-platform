@@ -11,6 +11,7 @@ import {
   SCHEDULE_STATUS,
   SESSION_STATUS,
   ENROLLMENT_STATUS,
+  ENROLLMENT_STATUS_V2,
   USER_ROLES
 } from '~/utils/constants'
 
@@ -132,9 +133,8 @@ const createSchedule = async (courseId, data, trainerId) => {
       }
     }
 
-    if (course.status !== 'approved') {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Chỉ khóa học đã được duyệt mới có thể tạo lịch!')
-    }
+    // We no longer block schedule creation based on course.status
+    // so trainers can create schedules while waiting for approval.
 
     const existingSchedule = await scheduleModel.findByCourse(courseId)
     if (existingSchedule && !existingSchedule._destroy) {
@@ -171,7 +171,7 @@ const getScheduleByCourse = async (courseId, trainerId = null) => {
   try {
     const schedule = await scheduleModel.findByCourse(courseId)
     if (!schedule) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy lịch học cho khóa học này!')
+      return null
     }
 
     if (trainerId) {
@@ -215,7 +215,7 @@ const getScheduleByCoursePublic = async (courseId) => {
             if (instructor) {
               instructorName = instructor.displayName || instructor.fullName || instructor.email
             }
-          } catch (_) {}
+          } catch (_) { /* ignore */ }
         }
         return {
           _id: session._id?.toString() || `sess-${session.sessionNumber}`,
@@ -246,7 +246,7 @@ const getMySchedules = async (userId, queryParams) => {
     }
 
     const enrollments = await enrollmentModel.findByUser(userId, 0, 100, {
-      status: { $in: [ENROLLMENT_STATUS.ENROLLED, ENROLLMENT_STATUS.IN_PROGRESS] }
+      status: { $in: [ENROLLMENT_STATUS_V2.ACTIVE, ENROLLMENT_STATUS_V2.COMPLETED] }
     })
 
     const enrolledCourseIds = enrollments.enrollments.map(e => e.courseId.toString())
@@ -270,6 +270,15 @@ const getMySchedules = async (userId, queryParams) => {
         const course = await courseModel.findOneById(schedule.courseId)
         return {
           ...schedule,
+          sessions: (schedule.sessions || []).map(session => {
+            const userAtt = (session.attendance || []).find(a => a.userId === userId)
+            const myAttendance = userAtt ? userAtt.status : (session.status === 'completed' ? 'absent' : 'upcoming')
+            const { attendance, ...restSession } = session // Remove full attendance array for privacy
+            return {
+              ...restSession,
+              myAttendance
+            }
+          }),
           course: course ? {
             _id: course._id,
             title: course.title,
@@ -296,7 +305,7 @@ const getMySchedules = async (userId, queryParams) => {
 const getUpcomingSchedule = async (userId, limit = 5) => {
   try {
     const enrollments = await enrollmentModel.findByUser(userId, 0, 100, {
-      status: { $in: [ENROLLMENT_STATUS.ENROLLED, ENROLLMENT_STATUS.IN_PROGRESS] }
+      status: { $in: [ENROLLMENT_STATUS_V2.ACTIVE, ENROLLMENT_STATUS_V2.COMPLETED] }
     })
 
     const enrolledCourseIds = enrollments.enrollments.map(e => e.courseId.toString())
@@ -584,6 +593,19 @@ const syncEnrollmentAttendance = async (enrollmentId, courseId, userId, schedule
       late,
       totalSessions
     })
+
+    // Auto-complete if all sessions in schedule have been processed (Option B)
+    if (schedule.sessions && totalSessions >= schedule.sessions.length) {
+      const currentEnroll = await enrollmentModel.findOneById(enrollmentId)
+      if (currentEnroll && currentEnroll.status !== 'completed' && currentEnroll.status !== 'dropped' && currentEnroll.status !== 'failed') {
+        const { enrollmentService } = await import('~/services/enrollmentService')
+        await enrollmentService.completeEnrollment(enrollmentId, schedule.providerId.toString(), {
+          score: 100,
+          notes: 'Hệ thống tự động tốt nghiệp sau khi hoàn thành điểm danh tất cả các buổi.'
+        })
+      }
+    }
+
   } catch (error) {
     console.error(`Failed to sync enrollment attendance for user ${userId}:`, error)
   }
@@ -617,7 +639,7 @@ const markSessionComplete = async (scheduleId, sessionNumber, trainerId) => {
 
     // Sync stats for all enrolled students
     const enrolls = await enrollmentModel.findByCourse(schedule.courseId, 0, 1000, {
-      status: { $in: [ENROLLMENT_STATUS.ENROLLED, ENROLLMENT_STATUS.IN_PROGRESS] }
+      status: { $in: [ENROLLMENT_STATUS_V2.ACTIVE, ENROLLMENT_STATUS_V2.COMPLETED] }
     })
     if (enrolls && enrolls.enrollments) {
       for (const enroll of enrolls.enrollments) {
@@ -650,7 +672,7 @@ const recordAttendance = async (scheduleId, sessionNumber, attendanceData, train
     }
 
     const enrollment = await enrollmentModel.findByCourse(schedule.courseId, 0, 1000, {
-      status: { $in: [ENROLLMENT_STATUS.ENROLLED, ENROLLMENT_STATUS.IN_PROGRESS] }
+      status: { $in: [ENROLLMENT_STATUS_V2.ACTIVE, ENROLLMENT_STATUS_V2.COMPLETED] }
     })
 
     const enrolledUserIds = enrollment.enrollments.map(e => e.userId.toString())
@@ -672,7 +694,7 @@ const recordAttendance = async (scheduleId, sessionNumber, attendanceData, train
         if (record.status === 'present' || record.status === 'late') {
           try {
             const { enrollmentService } = await import('~/services/enrollmentService')
-            await enrollmentService.completeItem(studentEnroll._id, session._id.toString(), record.userId)
+            await enrollmentService.completeItem(studentEnroll._id, session.sessionNumber.toString(), record.userId)
           } catch (err) {
             console.error(`Failed to auto-complete session for user ${record.userId}:`, err)
           }
@@ -713,7 +735,7 @@ const studentCheckin = async (scheduleId, sessionNumber, studentId, pin) => {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn không đăng ký khóa học này!')
     }
 
-    if ([ENROLLMENT_STATUS.CANCELLED, ENROLLMENT_STATUS.DROPPED].includes(studentEnrollment.status)) {
+    if ([ENROLLMENT_STATUS_V2.DROPPED, ENROLLMENT_STATUS_V2.SUSPENDED, ENROLLMENT_STATUS_V2.FAILED].includes(studentEnrollment.status)) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Đăng ký học của bạn đã bị hủy hoặc bạn đã rút lui!')
     }
 
@@ -731,7 +753,7 @@ const studentCheckin = async (scheduleId, sessionNumber, studentId, pin) => {
     // Auto mark session as completed for self check-in
     try {
       const { enrollmentService } = await import('~/services/enrollmentService')
-      await enrollmentService.completeItem(studentEnrollment._id, session._id.toString(), studentId)
+      await enrollmentService.completeItem(studentEnrollment._id, session.sessionNumber.toString(), studentId)
     } catch (err) {
       console.error(`Failed to auto-complete session for self check-in ${studentId}:`, err)
     }
@@ -799,7 +821,8 @@ const getTrainerSchedules = async (trainerId, queryParams) => {
           course: course ? {
             _id: course._id,
             title: course.title,
-            slug: course.slug
+            slug: course.slug,
+            status: course.status
           } : null
         }
       })

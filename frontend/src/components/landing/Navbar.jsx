@@ -41,8 +41,8 @@ const Navbar = () => {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-6">
         {/* Logo */}
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="text-3xl tracking-tight text-[hsl(var(--primary))] hover:opacity-80 transition-opacity"
           style={{ fontFamily: '"Instrument Serif", serif' }}
         >
@@ -54,7 +54,7 @@ const Navbar = () => {
           {[
             { label: 'Trang chủ', to: '/' },
             { label: 'Về chúng tôi', to: '/about' },
-            { label: 'Việc làm', to: '/jobs' },
+            { label: 'Cơ hội việc làm', to: '/jobs' },
             { label: 'Bản đồ cơ hội', to: '/opportunity-map' },
             { label: 'Cộng đồng', to: '/community' },
             { label: 'Liên hệ', to: '/contact' },
@@ -104,9 +104,9 @@ const Navbar = () => {
                       <p className="text-xs text-[#6F6F6F] truncate mt-0.5">{currentUser?.email}</p>
                     </div>
                     <div className="py-2">
-                      <Link 
-                        to={currentUser?.role === 'enterprise' ? '/enterprise/dashboard' : '/worker/analytics'} 
-                        onClick={() => setDropdownOpen(false)} 
+                      <Link
+                        to={currentUser?.role === 'enterprise' ? '/enterprise/dashboard' : '/worker/analytics'}
+                        onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl hover:bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] transition-colors text-sm font-medium"
                       >
                         <Briefcase size={18} className="shrink-0" />
@@ -114,8 +114,8 @@ const Navbar = () => {
                       </Link>
                     </div>
                     <div className="border-t border-black/5 py-2">
-                      <button 
-                        onClick={handleLogout} 
+                      <button
+                        onClick={handleLogout}
                         className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl w-[calc(100%-16px)] hover:bg-red-50 text-red-600 transition-colors text-sm font-medium"
                       >
                         <SignOut size={18} className="shrink-0" />
@@ -127,8 +127,8 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
           ) : (
-            <Link 
-              to="/auth" 
+            <Link
+              to="/auth"
               className="px-6 py-2.5 text-sm font-medium bg-[hsl(var(--primary))] text-white rounded-full transition-transform hover:scale-[1.03] active:scale-[0.98] shadow-md shadow-blue-500/20"
             >
               Đăng nhập

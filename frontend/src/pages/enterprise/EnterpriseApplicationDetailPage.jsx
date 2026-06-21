@@ -31,7 +31,7 @@ import {
   DialogTitle
 } from '@/components/ui/Dialog';
 import ScheduleInterviewForm from '@/components/enterprise/ScheduleInterviewForm';
-
+import { VIETNAM_PROVINCES, EDUCATION_OPTIONS } from '@/data/profileData';
 const applicationStatusConfig = {
   new: { label: 'Mới', className: 'bg-blue-100 text-blue-700 border-blue-200' },
   reviewing: { label: 'Đang xem', className: 'bg-amber-100 text-amber-700 border-amber-200' },
@@ -68,13 +68,24 @@ const MARITAL_STATUS_LABELS = {
   divorced: 'Ly hôn'
 };
 
-const EDUCATION_LABELS = {
-  primary: 'Tiểu học',
-  lower_secondary: 'Trung học cơ sở',
-  upper_secondary: 'Trung học phổ thông',
-  college: 'Cao đẳng / Trung cấp',
-  university: 'Đại học',
-  master: 'Thạc sĩ / Tiến sĩ'
+const getProvinceLabel = (value) => {
+  if (!value) return null;
+  const province = VIETNAM_PROVINCES.find(p => p.value === value);
+  return province ? province.label : value;
+};
+
+const getEducationLabel = (value) => {
+  if (!value) return null;
+  const oldLabels = {
+    primary: 'Tiểu học',
+    lower_secondary: 'Trung học cơ sở',
+    upper_secondary: 'Trung học phổ thông',
+    college: 'Cao đẳng / Trung cấp',
+    university: 'Đại học',
+    master: 'Thạc sĩ / Tiến sĩ'
+  };
+  const edu = EDUCATION_OPTIONS.find(e => e.value === value);
+  return edu ? edu.label : (oldLabels[value] || value);
 };
 
 export default function EnterpriseApplicationDetailPage() {
@@ -356,7 +367,7 @@ export default function EnterpriseApplicationDetailPage() {
                     <MapPin size={16} className="text-[hsl(var(--admin-text-muted))]" />
                     <div>
                       <p className="text-xs text-[hsl(var(--admin-text-muted))]">Địa chỉ</p>
-                      <p className="text-sm">{profileData.basicInfo?.province || profileData.province || '—'}</p>
+                      <p className="text-sm">{getProvinceLabel(profileData.basicInfo?.province || profileData.province) || '—'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -370,7 +381,7 @@ export default function EnterpriseApplicationDetailPage() {
                     <GraduationCap size={16} className="text-[hsl(var(--admin-text-muted))]" />
                     <div>
                       <p className="text-xs text-[hsl(var(--admin-text-muted))]">Học vấn</p>
-                      <p className="text-sm">{EDUCATION_LABELS[profileData.basicInfo?.education] || '—'}</p>
+                      <p className="text-sm">{getEducationLabel(profileData.basicInfo?.education) || '—'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
