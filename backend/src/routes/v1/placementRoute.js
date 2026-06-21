@@ -19,7 +19,7 @@ Router.get(
 // Danh sách placements (filter)
 Router.get(
   '/',
-  authMiddleware.isAuthorizedTrainerOrAdmin,
+  authMiddleware.isAuthorized,
   placementController.getPlacements
 )
 
@@ -68,7 +68,7 @@ Router.put(
 // Cập nhật trạng thái placement
 Router.put(
   '/:id/status',
-  authMiddleware.isAuthorizedTrainerOrAdmin,
+  authMiddleware.isAuthorized,
   placementValidation.checkPlacementId,
   placementValidation.updatePlacementStatus,
   placementController.updatePlacementStatus

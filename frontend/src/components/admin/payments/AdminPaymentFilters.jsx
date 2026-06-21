@@ -100,45 +100,9 @@ const AdminPaymentFilters = ({ filters, onChange, onSearch }) => {
         <Button onClick={handleSearch} size="sm" className="h-10">Tìm kiếm</Button>
       </div>
 
-      {/* Status Tabs */}
-      <div className="flex flex-wrap gap-2 mb-3">
-        {STATUS_TABS.map((tab) => {
-          const isActive = (tab.key === 'all' && !filters.status) || filters.status === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => handleStatusChange(tab.key)}
-              className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                isActive
-                  ? 'bg-[hsl(var(--admin-accent))] text-white'
-                  : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))] border border-transparent'
-              }`}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
 
-      {/* Gateway Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-[hsl(var(--admin-border))] pb-4">
-        {GATEWAY_TABS.map((tab) => {
-          const isActive = (tab.key === 'all' && !filters.gateway) || filters.gateway === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => handleGatewayChange(tab.key)}
-              className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${
-                isActive
-                  ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
-                  : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))] border border-transparent'
-              }`}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
+
+
 
       {/* Sort & Clear */}
       <div className="flex flex-wrap items-center gap-3 pt-4">

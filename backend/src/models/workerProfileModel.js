@@ -61,7 +61,7 @@ const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
     // Format 2: Skip - object với status "không có"
     Joi.object({
       status: Joi.string().valid('không có').required(),
-      skipped_at: Joi.date().timestamp('javascript').default(Date.now())
+      skipped_at: Joi.date().timestamp('javascript').default(Date.now)
     }).unknown(true)
   ),
 
@@ -100,8 +100,8 @@ const WORKER_PROFILE_COLLECTION_SCHEMA = Joi.object({
   riskScore: Joi.number().min(0).max(1),
   recommendedJobs: Joi.array().items(Joi.string()),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 

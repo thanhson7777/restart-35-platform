@@ -123,7 +123,7 @@ function ProvinceDropdown({ value, onChange, provinceList, loading }) {
       <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
         Tỉnh / Thành phố <span className="text-red-500">*</span>
       </label>
-      <div ref={ref} className="relative">
+      <div ref={ref} className="relative z-[9999]">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[hsl(var(--admin-text-muted))]">
           <MapPinIcon />
         </div>
@@ -138,7 +138,7 @@ function ProvinceDropdown({ value, onChange, provinceList, loading }) {
           <ChevronIcon open={open} />
         </button>
         {open && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-lg shadow-lg z-50 overflow-hidden">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-lg shadow-lg z-[9999] overflow-hidden">
             <ul className="max-h-48 overflow-y-auto py-1">
               {loading ? (
                 <li className="px-3 py-2 text-sm text-[hsl(var(--admin-text-muted))] text-center">Đang tải...</li>
@@ -191,7 +191,7 @@ function WardDropdown({ value, onChange, wardList, loading, disabled }) {
       <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
         Phường / Xã / Thị trấn
       </label>
-      <div ref={ref} className="relative">
+      <div ref={ref} className="relative z-[1000]">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[hsl(var(--admin-text-muted))]">
           <MapIcon />
         </div>
@@ -207,7 +207,7 @@ function WardDropdown({ value, onChange, wardList, loading, disabled }) {
           <ChevronIcon open={open} />
         </button>
         {open && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-lg shadow-lg z-50 overflow-hidden">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-lg shadow-lg z-[9999] overflow-hidden">
             <ul className="max-h-48 overflow-y-auto py-1">
               {loading ? (
                 <li className="px-3 py-2 text-sm text-[hsl(var(--admin-text-muted))] text-center">Đang tải...</li>
@@ -335,7 +335,7 @@ export default function LocationPicker({
       </div>
 
       {/* Province + Ward row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-[9999]">
         <ProvinceDropdown
           value={province}
           onChange={(v) => { onProvinceChange(v); onWardChange('') }}
@@ -361,7 +361,7 @@ export default function LocationPicker({
             <span className="text-xs text-[hsl(var(--admin-text-muted))]">Đang xác định tọa độ...</span>
           )}
         </div>
-        <div className="rounded-xl overflow-hidden border border-[hsl(var(--admin-border))]">
+        <div className="rounded-xl overflow-hidden border border-[hsl(var(--admin-border))] relative z-0">
           <MapContainer
             key={mapKey}
             center={mapCenter}

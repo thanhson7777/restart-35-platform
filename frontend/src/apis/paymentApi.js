@@ -6,6 +6,9 @@ import { API_ROOT } from '~/utils/constants';
 export const getPayments = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/payments`, { params });
 
+export const getAdminPaymentStats = () =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/payments/stats`);
+
 export const getPaymentById = (id) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/payments/${id}`);
 

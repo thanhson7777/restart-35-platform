@@ -1,6 +1,7 @@
 import { partnershipService } from '~/services/partnershipService'
 import { courseSponsorshipService } from '~/services/courseSponsorshipService'
 import { GET_DB } from '~/config/mongodb'
+import { ObjectId } from 'mongodb'
 import { StatusCodes } from 'http-status-codes'
 
 const getOverview = async (req, res, next) => {
@@ -45,6 +46,22 @@ const getOverview = async (req, res, next) => {
       { name: 'Phỏng vấn', value: (funnelObj['interview_scheduled'] || 0) + (funnelObj['interviewed'] || 0) + (funnelObj['offered'] || 0) + (funnelObj['hired'] || 0) },
       { name: 'Trúng tuyển', value: funnelObj['hired'] || 0 }
     ]
+
+    const appStatusMap = {
+      'pending': 'Chờ duyệt',
+      'reviewing': 'Đang xem xét',
+      'shortlisted': 'Lọt vào sơ tuyển',
+      'interview_scheduled': 'Lịch phỏng vấn',
+      'interviewed': 'Đã phỏng vấn',
+      'offered': 'Đề nghị nhận việc',
+      'hired': 'Đã tuyển',
+      'rejected': 'Từ chối'
+    };
+
+    const applicationStatusData = rawFunnel.map(item => ({
+      name: appStatusMap[item._id] || item._id,
+      value: item.count
+    }));
 
     // Application Source
     const rawSource = await db.collection('recruitment_applications').aggregate([
@@ -138,6 +155,94 @@ const getOverview = async (req, res, next) => {
       value: jobStatusDataMap[key]
     }))
 
+    // Partnership Status
+    const rawPartnershipStatus = await db.collection('partnerships').aggregate([
+      { $match: { enterpriseId } },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).toArray()
+
+    const pStatusMap = {
+      'pending': 'Chờ duyệt',
+      'negotiating': 'Thương lượng',
+      'active': 'Hoạt động',
+      'rejected': 'Từ chối',
+      'cancelled': 'Đã hủy',
+      'expired': 'Hết hạn'
+    };
+
+    const partnershipStatusData = rawPartnershipStatus.map(item => ({
+      name: pStatusMap[item._id] || item._id,
+      value: item.count,
+      id: item._id
+    }));
+
+    // Active Sponsorships
+    const rawSponsorships = await db.collection('course_sponsorships')
+      .find({ sponsorId: enterpriseId, _destroy: { $ne: true } })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .toArray();
+
+    const activeSponsorshipsList = await Promise.all(rawSponsorships.map(async (s) => {
+      let courseTitle = null;
+      if (s.linkedCourses && s.linkedCourses.length > 0 && s.linkedCourses[0].courseId) {
+        const course = await db.collection('courses').findOne({ _id: new ObjectId(s.linkedCourses[0].courseId) });
+        if (course) courseTitle = course.title;
+      }
+      return { ...s, courseTitle };
+    }));
+
+    // Sponsorship Status
+    const rawSponsorshipStatus = await db.collection('course_sponsorships').aggregate([
+      { $match: { sponsorId: enterpriseId } },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).toArray()
+
+    const sStatusMap = {
+      'pending': 'Chờ duyệt',
+      'active': 'Đang hoạt động',
+      'completed': 'Đã hoàn thành',
+      'cancelled': 'Đã hủy',
+      'paused': 'Tạm dừng'
+    };
+
+    const sponsorshipStatusData = rawSponsorshipStatus.map(item => ({
+      name: sStatusMap[item._id] || item._id,
+      value: item.count,
+      id: item._id
+    }));
+
+    // Sponsored Learners
+    const sponsorshipIds = sponsorships.map(s => String(s._id));
+    const rawSponsoredLearners = await db.collection('enrollments').find({
+      'sponsorships.sponsorshipId': { $in: sponsorshipIds },
+      _destroy: { $ne: true }
+    }).sort({ enrolledAt: -1 }).limit(50).toArray();
+
+    const sponsoredLearners = await Promise.all(rawSponsoredLearners.map(async (enrollment) => {
+      const user = await db.collection('users').findOne({ _id: new ObjectId(enrollment.userId) });
+      const course = await db.collection('courses').findOne({ _id: new ObjectId(enrollment.courseId) });
+      const sp = enrollment.sponsorships?.find(s => sponsorshipIds.includes(s.sponsorshipId));
+      const sponsorship = sponsorships.find(s => String(s._id) === sp?.sponsorshipId);
+
+      return {
+        _id: enrollment._id,
+        user: { 
+          name: user?.displayName || 'N/A', 
+          email: user?.email || 'N/A' 
+        },
+        course: { 
+          title: course?.title || 'N/A' 
+        },
+        sponsorship: { 
+          title: sponsorship?.title || 'N/A', 
+          status: sp?.status || 'N/A' 
+        },
+        status: enrollment.status,
+        enrolledAt: enrollment.enrolledAt
+      };
+    }));
+
     res.status(StatusCodes.OK).json({
       success: true,
       message: 'Lấy tổng quan enterprise thành công!',
@@ -147,15 +252,19 @@ const getOverview = async (req, res, next) => {
         totalLearners,
         totalGraduates,
         activePartnerships: partnerships,
-        activeSponsorships: sponsorships,
+        activeSponsorships: activeSponsorshipsList,
         totalJobs,
         totalApplications,
         totalInterviews,
         totalHired,
         applicationFunnel,
+        applicationStatusData,
         applicationTrend,
         applicationSource,
-        jobStatusData
+        jobStatusData,
+        partnershipStatusData,
+        sponsorshipStatusData,
+        sponsoredLearners
       }
     })
   } catch (error) { next(error) }

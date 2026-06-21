@@ -56,6 +56,14 @@ Router.post('/:id/submit',
   recruitmentJobController.submitForApproval
 )
 
+// Hủy gửi tin để duyệt
+Router.post('/:id/cancel-approval',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedEnterprise,
+  recruitmentJobValidation.checkId,
+  recruitmentJobController.cancelApproval
+)
+
 // Đóng tin tuyển dụng
 Router.post('/:id/close',
   authMiddleware.isAuthorized,

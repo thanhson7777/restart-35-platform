@@ -50,15 +50,16 @@ const TrainerCourseFormPage = () => {
                 delivery_type: dType,
                 maxStudents: p.recruitmentNeeds?.jobQuantity || 30,
                 fundingConfig: {
-                  type: 'SPONSORED',
+                  type: 'PAID',
                   price: p.proposedSponsorship?.fixedAmountPerLearner || 0,
                   hasJobGuarantee: true,
-                  acceptsSponsorship: false
+                  acceptsSponsorship: !p.proposedSponsorship?.fixedAmountPerLearner
                 },
                 skills: p.recruitmentNeeds?.targetSkills || [],
                 description: `<p>Khóa học được thiết kế đặc biệt theo yêu cầu tuyển dụng của doanh nghiệp <strong>${p.enterprise?.displayName || 'đối tác'}</strong>.</p><p>Mục tiêu: Đào tạo ứng viên đạt tiêu chuẩn cho vị trí <strong>${p.recruitmentNeeds?.jobTitle || ''}</strong>.</p>`,
                 linkedPartnershipId: partnershipId,
-                linkedEnterpriseId: p.enterpriseId
+                linkedEnterpriseId: p.enterpriseId,
+                hasEnterpriseSponsorship: !!p.proposedSponsorship?.fixedAmountPerLearner
               });
               toast.success('Đã tự động điền thông tin từ Yêu cầu Doanh nghiệp!');
             }
@@ -85,8 +86,8 @@ const TrainerCourseFormPage = () => {
     setSubmitting(true);
     const actionType = formData.get('status'); // 'draft' or 'pending'
     
-    // Status is handled explicitly below; remove it from base update if needed
-    // (though backend Joi schema ignores or processes it)
+    // Status is handled explicitly by APIs below; prevent base update from overwriting it
+    formData.delete('status');
     
     try {
       let savedCourseId = id;
@@ -171,6 +172,17 @@ const TrainerCourseFormPage = () => {
       {loading ? (
         <div className="h-96 w-full bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl animate-pulse flex items-center justify-center text-[hsl(var(--admin-text-muted))]">
           Đang tải dữ liệu biểu mẫu...
+        </div>
+      ) : courseData?.status === 'pending' ? (
+        <div className="bg-[hsl(var(--admin-warning)_/_10%)] border border-[hsl(var(--admin-warning)_/_30%)] text-[hsl(var(--admin-warning))] p-6 rounded-xl text-center space-y-4">
+          <p className="font-medium text-lg">Khóa học này đang chờ Admin duyệt.</p>
+          <p className="text-sm">Bạn không thể chỉnh sửa khóa học trong thời gian này. Vui lòng rút yêu cầu duyệt ở màn hình Danh sách nếu bạn cần tiếp tục chỉnh sửa.</p>
+          <Button
+            onClick={() => navigate('/trainer/courses')}
+            className="bg-[hsl(var(--admin-warning))] hover:bg-[hsl(var(--admin-warning))/80] text-white"
+          >
+            Quay lại danh sách
+          </Button>
         </div>
       ) : (
         <TrainerCourseForm

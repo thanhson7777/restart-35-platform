@@ -51,8 +51,8 @@ const partnerRegister = async (req, res, next) => {
     role: Joi.string().valid(USER_ROLES.ENTERPRISE, USER_ROLES.NGO, USER_ROLES.TRAINER).required(),
     organization: Joi.object({
       name: Joi.string().required().min(3).max(255),
-      taxCode: Joi.string().required().max(50),
-      address: Joi.string().required().max(500)
+      taxCode: Joi.string().allow('', null).max(50).optional(),
+      address: Joi.string().allow('', null).max(500).optional()
     }).required()
   })
 
@@ -96,7 +96,7 @@ const update = async (req, res, next) => {
     phone: Joi.string().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
     address: Joi.string().trim().strict(),
     companyName: Joi.string().trim().strict(),
-    taxCode: Joi.string().trim().strict(),
+    taxCode: Joi.string().allow('', null).trim().strict(),
     current_password: Joi.string().pattern(PASSWORD_RULE).message(`current_password: ${PASSWORD_RULE_MESSAGE}`),
     new_password: Joi.string().pattern(PASSWORD_RULE).message(`new_password: ${PASSWORD_RULE_MESSAGE}`)
   })

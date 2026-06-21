@@ -32,7 +32,8 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
       .valid(...Object.values(COMPLETION_STATUS))
       .default(COMPLETION_STATUS.NOT_STARTED),
     completedItems: Joi.array().items(Joi.string()).default([]),
-    currentLessonId: Joi.string().allow(null, '')
+    currentLessonId: Joi.string().allow(null, ''),
+    totalLessons: Joi.number().integer().min(0).default(0)
   }),
 
   attendance: Joi.object({
@@ -69,13 +70,13 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
     disbursements: Joi.array().items(
       Joi.object({
         amount: Joi.number().integer().min(0).required(),
-        date: Joi.date().timestamp('javascript').default(Date.now()),
+        date: Joi.date().timestamp('javascript').default(Date.now),
         status: Joi.string().valid('pending', 'disbursed', 'clawback', 'refunded')
       })
     ).default([])
   }),
 
-  enrolledAt: Joi.date().timestamp('javascript').default(Date.now()),
+  enrolledAt: Joi.date().timestamp('javascript').default(Date.now),
   startDate: Joi.date().timestamp('javascript').allow(null),
   endDate: Joi.date().timestamp('javascript').allow(null),
   completedAt: Joi.date().timestamp('javascript').allow(null),
@@ -149,8 +150,8 @@ const ENROLLMENT_COLLECTION_SCHEMA = Joi.object({
   certificateId: Joi.string().allow(null, ''),
 
   updatedBy: Joi.string().allow(null),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 
@@ -731,23 +732,43 @@ const getOverallStats = async (trainerId = null) => {
             year: { $year: '$enrolledAt' },
             month: { $month: '$enrolledAt' }
           },
-          count: { $sum: 1 }
+          count: { $sum: 1 },
+          amount: { $sum: '$fee.paid' }
         }
       },
       { $sort: { '_id.year': 1, '_id.month': 1 } }
     ]).toArray()
 
+    const TRAINER_SHARE = 0.8 // 80% cho Giảng viên, 20% cho nền tảng
+
+    let totalRevenueAmount = 0
+
     const trendData = monthlyTrend.map(item => {
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
       const label = `${monthNames[item._id.month - 1]} ${item._id.year}`
+      
+      const monthRevenue = item.amount ? Math.round(item.amount * TRAINER_SHARE) : 0
+      totalRevenueAmount += monthRevenue
+      
       return {
         month: label,
-        count: item.count
+        count: item.count,
+        revenue: monthRevenue
       }
     })
 
+    // Also get total revenue from ALL TIME, not just last 12 months
+    const totalRevenuePipeline = [
+      { $match: matchQuery },
+      { $group: { _id: null, total: { $sum: '$fee.paid' } } }
+    ]
+    const totalRevRaw = await db.collection(ENROLLMENT_COLLECTION_NAME).aggregate(totalRevenuePipeline).toArray()
+    const allTimeRevenue = totalRevRaw[0]?.total ? Math.round(totalRevRaw[0].total * TRAINER_SHARE) : 0
+
     result.recentEnrollments = recentEnrollments
     result.monthlyTrend = trendData
+    result.totalRevenue = allTimeRevenue
+    result.revenueByMonth = trendData
 
     return result
   } catch (error) {
@@ -977,6 +998,9 @@ export const enrollmentModel = {
   ENROLLMENT_COLLECTION_NAME,
   ENROLLMENT_COLLECTION_SCHEMA,
   ENROLLMENT_PAYMENT_STATUS,
+
+  // Validation
+  validateBeforeCreate,
 
   // Create
   createNew,

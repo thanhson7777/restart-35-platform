@@ -3,6 +3,7 @@ import { Video, Calendar, Clock, ExternalLink } from 'lucide-react';
 import { ProgressBar } from '@/components/enrollment/ProgressBar';
 import { formatDate } from '@/utils/formatter';
 import { Button } from '@/components/ui';
+import toast from 'react-hot-toast';
 
 export const LiveProgressDetail = ({ enrollment, schedule }) => {
   const { progress } = enrollment;
@@ -14,8 +15,8 @@ export const LiveProgressDetail = ({ enrollment, schedule }) => {
     { sessionNumber: 3, title: 'Làm việc nhóm trực tuyến', status: 'upcoming', date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), startTime: '19:30', endTime: '21:00', location: 'https://meet.google.com/abc-defg-hij' }
   ];
 
-  const totalSessions = sessions.length;
-  const attendedCount = sessions.filter(s => s.status === 'completed' || s.attended).length;
+  const totalSessions = progress?.totalLessons || sessions.length || 1;
+  const attendedCount = progress?.currentLesson || progress?.completedItems?.length || 0;
   const liveProgress = progress?.byDelivery?.live || Math.round((attendedCount / totalSessions) * 100) || 0;
 
   // Find next upcoming session
@@ -49,19 +50,6 @@ export const LiveProgressDetail = ({ enrollment, schedule }) => {
             <span className="text-[10px] uppercase font-bold tracking-wider text-rose-500 block">
               Buổi học tiếp theo (Buổi {nextSession.sessionNumber})
             </span>
-            {nextSession.location && (
-              <Button
-                variant="ghost"
-                className="h-6 text-[10px] gap-1 px-2 border-0 hover:bg-zinc-100 dark:hover:bg-zinc-800 font-bold text-primary shrink-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(nextSession.location, '_blank');
-                }}
-              >
-                <span>Vào lớp Live</span>
-                <ExternalLink className="w-3 h-3" />
-              </Button>
-            )}
           </div>
           
           <p className="text-xs font-bold text-zinc-850 dark:text-zinc-200 leading-snug line-clamp-1">
@@ -82,6 +70,19 @@ export const LiveProgressDetail = ({ enrollment, schedule }) => {
               </span>
             )}
           </div>
+        </div>
+      )}
+
+
+      {/* Completion Box */}
+      {!nextSession && totalSessions > 0 && attendedCount >= totalSessions && (
+        <div className="p-3 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-950/20 flex flex-col items-center justify-center text-center space-y-1">
+          <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+            🎉 Bạn đã hoàn thành tất cả các buổi học
+          </p>
+          <p className="text-[10.5px] text-emerald-600/80 dark:text-emerald-400/80 font-medium px-2">
+            Giảng viên sẽ tổng kết điểm và cập nhật trạng thái tốt nghiệp cho bạn.
+          </p>
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { courseService } from '~/services/courseService'
 import { StatusCodes } from 'http-status-codes'
 import { USER_ROLES } from '~/utils/constants'
-import { courseVideoLessonModel } from '~/models/courseVideoLessonModel'
+import { courseModel } from '~/models/courseModel'
 
 // ============ CREATE ============
 const createCourse = async (req, res, next) => {
@@ -222,6 +222,20 @@ const submitForApproval = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const cancelSubmitCourse = async (req, res, next) => {
+  try {
+    const userId = req.user._id.toString()
+    const courseId = req.params.id
+    const course = await courseService.cancelSubmitCourse(courseId, userId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã hủy yêu cầu duyệt! Khóa học đã được hoàn về trạng thái nháp.',
+      data: course
+    })
+  } catch (error) { next(error) }
+}
+
 const approveCourse = async (req, res, next) => {
   try {
     const courseId = req.params.id
@@ -297,7 +311,27 @@ const deleteCourse = async (req, res, next) => {
 // ============ LESSONS ============
 const getCourseLessons = async (req, res, next) => {
   try {
-    const lessons = await courseVideoLessonModel.findByCourse(req.params.id)
+    let lessons = []
+    const course = await courseModel.findOneById(req.params.id)
+    if (course && course.syllabus && course.syllabus.length > 0) {
+      lessons = course.syllabus.map((item, index) => ({
+        _id: item._id,
+        id: item._id,
+        courseId: req.params.id,
+        weekNumber: item.week,
+        moduleTitle: `Tuần ${item.week}`,
+        title: item.title,
+        description: item.content || '',
+        videoUrl: item.videoUrl || '',
+        videoId: item.videoUrl ? item._id : '',
+        duration: item.videoDuration ? (item.videoDuration * 60) : 0, // convert minutes to seconds
+        thumbnail: course.thumbnail || '',
+        order: index,
+        slides: [],
+        resources: item.fileUrl ? [{ title: item.fileName || 'Tài liệu', url: item.fileUrl }] : [],
+        status: 'published'
+      }))
+    }
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -310,7 +344,31 @@ const getCourseLessons = async (req, res, next) => {
 // ============ PREVIEW LESSONS ============
 const getPreviewLessons = async (req, res, next) => {
   try {
-    const lessons = await courseVideoLessonModel.findByCourse(req.params.id)
+    let lessons = []
+    const course = await courseModel.findOneById(req.params.id)
+    if (course && course.syllabus && course.syllabus.length > 0) {
+      const videoSyllabus = course.syllabus.filter(item => item.videoUrl)
+      const previewItems = videoSyllabus.slice(0, 3)
+      lessons = previewItems.map((item, index) => ({
+        _id: item._id,
+        id: item._id,
+        courseId: req.params.id,
+        weekNumber: item.week,
+        moduleTitle: `Tuần ${item.week}`,
+        title: item.title,
+        description: item.content || '',
+        videoUrl: item.videoUrl || '',
+        videoId: item.videoUrl ? item._id : '',
+        duration: item.videoDuration ? (item.videoDuration * 60) : 0,
+        thumbnail: course.thumbnail || '',
+        order: index,
+        slides: [],
+        resources: item.fileUrl ? [{ title: item.fileName || 'Tài liệu', url: item.fileUrl }] : [],
+        status: 'published',
+        isPreview: true
+      }))
+    }
+
     const previewLessons = lessons.filter(l => l.isPreview === true).slice(0, 3)
 
     res.status(StatusCodes.OK).json({
@@ -343,6 +401,7 @@ export const courseController = {
   // Update
   updateCourse,
   submitForApproval,
+  cancelSubmitCourse,
   approveCourse,
   uploadCourseResource,
 

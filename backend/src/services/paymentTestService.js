@@ -6,7 +6,7 @@ import crypto from 'crypto'
 
 const verifyVnpayIpn = async (vnp_Params) => {
     const verifyResult = vnpayInstance.verifyIpnCall(vnp_Params)
-    if (!verifyResult.isVerified) {
+    if (!verifyResult.isSuccess) {
         return { RspCode: '97', Message: 'Checksum failed' }
     }
 
@@ -37,6 +37,22 @@ const verifyVnpayIpn = async (vnp_Params) => {
         if (payment.enrollmentId) {
             await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
             await enrollmentModel.updateStatus(payment.enrollmentId, ENROLLMENT_STATUS_V2.ACTIVE)
+        } else if (payment.courseId && payment.userId) {
+            const { enrollmentService } = await import('~/services/enrollmentService')
+            try {
+                await enrollmentService.enrollCourse(payment.userId.toString(), payment.courseId.toString(), {
+                    paymentId: paymentId,
+                    source: 'direct'
+                })
+            } catch (error) {
+                console.error('Auto-enroll error after VNPAY success:', error.message)
+            }
+        }
+
+        // Trigger Revenue Share
+        if (payment.amount > 0) {
+            const { revenueShareService } = await import('~/services/revenueShareService')
+            await revenueShareService.processRevenueShare(payment)
         }
     } else {
         await paymentModel.updateStatus(paymentId, PAYMENT_STATUS.FAILED, vnp_Params['vnp_TransactionNo'])
@@ -76,6 +92,22 @@ const verifyMomoCallback = async (momoParams) => {
         if (payment.enrollmentId) {
             await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
             await enrollmentModel.updateStatus(payment.enrollmentId, ENROLLMENT_STATUS_V2.ACTIVE)
+        } else if (payment.courseId && payment.userId) {
+            const { enrollmentService } = await import('~/services/enrollmentService')
+            try {
+                await enrollmentService.enrollCourse(payment.userId.toString(), payment.courseId.toString(), {
+                    paymentId: realPaymentId,
+                    source: 'direct'
+                })
+            } catch (error) {
+                console.error('Auto-enroll error after Momo success:', error.message)
+            }
+        }
+
+        // Trigger Revenue Share
+        if (payment.amount > 0) {
+            const { revenueShareService } = await import('~/services/revenueShareService')
+            await revenueShareService.processRevenueShare(payment)
         }
     } else {
         await paymentModel.updateStatus(realPaymentId, PAYMENT_STATUS.FAILED, transId)

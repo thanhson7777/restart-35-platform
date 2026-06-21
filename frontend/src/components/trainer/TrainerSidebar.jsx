@@ -13,6 +13,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Settings,
+  Wallet,
 } from 'lucide-react';
 import { Badge } from '@/components/ui';
 
@@ -22,8 +24,8 @@ const trainerNavItems = [
   { title: 'Khóa học', href: '/trainer/courses', icon: BookOpen },
   { title: 'Lịch dạy', href: '/trainer/schedule', icon: Calendar },
   { title: 'Partnership', href: '/trainer/partnerships', icon: Handshake },
-  { title: 'Việc làm', href: '/trainer/placements', icon: Briefcase },
-  { title: 'Đánh giá', href: '/trainer/reviews', icon: Star },
+  { title: 'Ví & Giao dịch', href: '/trainer/wallet', icon: Wallet },
+  { title: 'Cài đặt', href: '/trainer/profile', icon: Settings },
 ];
 
 const TrainerSidebar = ({ collapsed, onToggle }) => {

@@ -5,6 +5,7 @@ import { workerProfileModel } from '~/models/workerProfileModel'
 import { fundingConfigModel } from '~/models/fundingConfigModel'
 import { courseSponsorshipModel } from '~/models/courseSponsorshipModel'
 import { partnershipModel } from '~/models/partnershipModel'
+import { scheduleModel } from '~/models/scheduleModel'
 import { GET_DB } from '~/config/mongodb'
 import { applicationService } from './applicationService'
 import { isaRepaymentService } from './isaRepaymentService'
@@ -150,6 +151,34 @@ const processEnrollmentCompletionTriggers = async (enrollment) => {
           courseId: enrollment.courseId.toString()
         }
       )
+
+      // Auto-Placement: Tự động tạo hồ sơ giới thiệu việc làm
+      if (partnership.agreedTerms?.placementGuarantee || partnership.recruitmentNeeds) {
+        try {
+          const { placementService } = await import('./placementService')
+          const enterpriseUser = await userModel.findOneById(partnership.enterpriseId)
+          if (enterpriseUser) {
+            await placementService.createPlacement(null, {
+              enrollmentId: enrollment._id.toString(),
+              courseId: enrollment.courseId.toString(),
+              partnershipId: partnership._id.toString(),
+              referralSource: 'partnership',
+              employer: {
+                name: enterpriseUser.displayName || enterpriseUser.username || 'Doanh nghiệp đối tác',
+                industry: enterpriseUser.industry || '',
+                contactEmail: enterpriseUser.email || ''
+              },
+              job: {
+                title: partnership.recruitmentNeeds?.jobTitle || 'Vị trí hợp tác đào tạo',
+                salary: partnership.recruitmentNeeds?.salaryRange?.min || 0,
+                currency: partnership.recruitmentNeeds?.salaryRange?.currency || 'VND'
+              }
+            })
+          }
+        } catch (error) {
+          console.error('Failed to auto-create placement for partnership:', error.message)
+        }
+      }
     }
   }
 
@@ -299,30 +328,35 @@ const enrollCourse = async (userId, courseId, data) => {
 
     const profile = await workerProfileModel.findOneByUserId(userId)
     if (!profile) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng hoàn thành hồ sơ trước khi đăng ký!')
+      if (source !== 'direct') throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng hoàn thành hồ sơ trước khi đăng ký!')
+    } else if (!profile.isCompleted) {
+      if (source !== 'direct') throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng hoàn thành hồ sơ trước khi đăng ký!')
     }
 
-    if (!profile.isCompleted) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng hoàn thành hồ sơ trước khi đăng ký!')
-    }
+    if (profile) {
+      const eligibility = await checkEligibility(profile, course)
+      if (!eligibility.eligible) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, eligibility.reason)
+      }
 
-    const eligibility = await checkEligibility(profile, course)
-    if (!eligibility.eligible) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, eligibility.reason)
-    }
-
-    if (eligibility.warning) {
-      console.warn(`Enrollment warning for user ${userId}: ${eligibility.warning}`)
+      if (eligibility.warning) {
+        console.warn(`Enrollment warning for user ${userId}: ${eligibility.warning}`)
+      }
     }
 
     const prereqResult = await checkPrerequisites(userId, course)
 
     const capacityResult = await checkCapacity(course)
 
+    const sponsorshipMatches = await resolveEnrollmentSponsorships(profile, course, source)
+    const fundingMetadata = await syncEnrollmentFundingMetadata(course, sponsorshipMatches)
+
     let finalStatus = ENROLLMENT_STATUS_V2.ACTIVE
     let waitlistPosition = null
 
-    if (source === 'ngo_sponsored') {
+    const requiresManualApproval = sponsorshipMatches.some(match => match._sponsorship && match._sponsorship.autoApprove === false)
+
+    if (source === 'ngo_sponsored' || requiresManualApproval) {
       finalStatus = ENROLLMENT_STATUS_V2.PENDING_REVIEW
     } else if (!capacityResult.available) {
       finalStatus = ENROLLMENT_STATUS_V2.ACTIVE
@@ -331,9 +365,6 @@ const enrollCourse = async (userId, courseId, data) => {
       })
       waitlistPosition = waitlistCount.totalEnrollments + 1
     }
-
-    const sponsorshipMatches = await resolveEnrollmentSponsorships(profile, course, source)
-    const fundingMetadata = await syncEnrollmentFundingMetadata(course, sponsorshipMatches)
 
     const enrollmentData = {
       userId: userId,
@@ -359,6 +390,13 @@ const enrollCourse = async (userId, courseId, data) => {
         total: course.isFree ? 0 : course.fee,
         paid: 0,
         pending: course.isFree ? 0 : course.fee
+      },
+      progress: {
+        percentage: 0,
+        completionStatus: COMPLETION_STATUS.NOT_STARTED,
+        completedItems: [],
+        currentLessonId: '',
+        totalLessons: course.delivery_type === 'video' ? (course.syllabus?.length || 0) : 0
       },
       waitlistPosition,
       enrolledAt: Date.now(),
@@ -466,6 +504,12 @@ const getMyEnrollments = async (userId, queryParams) => {
         // #endregion
         const course = await courseModel.findOneById(enrollment.courseId)
         const installments = await getInstallmentsForEnrollment(enrollment._id, course, enrollment)
+        
+        let schedule = null
+        if (course && ['live', 'offline', 'hybrid'].includes(course.delivery_type)) {
+          schedule = await scheduleModel.findByCourse(course._id.toString())
+        }
+
         return {
           ...enrollment,
           course: course ? {
@@ -479,6 +523,7 @@ const getMyEnrollments = async (userId, queryParams) => {
             providerId: course.providerId,
             delivery_type: course.delivery_type
           } : null,
+          schedule,
           installments
         }
       })
@@ -523,7 +568,14 @@ const getEnrollmentsByCourse = async (courseId, queryParams, trainerId = null) =
     const skip = (currentPage - 1) * recordLimit
 
     const filters = {}
-    if (status) filters.status = status
+    if (status) {
+      filters.status = status
+    } else {
+      // Hide pending review enrollments from trainer's view by default
+      if (course.providerId.toString() === trainerId) {
+        filters.status = { $ne: ENROLLMENT_STATUS_V2.PENDING_REVIEW }
+      }
+    }
     if (source) filters.source = source
 
     const { enrollments, totalEnrollments } = await enrollmentModel.findByCourse(
@@ -717,6 +769,10 @@ const updateStatus = async (enrollmentId, status, additionalData, trainerId) => 
       }
     }
 
+    if (enrollment.status === status) {
+      return enrollment
+    }
+
     const validTransitions = {
       [ENROLLMENT_STATUS_V2.ACTIVE]: [ENROLLMENT_STATUS_V2.IN_PROGRESS, ENROLLMENT_STATUS_V2.DROPPED, ENROLLMENT_STATUS_V2.SUSPENDED],
       [ENROLLMENT_STATUS_V2.IN_PROGRESS]: [ENROLLMENT_STATUS_V2.COMPLETED, ENROLLMENT_STATUS_V2.DROPPED, ENROLLMENT_STATUS_V2.SUSPENDED],
@@ -790,8 +846,16 @@ const completeItem = async (enrollmentId, itemId, userId) => {
       }
     }
 
-    // Get total items from existing progress or default to 1
-    const totalItems = enrollment.progress?.totalLessons || 1;
+    // Get total items from course syllabus (dynamic safeguard) or existing progress or default to 1
+    const course = await courseModel.findOneById(enrollment.courseId)
+    const totalItems = course?.syllabus?.length || enrollment.progress?.totalLessons || 1;
+
+    // Self-heal/update totalLessons in DB if it's missing or out of sync
+    if (enrollment.progress?.totalLessons !== totalItems) {
+      await enrollmentModel.update(enrollmentId, {
+        'progress.totalLessons': totalItems
+      })
+    }
 
     const updatedEnrollmentResult = await enrollmentModel.markItemCompleted(enrollmentId, itemId, totalItems)
     const updatedEnrollment = updatedEnrollmentResult?.value || updatedEnrollmentResult
@@ -1344,6 +1408,9 @@ const getTrainerEnrollments = async (queryParams, trainerId) => {
     // 3. Filter by status
     if (status) {
       filters.status = status
+    } else {
+      // Hide pending review enrollments from trainer's general list by default
+      filters.status = { $ne: ENROLLMENT_STATUS_V2.PENDING_REVIEW }
     }
 
     // 4. Filter by risk level (dropout_risk.level)

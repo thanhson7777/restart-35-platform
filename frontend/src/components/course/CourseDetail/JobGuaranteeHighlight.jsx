@@ -72,7 +72,7 @@ export const JobGuaranteeHighlight = ({ sponsorships }) => {
           </Badge>
           <span className="text-sm font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
             <Building className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />
-            Tài trợ bởi {sponsor.title || 'Doanh nghiệp đối tác'}
+            Tài trợ bởi {sponsor.title ? sponsor.title.replace('Tài trợ từ ', '') : 'Doanh nghiệp đối tác'}
           </span>
         </div>
         
@@ -83,7 +83,11 @@ export const JobGuaranteeHighlight = ({ sponsorships }) => {
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 mt-2 pt-3 border-t border-blue-100 dark:border-blue-900/30">
           <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 px-3 py-1.5 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800">
             <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500 shrink-0" />
-            <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">Tài trợ 100% học phí</span>
+            <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+              {(sponsor.coverageType === 'full' || sponsor.coverageType === 'FULL') 
+                ? 'Tài trợ 100% học phí' 
+                : `Tài trợ ${sponsor.maxAmountPerLearner ? new Intl.NumberFormat('vi-VN').format(sponsor.maxAmountPerLearner) + 'đ' : 'một phần học phí'}`}
+            </span>
           </div>
           
           <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 px-3 py-1.5 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800">

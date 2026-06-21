@@ -8,7 +8,6 @@ import { DeliveryTypeBadge } from '@/components/course/DeliveryTypeBadge';
 import { FundingModelChip } from '@/components/course/FundingModelChip';
 import { JobGuaranteeHighlight } from '@/components/course/CourseDetail/JobGuaranteeHighlight';
 import { SyllabusAccordion } from '@/components/course/CourseDetail/SyllabusAccordion';
-import { VideoPreviewSection } from '@/components/course/CourseDetail/VideoPreviewSection';
 import { ScheduleSessionList } from '@/components/course/CourseDetail/ScheduleSessionList';
 import { LiveSessionCountdown } from '@/components/course/CourseDetail/LiveSessionCountdown';
 import { CourseInstructorInfo } from '@/components/course/CourseDetail/CourseInstructorInfo';
@@ -17,7 +16,7 @@ import { getSponsorships } from '@/apis/courseSponsorshipApi';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import { formatPrice, formatDuration } from '@/utils/formatter';
-import { Star, Users, Clock, MapPin, BookOpen, Eye, Play } from 'lucide-react';
+import { Star, Users, Clock, MapPin, BookOpen, Eye, Play, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Navbar from '@/components/landing/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -30,7 +29,6 @@ export default function CourseDetailPage() {
 
   const overviewRef = useRef(null);
   const curriculumRef = useRef(null);
-  const previewRef = useRef(null);
   const scheduleRef = useRef(null);
   const instructorRef = useRef(null);
 
@@ -126,9 +124,9 @@ export default function CourseDetailPage() {
         await Promise.all(fetchDetails);
 
         // Check existing enrollment
-        if (currentUser) {
+        if (currentUser && courseData?._id) {
           try {
-            const enrollRes = await getMyEnrollments({ courseId: id });
+            const enrollRes = await getMyEnrollments({ courseId: courseData._id });
             const raw = enrollRes.data;
             console.log('[DEBUG] enrollments', { isSuccess: raw?.success, rawKeys: raw ? Object.keys(raw) : [] });
             const enrollments = Array.isArray(raw)
@@ -137,7 +135,7 @@ export default function CourseDetailPage() {
               ? raw.data
               : [];
             const found = enrollments.find(
-              (e) => e.courseId === id || e.course?._id === id
+              (e) => e.courseId === courseData._id || e.course?._id === courseData._id
             );
             setExistingEnrollment(found || null);
           } catch {
@@ -237,6 +235,11 @@ export default function CourseDetailPage() {
   const isApproved = status === 'approved';
   const nextSession = sessions.filter(s => s.status !== 'completed')[0];
 
+  const actualIsFree = course?.fundingConfig?.type === 'FREE' || course?.isFree || course?.fee === 0;
+  const computedFundingModel = actualIsFree 
+    ? 'free' 
+    : (course?.funding_model === 'free' ? 'learner_paid' : (course?.funding_model || (course?.fundingConfig?.type === 'PAID' ? 'learner_paid' : null)));
+
   const scrollTo = (ref) => {
     if (ref && ref.current) {
       const yOffset = -80; // height of sticky nav
@@ -249,158 +252,276 @@ export default function CourseDetailPage() {
     <div className="min-h-screen bg-background flex flex-col font-sans">
       <Navbar />
       
-      {/* 1. Cinematic Hero Section */}
-      <section className="relative w-full min-h-[80vh] flex items-center pt-24 pb-16 overflow-hidden bg-zinc-950 text-white dark">
-        {/* Background Layer */}
-        {thumbnail && (
-          <div className="absolute inset-0 z-0">
-            <SafeImage 
-              src={thumbnail} 
-              alt="Course Background" 
-              className="w-full h-full object-cover opacity-30 scale-105" 
-            />
-            {/* Cinematic Gradient Mask */}
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/60 to-transparent" />
-          </div>
-        )}
+      {/* 1. Hero Section (Light Blue Theme) */}
+      <section className="relative w-full pt-32 pb-24 bg-blue-50/50 text-zinc-900 overflow-hidden border-b border-blue-100">
+        {/* Subtle background pattern/gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-100/40 to-transparent mix-blend-multiply" />
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             
             {/* Left Content (8 cols) */}
-            <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+            <div className="lg:col-span-8 flex flex-col gap-6">
               
               {/* Badges / Meta */}
               <div className="flex flex-wrap items-center gap-3">
                 {course.delivery_type && (
-                  <DeliveryTypeBadge deliveryType={course.delivery_type} size="md" />
-                )}
-                {course.funding_model && (
-                  <FundingModelChip fundingModel={course.funding_model} size="md" />
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-3 py-1 text-xs">
+                    {course.delivery_type.toUpperCase()}
+                  </Badge>
                 )}
                 {level && (
-                  <Badge variant="outline" className="border-zinc-700 text-zinc-300 text-xs px-3 py-1 rounded-full font-medium tracking-wide">
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-3 py-1 text-xs">
                     {level === 'beginner' ? 'Người mới' : level === 'intermediate' ? 'Trung bình' : 'Nâng cao'}
                   </Badge>
                 )}
                 {isApproved && (
-                  <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1 rounded-full font-medium">
+                  <Badge className="bg-emerald-100 text-emerald-700 border-none px-3 py-1 text-xs">
                     Đã kiểm duyệt
                   </Badge>
                 )}
               </div>
 
               {/* Huge Title */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-white leading-[1.1]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1]">
                 {title}
               </h1>
 
-              {/* Skills */}
-              {skills?.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {skills.slice(0, 5).map((skill, idx) => (
-                    <Badge
-                      key={idx}
-                      variant="secondary"
-                      className="bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-200 border-0 text-xs px-3 py-1 font-medium transition-colors"
-                    >
-                      {skill}
-                    </Badge>
-                  ))}
-                  {skills.length > 5 && (
-                    <Badge variant="secondary" className="bg-zinc-800/50 text-zinc-400 border-0 text-xs">
-                      +{skills.length - 5}
-                    </Badge>
-                  )}
-                </div>
+              {/* Short Description */}
+              {course.shortDescription && (
+                <p className="text-lg sm:text-xl text-zinc-600 max-w-3xl leading-relaxed">
+                  {course.shortDescription}
+                </p>
               )}
 
-              {/* Sponsor / Job Guarantee Banner */}
-              <div className="max-w-2xl mt-4">
-                <JobGuaranteeHighlight sponsorships={sponsorships} />
-              </div>
-
-              {/* Bento Stats Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 border-t border-zinc-800/50 pt-8">
-                {rating?.average && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">Đánh giá</span>
-                    <span className="flex items-center gap-1.5 text-xl font-bold">
-                      <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                      {rating.average.toFixed(1)}
-                    </span>
-                  </div>
+              {/* Stats Inline */}
+              <div className="flex flex-wrap items-center gap-6 text-sm text-zinc-600 mt-2">
+                {rating?.average > 0 && (
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    {rating.average.toFixed(1)} ({rating.count} đánh giá)
+                  </span>
                 )}
-                {enrollmentCount != null && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">Học viên</span>
-                    <span className="flex items-center gap-1.5 text-xl font-bold">
-                      <Users className="w-5 h-5 text-blue-400" />
-                      {enrollmentCount}
-                    </span>
-                  </div>
-                )}
-                {duration && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">Thời lượng</span>
-                    <span className="flex items-center gap-1.5 text-xl font-bold">
-                      <Clock className="w-5 h-5 text-emerald-400" />
-                      {formatDuration(duration)}
-                    </span>
-                  </div>
-                )}
-                {viewCount != null && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">Lượt xem</span>
-                    <span className="flex items-center gap-1.5 text-xl font-bold">
-                      <Eye className="w-5 h-5 text-purple-400" />
-                      {viewCount}
-                    </span>
-                  </div>
+                {enrollmentCount > 0 && (
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Users className="w-5 h-5" />
+                    {enrollmentCount} học viên
+                  </span>
                 )}
               </div>
 
             </div>
 
-            {/* Right Content (4 cols) - Floating Enrollment Card */}
-            <div className="lg:col-span-5 xl:col-span-4 relative z-20">
-              <div className="sticky top-24">
-                {currentUser?.role === 'enterprise' ? (
-                  <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-1 rounded-3xl shadow-2xl overflow-hidden ring-1 ring-white/10">
-                    <div className="bg-white dark:bg-zinc-950 rounded-[22px] overflow-hidden p-6 text-center space-y-4">
-                      <h3 className="font-bold text-lg">Dành cho Doanh nghiệp</h3>
-                      <p className="text-sm text-zinc-500">
-                        Hợp tác với giảng viên để tuyển dụng học viên hoặc tài trợ học phí.
-                      </p>
-                      <button 
-                        onClick={() => setIsPartnershipModalOpen(true)}
-                        className="w-full py-4 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors"
-                      >
-                        Yêu cầu Hợp tác
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-1 rounded-3xl shadow-2xl overflow-hidden ring-1 ring-white/10">
-                    <div className="bg-white dark:bg-zinc-950 rounded-[22px] overflow-hidden">
-                      <CourseEnrollmentForm
-                        course={course}
-                        eligibility={eligibility}
-                        existingEnrollment={existingEnrollment}
-                        sponsorships={sponsorships}
-                        onSubmit={handleEnroll}
-                        isSubmitting={enrolling}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Right Placeholder for spacing in Hero, the actual card is fixed/absolute below */}
+            <div className="hidden lg:block lg:col-span-4"></div>
 
           </div>
         </div>
       </section>
+
+
+      {/* 3. Main Storytelling Content */}
+      <main className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          
+          {/* Left Column (Main Content) */}
+          <div className="lg:col-span-8 relative">
+            
+            {/* 2. Sticky Navigation Bar */}
+            <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-zinc-200 py-4 mb-8">
+              <div className="flex items-center gap-8 overflow-x-auto no-scrollbar">
+                <button onClick={() => scrollTo(overviewRef)} className="text-sm font-bold text-zinc-600 hover:text-blue-600 whitespace-nowrap transition-colors">
+                  Tổng quan
+                </button>
+                <button onClick={() => scrollTo(curriculumRef)} className="text-sm font-bold text-zinc-600 hover:text-blue-600 whitespace-nowrap transition-colors">
+                  Giáo trình
+                </button>
+
+                <button onClick={() => scrollTo(instructorRef)} className="text-sm font-bold text-zinc-600 hover:text-blue-600 whitespace-nowrap transition-colors">
+                  Giảng viên
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-16">
+            
+            {/* Outcomes Section (Pulled out of CourseInfo) */}
+            {course.outcomes && course.outcomes.length > 0 && (
+              <section className="bg-blue-50/50 border border-blue-100 rounded-2xl p-6 md:p-8">
+                <h2 className="text-2xl font-bold text-zinc-900 mb-6 flex items-center gap-2">
+                  <div className="w-1.5 h-6 bg-blue-600 rounded-full"></div>
+                  Bạn sẽ học được gì?
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {course.outcomes.map((outcome, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="mt-0.5 w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                      </div>
+                      <span className="text-zinc-700 leading-relaxed text-sm">{outcome}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Overview Section */}
+            <section ref={overviewRef} className="scroll-mt-32">
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-zinc-900 mb-3">Thông tin chi tiết</h2>
+                <div className="w-12 h-1 bg-blue-600 rounded-full"></div>
+              </div>
+              <CourseInfo 
+                course={course} 
+                isEnrolled={!!existingEnrollment} 
+                lessons={courseLessons} 
+              />
+            </section>
+
+            {/* Curriculum Section */}
+            <section ref={curriculumRef} className="scroll-mt-32">
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-zinc-900 mb-3">Giáo trình</h2>
+                <div className="w-12 h-1 bg-blue-600 rounded-full"></div>
+                <p className="text-zinc-500 mt-3">Hành trình chi tiết từ lúc bắt đầu đến khi thành thạo.</p>
+              </div>
+              <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
+                <SyllabusAccordion
+                  syllabus={course?.syllabus || []}
+                  delivery_type={course.delivery_type}
+                  courseId={course._id}
+                  isEnrolled={!!existingEnrollment}
+                  enrollmentId={existingEnrollment?._id}
+                  lessons={courseLessons}
+                />
+              </div>
+            </section>
+
+
+
+            {/* Instructor Section */}
+            <section ref={instructorRef} className="scroll-mt-32">
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-zinc-900 mb-3">Giảng viên</h2>
+                <div className="w-12 h-1 bg-blue-600 rounded-full"></div>
+              </div>
+              <CourseInstructorInfo provider={provider} />
+            </section>
+
+            {/* Related Courses Section */}
+            {relatedCourses.length > 0 && (
+              <section className="pt-12 border-t border-zinc-200">
+                <h3 className="text-2xl font-bold tracking-tight mb-6 text-zinc-900">
+                  Các khóa học liên quan
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                  {relatedCourses.slice(0, 4).map((rc) => (
+                    <CourseCard
+                      key={rc._id || rc.id}
+                      course={rc}
+                      onClick={() => navigate(`/courses/${rc._id || rc.id}`)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            </div>
+          </div>
+
+          {/* Right Column (Sticky Sidebar) */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-28 bg-white rounded-2xl shadow-xl border border-zinc-100 overflow-hidden flex flex-col z-30 lg:-mt-64">
+              
+              {/* Thumbnail inside the card */}
+              {thumbnail && (
+                <div className="w-full h-48 md:h-56 relative bg-zinc-100">
+                  <SafeImage 
+                    src={thumbnail} 
+                    alt={title} 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/10"></div>
+                </div>
+              )}
+
+              <div className="p-6 md:p-8 flex flex-col gap-6">
+                
+
+
+                {/* Enrollment Action */}
+                <div className="flex flex-col gap-3">
+                  {currentUser?.role === 'enterprise' ? (
+                    <div className="space-y-3 bg-blue-50 p-4 rounded-xl border border-blue-100">
+                      <h3 className="font-bold text-sm text-blue-900">Dành cho Doanh nghiệp</h3>
+                      <p className="text-xs text-blue-700">
+                        Hợp tác với giảng viên để tuyển dụng học viên hoặc tài trợ.
+                      </p>
+                      <button 
+                        onClick={() => setIsPartnershipModalOpen(true)}
+                        className="w-full py-3 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                      >
+                        Yêu cầu Hợp tác
+                      </button>
+                    </div>
+                  ) : (
+                    <CourseEnrollmentForm
+                      course={course}
+                      eligibility={eligibility}
+                      existingEnrollment={existingEnrollment}
+                      sponsorships={sponsorships}
+                      onSubmit={handleEnroll}
+                      isSubmitting={enrolling}
+                    />
+                  )}
+                  {maxStudents && (
+                    <div className="text-center text-xs text-zinc-500 font-medium">
+                      {enrollmentCount || currentStudents || 0}/{maxStudents} học viên đã đăng ký
+                    </div>
+                  )}
+                </div>
+
+                {/* Course Meta Bullets */}
+                <div className="pt-6 border-t border-zinc-100 space-y-4">
+                  {duration && (
+                    <div className="flex items-center gap-3 text-sm text-zinc-600">
+                      <Clock className="w-4 h-4 text-blue-500 shrink-0" />
+                      <span>Thời lượng: <strong>{formatDuration(duration)}</strong></span>
+                    </div>
+                  )}
+                  {course.delivery_type && (
+                    <div className="flex items-center gap-3 text-sm text-zinc-600">
+                      <Play className="w-4 h-4 text-blue-500 shrink-0" />
+                      <span>Hình thức: <strong>{course.delivery_type === 'video' ? 'Video qua mạng' : course.delivery_type === 'live' ? 'Học trực tuyến (Live)' : course.delivery_type === 'offline' ? 'Học tại trung tâm' : 'Kết hợp (Blended)'}</strong></span>
+                    </div>
+                  )}
+                  {course.certificate && (
+                    <div className="flex items-center gap-3 text-sm text-zinc-600">
+                      <BookOpen className="w-4 h-4 text-blue-500 shrink-0" />
+                      <span>Cấp chứng chỉ: <strong>Có</strong></span>
+                    </div>
+                  )}
+                  {location?.type === 'offline' && location?.address && (
+                    <div className="flex items-start gap-3 text-sm text-zinc-600">
+                      <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                      <span>Địa điểm: <strong>{location.address}</strong></span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Job Guarantee Banner */}
+                {sponsorships && sponsorships.length > 0 && (
+                  <div className="pt-4 border-t border-zinc-100">
+                    <JobGuaranteeHighlight sponsorships={sponsorships} />
+                  </div>
+                )}
+                
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </main>
 
       {currentUser?.role === 'enterprise' && (
         <EnterprisePartnershipModal 
@@ -410,120 +531,6 @@ export default function CourseDetailPage() {
           trainerId={provider?._id || provider}
         />
       )}
-
-      {/* 2. Sticky Navigation Bar */}
-      <div className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-xl border-b border-border shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-6 overflow-x-auto no-scrollbar py-4">
-            <button onClick={() => scrollTo(overviewRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
-              Tổng quan
-            </button>
-            <button onClick={() => scrollTo(curriculumRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
-              Giáo trình
-            </button>
-            {['video', 'live'].includes(course.delivery_type) && (
-              <button onClick={() => scrollTo(previewRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
-                Học thử
-              </button>
-            )}
-            {['live', 'offline', 'blended'].includes(course.delivery_type) && (
-              <button onClick={() => scrollTo(scheduleRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
-                Lịch học
-              </button>
-            )}
-            <button onClick={() => scrollTo(instructorRef)} className="text-sm font-bold text-foreground/70 hover:text-foreground whitespace-nowrap transition-colors">
-              Giảng viên
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Main Storytelling Content */}
-      <main className="container mx-auto px-4 py-16 max-w-7xl flex flex-col gap-24">
-        
-        {/* Overview Section */}
-        <section ref={overviewRef} className="scroll-mt-24 max-w-4xl">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold tracking-tight mb-2">Về khóa học này</h2>
-            <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
-          </div>
-          <CourseInfo 
-            course={course} 
-            isEnrolled={!!existingEnrollment} 
-            lessons={courseLessons} 
-          />
-        </section>
-
-        {/* Curriculum Section */}
-        <section ref={curriculumRef} className="scroll-mt-24 max-w-4xl">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold tracking-tight mb-2">Giáo trình</h2>
-            <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
-            <p className="text-muted-foreground mt-4 text-lg">Hành trình chi tiết từ lúc bắt đầu đến khi thành thạo.</p>
-          </div>
-          <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl p-6 md:p-10 border border-border">
-            <SyllabusAccordion
-              syllabus={course?.syllabus || []}
-              delivery_type={course.delivery_type}
-              courseId={course._id}
-              isEnrolled={!!existingEnrollment}
-              lessons={courseLessons}
-            />
-          </div>
-        </section>
-
-        {/* Preview Section */}
-        {['video', 'live'].includes(course.delivery_type) && (
-          <section ref={previewRef} className="scroll-mt-24 max-w-5xl">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold tracking-tight mb-2">Học thử ngay</h2>
-              <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
-            </div>
-            <div className="bg-black rounded-3xl overflow-hidden shadow-2xl ring-1 ring-border">
-              <VideoPreviewSection courseId={id} />
-            </div>
-          </section>
-        )}
-
-        {/* Schedule Section */}
-        {['live', 'offline', 'blended'].includes(course.delivery_type) && (
-          <section ref={scheduleRef} className="scroll-mt-24 max-w-5xl">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold tracking-tight mb-2">Lịch học sắp tới</h2>
-              <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
-            </div>
-            <ScheduleSessionList courseId={id} delivery_type={course.delivery_type} />
-          </section>
-        )}
-
-        {/* Instructor Section */}
-        <section ref={instructorRef} className="scroll-mt-24 max-w-4xl">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold tracking-tight mb-2">Người dẫn dắt</h2>
-            <div className="w-20 h-1.5 bg-blue-600 rounded-full"></div>
-          </div>
-          <CourseInstructorInfo provider={provider} />
-        </section>
-
-        {/* Related Courses Section */}
-        {relatedCourses.length > 0 && (
-          <section className="pt-16 border-t border-border mt-8">
-            <h3 className="text-2xl font-bold tracking-tight mb-8">
-              Các khóa học liên quan
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedCourses.slice(0, 4).map((rc) => (
-                <CourseCard
-                  key={rc._id || rc.id}
-                  course={rc}
-                  onClick={() => navigate(`/courses/${rc._id || rc.id}`)}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-      </main>
 
       <Footer />
     </div>

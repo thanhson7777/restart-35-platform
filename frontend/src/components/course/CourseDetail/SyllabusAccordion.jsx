@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Card, Badge } from '@/components/ui';
 import { ChevronDown, Play, FileText, HelpCircle, Lock, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui';
 
 // Helper to format seconds (e.g. 750 -> "12:30")
 const formatDurationFromSeconds = (seconds) => {
@@ -16,6 +19,7 @@ export const SyllabusAccordion = ({
   delivery_type,
   courseId,
   isEnrolled = false,
+  enrollmentId,
   lessons = [],
 }) => {
   // Open the first week by default
@@ -43,7 +47,7 @@ export const SyllabusAccordion = ({
           Nội dung chi tiết khóa học
         </h3>
         <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">
-          {syllabus.length} tuần {lessons.length > 0 && `• ${lessons.length} bài học`}
+          {syllabus.length} buổi {lessons.length > 0 && `• ${lessons.length} bài học`}
         </span>
       </div>
 
@@ -74,7 +78,7 @@ export const SyllabusAccordion = ({
                     />
                     <div className="min-w-0">
                       <span className="text-[10px] uppercase font-bold tracking-wider text-primary block mb-0.5">
-                        Tuần {weekNumber}
+                        Buổi {weekNumber}
                       </span>
                       <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate block">
                         {week.title}
@@ -110,6 +114,8 @@ export const SyllabusAccordion = ({
                               lesson={lesson}
                               isEnrolled={isEnrolled}
                               delivery_type={delivery_type}
+                              courseId={courseId}
+                              enrollmentId={enrollmentId}
                             />
                           ))
                         ) : (
@@ -132,21 +138,26 @@ export const SyllabusAccordion = ({
 };
 
 // LessonRow Sub-Component
-const LessonRow = ({ lesson, isEnrolled, delivery_type }) => {
+const LessonRow = ({ lesson, isEnrolled, delivery_type, courseId, enrollmentId }) => {
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const isLocked = !isEnrolled && !lesson.isPreview;
   
   // Decide Icon based on lesson type
   const getIcon = () => {
     if (lesson.type === 'quiz') return HelpCircle;
     if (lesson.type === 'assignment') return FileText;
-    return Play; // Default is video/lesson
+    if (delivery_type === 'offline' || delivery_type === 'live' || delivery_type === 'blended') return FileText;
+    return Play; // Default is video
   };
   const Icon = getIcon();
 
   return (
-    <div 
-      className={`flex items-center justify-between gap-4 px-5 py-3.5 transition-opacity ${
-        isLocked ? 'opacity-55' : 'hover:bg-zinc-50/30 dark:hover:bg-zinc-900/10'
+    <>
+    <button 
+      onClick={() => { if (!isLocked) setIsModalOpen(true) }}
+      className={`w-full text-left flex items-center justify-between gap-4 px-5 py-3.5 transition-opacity hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${
+        isLocked ? 'opacity-55 cursor-not-allowed' : 'cursor-pointer'
       }`}
     >
       <div className="flex items-center gap-3.5 min-w-0">
@@ -200,6 +211,46 @@ const LessonRow = ({ lesson, isEnrolled, delivery_type }) => {
           </Badge>
         )}
       </div>
-    </div>
+    </button>
+    
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl flex items-center gap-2">
+            <Icon className="w-5 h-5 text-primary" />
+            {lesson.title}
+          </DialogTitle>
+          <DialogDescription>
+            {lesson.duration > 0 && `Thời lượng: ${formatDurationFromSeconds(lesson.duration)}`}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="py-4 space-y-6">
+          {lesson.videoUrl && (
+            <div className="aspect-video w-full rounded-xl overflow-hidden bg-black border border-zinc-200 dark:border-zinc-800">
+              <iframe 
+                src={lesson.videoUrl.replace('watch?v=', 'embed/')} 
+                className="w-full h-full"
+                allowFullScreen
+                title={lesson.title}
+              />
+            </div>
+          )}
+          
+          {lesson.content ? (
+            <div 
+              className="prose prose-zinc dark:prose-invert max-w-none text-sm leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: lesson.content }}
+            />
+          ) : (
+            <div className="text-center py-10 bg-zinc-50 dark:bg-zinc-900/20 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+              <FileText className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
+              <p className="text-zinc-500 font-medium">Tài liệu đang được cập nhật...</p>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };

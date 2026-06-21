@@ -57,6 +57,9 @@ const getEnterpriseStudents = async (req, res, next) => {
     const partnerships = await partnershipService.getTrainerActivePartnerships(trainerId)
     const partnershipIds = partnerships.map(p => p._id.toString())
 
+    const startDate = new Date()
+    startDate.setMonth(startDate.getMonth() - 12)
+
     const learnersPipeline = [
       {
         $match: {
@@ -71,6 +74,19 @@ const getEnterpriseStudents = async (req, res, next) => {
           recent: [
             { $sort: { enrolledAt: -1 } },
             { $limit: 50 }
+          ],
+          trend: [
+            { $match: { enrolledAt: { $gte: startDate } } },
+            {
+              $group: {
+                _id: {
+                  year: { $year: '$enrolledAt' },
+                  month: { $month: '$enrolledAt' }
+                },
+                count: { $sum: 1 }
+              }
+            },
+            { $sort: { '_id.year': 1, '_id.month': 1 } }
           ]
         }
       }
@@ -78,12 +94,22 @@ const getEnterpriseStudents = async (req, res, next) => {
 
     const [result] = await db.collection('enrollments').aggregate(learnersPipeline).toArray()
 
+    const trendData = (result.trend || []).map(item => {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const label = `${monthNames[item._id.month - 1]} ${item._id.year}`
+      return {
+        month: label,
+        count: item.count
+      }
+    })
+
     res.status(StatusCodes.OK).json({
       success: true,
       message: 'Lấy danh sách learner từ enterprise thành công!',
       data: {
         total: result.total[0]?.count || 0,
-        recentLearners: result.recent
+        recentLearners: result.recent,
+        trend: trendData
       }
     })
   } catch (error) { next(error) }

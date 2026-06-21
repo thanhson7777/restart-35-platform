@@ -6,9 +6,9 @@ import { PLACEMENT_STATUS, PLACEMENT_REFERRAL_SOURCE } from '~/utils/constants'
 
 const PLACEMENT_COLLECTION_NAME = 'placements'
 const PLACEMENT_COLLECTION_SCHEMA = Joi.object({
-  enrollmentId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+  enrollmentId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(null, ''),
   userId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-  courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+  courseId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).allow(null, ''),
   certificateId: Joi.string().allow(null, ''),
   status: Joi.string()
     .valid(...Object.values(PLACEMENT_STATUS))

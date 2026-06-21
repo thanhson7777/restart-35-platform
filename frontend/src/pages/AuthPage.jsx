@@ -31,7 +31,7 @@ const ROLE_OPTIONS = [
   },
   {
     id: 'trainer',
-    label: 'Huấn luyện viên',
+    label: 'Trung tâm đào tạo',
     description: 'Đào tạo và hướng dẫn người lao động',
     icon: (
       <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

@@ -125,7 +125,8 @@ const getPlacements = async (query) => {
       userId,
       courseId,
       status,
-      industry
+      industry,
+      partnershipId
     } = query
 
     const skip = (page - 1) * item_per_page
@@ -136,11 +137,31 @@ const getPlacements = async (query) => {
     if (courseId) matchCondition.courseId = courseId
     if (status) matchCondition.status = status
     if (industry) matchCondition['employer.industry'] = industry
+    if (partnershipId) matchCondition.partnershipId = partnershipId
 
     const result = await placementModel.findByPaginate(matchCondition, skip, limit)
 
+    // Enrich with user info
+    const { userModel } = await import('~/models/userModel')
+    const enrichedPlacements = await Promise.all(
+      result.placements.map(async (p) => {
+        if (p.userId) {
+          const user = await userModel.findOneById(p.userId)
+          if (user) {
+            p.user = {
+              _id: user._id,
+              displayName: user.displayName || user.username,
+              email: user.email,
+              avatar: user.avatar
+            }
+          }
+        }
+        return p
+      })
+    )
+
     return {
-      placements: result.placements,
+      placements: enrichedPlacements,
       pagination: {
         page: parseInt(page),
         item_per_page: limit,

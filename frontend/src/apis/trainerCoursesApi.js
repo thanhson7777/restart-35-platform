@@ -25,6 +25,9 @@ export const deleteCourse = (id) =>
 export const submitCourse = (id) =>
   authorizeAxiosInstance.put(`${API_ROOT}/v1/courses/${id}/submit`);
 
+export const cancelCourseApproval = (id) =>
+  authorizeAxiosInstance.put(`${API_ROOT}/v1/courses/${id}/cancel-submit`);
+
 export const uploadCourseResource = (file) => {
   const formData = new FormData();
   formData.append('file', file);

@@ -21,7 +21,6 @@ import CourseCurriculumPage from '@/pages/CourseCurriculumPage';
 import MyEnrollmentsPage from '@/pages/MyEnrollmentsPage';
 import MyEnrollmentDetailPage from '@/pages/MyEnrollmentDetailPage';
 import WorkerTransactionsPage from '@/pages/worker/WorkerTransactionsPage';
-import VideoLearningPage from '@/pages/VideoLearningPage';
 import CertificatePage from '@/pages/my-enrollments/CertificatePage';
 import OpportunityMapPage from '@/pages/OpportunityMapPage';
 import ForumPage from '@/pages/community/ForumPage';
@@ -30,7 +29,7 @@ import MentorFindPage from '@/pages/community/MentorFindPage';
 import ScholarshipPage from '@/pages/ScholarshipPage';
 import ScholarshipDetailPage from '@/pages/ScholarshipDetailPage';
 import MyOutcomesPage from '@/pages/MyOutcomesPage';
-import MyPlacementsPage from '@/pages/MyPlacementsPage';
+import WorkerPlacementsPage from '@/pages/worker/WorkerPlacementsPage';
 import MySuccessStatsPage from '@/pages/MySuccessStatsPage';
 import MyLearningRecordsPage from '@/pages/MyLearningRecordsPage';
 import MySchedulesPage from '@/pages/MySchedulesPage';
@@ -60,6 +59,7 @@ import TrainerCoursesPage from '@/pages/trainer/TrainerCoursesPage';
 import TrainerCourseFormPage from '@/pages/trainer/TrainerCourseFormPage';
 import TrainerCourseStudentsPage from '@/pages/trainer/TrainerCourseStudentsPage';
 import TrainerCourseSchedulePage from '@/pages/trainer/TrainerCourseSchedulePage';
+import TrainerCourseAttendancePage from '@/pages/trainer/TrainerCourseAttendancePage';
 import TrainerEnrollmentsPage from '@/pages/trainer/TrainerEnrollmentsPage';
 import TrainerEnrollmentDetailPage from '@/pages/trainer/TrainerEnrollmentDetailPage';
 import TrainerSchedulePage from '@/pages/trainer/TrainerSchedulePage';
@@ -68,6 +68,8 @@ import TrainerReviewsPage from '@/pages/trainer/TrainerReviewsPage';
 import TrainerPartnershipsPage from '@/pages/trainer/TrainerPartnershipsPage';
 import TrainerPartnershipDetailPage from '@/pages/trainer/TrainerPartnershipDetailPage';
 import TrainerPartnershipRespondPage from '@/pages/trainer/TrainerPartnershipRespondPage';
+import TrainerProfilePage from '@/pages/trainer/TrainerProfilePage';
+import TrainerWalletPage from '@/pages/trainer/TrainerWalletPage';
 import EnterpriseDashboardPage from '@/pages/enterprise/EnterpriseDashboardPage';
 import EnterprisePartnershipsPage from '@/pages/enterprise/EnterprisePartnershipsPage';
 import EnterprisePartnershipCreatePage from '@/pages/enterprise/EnterprisePartnershipCreatePage';
@@ -104,6 +106,7 @@ import NgoSponsorshipLearnersPage from '@/pages/ngo/NgoSponsorshipLearnersPage';
 import NgoWalletPage from '@/pages/ngo/NgoWalletPage';
 import NgoEventsPage from '@/pages/ngo/NgoEventsPage';
 import NgoEventCreatePage from '@/pages/ngo/NgoEventCreatePage';
+import NgoProfilePage from '@/pages/ngo/NgoProfilePage';
 import CertificateVerifyPage from '@/pages/CertificateVerifyPage';
 import AccountVerificationPage from '@/pages/AccountVerificationPage';
 import { VNPayReturnPage } from '@/pages/payment/VNPayReturnPage';
@@ -220,6 +223,7 @@ function App() {
         <Route path="/trainer/courses/:id/edit" element={<TrainerLayout><TrainerCourseFormPage /></TrainerLayout>} />
         <Route path="/trainer/courses/:id/students" element={<TrainerLayout><TrainerCourseStudentsPage /></TrainerLayout>} />
         <Route path="/trainer/courses/:id/schedule" element={<TrainerLayout><TrainerCourseSchedulePage /></TrainerLayout>} />
+        <Route path="/trainer/courses/:id/attendance" element={<TrainerLayout><TrainerCourseAttendancePage /></TrainerLayout>} />
         <Route path="/trainer/enrollments" element={<TrainerLayout><TrainerEnrollmentsPage /></TrainerLayout>} />
         <Route path="/trainer/enrollments/:id" element={<TrainerLayout><TrainerEnrollmentDetailPage /></TrainerLayout>} />
         <Route path="/trainer/schedule" element={<TrainerLayout><TrainerSchedulePage /></TrainerLayout>} />
@@ -228,6 +232,8 @@ function App() {
         <Route path="/trainer/partnerships/:id/respond" element={<TrainerLayout><TrainerPartnershipRespondPage /></TrainerLayout>} />
         <Route path="/trainer/placements" element={<TrainerLayout><TrainerPlacementsPage /></TrainerLayout>} />
         <Route path="/trainer/reviews" element={<TrainerLayout><TrainerReviewsPage /></TrainerLayout>} />
+        <Route path="/trainer/profile" element={<TrainerLayout><TrainerProfilePage /></TrainerLayout>} />
+        <Route path="/trainer/wallet" element={<TrainerLayout><TrainerWalletPage /></TrainerLayout>} />
 
         {/* Enterprise Routes */}
         <Route path="/enterprise" element={<Navigate to="/enterprise/dashboard" replace />} />
@@ -263,6 +269,7 @@ function App() {
         <Route path="/ngo/sponsorships/:id/learners" element={<NgoLayout><NgoSponsorshipLearnersPage /></NgoLayout>} />
         <Route path="/ngo/events" element={<NgoLayout><NgoEventsPage /></NgoLayout>} />
         <Route path="/ngo/events/create" element={<NgoLayout><NgoEventCreatePage /></NgoLayout>} />
+        <Route path="/ngo/profile" element={<NgoLayout><NgoProfilePage /></NgoLayout>} />
 
         {/* Worker Layout Routes */}
         <Route path="/worker" element={<Navigate to="/my-enrollments" replace />} />
@@ -307,14 +314,13 @@ function App() {
         <Route path="/worker/transactions" element={<WorkerLayout><WorkerTransactionsPage /></WorkerLayout>} />
         <Route path="/my-enrollments/:id" element={<WorkerLayout><MyEnrollmentDetailPage /></WorkerLayout>} />
         <Route path="/my-enrollments/:id/checkin" element={<WorkerLayout><CheckinPage /></WorkerLayout>} />
-        <Route path="/my-enrollments/:id/learn" element={<WorkerLayout><VideoLearningPage /></WorkerLayout>} />
         <Route path="/my-enrollments/:id/certificate" element={<WorkerLayout><CertificatePage /></WorkerLayout>} />
         <Route path="/verify/:code" element={<CertificatePage />} />
         <Route path="/certificates/verify/:code" element={<CertificatePage />} />
         <Route path="/verify-certificate" element={<CertificateVerifyPage />} />
         <Route path="/account/verification" element={<AccountVerificationPage />} />
         <Route path="/opportunity-map" element={
-          <div className="min-h-screen bg-background flex flex-col">
+          <div className="min-h-screen bg-background flex flex-col pt-[88px]">
             <Navbar />
             <OpportunityMapPage />
           </div>
@@ -332,7 +338,7 @@ function App() {
         {/* Payment Return */}
         <Route path="/payment/vnpay-return" element={<VNPayReturnPage />} />
         {/* My Placements */}
-        <Route path="/my-placements" element={<WorkerLayout><MyPlacementsPage /></WorkerLayout>} />
+        <Route path="/my-placements" element={<WorkerLayout><WorkerPlacementsPage /></WorkerLayout>} />
         {/* My Learning Records */}
         <Route path="/my-learning-records" element={<WorkerLayout><MyLearningRecordsPage /></WorkerLayout>} />
         <Route path="/my-schedules" element={<WorkerLayout><MySchedulesPage /></WorkerLayout>} />

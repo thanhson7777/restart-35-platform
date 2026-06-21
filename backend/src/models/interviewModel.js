@@ -31,13 +31,13 @@ const INTERVIEW_COLLECTION_SCHEMA = Joi.object({
   }).default({}),
 
   // Confirmations
-  workerConfirmed: Joi.boolean().default(false),
+  workerConfirmed: Joi.boolean().default(true),
   enterpriseConfirmed: Joi.boolean().default(true),
 
   // Status
   status: Joi.string()
     .valid(...Object.values(RECRUITMENT_INTERVIEW_STATUS))
-    .default(RECRUITMENT_INTERVIEW_STATUS.PENDING_CONFIRMATION),
+    .default(RECRUITMENT_INTERVIEW_STATUS.CONFIRMED),
 
   // Reschedule
   rescheduleCount: Joi.number().integer().min(0).default(0),
@@ -72,8 +72,8 @@ const INTERVIEW_COLLECTION_SCHEMA = Joi.object({
   }).default({}),
 
   // Timestamps
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 
@@ -288,7 +288,7 @@ const reschedule = async (interviewId, enterpriseId, newTime, reason = null, max
           rescheduleCount: interview.rescheduleCount + 1,
           lastRescheduleAt: Date.now(),
           rescheduleReason: reason,
-          workerConfirmed: false,
+          workerConfirmed: true,
           updatedAt: Date.now()
         }
       },

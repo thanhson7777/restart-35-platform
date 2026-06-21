@@ -19,7 +19,13 @@ import {
   selectSimilarJobsLoading
 } from '@/redux/recruitment/recruitmentSlice';
 import toast from 'react-hot-toast';
+import { VIETNAM_PROVINCES } from '@/data/profileData';
 
+const getProvinceLabel = (value) => {
+  if (!value) return null;
+  const province = VIETNAM_PROVINCES.find(p => p.value === value);
+  return province ? province.label : value;
+};
 const formatSalary = (salary) => {
   if (!salary || (!salary.min && !salary.max)) return 'Thoả thuận';
   const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
@@ -37,8 +43,11 @@ const formatDate = (date) => {
 const formatDeadline = (date) => {
   if (!date) return 'Không giới hạn';
   const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
   const now = new Date();
-  const diffDays = Math.ceil((d - now) / (1000 * 60 * 60 * 24));
+  now.setHours(0, 0, 0, 0);
+  const diffDays = Math.floor((d - now) / (1000 * 60 * 60 * 24));
+  
   if (diffDays < 0) return 'Đã hết hạn';
   if (diffDays === 0) return 'Hết hạn hôm nay';
   if (diffDays === 1) return 'Còn 1 ngày';
@@ -176,8 +185,13 @@ export default function CommunityJobDetailPage() {
     );
   }
 
-  const isExpired = job.deadline && new Date(job.deadline) < new Date();
-  const isDeadlineSoon = job.deadline && !isExpired && (new Date(job.deadline) - new Date()) < 7 * 24 * 60 * 60 * 1000;
+  const getDeadlineEnd = (date) => {
+    const d = new Date(date);
+    d.setHours(23, 59, 59, 999);
+    return d;
+  };
+  const isExpired = job.deadline && getDeadlineEnd(job.deadline) < new Date();
+  const isDeadlineSoon = job.deadline && !isExpired && (getDeadlineEnd(job.deadline) - new Date()) < 7 * 24 * 60 * 60 * 1000;
 
   return (
     <>
@@ -214,12 +228,7 @@ export default function CommunityJobDetailPage() {
                   <p className="text-[hsl(var(--muted-foreground))] font-medium">
                     {job.enterpriseInfo?.name || job.enterprise?.name || 'Doanh nghiệp'}
                   </p>
-                  {job.enterpriseInfo?.industry && (
-                    <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                      {job.enterpriseInfo.industry}
-                      {job.enterpriseInfo?.size && ` • ${job.enterpriseInfo.size}`}
-                    </p>
-                  )}
+
                 </div>
               </div>
 
@@ -315,7 +324,7 @@ export default function CommunityJobDetailPage() {
                   <CardContent className="p-4 flex flex-col items-center text-center">
                     <MapPin size={20} className="text-blue-600 mb-2" />
                     <p className="font-semibold text-sm">
-                      {job.location?.province || job.province || '—'}
+                      {getProvinceLabel(job.location?.province || job.province) || '—'}
                     </p>
                     <p className="text-xs text-[hsl(var(--muted-foreground))]">Địa điểm</p>
                   </CardContent>
@@ -624,44 +633,6 @@ export default function CommunityJobDetailPage() {
                 </Card>
               )}
 
-              {/* Apply CTA */}
-              <Card className="bg-gradient-to-br from-[hsl(var(--primary))/5] to-[hsl(var(--primary))/10 border-[hsl(var(--primary))/20]">
-                <CardContent className="p-6 space-y-4">
-                  <h3 className="font-semibold text-[hsl(var(--foreground))]">
-                    Quan tâm đến vị trí này?
-                  </h3>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                    Ứng tuyển ngay để kết nối với nhà tuyển dụng. Hồ sơ của bạn sẽ được gửi trực tiếp.
-                  </p>
-                  <Button
-                    onClick={handleApply}
-                    disabled={applying || applied || isExpired}
-                    className="w-full gap-2 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/90]"
-                  >
-                    {applying ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : applied ? (
-                      <>
-                        <CheckCircle size={16} /> Đã ứng tuyển
-                      </>
-                    ) : isExpired ? (
-                      'Đã hết hạn'
-                    ) : (
-                      <>
-                        <Send size={16} /> Ứng tuyển ngay
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleSave}
-                    className="w-full gap-2"
-                  >
-                    <BookmarkSimple size={16} weight={isSaved ? 'fill' : 'regular'} />
-                    {isSaved ? 'Đã lưu tin' : 'Lưu tin tuyển dụng'}
-                  </Button>
-                </CardContent>
-              </Card>
 
               {/* Stats */}
               {job.stats && (

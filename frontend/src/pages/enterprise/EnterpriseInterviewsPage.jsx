@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 
 const interviewStatusConfig = {
-  pending_confirmation: { label: 'Chờ xác nhận', className: 'bg-amber-100 text-amber-700 border-amber-200' },
+  pending_confirmation: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   confirmed: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   completed: { label: 'Hoàn thành', className: 'bg-blue-100 text-blue-700 border-blue-200' },
   cancelled: { label: 'Đã hủy', className: 'bg-slate-200 text-slate-600 border-slate-300' },
@@ -177,12 +177,12 @@ export default function EnterpriseInterviewsPage() {
                           <div className="flex items-center gap-4">
                             <div className={`p-3 rounded-lg ${
                               interview.status === 'confirmed' ? 'bg-emerald-100' :
-                              interview.status === 'pending_confirmation' ? 'bg-amber-100' :
-                              'bg-slate-100'
+                              interview.status === 'pending_confirmation' ? 'bg-emerald-100' :
+                              interview.status === 'completed' ? 'bg-blue-100' : 'bg-slate-100'
                             }`}>
                               <MeetingIcon size={20} className={
                                 interview.status === 'confirmed' ? 'text-emerald-600' :
-                                interview.status === 'pending_confirmation' ? 'text-amber-600' :
+                                interview.status === 'pending_confirmation' ? 'text-emerald-600' :
                                 'text-slate-500'
                               } />
                             </div>

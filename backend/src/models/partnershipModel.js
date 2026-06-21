@@ -71,8 +71,8 @@ const PARTNERSHIP_COLLECTION_SCHEMA = Joi.object({
     completedLearners: 0,
     placedLearners: 0
   }),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 

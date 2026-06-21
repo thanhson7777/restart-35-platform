@@ -5,7 +5,7 @@ import { Card } from '@/components/ui';
 import { BookOpen, Award, GraduationCap, DollarSign, Play, MonitorPlay, Radio, MapPin, LayoutGrid } from 'lucide-react';
 import { ENROLLMENT_STATUS } from '@/utils/constants';
 import { formatPrice } from '@/utils/formatter';
-import { EnrollmentSourceBadge, EnrollmentFundingSummary } from './EnrollmentSourceBadge';
+import { EnrollmentFundingSummary } from './EnrollmentSourceBadge';
 
 const STATUS_TABS = [
   { key: 'all', label: 'Tất cả' },
@@ -16,12 +16,7 @@ const STATUS_TABS = [
   { key: ENROLLMENT_STATUS.CANCELLED, label: 'Đã hủy' },
 ];
 
-const DELIVERY_TABS = [
-  { key: 'all', label: 'Tất cả hình thức', icon: LayoutGrid },
-  { key: 'video', label: 'Video tự học', icon: MonitorPlay },
-  { key: 'live', label: 'Tương tác Live', icon: Radio },
-  { key: 'offline', label: 'Lớp tập trung', icon: MapPin },
-];
+
 
 export const EnrollmentList = ({
   enrollments = [],
@@ -32,7 +27,6 @@ export const EnrollmentList = ({
   onViewDetail,
 }) => {
   const [activeStatusTab, setActiveStatusTab] = useState('all');
-  const [activeDeliveryFilter, setActiveDeliveryFilter] = useState('all');
 
   const list = Array.isArray(enrollments)
     ? enrollments
@@ -64,8 +58,7 @@ export const EnrollmentList = ({
       : (activeStatusTab === ENROLLMENT_STATUS.IN_PROGRESS 
           ? isLearningStatus(e.status) 
           : e.status === activeStatusTab);
-    const matchesDelivery = activeDeliveryFilter === 'all' || e.course?.delivery_type === activeDeliveryFilter;
-    return matchesStatus && matchesDelivery;
+    return matchesStatus;
   });
 
   if (loading) {
@@ -129,34 +122,10 @@ export const EnrollmentList = ({
 
       {/* ─── Filters & Selectors Panel ─── */}
       <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-150 dark:border-zinc-850/80 space-y-4">
-        {/* Delivery Type Filters */}
-        <div className="space-y-1.5">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 dark:text-zinc-500 block">Hình thức học</span>
-          <div className="flex gap-2 overflow-x-auto pb-1.5 scrollbar-thin">
-            {DELIVERY_TABS.map((tab) => {
-              const count = tab.key === 'all' ? list.length : list.filter(e => e.course?.delivery_type === tab.key).length;
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveDeliveryFilter(tab.key)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border transition-all ${
-                    activeDeliveryFilter === tab.key
-                      ? 'bg-zinc-900 border-zinc-900 text-white dark:bg-white dark:border-white dark:text-zinc-950 shadow-sm'
-                      : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {tab.label}
-                  <span className="ml-1 text-[10px] opacity-60">({count})</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+
 
         {/* Status Filters */}
-        <div className="space-y-1.5 pt-1.5 border-t border-zinc-200/50 dark:border-zinc-850/50">
+        <div className="space-y-1.5">
           <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 dark:text-zinc-500 block">Trạng thái lớp học</span>
           <div className="flex gap-2 overflow-x-auto pb-1.5 scrollbar-thin">
             {STATUS_TABS.map((tab) => {
@@ -199,16 +168,7 @@ export const EnrollmentList = ({
         <div className="space-y-4">
           {filtered.map((enrollment) => (
             <div key={enrollment._id} className="space-y-3">
-              <div className="flex items-center gap-2 flex-wrap">
-                <EnrollmentSourceBadge source={enrollment.source} />
-                {(enrollment.sponsorships || []).slice(0, 2).map((item) => (
-                  <EnrollmentSourceBadge
-                    key={item.sponsorshipId || item._id}
-                    source={item.source || enrollment.source}
-                    compact
-                  />
-                ))}
-              </div>
+
               <EnrollmentCard
                 enrollment={enrollment}
                 onCancel={onCancel}

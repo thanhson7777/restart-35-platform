@@ -31,8 +31,8 @@ const ESCO_OCCUPATION_COLLECTION_SCHEMA = Joi.object({
   translationStatus: Joi.string().valid('manual', 'llm', 'pending').default('pending'),
   popularity: Joi.number().integer().default(0),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now())
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now)
 })
 
 const validateBeforeCreate = async (data) => {

@@ -17,7 +17,6 @@ const LEVEL_OPTIONS = [
 
 const DELIVERY_OPTIONS = [
   { value: '', label: 'Tất cả hình thức' },
-  { value: 'video', label: 'Video quay sẵn' },
   { value: 'live', label: 'Trực tuyến (Zoom/Meet)' },
   { value: 'offline', label: 'Trực tiếp' }
 ];

@@ -7,7 +7,26 @@ import { createPayment } from '@/apis/courseApi';
 
 export const FundingSidebarPaymentCard = ({ course, sponsorships, onSubmit, isSubmitting, isLimitReached }) => {
   const [creating, setCreating] = useState(false);
-  const { fee = 15000000, _id } = course || {};
+  const { _id } = course || {};
+  const fee = course?.fundingConfig?.price || course?.fee || 0;
+  let finalFee = fee;
+  let hasDiscount = false;
+
+  const activeSponsorships = course?.activeSponsorships || sponsorships || [];
+  const enterpriseSponsor = activeSponsorships.find(s => s.sponsorType === 'enterprise');
+  
+  if (enterpriseSponsor && fee > 0) {
+    if (enterpriseSponsor.coverageType === 'FULL' || enterpriseSponsor.coverageType === 'full') {
+      finalFee = 0;
+      hasDiscount = true;
+    } else if (enterpriseSponsor.amount > 0) {
+      finalFee = Math.max(0, fee - enterpriseSponsor.amount);
+      hasDiscount = true;
+    } else if (enterpriseSponsor.maxAmountPerLearner > 0) {
+      finalFee = Math.max(0, fee - enterpriseSponsor.maxAmountPerLearner);
+      hasDiscount = true;
+    }
+  }
 
   const ngoSponsors = (sponsorships || []).filter(s => s.sponsorType === 'ngo');
   const activeNgoSponsor = ngoSponsors.length > 0 ? ngoSponsors[0] : null;
@@ -43,37 +62,34 @@ export const FundingSidebarPaymentCard = ({ course, sponsorships, onSubmit, isSu
           Học phí trọn gói
         </span>
         <div className="flex items-baseline justify-center gap-2">
+          {hasDiscount && (
+            <span className="text-sm font-medium text-zinc-400 line-through">
+              {formatPrice(fee)}
+            </span>
+          )}
           <span className="text-2xl font-extrabold text-zinc-900 dark:text-white">
-            {formatPrice(fee)}
-          </span>
-          <span className="text-xs text-zinc-400 line-through">
-            {formatPrice(fee * 1.6)}
+            {finalFee === 0 ? '0 đ' : formatPrice(finalFee)}
           </span>
         </div>
       </div>
 
-      {/* Benefits highlight */}
-      <div className="flex items-center gap-2 p-2.5 bg-amber-500/5 border border-amber-500/10 rounded-xl text-amber-600 dark:text-amber-400 text-xs">
-        <Sparkles className="w-4 h-4 shrink-0 animate-pulse" />
-        <span className="font-medium">Giảm ngay 40% cho người lao động 35+</span>
-      </div>
+
 
       <div className="space-y-3 pt-2">
         <Button
-          onClick={handleCreatePayment}
+          onClick={finalFee === 0 ? () => onSubmit({ source: 'direct' }) : handleCreatePayment}
           disabled={creating || isSubmitting || isLimitReached}
-          variant="outline"
-          className="w-full py-4 text-xs font-bold rounded-full flex items-center justify-center gap-2 border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          className="w-full py-5 text-sm font-bold rounded-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-md border-0 transition-colors"
         >
-          {creating ? (
+          {creating || isSubmitting ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
               Đang kết nối...
             </>
           ) : (
             <>
-              <CreditCard className="w-4 h-4 text-zinc-400" />
-              Tự thanh toán (VNPay)
+              {finalFee === 0 ? <Sparkles className="w-5 h-5" /> : <CreditCard className="w-5 h-5" />}
+              {finalFee === 0 ? 'Đăng ký tham gia' : 'Thanh toán để tham gia'}
             </>
           )}
         </Button>

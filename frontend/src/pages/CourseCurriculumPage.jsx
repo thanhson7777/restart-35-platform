@@ -178,9 +178,8 @@ const CourseCurriculumPage = () => {
                   {isExpanded && (
                     <div className="border-t">
                       {sectionLessons.map((lesson, lIdx) => (
-                        <button
+                        <div
                           key={lesson._id || lIdx}
-                          onClick={() => lesson.videoUrl && navigate(`/learn/${course._id || id}/lesson/${lesson._id}`)}
                           className="w-full px-4 py-3 flex items-center gap-3 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors border-b last:border-b-0"
                         >
                           {/* Completion indicator */}
@@ -214,10 +213,10 @@ const CourseCurriculumPage = () => {
                               </span>
                             )}
                             {lesson.videoUrl && (
-                              <Play size={14} className="text-primary" />
+                              <Play size={14} className="text-primary opacity-50" />
                             )}
                           </div>
-                        </button>
+                        </div>
                       ))}
                     </div>
                   )}
@@ -227,19 +226,7 @@ const CourseCurriculumPage = () => {
           </div>
         )}
 
-        {/* CTA */}
-        {lessons.length > 0 && (
-          <div className="mt-6 text-center">
-            <Button size="lg" onClick={() => {
-              const firstLesson = lessons.find(l => l.videoUrl)
-              if (firstLesson) {
-                navigate(`/learn/${course._id || id}/lesson/${firstLesson._id}`)
-              }
-            }}>
-              <Play size={18} className="mr-2" /> Bắt đầu học
-            </Button>
-          </div>
-        )}
+        {/* CTA (Removed Start Learning button) */}
       </div>
       <Footer />
     </div>

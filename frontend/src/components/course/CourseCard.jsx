@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, Card, SafeImage } from '@/components/ui';
-import { Star, Clock, MapPin, Users, BookOpen, Play, Heart, Briefcase } from 'lucide-react';
+import { Star, Clock, MapPin, Users, BookOpen, Play, Heart, Briefcase, Gift } from 'lucide-react';
 import { formatPrice, formatDuration, formatMatchScore, formatVideoDuration } from '@/utils/formatter';
 import { DeliveryTypeBadge } from './DeliveryTypeBadge';
 import { FundingModelChip } from './FundingModelChip';
@@ -44,6 +44,7 @@ export const CourseCard = ({
     delivery_type,
     funding_model,
     fundingConfig,
+    sponsorshipData,
   } = course;
 
   // Migration fallbacks
@@ -52,6 +53,22 @@ export const CourseCard = ({
   const isSponsored = fundingConfig?.type === 'SPONSORED' || course.sponsorship?.hasSponsorship;
   const hasJobGuarantee = fundingConfig?.hasJobGuarantee || course.sponsorship?.hasJobGuarantee;
   const acceptsSponsorship = fundingConfig?.acceptsSponsorship;
+
+  // Calculate final fee with sponsorship
+  let finalFee = actualFee;
+  let hasDiscount = false;
+  
+  if (sponsorshipData && actualFee > 0) {
+    if (sponsorshipData.coverageType === 'FULL' || sponsorshipData.coverageType === 'full') {
+      finalFee = 0;
+      hasDiscount = true;
+    } else if (sponsorshipData.amount > 0) {
+      finalFee = Math.max(0, actualFee - sponsorshipData.amount);
+      hasDiscount = true;
+    }
+  }
+  
+  const isFinalFree = actualIsFree || finalFee === 0;
 
   const isHorizontal = variant === 'horizontal';
 
@@ -109,15 +126,7 @@ export const CourseCard = ({
               )
             )}
             
-            {isSponsored && (
-              <Badge
-                variant="secondary"
-                className="bg-rose-500/95 hover:bg-rose-600 text-white text-[10px] px-2 py-0.5 shadow-sm border-0 font-medium flex items-center gap-1"
-              >
-                <Heart className="w-3 h-3 fill-white" />
-                Được tài trợ {course.sponsorshipData?.amount ? formatPrice(course.sponsorshipData.amount) : ''}
-              </Badge>
-            )}
+
 
             {hasJobGuarantee && (
               <Badge
@@ -129,15 +138,7 @@ export const CourseCard = ({
               </Badge>
             )}
 
-            {acceptsSponsorship && !isSponsored && (
-              <Badge
-                variant="secondary"
-                className="bg-blue-500/95 hover:bg-blue-600 text-white text-[10px] px-2 py-0.5 shadow-sm border-0 font-medium flex items-center gap-1"
-              >
-                <Heart className="w-3 h-3 fill-white" />
-                Chờ tài trợ
-              </Badge>
-            )}
+
             
             {level && (
               <Badge
@@ -154,6 +155,18 @@ export const CourseCard = ({
                 className="bg-emerald-500 text-white text-[10px] px-2 py-0.5 shadow-sm border-0 font-medium"
               >
                 Học bổng
+              </Badge>
+            )}
+
+            {sponsorshipData && (sponsorshipData.amount > 0 || sponsorshipData.coverageType === 'FULL' || sponsorshipData.coverageType === 'full') && (
+              <Badge
+                variant="secondary"
+                className="bg-rose-500/95 hover:bg-rose-600 text-white text-[10px] px-2 py-0.5 shadow-sm border-0 font-medium flex items-center gap-1"
+              >
+                <Gift className="w-3 h-3 text-white" />
+                {sponsorshipData.coverageType === 'FULL' || sponsorshipData.coverageType === 'full'
+                  ? 'DN Tài trợ 100%' 
+                  : `DN Tài trợ ${formatPrice(sponsorshipData.amount)}`}
               </Badge>
             )}
           </div>
@@ -177,8 +190,11 @@ export const CourseCard = ({
         <div className="p-5 flex flex-col flex-1 min-w-0">
           {/* Funding Model & Provider Info */}
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            {funding_model && (
-              <FundingModelChip fundingModel={funding_model} size="sm" />
+            {(funding_model || fundingConfig?.type) && (
+              <FundingModelChip 
+                fundingModel={actualIsFree ? 'free' : (funding_model === 'free' ? 'learner_paid' : (funding_model || 'learner_paid'))} 
+                size="sm" 
+              />
             )}
             {provider && (
               <span className="text-xs text-muted-foreground font-medium">
@@ -202,9 +218,14 @@ export const CourseCard = ({
           {/* Fee & Duration/Location Row */}
           <div className="flex flex-wrap items-end justify-between gap-3 mb-4 pt-2 border-t border-zinc-100 dark:border-zinc-900">
             {/* Fee */}
-            <div>
-              <span className="text-lg font-bold text-primary">
-                {actualIsFree ? 'Miễn phí' : formatPrice(actualFee)}
+            <div className="flex flex-col">
+              {hasDiscount && !actualIsFree && (
+                <span className="text-xs text-muted-foreground line-through font-medium">
+                  {formatPrice(actualFee)}
+                </span>
+              )}
+              <span className="text-lg font-bold text-primary leading-tight mt-auto">
+                {isFinalFree ? (actualIsFree ? 'Miễn phí' : '0đ') : formatPrice(finalFee)}
               </span>
             </div>
 

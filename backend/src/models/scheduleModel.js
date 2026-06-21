@@ -14,7 +14,7 @@ const SCHEDULE_COLLECTION_NAME = 'schedules'
 const ATTENDANCE_SCHEMA = Joi.object({
   userId: Joi.string().required(),
   status: Joi.string().valid('present', 'absent', 'late', 'excused').required(),
-  checkedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  checkedAt: Joi.date().timestamp('javascript').default(Date.now),
   note: Joi.string().allow(null, '')
 })
 
@@ -76,8 +76,8 @@ const SCHEDULE_COLLECTION_SCHEMA = Joi.object({
 
   reminders: Joi.array().items(REMINDER_SCHEMA).default([]),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 
@@ -235,10 +235,20 @@ const findMySchedules = async (userCourseIds, queryParams = {}) => {
             completedSessions: 1,
             location: 1,
             sessions: {
-              $filter: {
+              $map: {
                 input: '$sessions',
                 as: 'session',
-                cond: { $eq: ['$$session.status', SESSION_STATUS.SCHEDULED] }
+                in: {
+                  _id: '$$session._id',
+                  sessionNumber: '$$session.sessionNumber',
+                  title: '$$session.title',
+                  date: '$$session.date',
+                  startTime: '$$session.startTime',
+                  endTime: '$$session.endTime',
+                  status: '$$session.status',
+                  location: '$$session.location',
+                  attendance: '$$session.attendance'
+                }
               }
             },
             'course.title': 1,

@@ -25,14 +25,16 @@ const TrainerCourseStudentsPage = () => {
     try {
       // 1. Fetch course details
       const courseRes = await getCourseById(id);
-      setCourse(courseRes.data?.data || null);
+      const courseData = courseRes.data?.data || null;
+      setCourse(courseData);
 
       // 2. Fetch enrollments for this course
       const enrollRes = await getCourseEnrollments(id, {
         page: currentPage,
         limit
       });
-      setEnrollments(enrollRes.data?.data || []);
+      const rawEnrollments = enrollRes.data?.data || [];
+      setEnrollments(rawEnrollments.map(e => ({ ...e, course: courseData })));
       setPagination(enrollRes.data?.pagination || null);
     } catch (err) {
       console.error('Error fetching course students:', err);
@@ -86,6 +88,7 @@ const TrainerCourseStudentsPage = () => {
           loading={loading}
           pagination={pagination}
           onPageChange={setCurrentPage}
+          hideCourseColumn={true}
         />
       </div>
     </div>

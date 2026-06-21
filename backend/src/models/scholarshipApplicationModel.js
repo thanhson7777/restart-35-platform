@@ -50,7 +50,7 @@ const APPLICATION_COLLECTION_SCHEMA = Joi.object({
   disbursements: Joi.array().items(
     Joi.object({
       amount: Joi.number().integer().min(0).required(),
-      date: Joi.date().timestamp('javascript').default(Date.now()),
+      date: Joi.date().timestamp('javascript').default(Date.now),
       status: Joi.string().valid(...Object.values(DISBURSEMENT_STATUS)),
       note: Joi.string().max(500).allow('', null)
     })
@@ -61,7 +61,7 @@ const APPLICATION_COLLECTION_SCHEMA = Joi.object({
   appeals: Joi.array().items(
     Joi.object({
       reason: Joi.string().max(1000).required(),
-      submittedAt: Joi.date().timestamp('javascript').default(Date.now()),
+      submittedAt: Joi.date().timestamp('javascript').default(Date.now),
       status: Joi.string().valid(...Object.values(APPEAL_STATUS)),
       response: Joi.string().max(2000).allow('', null)
     })
@@ -73,8 +73,8 @@ const APPLICATION_COLLECTION_SCHEMA = Joi.object({
   expiresAt: Joi.date().timestamp('javascript').allow(null),
 
   // Metadata
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 

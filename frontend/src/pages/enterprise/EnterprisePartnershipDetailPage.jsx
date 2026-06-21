@@ -5,9 +5,9 @@ import {
   MessageSquare, BookOpen, CheckCircle, Clock, MonitorPlay, ListChecks, Gift
 } from 'lucide-react';
 
-import GraduateList from '@/components/shared/GraduateList';
+import PartnershipPlacementList from '@/components/enterprise/PartnershipPlacementList';
 import { Button, Badge, Skeleton, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
-import { getPartnershipDetail, getPartnershipGraduates, confirmPartnership, cancelPartnership, getPartnershipLearners } from '@/apis/partnershipApi';
+import { getPartnershipDetail, confirmPartnership, cancelPartnership, getPartnershipLearners } from '@/apis/partnershipApi';
 import { decideSponsorshipLearner } from '@/apis/courseSponsorshipApi';
 import toast from 'react-hot-toast';
 import { getCourseById } from '@/apis/courseApi';
@@ -27,13 +27,36 @@ const statusConfig = {
   expired: { label: 'Hết hạn', className: 'bg-red-100 text-red-700 border-red-200' }
 };
 
+const courseStatusMap = {
+  draft: 'Nháp',
+  pending: 'Chờ duyệt',
+  approved: 'Đã duyệt',
+  rejected: 'Từ chối',
+  archived: 'Lưu trữ'
+};
+
+const dayMap = {
+  Monday: 'Thứ hai',
+  Tuesday: 'Thứ ba',
+  Wednesday: 'Thứ tư',
+  Thursday: 'Thứ năm',
+  Friday: 'Thứ sáu',
+  Saturday: 'Thứ bảy',
+  Sunday: 'Chủ nhật'
+};
+
+const timeMap = {
+  Morning: 'Sáng',
+  Afternoon: 'Chiều',
+  Evening: 'Tối'
+};
+
 const formatCurrency = (v) => v ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(v) : '—';
 
 export default function EnterprisePartnershipDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [partnership, setPartnership] = useState(null);
-  const [graduates, setGraduates] = useState([]);
   const [learners, setLearners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -49,13 +72,11 @@ export default function EnterprisePartnershipDetailPage() {
     const fetch = async () => {
       setLoading(true);
       try {
-        const [pRes, gRes, lRes] = await Promise.all([
+        const [pRes, lRes] = await Promise.all([
           getPartnershipDetail(id).catch(() => ({ data: { data: {} } })),
-          getPartnershipGraduates(id, { limit: 20 }).catch(() => ({ data: { data: [] } })),
           getPartnershipLearners(id, { limit: 50 }).catch(() => ({ data: { data: [] } }))
         ]);
         setPartnership(pRes.data?.data || {});
-        setGraduates(gRes.data?.data || []);
         setLearners(lRes.data?.data || []);
       } catch {
         toast.error('Không thể tải chi tiết partnership.');
@@ -77,8 +98,8 @@ export default function EnterprisePartnershipDetailPage() {
       await confirmPartnership(id, payload);
       toast.success('Đã duyệt khóa học và bắt đầu hợp tác!');
       navigate(0);
-    } catch {
-      toast.error('Có lỗi xảy ra khi duyệt khóa học.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi duyệt khóa học.');
     }
   };
 
@@ -90,8 +111,8 @@ export default function EnterprisePartnershipDetailPage() {
       await cancelPartnership(id, { reason });
       toast.success('Đã hủy hợp tác thành công!');
       navigate(0);
-    } catch {
-      toast.error('Có lỗi xảy ra khi hủy hợp tác.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi hủy hợp tác.');
     }
   };
 
@@ -125,11 +146,30 @@ export default function EnterprisePartnershipDetailPage() {
 
   const statusLower = (partnership.status || '').toLowerCase();
   const config = statusConfig[statusLower] || statusConfig.pending;
-  const stats = partnership.stats || {};
+  const stats = partnership.summary || partnership.stats || {};
   const recruitment = partnership.recruitmentNeeds || {};
   
   const isActiveOrCompleted = ['active', 'completed'].includes(statusLower);
   const isNegotiating = statusLower === 'negotiating';
+  
+  // Filter out any duplicate courses from backend based on course ID
+  const uniqueLinkedCourses = partnership.linkedCourses ? partnership.linkedCourses.reduce((acc, current) => {
+    if (!acc.find(item => item._id === current._id)) {
+      return acc.concat([current]);
+    }
+    return acc;
+  }, []) : [];
+
+  // Tính toán số lượng chờ duyệt và từ chối từ danh sách learners (dự phòng nếu backend không trả về)
+  const pendingCount = stats.pendingSponsorships ?? learners.filter(l => {
+    const s = l.sponsorships?.find(s => s.sponsorType === 'enterprise') || l.sponsorships?.[0];
+    return s?.status === 'matched';
+  }).length;
+
+  const rejectedCount = stats.rejectedSponsorships ?? learners.filter(l => {
+    const s = l.sponsorships?.find(s => s.sponsorType === 'enterprise') || l.sponsorships?.[0];
+    return s?.status === 'rejected';
+  }).length;
 
   return (
     <>
@@ -168,7 +208,7 @@ export default function EnterprisePartnershipDetailPage() {
                 </div>
               </div>
             </div>
-            {['pending', 'negotiating', 'active'].includes(statusLower) && (
+            {['pending', 'negotiating'].includes(statusLower) && (
               <Button onClick={handleCancel} variant="outline" className="border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700">
                 Hủy hợp tác
               </Button>
@@ -179,7 +219,7 @@ export default function EnterprisePartnershipDetailPage() {
             <div className="mt-2 bg-[hsl(var(--admin-surface-elevated))] p-4 rounded-xl flex gap-3 border border-[hsl(var(--admin-border))]">
               <MessageSquare className="w-5 h-5 text-[hsl(var(--admin-text-muted))] shrink-0 mt-0.5" />
               <div>
-                <p className="text-[hsl(var(--admin-text-muted))] text-xs mb-1 font-semibold uppercase tracking-wider">Lời nhắn từ Trainer</p>
+                <p className="text-[hsl(var(--admin-text-muted))] text-xs mb-1 font-semibold uppercase tracking-wider">Lời nhắn đã gửi</p>
                 <p className="text-[hsl(var(--admin-text-secondary))] text-sm italic">"{partnership.message}"</p>
               </div>
             </div>
@@ -188,12 +228,13 @@ export default function EnterprisePartnershipDetailPage() {
 
         {/* Stats Section (Conditional) */}
         {isActiveOrCompleted && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              { label: 'Tổng Learner', value: stats.enrolledLearners ?? 0 },
-              { label: 'Đang học', value: stats.activeLearners ?? 0 },
-              { label: 'Tốt nghiệp', value: stats.completedLearners ?? 0 },
-              { label: 'Được tuyển', value: stats.placedLearners ?? 0 }
+              { label: 'Tổng', value: stats.totalLearners ?? stats.enrolledLearners ?? learners.length },
+              { label: 'Chờ duyệt', value: pendingCount },
+              { label: 'Đang học', value: stats.activeLearners ?? stats.pendingLearners ?? 0 },
+              { label: 'Đã hoàn thành', value: stats.completedLearners ?? stats.totalGraduates ?? 0 },
+              { label: 'Từ chối', value: rejectedCount }
             ].map(item => (
               <div key={item.label} className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-5 shadow-sm">
                 <p className="text-xs font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-2">{item.label}</p>
@@ -204,11 +245,11 @@ export default function EnterprisePartnershipDetailPage() {
         )}
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue={isNegotiating ? "courses" : "learners"} className="w-full">
+        <Tabs defaultValue="courses" className="w-full">
           <TabsList className="mb-6 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] p-1">
             <TabsTrigger value="courses" className="rounded-md">Khóa học liên kết</TabsTrigger>
             <TabsTrigger value="learners" className="rounded-md">Xét duyệt tài trợ</TabsTrigger>
-            <TabsTrigger value="graduates" className="rounded-md">Nguồn ứng viên</TabsTrigger>
+            <TabsTrigger value="graduates" className="rounded-md">Tiếp nhận ứng viên</TabsTrigger>
           </TabsList>
 
           <TabsContent value="courses" className="space-y-6">
@@ -219,12 +260,12 @@ export default function EnterprisePartnershipDetailPage() {
                   Bản thảo khóa học chờ xét duyệt
                 </h3>
                 <div className="space-y-4">
-                  {partnership.linkedCourses?.map(course => (
+                  {uniqueLinkedCourses.map(course => (
                     <div key={course._id} className="bg-white border border-blue-100 rounded-xl p-4 flex items-center justify-between shadow-sm">
                       <div>
                         <p className="font-bold text-slate-800 text-base">{course.title}</p>
                         <p className="text-sm text-slate-500 mt-1">
-                          Trạng thái: <Badge variant="secondary" className="ml-1 font-normal text-xs">{course.status}</Badge>
+                          Trạng thái: <Badge variant="secondary" className="ml-1 font-normal text-xs">{courseStatusMap[course.status] || course.status}</Badge>
                         </p>
                       </div>
                       <Button variant="outline" size="sm" onClick={() => handleViewCourse(course._id)} className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700">
@@ -245,13 +286,13 @@ export default function EnterprisePartnershipDetailPage() {
                   <BookOpen size={18} className="text-[hsl(var(--admin-text-muted))]" />
                   Khóa học đang liên kết
                 </h3>
-                {partnership.linkedCourses && partnership.linkedCourses.length > 0 ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {partnership.linkedCourses.map(course => (
+                {uniqueLinkedCourses.length > 0 ? (
+                  <div className={`grid grid-cols-1 ${uniqueLinkedCourses.length > 1 ? 'lg:grid-cols-2' : ''} gap-4`}>
+                    {uniqueLinkedCourses.map(course => (
                       <div key={course._id} className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl p-5 flex flex-col justify-between shadow-sm hover:border-[hsl(var(--admin-border-strong))] transition-colors">
                         <div>
                           <p className="font-bold text-[hsl(var(--admin-text-primary))]">{course.title}</p>
-                          <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-2">Trạng thái: <span className="font-medium">{course.status}</span></p>
+                          <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-2">Trạng thái: <span className="font-medium">{courseStatusMap[course.status] || course.status}</span></p>
                         </div>
                         <Button variant="outline" size="sm" onClick={() => handleViewCourse(course._id)} className="mt-5 w-fit">
                           Xem chi tiết
@@ -348,9 +389,9 @@ export default function EnterprisePartnershipDetailPage() {
             <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6 shadow-sm">
               <h3 className="font-semibold text-[hsl(var(--admin-text-primary))] mb-6 flex items-center gap-2">
                 <Users size={18} className="text-[hsl(var(--admin-text-muted))]" />
-                Học viên sẵn sàng ứng tuyển
+                Quản lý tuyển dụng (Placement)
               </h3>
-              <GraduateList graduates={graduates} emptyText="Chưa có học viên tốt nghiệp từ partnership này." />
+              <PartnershipPlacementList partnershipId={id} />
             </div>
           </TabsContent>
         </Tabs>
@@ -358,8 +399,8 @@ export default function EnterprisePartnershipDetailPage() {
 
       {/* Course Detail Modal (2-Column Layout) */}
       <Dialog open={isCourseModalOpen} onOpenChange={setIsCourseModalOpen}>
-        <DialogContent className="w-[95vw] max-w-5xl md:min-w-[800px] lg:min-w-[900px] max-h-[85vh] overflow-hidden flex flex-col p-0">
-          <div className="px-6 py-5 border-b border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] flex-shrink-0">
+        <DialogContent className="w-[95vw] max-w-5xl md:min-w-[800px] lg:min-w-[900px] max-h-[90vh] overflow-y-auto p-0 gap-0 block">
+          <div className="sticky top-0 z-20 px-6 py-5 border-b border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))]">
             <DialogHeader>
               <DialogTitle className="text-xl text-[hsl(var(--admin-text-primary))]">{selectedCourse?.title || 'Chi tiết khóa học'}</DialogTitle>
               <DialogDescription className="text-[hsl(var(--admin-text-secondary))] mt-1 break-words whitespace-pre-wrap">
@@ -368,11 +409,10 @@ export default function EnterprisePartnershipDetailPage() {
             </DialogHeader>
           </div>
           
-          <div className="flex-1 overflow-y-auto px-6 py-6 bg-[hsl(var(--admin-surface-elevated))]">
+          <div className="px-6 py-6 bg-[hsl(var(--admin-surface-elevated))]">
             {selectedCourse ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Left Column: Basic Info */}
-                <div className="space-y-6 col-span-1">
+              <div className="flex flex-col gap-6">
+                {/* Basic Info */}
                   <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-5 space-y-5 shadow-sm">
                     <h4 className="font-semibold text-[hsl(var(--admin-text-primary))] border-b border-[hsl(var(--admin-border))] pb-3">Thông tin cơ bản</h4>
                     
@@ -452,18 +492,15 @@ export default function EnterprisePartnershipDetailPage() {
                         <div className="flex justify-between"><span className="text-[hsl(var(--admin-text-muted))]">Thời lượng/buổi:</span> <span className="font-medium text-[hsl(var(--admin-text-secondary))]">{selectedCourse.scheduleConfig.sessionDurationMinutes} phút</span></div>
                         <div className="flex justify-between"><span className="text-[hsl(var(--admin-text-muted))]">Tần suất:</span> <span className="font-medium text-[hsl(var(--admin-text-secondary))]">{selectedCourse.scheduleConfig.sessionsPerWeek} buổi/tuần</span></div>
                         {selectedCourse.scheduleConfig.preferredDays?.length > 0 && (
-                          <div className="flex justify-between"><span className="text-[hsl(var(--admin-text-muted))]">Ngày học:</span> <span className="font-medium text-[hsl(var(--admin-text-secondary))]">{selectedCourse.scheduleConfig.preferredDays.join(', ')}</span></div>
+                          <div className="flex justify-between"><span className="text-[hsl(var(--admin-text-muted))]">Ngày học:</span> <span className="font-medium text-[hsl(var(--admin-text-secondary))]">{selectedCourse.scheduleConfig.preferredDays.map(d => dayMap[d] || d).join(', ')}</span></div>
                         )}
                         {selectedCourse.scheduleConfig.preferredTime && (
-                          <div className="flex justify-between"><span className="text-[hsl(var(--admin-text-muted))]">Khung giờ:</span> <span className="font-medium text-[hsl(var(--admin-text-secondary))]">{selectedCourse.scheduleConfig.preferredTime}</span></div>
+                          <div className="flex justify-between"><span className="text-[hsl(var(--admin-text-muted))]">Khung giờ:</span> <span className="font-medium text-[hsl(var(--admin-text-secondary))]">{timeMap[selectedCourse.scheduleConfig.preferredTime] || selectedCourse.scheduleConfig.preferredTime}</span></div>
                         )}
                       </div>
                     </div>
                   )}
-                </div>
-
-                {/* Right Column: Syllabus & Skills */}
-                <div className="col-span-1 md:col-span-2 space-y-6">
+                {/* Syllabus & Skills */}
                   {selectedCourse.skills && selectedCourse.skills.length > 0 && (
                     <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-xl p-5 shadow-sm">
                       <h4 className="font-semibold text-[hsl(var(--admin-text-primary))] mb-4 flex items-center gap-2">
@@ -504,7 +541,6 @@ export default function EnterprisePartnershipDetailPage() {
                       <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-2 max-w-sm">Trainer chưa cập nhật lộ trình học và kỹ năng chi tiết cho khóa học này.</p>
                     </div>
                   )}
-                </div>
               </div>
             ) : (
               <div className="py-20 text-center space-y-4">

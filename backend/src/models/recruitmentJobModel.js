@@ -121,8 +121,8 @@ const RECRUITMENT_JOB_COLLECTION_SCHEMA = Joi.object({
   publishedAt: Joi.date().timestamp('javascript').allow(null),
 
   // Timestamps
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 
@@ -341,6 +341,36 @@ const submitForApproval = async (jobId, enterpriseId) => {
       {
         $set: {
           status: RECRUITMENT_JOB_STATUS.PENDING_APPROVAL,
+          updatedAt: Date.now()
+        }
+      },
+      { returnDocument: 'after' }
+    )
+
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const cancelApproval = async (jobId, enterpriseId) => {
+  try {
+    const objectId = new ObjectId(jobId)
+    const job = await findOneByIdAndEnterprise(jobId, enterpriseId)
+
+    if (!job) {
+      throw new Error('Không tìm thấy tin tuyển dụng')
+    }
+
+    if (job.status !== RECRUITMENT_JOB_STATUS.PENDING_APPROVAL) {
+      throw new Error('Chỉ có thể hủy tin ở trạng thái chờ duyệt')
+    }
+
+    const result = await GET_DB().collection(RECRUITMENT_JOB_COLLECTION_NAME).findOneAndUpdate(
+      { _id: objectId },
+      {
+        $set: {
+          status: RECRUITMENT_JOB_STATUS.DRAFT,
           updatedAt: Date.now()
         }
       },
@@ -596,6 +626,7 @@ export const recruitmentJobModel = {
   update,
   updateStatus,
   submitForApproval,
+  cancelApproval,
   approveJob,
   rejectJob,
   closeJob,

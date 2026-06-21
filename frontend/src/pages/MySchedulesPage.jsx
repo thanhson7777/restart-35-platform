@@ -3,8 +3,16 @@ import { getMySchedules } from '@/apis/scheduleApi'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { Badge, Button } from '@/components/ui'
-import { Calendar, Clock, Video, MapPin, User, Filter } from 'lucide-react'
+import { Calendar, Clock, Video, MapPin, User, Filter, CheckCircle2, XCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
+
+const parseSessionTime = (dateValue, timeString) => {
+  if (!dateValue || !timeString) return new Date()
+  const date = new Date(dateValue)
+  const [hours, minutes] = timeString.split(':').map(Number)
+  date.setHours(hours, minutes, 0, 0)
+  return date
+}
 
 const MySchedulesPage = () => {
   const [schedules, setSchedules] = useState([])
@@ -17,7 +25,7 @@ const MySchedulesPage = () => {
       try {
         const res = await getMySchedules()
         const data = res.data || res
-        const scheduleList = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : [])
+        const scheduleList = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : (data?.schedules || []))
         setSchedules(scheduleList)
       } catch (err) {
         toast.error('Không thể tải lịch học')
@@ -31,20 +39,20 @@ const MySchedulesPage = () => {
   const now = new Date()
   const filteredSchedules = schedules.filter(schedule => {
     if (filter === 'upcoming') {
-      return schedule.sessions?.some(s => new Date(s.startTime) > now)
+      return schedule.sessions?.some(s => parseSessionTime(s.date, s.startTime) > now)
     }
     if (filter === 'past') {
-      return schedule.sessions?.every(s => new Date(s.startTime) <= now)
+      return schedule.sessions?.every(s => parseSessionTime(s.date, s.startTime) <= now)
     }
     return true
   })
 
-  const getSessionTypeIcon = (type) => {
-    switch (type) {
-      case 'online': return <Video size={16} className="text-blue-500" />
-      case 'offline': return <MapPin size={16} className="text-green-500" />
-      default: return <Video size={16} className="text-gray-500" />
-    }
+  const getSessionTypeIcon = (session, schedule) => {
+    const type = session.location?.type || schedule.sessionType || schedule.location?.type || 'offline';
+    if (type === 'online') return <Video size={16} className="text-blue-500 shrink-0 mt-0.5" />
+    if (type === 'offline') return <MapPin size={16} className="text-green-500 shrink-0 mt-0.5" />
+    if (type === 'hybrid') return <MapPin size={16} className="text-purple-500 shrink-0 mt-0.5" />
+    return <Calendar size={16} className="text-gray-500 shrink-0 mt-0.5" />
   }
 
   const getSessionTypeBadge = (type) => {
@@ -58,8 +66,8 @@ const MySchedulesPage = () => {
   }
 
   const getSessionStatusBadge = (session) => {
-    const start = new Date(session.startTime)
-    const end = new Date(session.endTime)
+    const start = parseSessionTime(session.date, session.startTime)
+    const end = parseSessionTime(session.date, session.endTime)
     if (now >= start && now <= end) {
       return <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">Đang diễn ra</Badge>
     }
@@ -137,19 +145,81 @@ const MySchedulesPage = () => {
                       {schedule.sessions.map((session, idx) => (
                         <div key={session._id || idx} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                           <div className="flex items-center gap-3">
-                            {getSessionTypeIcon(schedule.sessionType)}
+                            {getSessionTypeIcon(session, schedule)}
                             <div>
                               <p className="text-sm font-medium">Buổi {session.sessionNumber}: {session.title || session.topic || 'Buổi học'}</p>
                               <p className="text-xs text-muted-foreground flex items-center gap-1">
                                 <Clock size={12} />
-                                {new Date(session.startTime).toLocaleString('vi-VN')} - {new Date(session.endTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(session.date).toLocaleDateString('vi-VN')} | {session.startTime} - {session.endTime}
                               </p>
-                              {session.meetingLink && (
-                                <a href={session.meetingLink} target="_blank" rel="noopener noreferrer"
-                                  className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-1">
-                                  <Video size={12} /> Tham gia buổi học
-                                </a>
-                              )}
+                              {(() => {
+                                const isOnline = session.location?.type === 'online' || schedule.sessionType === 'online' || schedule.location?.type === 'online';
+                                const link = session.location?.link || schedule.location?.link;
+                                const isTime = now >= new Date(parseSessionTime(session.date, session.startTime).getTime() - 15 * 60000);
+                                const isTimeEnded = now > parseSessionTime(session.date, session.endTime);
+                                const isEnded = isTimeEnded || session.status === 'completed';
+                                const hasAttendance = session.myAttendance && session.myAttendance !== 'upcoming';
+
+                                return (
+                                  <div className="flex flex-col gap-2 mt-3">
+                                    {/* 1. Attendance Badge */}
+                                    {(hasAttendance || isEnded) && (() => {
+                                      if (!session.myAttendance || session.myAttendance === 'upcoming') {
+                                        return (
+                                          <div className="flex items-center gap-1.5 w-fit px-2.5 py-1.5 rounded-md text-[11px] font-bold border bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
+                                            <Clock size={14} />
+                                            Đã kết thúc (Chưa điểm danh)
+                                          </div>
+                                        )
+                                      }
+
+                                      const isPresent = session.myAttendance === 'present';
+                                      const isLate = session.myAttendance === 'late';
+                                      const isExcused = session.myAttendance === 'excused';
+                                      
+                                      return (
+                                        <div className={`flex items-center gap-1.5 w-fit px-2.5 py-1.5 rounded-md text-[11px] font-bold border
+                                          ${isPresent ? 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' : 
+                                            isLate ? 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20' :
+                                            isExcused ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20' :
+                                            'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20'}`}>
+                                          {isPresent ? <CheckCircle2 size={14} /> : isLate ? <Clock size={14} /> : isExcused ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                                          {isPresent ? 'Đã tham gia' : isLate ? 'Đi trễ' : isExcused ? 'Có phép' : 'Vắng mặt'}
+                                        </div>
+                                      )
+                                    })()}
+
+                                    {/* 2. Action Buttons (Only if not ended) */}
+                                    {!isEnded && (
+                                      !isOnline ? (() => {
+                                        const address = session.location?.address || schedule.location?.address;
+                                        if (!address) return null;
+                                        return (
+                                          <div 
+                                            className="text-xs flex items-start gap-1.5 p-2 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 w-fit cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                                            onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(address)}`, '_blank')}
+                                            title="Xem trên bản đồ"
+                                          >
+                                            <MapPin size={14} className="shrink-0 mt-0.5 text-zinc-500" />
+                                            <span className="line-clamp-2 max-w-[280px]">{address}</span>
+                                          </div>
+                                        );
+                                      })() : (
+                                        <Button 
+                                          variant={isTime ? "default" : "secondary"}
+                                          size="sm" 
+                                          className="text-xs w-fit h-8"
+                                          disabled={!isTime}
+                                          onClick={() => link ? window.open(link, '_blank') : toast.error('Chưa có link lớp học')}
+                                        >
+                                          <Video size={14} className="mr-1.5" /> 
+                                          {!isTime ? 'Chưa tới giờ vào lớp' : 'Tham gia buổi học'}
+                                        </Button>
+                                      )
+                                    )}
+                                  </div>
+                                )
+                              })()}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">

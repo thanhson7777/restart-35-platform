@@ -33,7 +33,39 @@ export const CourseEnrollmentForm = ({
   const isEligible = eligibility?.eligible !== false;
   const hasEnrollment = !!existingEnrollment;
   const isWaitlistAvailable = eligibility?.waitlistAvailable === true;
-  const { funding_model = 'free' } = course || {};
+  const { funding_model: rawFundingModel, delivery_type, fundingConfig, isFree, fee } = course || {};
+
+  const actualIsFree = fundingConfig?.type === 'FREE' || isFree || fee === 0;
+  const funding_model = actualIsFree 
+    ? 'free' 
+    : (rawFundingModel === 'free' ? 'learner_paid' : (rawFundingModel || (fundingConfig?.type === 'PAID' ? 'learner_paid' : 'learner_paid')));
+
+  const isVideoCourse = delivery_type === 'video';
+  const activeSponsor = sponsorships?.length > 0 ? sponsorships[0] : null;
+  const isEnterpriseSponsored = activeSponsor?.sponsorType === 'enterprise';
+  const isNgoSponsored = activeSponsor?.sponsorType === 'ngo';
+
+  const shouldShowMotivation = !isVideoCourse || isEnterpriseSponsored || isNgoSponsored;
+
+  let motivationOptions = [
+    'Muốn chuyển đổi sang nghề nghiệp ổn định hơn',
+    'Đang thất nghiệp, cần việc làm sau khóa học',
+    'Muốn nâng cao kỹ năng để thăng tiến',
+  ];
+
+  if (isEnterpriseSponsored) {
+    motivationOptions = [
+      'Muốn ứng tuyển vào doanh nghiệp tài trợ sau khóa học',
+      'Cam kết hoàn thành khóa học để nhận việc',
+      'Mong muốn học hỏi quy trình thực tế từ doanh nghiệp',
+    ];
+  } else if (isNgoSponsored) {
+    motivationOptions = [
+      'Đang gặp khó khăn tài chính, cần hỗ trợ học phí',
+      'Thuộc nhóm yếu thế cần hỗ trợ chuyển đổi nghề',
+      'Rất quyết tâm học nhưng chưa đủ điều kiện kinh tế',
+    ];
+  }
 
   // Fetch active enrollments to verify limit limits
   useEffect(() => {
@@ -89,8 +121,8 @@ export const CourseEnrollmentForm = ({
   // ─── 1. Already Enrolled Layout ───────────────────────────────────────────
   if (hasEnrollment) {
     return (
-      <div className="p-1 rounded-[24px] bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800">
-        <Card className="p-6 rounded-[18px] bg-white dark:bg-zinc-950 border border-zinc-150 dark:border-zinc-900 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] text-center space-y-4">
+      <div className="space-y-4">
+        <div className="p-6 rounded-[18px] bg-white dark:bg-zinc-950 border border-zinc-150 dark:border-zinc-900 shadow-sm text-center space-y-4">
           <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20">
             <CheckCircle className="w-5 h-5" />
           </div>
@@ -109,7 +141,7 @@ export const CourseEnrollmentForm = ({
           >
             Vào lớp học của tôi
           </Button>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -117,13 +149,13 @@ export const CourseEnrollmentForm = ({
   // ─── 2. Not Eligible Layout ──────────────────────────────────────────────
   if (!isEligible && !isWaitlistAvailable) {
     return (
-      <div className="p-1 rounded-[24px] bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800">
-        <Card className="p-6 rounded-[18px] bg-white dark:bg-zinc-950 border border-zinc-150 dark:border-zinc-900 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] space-y-4">
+      <div className="space-y-4">
+        <div className="p-6 rounded-[18px] bg-white dark:bg-zinc-950 border border-zinc-150 dark:border-zinc-900 shadow-sm space-y-4">
           <EligibilityIndicator eligibility={eligibility} />
           <p className="text-xs text-zinc-500 dark:text-zinc-450 leading-relaxed text-center">
             Bạn chưa đạt tiêu chuẩn để ghi danh chương trình này. Vui lòng hoàn thiện hồ sơ cá nhân hoặc chọn khóa học khác phù hợp hơn.
           </p>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -253,9 +285,7 @@ export const CourseEnrollmentForm = ({
   };
 
   return (
-    // Double-Bezel nested hardware container
-    <div className="p-1 rounded-[24px] bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800">
-      <Card className="p-6 rounded-[18px] bg-white dark:bg-zinc-950 border border-zinc-150 dark:border-zinc-900 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] space-y-4">
+    <div className="space-y-4">
         
         {/* Eligibility Indicator */}
         <EligibilityIndicator eligibility={eligibility} />
@@ -305,47 +335,7 @@ export const CourseEnrollmentForm = ({
           </div>
         )}
 
-        {/* Motivation field integrated inside the sidebar (optional) */}
-        {!hasEnrollment && isEligible && activeCount < MAX_CONCURRENT_ENROLLMENTS && (
-          <div className="pt-2 border-t border-zinc-100 dark:border-zinc-900">
-            <label className="block text-[10px] uppercase font-bold tracking-wider text-zinc-450 dark:text-zinc-500 mb-2 text-left">
-              Lý do bạn muốn tham gia khóa học này? <span className="text-zinc-400 font-normal lowercase">(chọn 1 lý do)</span>
-            </label>
-            <div className="flex flex-col gap-2">
-              {[
-                'Muốn chuyển đổi sang nghề nghiệp ổn định hơn',
-                'Đang thất nghiệp, cần việc làm sau khóa học',
-                'Muốn nâng cao kỹ năng để thăng tiến',
-              ].map((reason, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setMotivation(reason)}
-                  className={`text-left text-xs px-3 py-2.5 rounded-xl border transition-colors ${
-                    motivation === reason 
-                      ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-500/50 dark:bg-blue-500/10 dark:text-blue-300 font-bold shadow-sm' 
-                      : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 font-medium'
-                  }`}
-                >
-                  {reason}
-                </button>
-              ))}
-              <div className="mt-1">
-                 <Textarea
-                  placeholder="Lý do khác (tùy chọn)..."
-                  value={![
-                    'Muốn chuyển đổi sang nghề nghiệp ổn định hơn',
-                    'Đang thất nghiệp, cần việc làm sau khóa học',
-                    'Muốn nâng cao kỹ năng để thăng tiến',
-                    ''
-                  ].includes(motivation) ? motivation : ''}
-                  onChange={(e) => setMotivation(e.target.value)}
-                  rows={1}
-                  className="text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/20 resize-none min-h-[42px]"
-                />
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Funding Model Sidebar Wrapper */}
         <div className="pt-3 border-t border-zinc-100 dark:border-zinc-900">
@@ -355,7 +345,6 @@ export const CourseEnrollmentForm = ({
         <p className="text-[10px] text-center text-zinc-400 dark:text-zinc-500 leading-snug">
           Bằng cách đăng ký, bạn đồng ý với Điều khoản sử dụng và Hướng dẫn đào tạo của dự án.
         </p>
-      </Card>
     </div>
   );
 };

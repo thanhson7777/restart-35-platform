@@ -11,45 +11,28 @@ const AdminPaymentStats = ({ stats, loading }) => {
   const statItems = [
     {
       key: 'revenue',
-      label: 'Tổng doanh thu',
+      label: 'Tổng tiền giao dịch',
       value: stats?.totalRevenue || 0,
       icon: Receipt,
-      iconColor: 'text-[hsl(var(--admin-accent))]',
-      bgGlow: 'from-[hsl(var(--admin-accent))]/10 to-transparent',
+      iconColor: 'text-[hsl(var(--admin-text-secondary))]',
+      bgGlow: 'from-[hsl(var(--admin-border))] to-transparent',
       isMoney: true,
     },
     {
-      key: 'pending',
-      label: 'Đang chờ',
-      value: stats?.pending || 0,
-      icon: Clock,
-      iconColor: 'text-amber-500',
-      bgGlow: 'from-amber-500/10 to-transparent',
-      urgent: (stats?.pending || 0) > 0,
-    },
-    {
-      key: 'completed',
-      label: 'Hoàn thành',
-      value: stats?.completed || 0,
-      icon: CheckCircle,
-      iconColor: 'text-emerald-500',
-      bgGlow: 'from-emerald-500/10 to-transparent',
-    },
-    {
-      key: 'refund',
-      label: 'Đã hoàn tiền',
-      value: stats?.totalRefund || 0,
-      icon: RotateCcw,
-      iconColor: 'text-rose-500',
-      bgGlow: 'from-rose-500/10 to-transparent',
+      key: 'adminRevenue',
+      label: 'Doanh thu Admin (20%)',
+      value: stats?.adminRevenue || 0,
+      icon: Receipt,
+      iconColor: 'text-[hsl(var(--admin-accent))]',
+      bgGlow: 'from-[hsl(var(--admin-accent))]/10 to-transparent',
       isMoney: true,
     },
   ];
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {[1, 2, 3, 4].map((i) => (
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        {[1, 2].map((i) => (
           <div key={i} className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-2xl p-5 animate-pulse">
             <Skeleton className="h-4 w-24 mb-3 bg-[hsl(var(--admin-surface))]" />
             <Skeleton className="h-8 w-16 mb-2 bg-[hsl(var(--admin-surface))]" />
@@ -61,7 +44,7 @@ const AdminPaymentStats = ({ stats, loading }) => {
   }
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 gap-4 mb-6">
       {statItems.map((item) => {
         const Icon = item.icon;
         const displayValue = item.isMoney

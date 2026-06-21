@@ -37,7 +37,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
   const [newCategoryName, setNewCategoryName] = useState('');
   const [shortDescription, setShortDescription] = useState('');
   const [description, setDescription] = useState('');
-  const [deliveryType, setDeliveryType] = useState('video');
+  const [deliveryType, setDeliveryType] = useState('live');
   const [thumbnailPreview, setThumbnailPreview] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState(null);
 
@@ -85,7 +85,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
       setCategoryId(initialData.categoryId || '');
       setShortDescription(initialData.shortDescription || '');
       setDescription(initialData.description || '');
-      setDeliveryType(initialData.delivery_type || 'video');
+      setDeliveryType(initialData.delivery_type || 'live');
       setThumbnailPreview(initialData.thumbnail || '');
       
       if (initialData.duration) {
@@ -285,14 +285,28 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
     if (durationValue <= 0) {
       newErrors.duration = 'Thời lượng khóa học không hợp lệ';
     }
+
+    if ((deliveryType === 'offline' || deliveryType === 'hybrid') && (!locationAddress || !locationProvince)) {
+      newErrors.location = 'Vui lòng nhập địa chỉ và tỉnh/thành phố đầy đủ';
+    }
     
     // Check if delivery is not video and schedule needs validation
     if (deliveryType !== 'video' && enableAutoSchedule) {
-      if (scheduleSessionsPerWeek !== schedulePreferredDays.length) {
+      if (scheduleSessionsPerWeek > 7) {
+        newErrors.scheduleDays = 'Số buổi/tuần không được lớn hơn 7';
+      } else if (scheduleSessionsPerWeek !== schedulePreferredDays.length) {
         newErrors.scheduleDays = `Số buổi/tuần (${scheduleSessionsPerWeek}) phải khớp với số lượng thứ đã chọn (${schedulePreferredDays.length})`;
       }
       if (scheduleTotalSessions < scheduleSessionsPerWeek) {
         newErrors.scheduleTotal = 'Tổng số buổi phải lớn hơn hoặc bằng số buổi/tuần';
+      }
+    }
+
+    // Check syllabus
+    if (syllabus && syllabus.length > 0) {
+      const emptyIndex = syllabus.findIndex(item => !item.title || !item.title.trim());
+      if (emptyIndex !== -1) {
+        newErrors.syllabus = `Vui lòng nhập Tên bài học cho Buổi ${emptyIndex + 1} trong phần Giáo trình`;
       }
     }
 
@@ -303,13 +317,16 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
   // Handle Form Submit
   const handleSave = (statusOverride) => {
     if (!validateForm()) {
+      toast.error('Vui lòng kiểm tra lại thông tin và điền đầy đủ các trường bắt buộc (như tên bài học trong giáo trình)');
       // Switch to first tab with errors
       if (errors.title || errors.categoryId || errors.description) {
         setActiveTab('basic');
-      } else if (errors.duration || errors.location) {
+      } else if (errors.duration || errors.location || errors.scheduleTotal || errors.scheduleDays) {
         setActiveTab('schedule');
       } else if (errors.fee || errors.maxStudents) {
         setActiveTab('financial');
+      } else if (errors.syllabus) {
+        setActiveTab('syllabus');
       }
       return;
     }
@@ -335,7 +352,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
         sessionDurationMinutes: Number(scheduleDurationMinutes),
         preferredDays: schedulePreferredDays,
         preferredTime: schedulePreferredTime,
-        expectedStartDate: expectedStartDate ? new Date(expectedStartDate).toISOString() : null
+        expectedStartDate: expectedStartDate ? new Date(expectedStartDate).getTime() : null
       }));
     } else if (deliveryType !== 'video' && !enableAutoSchedule) {
       // Don't send scheduleConfig
@@ -360,8 +377,8 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
     payload.append('maxStudents', maxStudents);
 
-    // Date
-    if (expectedStartDate) {
+    // Date (chỉ gửi cho khóa học có lịch dạy)
+    if (deliveryType !== 'video' && expectedStartDate) {
       // Send as timestamp
       const timestamp = new Date(expectedStartDate).getTime();
       payload.append('enrollmentStartDate', timestamp);
@@ -561,7 +578,6 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     disabled={isPartnership && !!initialData?.delivery_type}
                     className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <option value="video">Học qua Video</option>
                     <option value="live">Học Online (Zoom/Meet)</option>
                     <option value="offline">Học trực tiếp (Offline)</option>
                   </select>
@@ -610,14 +626,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               </div>
 
               {/* Notice for Video and Online courses */}
-              {deliveryType === 'video' && (
-                <div className="bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))/30] p-4 rounded-lg flex items-start gap-3 text-[hsl(var(--admin-accent))]">
-                  <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm">
-                    <strong>Khóa học qua Video:</strong> Hình thức học tự do trên nền tảng (self-paced), không yêu cầu thiết lập địa điểm hay lịch học cố định.
-                  </p>
-                </div>
-              )}
+
               {deliveryType === 'live' && (
                 <div className="bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))/30] p-4 rounded-lg flex items-start gap-3 text-[hsl(var(--admin-accent))]">
                   <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
@@ -653,19 +662,38 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="expectedStartDate" className="text-[hsl(var(--admin-text-secondary))]">
-                    Ngày dự kiến khai giảng (Bắt buộc với khóa dạy) <span className="text-[hsl(var(--admin-danger))]">*</span>
-                  </Label>
-                  <Input
-                    id="expectedStartDate"
-                    type="date"
-                    value={expectedStartDate}
-                    onChange={(e) => setExpectedStartDate(e.target.value)}
-                    className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
+                {deliveryType !== 'video' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="expectedStartDate" className="text-[hsl(var(--admin-text-secondary))]">
+                      Ngày dự kiến khai giảng <span className="text-[hsl(var(--admin-danger))]">*</span>
+                    </Label>
+                    <Input
+                      id="expectedStartDate"
+                      type="date"
+                      value={expectedStartDate}
+                      onChange={(e) => setExpectedStartDate(e.target.value)}
+                      className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))]"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {(deliveryType === 'offline' || deliveryType === 'hybrid') && (
+                <div className="space-y-4 border-t border-[hsl(var(--admin-border))] pt-6 mt-6">
+                  <h4 className="font-semibold text-[hsl(var(--admin-text-primary))]">Địa điểm giảng dạy</h4>
+                  <LocationPicker
+                    address={locationAddress}
+                    province={locationProvince}
+                    ward={locationWard}
+                    coordinates={locationCoordinates}
+                    onAddressChange={setLocationAddress}
+                    onProvinceChange={setLocationProvince}
+                    onWardChange={setLocationWard}
+                    onCoordinatesChange={setLocationCoordinates}
+                    errors={{ address: errors.location }}
                   />
                 </div>
-              </div>
+              )}
 
               {deliveryType !== 'video' && (
                 <div className="space-y-6 border-t border-[hsl(var(--admin-border))] pt-6 mt-6">
@@ -689,7 +717,13 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                         type="number"
                         min="1"
                         value={scheduleTotalSessions}
-                        onChange={(e) => setScheduleTotalSessions(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setScheduleTotalSessions(val);
+                          if (val > 0 && scheduleSessionsPerWeek > val) {
+                            setScheduleSessionsPerWeek(val);
+                          }
+                        }}
                         className={`bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] ${errors.scheduleTotal ? 'border-red-500' : ''}`}
                       />
                       {errors.scheduleTotal && <p className="text-red-500 text-xs mt-1">{errors.scheduleTotal}</p>}
@@ -699,8 +733,14 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                       <Input
                         type="number"
                         min="1"
+                        max={Math.min(7, scheduleTotalSessions || 7)}
                         value={scheduleSessionsPerWeek}
-                        onChange={(e) => setScheduleSessionsPerWeek(Number(e.target.value))}
+                        onChange={(e) => {
+                          let val = Number(e.target.value);
+                          if (val > 7) val = 7;
+                          if (scheduleTotalSessions > 0 && val > scheduleTotalSessions) val = scheduleTotalSessions;
+                          setScheduleSessionsPerWeek(val);
+                        }}
                         className={`bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] ${errors.scheduleDays ? 'border-red-500' : ''}`}
                       />
                       {errors.scheduleDays && <p className="text-red-500 text-xs mt-1">{errors.scheduleDays}</p>}
@@ -790,6 +830,12 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     {deliveryType === 'video' ? 'Thêm chương/bài mới' : 'Thêm buổi học mới'}
                   </Button>
                 </div>
+                
+                {errors.syllabus && (
+                  <p className="text-[hsl(var(--admin-danger))] text-sm bg-[hsl(var(--admin-danger)/10%)] p-2 rounded border border-[hsl(var(--admin-danger)/20%)]">
+                    {errors.syllabus}
+                  </p>
+                )}
 
                 {deliveryType !== 'video' && syllabus.length > scheduleTotalSessions && scheduleTotalSessions > 0 && (
                   <div className="bg-[hsl(var(--admin-danger)/10%)] border border-[hsl(var(--admin-danger)/20%)] text-[hsl(var(--admin-danger))] p-3 rounded-md text-sm flex items-start gap-2">
@@ -859,6 +905,31 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                             rows={2}
                           />
                         </div>
+
+                        {deliveryType === 'video' && (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="md:col-span-2 space-y-2">
+                              <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Đường dẫn Video bài giảng (YouTube, Cloudinary, MP4 link, v.v.)</Label>
+                              <Input
+                                placeholder="Ví dụ: https://www.youtube.com/watch?v=..."
+                                value={item.videoUrl || ''}
+                                onChange={(e) => updateSyllabusItem(index, 'videoUrl', e.target.value)}
+                                className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                              />
+                            </div>
+                            <div className="md:col-span-1 space-y-2">
+                              <Label className="text-[hsl(var(--admin-text-muted))] text-xs">Thời lượng video (phút)</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                placeholder="Ví dụ: 15"
+                                value={item.videoDuration || ''}
+                                onChange={(e) => updateSyllabusItem(index, 'videoDuration', e.target.value === '' ? '' : Number(e.target.value))}
+                                className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
+                              />
+                            </div>
+                          </div>
+                        )}
 
                         {/* File Upload Section */}
                         <div className="pt-2">
@@ -957,36 +1028,29 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                       />
                       <span>Học viên tự chi trả (PAID)</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer text-sm text-[hsl(var(--admin-text-primary))]">
-                      <input
-                        type="radio"
-                        checked={fundingType === 'SPONSORED'}
-                        onChange={() => { setFundingType('SPONSORED'); setFundingPrice(0); }}
-                        className="h-4 w-4 accent-[hsl(var(--admin-accent))]"
-                      />
-                      <span>Được tài trợ 100% (SPONSORED)</span>
-                    </label>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="maxStudents" className="text-[hsl(var(--admin-text-secondary))]">Quy mô lớp học (Sĩ số học viên tối đa) <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
-                  <Input
-                    id="maxStudents"
-                    type="number"
-                    min="1"
-                    value={maxStudents}
-                    onChange={(e) => setMaxStudents(Number(e.target.value))}
-                    disabled={isPartnership}
-                    className={`bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] ${isPartnership ? 'opacity-70 cursor-not-allowed' : ''}`}
-                  />
-                  {errors.maxStudents && (
-                    <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      {errors.maxStudents}
-                    </p>
-                  )}
-                </div>
+                {deliveryType !== 'video' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="maxStudents" className="text-[hsl(var(--admin-text-secondary))]">Quy mô lớp học (Sĩ số học viên tối đa) <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
+                    <Input
+                      id="maxStudents"
+                      type="number"
+                      min="1"
+                      value={maxStudents}
+                      onChange={(e) => setMaxStudents(Number(e.target.value))}
+                      disabled={isPartnership}
+                      className={`bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] ${isPartnership ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    />
+                    {errors.maxStudents && (
+                      <p className="text-[hsl(var(--admin-danger))] text-xs flex items-center gap-1">
+                        <AlertCircle className="h-3.5 w-3.5" />
+                        {errors.maxStudents}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {fundingType === 'PAID' && (
@@ -1019,27 +1083,31 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                     id="hasJobGuarantee"
                     checked={fundingHasJobGuarantee}
                     onChange={(e) => setFundingHasJobGuarantee(e.target.checked)}
-                    className="h-4 w-4 rounded border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))]"
+                    disabled={isPartnership}
+                    className={`h-4 w-4 rounded border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))] ${isPartnership ? 'bg-[hsl(var(--admin-surface-hover))] cursor-not-allowed opacity-60' : 'bg-[hsl(var(--admin-surface-elevated))]'}`}
                   />
-                  <Label htmlFor="hasJobGuarantee" className="text-[hsl(var(--admin-text-secondary))] cursor-pointer">
+                  <Label htmlFor="hasJobGuarantee" className={`text-[hsl(var(--admin-text-secondary))] ${isPartnership ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}>
                     Khóa học có Cam kết việc làm đầu ra (Job Guarantee)
                   </Label>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id="acceptsSponsorship"
-                    checked={fundingAcceptsSponsorship}
-                    onChange={(e) => setFundingAcceptsSponsorship(e.target.checked)}
-                    className="h-4 w-4 rounded border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))]"
-                  />
-                  <div>
-                    <Label htmlFor="acceptsSponsorship" className="text-[hsl(var(--admin-text-secondary))] cursor-pointer">
-                      Cho phép nhận tài trợ từ các tổ chức NGO
-                    </Label>
-                    <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Nếu bật, khóa học của bạn sẽ hiển thị trên hệ thống của các NGO để họ cân nhắc tài trợ học bổng cho người lao động.</p>
+                
+                {(!initialData?.hasEnterpriseSponsorship && !isPartnership) && (
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id="acceptsSponsorship"
+                      checked={fundingAcceptsSponsorship}
+                      onChange={(e) => setFundingAcceptsSponsorship(e.target.checked)}
+                      className="h-4 w-4 rounded border-[hsl(var(--admin-border-strong))] bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-accent))] focus:ring-[hsl(var(--admin-accent))]"
+                    />
+                    <div>
+                      <Label htmlFor="acceptsSponsorship" className="text-[hsl(var(--admin-text-secondary))] cursor-pointer">
+                        Cho phép nhận tài trợ từ các tổ chức NGO
+                      </Label>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Nếu bật, khóa học của bạn sẽ hiển thị trên hệ thống của các NGO để họ cân nhắc tài trợ học bổng cho người lao động.</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}

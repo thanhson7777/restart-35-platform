@@ -248,7 +248,6 @@ export default function EnterprisePartnershipCreatePage() {
                     <SelectContent>
                       <SelectItem value="live">Học trực tuyến (Online Live)</SelectItem>
                       <SelectItem value="offline">Học trực tiếp (Offline)</SelectItem>
-                      <SelectItem value="video">Học qua Video</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

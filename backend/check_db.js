@@ -5,10 +5,11 @@ async function run() {
   try {
     await client.connect();
     const db = client.db('restart-35-platform');
-    const c = await db.collection('courses').findOne({ 'linkedPartnershipId': { $ne: null } });
-    console.log(JSON.stringify(c, null, 2));
+    const courses = await db.collection('courses').find().sort({createdAt: -1}).limit(5).toArray();
+    console.log("LATEST 5 COURSES:");
+    courses.forEach(c => console.log(`ID: ${c._id}, Title: ${c.title}, Status: ${c.status}, ApprovedAt: ${c.approvedAt}, Destroy: ${c._destroy}`));
   } finally {
     await client.close();
   }
 }
-run();
+run().catch(console.dir);

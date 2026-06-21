@@ -49,8 +49,8 @@ const REVIEW_COLLECTION_SCHEMA = Joi.object({
     .default(REVIEW_STATUS.PENDING),
   flaggedReason: Joi.string().allow(null, ''),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 

@@ -335,7 +335,8 @@ export const PAYMENT_METHOD = {
   MOMO: 'momo',
   ZALOPAY: 'zalopay',
   VNPAY: 'vnpay',
-  INVOICE: 'invoice'
+  INVOICE: 'invoice',
+  WALLET: 'wallet'
 }
 
 // ============ PAYMENT STATUS ============

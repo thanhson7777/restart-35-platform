@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/Dialog';
 
 const interviewStatusConfig = {
-  pending_confirmation: { label: 'Chờ xác nhận', className: 'bg-amber-100 text-amber-700 border-amber-200' },
+  pending_confirmation: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   confirmed: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   completed: { label: 'Hoàn thành', className: 'bg-blue-100 text-blue-700 border-blue-200' },
   cancelled: { label: 'Đã hủy', className: 'bg-slate-200 text-slate-600 border-slate-300' },
@@ -130,7 +130,7 @@ export default function EnterpriseInterviewDetailPage() {
           setActionLoading(null);
           return;
         }
-        payload.enterpriseStartDate = feedbackModal.startDate;
+        payload.enterpriseStartDate = new Date(feedbackModal.startDate).getTime();
         
         if (interview?.job?.salary?.negotiable && feedbackModal.salary) {
           payload.enterpriseSalary = Number(feedbackModal.salary);
@@ -216,13 +216,23 @@ export default function EnterpriseInterviewDetailPage() {
                 </Button>
               </>
             )}
-            {interview.status === 'confirmed' && (
-              <Button
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={() => setFeedbackModal({ open: true, rating: 5, comment: '', decision: '', salary: '', startDate: '' })}
-              >
-                <CheckCircle size={14} className="mr-2" /> Hoàn thành
-              </Button>
+            {['pending_confirmation', 'confirmed'].includes(interview.status) && (
+              <>
+                {interview.meetingType === 'google_meet' && interview.meetingLink && (
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => window.open(interview.meetingLink, '_blank')}
+                  >
+                    <Video size={14} className="mr-2" /> Bắt đầu phỏng vấn
+                  </Button>
+                )}
+                <Button
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  onClick={() => setFeedbackModal({ open: true, rating: 5, comment: '', decision: '', salary: '', startDate: '' })}
+                >
+                  <CheckCircle size={14} className="mr-2" /> Quyết định kết quả
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -361,26 +371,7 @@ export default function EnterpriseInterviewDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Confirmation Status */}
-            <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
-              <CardHeader>
-                <CardTitle className="text-lg">Xác nhận</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Ứng viên:</span>
-                  <Badge className={interview.workerConfirmed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}>
-                    {interview.workerConfirmed ? 'Đã xác nhận' : 'Chưa xác nhận'}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Doanh nghiệp:</span>
-                  <Badge className={interview.enterpriseConfirmed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}>
-                    {interview.enterpriseConfirmed ? 'Đã xác nhận' : 'Chưa xác nhận'}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
+
 
             {/* Interviewer Info */}
             {interview.enterpriseInterviewer && (

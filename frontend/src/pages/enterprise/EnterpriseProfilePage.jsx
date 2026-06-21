@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { 
+import {
   Camera, Save, Building2, Briefcase, Mail, Phone, MapPin, Hash, Users, Target, Map,
   User, Lock, ShieldCheck, AlertCircle, CheckCircle, MailIcon, PhoneIcon, UserIcon
 } from 'lucide-react';
@@ -117,7 +117,7 @@ export default function EnterpriseProfilePage() {
   useEffect(() => {
     const fetchOrgData = async () => {
       if (!currentUser) return;
-      
+
       setUserData({
         displayName: currentUser.displayName || '',
         phone: currentUser.phone || '',
@@ -134,7 +134,7 @@ export default function EnterpriseProfilePage() {
         setIsLoading(true);
         const res = await getOrganizationById(currentUser.organizationId);
         const data = res?.data || res;
-        
+
         setOrgData({
           name: data.name || '',
           taxCode: data.taxCode || '',
@@ -204,9 +204,10 @@ export default function EnterpriseProfilePage() {
         const formData = new FormData();
         formData.append('avatar', avatarFile);
         await dispatch(updateUserAPI(formData)).unwrap();
-        dispatch(fetchCurrentUser());
         setAvatarFile(null);
       }
+
+      dispatch(fetchCurrentUser());
 
       toast.success('Cập nhật hồ sơ doanh nghiệp thành công!');
     } catch (err) {
@@ -234,7 +235,7 @@ export default function EnterpriseProfilePage() {
       const formData = new FormData();
       formData.append('displayName', userData.displayName.trim());
       formData.append('phone', userData.phone.trim());
-      
+
       await dispatch(updateUserAPI(formData)).unwrap();
       toast.success('Cập nhật thông tin đại diện thành công!');
     } catch (err) {
@@ -289,7 +290,7 @@ export default function EnterpriseProfilePage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+    <div className="w-full space-y-6 pb-12">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-[hsl(var(--admin-text-primary))]">Thiết lập & Cài đặt</h1>
         <p className="text-[hsl(var(--admin-text-muted))] mt-1">
@@ -317,7 +318,7 @@ export default function EnterpriseProfilePage() {
         <TabsContent value="organization">
           <form onSubmit={handleSaveOrg}>
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-              
+
               {/* CARD 1: OVERVIEW */}
               <motion.div variants={itemVariants}>
                 <Card className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
@@ -430,49 +431,10 @@ export default function EnterpriseProfilePage() {
                 </Card>
               </motion.div>
 
-              {/* CARD 2: TRAINING */}
-              <motion.div variants={itemVariants}>
-                <Card className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl overflow-hidden">
-                  <CardHeader className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
-                    <CardTitle className="flex items-center gap-2 text-lg text-[hsl(var(--admin-text-primary))]">
-                      <Target size={18} className="text-[hsl(var(--admin-accent))]" />
-                      Định hướng Đào tạo & Hoạt động
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-5">
-                    <IconInput
-                      label="Khu vực hoạt động (Phân cách bằng dấu phẩy)"
-                      id="operatingRegions"
-                      icon={Map}
-                      value={orgData.operatingRegions}
-                      onChange={(e) => handleOrgChange('operatingRegions', e.target.value)}
-                      placeholder="VD: Hà Nội, TP.HCM, Đà Nẵng"
-                    />
-
-                    <IconInput
-                      label="Lĩnh vực tập trung (Phân cách bằng dấu phẩy)"
-                      id="focusAreas"
-                      icon={Target}
-                      value={orgData.focusAreas}
-                      onChange={(e) => handleOrgChange('focusAreas', e.target.value)}
-                      placeholder="VD: Dịch vụ công nghệ, Tự động hóa"
-                    />
-
-                    <IconInput
-                      label="Danh mục đào tạo quan tâm (Phân cách bằng dấu phẩy)"
-                      id="trainingCategories"
-                      icon={Briefcase}
-                      value={orgData.trainingCategories}
-                      onChange={(e) => handleOrgChange('trainingCategories', e.target.value)}
-                      placeholder="VD: Kỹ năng mềm, Lập trình React, Thiết kế UI/UX"
-                    />
-                  </CardContent>
-                </Card>
-              </motion.div>
 
               <motion.div variants={itemVariants} className="flex justify-end pt-2">
                 <Button type="submit" isLoading={isSavingOrg} size="lg" className="gap-2 bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white px-8">
-                  <Save size={16} /> Lưu thay đổi Doanh nghiệp
+                  <Save size={16} /> Lưu thay đổi
                 </Button>
               </motion.div>
             </motion.div>
@@ -547,7 +509,7 @@ export default function EnterpriseProfilePage() {
             </CardHeader>
             <CardContent className="p-6">
               <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-                
+
                 <motion.div variants={itemVariants}>
                   <div className="flex items-start gap-3 p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-900/50">
                     <AlertCircle size={20} className="text-blue-500 mt-0.5 shrink-0" />

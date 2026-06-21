@@ -24,8 +24,8 @@ import {
 } from '@/components/ui/Dialog';
 
 const interviewStatusConfig = {
-  pending_confirmation: { label: 'Chờ xác nhận', className: 'bg-amber-100 text-amber-700 border-amber-200' },
-  rescheduled: { label: 'Đã dời lịch (Chờ XN)', className: 'bg-amber-100 text-amber-700 border-amber-200' },
+  pending_confirmation: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+  rescheduled: { label: 'Đã dời lịch', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   confirmed: { label: 'Đã xác nhận', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   completed: { label: 'Hoàn thành', className: 'bg-blue-100 text-blue-700 border-blue-200' },
   cancelled: { label: 'Đã hủy', className: 'bg-slate-200 text-slate-600 border-slate-300' },
@@ -306,7 +306,7 @@ export default function WorkerInterviewsPage() {
                           </div>
                           <div className="flex flex-col items-end gap-2">
                             <Badge className={`${status.className} text-xs`}>{status.label}</Badge>
-                            {['pending_confirmation', 'rescheduled'].includes(interview.status) && !isPast && (
+                            {['pending_confirmation'].includes(interview.status) && !isPast && (
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
@@ -483,17 +483,28 @@ function InterviewDetailView({ interview, loading, onBack, onOpenConfirmModal })
         {interview.feedback?.enterpriseDecision && (
           <div className="mb-6 p-4 rounded-lg bg-emerald-50 border border-emerald-200">
             <p className="text-sm text-emerald-700 font-medium mb-1">Kết quả phỏng vấn</p>
-            <p className="text-sm text-emerald-800">
-              {interview.feedback.enterpriseDecision === 'proceed_to_offer' ? 'Tiến tới offer' :
+            <p className="text-sm text-emerald-800 font-medium">
+              {interview.feedback.enterpriseDecision === 'hire' ? 'Đã trúng tuyển' :
+               interview.feedback.enterpriseDecision === 'proceed_to_offer' ? 'Tiến tới offer' :
                interview.feedback.enterpriseDecision === 'reject' ? 'Không đạt' : 'Cần thêm phỏng vấn'}
             </p>
             {interview.feedback.enterpriseComment && (
-              <p className="text-sm text-emerald-700 mt-1">{interview.feedback.enterpriseComment}</p>
+              <p className="text-sm text-emerald-700 mt-2">{interview.feedback.enterpriseComment}</p>
+            )}
+            {interview.feedback.enterpriseDecision === 'hire' && interview.feedback.enterpriseStartDate && (
+              <p className="text-sm text-emerald-800 mt-2">
+                <span className="font-semibold">Ngày bắt đầu làm việc:</span> {new Date(interview.feedback.enterpriseStartDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+              </p>
+            )}
+            {interview.feedback.enterpriseDecision === 'hire' && interview.feedback.enterpriseSalary && (
+              <p className="text-sm text-emerald-800 mt-1">
+                <span className="font-semibold">Mức lương thỏa thuận:</span> {Number(interview.feedback.enterpriseSalary).toLocaleString('vi-VN')} VND
+              </p>
             )}
           </div>
         )}
 
-        {['pending_confirmation', 'rescheduled'].includes(interview.status) && !isPast && (
+        {['pending_confirmation'].includes(interview.status) && !isPast && (
           <div className="flex gap-3 pt-4 border-t border-[hsl(var(--border))]">
             <Button onClick={() => onOpenConfirmModal(interview)} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
               <Check size={16} /> Xác nhận tham gia

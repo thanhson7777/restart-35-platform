@@ -34,11 +34,11 @@ export default function InterviewCard({ interview, onClick, compact = false }) {
       >
         <div className={`p-2 rounded-lg ${
           interview.status === 'confirmed' ? 'bg-emerald-100' :
-          interview.status === 'pending_confirmation' ? 'bg-amber-100' : 'bg-slate-100'
+          interview.status === 'pending_confirmation' ? 'bg-emerald-100' : 'bg-slate-100'
         }`}>
           <MeetingIcon size={20} className={
             interview.status === 'confirmed' ? 'text-emerald-600' :
-            interview.status === 'pending_confirmation' ? 'text-amber-600' : 'text-slate-500'
+            interview.status === 'pending_confirmation' ? 'text-emerald-600' : 'text-slate-500'
           } />
         </div>
         <div className="flex-1 min-w-0">
@@ -65,12 +65,12 @@ export default function InterviewCard({ interview, onClick, compact = false }) {
         <div className="flex items-start gap-4">
           <div className={`p-3 rounded-lg ${
             interview.status === 'confirmed' ? 'bg-emerald-100' :
-            interview.status === 'pending_confirmation' ? 'bg-amber-100' :
+            interview.status === 'pending_confirmation' ? 'bg-emerald-100' :
             interview.status === 'completed' ? 'bg-blue-100' : 'bg-slate-100'
           }`}>
             <MeetingIcon size={24} className={
               interview.status === 'confirmed' ? 'text-emerald-600' :
-              interview.status === 'pending_confirmation' ? 'text-amber-600' :
+              interview.status === 'pending_confirmation' ? 'text-emerald-600' :
               interview.status === 'completed' ? 'text-blue-600' : 'text-slate-500'
             } />
           </div>
@@ -119,19 +119,7 @@ export default function InterviewCard({ interview, onClick, compact = false }) {
           )}
         </div>
 
-        {/* Confirmation Status */}
-        <div className="flex items-center gap-4 pt-3 border-t border-[hsl(var(--border))]">
-          <div className="flex items-center gap-1 text-sm">
-            {interview.workerConfirmed ? (
-              <Check size={14} className="text-emerald-500" />
-            ) : (
-              <X size={14} className="text-slate-400" />
-            )}
-            <span className={interview.workerConfirmed ? 'text-emerald-600' : 'text-[hsl(var(--muted-foreground))]'}>
-              Bạn {interview.workerConfirmed ? 'đã xác nhận' : 'chưa xác nhận'}
-            </span>
-          </div>
-        </div>
+
       </div>
     </div>
   );

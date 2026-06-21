@@ -20,6 +20,29 @@ const createPlacement = async (req, res, next) => {
 // ============ READ ============
 const getPlacements = async (req, res, next) => {
   try {
+    const role = req.jwtDecoded.role
+    const userId = req.jwtDecoded._id.toString()
+    
+    // Enterprise only sees placements for their partnerships
+    if (role === 'enterprise') {
+      const { partnershipId } = req.query
+      if (!partnershipId) {
+        return res.status(StatusCodes.FORBIDDEN).json({
+          success: false,
+          message: 'Bạn phải chỉ định hợp tác để xem ứng viên!'
+        })
+      }
+      
+      const { partnershipModel } = await import('~/models/partnershipModel')
+      const partnership = await partnershipModel.findOneById(partnershipId)
+      if (!partnership || partnership.enterpriseId.toString() !== userId) {
+        return res.status(StatusCodes.FORBIDDEN).json({
+          success: false,
+          message: 'Bạn không có quyền truy cập ứng viên của hợp tác này!'
+        })
+      }
+    }
+
     const result = await placementService.getPlacements(req.query)
 
     res.status(StatusCodes.OK).json({
@@ -98,7 +121,27 @@ const updatePlacementStatus = async (req, res, next) => {
   try {
     const { id } = req.params
     const adminId = req.jwtDecoded._id.toString()
+    const role = req.jwtDecoded.role
     const { status, interviewDate, offerDetails, startedDate } = req.body
+
+    // Ensure Enterprise can only update their own placements
+    if (role === 'enterprise') {
+      const placement = await placementService.getPlacementById(id)
+      if (!placement || !placement.partnershipId) {
+        return res.status(StatusCodes.FORBIDDEN).json({
+          success: false,
+          message: 'Bạn không có quyền cập nhật ứng viên này!'
+        })
+      }
+      const { partnershipModel } = await import('~/models/partnershipModel')
+      const partnership = await partnershipModel.findOneById(placement.partnershipId)
+      if (!partnership || partnership.enterpriseId.toString() !== adminId) {
+        return res.status(StatusCodes.FORBIDDEN).json({
+          success: false,
+          message: 'Bạn không có quyền cập nhật ứng viên này!'
+        })
+      }
+    }
 
     const placement = await placementService.updatePlacementStatus(
       id,

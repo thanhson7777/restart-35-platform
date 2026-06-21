@@ -8,7 +8,7 @@ const PAYMENT_COLLECTION_NAME = 'payments'
 const PAYMENT_COLLECTION_SCHEMA = Joi.object({
   enrollmentId: Joi.string().allow(null, '').optional().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   userId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-  courseId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+  courseId: Joi.string().allow(null, '').optional().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   method: Joi.string()
     .valid(...Object.values(PAYMENT_METHOD))
     .required()
@@ -44,6 +44,12 @@ const PAYMENT_COLLECTION_SCHEMA = Joi.object({
   transactionId: Joi.string().allow('', null),
   qrUrl: Joi.string().allow('', null),
   notes: Joi.string().max(1000).allow('', null),
+  referenceModel: Joi.string().allow('', null),
+  referenceId: Joi.string().allow('', null),
+  createdAt: Joi.date().timestamp('javascript').default(() => Date.now()),
+  updatedAt: Joi.date().timestamp('javascript').default(() => Date.now()),
+  paidAt: Joi.date().timestamp('javascript').allow(null),
+  completedAt: Joi.date().timestamp('javascript').allow(null),
   _destroy: Joi.boolean().default(false)
 })
 

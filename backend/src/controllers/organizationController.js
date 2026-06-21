@@ -41,6 +41,7 @@ const getOrganizationById = async (req, res, next) => {
 
     // Check permission
     const currentUser = await userModel.findOneById(req.user._id)
+    console.log('[DEBUG GET ORG] id:', id, 'currentUser.organizationId:', currentUser?.organizationId)
     if (req.user.role !== 'admin' && currentUser?.organizationId?.toString() !== id) {
       throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập tổ chức này!')
     }

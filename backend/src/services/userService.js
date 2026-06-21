@@ -229,6 +229,14 @@ const login = async (reqBody) => {
     const accessToken = await jwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, env.ACCESS_TOKEN_LIFE)
     const refreshToken = await jwtProvider.generateToken(userInfo, env.REFRESH_TOKEN_SECRET_SIGNATURE, env.REFRESH_TOKEN_LIFE)
 
+    if (existUser.organizationId) {
+      const { organizationModel } = await import('~/models/organizationModel')
+      const org = await organizationModel.findOneById(existUser.organizationId)
+      if (org) {
+        existUser.organization = org
+      }
+    }
+
     return {
       accessToken,
       refreshToken,
@@ -286,6 +294,14 @@ const update = async (userId, reqBody, reqFile) => {
     delete updateData.isActive
 
     const updatedUser = await userModel.update(userId, updateData)
+
+    if (updatedUser && updatedUser.organizationId) {
+      const { organizationModel } = await import('~/models/organizationModel')
+      const org = await organizationModel.findOneById(updatedUser.organizationId)
+      if (org) {
+        updatedUser.organization = org
+      }
+    }
 
     return pickUser(updatedUser)
   } catch (error) { throw error }
@@ -431,6 +447,13 @@ const getMe = async (userId) => {
   try {
     const user = await userModel.findOneById(userId)
     if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản không tồn tại!')
+    if (user.organizationId) {
+      const { organizationModel } = await import('~/models/organizationModel')
+      const org = await organizationModel.findOneById(user.organizationId)
+      if (org) {
+        user.organization = org
+      }
+    }
     return pickUser(user)
   } catch (error) { throw error }
 }

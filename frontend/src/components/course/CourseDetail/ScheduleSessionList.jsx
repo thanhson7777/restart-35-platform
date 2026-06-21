@@ -25,11 +25,11 @@ export const ScheduleSessionList = ({ courseId, delivery_type }) => {
           setScheduleLocation(firstSession.location || null);
           setSessions(raw);
         } else {
-          setSessions(getMockSessions(delivery_type));
+          setSessions([]);
         }
       } catch (err) {
-        console.warn('API error, falling back to mock schedules:', err);
-        setSessions(getMockSessions(delivery_type));
+        console.warn('API error:', err);
+        setSessions([]);
       } finally {
         setLoading(false);
       }

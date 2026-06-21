@@ -189,6 +189,7 @@ export const createSponsorship = async (db, sponsorId, sponsorType, overrides = 
     description: overrides.description || 'Test sponsorship description',
     linkedCourses: overrides.linkedCourses || [],
     budget: overrides.budget || 50000000,
+    targetLearners: overrides.targetLearners || 10,
     coverageType: overrides.coverageType || SCHOLARSHIP_COVERAGE.FULL,
     maxAmountPerLearner: overrides.maxAmountPerLearner || 5000000,
     disbursementModel: overrides.disbursementModel || DISBURSEMENT_MODEL.COMPLETION,

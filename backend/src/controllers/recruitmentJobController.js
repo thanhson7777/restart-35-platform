@@ -99,6 +99,17 @@ const submitForApproval = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const cancelApproval = async (req, res, next) => {
+  try {
+    const result = await recruitmentJobService.cancelApproval(req.params.id, req.user._id)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã hủy gửi duyệt tin tuyển dụng!',
+      data: result
+    })
+  } catch (error) { next(error) }
+}
+
 const closeJob = async (req, res, next) => {
   try {
     const result = await recruitmentJobService.closeJob(req.params.id, req.user._id)
@@ -304,6 +315,7 @@ export const recruitmentJobController = {
   updateJob,
   deleteJob,
   submitForApproval,
+  cancelApproval,
   closeJob,
   getJobApplications,
   getJobStats,

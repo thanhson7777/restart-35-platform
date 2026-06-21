@@ -88,7 +88,7 @@ const COURSE_SPONSORSHIP_COLLECTION_SCHEMA = Joi.object({
       amount: Joi.number().integer().min(0).required(),
       type: Joi.string().valid('disbursement', 'clawback').required(),
       status: Joi.string().valid('pending', 'completed', 'reversed').default('pending'),
-      createdAt: Joi.date().timestamp('javascript').default(Date.now())
+      createdAt: Joi.date().timestamp('javascript').default(Date.now)
     })
   ).default([]),
   stats: Joi.object({
@@ -102,8 +102,8 @@ const COURSE_SPONSORSHIP_COLLECTION_SCHEMA = Joi.object({
   }),
   startsAt: Joi.date().timestamp('javascript').allow(null).default(null),
   expiresAt: Joi.date().timestamp('javascript').allow(null).default(null),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 

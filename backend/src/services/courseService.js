@@ -1,5 +1,6 @@
 // backend/src/services/courseService.js
 
+import { ObjectId } from 'mongodb'
 import { courseModel } from '~/models/courseModel'
 import { userModel } from '~/models/userModel'
 import { workerProfileModel } from '~/models/workerProfileModel'
@@ -32,6 +33,11 @@ const createCourse = async (userId, data, reqFile = null) => {
       ...data,
       providerId: userId,
       status: COURSE_STATUS.DRAFT
+    }
+
+    if (data.fundingConfig) {
+      courseData.isFree = data.fundingConfig.type === 'FREE'
+      courseData.fee = data.fundingConfig.price || 0
     }
 
     // Upload thumbnail to Cloudinary if provided
@@ -99,6 +105,36 @@ const getCourseWithDetails = async (courseId, userId = null) => {
 
     // Get provider info
     const provider = await userModel.findOneById(course.providerId)
+    
+    let providerStats = null;
+    let organization = null;
+    if (provider) {
+      // Tính toán stats thật của provider
+      const providerCourses = await courseModel.findByProvider(course.providerId, 0, 1000, { status: 'approved' });
+      const coursesCount = providerCourses.totalCourses || 0;
+      const totalStudents = providerCourses.courses.reduce((sum, c) => sum + (c.enrollmentCount || 0), 0);
+      
+      let totalRating = 0;
+      let ratingCount = 0;
+      providerCourses.courses.forEach(c => {
+        if (c.rating && c.rating.count > 0) {
+          totalRating += (c.rating.average || 0) * c.rating.count;
+          ratingCount += c.rating.count;
+        }
+      });
+      const averageRating = ratingCount > 0 ? (totalRating / ratingCount) : 0;
+      
+      providerStats = {
+        coursesCount,
+        totalStudents,
+        averageRating
+      };
+
+      // Get organization if any
+      if (provider.organizationId) {
+        organization = await GET_DB().collection('organizations').findOne({ _id: new ObjectId(provider.organizationId) });
+      }
+    }
 
     // Get enrollment status if user logged in
     let enrollment = null
@@ -118,7 +154,15 @@ const getCourseWithDetails = async (courseId, userId = null) => {
         _id: provider._id,
         displayName: provider.displayName,
         avatar: provider.avatar,
-        email: provider.email
+        email: provider.email,
+        verified: provider.verified,
+        stats: providerStats,
+        organization: organization ? {
+          name: organization.name,
+          industry: organization.industry,
+          focusAreas: organization.focusAreas,
+          website: organization.website // If any
+        } : null
       } : null,
       enrollment,
       eligibility,
@@ -204,7 +248,7 @@ const getCourses = async (queryParams) => {
           const sp = sponsorshipsForCourse[0]
           const lc = sp.linkedCourses.find(item => item.courseId === course._id.toString())
           const amount = lc.maxAmount || sp.maxAmountPerLearner || 0
-          sponsorshipData = { amount, coverageType: lc.coverage || sp.coverageType }
+          sponsorshipData = { amount, coverageType: lc.coverage || sp.coverageType, sponsorType: sp.sponsorType }
         }
 
         return {
@@ -263,7 +307,7 @@ const getMyCourses = async (userId, queryParams) => {
         const sp = sponsorshipsForCourse[0]
         const lc = sp.linkedCourses.find(item => item.courseId === course._id.toString())
         const amount = lc.maxAmount || sp.maxAmountPerLearner || 0
-        sponsorshipData = { amount, coverageType: lc.coverage || sp.coverageType }
+        sponsorshipData = { amount, coverageType: lc.coverage || sp.coverageType, sponsorType: sp.sponsorType }
       }
       return { ...course, sponsorshipData }
     })
@@ -421,10 +465,20 @@ const updateCourse = async (courseId, userId, data, reqFile = null) => {
       }
     }
 
+    // Cannot edit if pending approval
+    if (course.status === COURSE_STATUS.PENDING) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Khóa học đang chờ duyệt, không thể chỉnh sửa!')
+    }
+
     // Upload thumbnail to Cloudinary if provided
     if (reqFile) {
       const uploadResult = await CloudinaryProvider.streamUpload(reqFile.buffer, 'course-thumbnails')
       data.thumbnail = uploadResult.secure_url
+    }
+
+    if (data.fundingConfig) {
+      data.isFree = data.fundingConfig.type === 'FREE'
+      data.fee = data.fundingConfig.price || 0
     }
 
     const updatedCourse = await courseModel.update(courseId, data)
@@ -450,6 +504,30 @@ const submitForApproval = async (courseId, userId) => {
     const updatedCourse = await courseModel.updateStatus(
       courseId,
       COURSE_STATUS.PENDING
+    )
+
+    return updatedCourse
+  } catch (error) { throw error }
+}
+
+const cancelSubmitCourse = async (courseId, userId) => {
+  try {
+    const course = await courseModel.findOneById(courseId)
+    if (!course) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Khóa học không tồn tại!')
+    }
+
+    if (course.providerId.toString() !== userId) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền thực hiện thao tác này!')
+    }
+
+    if (course.status !== COURSE_STATUS.PENDING) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Chỉ khóa học đang chờ duyệt mới có thể hủy yêu cầu!')
+    }
+
+    const updatedCourse = await courseModel.updateStatus(
+      courseId,
+      COURSE_STATUS.DRAFT
     )
 
     return updatedCourse
@@ -727,6 +805,7 @@ export const courseService = {
   // Update
   updateCourse,
   submitForApproval,
+  cancelSubmitCourse,
   approveCourse,
 
   // Delete

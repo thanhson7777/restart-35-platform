@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import {
   deleteJob as deleteJobAPI,
   submitJobForApproval as submitJobAPI,
+  cancelJobApproval as cancelJobApprovalAPI,
   closeJob as closeJobAPI
 } from '@/apis/recruitmentAPI';
 import {
@@ -108,6 +109,20 @@ export default function EnterpriseJobsPage() {
       fetchJobs();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Gửi thất bại');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleCancelApproval = async (jobId) => {
+    if (!window.confirm('Bạn có chắc muốn hủy gửi duyệt? Tin sẽ trở về trạng thái nháp.')) return;
+    setActionLoading(jobId);
+    try {
+      await cancelJobApprovalAPI(jobId);
+      toast.success('Đã hủy duyệt, tin chuyển về trạng thái nháp');
+      fetchJobs();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Hủy thất bại');
     } finally {
       setActionLoading(null);
     }
@@ -259,6 +274,7 @@ export default function EnterpriseJobsPage() {
                         size="icon"
                         onClick={() => navigate(`/enterprise/recruitment/${job._id}`)}
                         className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-accent))]"
+                        title="Xem chi tiết"
                       >
                         <Eye size={18} />
                       </Button>
@@ -268,58 +284,78 @@ export default function EnterpriseJobsPage() {
                           size="icon"
                           onClick={() => navigate(`/enterprise/recruitment/${job._id}/edit`)}
                           className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-accent))]"
+                          title="Chỉnh sửa"
                         >
                           <Edit size={18} />
                         </Button>
                       )}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-[hsl(var(--admin-text-muted))]">
-                            <MoreVertical size={18} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {job.status === 'draft' && (
+
+                      {job.status === 'draft' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteModal({ open: true, jobId: job._id })}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title="Xóa bản nháp"
+                        >
+                          <Trash2 size={18} />
+                        </Button>
+                      )}
+
+                      {job.status === 'pending_approval' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleCancelApproval(job._id)}
+                          disabled={actionLoading === job._id}
+                          className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                          title="Hủy duyệt"
+                        >
+                          <XCircle size={18} />
+                        </Button>
+                      )}
+
+                      {(job.status !== 'draft' && job.status !== 'pending_approval') && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-[hsl(var(--admin-text-muted))]">
+                              <MoreVertical size={18} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {job.status === 'published' && (
+                              <DropdownMenuItem
+                                onClick={() => handleCloseJob(job._id)}
+                                disabled={actionLoading === job._id}
+                                className="text-red-600"
+                              >
+                                <XCircle size={14} className="mr-2" /> Đóng tin
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem
-                              onClick={() => handleSubmitForApproval(job._id)}
-                              disabled={actionLoading === job._id}
-                              className="text-emerald-600"
+                              onClick={() => navigate(`/enterprise/recruitment/${job._id}`)}
                             >
-                              <Send size={14} className="mr-2" /> Gửi duyệt
+                              <Eye size={14} className="mr-2" /> Xem chi tiết
                             </DropdownMenuItem>
-                          )}
-                          {job.status === 'published' && (
                             <DropdownMenuItem
-                              onClick={() => handleCloseJob(job._id)}
-                              disabled={actionLoading === job._id}
+                              onClick={() => navigate(`/enterprise/recruitment/${job._id}/edit`)}
+                            >
+                              <Edit size={14} className="mr-2" /> Chỉnh sửa
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => navigate(`/enterprise/applications?jobId=${job._id}`)}
+                            >
+                              Xem ứng viên
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setDeleteModal({ open: true, jobId: job._id })}
                               className="text-red-600"
                             >
-                              <XCircle size={14} className="mr-2" /> Đóng tin
+                              <Trash2 size={14} className="mr-2" /> Xóa
                             </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem
-                            onClick={() => navigate(`/enterprise/recruitment/${job._id}`)}
-                          >
-                            <Eye size={14} className="mr-2" /> Xem chi tiết
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => navigate(`/enterprise/recruitment/${job._id}/edit`)}
-                          >
-                            <Edit size={14} className="mr-2" /> Chỉnh sửa
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => navigate(`/enterprise/applications?jobId=${job._id}`)}
-                          >
-                            Xem ứng viên
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => setDeleteModal({ open: true, jobId: job._id })}
-                            className="text-red-600"
-                          >
-                            <Trash2 size={14} className="mr-2" /> Xóa
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                   </div>
                 </div>

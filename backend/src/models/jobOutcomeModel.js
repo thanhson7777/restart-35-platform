@@ -61,8 +61,8 @@ const JOB_OUTCOME_COLLECTION_SCHEMA = Joi.object({
     .default(OUTCOME_STATUS.APPLIED),
 
   // Timeline
-  appliedAt: Joi.date().timestamp('javascript').default(Date.now()),
-  statusUpdatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  appliedAt: Joi.date().timestamp('javascript').default(Date.now),
+  statusUpdatedAt: Joi.date().timestamp('javascript').default(Date.now),
   outcomeDate: Joi.date().timestamp('javascript').allow(null),
 
   // User feedback
@@ -112,8 +112,8 @@ const JOB_OUTCOME_COLLECTION_SCHEMA = Joi.object({
   successScore: Joi.number().min(-10).max(10).default(0),
 
   // Timestamps
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
-  updatedAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(Date.now),
 
   // Soft delete
   _destroy: Joi.boolean().default(false)

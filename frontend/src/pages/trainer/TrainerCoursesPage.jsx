@@ -29,9 +29,15 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  SafeImage
+  SafeImage,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
 } from '@/components/ui';
-import { getMyCourses, getMyCourseStats, deleteCourse } from '@/apis/trainerApi';
+import { getMyCourses, getMyCourseStats, deleteCourse, cancelCourseApproval } from '@/apis/trainerApi';
 import TrainerCourseCard from '@/components/trainer/TrainerCourseCard';
 import toast from 'react-hot-toast';
 
@@ -57,6 +63,10 @@ const TrainerCoursesPage = () => {
     pending: 0,
     draft: 0
   });
+
+  // Confirm Modals
+  const [confirmCancelModal, setConfirmCancelModal] = useState({ open: false, courseId: null });
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
 
   // Fetch all courses (to compute stats accurately)
   const fetchStats = useCallback(async () => {
@@ -131,6 +141,28 @@ const TrainerCoursesPage = () => {
         toast.error(err.response?.data?.message || 'Không thể xóa khóa học.');
       }
     }
+  };
+
+  // Handle Cancel Approval
+  const handleCancelApproval = async () => {
+    if (!confirmCancelModal.courseId) return;
+    setConfirmingCancel(true);
+    try {
+      await cancelCourseApproval(confirmCancelModal.courseId);
+      toast.success('Đã rút lại yêu cầu duyệt!');
+      setConfirmCancelModal({ open: false, courseId: null });
+      fetchCourses();
+      fetchStats();
+    } catch (err) {
+      console.error('Error canceling approval:', err);
+      toast.error(err.response?.data?.message || 'Không thể rút yêu cầu duyệt.');
+    } finally {
+      setConfirmingCancel(false);
+    }
+  };
+
+  const openCancelConfirmModal = (courseId) => {
+    setConfirmCancelModal({ open: true, courseId });
   };
 
   // Status mapping for table view
@@ -286,7 +318,12 @@ const TrainerCoursesPage = () => {
         /* Grid Layout */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
-            <TrainerCourseCard key={course._id} course={course} />
+            <TrainerCourseCard 
+              key={course._id} 
+              course={course} 
+              onRefresh={() => { fetchCourses(); fetchStats(); }}
+              onCancelApproval={openCancelConfirmModal}
+            />
           ))}
         </div>
       ) : (
@@ -357,11 +394,22 @@ const TrainerCoursesPage = () => {
                           <Calendar className="h-4 w-4" />
                         </Link>
                       </Button>
-                      <Button asChild size="sm" variant="outline" className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]" title="Chỉnh sửa">
-                        <Link to={`/trainer/courses/${course._id}/edit`}>
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                      </Button>
+                      {course.status === 'pending' ? (
+                        <div className="flex gap-1.5">
+                          <Button size="sm" variant="outline" disabled className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-faint))] cursor-not-allowed" title="Đang chờ duyệt">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => openCancelConfirmModal(course._id)} className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]" title="Rút yêu cầu duyệt">
+                            <span className="text-xs px-1 font-medium">Hủy duyệt</span>
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button asChild size="sm" variant="outline" className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]" title="Chỉnh sửa">
+                          <Link to={`/trainer/courses/${course._id}/edit`}>
+                            <Edit className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="outline"
@@ -411,6 +459,26 @@ const TrainerCoursesPage = () => {
           </div>
         </div>
       )}
+
+      {/* Cancel Approval Confirm Dialog */}
+      <Dialog open={confirmCancelModal.open} onOpenChange={(open) => !open && setConfirmCancelModal({ open: false, courseId: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rút yêu cầu duyệt</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn rút lại yêu cầu duyệt? Khóa học sẽ được chuyển về trạng thái <strong className="text-[hsl(var(--admin-text-primary))]">Nháp</strong> và bạn có thể tiếp tục chỉnh sửa.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setConfirmCancelModal({ open: false, courseId: null })} disabled={confirmingCancel} className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]">
+              Hủy
+            </Button>
+            <Button onClick={handleCancelApproval} disabled={confirmingCancel} className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white">
+              {confirmingCancel ? 'Đang xử lý...' : 'Xác nhận rút'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
