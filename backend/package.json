@@ -18,7 +18,11 @@
     "sync:esco:full": "cross-env BUILD_MODE=dev babel-node ./src/scripts/syncEscoDataFull.js",
     "test": "jest --detectOpenHandles --forceExit",
     "test:watch": "jest --watch",
-    "seed": "babel-node src/scripts/seedCourses.js"
+    "seed": "babel-node src/scripts/seedCourses.js",
+    "seed:categories": "cross-env BUILD_MODE=dev babel-node src/scripts/seedCategories.js",
+    "seed:jobs:categories": "cross-env BUILD_MODE=dev babel-node src/scripts/seedJobCategories.js",
+    "seed:masterdata": "cross-env BUILD_MODE=dev babel-node src/scripts/seedMasterData.js",
+    "seed:courses:1000": "cross-env BUILD_MODE=dev babel-node src/scripts/seed1000Courses.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.22.10",
@@ -31,6 +35,7 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
     "express": "^4.18.2",
     "http-status-codes": "^2.3.0",
     "ioredis": "^5.3.2",

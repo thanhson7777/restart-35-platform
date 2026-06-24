@@ -1,41 +1,50 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BezelCard } from '@/components/ui';
-import { CheckSquare, GraduationCap, QrCode, FileSpreadsheet, ArrowRight } from 'lucide-react';
+import { BookOpen, Briefcase, Users, Settings, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export const AdminQuickActions = () => {
+export const AdminQuickActions = ({ pendingActions = {} }) => {
   const navigate = useNavigate();
+  const { pendingCourses = 0, pendingJobs = 0, pendingOrganizations = 0 } = pendingActions;
 
   const actions = [
     {
-      title: 'Phê duyệt khóa học',
-      desc: 'Xét duyệt các khóa học đang chờ đăng tải',
-      icon: CheckSquare,
-      color: 'text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))]/20 bg-[hsl(var(--admin-accent))]/5',
-      href: '/admin/courses/approval',
+      title: 'Duyệt khóa học mới',
+      desc: `${pendingCourses} khóa học đang chờ`,
+      icon: BookOpen,
+      href: '/admin/courses?status=pending',
+      urgent: pendingCourses > 0,
+      color: 'text-amber-500',
+      bg: 'bg-amber-500/10'
     },
     {
-      title: 'Quản lý tuyển sinh',
-      desc: 'Xem danh sách nhập học và phân tích rủi ro',
-      icon: GraduationCap,
-      color: 'text-purple-500 border-purple-500/20 bg-purple-500/5',
-      href: '/admin/enrollments',
+      title: 'Duyệt việc làm',
+      desc: `${pendingJobs} tin tuyển dụng`,
+      icon: Briefcase,
+      href: '/admin/jobs/pending',
+      urgent: pendingJobs > 0,
+      color: 'text-indigo-500',
+      bg: 'bg-indigo-500/10'
     },
     {
-      title: 'Điểm danh thực tế',
-      desc: 'Quét mã QR điểm danh học viên offline',
-      icon: QrCode,
-      color: 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5',
-      href: '/admin/enrollments',
+      title: 'Xác thực đối tác',
+      desc: `${pendingOrganizations} tài khoản chờ`,
+      icon: Users,
+      href: '/admin/organizations?status=pending',
+      urgent: pendingOrganizations > 0,
+      color: 'text-emerald-500',
+      bg: 'bg-emerald-500/10'
     },
     {
-      title: 'Xuất dữ liệu học viên',
-      desc: 'Tải file CSV/XLSX báo cáo tổng thể',
-      icon: FileSpreadsheet,
-      color: 'text-amber-500 border-amber-500/20 bg-amber-500/5',
-      href: '/admin/enrollments',
-    },
+      title: 'Cài đặt hệ thống',
+      desc: 'Quản lý tham số',
+      icon: Settings,
+      href: '/admin/settings',
+      urgent: false,
+      color: 'text-[hsl(var(--admin-text-muted))]',
+      bg: 'bg-[hsl(var(--admin-surface-elevated))]'
+    }
   ];
 
   return (
@@ -60,7 +69,7 @@ export const AdminQuickActions = () => {
                   transition-all duration-300 active:scale-[0.98] relative overflow-hidden"
               >
                 <div className="flex items-start justify-between w-full">
-                  <div className={`p-2.5 rounded-lg border ${act.color}`}>
+                  <div className={`p-2.5 rounded-lg border border-transparent ${act.bg} ${act.color}`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="w-6 h-6 rounded-full

@@ -303,6 +303,58 @@ const updateOrganizationQuota = async (id, adminId, newQuota) => {
   }
 }
 
+const getOrganizationStats = async () => {
+  try {
+    const { GET_DB } = await import('~/config/mongodb')
+    const db = await GET_DB()
+
+    const pipeline = [
+      { $match: { _destroy: false } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          enterprise: { $sum: { $cond: [{ $eq: ['$type', 'enterprise'] }, 1, 0] } },
+          ngo: { $sum: { $cond: [{ $eq: ['$type', 'ngo'] }, 1, 0] } },
+          training_center: { $sum: { $cond: [{ $eq: ['$type', 'training_center'] }, 1, 0] } },
+          totalQuota: { $sum: { $ifNull: ['$monthlyJobQuota', { $ifNull: ['$quota', 0] }] } },
+          usedQuota: { $sum: { $ifNull: ['$currentMonthUsedJobQuota', 0] } }
+        }
+      }
+    ]
+
+    const [result] = await db.collection('organizations').aggregate(pipeline).toArray()
+
+    if (!result) {
+      return {
+        total: 0,
+        byType: { enterprise: 0, ngo: 0, training_center: 0 },
+        quotaUsage: 0,
+        usedQuota: 0,
+        totalQuota: 0
+      }
+    }
+
+    const totalQuota = result.totalQuota || 0
+    const usedQuota = result.usedQuota || 0
+    const quotaUsage = totalQuota > 0 ? Math.round((usedQuota / totalQuota) * 100) : 0
+
+    return {
+      total: result.total || 0,
+      byType: {
+        enterprise: result.enterprise || 0,
+        ngo: result.ngo || 0,
+        training_center: result.training_center || 0
+      },
+      quotaUsage,
+      usedQuota,
+      totalQuota
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const organizationService = {
   createOrganization,
   getOrganizations,
@@ -311,5 +363,6 @@ export const organizationService = {
   deleteOrganization,
   getOrganizationMembers,
   getOrganizationQuota,
-  updateOrganizationQuota
+  updateOrganizationQuota,
+  getOrganizationStats
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, Plus, RefreshCw, Search, Eye, Edit, Trash2, Send, XCircle, MoreVertical, Clock } from 'lucide-react';
+import { Briefcase, Plus, RefreshCw, Search, Eye, Edit, Trash2, Send, XCircle, MoreVertical, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Button, Badge, Input } from '@/components/ui';
 import {
@@ -72,15 +72,32 @@ export default function EnterpriseJobsPage() {
 
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  
   const [deleteModal, setDeleteModal] = useState({ open: false, jobId: null });
   const [actionLoading, setActionLoading] = useState(null);
 
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Reset page when tab or search changes
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, debouncedSearch]);
+
   const fetchJobs = useCallback(async () => {
-    const params = { limit: 50 };
+    const params = { page, limit };
     if (activeTab !== 'all') params.status = activeTab;
-    if (searchQuery) params.search = searchQuery;
+    if (debouncedSearch) params.search = debouncedSearch;
     dispatch(fetchEnterpriseJobs(params));
-  }, [dispatch, activeTab, searchQuery]);
+  }, [dispatch, activeTab, debouncedSearch, page, limit]);
 
   useEffect(() => {
     fetchJobs();
@@ -141,14 +158,10 @@ export default function EnterpriseJobsPage() {
     }
   };
 
-  const filteredJobs = jobs.filter(job => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      job.title?.toLowerCase().includes(query) ||
-      job.job?.title?.toLowerCase().includes(query)
-    );
-  });
+  // We no longer need local filtering since the API handles the search and pagination
+  const filteredJobs = jobs;
+  
+  const totalPages = Math.ceil(total / limit) || 1;
 
   return (
     <>
@@ -361,6 +374,67 @@ export default function EnterpriseJobsPage() {
                 </div>
               );
             })}
+
+            {/* Pagination UI */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-6 mt-6 border-t border-[hsl(var(--admin-border))]">
+                <p className="text-sm text-[hsl(var(--admin-text-muted))]">
+                  Hiển thị <span className="font-medium text-[hsl(var(--admin-text-primary))]">{((page - 1) * limit) + 1}</span> đến <span className="font-medium text-[hsl(var(--admin-text-primary))]">{Math.min(page * limit, total)}</span> trong số <span className="font-medium text-[hsl(var(--admin-text-primary))]">{total}</span> kết quả
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"
+                  >
+                    <ChevronLeft size={16} />
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => {
+                      // Only show a few pages around current page to avoid clutter
+                      if (
+                        pageNum === 1 || 
+                        pageNum === totalPages || 
+                        (pageNum >= page - 1 && pageNum <= page + 1)
+                      ) {
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={page === pageNum ? 'default' : 'outline'}
+                            onClick={() => setPage(pageNum)}
+                            className={`h-8 w-8 p-0 ${
+                              page === pageNum 
+                                ? 'bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent-hover))]' 
+                                : 'text-[hsl(var(--admin-text-secondary))]'
+                            }`}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                      if (
+                        pageNum === page - 2 || 
+                        pageNum === page + 2
+                      ) {
+                        return <span key={pageNum} className="text-[hsl(var(--admin-text-muted))] px-1">...</span>;
+                      }
+                      return null;
+                    })}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"
+                  >
+                    <ChevronRight size={16} />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

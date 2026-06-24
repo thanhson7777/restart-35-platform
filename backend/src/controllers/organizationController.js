@@ -148,6 +148,20 @@ const updateOrganizationQuota = async (req, res, next) => {
   }
 }
 
+// ============ STATS ============
+const getOrganizationStats = async (req, res, next) => {
+  try {
+    const stats = await organizationService.getOrganizationStats()
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thống kê tổ chức thành công!',
+      data: stats
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const organizationController = {
   createOrganization,
   getOrganizations,
@@ -156,5 +170,6 @@ export const organizationController = {
   deleteOrganization,
   getOrganizationMembers,
   getOrganizationQuota,
-  updateOrganizationQuota
+  updateOrganizationQuota,
+  getOrganizationStats
 }

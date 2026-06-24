@@ -598,16 +598,19 @@ const getEnterpriseApplicationStats = async () => {
   }
 }
 
-const findAll = async (skip = 0, limit = 10, filters = {}) => {
+const findAll = async (skip = 0, limit = 10, filters = {}, sortBy = 'appliedAt', sortOrder = 'desc') => {
   try {
     const query = {
       _destroy: { $ne: true },
       ...filters
     }
 
+    const sortDirection = sortOrder === 'asc' ? 1 : -1;
+    const sortCondition = { [sortBy]: sortDirection };
+
     const applications = await GET_DB().collection(APPLICATION_COLLECTION_NAME)
       .find(query)
-      .sort({ appliedAt: -1 })
+      .sort(sortCondition)
       .skip(skip)
       .limit(limit)
       .toArray()

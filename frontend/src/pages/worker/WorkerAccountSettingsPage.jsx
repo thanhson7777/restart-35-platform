@@ -303,7 +303,7 @@ export default function WorkerAccountSettingsPage() {
     : '—'
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 max-w-5xl mx-auto w-full">
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Cài đặt tài khoản</h1>

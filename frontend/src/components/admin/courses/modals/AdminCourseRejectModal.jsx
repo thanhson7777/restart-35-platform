@@ -5,7 +5,7 @@ import { Button } from '@/components/ui';
 const REJECTION_SUGGESTIONS = [
   'Nội dung giáo trình chưa đầy đủ',
   'Học phí không phù hợp với chất lượng',
-  'Thiếu thông tin về giảng viên',
+  'Thiếu thông tin về Trung tâm đào tạo',
   'Mô tả khóa học chưa rõ ràng',
   'Hình thức tổ chức chưa phù hợp',
   'Thiếu yêu cầu đầu vào',

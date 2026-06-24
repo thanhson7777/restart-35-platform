@@ -36,6 +36,9 @@ export const getJobStats = (jobId) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/enterprise/jobs/${jobId}/stats`);
 
 // Admin APIs
+export const getAllJobsAdmin = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/admin/jobs`, { params });
+
 export const getPendingJobs = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/admin/jobs/pending`, { params });
 
@@ -47,6 +50,12 @@ export const approveJob = (id) =>
 
 export const rejectJob = (id, reason) =>
   authorizeAxiosInstance.post(`${API_ROOT}/v1/admin/jobs/${id}/reject`, { reason });
+
+export const forceCloseJobAdmin = (id, reason) =>
+  authorizeAxiosInstance.post(`${API_ROOT}/v1/admin/jobs/${id}/force-close`, { reason });
+
+export const forceDeleteJobAdmin = (id) =>
+  authorizeAxiosInstance.delete(`${API_ROOT}/v1/admin/jobs/${id}/force-delete`);
 
 export const getRejectedJobs = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/admin/jobs/rejected`, { params });

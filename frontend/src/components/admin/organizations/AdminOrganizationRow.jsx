@@ -1,5 +1,7 @@
-import { Eye, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Eye, Trash2, CheckCircle, XCircle, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Badge, Progress } from '@/components/ui';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 const typeConfig = {
   enterprise: {
@@ -9,6 +11,10 @@ const typeConfig = {
   ngo: {
     label: 'NGO',
     className: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+  },
+  training_center: {
+    label: 'Trung tâm đào tạo',
+    className: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
   },
 };
 
@@ -31,16 +37,22 @@ const statusConfig = {
   },
 };
 
-const formatDate = (date) => {
-  if (!date) return '-';
+const formatDate = (org) => {
+  let dateVal = org.createdAt;
+  if (!dateVal && org._id && typeof org._id === 'string' && org._id.length === 24) {
+    // Extract timestamp from MongoDB ObjectId
+    dateVal = parseInt(org._id.substring(0, 8), 16) * 1000;
+  }
+  
+  if (!dateVal) return '-';
   try {
-    return new Date(date).toLocaleDateString('vi-VN');
+    return format(new Date(dateVal), 'dd/MM/yyyy', { locale: vi });
   } catch {
     return '-';
   }
 };
 
-const AdminOrganizationRow = ({ organization, onView, onDelete, onApprove, onReject }) => {
+const AdminOrganizationRow = ({ organization, onView, onToggleStatus, onApprove, onReject }) => {
   const typeInfo = typeConfig[organization.type] || { label: organization.type, className: '' };
   
   // Organization model doesn't have a direct status field yet, default to active or based on adminApprovalStatus if joined
@@ -64,20 +76,7 @@ const AdminOrganizationRow = ({ organization, onView, onDelete, onApprove, onRej
           {typeInfo.label}
         </span>
       </td>
-      <td className="px-4 py-3 min-w-[140px]">
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[hsl(var(--admin-text-muted))]">
-              {quotaUsed} / {quotaTotal}
-            </span>
-            <span className="text-[hsl(var(--admin-text-muted))]">{quotaPercent}%</span>
-          </div>
-          <Progress value={quotaPercent} className="h-1.5" />
-          <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-            Còn lại: {Math.max(0, quotaTotal - quotaUsed)} học viên
-          </p>
-        </div>
-      </td>
+
       <td className="px-4 py-3">
         <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full border ${statusInfo.className}`}>
           {statusInfo.label}
@@ -89,7 +88,7 @@ const AdminOrganizationRow = ({ organization, onView, onDelete, onApprove, onRej
         </span>
       </td>
       <td className="px-4 py-3">
-        <span className="text-sm text-[hsl(var(--admin-text-muted))]">{formatDate(organization.createdAt)}</span>
+        <span className="text-sm text-[hsl(var(--admin-text-muted))]">{formatDate(organization)}</span>
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-1">
@@ -120,11 +119,15 @@ const AdminOrganizationRow = ({ organization, onView, onDelete, onApprove, onRej
           </button>
           {organization.status !== 'pending' && (
             <button
-              onClick={() => onDelete?.(organization)}
-              className="p-1.5 hover:bg-rose-500/10 rounded-lg transition-colors"
-              title="Xóa"
+              onClick={() => onToggleStatus?.(organization)}
+              className="p-1.5 hover:bg-[hsl(var(--admin-surface-elevated))] rounded-lg transition-colors"
+              title={organization.status === 'active' ? "Vô hiệu hóa" : "Kích hoạt"}
             >
-              <Trash2 className="w-4 h-4 text-rose-500" />
+              {organization.status === 'active' ? (
+                <ToggleRight className="w-4 h-4 text-emerald-500" />
+              ) : (
+                <ToggleLeft className="w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
+              )}
             </button>
           )}
         </div>

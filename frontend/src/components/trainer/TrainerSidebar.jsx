@@ -20,10 +20,10 @@ import { Badge } from '@/components/ui';
 
 const trainerNavItems = [
   { title: 'Tổng quan', href: '/trainer', icon: LayoutDashboard },
-  { title: 'Học viên', href: '/trainer/enrollments', icon: Users },
   { title: 'Khóa học', href: '/trainer/courses', icon: BookOpen },
   { title: 'Lịch dạy', href: '/trainer/schedule', icon: Calendar },
-  { title: 'Partnership', href: '/trainer/partnerships', icon: Handshake },
+  { title: 'Học viên', href: '/trainer/enrollments', icon: Users },
+  { title: 'Đối tác', href: '/trainer/partnerships', icon: Handshake },
   { title: 'Ví & Giao dịch', href: '/trainer/wallet', icon: Wallet },
   { title: 'Cài đặt', href: '/trainer/profile', icon: Settings },
 ];

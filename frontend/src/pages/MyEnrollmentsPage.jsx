@@ -27,7 +27,7 @@ export default function MyEnrollmentsPage() {
     }
     setLoading(true);
     try {
-      const res = await getMyEnrollments();
+      const res = await getMyEnrollments({ limit: 1000 });
       const raw = res.data;
       setEnrollments(
         Array.isArray(raw)

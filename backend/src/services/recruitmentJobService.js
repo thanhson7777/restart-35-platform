@@ -400,6 +400,63 @@ const rejectJob = async (jobId, reason) => {
   } catch (error) { throw error }
 }
 
+// Lấy danh sách toàn bộ tin cho admin
+const getAllJobsAdmin = async (page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE, filters = {}) => {
+  try {
+    page = parseInt(page, 10)
+    limit = parseInt(limit, 10)
+    const skip = (page - 1) * limit
+    const { jobs, total } = await recruitmentJobModel.findAdminJobs(skip, limit, filters)
+
+    const db = await import('~/config/mongodb').then(m => m.GET_DB())
+    const rawJobStatus = await db.collection(recruitmentJobModel.RECRUITMENT_JOB_COLLECTION_NAME).aggregate([
+      { $match: { _destroy: { $ne: true } } },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).toArray()
+
+    const statusCounts = {
+      draft: 0,
+      pending_approval: 0,
+      published: 0,
+      closed: 0,
+      expired: 0,
+      total: 0
+    }
+
+    rawJobStatus.forEach(item => {
+      statusCounts[item._id] = item.count
+      statusCounts.total += item.count
+    })
+
+    return {
+      jobs,
+      pagination: {
+        page,
+        limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / limit)
+      },
+      stats: statusCounts
+    }
+  } catch (error) { throw error }
+}
+
+// Bắt buộc đóng tin vi phạm (Admin)
+const forceCloseJobAdmin = async (jobId, reason) => {
+  try {
+    const result = await recruitmentJobModel.forceCloseJobAdmin(jobId, reason)
+    return result
+  } catch (error) { throw error }
+}
+
+// Xóa vĩnh viễn (ẩn) tin (Admin)
+const forceDeleteJobAdmin = async (jobId) => {
+  try {
+    const result = await recruitmentJobModel.forceDeleteJobAdmin(jobId)
+    return result
+  } catch (error) { throw error }
+}
+
 // Lấy danh sách tin bị từ chối của enterprise
 const getRejectedJobs = async (enterpriseId, page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE) => {
   try {
@@ -532,9 +589,12 @@ export const recruitmentJobService = {
 
   // Admin
   getPendingJobs,
+  getAllJobsAdmin,
   getJobForReview,
   approveJob,
   rejectJob,
+  forceCloseJobAdmin,
+  forceDeleteJobAdmin,
   getRejectedJobs,
 
   // Public

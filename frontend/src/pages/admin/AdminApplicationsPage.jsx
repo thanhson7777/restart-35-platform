@@ -53,7 +53,7 @@ const AdminApplicationsPage = () => {
     status: '',
     search: '',
     enterpriseId: '',
-    sortBy: 'createdAt',
+    sortBy: 'updatedAt',
     sortOrder: 'desc',
     page: DEFAULT_PAGE,
     limit: DEFAULT_LIMIT,
@@ -63,21 +63,6 @@ const AdminApplicationsPage = () => {
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
-    
-    try {
-      const response = await getAllApplications({ limit: 1 });
-      const res = response.data;
-      if (res.success) {
-        setStats({
-          total: res.pagination?.totalRecords || 0,
-          pending: 0,
-          approved: 0,
-          rejected: 0,
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching scholarship stats:', error);
-    }
 
     try {
       const response = await getEnterpriseApplicationStats();
@@ -111,13 +96,12 @@ const AdminApplicationsPage = () => {
         setApplications(res.applications || res.data || []);
 
         const statsData = res.stats || {};
-        setStats((s) => ({
-          ...s,
-          total: res.pagination?.totalRecords || 0,
-          pending: statsData.pending || 0,
+        setStats({
+          total: statsData.total || res.pagination?.totalRecords || 0,
+          processing: statsData.processing || 0,
           approved: statsData.approved || 0,
           rejected: statsData.rejected || 0,
-        }));
+        });
 
         setPagination(res.pagination || {
           currentPage: 1,
@@ -219,16 +203,13 @@ const AdminApplicationsPage = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
           { key: 'total', label: 'Tổng đơn', value: stats?.total || 0, color: 'text-[hsl(var(--admin-accent))]' },
-          { key: 'pending', label: 'Chờ duyệt', value: stats?.pending || 0, color: 'text-amber-500', urgent: true },
-          { key: 'approved', label: 'Đã duyệt', value: stats?.approved || 0, color: 'text-emerald-500' },
-          { key: 'rejected', label: 'Từ chối', value: stats?.rejected || 0, color: 'text-rose-500' },
+          { key: 'processing', label: 'Đang xử lý', value: stats?.processing || 0, color: 'text-amber-500' },
+          { key: 'approved', label: 'Đã trúng tuyển', value: stats?.approved || 0, color: 'text-emerald-500' },
+          { key: 'rejected', label: 'Từ chối / Hủy', value: stats?.rejected || 0, color: 'text-rose-500' },
         ].map((item) => (
           <div key={item.key} className="bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-2xl p-5">
             <p className={`text-2xl font-extrabold tabular-nums ${item.color}`}>{item.value}</p>
             <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">{item.label}</p>
-            {item.urgent && item.value > 0 && (
-              <p className="text-xs text-amber-500 mt-1">{item.value} đơn đang chờ bạn duyệt</p>
-            )}
           </div>
         ))}
       </div>
@@ -369,7 +350,7 @@ const AdminApplicationsPage = () => {
             <table className="w-full">
               <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
                 <tr>
-                  {['Ứng viên', 'Vị trí', 'Doanh nghiệp', 'Trạng thái', 'Ngày nộp', 'Thao tác'].map((h) => (
+                  {['Ứng viên', 'Vị trí', 'Doanh nghiệp', 'Trạng thái', 'Cập nhật cuối', 'Thao tác'].map((h) => (
                     <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -382,7 +363,7 @@ const AdminApplicationsPage = () => {
                       <td className="px-4 py-3">
                         <div>
                           <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
-                            {app.worker?.displayName || app.workerName || 'N/A'}
+                            {app.worker?.displayName || app.worker?.name || app.workerName || 'N/A'}
                           </p>
                           <p className="text-xs text-[hsl(var(--admin-text-muted))]">
                             {app.worker?.email || app.workerEmail || ''}
@@ -396,7 +377,7 @@ const AdminApplicationsPage = () => {
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-sm text-[hsl(var(--admin-text-secondary))]">
-                          {app.enterprise?.displayName || app.enterpriseName || '-'}
+                          {app.enterprise?.displayName || app.enterprise?.name || app.enterpriseName || '-'}
                         </p>
                       </td>
                       <td className="px-4 py-3">
@@ -406,7 +387,7 @@ const AdminApplicationsPage = () => {
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-sm text-[hsl(var(--admin-text-muted))]">
-                          {formatDate(app.submittedAt || app.createdAt)}
+                          {formatDate(app.updatedAt || app.appliedAt || app.createdAt)}
                         </span>
                       </td>
                       <td className="px-4 py-3">
@@ -494,9 +475,9 @@ const AdminApplicationsPage = () => {
                 <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl">
                   <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1">Học viên</p>
                   <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
-                    {selectedApp.workerId?.displayName || 'N/A'}
+                    {selectedApp.worker?.displayName || selectedApp.worker?.name || selectedApp.workerName || 'N/A'}
                   </p>
-                  <p className="text-xs text-[hsl(var(--admin-text-muted))]">{selectedApp.workerId?.email}</p>
+                  <p className="text-xs text-[hsl(var(--admin-text-muted))]">{selectedApp.worker?.email || selectedApp.workerEmail || 'Chưa có email'}</p>
                 </div>
                 <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl">
                   <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-1">Trạng thái</p>

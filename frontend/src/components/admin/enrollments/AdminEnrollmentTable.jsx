@@ -9,9 +9,7 @@ const AdminEnrollmentTable = ({
   loading,
   pagination,
   onPageChange,
-  onView,
-  onUpdateProgress,
-  onUpdateStatus
+  onView
 }) => {
   if (loading) {
     return (
@@ -98,8 +96,6 @@ const AdminEnrollmentTable = ({
                 key={enrollment._id}
                 enrollment={enrollment}
                 onView={onView}
-                onUpdateProgress={onUpdateProgress}
-                onUpdateStatus={onUpdateStatus}
               />
             ))}
           </tbody>

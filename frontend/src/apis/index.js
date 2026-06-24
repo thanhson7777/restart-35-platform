@@ -494,3 +494,6 @@ export * from './jobCategoryApi';
 
 // Master Data API exports
 export * from './masterDataApi';
+
+// Admin Analytics API exports
+export * from './adminAnalyticsApi';

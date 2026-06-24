@@ -34,6 +34,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
+  lastLoginAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
 

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Users, GraduationCap, MessageCircle, Calendar } from 'lucide-react';
 import { Navbar } from '@/components/landing';
 import TabNavigation from '@/components/community/TabNavigation';
@@ -10,7 +11,7 @@ import CommunityForumSection from '@/components/community/CommunityForumSection'
 const TABS = [
   { id: 'jobs', label: 'Doanh nghiệp tuyển dụng', icon: Users, description: 'Việc làm từ các doanh nghiệp' },
   { id: 'courses', label: 'Khóa học', icon: GraduationCap, description: 'Khóa học từ Trainer' },
-  { id: 'community', label: 'Chia sẻ kinh nghiệp', icon: MessageCircle, description: 'Trao đổi với cộng đồng' },
+  { id: 'community', label: 'Chia sẻ kinh nghiệm', icon: MessageCircle, description: 'Trao đổi với cộng đồng' },
   { id: 'events', label: 'Sự kiện & Tài trợ', icon: Calendar, description: 'Sự kiện và chương trình tài trợ' }
 ];
 
@@ -25,7 +26,24 @@ const EmptyState = ({ icon: Icon, title, description }) => (
 );
 
 export default function CommunityHubPage() {
-  const [activeTab, setActiveTab] = useState('jobs');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  
+  const initialTab = TABS.some(t => t.id === tabParam) ? tabParam : 'community';
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    if (tabParam && TABS.some(t => t.id === tabParam)) {
+      setActiveTab(tabParam);
+    } else if (!tabParam) {
+      setActiveTab('community');
+    }
+  }, [tabParam]);
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId });
+  };
 
   return (
     <>
@@ -63,7 +81,7 @@ export default function CommunityHubPage() {
 
         <div className="container mx-auto px-4 py-8">
           {/* Tab Navigation */}
-          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+          <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
           {/* Tab Content */}
           <div className="py-8">

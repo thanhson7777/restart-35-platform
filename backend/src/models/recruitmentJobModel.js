@@ -241,6 +241,37 @@ const findPendingApproval = async (skip = 0, limit = 10, filters = {}) => {
   }
 }
 
+const findAdminJobs = async (skip = 0, limit = 10, filters = {}) => {
+  try {
+    const query = {
+      _destroy: { $ne: true },
+    }
+    
+    if (filters.status && filters.status !== 'all') {
+      query.status = filters.status
+    }
+    if (filters.search) {
+      query.$or = [
+        { 'job.title': { $regex: filters.search, $options: 'i' } },
+        { 'enterpriseInfo.name': { $regex: filters.search, $options: 'i' } }
+      ]
+    }
+
+    const jobs = await GET_DB().collection(RECRUITMENT_JOB_COLLECTION_NAME)
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray()
+
+    const total = await GET_DB().collection(RECRUITMENT_JOB_COLLECTION_NAME).countDocuments(query)
+
+    return { jobs, total }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 const findRejected = async (enterpriseId, skip = 0, limit = 10) => {
   try {
     const query = {
@@ -530,6 +561,58 @@ const deleteJob = async (jobId, enterpriseId) => {
   }
 }
 
+const forceCloseJobAdmin = async (jobId, reason) => {
+  try {
+    const objectId = new ObjectId(jobId)
+    const job = await findOneById(jobId)
+
+    if (!job) {
+      throw new Error('Không tìm thấy tin tuyển dụng')
+    }
+
+    const result = await GET_DB().collection(RECRUITMENT_JOB_COLLECTION_NAME).findOneAndUpdate(
+      { _id: objectId },
+      {
+        $set: {
+          status: RECRUITMENT_JOB_STATUS.CLOSED,
+          rejectionReason: reason || 'Bị đóng bởi Quản trị viên',
+          updatedAt: Date.now()
+        }
+      },
+      { returnDocument: 'after' }
+    )
+
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const forceDeleteJobAdmin = async (jobId) => {
+  try {
+    const objectId = new ObjectId(jobId)
+    const job = await findOneById(jobId)
+
+    if (!job) {
+      throw new Error('Không tìm thấy tin tuyển dụng')
+    }
+
+    const result = await GET_DB().collection(RECRUITMENT_JOB_COLLECTION_NAME).updateOne(
+      { _id: objectId },
+      {
+        $set: {
+          _destroy: true,
+          updatedAt: Date.now()
+        }
+      }
+    )
+
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 const findMapData = async () => {
   try {
     const jobs = await GET_DB().collection(RECRUITMENT_JOB_COLLECTION_NAME)
@@ -619,6 +702,7 @@ export const recruitmentJobModel = {
   findByEnterprise,
   findPublished,
   findPendingApproval,
+  findAdminJobs,
   findRejected,
   findById,
 
@@ -630,6 +714,7 @@ export const recruitmentJobModel = {
   approveJob,
   rejectJob,
   closeJob,
+  forceCloseJobAdmin,
 
   // Stats
   incrementStats,
@@ -637,6 +722,7 @@ export const recruitmentJobModel = {
 
   // Delete
   deleteJob,
+  forceDeleteJobAdmin,
 
   // Helpers
   validateBeforeCreate,

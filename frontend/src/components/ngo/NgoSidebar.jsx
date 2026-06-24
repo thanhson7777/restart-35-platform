@@ -4,10 +4,10 @@ import { Button } from '@/components/ui';
 import { cn } from '@/utils/cn';
 
 const navItems = [
-  { href: '/ngo/dashboard/impact', label: 'Impact', icon: LayoutDashboard },
-  { href: '/ngo/sponsorships', label: 'Sponsorships', icon: BadgeDollarSign },
-  { href: '/ngo/dashboard/wallet', label: 'Ví tài trợ', icon: Wallet },
+  { href: '/ngo/dashboard/impact', label: 'Tổng quan', icon: LayoutDashboard },
+  { href: '/ngo/sponsorships', label: 'Tài trợ', icon: BadgeDollarSign },
   { href: '/ngo/events', label: 'Sự kiện', icon: Calendar },
+  { href: '/ngo/dashboard/wallet', label: 'Ví & Giao dịch', icon: Wallet },
   { href: '/ngo/profile', label: 'Cài đặt', icon: Settings }
 ];
 

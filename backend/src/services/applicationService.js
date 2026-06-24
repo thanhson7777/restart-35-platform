@@ -275,7 +275,10 @@ const getAllApplicationsAdmin = async (queryParams) => {
       status,
       jobId,
       workerId,
-      enterpriseId
+      enterpriseId,
+      search,
+      sortBy = 'appliedAt',
+      sortOrder = 'desc'
     } = queryParams
 
     const currentPage = parseInt(page, 10) || 1
@@ -288,7 +291,7 @@ const getAllApplicationsAdmin = async (queryParams) => {
     if (workerId) filters.workerId = workerId
     if (enterpriseId) filters.enterpriseId = enterpriseId
 
-    const result = await applicationModel.findAll(skip, recordLimit, filters)
+    const result = await applicationModel.findAll(skip, recordLimit, filters, sortBy, sortOrder)
 
     // Enrich data
     const enrichedApplications = await Promise.all(
@@ -300,22 +303,57 @@ const getAllApplicationsAdmin = async (queryParams) => {
           ...app,
           worker: worker ? {
             _id: worker._id,
-            displayName: worker.displayName,
+            displayName: worker.displayName || worker.name || worker.username || 'Ứng viên',
+            name: worker.displayName || worker.name || worker.username || 'Ứng viên',
             email: worker.email,
             avatar: worker.avatar
-          } : null,
+          } : {
+            _id: app.workerId,
+            displayName: 'Tài khoản đã xóa',
+            name: 'Tài khoản đã xóa',
+            email: 'Không có dữ liệu',
+            avatar: null
+          },
           job: job ? {
             _id: job._id,
             title: job?.job?.title || 'Vị trí công việc'
           } : null,
           enterprise: enterprise ? {
             _id: enterprise._id,
-            displayName: enterprise.displayName,
+            displayName: job?.enterpriseInfo?.name || enterprise.displayName || enterprise.name || enterprise.username || 'Doanh nghiệp',
+            name: job?.enterpriseInfo?.name || enterprise.displayName || enterprise.name || enterprise.username || 'Doanh nghiệp',
             email: enterprise.email
           } : null
         }
       })
     )
+
+    const db = await import('~/config/mongodb').then(m => m.GET_DB())
+    const rawStats = await db.collection(applicationModel.APPLICATION_COLLECTION_NAME).aggregate([
+      { $match: { _destroy: { $ne: true } } },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).toArray()
+
+    const statusCounts = {
+      new: 0,
+      reviewing: 0,
+      shortlisted: 0,
+      interview_scheduled: 0,
+      hired: 0,
+      rejected: 0,
+      withdrawn: 0
+    }
+
+    rawStats.forEach(item => {
+      statusCounts[item._id] = item.count
+    })
+    
+    const stats = {
+      total: Object.values(statusCounts).reduce((a, b) => a + b, 0),
+      processing: statusCounts.new + statusCounts.reviewing + statusCounts.shortlisted + statusCounts.interview_scheduled + statusCounts.interviewed,
+      approved: statusCounts.hired + statusCounts.offered,
+      rejected: statusCounts.rejected + statusCounts.withdrawn
+    }
 
     return {
       applications: enrichedApplications,
@@ -324,7 +362,8 @@ const getAllApplicationsAdmin = async (queryParams) => {
         totalPages: Math.ceil(result.totalApplications / recordLimit),
         currentPage,
         limit: recordLimit
-      }
+      },
+      stats
     }
   } catch (error) { throw error }
 }

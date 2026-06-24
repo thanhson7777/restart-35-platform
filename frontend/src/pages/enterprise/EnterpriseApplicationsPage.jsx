@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Users, Search, Filter, Eye, CheckCircle, XCircle, RefreshCw, ChevronDown } from 'lucide-react';
+import { Users, Search, Filter, Eye, CheckCircle, XCircle, RefreshCw, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Button, Badge, Input, Card, CardContent, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui';
 import {
@@ -42,9 +42,26 @@ export default function EnterpriseApplicationsPage() {
   const loading = useSelector(selectEnterpriseApplicationsLoading);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [jobFilter, setJobFilter] = useState(jobIdFromUrl || 'all');
   const [jobs, setJobs] = useState([]);
+
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  // Debounce search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Reset page
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, jobFilter, debouncedSearch]);
 
   useEffect(() => {
     import('@/apis/recruitmentAPI').then(({ getEnterpriseJobs }) => {
@@ -55,30 +72,21 @@ export default function EnterpriseApplicationsPage() {
   }, []);
 
   const fetchApplications = useCallback(async () => {
-    const params = { limit: 100 };
+    const params = { page, limit };
     if (jobFilter !== 'all') params.jobId = jobFilter;
+    if (statusFilter !== 'all') params.status = statusFilter;
+    if (debouncedSearch) params.search = debouncedSearch;
     dispatch(fetchEnterpriseApplications(params));
-  }, [dispatch, jobFilter]);
+  }, [dispatch, jobFilter, statusFilter, debouncedSearch, page, limit]);
 
   useEffect(() => {
     fetchApplications();
   }, [fetchApplications]);
 
-  const filteredApplications = applications.filter(app => {
-    if (statusFilter === 'new' && !['new'].includes(app.status)) return false;
-    if (statusFilter === 'reviewing' && !['reviewing', 'shortlisted'].includes(app.status)) return false;
-    if (statusFilter === 'interviewing' && !['interview_scheduled', 'interviewed'].includes(app.status)) return false;
-    if (statusFilter === 'hired' && !['offered', 'hired'].includes(app.status)) return false;
-    if (statusFilter === 'rejected' && !['rejected', 'withdrawn'].includes(app.status)) return false;
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      app.workerName?.toLowerCase().includes(query) ||
-      app.worker?.name?.toLowerCase().includes(query) ||
-      app.jobTitle?.toLowerCase().includes(query) ||
-      app.job?.title?.toLowerCase().includes(query)
-    );
-  });
+  // Local filtering removed since the server handles pagination and search
+  const filteredApplications = applications;
+  
+  const totalPages = Math.ceil(total / limit) || 1;
 
   // Group by status for stats
   const stats = applications.reduce((acc, app) => {
@@ -172,77 +180,103 @@ export default function EnterpriseApplicationsPage() {
             <p className="text-[hsl(var(--admin-text-muted))] font-medium">Chưa có đơn ứng tuyển nào.</p>
           </div>
         ) : (
-          <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-[hsl(var(--admin-border))]">
-                      <th className="text-left px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Ứng viên</th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Công việc</th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Trạng thái</th>
-                      <th className="text-left px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Ngày ứng tuyển</th>
-                      <th className="text-right px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Hành động</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredApplications.map(app => {
-                      const status = applicationStatusConfig[app.status] || applicationStatusConfig.new;
-                      return (
-                        <tr
-                          key={app._id}
-                          className="border-b border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-elevated))] cursor-pointer transition-colors"
-                          onClick={() => navigate(`/enterprise/applications/${app._id}`)}
-                        >
-                          <td className="px-4 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full bg-[hsl(var(--admin-accent-subtle))] flex items-center justify-center shrink-0">
-                                <span className="text-sm font-medium text-[hsl(var(--admin-accent))]">
-                                  {app.workerName?.[0] || app.worker?.name?.[0] || '?'}
-                                </span>
+            <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[hsl(var(--admin-border))]">
+                        <th className="text-left px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Ứng viên</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Công việc</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Trạng thái</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Ngày ứng tuyển</th>
+                        <th className="text-right px-4 py-3 text-xs font-medium text-[hsl(var(--admin-text-muted))]">Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredApplications.map(app => {
+                        const status = applicationStatusConfig[app.status] || applicationStatusConfig.new;
+                        return (
+                          <tr
+                            key={app._id}
+                            className="border-b border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-elevated))] cursor-pointer transition-colors"
+                            onClick={() => navigate(`/enterprise/applications/${app._id}`)}
+                          >
+                            <td className="px-4 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-[hsl(var(--admin-accent-subtle))] flex items-center justify-center shrink-0">
+                                  <span className="text-sm font-medium text-[hsl(var(--admin-accent))]">
+                                    {app.workerName?.[0] || app.worker?.name?.[0] || '?'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <p className="font-medium text-[hsl(var(--admin-text-primary))]">
+                                    {app.workerName || app.worker?.name || 'Ứng viên'}
+                                  </p>
+                                  <p className="text-xs text-[hsl(var(--admin-text-muted))]">
+                                    {app.workerEmail || app.worker?.email}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="font-medium text-[hsl(var(--admin-text-primary))]">
-                                  {app.workerName || app.worker?.name || 'Ứng viên'}
-                                </p>
-                                <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-                                  {app.workerEmail || app.worker?.email}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4">
-                            <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
-                              {app.jobTitle || app.job?.title || '—'}
-                            </p>
-                          </td>
-                          <td className="px-4 py-4">
-                            <Badge className={`${status.className} text-xs`}>{status.label}</Badge>
-                          </td>
-                          <td className="px-4 py-4 text-sm text-[hsl(var(--admin-text-muted))]">
-                            {formatDateTime(app.appliedAt)}
-                          </td>
-                          <td className="px-4 py-4 text-right">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/enterprise/applications/${app._id}`);
-                              }}
-                              className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-accent))]"
-                            >
-                              <Eye size={18} />
-                            </Button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+                            </td>
+                            <td className="px-4 py-4">
+                              <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
+                                {app.jobTitle || app.job?.title || '—'}
+                              </p>
+                            </td>
+                            <td className="px-4 py-4">
+                              <Badge className={`${status.className} text-xs`}>{status.label}</Badge>
+                            </td>
+                            <td className="px-4 py-4 text-sm text-[hsl(var(--admin-text-muted))]">
+                              {formatDateTime(app.appliedAt)}
+                            </td>
+                            <td className="px-4 py-4 text-right">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/enterprise/applications/${app._id}`);
+                                }}
+                                className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-accent))]"
+                              >
+                                <Eye size={18} />
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination UI */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between p-4 border-t border-[hsl(var(--admin-border))]">
+                    <p className="text-sm text-[hsl(var(--admin-text-muted))]">
+                      Hiển thị <span className="font-medium text-[hsl(var(--admin-text-primary))]">{((page - 1) * limit) + 1}</span> đến <span className="font-medium text-[hsl(var(--admin-text-primary))]">{Math.min(page * limit, total)}</span> trong số <span className="font-medium text-[hsl(var(--admin-text-primary))]">{total}</span>
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="icon" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"><ChevronLeft size={16} /></Button>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => {
+                          if (pageNum === 1 || pageNum === totalPages || (pageNum >= page - 1 && pageNum <= page + 1)) {
+                            return (
+                              <Button key={pageNum} variant={page === pageNum ? 'default' : 'outline'} onClick={() => setPage(pageNum)} className={`h-8 w-8 p-0 ${page === pageNum ? 'bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent-hover))]' : 'text-[hsl(var(--admin-text-secondary))]'}`}>
+                                {pageNum}
+                              </Button>
+                            );
+                          }
+                          if (pageNum === page - 2 || pageNum === page + 2) return <span key={pageNum} className="text-[hsl(var(--admin-text-muted))] px-1">...</span>;
+                          return null;
+                        })}
+                      </div>
+                      <Button variant="outline" size="icon" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"><ChevronRight size={16} /></Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
         )}
       </div>
     </>

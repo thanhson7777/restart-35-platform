@@ -48,7 +48,7 @@ const AdminCertificatesPage = () => {
       const params = { page: filters.page, limit: filters.limit };
       if (filters.status) params.status = filters.status;
       if (filters.search) params.search = filters.search;
-      const response = await getCertificates(params);
+      const { data: response } = await getCertificates(params);
       if (response.success) {
         setCertificates(response.data || []);
         setPagination(response.pagination || {
@@ -64,7 +64,7 @@ const AdminCertificatesPage = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await getCertificates({ limit: 1000, page: 1 });
+      const { data: response } = await getCertificates({ limit: 1000, page: 1 });
       if (response.success) {
         setStats(computeStats(response.data));
       }

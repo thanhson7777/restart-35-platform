@@ -37,7 +37,7 @@ const TrainerSchedulePage = () => {
   // Stats
   const [stats, setStats] = useState({
     total: 0,
-    active: 0,
+    completed: 0,
     draft: 0,
     totalSessions: 0
   });
@@ -50,8 +50,7 @@ const TrainerSchedulePage = () => {
         const statsData = res.data.data || { total: 0, byStatus: {} };
         
         const draftCount = statsData.byStatus?.draft?.count || 0;
-        const publishedCount = statsData.byStatus?.published?.count || 0;
-        const inProgressCount = statsData.byStatus?.in_progress?.count || 0;
+        const completedCount = statsData.byStatus?.completed?.count || 0;
         
         const totalSessions = Object.values(statsData.byStatus || {}).reduce(
           (acc, curr) => acc + (curr.totalSessions || 0), 
@@ -60,7 +59,7 @@ const TrainerSchedulePage = () => {
 
         setStats({
           total: statsData.total || 0,
-          active: publishedCount + inProgressCount,
+          completed: completedCount,
           draft: draftCount,
           totalSessions: totalSessions
         });
@@ -214,8 +213,8 @@ const TrainerSchedulePage = () => {
         <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase font-semibold">Đang hoạt động</p>
-              <h3 className="text-2xl font-bold text-[hsl(var(--admin-success))] mt-1">{stats.active}</h3>
+              <p className="text-[10px] text-[hsl(var(--admin-text-muted))] uppercase font-semibold">Đã hoàn thành</p>
+              <h3 className="text-2xl font-bold text-[hsl(var(--admin-success))] mt-1">{stats.completed}</h3>
             </div>
             <CheckCircle className="h-8 w-8 text-[hsl(var(--admin-success))]/20" />
           </CardContent>

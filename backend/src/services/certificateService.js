@@ -127,8 +127,23 @@ const getCertificates = async (query) => {
 
     const result = await certificateModel.findByPaginate(matchCondition, skip, limit)
 
+    const enrichedCertificates = await Promise.all(result.certificates.map(async (cert) => {
+      const user = await userModel.findOneById(cert.userId)
+      const course = await courseModel.findOneById(cert.courseId)
+      return {
+        ...cert,
+        worker: user ? {
+          fullName: user.displayName || user.username || 'Học viên',
+          email: user.email || ''
+        } : null,
+        courseName: course?.title || 'Khóa học',
+        userName: user?.displayName || user?.username || 'Học viên', // Keep for backward compatibility if needed
+        courseTitle: course?.title || 'Khóa học' // Keep for backward compatibility if needed
+      }
+    }))
+
     return {
-      certificates: result.certificates,
+      certificates: enrichedCertificates,
       pagination: {
         page: parseInt(page),
         item_per_page: limit,

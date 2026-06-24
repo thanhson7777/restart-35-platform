@@ -7,7 +7,7 @@ import { vi } from 'date-fns/locale';
 const roleLabels = {
   worker: 'Người lao động',
   enterprise: 'Doanh nghiệp',
-  trainer: 'Giảng viên',
+  trainer: 'Trung tâm đào tạo',
   ngo: 'Tổ chức',
   admin: 'Quản trị'
 };

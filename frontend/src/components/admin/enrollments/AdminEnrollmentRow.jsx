@@ -2,7 +2,7 @@ import React from 'react';
 import { Eye, Edit2, CheckCircle, Clock, AlertCircle, BookOpen, X } from 'lucide-react';
 import { Badge, Avatar } from '@/components/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/Tooltip';
-import { formatPrice } from '@/utils/formatter';
+import { formatCurrency, formatDate } from '@/utils/formatter';
 
 const STATUS_CONFIG = {
   enrolled: {
@@ -49,7 +49,7 @@ const STATUS_CONFIG = {
   }
 };
 
-const AdminEnrollmentRow = ({ enrollment, onView, onUpdateProgress, onUpdateStatus }) => {
+const AdminEnrollmentRow = ({ enrollment, onView }) => {
   const status = STATUS_CONFIG[enrollment.status] || STATUS_CONFIG.enrolled;
   const StatusIcon = status.icon;
 
@@ -140,29 +140,14 @@ const AdminEnrollmentRow = ({ enrollment, onView, onUpdateProgress, onUpdateStat
       <td className="px-5 py-4">
         <div className="text-xs space-y-1 tabular-nums">
           <p className="font-extrabold text-[hsl(var(--admin-text-primary))]">
-            {formatPrice(enrollment.fee?.total || 0)}
+            {formatCurrency(enrollment.fee?.total || enrollment.course?.fee || 0)}
           </p>
-          {enrollment.fee?.paid > 0 && (
-            <p className="text-emerald-500 font-semibold">
-              Paid: {formatPrice(enrollment.fee?.paid || 0)}
-            </p>
-          )}
-          {enrollment.fee?.pending > 0 && (
-            <p className="text-amber-500 font-semibold">
-              Due: {formatPrice(enrollment.fee?.pending || 0)}
-            </p>
-          )}
         </div>
       </td>
 
       <td className="px-5 py-4">
         <div className="text-xs space-y-1 tabular-nums">
           <p className="text-[hsl(var(--admin-text-secondary))]">{formatDate(enrollment.enrolledAt)}</p>
-          {enrollment.completedAt && (
-            <p className="text-emerald-500 font-bold">
-              Done: {formatDate(enrollment.completedAt)}
-            </p>
-          )}
         </div>
       </td>
 
@@ -180,34 +165,6 @@ const AdminEnrollmentRow = ({ enrollment, onView, onUpdateProgress, onUpdateStat
               </TooltipTrigger>
               <TooltipContent className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] text-xs">
                 Xem chi tiết
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => onUpdateProgress(enrollment)}
-                  className="h-8 w-8 rounded-lg bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-purple-500 hover:text-purple-400 hover:border-purple-500/40 hover:bg-purple-50 flex items-center justify-center transition-all duration-200 active:scale-90"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-purple-400 text-xs">
-                Cập nhật tiến độ
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => onUpdateStatus(enrollment)}
-                  className="h-8 w-8 rounded-lg bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-accent))] hover:text-[hsl(var(--admin-accent-hover))] hover:border-[hsl(var(--admin-accent))]/40 hover:bg-[hsl(var(--admin-accent))]/5 flex items-center justify-center transition-all duration-200 active:scale-90"
-                >
-                  <Clock className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-accent))] text-xs">
-                Thay đổi trạng thái
               </TooltipContent>
             </Tooltip>
           </div>

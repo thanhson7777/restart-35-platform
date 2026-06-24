@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BezelCard } from '@/components/ui';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export const AdminRevenueChart = ({ data = [] }) => {
   const [range, setRange] = useState('12');
@@ -53,16 +53,10 @@ export const AdminRevenueChart = ({ data = [] }) => {
 
         <div className="h-72 w-full mt-4">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={filteredData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--admin-accent))" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="hsl(var(--admin-accent))" stopOpacity={0} />
-                </linearGradient>
-              </defs>
+            <LineChart data={filteredData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--admin-border))" opacity={0.5} vertical={false} />
               <XAxis
-                dataKey="month"
+                dataKey="name"
                 stroke="hsl(var(--admin-border))"
                 fontSize={10}
                 tickLine={false}
@@ -81,15 +75,15 @@ export const AdminRevenueChart = ({ data = [] }) => {
                 content={<CustomTooltip />}
                 cursor={{ stroke: 'hsl(var(--admin-accent))', strokeWidth: 1, strokeDasharray: '3 3' }}
               />
-              <Area
+              <Line
                 type="monotone"
-                dataKey="amount"
+                dataKey="revenue"
                 stroke="hsl(var(--admin-accent))"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#colorRevenue)"
+                strokeWidth={3}
+                dot={{ r: 4, strokeWidth: 2, fill: "hsl(var(--admin-surface))" }}
+                activeDot={{ r: 6, strokeWidth: 0 }}
               />
-            </AreaChart>
+            </LineChart>
           </ResponsiveContainer>
         </div>
       </BezelCard>

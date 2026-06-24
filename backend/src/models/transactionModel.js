@@ -7,7 +7,7 @@ const TRANSACTION_COLLECTION_NAME = 'transactions'
 const TRANSACTION_COLLECTION_SCHEMA = Joi.object({
   walletId: Joi.string().required().pattern(/^[a-f\d]{24}$/i),
   userId: Joi.string().required().pattern(/^[a-f\d]{24}$/i),
-  type: Joi.string().valid('DEPOSIT', 'WITHDRAW', 'RESERVE', 'DISBURSE', 'REFUND', 'PAYMENT', 'COURSE_REVENUE', 'SYSTEM_FEE').required(),
+  type: Joi.string().valid('DEPOSIT', 'WITHDRAW', 'RESERVE', 'DISBURSE', 'REFUND', 'PAYMENT', 'COURSE_REVENUE', 'SYSTEM_FEE', 'PARTNERSHIP_REVENUE').required(),
   amount: Joi.number().min(0).required(),
   description: Joi.string().allow(null, ''),
   referenceId: Joi.string().allow(null, ''), // VD: vnpay_txn_id hoặc courseSponsorship_id
@@ -47,6 +47,31 @@ const findByWalletId = async (walletId, limit = 50) => {
   } catch (error) { throw error }
 }
 
+const findByPaginate = async (matchCondition, skip, limit) => {
+  try {
+    const cursor = await GET_DB().collection(TRANSACTION_COLLECTION_NAME).aggregate([
+      { $match: matchCondition },
+      { $sort: { createdAt: -1 } },
+      {
+        $facet: {
+          transactions: [
+            { $skip: skip },
+            { $limit: limit }
+          ],
+          totalCount: [
+            { $count: 'count' }
+          ]
+        }
+      }
+    ]).toArray()
+
+    const transactions = cursor[0].transactions
+    const total = cursor[0].totalCount[0] ? cursor[0].totalCount[0].count : 0
+
+    return { transactions, total }
+  } catch (error) { throw error }
+}
+
 const findByReference = async (referenceId, type) => {
   try {
     return await GET_DB().collection(TRANSACTION_COLLECTION_NAME).findOne({
@@ -78,6 +103,7 @@ export const transactionModel = {
   createNew,
   findOneById,
   findByWalletId,
+  findByPaginate,
   findByReference,
   updateStatus
 }

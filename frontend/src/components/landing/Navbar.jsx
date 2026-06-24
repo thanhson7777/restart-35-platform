@@ -1,17 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { selectCurrentUser, logoutUser } from '@/redux/user/userSlice';
-import { Briefcase, SignOut } from '@phosphor-icons/react';
+import { Briefcase, SignOut, CaretDown } from '@phosphor-icons/react';
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const currentUser = useSelector(selectCurrentUser);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [careerMenuOpen, setCareerMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const dropdownRef = useRef(null);
+  const careerMenuRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -23,6 +26,9 @@ const Navbar = () => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false);
+      }
+      if (careerMenuRef.current && !careerMenuRef.current.contains(e.target)) {
+        setCareerMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -50,23 +56,89 @@ const Navbar = () => {
         </Link>
 
         {/* Menu Items */}
-        <div className="hidden md:flex items-center gap-8" style={{ fontFamily: '"Inter", sans-serif' }}>
-          {[
-            { label: 'Trang chủ', to: '/' },
-            { label: 'Về chúng tôi', to: '/about' },
-            { label: 'Cơ hội việc làm', to: '/jobs' },
-            { label: 'Bản đồ cơ hội', to: '/opportunity-map' },
-            { label: 'Cộng đồng', to: '/community' },
-            { label: 'Liên hệ', to: '/contact' },
-          ].map((item, index) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`text-sm font-medium transition-colors duration-200 ${index === 0 ? 'text-[hsl(var(--primary))]' : 'text-[#6F6F6F] hover:text-[hsl(var(--primary))]'}`}
+        <div className="hidden md:flex items-center gap-8 relative" style={{ fontFamily: '"Inter", sans-serif' }}>
+          <Link
+            to="/"
+            className={`text-sm font-medium transition-colors duration-200 ${location.pathname === '/' ? 'text-[hsl(var(--primary))]' : 'text-[#6F6F6F] hover:text-[hsl(var(--primary))]'}`}
+          >
+            Trang chủ
+          </Link>
+          
+          <Link
+            to="/about"
+            className={`text-sm font-medium transition-colors duration-200 ${location.pathname.startsWith('/about') ? 'text-[hsl(var(--primary))]' : 'text-[#6F6F6F] hover:text-[hsl(var(--primary))]'}`}
+          >
+            Giới thiệu
+          </Link>
+
+          {/* Dropdown: Cơ hội & Học tập */}
+          <div className="relative" ref={careerMenuRef}>
+            <button
+              onClick={() => setCareerMenuOpen(!careerMenuOpen)}
+              className={`flex items-center gap-1 text-sm font-medium transition-colors duration-200 ${(location.pathname.startsWith('/jobs') || location.pathname.startsWith('/partner-jobs') || location.pathname.startsWith('/courses')) ? 'text-[hsl(var(--primary))]' : 'text-[#6F6F6F] hover:text-[hsl(var(--primary))]'}`}
             >
-              {item.label}
-            </Link>
-          ))}
+              Cơ hội & Học tập
+              <CaretDown size={14} className={`transition-transform duration-200 ${careerMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+              {careerMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                  className="absolute left-0 top-full mt-3 w-60 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-black/5 overflow-hidden z-50 py-2"
+                >
+                  <Link
+                    to="/jobs"
+                    onClick={() => setCareerMenuOpen(false)}
+                    className="flex flex-col gap-0.5 mx-2 px-3 py-2 rounded-xl hover:bg-[hsl(var(--primary))]/10 transition-colors"
+                  >
+                    <span className="text-sm font-semibold text-[hsl(var(--primary))]">Cơ hội việc làm</span>
+                    <span className="text-xs text-[#6F6F6F]">Tìm kiếm công việc phù hợp với bạn</span>
+                  </Link>
+                  <Link
+                    to="/partner-jobs"
+                    onClick={() => setCareerMenuOpen(false)}
+                    className="flex flex-col gap-0.5 mx-2 px-3 py-2 rounded-xl hover:bg-[hsl(var(--primary))]/10 transition-colors"
+                  >
+                    <span className="text-sm font-semibold text-[hsl(var(--primary))]">Doanh nghiệp tuyển dụng</span>
+                    <span className="text-xs text-[#6F6F6F]">Kết nối với nhà tuyển dụng uy tín</span>
+                  </Link>
+                  <Link
+                    to="/courses"
+                    onClick={() => setCareerMenuOpen(false)}
+                    className="flex flex-col gap-0.5 mx-2 px-3 py-2 rounded-xl hover:bg-[hsl(var(--primary))]/10 transition-colors"
+                  >
+                    <span className="text-sm font-semibold text-[hsl(var(--primary))]">Khóa học kỹ năng</span>
+                    <span className="text-xs text-[#6F6F6F]">Nâng cao tay nghề và kiến thức</span>
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <Link
+            to="/opportunity-map"
+            className={`text-sm font-medium transition-colors duration-200 ${location.pathname.startsWith('/opportunity-map') ? 'text-[hsl(var(--primary))]' : 'text-[#6F6F6F] hover:text-[hsl(var(--primary))]'}`}
+          >
+            Bản đồ cơ hội
+          </Link>
+
+          <Link
+            to="/community"
+            className={`text-sm font-medium transition-colors duration-200 ${(location.pathname.startsWith('/community') && !location.search.includes('tab=jobs') && !location.search.includes('tab=courses')) ? 'text-[hsl(var(--primary))]' : 'text-[#6F6F6F] hover:text-[hsl(var(--primary))]'}`}
+          >
+            Cộng đồng
+          </Link>
+
+          <Link
+            to="/contact"
+            className={`text-sm font-medium transition-colors duration-200 ${location.pathname.startsWith('/contact') ? 'text-[hsl(var(--primary))]' : 'text-[#6F6F6F] hover:text-[hsl(var(--primary))]'}`}
+          >
+            Liên hệ
+          </Link>
         </div>
 
         {/* Auth / Profile */}

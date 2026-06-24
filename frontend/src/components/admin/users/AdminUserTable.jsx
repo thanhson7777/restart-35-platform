@@ -9,7 +9,7 @@ import { vi } from 'date-fns/locale';
 const roleLabels = {
   worker: 'Người lao động',
   enterprise: 'Doanh nghiệp',
-  trainer: 'Giảng viên',
+  trainer: 'Trung tâm đào tạo',
   ngo: 'Tổ chức',
   admin: 'Quản trị'
 };
@@ -45,13 +45,7 @@ const MenuDropdown = ({ user, onView, onEdit, onToggleStatus, onDelete, onClose,
           <Eye className="w-4 h-4" />
           Xem chi tiết
         </button>
-        <button
-          onClick={() => handleActionClick(onEdit)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))] transition-colors"
-        >
-          <Edit2 className="w-4 h-4" />
-          Chỉnh sửa
-        </button>
+
         <button
           onClick={() => handleActionClick(onToggleStatus)}
           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))] transition-colors"
@@ -68,14 +62,7 @@ const MenuDropdown = ({ user, onView, onEdit, onToggleStatus, onDelete, onClose,
             </>
           )}
         </button>
-        <div className="border-t border-[hsl(var(--admin-border))] my-1" />
-        <button
-          onClick={() => handleActionClick(onDelete)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-          Xóa
-        </button>
+
       </div>
     </>,
     document.body

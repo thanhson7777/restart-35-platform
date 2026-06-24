@@ -757,18 +757,83 @@ const getOverallStats = async (trainerId = null) => {
       }
     })
 
-    // Also get total revenue from ALL TIME, not just last 12 months
-    const totalRevenuePipeline = [
-      { $match: matchQuery },
-      { $group: { _id: null, total: { $sum: '$fee.paid' } } }
-    ]
-    const totalRevRaw = await db.collection(ENROLLMENT_COLLECTION_NAME).aggregate(totalRevenuePipeline).toArray()
-    const allTimeRevenue = totalRevRaw[0]?.total ? Math.round(totalRevRaw[0].total * TRAINER_SHARE) : 0
+    // Fetch precise revenue from transactions for Trainer
+    let courseRevenue = 0
+    let partnershipRevenue = 0
+    let rawDailyRevenue = []
+    
+    if (trainerId) {
+      // 1. All-time revenue totals
+      const txStats = await db.collection('transactions').aggregate([
+        { $match: { userId: trainerId, status: 'COMPLETED' } },
+        {
+          $group: {
+            _id: '$type',
+            total: { $sum: '$amount' }
+          }
+        }
+      ]).toArray()
+      
+      txStats.forEach(tx => {
+        if (tx._id === 'COURSE_REVENUE') courseRevenue += tx.total
+        if (tx._id === 'PARTNERSHIP_REVENUE') partnershipRevenue += tx.total
+      })
+
+      // 2. Daily revenue for the last 12 months
+      const oneYearAgo = new Date()
+      oneYearAgo.setMonth(oneYearAgo.getMonth() - 12)
+      
+      const dailyTx = await db.collection('transactions').aggregate([
+        { 
+          $match: { 
+            userId: trainerId, 
+            status: 'COMPLETED',
+            type: { $in: ['COURSE_REVENUE', 'PARTNERSHIP_REVENUE'] }
+            // Note: Since createdAt is a number, $gte with a Date object might fail.
+            // We should use oneYearAgo.getTime() for numerical comparison
+          } 
+        },
+        {
+          $match: {
+            createdAt: { $gte: oneYearAgo.getTime() }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: { $toDate: '$createdAt' } },
+              month: { $month: { $toDate: '$createdAt' } },
+              day: { $dayOfMonth: { $toDate: '$createdAt' } }
+            },
+            total: { $sum: '$amount' }
+          }
+        },
+        { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
+      ]).toArray()
+
+      rawDailyRevenue = dailyTx.map(item => ({
+        year: item._id.year,
+        month: item._id.month,
+        day: item._id.day,
+        revenue: item.total
+      }))
+    } else {
+      // Fallback for non-trainer specific calls (if any)
+      const totalRevenuePipeline = [
+        { $match: matchQuery },
+        { $group: { _id: null, total: { $sum: '$fee.paid' } } }
+      ]
+      const totalRevRaw = await db.collection(ENROLLMENT_COLLECTION_NAME).aggregate(totalRevenuePipeline).toArray()
+      courseRevenue = totalRevRaw[0]?.total ? Math.round(totalRevRaw[0].total * TRAINER_SHARE) : 0
+    }
 
     result.recentEnrollments = recentEnrollments
     result.monthlyTrend = trendData
-    result.totalRevenue = allTimeRevenue
+    result.totalRevenue = courseRevenue + partnershipRevenue
+    result.courseRevenue = courseRevenue
+    result.partnershipRevenue = partnershipRevenue
     result.revenueByMonth = trendData
+    result.rawDailyRevenue = rawDailyRevenue
 
     return result
   } catch (error) {

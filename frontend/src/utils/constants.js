@@ -112,6 +112,16 @@ export const COURSE_STATUS = {
 }
 
 /**
+ * Course Delivery Types
+ */
+export const COURSE_DELIVERY_TYPES = {
+  VIDEO: 'video',
+  LIVE: 'live',
+  OFFLINE: 'offline',
+  HYBRID: 'hybrid',
+}
+
+/**
  * Location Types
  */
 export const LOCATION_TYPES = {

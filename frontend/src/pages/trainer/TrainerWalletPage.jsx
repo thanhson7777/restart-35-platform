@@ -10,6 +10,20 @@ const formatCurrency = (amount) => {
   return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
 };
 
+const TRANSACT_TYPE_MAP = {
+  'deposit': 'Nạp tiền',
+  'withdraw': 'Rút tiền',
+  'DEPOSIT': 'Nạp tiền',
+  'WITHDRAW': 'Rút tiền',
+  'COURSE_REVENUE': 'Doanh thu khóa học',
+  'PARTNERSHIP_REVENUE': 'Tài trợ khóa học',
+  'SYSTEM_FEE': 'Phí hệ thống',
+  'RESERVE': 'Tạm giữ',
+  'DISBURSE': 'Giải ngân',
+  'REFUND': 'Hoàn tiền',
+  'PAYMENT': 'Thanh toán'
+};
+
 const TrainerWalletPage = () => {
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -40,10 +54,13 @@ const TrainerWalletPage = () => {
       case 'COURSE_REVENUE':
       case 'DEPOSIT':
       case 'RECEIVE':
+      case 'PARTNERSHIP_REVENUE':
         return <ArrowDownRight className="w-5 h-5 text-green-500" />;
       case 'WITHDRAW':
       case 'DISBURSE':
       case 'PAYMENT':
+      case 'SYSTEM_FEE':
+      case 'RESERVE':
         return <ArrowUpRight className="w-5 h-5 text-red-500" />;
       default:
         return <History className="w-5 h-5 text-gray-500" />;
@@ -55,10 +72,13 @@ const TrainerWalletPage = () => {
       case 'COURSE_REVENUE':
       case 'DEPOSIT':
       case 'RECEIVE':
+      case 'PARTNERSHIP_REVENUE':
         return 'text-green-600 bg-green-50 border-green-100';
       case 'WITHDRAW':
       case 'DISBURSE':
       case 'PAYMENT':
+      case 'SYSTEM_FEE':
+      case 'RESERVE':
         return 'text-red-600 bg-red-50 border-red-100';
       default:
         return 'text-gray-600 bg-gray-50 border-gray-100';
@@ -165,7 +185,7 @@ const TrainerWalletPage = () => {
                           {getTransactionIcon(tx.type)}
                         </div>
                         <div>
-                          <p className="font-medium text-[hsl(var(--admin-text-primary))]">{tx.type}</p>
+                          <p className="font-medium text-[hsl(var(--admin-text-primary))]">{TRANSACT_TYPE_MAP[tx.type] || tx.type}</p>
                           <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-0.5 line-clamp-1" title={tx.description}>
                             {tx.description || 'Không có mô tả'}
                           </p>
@@ -174,11 +194,11 @@ const TrainerWalletPage = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`font-bold ${
-                        ['COURSE_REVENUE', 'DEPOSIT', 'RECEIVE'].includes(tx.type) 
+                        ['COURSE_REVENUE', 'DEPOSIT', 'RECEIVE', 'PARTNERSHIP_REVENUE'].includes(tx.type) 
                           ? 'text-green-600' 
                           : 'text-red-600'
                       }`}>
-                        {['COURSE_REVENUE', 'DEPOSIT', 'RECEIVE'].includes(tx.type) ? '+' : '-'}
+                        {['COURSE_REVENUE', 'DEPOSIT', 'RECEIVE', 'PARTNERSHIP_REVENUE'].includes(tx.type) ? '+' : '-'}
                         {formatCurrency(tx.amount)}
                       </span>
                     </td>

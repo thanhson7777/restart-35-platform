@@ -63,7 +63,7 @@ export const AdminRecentEnrollments = ({ enrollments = [] }) => {
               Chưa có dữ liệu ghi danh nào gần đây.
             </div>
           ) : (
-            enrollments.map((enrol) => (
+            enrollments.slice(0, 5).map((enrol) => (
               <div
                 key={enrol._id}
                 className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0

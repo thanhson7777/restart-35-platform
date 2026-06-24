@@ -292,7 +292,7 @@ export default function EnterpriseProfilePage() {
   return (
     <div className="w-full space-y-6 pb-12">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-[hsl(var(--admin-text-primary))]">Thiết lập & Cài đặt</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[hsl(var(--admin-text-primary))]">Quản lý tài khoản</h1>
         <p className="text-[hsl(var(--admin-text-muted))] mt-1">
           Quản lý thông tin hiển thị của doanh nghiệp và bảo mật tài khoản.
         </p>

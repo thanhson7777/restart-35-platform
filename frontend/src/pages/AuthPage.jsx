@@ -157,13 +157,13 @@ function AuthPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Sidebar - Hidden on mobile */}
-      <div className="hidden lg:flex lg:flex-col lg:w-2/5 xl:w-2/5 flex-shrink-0">
+      <div className="hidden lg:flex lg:flex-col lg:w-1/2 xl:w-5/12 flex-shrink-0">
         <AuthSidebar />
       </div>
 
       {/* Right Content */}
       <div className="flex-1 flex items-center justify-center px-6 sm:px-8 lg:px-12 py-10 bg-background">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-lg">
 
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">

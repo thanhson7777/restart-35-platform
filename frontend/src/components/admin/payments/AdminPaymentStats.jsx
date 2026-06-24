@@ -3,8 +3,9 @@ import { BezelCard } from '@/components/ui';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 const formatCurrency = (value) => {
-  if (!value && value !== 0) return '0đ';
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(value);
+  if (!value && value !== 0) return '0 đ';
+  const formatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(value);
+  return formatted.replace(/\u00a0/g, ' ').replace('₫', 'đ');
 };
 
 const AdminPaymentStats = ({ stats, loading }) => {

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui';
 const TYPE_OPTIONS = [
   { value: 'enterprise', label: 'Doanh nghiệp' },
   { value: 'ngo', label: 'Tổ chức NGO' },
+  { value: 'training_center', label: 'Trung tâm đào tạo' },
 ];
 
 const STATUS_OPTIONS = [

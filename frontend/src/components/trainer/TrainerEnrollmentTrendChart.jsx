@@ -6,8 +6,26 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 export const TrainerEnrollmentTrendChart = ({ data = [] }) => {
   const [range, setRange] = useState('6');
 
-  // Slice data based on selected range
-  const filteredData = range === '6' ? data.slice(-6) : data;
+  const chartData = React.useMemo(() => {
+    const monthsCount = parseInt(range, 10);
+    const result = [];
+    const now = new Date();
+    
+    for (let i = monthsCount - 1; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const backendMonth = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+      const displayMonth = `T${d.getMonth() + 1}/${d.getFullYear()}`;
+      
+      const existingData = (data || []).find(item => item.month === backendMonth);
+      
+      result.push({
+        month: displayMonth,
+        count: existingData ? existingData.count : 0
+      });
+    }
+    return result;
+  }, [data, range]);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -47,14 +65,14 @@ export const TrainerEnrollmentTrendChart = ({ data = [] }) => {
         </div>
 
         <div className="h-72 w-full mt-4">
-          {filteredData.length === 0 ? (
+          {chartData.length === 0 ? (
             <div className="h-full w-full flex items-center justify-center text-[hsl(var(--admin-text-muted))] text-sm border border-dashed border-[hsl(var(--admin-border))] rounded-xl">
               Chưa có dữ liệu xu hướng tuyển sinh.
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={filteredData}
+                data={chartData}
                 margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
               >
                 <defs>

@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
  * For light admin theme: white surface inside subtle border shell.
  */
 const BezelCard = React.forwardRef(
-  ({ className, outerClassName, innerClassName, padding = 'default', children, ...props }, ref) => {
+  ({ className, outerClassName, innerClassName, padding = 'default', overflowVisible = false, children, ...props }, ref) => {
     const paddingStyles = {
       default: 'p-6',
       sm: 'p-4',
@@ -18,7 +18,8 @@ const BezelCard = React.forwardRef(
       <div
         ref={ref}
         className={cn(
-          'group relative overflow-hidden rounded-2xl',
+          'group relative rounded-2xl',
+          !overflowVisible && 'overflow-hidden',
           'bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))]',
           'shadow-[var(--admin-shadow-md)]',
           'transition-all duration-200',

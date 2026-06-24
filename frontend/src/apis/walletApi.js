@@ -6,8 +6,8 @@ export const getMyWallet = async () => {
   return request.data
 }
 
-export const getMyTransactions = async () => {
-  const request = await authorizeAxiosInstance.get(`${API_ROOT}/v1/wallets/my-transactions`)
+export const getMyTransactions = async (params) => {
+  const request = await authorizeAxiosInstance.get(`${API_ROOT}/v1/wallets/my-transactions`, { params })
   return request.data
 }
 
