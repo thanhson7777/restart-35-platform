@@ -2,8 +2,6 @@ import React from 'react';
 import { Briefcase, BookOpen, MessageSquare, CalendarDays } from 'lucide-react';
 
 const tabs = [
-  { id: 'jobs', label: 'Doanh nghiệp tuyển dụng', icon: Briefcase },
-  { id: 'courses', label: 'Khóa học', icon: BookOpen },
   { id: 'community', label: 'Chia sẻ kinh nghiệm', icon: MessageSquare },
   { id: 'events', label: 'Sự kiện & Tài trợ', icon: CalendarDays }
 ];

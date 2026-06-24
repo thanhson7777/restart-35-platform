@@ -333,8 +333,9 @@ const enrollCourse = async (userId, courseId, data) => {
       if (source !== 'direct') throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng hoàn thành hồ sơ trước khi đăng ký!')
     }
 
+    let eligibility = { eligible: true }
     if (profile) {
-      const eligibility = await checkEligibility(profile, course)
+      eligibility = await checkEligibility(profile, course)
       if (!eligibility.eligible) {
         throw new ApiError(StatusCodes.BAD_REQUEST, eligibility.reason)
       }
@@ -510,6 +511,8 @@ const getMyEnrollments = async (userId, queryParams) => {
           schedule = await scheduleModel.findByCourse(course._id.toString())
         }
 
+        const providerInfo = course ? await userModel.findOneById(course.providerId) : null
+
         return {
           ...enrollment,
           course: course ? {
@@ -521,7 +524,18 @@ const getMyEnrollments = async (userId, queryParams) => {
             schedule: course.schedule,
             location: course.location,
             providerId: course.providerId,
-            delivery_type: course.delivery_type
+            delivery_type: course.delivery_type,
+            isFree: course.isFree,
+            fee: course.fee,
+            funding_model: course.funding_model,
+            fundingConfig: course.fundingConfig,
+            sponsorship: course.sponsorship,
+            provider: providerInfo ? {
+              _id: providerInfo._id,
+              displayName: providerInfo.displayName,
+              avatar: providerInfo.avatar,
+              verified: providerInfo.verified
+            } : null
           } : null,
           schedule,
           installments
@@ -677,6 +691,7 @@ const getEnrollmentById = async (enrollmentId, userId = null, userRole = null) =
     const profile = await workerProfileModel.findOneByUserId(enrollment.userId)
 
     const installments = await getInstallmentsForEnrollment(enrollmentId, course, enrollment)
+    const providerInfo = course ? await userModel.findOneById(course.providerId) : null
 
     return {
       ...enrollment,
@@ -691,7 +706,19 @@ const getEnrollmentById = async (enrollmentId, userId = null, userRole = null) =
         level: course.level,
         skills: course.skills,
         syllabus: course.syllabus,
-        providerId: course.providerId
+        providerId: course.providerId,
+        delivery_type: course.delivery_type,
+        isFree: course.isFree,
+        fee: course.fee,
+        funding_model: course.funding_model,
+        fundingConfig: course.fundingConfig,
+        sponsorship: course.sponsorship,
+        provider: providerInfo ? {
+          _id: providerInfo._id,
+          displayName: providerInfo.displayName,
+          avatar: providerInfo.avatar,
+          verified: providerInfo.verified
+        } : null
       } : null,
       user: userInfo ? {
         _id: userInfo._id,
@@ -959,7 +986,9 @@ const getAllEnrollments = async (queryParams) => {
           course: course ? {
             _id: course._id,
             title: course.title,
-            slug: course.slug
+            slug: course.slug,
+            fee: course.fee,
+            isFree: course.isFree
           } : null,
           user: userInfo ? {
             _id: userInfo._id,
@@ -1463,7 +1492,9 @@ const getTrainerEnrollments = async (queryParams, trainerId) => {
             duration: course.duration,
             schedule: course.schedule,
             location: course.location,
-            providerId: course.providerId
+            providerId: course.providerId,
+            fee: course.fee,
+            isFree: course.isFree
           } : null,
           user: userInfo ? {
             _id: userInfo._id,

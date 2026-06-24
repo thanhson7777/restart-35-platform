@@ -4,9 +4,9 @@ import { Button, Badge } from '@/components/ui';
 
 const TABS = [
   { key: 'all', label: 'Tất cả' },
-  { key: 'active', label: 'Active' },
-  { key: 'revoked', label: 'Revoked' },
-  { key: 'expired', label: 'Expired' },
+  { key: 'active', label: 'Hiệu lực' },
+  { key: 'revoked', label: 'Đã thu hồi' },
+  { key: 'expired', label: 'Đã hết hạn' },
 ];
 
 const AdminCertificateFilters = ({ filters, onChange, onSearch }) => {

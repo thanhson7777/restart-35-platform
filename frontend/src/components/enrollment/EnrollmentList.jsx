@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { EnrollmentCard } from './EnrollmentCard';
 import { CourseCardSkeleton } from '@/components/course/CourseCardSkeleton';
-import { Card } from '@/components/ui';
-import { BookOpen, Award, GraduationCap, DollarSign, Play, MonitorPlay, Radio, MapPin, LayoutGrid } from 'lucide-react';
+import { Card, Button } from '@/components/ui';
+import { BookOpen, Award, GraduationCap, DollarSign, Play, MonitorPlay, Radio, MapPin, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ENROLLMENT_STATUS } from '@/utils/constants';
-import { formatPrice } from '@/utils/formatter';
+import { formatPrice, formatCurrency } from '@/utils/formatter';
 import { EnrollmentFundingSummary } from './EnrollmentSourceBadge';
 
 const STATUS_TABS = [
@@ -27,6 +27,8 @@ export const EnrollmentList = ({
   onViewDetail,
 }) => {
   const [activeStatusTab, setActiveStatusTab] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   const list = Array.isArray(enrollments)
     ? enrollments
@@ -60,6 +62,16 @@ export const EnrollmentList = ({
           : e.status === activeStatusTab);
     return matchesStatus;
   });
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedList = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   if (loading) {
     return (
@@ -115,7 +127,7 @@ export const EnrollmentList = ({
           </div>
           <div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-amber-500/75 block">Đã thanh toán</span>
-            <span className="text-sm font-extrabold text-zinc-800 dark:text-zinc-200 truncate block">{formatPrice(totalPaid)}</span>
+            <span className="text-sm font-extrabold text-zinc-800 dark:text-zinc-200 truncate block">{formatCurrency(totalPaid)}</span>
           </div>
         </Card>
       </div>
@@ -137,7 +149,10 @@ export const EnrollmentList = ({
               return (
                 <button
                   key={tab.key}
-                  onClick={() => setActiveStatusTab(tab.key)}
+                  onClick={() => {
+                    setActiveStatusTab(tab.key);
+                    setCurrentPage(1);
+                  }}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border transition-all ${
                     activeStatusTab === tab.key
                       ? 'bg-primary border-primary text-primary-foreground shadow-sm'
@@ -166,7 +181,7 @@ export const EnrollmentList = ({
         </div>
       ) : (
         <div className="space-y-4">
-          {filtered.map((enrollment) => (
+          {paginatedList.map((enrollment) => (
             <div key={enrollment._id} className="space-y-3">
 
               <EnrollmentCard
@@ -179,6 +194,52 @@ export const EnrollmentList = ({
 
             </div>
           ))}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Hiển thị <span className="font-medium text-zinc-900 dark:text-zinc-100">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="font-medium text-zinc-900 dark:text-zinc-100">{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)}</span> trong <span className="font-medium text-zinc-900 dark:text-zinc-100">{filtered.length}</span> khóa học
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="gap-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Trước
+                </Button>
+                <div className="flex items-center gap-1 hidden sm:flex">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`w-8 h-8 text-sm font-medium rounded-lg transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="gap-1"
+                >
+                  Sau
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

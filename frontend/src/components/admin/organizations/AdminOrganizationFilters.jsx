@@ -6,6 +6,7 @@ const TYPE_TABS = [
   { key: 'all', label: 'Tất cả' },
   { key: 'enterprise', label: 'Doanh nghiệp' },
   { key: 'ngo', label: 'Tổ chức NGO' },
+  { key: 'training_center', label: 'Trung tâm đào tạo' },
 ];
 
 const STATUS_TABS = [

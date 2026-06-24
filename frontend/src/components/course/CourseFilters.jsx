@@ -1,13 +1,39 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SelectField } from '@/components/ui/SelectField';
 
 const SORT_OPTIONS = [
-  { value: 'enrollmentCount', label: 'Phổ biến nhất' },
-  { value: 'rating', label: 'Đánh giá tốt nhất' },
-  { value: 'createdAt', label: 'Mới cập nhật' },
-  { value: 'fee', label: 'Học phí thấp nhất' },
+  { value: 'createdAt-desc', label: 'Mới cập nhật' },
+  { value: 'enrollmentCount-desc', label: 'Phổ biến nhất' },
+  { value: 'rating-desc', label: 'Đánh giá tốt nhất' },
+  { value: 'fee-asc', label: 'Học phí thấp nhất' },
+];
+
+const LEVEL_OPTIONS = [
+  { value: '', label: 'Tất cả trình độ' },
+  { value: 'beginner', label: 'Cơ bản (Beginner)' },
+  { value: 'intermediate', label: 'Trung bình (Intermediate)' },
+  { value: 'advanced', label: 'Nâng cao (Advanced)' }
+];
+
+const DELIVERY_OPTIONS = [
+  { value: '', label: 'Tất cả hình thức học' },
+  { value: 'live', label: 'Trực tuyến (Zoom/Meet)' },
+  { value: 'offline', label: 'Trực tiếp tại trung tâm' }
+];
+
+const FEE_OPTIONS = [
+  { value: '', label: 'Tất cả mức phí' },
+  { value: 'free', label: 'Miễn phí' },
+  { value: 'paid', label: 'Có tính phí' }
+];
+
+const SCHOLARSHIP_OPTIONS = [
+  { value: '', label: 'Hỗ trợ học bổng' },
+  { value: 'true', label: 'Có học bổng' },
+  { value: 'false', label: 'Không học bổng' }
 ];
 
 export const CourseFilters = ({ filters, onChange, categories = [] }) => {
@@ -31,7 +57,19 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
 
   const handleChange = useCallback(
     (key, value) => {
-      onChange({ ...filters, [key]: value, page: 1 });
+      let updatedValue = value;
+      // Handle boolean conversion for filters
+      if (key === 'isFree') {
+        if (value === 'free') updatedValue = true;
+        else if (value === 'paid') updatedValue = false;
+        else updatedValue = '';
+      }
+      if (key === 'hasScholarship') {
+        if (value === 'true') updatedValue = true;
+        else if (value === 'false') updatedValue = false;
+        else updatedValue = '';
+      }
+      onChange({ ...filters, [key]: updatedValue, page: 1 });
     },
     [filters, onChange]
   );
@@ -40,6 +78,10 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
     const cleared = {
       search: '',
       category: '',
+      level: '',
+      isFree: '',
+      hasScholarship: '',
+      delivery_type: '',
       sortBy: 'createdAt',
       order: 'desc',
       page: 1,
@@ -48,22 +90,39 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
     onChange(cleared);
   };
 
+  const getFeeValue = () => {
+    if (filters.isFree === true) return 'free';
+    if (filters.isFree === false) return 'paid';
+    return '';
+  };
+
+  const getScholarshipValue = () => {
+    if (filters.hasScholarship === true) return 'true';
+    if (filters.hasScholarship === false) return 'false';
+    return '';
+  };
+
   const hasActiveFilters = Boolean(
     filters.search ||
-    filters.category
+    filters.category ||
+    filters.level ||
+    filters.isFree !== '' && filters.isFree !== undefined && filters.isFree !== false || // wait, check if default isFree: false is treated as filter
+    filters.hasScholarship !== '' && filters.hasScholarship !== undefined && filters.hasScholarship !== false ||
+    filters.delivery_type
   );
 
   return (
-    <div className="space-y-4">
-      {/* Search Bar & Mobile Filter Toggle */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-500" strokeWidth={1.5} />
+    <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 space-y-5">
+      {/* Top Row: Search Input & Category */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+        {/* Search Input */}
+        <div className="lg:col-span-6 relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-zinc-400" strokeWidth={2} />
           <Input
-            placeholder="Tìm kiếm khóa học theo tên hoặc kỹ năng..."
+            placeholder="Tìm kiếm khóa học theo tên hoặc kỹ năng học..."
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="pl-9 pr-10 py-5 rounded-xl border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-950 focus:ring-primary/20 text-sm"
+            className="pl-11 pr-10 h-11 w-full rounded-xl border-slate-200 focus-visible:ring-blue-500 text-sm"
           />
           {localSearch && (
             <button
@@ -71,59 +130,91 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
                 setLocalSearch('');
                 onChange({ ...filters, search: '', page: 1 });
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-slate-100 transition-colors"
             >
-              <X className="w-3.5 h-3.5 text-zinc-400 hover:text-zinc-800 dark:hover:text-white" />
+              <X className="w-3.5 h-3.5 text-zinc-400 hover:text-zinc-700" />
             </button>
           )}
         </div>
 
-        {/* Mobile filter toggle */}
-        <button
-          onClick={() => setShowMobileFilters(!showMobileFilters)}
-          className={`md:hidden flex items-center justify-center gap-2 px-4 rounded-xl border transition-all duration-300 ${
-            showMobileFilters 
-              ? 'bg-zinc-900 border-zinc-900 text-white dark:bg-white dark:text-zinc-950 dark:border-white' 
-              : 'border-zinc-250 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-950 hover:bg-zinc-50'
-          }`}
-        >
-          <SlidersHorizontal className="w-4 h-4" strokeWidth={1.5} />
-          <span className="text-xs font-semibold">Bộ lọc</span>
-          {hasActiveFilters && (
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-          )}
-        </button>
-      </div>
+        {/* Category Selector */}
+        <div className="lg:col-span-4">
+          <SelectField
+            options={[
+              { value: '', label: 'Tất cả danh mục học' },
+              ...categories.map((cat) => ({ value: cat._id || cat.id, label: cat.name }))
+            ]}
+            value={filters.category || ''}
+            onChange={(val) => handleChange('category', val)}
+            className="h-11 rounded-xl border-slate-200 text-sm"
+          />
+        </div>
 
-      {/* Desktop Filters (Category, Level, Funding Model, Checkboxes) */}
-      <div className="hidden md:flex flex-wrap items-center gap-3">
-        {/* Category */}
-        <select
-          value={filters.category || ''}
-          onChange={(e) => handleChange('category', e.target.value)}
-          className="px-3.5 py-2 rounded-xl border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
-        >
-          <option value="">Tất cả danh mục</option>
-          {categories.map((cat) => (
-            <option key={cat._id || cat.id} value={cat._id || cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
-
-
-        {/* Clear Filters (Desktop) */}
-        {hasActiveFilters && (
+        {/* Mobile filter toggle / Reset Button */}
+        <div className="lg:col-span-2 flex gap-2 w-full">
           <button
-            onClick={clearFilters}
-            className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors ml-auto flex items-center gap-1"
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className={`lg:hidden flex items-center justify-center gap-2 h-11 px-4 rounded-xl border flex-1 transition-colors ${
+              showMobileFilters
+                ? 'bg-blue-600 border-blue-600 text-white'
+                : 'border-slate-200 text-zinc-600 bg-white hover:bg-slate-50'
+            }`}
           >
-            <X className="w-3.5 h-3.5" />
-            Xóa bộ lọc
+            <SlidersHorizontal size={16} />
+            <span className="text-sm font-semibold">Bộ lọc</span>
           </button>
-        )}
+          
+          {hasActiveFilters && (
+            <Button
+              variant="outline"
+              onClick={clearFilters}
+              className="h-11 px-4 rounded-xl border-slate-200 text-zinc-500 hover:text-zinc-700 hover:bg-slate-50 flex items-center gap-1.5 text-sm font-semibold flex-1 lg:flex-none ml-auto"
+            >
+              <RotateCcw size={15} />
+              Đặt lại
+            </Button>
+          )}
+        </div>
       </div>
 
+      {/* Second Row: Advanced Filters for Desktop */}
+      <div className="hidden lg:grid lg:grid-cols-3 gap-4 pt-5 border-t border-slate-100">
+        {/* Delivery Type */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Hình thức học</label>
+          <SelectField
+            options={DELIVERY_OPTIONS}
+            value={filters.delivery_type || ''}
+            onChange={(val) => handleChange('delivery_type', val)}
+            className="h-10 rounded-lg border-slate-200 text-xs"
+          />
+        </div>
+
+        {/* Fee Type */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Học phí</label>
+          <SelectField
+            options={FEE_OPTIONS}
+            value={getFeeValue()}
+            onChange={(val) => handleChange('isFree', val)}
+            className="h-10 rounded-lg border-slate-200 text-xs"
+          />
+        </div>
+
+        {/* Sort option */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Sắp xếp theo</label>
+          <SelectField
+            options={SORT_OPTIONS}
+            value={`${filters.sortBy || 'createdAt'}-${filters.order || 'desc'}`}
+            onChange={(val) => {
+              const [sortBy, order] = val.split('-');
+              onChange({ ...filters, sortBy, order, page: 1 });
+            }}
+            className="h-10 rounded-lg border-slate-200 text-xs"
+          />
+        </div>
+      </div>
 
       {/* Mobile Filters Drawer */}
       <AnimatePresence>
@@ -132,63 +223,51 @@ export const CourseFilters = ({ filters, onChange, categories = [] }) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="md:hidden overflow-hidden"
+            transition={{ duration: 0.2 }}
+            className="lg:hidden overflow-hidden"
           >
-            <div className="p-5 border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/30 space-y-4">
-              {/* Category */}
-              <div className="space-y-1">
-                <span className="text-[10px] uppercase font-semibold tracking-wider text-zinc-400">Danh mục</span>
-                <select
-                  value={filters.category || ''}
-                  onChange={(e) => handleChange('category', e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-sm text-zinc-700 dark:text-zinc-350"
-                >
-                  <option value="">Tất cả danh mục</option>
-                  {categories.map((cat) => (
-                    <option key={cat._id || cat.id} value={cat._id || cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
+            <div className="pt-4 border-t border-slate-100 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Delivery Type */}
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Hình thức học</span>
+                  <SelectField
+                    options={DELIVERY_OPTIONS}
+                    value={filters.delivery_type || ''}
+                    onChange={(val) => handleChange('delivery_type', val)}
+                    className="h-10 rounded-lg border-slate-200"
+                  />
+                </div>
+
+                {/* Fee Type */}
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Học phí</span>
+                  <SelectField
+                    options={FEE_OPTIONS}
+                    value={getFeeValue()}
+                    onChange={(val) => handleChange('isFree', val)}
+                    className="h-10 rounded-lg border-slate-200"
+                  />
+                </div>
+
+                {/* Sort Option */}
+                <div className="space-y-1 col-span-1 sm:col-span-2">
+                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Sắp xếp theo</span>
+                  <SelectField
+                    options={SORT_OPTIONS}
+                    value={`${filters.sortBy || 'createdAt'}-${filters.order || 'desc'}`}
+                    onChange={(val) => {
+                      const [sortBy, order] = val.split('-');
+                      onChange({ ...filters, sortBy, order, page: 1 });
+                    }}
+                    className="h-10 rounded-lg border-slate-200"
+                  />
+                </div>
               </div>
-
-
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="w-full flex items-center justify-center gap-1 py-2 text-xs font-bold text-white bg-primary rounded-xl hover:bg-primary/95 transition-colors mt-2"
-                >
-                  <X className="w-4 h-4" />
-                  Xóa tất cả bộ lọc
-                </button>
-              )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Sort & Quick Summary Row */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-zinc-150 dark:border-zinc-900">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground font-medium">Sắp xếp theo:</span>
-          <select
-            value={`${filters.sortBy || 'createdAt'}-${filters.order || 'desc'}`}
-            onChange={(e) => {
-              const [sortBy, order] = e.target.value.split('-');
-              handleChange('sortBy', sortBy);
-              handleChange('order', order);
-            }}
-            className="px-3 py-1.5 rounded-xl border border-zinc-250 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 text-zinc-800 dark:text-zinc-300 transition-colors cursor-pointer"
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={`${opt.value}-desc`}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
     </div>
   );
 };

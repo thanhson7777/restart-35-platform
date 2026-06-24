@@ -11,7 +11,7 @@ const RestartIcon = ({ className }) => (
 
 function AuthSidebar() {
   return (
-    <div className="hidden lg:flex flex-col justify-between text-white p-10 min-h-full relative overflow-hidden">
+    <div className="hidden lg:flex flex-col justify-between text-white p-10 min-h-full w-full h-full relative overflow-hidden">
       {/* Full-cover background image */}
       <img
         src="/images/bg-image.jpg"

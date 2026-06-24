@@ -10,7 +10,7 @@ const AdminOrganizationTable = ({
   pagination,
   onPageChange,
   onView,
-  onDelete,
+  onToggleStatus,
   onApprove,
   onReject,
 }) => {
@@ -21,7 +21,7 @@ const AdminOrganizationTable = ({
           <table className="w-full">
             <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
               <tr>
-                {['Đối tác', 'Loại', 'Quota', 'Trạng thái', 'Thành viên', 'Ngày tạo', 'Thao tác'].map((h) => (
+                {['Đối tác', 'Loại', 'Trạng thái', 'Thành viên', 'Ngày tạo', 'Thao tác'].map((h) => (
                   <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">
                     {h}
                   </th>
@@ -33,7 +33,6 @@ const AdminOrganizationTable = ({
                 <tr key={i} className="border-b border-[hsl(var(--admin-border))]">
                   <td className="px-4 py-3"><Skeleton className="w-32 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
                   <td className="px-4 py-3"><Skeleton className="w-20 h-6 bg-[hsl(var(--admin-surface-elevated))] rounded-full" /></td>
-                  <td className="px-4 py-3"><Skeleton className="w-24 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
                   <td className="px-4 py-3"><Skeleton className="w-20 h-6 bg-[hsl(var(--admin-surface-elevated))] rounded-full" /></td>
                   <td className="px-4 py-3"><Skeleton className="w-12 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
                   <td className="px-4 py-3"><Skeleton className="w-20 h-4 bg-[hsl(var(--admin-surface-elevated))]" /></td>
@@ -67,7 +66,7 @@ const AdminOrganizationTable = ({
         <table className="w-full">
           <thead className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
             <tr>
-              {['Đối tác', 'Loại', 'Quota', 'Trạng thái', 'Thành viên', 'Ngày tạo', 'Thao tác'].map((h) => (
+              {['Đối tác', 'Loại', 'Trạng thái', 'Thành viên', 'Ngày tạo', 'Thao tác'].map((h) => (
                 <th key={h} className="px-4 py-3.5 text-left text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">
                   {h}
                 </th>
@@ -80,7 +79,7 @@ const AdminOrganizationTable = ({
                 key={org._id}
                 organization={org}
                 onView={onView}
-                onDelete={onDelete}
+                onToggleStatus={onToggleStatus}
                 onApprove={onApprove}
                 onReject={onReject}
               />

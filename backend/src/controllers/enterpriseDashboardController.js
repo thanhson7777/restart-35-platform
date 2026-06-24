@@ -7,6 +7,8 @@ import { StatusCodes } from 'http-status-codes'
 const getOverview = async (req, res, next) => {
   try {
     const enterpriseId = req.user._id.toString()
+    const enterpriseIdObj = new ObjectId(req.user._id)
+    const enterpriseIds = [enterpriseId, enterpriseIdObj]
     const db = await GET_DB()
 
     const [
@@ -21,17 +23,17 @@ const getOverview = async (req, res, next) => {
     ] = await Promise.all([
       partnershipService.getEnterpriseActivePartnerships(enterpriseId),
       courseSponsorshipService.getEnterpriseSponsorshipOverview(enterpriseId),
-      db.collection('enrollments').countDocuments({ enterpriseId }),
-      db.collection('enrollments').countDocuments({ enterpriseId, status: 'completed' }),
-      db.collection('recruitment_jobs').countDocuments({ enterpriseId, _destroy: { $ne: true } }),
-      db.collection('recruitment_applications').countDocuments({ enterpriseId }),
-      db.collection('recruitment_interviews').countDocuments({ enterpriseId, status: 'confirmed' }),
-      db.collection('recruitment_applications').countDocuments({ enterpriseId, status: 'hired' })
+      db.collection('enrollments').countDocuments({ enterpriseId: { $in: enterpriseIds } }),
+      db.collection('enrollments').countDocuments({ enterpriseId: { $in: enterpriseIds }, status: 'completed' }),
+      db.collection('recruitment_jobs').countDocuments({ enterpriseId: { $in: enterpriseIds }, _destroy: { $ne: true } }),
+      db.collection('recruitment_applications').countDocuments({ enterpriseId: { $in: enterpriseIds } }),
+      db.collection('recruitment_interviews').countDocuments({ enterpriseId: { $in: enterpriseIds }, status: 'confirmed' }),
+      db.collection('recruitment_applications').countDocuments({ enterpriseId: { $in: enterpriseIds }, status: 'hired' })
     ])
 
     // Funnel stats
     const rawFunnel = await db.collection('recruitment_applications').aggregate([
-      { $match: { enterpriseId } },
+      { $match: { enterpriseId: { $in: enterpriseIds } } },
       { $group: { _id: '$status', count: { $sum: 1 } } }
     ]).toArray()
     
@@ -41,31 +43,42 @@ const getOverview = async (req, res, next) => {
     }, {});
     
     const applicationFunnel = [
-      { name: 'Nộp đơn', value: totalApplications },
-      { name: 'Đã duyệt', value: (funnelObj['shortlisted'] || 0) + (funnelObj['reviewing'] || 0) + (funnelObj['interview_scheduled'] || 0) + (funnelObj['interviewed'] || 0) + (funnelObj['offered'] || 0) + (funnelObj['hired'] || 0) },
-      { name: 'Phỏng vấn', value: (funnelObj['interview_scheduled'] || 0) + (funnelObj['interviewed'] || 0) + (funnelObj['offered'] || 0) + (funnelObj['hired'] || 0) },
-      { name: 'Trúng tuyển', value: funnelObj['hired'] || 0 }
+      { id: 'applied', name: 'Đã nộp', value: totalApplications },
+      { id: 'processing', name: 'Đang duyệt', value: (funnelObj['shortlisted'] || 0) + (funnelObj['reviewing'] || 0) + (funnelObj['interview_scheduled'] || 0) + (funnelObj['interviewed'] || 0) + (funnelObj['offered'] || 0) + (funnelObj['hired'] || 0) },
+      { id: 'interviewing', name: 'Phỏng vấn', value: (funnelObj['interview_scheduled'] || 0) + (funnelObj['interviewed'] || 0) + (funnelObj['offered'] || 0) + (funnelObj['hired'] || 0) },
+      { id: 'offered', name: 'Được mời', value: (funnelObj['offered'] || 0) + (funnelObj['hired'] || 0) },
+      { id: 'hired', name: 'Đã nhận', value: funnelObj['hired'] || 0 }
     ]
 
-    const appStatusMap = {
-      'pending': 'Chờ duyệt',
-      'reviewing': 'Đang xem xét',
-      'shortlisted': 'Lọt vào sơ tuyển',
-      'interview_scheduled': 'Lịch phỏng vấn',
-      'interviewed': 'Đã phỏng vấn',
-      'offered': 'Đề nghị nhận việc',
-      'hired': 'Đã tuyển',
-      'rejected': 'Từ chối'
+    const groupedStatus = {
+      'applied': (funnelObj['new'] || 0) + (funnelObj['pending'] || 0),
+      'processing': (funnelObj['reviewing'] || 0) + (funnelObj['shortlisted'] || 0),
+      'interviewing': (funnelObj['interview_scheduled'] || 0) + (funnelObj['interviewed'] || 0),
+      'offered': (funnelObj['offered'] || 0),
+      'hired': (funnelObj['hired'] || 0),
+      'rejected': (funnelObj['rejected'] || 0) + (funnelObj['withdrawn'] || 0)
     };
 
-    const applicationStatusData = rawFunnel.map(item => ({
-      name: appStatusMap[item._id] || item._id,
-      value: item.count
-    }));
+    const statusNames = {
+      'applied': 'Đã nộp',
+      'processing': 'Đang duyệt',
+      'interviewing': 'Phỏng vấn',
+      'offered': 'Được mời',
+      'hired': 'Đã nhận',
+      'rejected': 'Từ chối/Khác'
+    };
+
+    const applicationStatusData = Object.keys(groupedStatus)
+      .filter(key => groupedStatus[key] > 0)
+      .map(key => ({
+        id: key,
+        name: statusNames[key],
+        value: groupedStatus[key]
+      }));
 
     // Application Source
     const rawSource = await db.collection('recruitment_applications').aggregate([
-      { $match: { enterpriseId } },
+      { $match: { enterpriseId: { $in: enterpriseIds } } },
       { $group: { _id: { $ifNull: ['$source', 'direct'] }, count: { $sum: 1 } } }
     ]).toArray()
     
@@ -94,7 +107,7 @@ const getOverview = async (req, res, next) => {
     sevenDaysAgo.setHours(0,0,0,0);
 
     const rawTrend = await db.collection('recruitment_applications').aggregate([
-      { $match: { enterpriseId, appliedAt: { $gte: sevenDaysAgo.getTime() } } },
+      { $match: { enterpriseId: { $in: enterpriseIds }, appliedAt: { $gte: sevenDaysAgo.getTime() } } },
       { $addFields: { dateObj: { $toDate: "$appliedAt" } } },
       { $group: { 
           _id: { $dateToString: { format: "%d/%m", date: "$dateObj", timezone: "+07:00" } }, 
@@ -121,7 +134,7 @@ const getOverview = async (req, res, next) => {
 
     // Job Status
     const rawJobStatus = await db.collection('recruitment_jobs').aggregate([
-      { $match: { enterpriseId, _destroy: { $ne: true } } },
+      { $match: { enterpriseId: { $in: enterpriseIds }, _destroy: { $ne: true } } },
       { $group: { _id: '$status', count: { $sum: 1 } } }
     ]).toArray()
 
@@ -151,13 +164,14 @@ const getOverview = async (req, res, next) => {
     })
 
     const jobStatusData = Object.keys(jobStatusDataMap).map(key => ({
+      id: key,
       name: jobStatusMap[key],
       value: jobStatusDataMap[key]
     }))
 
     // Partnership Status
     const rawPartnershipStatus = await db.collection('partnerships').aggregate([
-      { $match: { enterpriseId } },
+      { $match: { enterpriseId: { $in: enterpriseIds } } },
       { $group: { _id: '$status', count: { $sum: 1 } } }
     ]).toArray()
 
@@ -178,7 +192,7 @@ const getOverview = async (req, res, next) => {
 
     // Active Sponsorships
     const rawSponsorships = await db.collection('course_sponsorships')
-      .find({ sponsorId: enterpriseId, _destroy: { $ne: true } })
+      .find({ sponsorId: { $in: enterpriseIds }, _destroy: { $ne: true } })
       .sort({ createdAt: -1 })
       .limit(5)
       .toArray();
@@ -194,7 +208,7 @@ const getOverview = async (req, res, next) => {
 
     // Sponsorship Status
     const rawSponsorshipStatus = await db.collection('course_sponsorships').aggregate([
-      { $match: { sponsorId: enterpriseId } },
+      { $match: { sponsorId: { $in: enterpriseIds } } },
       { $group: { _id: '$status', count: { $sum: 1 } } }
     ]).toArray()
 

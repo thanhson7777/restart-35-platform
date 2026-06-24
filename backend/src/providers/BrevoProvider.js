@@ -5,7 +5,7 @@ let apiInstance = new SibApiV3Sdk.TransactionalEmailsApi()
 let apiKey = apiInstance.authentications['apiKey']
 apiKey.apiKey = env.BREVO_API_KEY
 
-const sendEmail = async (toEmail, customSubject, htmlContent) => {
+const sendEmail = async (toEmail, customSubject, htmlContent, attachment = null) => {
   let sendSmtpMail = new SibApiV3Sdk.SendSmtpEmail()
   sendSmtpMail.sender = { email: env.ADMIN_EMAIL_ADDRESS, name: env.ADMIN_EMAIL_NAME }
 
@@ -14,6 +14,10 @@ const sendEmail = async (toEmail, customSubject, htmlContent) => {
   sendSmtpMail.subject = customSubject
 
   sendSmtpMail.htmlContent = htmlContent
+
+  if (attachment) {
+    sendSmtpMail.attachment = [attachment]
+  }
 
   return apiInstance.sendTransacEmail(sendSmtpMail)
 }

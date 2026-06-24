@@ -163,6 +163,45 @@ const getPendingJobs = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getAllJobsAdmin = async (req, res, next) => {
+  try {
+    const { page, limit, status, search } = req.query
+    const filters = {}
+    if (status) filters.status = status
+    if (search) filters.search = search
+
+    const result = await recruitmentJobService.getAllJobsAdmin(page, limit, filters)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách tin tuyển dụng thành công!',
+      data: result.jobs,
+      pagination: result.pagination,
+      stats: result.stats
+    })
+  } catch (error) { next(error) }
+}
+
+const forceCloseJobAdmin = async (req, res, next) => {
+  try {
+    const result = await recruitmentJobService.forceCloseJobAdmin(req.params.id, req.body.reason)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã đóng tin tuyển dụng vi phạm!',
+      data: result
+    })
+  } catch (error) { next(error) }
+}
+
+const forceDeleteJobAdmin = async (req, res, next) => {
+  try {
+    await recruitmentJobService.forceDeleteJobAdmin(req.params.id)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã xóa tin tuyển dụng vi phạm!'
+    })
+  } catch (error) { next(error) }
+}
+
 const getJobForReview = async (req, res, next) => {
   try {
     const result = await recruitmentJobService.getJobForReview(req.params.id)
@@ -322,9 +361,12 @@ export const recruitmentJobController = {
 
   // Admin
   getPendingJobs,
+  getAllJobsAdmin,
   getJobForReview,
   approveJob,
   rejectJob,
+  forceCloseJobAdmin,
+  forceDeleteJobAdmin,
   getRejectedJobs,
   getEnterpriseApplicationStats,
   getAllApplicationsAdmin,

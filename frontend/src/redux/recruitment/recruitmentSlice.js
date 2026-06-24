@@ -38,12 +38,13 @@ export const fetchPublishedJobs = createAsyncThunk(
   async (params = {}, { rejectWithValue }) => {
     try {
       const response = await getPublishedJobs(params);
-      const data = response?.data?.data || response?.data;
+      const jobs = response?.data?.data || [];
+      const pagination = response?.data?.pagination || {};
       return {
-        jobs: data?.jobs || data || [],
-        total: data?.total || 0,
-        page: data?.page || 1,
-        pages: data?.pages || 1,
+        jobs: jobs,
+        total: pagination.totalItems || jobs.length || 0,
+        page: pagination.page || 1,
+        pages: pagination.totalPages || 1,
       };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch jobs');

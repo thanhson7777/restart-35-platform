@@ -208,12 +208,12 @@ export const TrainerStudentTable = ({
       </div>
 
       {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
+      {pagination && pagination.totalRecords > 0 && (
         <div className="flex items-center justify-between mt-4 bg-[hsl(var(--admin-surface-elevated))]/40 p-4 rounded-xl border border-[hsl(var(--admin-border))]">
           <p className="text-xs text-[hsl(var(--admin-text-secondary))]">
             Hiển thị{' '}
             <span className="font-semibold text-[hsl(var(--admin-text-primary))]">
-              {(pagination.currentPage - 1) * pagination.limit + 1}
+              {Math.min((pagination.currentPage - 1) * pagination.limit + 1, pagination.totalRecords)}
             </span>{' '}
             -{' '}
             <span className="font-semibold text-[hsl(var(--admin-text-primary))]">
@@ -223,45 +223,47 @@ export const TrainerStudentTable = ({
             <span className="font-semibold text-[hsl(var(--admin-text-primary))]">{pagination.totalRecords}</span> học viên
           </p>
 
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(pagination.currentPage - 1)}
-              disabled={pagination.currentPage === 1}
-              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40"
-            >
-              Trước
-            </Button>
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(pagination.currentPage - 1)}
+                disabled={pagination.currentPage === 1}
+                className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40"
+              >
+                Trước
+              </Button>
 
-            {Array.from({ length: pagination.totalPages }, (_, i) => {
-              const pageNum = i + 1;
-              const isCurrent = pagination.currentPage === pageNum;
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => onPageChange(pageNum)}
-                  className={`w-8 h-8 text-xs font-semibold rounded-lg transition-colors ${
-                    isCurrent
-                      ? 'bg-[hsl(var(--admin-accent))] text-white'
-                      : 'text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
+              {Array.from({ length: pagination.totalPages }, (_, i) => {
+                const pageNum = i + 1;
+                const isCurrent = pagination.currentPage === pageNum;
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => onPageChange(pageNum)}
+                    className={`w-8 h-8 text-xs font-semibold rounded-lg transition-colors ${
+                      isCurrent
+                        ? 'bg-[hsl(var(--admin-accent))] text-white'
+                        : 'text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-elevated))] hover:text-[hsl(var(--admin-text-primary))]'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(pagination.currentPage + 1)}
-              disabled={pagination.currentPage === pagination.totalPages}
-              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40"
-            >
-              Sau
-            </Button>
-          </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(pagination.currentPage + 1)}
+                disabled={pagination.currentPage === pagination.totalPages}
+                className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text-primary))] disabled:opacity-40"
+              >
+                Sau
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

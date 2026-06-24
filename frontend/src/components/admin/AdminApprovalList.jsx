@@ -71,7 +71,7 @@ export const AdminApprovalList = ({ courses = [], onApprove, onReject, onView })
                   <div className="space-y-2 mt-4 text-xs text-[hsl(var(--admin-text-muted))]">
                     <div className="flex items-center gap-2">
                       <User className="w-3.5 h-3.5 text-[hsl(var(--admin-accent))]" />
-                      <span className="truncate">Người dạy: {course.instructorName || course.providerName || 'Giảng viên Restart'}</span>
+                      <span className="truncate">Người dạy: {course.instructorName || course.providerName || 'Trung tâm đào tạo Restart'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="w-3.5 h-3.5 text-[hsl(var(--admin-accent))]" />

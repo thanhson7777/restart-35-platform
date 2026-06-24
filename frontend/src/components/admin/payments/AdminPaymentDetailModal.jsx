@@ -191,16 +191,7 @@ const AdminPaymentDetailModal = ({ payment, open, onClose, onApprove, onReject, 
               </Button>
             </>
           )}
-          {payment.status === 'completed' && (
-            <Button
-              variant="outline"
-              onClick={() => { onRefund?.(payment); }}
-              className="border-purple-500/30 text-purple-500 hover:bg-purple-500/10 rounded-xl"
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Hoàn tiền
-            </Button>
-          )}
+
           <Button variant="outline" onClick={onClose} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] rounded-xl">
             Đóng
           </Button>

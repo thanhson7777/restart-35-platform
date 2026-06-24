@@ -11,6 +11,8 @@ import AuthPage from '@/pages/AuthPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import WorkerProfilePage from '@/pages/WorkerProfilePage';
+import TermsPage from '@/pages/legal/TermsPage';
+import PrivacyPolicyPage from '@/pages/legal/PrivacyPolicyPage';
 
 import WorkerAccountSettingsPage from '@/pages/worker/WorkerAccountSettingsPage';
 import JobsPage from '@/pages/JobsPage';
@@ -48,6 +50,7 @@ import AdminScholarshipsPage from '@/pages/AdminScholarshipsPage';
 import AdminOrganizationsPage from '@/pages/admin/AdminOrganizationsPage';
 import AdminPaymentsPage from '@/pages/admin/AdminPaymentsPage';
 import AdminApplicationsPage from '@/pages/admin/AdminApplicationsPage';
+import AdminContactsPage from '@/pages/admin/AdminContactsPage';
 import AttendancePage from '@/pages/admin/AttendancePage';
 import CheckinPage from '@/pages/my-enrollments/CheckinPage';
 import { fetchCurrentUser, selectCurrentUser } from '@/redux/user/userSlice';
@@ -97,6 +100,7 @@ import WorkerOffersPage from '@/pages/worker/WorkerOffersPage';
 import WorkerAnalyticsPage from '@/pages/worker/WorkerAnalyticsPage';
 import WorkerPostsPage from '@/pages/worker/WorkerPostsPage';
 import CommunityHubPage from '@/pages/CommunityHubPage';
+import PartnerJobsPage from '@/pages/PartnerJobsPage';
 import CommunityJobDetailPage from '@/pages/community/CommunityJobDetailPage';
 import EventDetailPage from '@/pages/community/EventDetailPage';
 import NgoImpactDashboardPage from '@/pages/ngo/NgoImpactDashboardPage';
@@ -110,7 +114,7 @@ import NgoProfilePage from '@/pages/ngo/NgoProfilePage';
 import CertificateVerifyPage from '@/pages/CertificateVerifyPage';
 import AccountVerificationPage from '@/pages/AccountVerificationPage';
 import { VNPayReturnPage } from '@/pages/payment/VNPayReturnPage';
-import AdminPendingJobsPage from '@/pages/admin/AdminPendingJobsPage';
+import AdminJobsPage from '@/pages/admin/AdminJobsPage';
 import AdminJobReviewPage from '@/pages/admin/AdminJobReviewPage';
 import AdminIsaRepaymentsPage from '@/pages/admin/AdminIsaRepaymentsPage';
 import AdminFundingConfigsPage from '@/pages/admin/AdminFundingConfigsPage';
@@ -199,7 +203,8 @@ function App() {
         <Route path="/admin/enrollments" element={<AdminEnrollmentsPage />} />
         <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
         <Route path="/admin/applications" element={<AdminApplicationsPage />} />
-        <Route path="/admin/jobs/pending" element={<AdminPendingJobsPage />} />
+        <Route path="/admin/contacts" element={<ProtectedRoute allowedRoles={['admin']}><AdminContactsPage /></ProtectedRoute>} />
+        <Route path="/admin/jobs" element={<AdminJobsPage />} />
         <Route path="/admin/jobs/:id/review" element={<AdminJobReviewPage />} />
         <Route path="/admin/organizations" element={<ProtectedRoute allowedRoles={['admin']}><AdminOrganizationsPage /></ProtectedRoute>} />
         <Route path="/admin/service-packages" element={<ProtectedRoute allowedRoles={['admin']}><AdminServicePackagesPage /></ProtectedRoute>} />
@@ -288,6 +293,9 @@ function App() {
         <Route path="/community/forum/:id" element={<ForumPostDetailPage />} />
         <Route path="/community/jobs/:id" element={<CommunityJobDetailPage />} />
         <Route path="/community/events/:id" element={<EventDetailPage />} />
+        {/* Partner Jobs */}
+        <Route path="/partner-jobs" element={<PartnerJobsPage />} />
+        <Route path="/partner-jobs/:id" element={<CommunityJobDetailPage />} />
         {/* Jobs Page */}
         <Route path="/jobs/:id" element={<JobDetailPage />} />
         {/* Worker Recruitment Routes */}
@@ -298,7 +306,7 @@ function App() {
         <Route path="/my/offers" element={<WorkerLayout><WorkerOffersPage /></WorkerLayout>} />
         <Route path="/my/offers/:id" element={<WorkerLayout><WorkerOffersPage /></WorkerLayout>} />
         {/* Courses */}
-        <Route path="/courses" element={<WorkerLayout><CoursesPage /></WorkerLayout>} />
+        <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
         <Route path="/courses/:id/curriculum" element={<CourseCurriculumPage />} />
         {/* My ISA */}
@@ -337,6 +345,9 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
         {/* Payment Return */}
         <Route path="/payment/vnpay-return" element={<VNPayReturnPage />} />
+        {/* Legal Pages */}
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
         {/* My Placements */}
         <Route path="/my-placements" element={<WorkerLayout><WorkerPlacementsPage /></WorkerLayout>} />
         {/* My Learning Records */}
@@ -854,7 +865,7 @@ function CourseDetailExample() {
                             ))}
                           </div>
                         </div>
-                        <p className="text-sm text-muted-foreground">Khóa học rất bổ ích, giảng viên dạy chi tiết và dễ hiểu.</p>
+                        <p className="text-sm text-muted-foreground">Khóa học rất bổ ích, Trung tâm đào tạo dạy chi tiết và dễ hiểu.</p>
                       </div>
                       <div className="border-b border-border pb-4">
                         <div className="flex items-center gap-2 mb-2">

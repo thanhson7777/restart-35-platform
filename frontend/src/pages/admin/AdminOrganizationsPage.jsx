@@ -47,15 +47,9 @@ const AdminOrganizationsPage = () => {
   const fetchStats = useCallback(async () => {
     try {
       setStatsLoading(true);
-      const res = await organizationApi.getOrganizations({ limit: 1 });
+      const res = await organizationApi.getOrganizationStats();
       if (res.success) {
-        setStats({
-          total: res.pagination?.totalRecords || 0,
-          byType: { enterprise: 0, ngo: 0 },
-          quotaUsage: 0,
-          usedQuota: 0,
-          totalQuota: 0,
-        });
+        setStats(res.data);
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -80,14 +74,6 @@ const AdminOrganizationsPage = () => {
       const res = await organizationApi.getOrganizations(params);
       if (res.success) {
         setOrganizations(res.data || []);
-
-        // Build stats from first response
-        if (!stats && res.pagination?.totalRecords !== undefined) {
-          setStats((s) => ({
-            ...s,
-            total: res.pagination.totalRecords,
-          }));
-        }
 
         setPagination(res.pagination || {
           currentPage: 1,
@@ -129,23 +115,29 @@ const AdminOrganizationsPage = () => {
     setShowDetailModal(true);
   };
 
-  const handleDelete = (org) => {
+  const handleToggleStatus = (org) => {
+    if (!org.ownerId) {
+      toast.error('Không tìm thấy tài khoản chủ để thay đổi trạng thái!');
+      return;
+    }
+    
+    const newStatus = org.status === 'active' ? false : true;
+    
     setConfirmAction({
-      title: 'Xác nhận xóa',
-      message: `Bạn có chắc muốn xóa đối tác "${org.name}"? Hành động này không thể hoàn tác.`,
-      isDestructive: true,
+      title: newStatus ? 'Kích hoạt đối tác' : 'Vô hiệu hóa đối tác',
+      message: `Bạn có chắc muốn ${newStatus ? 'kích hoạt' : 'vô hiệu hóa'} đối tác "${org.name}"? Đối tác ${newStatus ? 'sẽ có thể' : 'sẽ không thể'} truy cập vào hệ thống.`,
+      isDestructive: !newStatus,
       onConfirm: async () => {
         try {
-          setDeleteLoading(true);
-          await organizationApi.deleteOrganization(org._id);
-          toast.success('Xóa đối tác thành công');
+          setLoading(true);
+          await updateUserStatusAPI(org.ownerId, { isActive: newStatus });
+          toast.success(`${newStatus ? 'Kích hoạt' : 'Vô hiệu hóa'} đối tác thành công!`);
           fetchOrganizations();
-          fetchStats();
         } catch (error) {
-          console.error('Error deleting organization:', error);
-          toast.error('Không thể xóa đối tác');
+          console.error('Error toggling organization status:', error);
+          toast.error(`Không thể ${newStatus ? 'kích hoạt' : 'vô hiệu hóa'} đối tác`);
         } finally {
-          setDeleteLoading(false);
+          setLoading(false);
           setConfirmAction(null);
         }
       }
@@ -243,25 +235,10 @@ const AdminOrganizationsPage = () => {
     <AdminLayout>
       <AdminPageTitle
         title="Quản lý đối tác"
-        subtitle="Quản lý tài khoản đối tác doanh nghiệp và tổ chức NGO trên nền tảng"
+        subtitle="Quản lý tài khoản đối tác doanh nghiệp, tổ chức NGO và trung tâm đào tạo trên nền tảng"
       />
 
-      <div className="flex items-center justify-end gap-3 mb-6">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={statsLoading || loading}
-          className="gap-2"
-        >
-          <RefreshCw className={`w-4 h-4 ${(statsLoading || loading) ? 'animate-spin' : ''}`} />
-          Làm mới
-        </Button>
-        <Button size="sm" onClick={handleCreate} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Thêm đối tác
-        </Button>
-      </div>
+
 
       <AdminOrganizationStats stats={stats} loading={statsLoading} />
 
@@ -277,7 +254,7 @@ const AdminOrganizationsPage = () => {
         pagination={pagination}
         onPageChange={handlePageChange}
         onView={handleView}
-        onDelete={handleDelete}
+        onToggleStatus={handleToggleStatus}
         onApprove={handleApprove}
         onReject={handleReject}
       />

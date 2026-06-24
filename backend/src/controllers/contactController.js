@@ -13,6 +13,32 @@ const createContact = async (req, res, next) => {
   }
 }
 
+const getContacts = async (req, res, next) => {
+  try {
+    const result = await contactService.getContacts(req.query)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const markReplied = async (req, res, next) => {
+  try {
+    await contactService.markReplied(req.params.id)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Đã đánh dấu phản hồi liên hệ'
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const contactController = {
-  createContact
+  createContact,
+  getContacts,
+  markReplied
 }

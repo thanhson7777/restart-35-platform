@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Video, Phone, Building, Clock, Eye, RefreshCw, Search, Plus } from 'lucide-react';
+import { Calendar, Video, Phone, Building, Clock, Eye, RefreshCw, Search, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { Button, Badge, Card, CardContent, Input } from '@/components/ui';
 import {
@@ -44,27 +44,38 @@ export default function EnterpriseInterviewsPage() {
   const loading = useSelector(selectEnterpriseInterviewsLoading);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  // Debounce search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Reset page
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, debouncedSearch]);
 
   const fetchInterviews = useCallback(async () => {
-    const params = { limit: 50 };
+    const params = { page, limit };
+    if (statusFilter !== 'all') params.status = statusFilter;
+    if (debouncedSearch) params.search = debouncedSearch;
     dispatch(fetchEnterpriseInterviews(params));
-  }, [dispatch]);
+  }, [dispatch, statusFilter, debouncedSearch, page, limit]);
 
   useEffect(() => {
     fetchInterviews();
   }, [fetchInterviews]);
 
-  const filteredInterviews = interviews.filter(interview => {
-    if (statusFilter !== 'all' && interview.status !== statusFilter) return false;
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      interview.workerName?.toLowerCase().includes(query) ||
-      interview.worker?.name?.toLowerCase().includes(query) ||
-      interview.jobTitle?.toLowerCase().includes(query)
-    );
-  });
+  const filteredInterviews = interviews;
+  
+  const totalPages = Math.ceil(total / limit) || 1;
 
   // Group by status
   const statusStats = interviews.reduce((acc, interview) => {
@@ -230,6 +241,32 @@ export default function EnterpriseInterviewsPage() {
                 </div>
               </div>
             ))}
+
+            {/* Pagination UI */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-6 mt-6 border-t border-[hsl(var(--admin-border))]">
+                <p className="text-sm text-[hsl(var(--admin-text-muted))]">
+                  Hiển thị <span className="font-medium text-[hsl(var(--admin-text-primary))]">{((page - 1) * limit) + 1}</span> đến <span className="font-medium text-[hsl(var(--admin-text-primary))]">{Math.min(page * limit, total)}</span> trong số <span className="font-medium text-[hsl(var(--admin-text-primary))]">{total}</span>
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="icon" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"><ChevronLeft size={16} /></Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => {
+                      if (pageNum === 1 || pageNum === totalPages || (pageNum >= page - 1 && pageNum <= page + 1)) {
+                        return (
+                          <Button key={pageNum} variant={page === pageNum ? 'default' : 'outline'} onClick={() => setPage(pageNum)} className={`h-8 w-8 p-0 ${page === pageNum ? 'bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent-hover))]' : 'text-[hsl(var(--admin-text-secondary))]'}`}>
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                      if (pageNum === page - 2 || pageNum === page + 2) return <span key={pageNum} className="text-[hsl(var(--admin-text-muted))] px-1">...</span>;
+                      return null;
+                    })}
+                  </div>
+                  <Button variant="outline" size="icon" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"><ChevronRight size={16} /></Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

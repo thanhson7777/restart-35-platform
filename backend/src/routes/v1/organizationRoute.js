@@ -19,6 +19,13 @@ Router.route('/')
     organizationValidation.createOrganization,
     organizationController.createOrganization
   )
+    
+Router.route('/stats')
+  .get(
+    authMiddleware.isAuthorized,
+    authMiddleware.isAuthorizedAdmin,
+    organizationController.getOrganizationStats
+  )
 
 Router.route('/:id')
   .get(

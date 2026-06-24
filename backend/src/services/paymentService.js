@@ -224,6 +224,12 @@ const updatePaymentStatus = async (id, status, transactionId) => {
             .reduce((sum, p) => sum + p.amount, 0)
           
           const totalFee = enrollment.fee?.total || course?.fee || 0
+          
+          await enrollmentModel.update(payment.enrollmentId, {
+            'fee.paid': completedAmount,
+            'fee.pending': totalFee - completedAmount > 0 ? totalFee - completedAmount : 0
+          })
+
           if (completedAmount >= totalFee) {
             await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
             
@@ -262,6 +268,13 @@ const updatePaymentStatus = async (id, status, transactionId) => {
         } else {
           await enrollmentModel.updatePaymentStatus(payment.enrollmentId, ENROLLMENT_PAYMENT_STATUS.PAID)
           
+          if (payment.amount > 0) {
+            await enrollmentModel.update(payment.enrollmentId, {
+              'fee.paid': payment.amount,
+              'fee.pending': 0
+            })
+          }
+
           // Trigger Revenue Share (if any direct paid enrollment uses this default else block)
           if (payment.amount > 0) {
             const { revenueShareService } = await import('~/services/revenueShareService')

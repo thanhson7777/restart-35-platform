@@ -229,6 +229,8 @@ const login = async (reqBody) => {
     const accessToken = await jwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_SIGNATURE, env.ACCESS_TOKEN_LIFE)
     const refreshToken = await jwtProvider.generateToken(userInfo, env.REFRESH_TOKEN_SECRET_SIGNATURE, env.REFRESH_TOKEN_LIFE)
 
+    await userModel.update(existUser._id, { lastLoginAt: Date.now() })
+
     if (existUser.organizationId) {
       const { organizationModel } = await import('~/models/organizationModel')
       const org = await organizationModel.findOneById(existUser.organizationId)

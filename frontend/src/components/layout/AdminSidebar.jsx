@@ -25,41 +25,40 @@ const adminNavGroups = [
     group: 'Người dùng & Đối tác',
     items: [
       { title: 'Quản lý người dùng', href: '/admin/users', icon: Users },
-      { title: 'Đối tác', href: '/admin/organizations', icon: Building2 },
+      { title: 'Quản lý đối tác', href: '/admin/organizations', icon: Building2 },
+      { title: 'Liên hệ', href: '/admin/contacts', icon: ChatCircle },
     ]
   },
   {
     group: 'Đào tạo',
     items: [
-      { title: 'Quản lý khóa học', href: '/admin/courses', icon: BookOpenText },
       { title: 'Danh mục khóa học', href: '/admin/course-categories', icon: Tags },
+      { title: 'Quản lý khóa học', href: '/admin/courses', icon: BookOpenText },
       { title: 'Quản lý tuyển sinh', href: '/admin/enrollments', icon: GraduationCap },
-      { title: 'Chứng chỉ', href: '/admin/certificates', icon: Certificate },
+      { title: 'Quản lý chứng chỉ', href: '/admin/certificates', icon: Certificate },
     ]
   },
   {
     group: 'Tuyển dụng',
     items: [
-      { title: 'Đơn ứng tuyển', href: '/admin/applications', icon: FileText },
-      { title: 'Duyệt tin tuyển dụng', href: '/admin/jobs/pending', icon: Megaphone },
       { title: 'Danh mục việc làm', href: '/admin/job-categories', icon: FolderOpen },
-      { title: 'Placements', href: '/admin/placements', icon: Briefcase },
+      { title: 'Quản lý tuyển dụng', href: '/admin/jobs', icon: Briefcase },
+      { title: 'Đơn ứng tuyển', href: '/admin/applications', icon: FileText },
+      { title: 'Kết nối việc làm', href: '/admin/placements', icon: Briefcase },
     ]
   },
   {
     group: 'Tài chính & Hệ thống',
     items: [
-      { title: 'Gói dịch vụ', href: '/admin/service-packages', icon: CreditCard },
-      { title: 'Thanh toán', href: '/admin/payments', icon: CreditCard },
-      { title: 'Analytics', href: '/admin/analytics', icon: ChartBar },
-      { title: 'Master Data', href: '/admin/master-data', icon: Gear },
+      { title: 'Quản lý gói dịch vụ', href: '/admin/service-packages', icon: CreditCard },
+      { title: 'Quản lý thanh toán', href: '/admin/payments', icon: CreditCard },
+      { title: 'Dữ liệu nền tảng', href: '/admin/master-data', icon: Gear },
     ]
   }
 ];
 
 const bottomNavItems = [
   { title: 'Cài đặt', href: '/admin/settings', icon: Gear },
-  { title: 'Trợ giúp', href: '/admin/help', icon: Question },
 ];
 
 const AdminSidebar = ({ collapsed, onToggle }) => {

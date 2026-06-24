@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { CreditCard, ArrowDownCircle, CheckCircle2, XCircle, ArrowUpCircle, Lock, Loader2, Wallet } from 'lucide-react';
 import { Button, Dialog, DialogContent, Input } from '@/components/ui';
+import { CreditCard, ArrowDownCircle, CheckCircle2, XCircle, ArrowUpCircle, Lock, Loader2, Wallet, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getMyWallet, getMyTransactions, createTopupUrl } from '@/apis/walletApi';
 import { toast } from 'react-toastify';
 
@@ -8,31 +8,36 @@ export default function EnterpriseWalletPage() {
   const [wallet, setWallet] = useState({ availableBalance: 0, lockedBalance: 0, totalDisbursed: 0 });
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({ page: 1, total_pages: 1, total: 0 });
+  const limit = 10;
   
   // Topup State
   const [topupOpen, setTopupOpen] = useState(false);
   const [topupAmount, setTopupAmount] = useState('');
   const [topupLoading, setTopupLoading] = useState(false);
 
-  const fetchWalletData = useCallback(async () => {
+  const fetchWalletData = useCallback(async (page = 1) => {
     setLoading(true);
     try {
       const [walletRes, txRes] = await Promise.all([
         getMyWallet().catch(() => ({ data: null })),
-        getMyTransactions().catch(() => ({ data: [] }))
+        getMyTransactions({ page, limit }).catch(() => ({ data: [], pagination: {} }))
       ]);
       if (walletRes.data) setWallet(walletRes.data);
-      if (txRes.data) setTransactions(txRes.data);
+      if (txRes.data) {
+        setTransactions(txRes.data);
+        setPagination(txRes.pagination || { page: 1, total_pages: 1, total: 0 });
+      }
     } catch (error) {
       console.error('Fetch wallet error:', error);
       toast.error('Không thể tải thông tin ví');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [limit]);
 
   useEffect(() => {
-    fetchWalletData();
+    fetchWalletData(1);
   }, [fetchWalletData]);
 
   const handleTopup = async () => {
@@ -199,6 +204,32 @@ export default function EnterpriseWalletPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination UI */}
+        {pagination.total_pages > 1 && (
+          <div className="flex items-center justify-between p-4 border-t border-[hsl(var(--admin-border))]">
+            <p className="text-sm text-[hsl(var(--admin-text-muted))]">
+              Hiển thị <span className="font-medium text-[hsl(var(--admin-text-primary))]">{((pagination.page - 1) * limit) + 1}</span> đến <span className="font-medium text-[hsl(var(--admin-text-primary))]">{Math.min(pagination.page * limit, pagination.total)}</span> trong số <span className="font-medium text-[hsl(var(--admin-text-primary))]">{pagination.total}</span>
+            </p>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" onClick={() => fetchWalletData(Math.max(1, pagination.page - 1))} disabled={pagination.page === 1} className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"><ChevronLeft size={16} /></Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: pagination.total_pages }, (_, i) => i + 1).map(pageNum => {
+                  if (pageNum === 1 || pageNum === pagination.total_pages || (pageNum >= pagination.page - 1 && pageNum <= pagination.page + 1)) {
+                    return (
+                      <Button key={pageNum} variant={pagination.page === pageNum ? 'default' : 'outline'} onClick={() => fetchWalletData(pageNum)} className={`h-8 w-8 p-0 ${pagination.page === pageNum ? 'bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent-hover))]' : 'text-[hsl(var(--admin-text-secondary))]'}`}>
+                        {pageNum}
+                      </Button>
+                    );
+                  }
+                  if (pageNum === pagination.page - 2 || pageNum === pagination.page + 2) return <span key={pageNum} className="text-[hsl(var(--admin-text-muted))] px-1">...</span>;
+                  return null;
+                })}
+              </div>
+              <Button variant="outline" size="icon" onClick={() => fetchWalletData(Math.min(pagination.total_pages, pagination.page + 1))} disabled={pagination.page === pagination.total_pages} className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"><ChevronRight size={16} /></Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Topup Dialog */}

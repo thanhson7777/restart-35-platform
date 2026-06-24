@@ -5,6 +5,13 @@ import { authMiddleware } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
 
+// Lấy danh sách toàn bộ tin
+Router.get('/',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  recruitmentJobController.getAllJobsAdmin
+)
+
 // Lấy danh sách tin chờ duyệt
 Router.get('/pending',
   authMiddleware.isAuthorized,
@@ -35,6 +42,22 @@ Router.post('/:id/reject',
   recruitmentJobValidation.checkId,
   recruitmentJobValidation.validateRejectJob,
   recruitmentJobController.rejectJob
+)
+
+// Bắt buộc đóng tin (Admin)
+Router.post('/:id/force-close',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  recruitmentJobValidation.checkId,
+  recruitmentJobController.forceCloseJobAdmin
+)
+
+// Xóa tin (Admin)
+Router.delete('/:id/force-delete',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedAdmin,
+  recruitmentJobValidation.checkId,
+  recruitmentJobController.forceDeleteJobAdmin
 )
 
 // Thống kê đơn ứng tuyển theo doanh nghiệp

@@ -128,7 +128,7 @@ const TrainerEnrollmentsPage = () => {
       </div>
 
       {/* Filter Bar */}
-      <BezelCard className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-5" padding="default">
+      <BezelCard className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-5" padding="default" overflowVisible>
         <div className="flex items-center gap-2 mb-4 text-[hsl(var(--admin-text-secondary))]">
           <SlidersHorizontal size={16} className="text-[hsl(var(--admin-accent))]" />
           <span className="text-sm font-semibold uppercase tracking-wider">Bộ lọc tìm kiếm</span>

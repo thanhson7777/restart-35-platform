@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Handshake, Plus, RefreshCw, Compass } from 'lucide-react';
+import { Handshake, Plus, RefreshCw, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import PartnershipCard from '@/components/shared/PartnershipCard';
 import { Button } from '@/components/ui';
@@ -88,15 +88,43 @@ export default function EnterprisePartnershipsPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {partnerships.map(p => (
-              <PartnershipCard
-                key={p._id}
-                partnership={p}
-                onClick={() => navigate(`/enterprise/partnerships/${p._id}`)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {partnerships.map(p => (
+                <PartnershipCard
+                  key={p._id}
+                  partnership={p}
+                  onClick={() => navigate(`/enterprise/partnerships/${p._id}`)}
+                />
+              ))}
+            </div>
+
+            {/* Pagination UI */}
+            {pagination.totalPages > 1 && (
+              <div className="flex items-center justify-between pt-6 mt-6 border-t border-[hsl(var(--admin-border))]">
+                <p className="text-sm text-[hsl(var(--admin-text-muted))]">
+                  Hiển thị <span className="font-medium text-[hsl(var(--admin-text-primary))]">{((pagination.currentPage - 1) * 12) + 1}</span> đến <span className="font-medium text-[hsl(var(--admin-text-primary))]">{Math.min(pagination.currentPage * 12, pagination.totalRecords)}</span> trong số <span className="font-medium text-[hsl(var(--admin-text-primary))]">{pagination.totalRecords}</span>
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="icon" onClick={() => fetchPartnerships(Math.max(1, pagination.currentPage - 1))} disabled={pagination.currentPage === 1} className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"><ChevronLeft size={16} /></Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(pageNum => {
+                      if (pageNum === 1 || pageNum === pagination.totalPages || (pageNum >= pagination.currentPage - 1 && pageNum <= pagination.currentPage + 1)) {
+                        return (
+                          <Button key={pageNum} variant={pagination.currentPage === pageNum ? 'default' : 'outline'} onClick={() => fetchPartnerships(pageNum)} className={`h-8 w-8 p-0 ${pagination.currentPage === pageNum ? 'bg-[hsl(var(--admin-accent))] text-white hover:bg-[hsl(var(--admin-accent-hover))]' : 'text-[hsl(var(--admin-text-secondary))]'}`}>
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                      if (pageNum === pagination.currentPage - 2 || pageNum === pagination.currentPage + 2) return <span key={pageNum} className="text-[hsl(var(--admin-text-muted))] px-1">...</span>;
+                      return null;
+                    })}
+                  </div>
+                  <Button variant="outline" size="icon" onClick={() => fetchPartnerships(Math.min(pagination.totalPages, pagination.currentPage + 1))} disabled={pagination.currentPage === pagination.totalPages} className="h-8 w-8 text-[hsl(var(--admin-text-secondary))]"><ChevronRight size={16} /></Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>

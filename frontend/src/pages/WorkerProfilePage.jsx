@@ -99,7 +99,7 @@ function WorkerProfilePage() {
   }
 
   return (
-    <div className="flex flex-col space-y-6 max-w-4xl">
+    <div className="flex flex-col space-y-6 max-w-4xl mx-auto w-full">
       {/* Main content */}
       <main className="flex-1">
         <div>
@@ -176,33 +176,7 @@ function WorkerProfilePage() {
             </Card>
           </motion.div>
 
-          {/* Reopen Profile Banner */}
-          {isCompleted && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl"
-            >
-              <p className="text-sm text-blue-700 mb-3">
-                Hồ sơ của bạn đã hoàn thành. Bạn có thể mở lại để chỉnh sửa thông tin.
-              </p>
-              <button
-                type="button"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors"
-                onClick={async () => {
-                  try {
-                    await reopenWorkerProfile();
-                    toast.success('Đã mở lại hồ sơ để chỉnh sửa');
-                    dispatch(fetchMyProfile());
-                  } catch (error) {
-                    toast.error(error?.response?.data?.message || 'Không thể mở lại hồ sơ');
-                  }
-                }}
-              >
-                Chỉnh sửa hồ sơ
-              </button>
-            </motion.div>
-          )}
+
 
           {/* Help text */}
           <motion.p

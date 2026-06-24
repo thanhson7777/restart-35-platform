@@ -7,9 +7,9 @@ import { revokeCertificate } from '@/apis';
 import toast from 'react-hot-toast';
 
 const statusConfig = {
-  active: { label: 'Active', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
-  revoked: { label: 'Revoked', className: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
-  expired: { label: 'Expired', className: 'bg-gray-100 text-gray-500 border-gray-200' },
+  active: { label: 'Hiệu lực', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  revoked: { label: 'Đã thu hồi', className: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
+  expired: { label: 'Đã hết hạn', className: 'bg-gray-100 text-gray-500 border-gray-200' },
 };
 
 const formatDate = (date) => {
@@ -125,7 +125,7 @@ const AdminCertificateDetailModal = ({ certificate, open, onClose, onRevoked }) 
                     {certificate.courseName || certificate.courseId || '-'}
                   </p>
                   {certificate.enrollmentId && (
-                    <p className="text-xs text-[hsl(var(--admin-text-muted))]">Enrollment: {certificate.enrollmentId}</p>
+                    <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Mã ghi danh: <span className="font-mono uppercase">{String(certificate.enrollmentId).slice(-8)}</span></p>
                   )}
                 </div>
               </div>
@@ -136,7 +136,7 @@ const AdminCertificateDetailModal = ({ certificate, open, onClose, onRevoked }) 
                     <span className="text-sm font-medium">Ngày cấp</span>
                   </div>
                   <p className="text-base font-semibold text-[hsl(var(--admin-text-primary))]">
-                    {formatDate(certificate.issuedAt || certificate.createdAt)}
+                    {formatDate(certificate.issuedDate || certificate.createdAt)}
                   </p>
                   {certificate.expiryDate && (
                     <p className="text-xs text-[hsl(var(--admin-text-muted))]">
@@ -179,7 +179,7 @@ const AdminCertificateDetailModal = ({ certificate, open, onClose, onRevoked }) 
                     { label: 'Certificate ID', value: certificate.certificateId || certificate._id || '-' },
                     { label: 'Worker', value: certificate.worker?.fullName || '-' },
                     { label: 'Khóa học', value: certificate.courseName || certificate.courseId || '-' },
-                    { label: 'Ngày cấp', value: formatDate(certificate.issuedAt || certificate.createdAt) },
+                    { label: 'Ngày cấp', value: formatDate(certificate.issuedDate || certificate.createdAt) },
                     { label: 'Trạng thái', value: statusInfo.label },
                   ].map(({ label, value }) => (
                     <div key={label} className="flex items-center justify-between py-2 border-b border-[hsl(var(--admin-border))] last:border-0">

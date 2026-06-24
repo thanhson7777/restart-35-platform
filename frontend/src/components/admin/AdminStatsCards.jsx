@@ -5,48 +5,48 @@ import { GraduationCap, DollarSign, AlertTriangle, BookOpen, TrendingUp, Trendin
 
 export const AdminStatsCards = ({ stats = {} }) => {
   const {
-    totalEnrollments = 0,
-    revenueThisMonth = 0,
-    dropoutRate = 0,
-    pendingCourses = 0,
+    totalUsers = 0,
+    monthlyRevenue = 0,
+    activeCourses = 0,
+    activeJobs = 0,
   } = stats;
 
   const cardItems = [
     {
-      title: 'Tổng đăng ký học',
-      value: totalEnrollments.toLocaleString(),
-      change: '+14% so với tháng trước',
+      title: 'Tổng người dùng',
+      value: totalUsers.toLocaleString(),
+      change: 'Toàn hệ thống',
       trend: 'up',
-      icon: GraduationCap,
+      icon: TrendingUp, // Hoặc Users nếu import
       iconColor: 'text-[hsl(var(--admin-accent))]',
       bgGlow: 'from-[hsl(var(--admin-accent))] to-transparent',
     },
     {
       title: 'Doanh thu tháng này',
-      value: `${(revenueThisMonth / 1000000).toFixed(1)}M VND`,
-      change: '+8.2% so với tháng trước',
+      value: `${(monthlyRevenue / 1000000).toFixed(1)}M VND`,
+      change: 'Tháng hiện tại',
       trend: 'up',
       icon: DollarSign,
       iconColor: 'text-[hsl(var(--admin-success))]',
       bgGlow: 'from-[hsl(var(--admin-success))] to-transparent',
     },
     {
-      title: 'Tỷ lệ bỏ học',
-      value: `${dropoutRate}%`,
-      change: '-1.5% so với tháng trước',
-      trend: 'down',
-      icon: AlertTriangle,
-      iconColor: 'text-[hsl(var(--admin-danger))]',
-      bgGlow: 'from-[hsl(var(--admin-danger))] to-transparent',
-    },
-    {
-      title: 'Khóa học chờ duyệt',
-      value: pendingCourses,
-      change: 'Cần xử lý ngay',
-      trend: 'warning',
-      icon: BookOpen,
+      title: 'Khóa học đang mở',
+      value: activeCourses.toLocaleString(),
+      change: 'Đã được duyệt',
+      trend: 'up',
+      icon: GraduationCap,
       iconColor: 'text-[hsl(var(--admin-warning))]',
       bgGlow: 'from-[hsl(var(--admin-warning))] to-transparent',
+    },
+    {
+      title: 'Việc làm đang tuyển',
+      value: activeJobs.toLocaleString(),
+      change: 'Đang hoạt động',
+      trend: 'up',
+      icon: BookOpen,
+      iconColor: 'text-[hsl(var(--admin-danger))]',
+      bgGlow: 'from-[hsl(var(--admin-danger))] to-transparent',
     },
   ];
 

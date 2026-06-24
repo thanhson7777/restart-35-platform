@@ -12,7 +12,7 @@ const navItems = [
   { href: '/enterprise/recruitment', label: 'Tin tuyển dụng', icon: Briefcase },
   { href: '/enterprise/applications', label: 'Ứng viên', icon: Users },
   { href: '/enterprise/interviews', label: 'Phỏng vấn', icon: Calendar },
-  { href: '/enterprise/partnerships', label: 'Chương trình tài trợ', icon: Handshake },
+  { href: '/enterprise/partnerships', label: 'Đối tác', icon: Handshake },
   { divider: true },
   // Nhóm 3: Tài chính & Dịch vụ
   { href: '/enterprise/packages', label: 'Gói dịch vụ', icon: Package },

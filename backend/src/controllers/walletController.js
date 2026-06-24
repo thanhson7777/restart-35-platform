@@ -17,9 +17,25 @@ const getMyWallet = async (req, res, next) => {
 // 2. Get Transaction History
 const getMyTransactions = async (req, res, next) => {
   try {
+    const page = Math.max(1, parseInt(req.query.page) || 1)
+    const limit = Math.max(1, parseInt(req.query.limit) || 10)
+    const skip = (page - 1) * limit
+
     const wallet = await walletModel.findOrCreateByUserId(req.user._id)
-    const transactions = await transactionModel.findByWalletId(wallet._id, 50)
-    res.status(StatusCodes.OK).json({ data: transactions })
+    
+    const matchCondition = { walletId: String(wallet._id) }
+    
+    const result = await transactionModel.findByPaginate(matchCondition, skip, limit)
+
+    res.status(StatusCodes.OK).json({ 
+      data: result.transactions,
+      pagination: {
+        page: page,
+        item_per_page: limit,
+        total: result.total,
+        total_pages: Math.ceil(result.total / limit)
+      }
+    })
   } catch (error) {
     next(error)
   }

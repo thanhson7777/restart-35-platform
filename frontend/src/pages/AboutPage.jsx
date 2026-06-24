@@ -1,86 +1,138 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/landing/Navbar';
 import Footer from '@/components/landing/Footer';
 import {
-  Heart,
-  Lightbulb,
-  Shield,
-  Handshake,
-  GraduationCap,
-  TrendUp,
-  LinkedinLogo,
-  ArrowRight,
-  Target,
-  Binoculars,
+  Brain, Target, Student, Handshake, Buildings,
+  GraduationCap, ChartLineUp, HandHeart, ArrowRight,
+  Sparkle, Briefcase, MapTrifold, Globe, ShieldCheck, BookOpenText
 } from '@phosphor-icons/react';
 
+const ROLES = [
+  {
+    id: 'worker',
+    name: 'Người Lao Động',
+    icon: Student,
+    color: 'blue',
+    description: 'Bệ phóng tái khởi động sự nghiệp và nâng cao năng lực chuyên môn.',
+    features: [
+      {
+        title: 'Phân tích & Gợi ý (AI)',
+        desc: 'AI tự động phân tích hồ sơ, đối chiếu yêu cầu thị trường để tìm ra "khoảng trống kỹ năng" (Skill Gaps).',
+        icon: Brain,
+      },
+      {
+        title: 'Tìm việc đa kênh',
+        desc: 'Khám phá cơ hội việc làm từ thị trường mở và hệ sinh thái các doanh nghiệp đối tác độc quyền.',
+        icon: Briefcase,
+      },
+      {
+        title: 'Học tập & Bổ sung',
+        desc: 'Tham gia các khóa đào tạo (Reskilling/Upskilling) qua hình thức trực tuyến hoặc trực tiếp.',
+        icon: GraduationCap,
+      },
+      {
+        title: 'Cơ hội Tài trợ',
+        desc: 'Nhận học bổng hoặc tài trợ học phí toàn phần/bán phần từ Doanh nghiệp và Tổ chức phi chính phủ.',
+        icon: HandHeart,
+      },
+      {
+        title: 'Bản đồ cơ hội',
+        desc: 'Kết nối cộng đồng 35+, tham khảo bản đồ xu hướng và lộ trình nghề nghiệp chuẩn xác.',
+        icon: MapTrifold,
+      },
+    ]
+  },
+  {
+    id: 'enterprise',
+    name: 'Doanh Nghiệp',
+    icon: Buildings,
+    color: 'emerald',
+    description: 'Nguồn nhân lực bền vững, gắn kết và mang lại trách nhiệm xã hội sâu sắc.',
+    features: [
+      {
+        title: 'Tuyển dụng trúng đích',
+        desc: 'Tiếp cận tệp ứng viên 35+ giàu kinh nghiệm thực chiến, có độ gắn bó và tính ổn định cực cao.',
+        icon: Target,
+      },
+      {
+        title: 'Lọc theo Kỹ năng',
+        desc: 'Hệ thống Skill-based matching giúp lọc và tìm kiếm ứng viên dựa trên bộ kỹ năng thực tế.',
+        icon: Sparkle,
+      },
+      {
+        title: 'Tài trợ (CSR)',
+        desc: 'Tài trợ học phí để "đặt hàng" nhân sự đầu ra, đồng thời thực hiện trách nhiệm xã hội doanh nghiệp.',
+        icon: Handshake,
+      },
+      {
+        title: 'Thương hiệu Tuyển dụng',
+        desc: 'Khẳng định vị thế, giá trị nhân văn và hình ảnh doanh nghiệp mạnh mẽ trên nền tảng.',
+        icon: ShieldCheck,
+      },
+    ]
+  },
+  {
+    id: 'trainer',
+    name: 'Cơ Sở Đào Tạo',
+    icon: BookOpenText,
+    color: 'violet',
+    description: 'Cầu nối giáo dục thực tiễn mang lại những khóa học bám sát nhu cầu thị trường.',
+    features: [
+      {
+        title: 'Phân phối đa nền tảng',
+        desc: 'Đăng tải và quản lý linh hoạt các khóa học Lớp học trực tuyến (Live) hoặc ngoại tuyến (Offline).',
+        icon: Globe,
+      },
+      {
+        title: 'Tiếp cận đúng mục tiêu',
+        desc: 'AI tự động giới thiệu khóa học của bạn tới đúng những người lao động đang bị "thiếu" kỹ năng đó.',
+        icon: Target,
+      },
+      {
+        title: 'Lộ trình thực chiến',
+        desc: 'Thiết kế giáo án nhắm trực tiếp vào việc lấp đầy các "Skill Gaps" đang tồn tại trên thị trường.',
+        icon: ChartLineUp,
+      },
+      {
+        title: 'Nhận nguồn vốn hợp tác',
+        desc: 'Hợp tác chặt chẽ với Doanh nghiệp và NGO để có ngân sách tài trợ cho học viên lớp mình.',
+        icon: Handshake,
+      },
+    ]
+  },
+  {
+    id: 'ngo',
+    name: 'Tổ Chức NGO',
+    icon: HandHeart,
+    color: 'rose',
+    description: 'Kiến tạo tác động xã hội và giải quyết bài toán an sinh bền vững.',
+    features: [
+      {
+        title: 'Cấp vốn hiệu quả',
+        desc: 'Cung cấp các gói tài trợ (Funding) nhắm đúng vào nhóm lao động 35+ yếu thế hoặc thất nghiệp.',
+        icon: HandHeart,
+      },
+      {
+        title: 'Đo lường tác động',
+        desc: 'Quản lý minh bạch dòng tiền, đo lường tỷ lệ học viên hoàn thành khóa học và có việc làm.',
+        icon: ChartLineUp,
+      },
+      {
+        title: 'Hợp tác chiến lược',
+        desc: 'Bắt tay cùng nền tảng và các cơ sở đào tạo để giải quyết bài toán an sinh xã hội vĩ mô.',
+        icon: Handshake,
+      },
+    ]
+  }
+];
+
 const stats = [
-  { value: '5,000+', label: 'Chuyên gia', sub: 'đã tham gia' },
-  { value: '500+', label: 'Việc làm', sub: 'đang tuyển dụng' },
-  { value: '40+', label: 'Khóa học', sub: 'chất lượng cao' },
-  { value: '85%', label: 'Tỷ lệ', sub: 'hài lòng' },
-];
-
-const team = [
-  {
-    name: 'Nguyễn Minh Tuấn',
-    role: 'CEO & Founder',
-    bio: '15 năm kinh nghiệm trong edtech và HR tech. Từng làm tại TopCV và Vietnamwork.',
-    avatar: 'https://picsum.photos/seed/founder1/160/160',
-  },
-  {
-    name: 'Trần Thị Lan Anh',
-    role: 'CTO & Co-Founder',
-    bio: 'Chuyên gia AI/ML từ FPT Software. Thạc sĩ Khoa học Máy tính, ĐH RMIT.',
-    avatar: 'https://picsum.photos/seed/founder2/160/160',
-  },
-  {
-    name: 'Lê Hoàng Nam',
-    role: 'CPO & Co-Founder',
-    bio: '10 năm thiết kế sản phẩm. Từng dẫn dắt design team tại VNG và ZaloPay.',
-    avatar: 'https://picsum.photos/seed/founder3/160/160',
-  },
-];
-
-const values = [
-  {
-    icon: Heart,
-    title: 'Đồng cảm',
-    desc: 'Hiểu nỗi lo và khát vọng của chuyên gia 35+',
-    color: 'bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-300',
-  },
-  {
-    icon: Lightbulb,
-    title: 'Đổi mới',
-    desc: 'AI và công nghệ phục vụ con người, không thay thế',
-    color: 'bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-300',
-  },
-  {
-    icon: Shield,
-    title: 'Tin cậy',
-    desc: 'Dữ liệu bảo mật, nền tảng minh bạch',
-    color: 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300',
-  },
-  {
-    icon: Handshake,
-    title: 'Hợp tác',
-    desc: 'Kết nối doanh nghiệp và chuyên gia cùng có lợi',
-    color: 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Chất lượng',
-    desc: 'Khóa học chuẩn quốc tế, mentor thực chiến',
-    color: 'bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-300',
-  },
-  {
-    icon: TrendUp,
-    title: 'Cam kết',
-    desc: 'Lộ trình rõ ràng, kết quả đo lường được',
-    color: 'bg-cyan-50 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-300',
-  },
+  { value: '5,000+', label: 'Học viên 35+', sub: 'đã tái hòa nhập' },
+  { value: '500+', label: 'Doanh nghiệp', sub: 'tuyển dụng & tài trợ' },
+  { value: '40+', label: 'Trung tâm', sub: 'cung cấp đào tạo' },
+  { value: '15+', label: 'Tổ chức NGO', sub: 'tham gia đồng hành' },
 ];
 
 const partners = [
@@ -102,305 +154,257 @@ const fadeUp = {
 };
 
 export default function AboutPage() {
-  const reduce = useReducedMotion();
+  const [activeRole, setActiveRole] = useState(ROLES[0].id);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[hsl(var(--background))]">
       <Navbar />
 
-      {/* Hero About */}
-      <section className="relative py-28 px-8 bg-gradient-to-b from-[hsl(var(--muted))] to-white dark:from-zinc-900 dark:to-zinc-950 overflow-hidden">
+      {/* 1. Hero Ecosystem */}
+      <section className="relative pt-32 pb-20 px-8 bg-white dark:bg-zinc-950 overflow-hidden border-b border-zinc-100 dark:border-zinc-800">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-[-80px] right-[-80px] w-[500px] h-[500px] rounded-full bg-[hsl(var(--primary))]/5" />
-          <div className="absolute bottom-[-100px] left-[-60px] w-[400px] h-[400px] rounded-full bg-[hsl(var(--primary))]/5" />
+          <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-[hsl(var(--primary))]/5 blur-3xl" />
+          <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-blue-500/5 blur-3xl" />
         </div>
-        <div className="max-w-[900px] mx-auto text-center relative z-10">
+        
+        <div className="max-w-[1000px] mx-auto text-center relative z-10">
           <motion.span
             custom={0}
             initial="hidden"
             animate="visible"
-            variants={reduce ? {} : fadeUp}
-            className="inline-block mb-4 px-4 py-1.5 text-xs font-semibold tracking-widest uppercase text-[hsl(var(--primary))] bg-[hsl(var(--primary))]/10 rounded-full"
+            variants={fadeUp}
+            className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 text-xs font-semibold tracking-widest uppercase text-[hsl(var(--primary))] bg-[hsl(var(--primary))]/10 rounded-full"
           >
-            Về chúng tôi
+            <Sparkle size={14} weight="fill" />
+            Hệ Sinh Thái Restart 35+
           </motion.span>
           <motion.h1
             custom={1}
             initial="hidden"
             animate="visible"
-            variants={reduce ? {} : fadeUp}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-[hsl(var(--foreground))] mb-6 leading-tight"
+            variants={fadeUp}
+            className="text-4xl md:text-5xl lg:text-7xl font-bold text-[hsl(var(--foreground))] mb-6 leading-[1.1] tracking-tight"
           >
-            Restart 35+ —{' '}
-            <span className="text-[hsl(var(--primary))]">
-              Nền tảng tái khởi động sự nghiệp
+            Kết nối trọn vẹn Học tập, <br className="hidden md:block"/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] to-blue-600">
+              Việc làm và Tài trợ
             </span>
           </motion.h1>
           <motion.p
             custom={2}
             initial="hidden"
             animate="visible"
-            variants={reduce ? {} : fadeUp}
-            className="text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-[60ch] mx-auto mb-8"
+            variants={fadeUp}
+            className="text-lg md:text-xl text-[hsl(var(--muted-foreground))] max-w-[70ch] mx-auto mb-10 leading-relaxed"
           >
-            Chúng tôi tin rằng tuổi tác không phải là rào cản. Restart 35+ được xây dựng để giúp
-            500,000+ chuyên gia trên 35 chuyển đổi nghề nghiệp thành công.
+            Chúng tôi không chỉ là một cổng thông tin việc làm. Restart 35+ là một <strong>bệ phóng toàn diện</strong> nơi Người lao động, Doanh nghiệp, Cơ sở đào tạo và Quỹ hỗ trợ cộng hưởng để giải quyết bài toán nhân sự lớn tuổi.
           </motion.p>
-          <motion.div
-            custom={3}
-            initial="hidden"
-            animate="visible"
-            variants={reduce ? {} : fadeUp}
-            className="flex flex-wrap justify-center gap-6 text-sm text-[hsl(var(--muted-foreground))]"
-          >
-            {[
-              '3 năm hoạt động',
-              '5,000+ học viên',
-              '500+ mentor',
-              '50+ doanh nghiệp đối tác',
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--primary))]" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="py-16 px-8 border-y border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-        <div className="max-w-[1100px] mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((s, i) => (
-              <motion.div
-                key={i}
-                custom={i * 0.1}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={reduce ? {} : fadeUp}
-                className="text-center"
-              >
-                <div className="text-3xl md:text-4xl font-bold text-[hsl(var(--primary))] mb-1">
-                  {s.value}
-                </div>
-                <div className="text-sm font-semibold text-[hsl(var(--foreground))]">{s.label}</div>
-                <div className="text-xs text-[hsl(var(--muted-foreground))]">{s.sub}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Mission & Vision */}
-      <section className="py-24 px-8">
-        <div className="max-w-[1100px] mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
+      {/* 2. AI Core Feature Showcase */}
+      <section className="py-24 px-8 bg-zinc-950 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-overlay"></div>
+        <div className="max-w-[1200px] mx-auto relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-gradient-to-br from-[hsl(var(--primary))]/5 to-[hsl(var(--primary))]/10 rounded-2xl p-8 md:p-10"
+              transition={{ duration: 0.8 }}
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[hsl(var(--primary))]/10 mb-6">
-                <Target weight="bold" size={24} className="text-[hsl(var(--primary))]" />
-              </div>
-              <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-4">Sứ mệnh</h2>
-              <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">
-                Kết nối chuyên gia với cơ hội việc làm phù hợp, khóa học kỹ năng thực chiến và
-                học bổng độc quyền. Chúng tôi đồng hành từng bước trên hành trình tái khởi động
-                sự nghiệp.
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                Trí tuệ nhân tạo soi sáng <span className="text-blue-400">Khoảng trống Kỹ năng</span>
+              </h2>
+              <p className="text-zinc-400 text-lg leading-relaxed mb-8">
+                Trái tim của hệ sinh thái là hệ thống AI Skill Gap Analysis. Không cần phải hoang mang tìm định hướng mới, AI sẽ phân tách hồ sơ của bạn với hơn 10,000 kỹ năng chuẩn ESCO để:
               </p>
+              <ul className="space-y-5">
+                {[
+                  'Chỉ ra chính xác kỹ năng bạn đang thiếu cho công việc mơ ước.',
+                  'Tự động match với các khóa học bù đắp kỹ năng hoàn hảo nhất.',
+                  'Gợi ý doanh nghiệp đang khát khao bộ kỹ năng tương lai của bạn.'
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-4 text-zinc-300">
+                    <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                      <Sparkle size={12} className="text-blue-400" weight="fill" />
+                    </div>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </motion.div>
-
+            
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-yellow-900/30 rounded-2xl p-8 md:p-10"
+              transition={{ duration: 0.8 }}
+              className="relative"
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/50 mb-6">
-                <Binoculars weight="bold" size={24} className="text-amber-600 dark:text-amber-300" />
+              <div className="aspect-square md:aspect-[4/3] rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 p-8 shadow-2xl overflow-hidden relative">
+                 {/* Decorative AI UI elements */}
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] border border-zinc-800 rounded-full animate-[spin_20s_linear_infinite]" />
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] border border-dashed border-zinc-700/50 rounded-full animate-[spin_30s_linear_infinite_reverse]" />
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600/20 w-32 h-32 rounded-full blur-2xl" />
+                 
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-16 h-16 bg-blue-500 rounded-2xl shadow-[0_0_40px_rgba(59,130,246,0.5)] z-20">
+                    <Brain size={32} weight="duotone" className="text-white" />
+                 </div>
+
+                 {/* Nodes */}
+                 <div className="absolute top-[20%] left-[20%] bg-zinc-800/80 backdrop-blur px-3 py-1.5 rounded-lg border border-zinc-700 text-xs text-zinc-300">Python Data</div>
+                 <div className="absolute bottom-[20%] right-[15%] bg-zinc-800/80 backdrop-blur px-3 py-1.5 rounded-lg border border-zinc-700 text-xs text-zinc-300">Digital Marketing</div>
+                 <div className="absolute top-[30%] right-[20%] bg-blue-900/50 backdrop-blur px-3 py-1.5 rounded-lg border border-blue-700/50 text-xs text-blue-300">Thiếu: SQL Basic</div>
               </div>
-              <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-4">Tầm nhìn</h2>
-              <p className="text-[hsl(var(--muted-foreground))] leading-relaxed">
-                Trở thành nền tảng số 1 tại Việt Nam về tái khởi động sự nghiệp cho người
-                trưởng thành. Mỗi chuyên gia đều xứng đáng được tái khởi động với sự tự tin
-                và năng lực được phát huy tối đa.
-              </p>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Team */}
-      <section className="py-24 px-8 bg-[hsl(var(--muted))] dark:bg-zinc-900">
-        <div className="max-w-[1100px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-16"
-          >
+      {/* 3. Interactive Role Tabs (Ecosystem Map) */}
+      <section className="py-24 px-8 bg-zinc-50 dark:bg-[hsl(var(--background))]">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-4">
-              Đội ngũ sáng lập
+              Vai trò của bạn trong Hệ sinh thái?
             </h2>
-            <p className="text-[hsl(var(--muted-foreground))] max-w-[50ch] mx-auto">
-              Đội ngũ với hơn 30 năm kinh nghiệm kết hợp edtech, HR tech và AI.
+            <p className="text-[hsl(var(--muted-foreground))] max-w-[60ch] mx-auto">
+              Nền tảng được thiết kế chuyên biệt để đem lại giá trị tối đa cho từng nhóm tham gia. Hãy chọn vai trò của bạn để khám phá.
             </p>
-          </motion.div>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {team.map((member, i) => (
-              <motion.div
-                key={i}
-                custom={i * 0.15}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={reduce ? {} : fadeUp}
-                className="bg-white dark:bg-zinc-800 rounded-2xl p-8 text-center shadow-sm border border-zinc-100 dark:border-zinc-700 hover:shadow-md transition-shadow duration-300"
+          <div className="flex flex-wrap justify-center gap-2 md:gap-4 mb-12">
+            {ROLES.map((role) => (
+              <button
+                key={role.id}
+                onClick={() => setActiveRole(role.id)}
+                className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  activeRole === role.id 
+                    ? 'bg-[hsl(var(--primary))] text-white shadow-lg shadow-[hsl(var(--primary))]/20 scale-105' 
+                    : 'bg-white dark:bg-zinc-900 text-[hsl(var(--muted-foreground))] hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
+                }`}
               >
-                <div className="relative inline-block mb-6">
-                  <img
-                    src={member.avatar}
-                    alt={member.name}
-                    className="w-24 h-24 rounded-full object-cover ring-4 ring-[hsl(var(--primary))]/10 mx-auto"
-                  />
-                  <div className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[hsl(var(--primary))] flex items-center justify-center cursor-pointer hover:bg-[hsl(var(--primary-hover))] transition-colors">
-                    <LinkedinLogo size={14} weight="fill" className="text-white" />
-                  </div>
-                </div>
-                <h3 className="text-lg font-bold text-[hsl(var(--foreground))]">{member.name}</h3>
-                <p className="text-sm font-medium text-[hsl(var(--primary))] mb-3">{member.role}</p>
-                <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed">
-                  {member.bio}
-                </p>
-              </motion.div>
+                <role.icon size={20} weight={activeRole === role.id ? "fill" : "regular"} />
+                {role.name}
+              </button>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Values */}
-      <section className="py-24 px-8">
-        <div className="max-w-[1100px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--foreground))] mb-4">
-              Giá trị cốt lõi
-            </h2>
-            <p className="text-[hsl(var(--muted-foreground))] max-w-[50ch] mx-auto">
-              6 giá trị định hướng mọi quyết định của Restart 35+
-            </p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {values.map((v, i) => (
+          <AnimatePresence mode="wait">
+            {ROLES.map((role) => activeRole === role.id && (
               <motion.div
-                key={i}
-                custom={i * 0.1}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={reduce ? {} : fadeUp}
-                className="group flex gap-5 p-6 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:border-[hsl(var(--primary))]/20 hover:shadow-sm transition-all duration-300 bg-white dark:bg-zinc-900"
+                key={role.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4 }}
+                className="bg-white dark:bg-zinc-900 rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-100 dark:border-zinc-800"
               >
-                <div
-                  className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${v.color}`}
-                >
-                  <v.icon size={24} weight="duotone" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-[hsl(var(--foreground))] mb-1">{v.title}</h3>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed">
-                    {v.desc}
+                <div className="max-w-[800px] mb-12">
+                  <h3 className="text-2xl md:text-3xl font-bold text-[hsl(var(--foreground))] mb-3">
+                    Dành cho {role.name}
+                  </h3>
+                  <p className="text-[hsl(var(--muted-foreground))] text-lg">
+                    {role.description}
                   </p>
                 </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {role.features.map((feature, idx) => (
+                    <div 
+                      key={idx} 
+                      className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 hover:border-[hsl(var(--primary))]/30 transition-colors"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-white dark:bg-zinc-900 flex items-center justify-center shadow-sm border border-zinc-100 dark:border-zinc-800 mb-5">
+                        <feature.icon size={24} className="text-[hsl(var(--primary))]" weight="duotone" />
+                      </div>
+                      <h4 className="text-lg font-bold text-[hsl(var(--foreground))] mb-2">{feature.title}</h4>
+                      <p className="text-[hsl(var(--muted-foreground))] leading-relaxed text-sm">
+                        {feature.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </motion.div>
             ))}
+          </AnimatePresence>
+        </div>
+      </section>
+
+      {/* 4. Stats & Partners */}
+      <section className="py-24 px-8 border-y border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="grid lg:grid-cols-12 gap-16 items-center">
+            
+            {/* Stats */}
+            <div className="lg:col-span-5">
+              <h2 className="text-3xl font-bold text-[hsl(var(--foreground))] mb-4">Sức mạnh của sự chung tay</h2>
+              <p className="text-[hsl(var(--muted-foreground))] mb-10">
+                Chỉ sau một thời gian ngắn, nền tảng đã thu hút sự chú ý và tin tưởng của hàng ngàn chuyên gia cũng như các tập đoàn lớn.
+              </p>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-10">
+                {stats.map((s, i) => (
+                  <div key={i}>
+                    <div className="text-3xl font-bold text-[hsl(var(--primary))] mb-1">{s.value}</div>
+                    <div className="text-sm font-semibold text-[hsl(var(--foreground))]">{s.label}</div>
+                    <div className="text-xs text-[hsl(var(--muted-foreground))]">{s.sub}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Partners */}
+            <div className="lg:col-span-7 bg-zinc-50 dark:bg-zinc-900 rounded-3xl p-10 border border-zinc-100 dark:border-zinc-800">
+               <h3 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-8 text-center">Các đối tác chiến lược đồng hành</h3>
+               <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-10">
+                  {partners.map((p, i) => (
+                    <div key={i} className="opacity-50 hover:opacity-100 transition-opacity duration-300 grayscale hover:grayscale-0">
+                      <img
+                        src={`https://picsum.photos/seed/${p.seed}/120/48`}
+                        alt={p.name}
+                        className="h-8 w-auto object-contain"
+                      />
+                    </div>
+                  ))}
+               </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Partners */}
-      <section className="py-20 px-8 bg-[hsl(var(--muted))] dark:bg-zinc-900">
-        <div className="max-w-[1100px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-2xl md:text-3xl font-bold text-[hsl(var(--foreground))] mb-3">
-              Đối tác chiến lược
-            </h2>
-            <p className="text-[hsl(var(--muted-foreground))]">
-              Hơn 50 doanh nghiệp đang tin tưởng và hợp tác cùng Restart 35+
-            </p>
-          </motion.div>
-
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {partners.map((p, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.5 }}
-                className="flex items-center gap-3 opacity-50 hover:opacity-100 transition-opacity duration-300"
-              >
-                <img
-                  src={`https://picsum.photos/seed/${p.seed}/120/48`}
-                  alt={p.name}
-                  className="h-10 w-auto object-contain grayscale"
-                />
-                <span className="text-sm font-semibold text-[hsl(var(--muted-foreground))]">
-                  {p.name}
-                </span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-24 px-8 bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(221_83%_40%)] relative overflow-hidden">
+      {/* 5. Dual CTA */}
+      <section className="py-24 px-8 bg-zinc-950 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-[-60px] right-[-60px] w-[400px] h-[400px] rounded-full bg-white/5" />
-          <div className="absolute bottom-[-80px] left-[-40px] w-[300px] h-[300px] rounded-full bg-white/5" />
+          <div className="absolute top-0 right-1/2 w-[800px] h-[800px] rounded-full bg-[hsl(var(--primary))]/10 blur-[100px]" />
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-[700px] mx-auto text-center relative z-10"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Sẵn sàng bắt đầu hành trình mới?
+        
+        <div className="max-w-[1000px] mx-auto text-center relative z-10">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+            Bắt đầu hành trình của bạn
           </h2>
-          <p className="text-base text-white/80 mb-10 max-w-[50ch] mx-auto">
-            Đăng ký miễn phí trong 2 phút. Không cần thẻ tín dụng. Không phí ẩn.
+          <p className="text-zinc-400 text-lg mb-12 max-w-[60ch] mx-auto">
+            Dù bạn là một chuyên gia đang tìm hướng đi mới, hay một tổ chức muốn lan tỏa giá trị, Restart 35+ luôn có không gian dành cho bạn.
           </p>
-          <Link
-            to="/auth"
-            className="inline-flex items-center gap-2 px-10 py-4 bg-white text-[hsl(var(--primary))] font-semibold rounded-full hover:bg-zinc-100 active:scale-[0.98] transition-all duration-200 shadow-xl"
-          >
-            Tạo hồ sơ miễn phí
-            <ArrowRight size={18} weight="bold" />
-          </Link>
-        </motion.div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <Link
+              to="/auth"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-[hsl(var(--primary))] text-white font-semibold rounded-xl hover:bg-[hsl(var(--primary))]/90 active:scale-[0.98] transition-all duration-200"
+            >
+              <Student size={20} weight="bold" />
+              Đăng ký Học viên
+            </Link>
+            
+            <Link
+              to="/auth"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 active:scale-[0.98] transition-all duration-200"
+            >
+              <Buildings size={20} weight="bold" />
+              Dành cho Tổ chức / Doanh nghiệp
+            </Link>
+          </div>
+        </div>
       </section>
 
       <Footer />

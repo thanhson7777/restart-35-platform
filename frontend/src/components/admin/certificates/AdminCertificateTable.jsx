@@ -8,9 +8,9 @@ const formatDate = (date) => {
 };
 
 const statusConfig = {
-  active: { label: 'Active', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
-  revoked: { label: 'Revoked', className: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
-  expired: { label: 'Expired', className: 'bg-gray-100 text-gray-500 border-gray-200' },
+  active: { label: 'Hiệu lực', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  revoked: { label: 'Đã thu hồi', className: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
+  expired: { label: 'Đã hết hạn', className: 'bg-gray-100 text-gray-500 border-gray-200' },
 };
 
 const AdminCertificateRow = ({ certificate, onView }) => {
@@ -41,7 +41,7 @@ const AdminCertificateRow = ({ certificate, onView }) => {
         </span>
       </td>
       <td className="px-4 py-3 text-sm text-[hsl(var(--admin-text-secondary))]">
-        {formatDate(certificate.issuedAt || certificate.createdAt)}
+        {formatDate(certificate.issuedDate || certificate.createdAt)}
       </td>
       <td className="px-4 py-3">
         <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full border ${statusInfo.className}`}>

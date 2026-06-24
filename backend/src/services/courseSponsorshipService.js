@@ -281,7 +281,7 @@ const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, 
         await transactionModel.createNew({
           walletId: String(trainerWallet._id),
           userId: course.providerId,
-          type: 'DEPOSIT',
+          type: 'PARTNERSHIP_REVENUE',
           amount: sponsoredAmount,
           description: `Nhận tiền tài trợ khóa học cho học viên ${enrollment.userId} từ doanh nghiệp`,
           referenceId: sponsorshipId,

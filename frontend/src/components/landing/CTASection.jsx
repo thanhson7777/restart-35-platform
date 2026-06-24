@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const CTASection = () => {
   return (
-    <section className="bg-blue-950 py-32 relative overflow-hidden">
+    <section className="bg-blue-900 py-32 relative overflow-hidden">
       {/* Decorative gradient blur */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-white/5 rounded-full blur-[120px] pointer-events-none" />
       

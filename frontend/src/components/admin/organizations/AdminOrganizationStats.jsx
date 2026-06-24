@@ -29,13 +29,12 @@ const AdminOrganizationStats = ({ stats, loading }) => {
       bgGlow: 'from-purple-500/10 to-transparent',
     },
     {
-      key: 'quotaUsage',
-      label: 'Sử dụng quota',
-      value: stats?.quotaUsage || 0,
-      suffix: '%',
-      icon: TrendingUp,
-      iconColor: 'text-emerald-500',
-      bgGlow: 'from-emerald-500/10 to-transparent',
+      key: 'training_center',
+      label: 'Trung tâm đào tạo',
+      value: stats?.byType?.training_center || 0,
+      icon: Users,
+      iconColor: 'text-amber-500',
+      bgGlow: 'from-amber-500/10 to-transparent',
     },
   ];
 
@@ -72,11 +71,6 @@ const AdminOrganizationStats = ({ stats, loading }) => {
               <p className="text-2xl font-extrabold text-[hsl(var(--admin-text-primary))] tabular-nums">
                 {item.value?.toLocaleString('vi-VN')}{item.suffix || ''}
               </p>
-              {item.key === 'quotaUsage' && (
-                <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">
-                  {stats?.usedQuota || 0} / {stats?.totalQuota || 0} học viên
-                </p>
-              )}
             </div>
           </BezelCard>
         );

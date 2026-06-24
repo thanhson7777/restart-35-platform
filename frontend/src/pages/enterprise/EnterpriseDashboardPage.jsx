@@ -360,7 +360,7 @@ export default function EnterpriseDashboardPage() {
           {activeTab === 'overview' && (
             <div className="space-y-6">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard icon={Briefcase} label="Tin tuyển dụng mở" value={stats.totalJobs} color={{ bg: 'bg-blue-100/50', text: 'text-blue-600' }} />
+                <StatCard icon={Briefcase} label="Tin tuyển dụng mở" value={jobStatusData.find(s => s.id === 'published' || s.name === 'Đang hiển thị' || s.name === 'published')?.value || 0} color={{ bg: 'bg-blue-100/50', text: 'text-blue-600' }} />
                 <StatCard icon={Users} label="Tổng ứng viên" value={stats.totalApplications} color={{ bg: 'bg-purple-100/50', text: 'text-purple-600' }} />
                 <StatCard icon={Calendar} label="Phỏng vấn sắp tới" value={stats.totalInterviews} color={{ bg: 'bg-amber-100/50', text: 'text-amber-600' }} />
                 <StatCard icon={Building2} label="Tổng hợp tác" value={stats.totalPartnerships} color={{ bg: 'bg-indigo-100/50', text: 'text-indigo-600' }} />
@@ -396,10 +396,10 @@ export default function EnterpriseDashboardPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
                 <StatCard icon={Briefcase} label="Tổng tin tuyển dụng" value={stats.totalJobs} color={{ bg: 'bg-blue-100/50', text: 'text-blue-600' }} />
-                <StatCard icon={FileText} label="Bản nháp" value={jobStatusData.find(s => s.name === 'Bản nháp' || s.name === 'draft')?.value || 0} color={{ bg: 'bg-slate-100/50', text: 'text-slate-600' }} />
-                <StatCard icon={Clock} label="Chờ duyệt" value={jobStatusData.find(s => s.name === 'Chờ duyệt' || s.name === 'pending_approval')?.value || 0} color={{ bg: 'bg-amber-100/50', text: 'text-amber-600' }} />
-                <StatCard icon={XCircle} label="Bị từ chối" value={jobStatusData.find(s => s.name === 'Bị từ chối' || s.name === 'rejected')?.value || 0} color={{ bg: 'bg-rose-100/50', text: 'text-rose-600' }} />
-                <StatCard icon={CheckCircle2} label="Đang hiển thị" value={jobStatusData.find(s => s.name === 'Đang hiển thị' || s.name === 'published')?.value || 0} color={{ bg: 'bg-emerald-100/50', text: 'text-emerald-600' }} />
+                <StatCard icon={FileText} label="Bản nháp" value={jobStatusData.find(s => s.id === 'draft' || s.name === 'Bản nháp' || s.name === 'draft')?.value || 0} color={{ bg: 'bg-slate-100/50', text: 'text-slate-600' }} />
+                <StatCard icon={Clock} label="Chờ duyệt" value={jobStatusData.find(s => s.id === 'pending_approval' || s.name === 'Chờ duyệt' || s.name === 'pending_approval')?.value || 0} color={{ bg: 'bg-amber-100/50', text: 'text-amber-600' }} />
+                <StatCard icon={XCircle} label="Bị từ chối" value={jobStatusData.find(s => s.id === 'rejected' || s.name === 'Bị từ chối' || s.name === 'rejected')?.value || 0} color={{ bg: 'bg-rose-100/50', text: 'text-rose-600' }} />
+                <StatCard icon={CheckCircle2} label="Đang hiển thị" value={jobStatusData.find(s => s.id === 'published' || s.name === 'Đang hiển thị' || s.name === 'published')?.value || 0} color={{ bg: 'bg-emerald-100/50', text: 'text-emerald-600' }} />
               </div>
 
               <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl p-6 shadow-sm">
@@ -465,10 +465,10 @@ export default function EnterpriseDashboardPage() {
           {activeTab === 'applications' && (
             <div className="space-y-6">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard icon={Users} label="Tổng nộp đơn" value={funnelData.find(f => f.name === 'Nộp đơn')?.value || 0} color={{ bg: 'bg-blue-100/50', text: 'text-blue-600' }} />
-                <StatCard icon={CheckCircle2} label="Đã duyệt" value={funnelData.find(f => f.name === 'Đã duyệt')?.value || 0} color={{ bg: 'bg-amber-100/50', text: 'text-amber-600' }} />
-                <StatCard icon={Calendar} label="Phỏng vấn" value={funnelData.find(f => f.name === 'Phỏng vấn')?.value || 0} color={{ bg: 'bg-purple-100/50', text: 'text-purple-600' }} />
-                <StatCard icon={Briefcase} label="Trúng tuyển" value={funnelData.find(f => f.name === 'Trúng tuyển')?.value || 0} color={{ bg: 'bg-emerald-100/50', text: 'text-emerald-600' }} />
+                <StatCard icon={Users} label="Tổng nộp đơn" value={stats.totalApplications || 0} color={{ bg: 'bg-blue-100/50', text: 'text-blue-600' }} />
+                <StatCard icon={CheckCircle2} label="Đã duyệt" value={applicationStatusData.find(s => s.id === 'processing' || s.name === 'Đang duyệt')?.value || 0} color={{ bg: 'bg-amber-100/50', text: 'text-amber-600' }} />
+                <StatCard icon={Calendar} label="Phỏng vấn" value={applicationStatusData.find(s => s.id === 'interviewing' || s.name === 'Phỏng vấn')?.value || 0} color={{ bg: 'bg-purple-100/50', text: 'text-purple-600' }} />
+                <StatCard icon={Briefcase} label="Trúng tuyển" value={applicationStatusData.find(s => s.id === 'hired' || s.name === 'Đã nhận')?.value || 0} color={{ bg: 'bg-emerald-100/50', text: 'text-emerald-600' }} />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

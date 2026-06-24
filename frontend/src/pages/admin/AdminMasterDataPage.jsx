@@ -227,15 +227,7 @@ const AdminMasterDataPage = () => {
                   className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">Giá trị (Slug)</label>
-                <Input
-                  value={formData.value}
-                  onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                  placeholder="Vd: cong-nghe-thong-tin (để trống tự tạo)"
-                  className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-primary))]"
-                />
-              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">Mô tả thêm</label>
                 <Input

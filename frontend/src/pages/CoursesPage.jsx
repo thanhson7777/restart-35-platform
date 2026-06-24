@@ -4,6 +4,7 @@ import { CourseCard } from '@/components/course/CourseCard';
 import { CourseFilters } from '@/components/course/CourseFilters';
 import { CourseGrid } from '@/components/course/CourseGrid';
 import { ViewModeToggle } from '@/components/course/ViewModeToggle';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getCourses, getRecommendedCourses } from '@/apis/courseApi';
 import { getCategoriesAPI } from '@/apis';
 import { useSelector } from 'react-redux';
@@ -32,10 +33,8 @@ export default function CoursesPage() {
 
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [recommendedCourses, setRecommendedCourses] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [recommendedLoading, setRecommendedLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Initialize viewMode from localStorage (default to 'grid')
@@ -115,25 +114,6 @@ export default function CoursesPage() {
     }
   }, []);
 
-  // Fetch recommended courses for logged-in users
-  const fetchRecommended = useCallback(async () => {
-    if (!currentUser) return;
-    setRecommendedLoading(true);
-    try {
-      const res = await getRecommendedCourses();
-      const list = Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res?.data?.data)
-        ? res.data.data
-        : [];
-      setRecommendedCourses(list);
-    } catch (err) {
-      console.error('Error fetching recommended courses:', err);
-    } finally {
-      setRecommendedLoading(false);
-    }
-  }, [currentUser]);
-
   // Handle filter changes
   const handleFiltersChange = useCallback((newFilters) => {
     setFilters(newFilters);
@@ -146,11 +126,6 @@ export default function CoursesPage() {
     fetchCategories();
   }, []);
 
-  // Fetch recommended when user changes
-  useEffect(() => {
-    fetchRecommended();
-  }, [fetchRecommended]);
-
   // Refetch when filters change (after initial)
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -162,20 +137,6 @@ export default function CoursesPage() {
   const handleCourseClick = (course) => {
     navigate(`/courses/${course._id}`);
   };
-
-  // Normalize: API may return { data: [...] } or a plain array
-  const normalizeCourses = (data) =>
-    Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
-
-  const recommendedList = normalizeCourses(recommendedCourses);
-
-  // Build match scores from recommended courses
-  const matchScores = {};
-  recommendedList.forEach((rc) => {
-    if (rc.matchScore != null) {
-      matchScores[rc._id] = rc.matchScore;
-    }
-  });
 
   return (
     <>
@@ -206,35 +167,12 @@ export default function CoursesPage() {
           />
         </div>
 
-        {/* Recommended section (logged-in users) */}
-        {currentUser && recommendedList.length > 0 && !loading && (
-          <section className="mb-10 p-6 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/15 border border-zinc-200/50 dark:border-zinc-850">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-lg">🎯</span>
-              <h2 className="text-base font-bold tracking-tight text-zinc-900 dark:text-white">Gợi ý cho bạn</h2>
-              <span className="text-xs text-muted-foreground font-medium">
-                (Dựa trên hồ sơ & kỹ năng cá nhân)
-              </span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {recommendedList.slice(0, 4).map((course) => (
-                <CourseCard
-                  key={course._id}
-                  course={course}
-                  matchScore={course.matchScore}
-                  onClick={() => navigate(`/courses/${course._id}`)}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
         {/* All courses header */}
-          <div className="flex items-center justify-between mb-6 pb-2 border-b border-zinc-200">
-            <h2 className="text-lg font-bold tracking-tight text-zinc-900 flex items-center gap-2">
-              Tất cả khóa học
-              {pagination && (
-                <span className="text-muted-foreground font-semibold text-xs px-2.5 py-0.5 rounded-full bg-zinc-100 border border-zinc-200">
+        <div className="flex items-center justify-between mb-6 pb-2 border-b border-zinc-200">
+          <h2 className="text-lg font-bold tracking-tight text-zinc-900 flex items-center gap-2">
+            Tất cả khóa học
+            {pagination && (
+              <span className="text-muted-foreground font-semibold text-xs px-2.5 py-0.5 rounded-full bg-zinc-100 border border-zinc-200">
                 {pagination.totalItems} khóa
               </span>
             )}
@@ -257,7 +195,7 @@ export default function CoursesPage() {
           <CourseGrid
             courses={courses}
             loading={loading}
-            matchScores={matchScores}
+            matchScores={{}}
             onCourseClick={handleCourseClick}
             viewMode={viewMode}
             emptyMessage={
@@ -270,25 +208,46 @@ export default function CoursesPage() {
 
         {/* Premium Styled Pagination */}
         {pagination && pagination.totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-12 pt-6 border-t border-zinc-100 dark:border-zinc-900">
+          <div className="flex justify-center items-center gap-1.5 mt-12 pt-6 border-t border-slate-100">
+            <button
+              onClick={() => handleFiltersChange({ ...filters, page: Math.max(1, pagination.currentPage - 1) })}
+              disabled={pagination.currentPage <= 1}
+              className="flex items-center justify-center rounded-xl border border-slate-200 h-9 w-9 text-zinc-500 hover:text-zinc-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <ChevronLeft size={16} />
+            </button>
             {Array.from({ length: pagination.totalPages }).map((_, i) => {
               const page = i + 1;
               const isCurrent = page === pagination.currentPage;
               
-              return (
-                <button
-                  key={page}
-                  onClick={() => handleFiltersChange({ ...filters, page })}
-                  className={`w-10 h-10 rounded-xl text-xs font-bold border transition-all duration-300 ${
-                    isCurrent
-                      ? 'bg-zinc-900 border-zinc-900 text-white dark:bg-white dark:border-white dark:text-zinc-950 shadow-sm'
-                      : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
-                  }`}
-                >
-                  {page}
-                </button>
-              );
+              // Only show current page, first, last, and pages close to current
+              if (page === 1 || page === pagination.totalPages || Math.abs(page - pagination.currentPage) <= 1) {
+                return (
+                  <button
+                    key={page}
+                    onClick={() => handleFiltersChange({ ...filters, page })}
+                    className={`h-9 w-9 rounded-xl font-bold border text-sm transition-all duration-200 ${
+                      isCurrent
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                        : 'bg-white border-slate-200 text-zinc-600 hover:bg-slate-50 hover:text-zinc-900'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              }
+              if (page === 2 || page === pagination.totalPages - 1) {
+                return <span key={page} className="text-zinc-400 px-1 font-bold text-sm">...</span>;
+              }
+              return null;
             })}
+            <button
+              onClick={() => handleFiltersChange({ ...filters, page: Math.min(pagination.totalPages, pagination.currentPage + 1) })}
+              disabled={pagination.currentPage >= pagination.totalPages}
+              className="flex items-center justify-center rounded-xl border border-slate-200 h-9 w-9 text-zinc-500 hover:text-zinc-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
         )}
       </main>
