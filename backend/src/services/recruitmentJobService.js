@@ -9,6 +9,7 @@ import {
   RECRUITMENT_JOB_STATUS,
   USER_ROLES
 } from '~/utils/constants'
+import { notificationService } from '~/services/notificationService'
 
 // ============ ENTERPRISE: JOB CRUD ============
 
@@ -284,6 +285,28 @@ const submitForApproval = async (jobId, enterpriseId) => {
     }
 
     const result = await recruitmentJobModel.submitForApproval(jobId, enterpriseId)
+
+    // Notify Admins
+    try {
+      const { users: admins } = await userModel.getUsers({ role: USER_ROLES.ADMIN }, 0, 100)
+      
+      const notifyPromises = admins.map(admin => 
+        notificationService.createUserNotification({
+          recipientId: admin._id.toString(),
+          senderId: enterpriseId.toString(),
+          type: 'JOB_SUBMITTED_FOR_APPROVAL',
+          entityType: 'recruitment_jobs',
+          entityId: jobId.toString(),
+          title: 'Tin tuyển dụng mới cần duyệt',
+          message: `Doanh nghiệp ${job.enterpriseInfo?.name || ''} vừa gửi tin tuyển dụng "${job.job?.title}" chờ bạn duyệt.`,
+          link: '/admin/jobs'
+        })
+      )
+      await Promise.all(notifyPromises)
+    } catch (notifyError) {
+      console.error('Error sending notification to admins:', notifyError)
+    }
+
     return result
   } catch (error) { throw error }
 }
@@ -383,7 +406,26 @@ const getJobForReview = async (jobId) => {
 // Duyệt tin
 const approveJob = async (jobId) => {
   try {
+    const job = await recruitmentJobModel.findOneById(jobId)
     const result = await recruitmentJobModel.approveJob(jobId)
+
+    if (job && job.enterpriseId) {
+      try {
+        await notificationService.createUserNotification({
+          recipientId: job.enterpriseId.toString(),
+          senderId: null, // Admin action
+          type: 'JOB_APPROVED',
+          entityType: 'recruitment_jobs',
+          entityId: jobId.toString(),
+          title: 'Tin tuyển dụng đã được duyệt',
+          message: `Tin tuyển dụng "${job.job?.title}" của bạn đã được quản trị viên duyệt và đang hiển thị.`,
+          link: '/enterprise/recruitment'
+        })
+      } catch (notifyError) {
+        console.error('Error sending notification to enterprise:', notifyError)
+      }
+    }
+
     return result
   } catch (error) { throw error }
 }
@@ -395,7 +437,26 @@ const rejectJob = async (jobId, reason) => {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng cung cấp lý do từ chối!')
     }
 
+    const job = await recruitmentJobModel.findOneById(jobId)
     const result = await recruitmentJobModel.rejectJob(jobId, reason)
+
+    if (job && job.enterpriseId) {
+      try {
+        await notificationService.createUserNotification({
+          recipientId: job.enterpriseId.toString(),
+          senderId: null, // Admin action
+          type: 'JOB_REJECTED',
+          entityType: 'recruitment_jobs',
+          entityId: jobId.toString(),
+          title: 'Tin tuyển dụng bị từ chối',
+          message: `Tin tuyển dụng "${job.job?.title}" của bạn đã bị từ chối với lý do: ${reason}`,
+          link: '/enterprise/recruitment'
+        })
+      } catch (notifyError) {
+        console.error('Error sending notification to enterprise:', notifyError)
+      }
+    }
+
     return result
   } catch (error) { throw error }
 }

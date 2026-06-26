@@ -12,6 +12,7 @@ import {
 } from '@/redux/recruitment/recruitmentSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { useSocket } from '@/contexts/SocketContext';
 import {
   deleteJob as deleteJobAPI,
   submitJobForApproval as submitJobAPI,
@@ -98,6 +99,19 @@ export default function EnterpriseJobsPage() {
     if (debouncedSearch) params.search = debouncedSearch;
     dispatch(fetchEnterpriseJobs(params));
   }, [dispatch, activeTab, debouncedSearch, page, limit]);
+
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification.type === 'JOB_APPROVED' || notification.type === 'JOB_REJECTED') {
+        fetchJobs();
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket, fetchJobs]);
 
   useEffect(() => {
     fetchJobs();

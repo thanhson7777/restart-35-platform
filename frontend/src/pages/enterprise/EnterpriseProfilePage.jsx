@@ -17,7 +17,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
 import { selectCurrentUser, updateUserAPI, fetchCurrentUser } from '@/redux/user/userSlice';
 import { getOrganizationById, updateOrganization } from '@/apis/organizationApi';
-import { authorizeAxiosInstance } from '~/utils/authorizeAxios';
+import { authorizeAxiosInstance, publicAxiosInstance } from '~/utils/authorizeAxios';
 import { API_ROOT } from '~/utils/constants';
 
 // Animation variants
@@ -34,11 +34,16 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
 };
 
-const SIZE_OPTIONS = [
+const DEFAULT_SIZE_OPTIONS = [
   { value: '1-50', label: '1 - 50 nhân viên' },
   { value: '51-200', label: '51 - 200 nhân viên' },
   { value: '201-500', label: '201 - 500 nhân viên' },
   { value: '>500', label: 'Hơn 500 nhân viên' },
+];
+
+const DEFAULT_INDUSTRY_OPTIONS = [
+  { value: 'it', label: 'Công nghệ phần mềm' },
+  { value: 'finance', label: 'Tài chính - Ngân hàng' },
 ];
 
 function IconInput({ label, icon: IconComponent, id, required, error, ...props }) {
@@ -90,6 +95,11 @@ export default function EnterpriseProfilePage() {
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
 
+  // ─── MASTER DATA STATE ────────────────────────────────────────────────────────
+  const [industryOptions, setIndustryOptions] = useState([]);
+  const [sizeOptions, setSizeOptions] = useState([]);
+  const [isLoadingMasterData, setIsLoadingMasterData] = useState(false);
+
   // ─── TAB 2: USER ACCOUNT STATE ────────────────────────────────────────────────
   const [userData, setUserData] = useState({
     displayName: '',
@@ -114,6 +124,36 @@ export default function EnterpriseProfilePage() {
   };
 
   // ─── INIT DATA ───────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const fetchMasterData = async () => {
+      setIsLoadingMasterData(true);
+      try {
+        const [industryRes, sizeRes] = await Promise.all([
+          publicAxiosInstance.get('/v1/master-data?type=industry'),
+          publicAxiosInstance.get('/v1/master-data?type=company_size')
+        ]);
+        
+        const mapOptions = (res) => (res.data?.data || []).map(item => ({
+          value: item.value || item.code || item.id,
+          label: item.label || item.name
+        }));
+
+        const industries = mapOptions(industryRes);
+        const sizes = mapOptions(sizeRes);
+
+        setIndustryOptions(industries.length > 0 ? industries : DEFAULT_INDUSTRY_OPTIONS);
+        setSizeOptions(sizes.length > 0 ? sizes : DEFAULT_SIZE_OPTIONS);
+      } catch (error) {
+        console.error('Lỗi lấy master data:', error);
+        setIndustryOptions(DEFAULT_INDUSTRY_OPTIONS);
+        setSizeOptions(DEFAULT_SIZE_OPTIONS);
+      } finally {
+        setIsLoadingMasterData(false);
+      }
+    };
+    fetchMasterData();
+  }, []);
+
   useEffect(() => {
     const fetchOrgData = async () => {
       if (!currentUser) return;
@@ -393,21 +433,26 @@ export default function EnterpriseProfilePage() {
                         placeholder="0123456789"
                       />
 
-                      <IconInput
-                        label="Ngành nghề / Lĩnh vực"
-                        id="industry"
-                        icon={Briefcase}
-                        value={orgData.industry}
-                        onChange={(e) => handleOrgChange('industry', e.target.value)}
-                        placeholder="VD: Công nghệ phần mềm"
-                      />
+                      <div>
+                        <SelectField
+                          id="industry"
+                          label={isLoadingMasterData ? "Ngành nghề / Lĩnh vực (Đang tải...)" : "Ngành nghề / Lĩnh vực"}
+                          value={orgData.industry}
+                          options={industryOptions}
+                          onChange={(val) => handleOrgChange('industry', val)}
+                          placeholder="Chọn ngành nghề"
+                          icon={<Briefcase className="w-4 h-4" />}
+                          className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))]"
+                          labelClassName="text-[hsl(var(--admin-text-secondary))] mb-1.5 block"
+                        />
+                      </div>
 
                       <div>
                         <SelectField
                           id="size"
-                          label="Quy mô nhân sự"
+                          label={isLoadingMasterData ? "Quy mô nhân sự (Đang tải...)" : "Quy mô nhân sự"}
                           value={orgData.size}
-                          options={SIZE_OPTIONS}
+                          options={sizeOptions}
                           onChange={(val) => handleOrgChange('size', val)}
                           placeholder="Chọn quy mô"
                           icon={<Users className="w-4 h-4" />}

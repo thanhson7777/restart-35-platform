@@ -202,13 +202,6 @@ export default function EnterpriseInterviewDetailPage() {
               <>
                 <Button
                   variant="outline"
-                  onClick={() => setRescheduleModal({ open: true, date: '', time: '09:00', reason: 'Thay đổi lịch' })}
-                  disabled={actionLoading === 'reschedule'}
-                >
-                  <AlertCircle size={14} className="mr-2" /> Hoãn lịch
-                </Button>
-                <Button
-                  variant="outline"
                   className="border-red-200 text-red-700 hover:bg-red-50"
                   onClick={() => setCancelModal({ open: true, reason: '' })}
                 >
@@ -272,7 +265,7 @@ export default function EnterpriseInterviewDetailPage() {
                   )}
                   <div className="flex-1">
                     <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-                      {interview.meetingType === 'google_meet' ? 'Google Meet' :
+                      {interview.meetingType === 'google_meet' ? 'Jitsi Meet' :
                        interview.meetingType === 'office' ? 'Tại văn phòng' : 'Điện thoại'}
                     </p>
                     {interview.meetingLink && (

@@ -7,10 +7,12 @@ import {
   fetchEnterpriseApplications,
   selectEnterpriseApplications,
   selectEnterpriseApplicationsTotal,
+  selectEnterpriseApplicationsStats,
   selectEnterpriseApplicationsLoading
 } from '@/redux/recruitment/recruitmentSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { useSocket } from '@/contexts/SocketContext';
 
 const applicationStatusConfig = {
   new: { label: 'Mới', className: 'bg-blue-100 text-blue-700 border-blue-200' },
@@ -39,6 +41,7 @@ export default function EnterpriseApplicationsPage() {
 
   const applications = useSelector(selectEnterpriseApplications);
   const total = useSelector(selectEnterpriseApplicationsTotal);
+  const serverStats = useSelector(selectEnterpriseApplicationsStats);
   const loading = useSelector(selectEnterpriseApplicationsLoading);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,21 +86,25 @@ export default function EnterpriseApplicationsPage() {
     fetchApplications();
   }, [fetchApplications]);
 
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification.type === 'NEW_APPLICATION') {
+        fetchApplications();
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket, fetchApplications]);
+
   // Local filtering removed since the server handles pagination and search
   const filteredApplications = applications;
   
   const totalPages = Math.ceil(total / limit) || 1;
 
-  // Group by status for stats
-  const stats = applications.reduce((acc, app) => {
-    acc.all++;
-    if (['new'].includes(app.status)) acc.new++;
-    if (['reviewing', 'shortlisted'].includes(app.status)) acc.reviewing++;
-    if (['interview_scheduled', 'interviewed'].includes(app.status)) acc.interviewing++;
-    if (['offered', 'hired'].includes(app.status)) acc.hired++;
-    if (['rejected', 'withdrawn'].includes(app.status)) acc.rejected++;
-    return acc;
-  }, { all: 0, new: 0, reviewing: 0, interviewing: 0, hired: 0, rejected: 0 });
+  const stats = serverStats || { all: 0, new: 0, reviewing: 0, interviewing: 0, hired: 0, rejected: 0 };
 
   return (
     <>

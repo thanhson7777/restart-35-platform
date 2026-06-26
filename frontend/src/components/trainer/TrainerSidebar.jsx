@@ -1,5 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { useSocket } from '@/contexts/SocketContext';
 import { cn } from '@/utils/cn';
 import { logoutUser } from '@/redux/user/userSlice';
 import {
@@ -32,6 +34,25 @@ const TrainerSidebar = ({ collapsed, onToggle }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const { socket } = useSocket();
+  const [unreadPartnerships, setUnreadPartnerships] = useState(false);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification.type === 'NEW_PARTNERSHIP_REQUEST') {
+        setUnreadPartnerships(true);
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/trainer/partnerships')) {
+      setUnreadPartnerships(false);
+    }
+  }, [location.pathname]);
 
   const isActive = (href) =>
     href === '/trainer'
@@ -100,9 +121,14 @@ const TrainerSidebar = ({ collapsed, onToggle }) => {
                   />
                   {!collapsed && (
                     <>
-                      <span className={cn('font-medium text-sm', active ? 'font-semibold' : '')}>
+                      <span className={cn('flex-1 font-medium text-sm', active ? 'font-semibold' : '')}>
                         {item.title}
                       </span>
+                      {/* Red dot badge for partnerships */}
+                      {item.href === '/trainer/partnerships' && unreadPartnerships && (
+                        <span className="w-2 h-2 shrink-0 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
+                      )}
+                      
                       {item.badge && (
                         <Badge
                           className={cn(
@@ -116,6 +142,9 @@ const TrainerSidebar = ({ collapsed, onToggle }) => {
                         </Badge>
                       )}
                     </>
+                  )}
+                  {collapsed && item.href === '/trainer/partnerships' && unreadPartnerships && (
+                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
                   )}
                   {collapsed && item.badge && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-[hsl(var(--admin-accent))] text-white text-[10px] font-bold rounded-full flex items-center justify-center border border-white/20">

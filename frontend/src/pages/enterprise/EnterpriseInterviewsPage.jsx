@@ -212,7 +212,7 @@ export default function EnterpriseInterviewsPage() {
                                 {new Date(interview.scheduledAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                               </p>
                               <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-                                {interview.meetingType === 'google_meet' ? 'Google Meet' :
+                                {interview.meetingType === 'google_meet' ? 'Jitsi Meet' :
                                  interview.meetingType === 'office' ? 'Tại văn phòng' : 'Điện thoại'}
                               </p>
                             </div>

@@ -49,6 +49,22 @@ const geocode = async (query) => {
   return null
 }
 
+const reverseGeocode = async (lat, lng) => {
+  try {
+    const url = `${NOMINATIM_BASE.replace('/search', '/reverse')}?lat=${lat}&lon=${lng}&format=json&accept-language=vi`
+    const res = await fetch(url, {
+      headers: { 'Accept-Language': 'vi' },
+    })
+    const data = await res.json()
+    if (data && data.display_name) {
+      return data.display_name
+    }
+  } catch (err) {
+    console.warn('[LocationPicker] reverseGeocode failed:', err)
+  }
+  return null
+}
+
 // ─── Province label lookup ─────────────────────────────────────────────────────
 let _provinceCache = null
 const getProvinceLabel = async (code) => {
@@ -57,26 +73,33 @@ const getProvinceLabel = async (code) => {
 }
 
 // ─── Draggable marker inner component ────────────────────────────────────────
-function DraggableMarker({ position, onPositionChange }) {
+function DraggableMarker({ position, onPositionChange, onAddressFound }) {
   const markerRef = useRef(null)
+  
+  const handleDragEnd = async () => {
+    const marker = markerRef.current
+    if (!marker) return
+    const { lat, lng } = marker.getLatLng()
+    onPositionChange({ lat, lng })
+    
+    // Reverse geocode to find address
+    if (onAddressFound) {
+      const address = await reverseGeocode(lat, lng)
+      if (address) onAddressFound(address)
+    }
+  }
+
   useMapEvents({
-    dragend() {
-      const marker = markerRef.current
-      if (!marker) return
-      const { lat, lng } = marker.getLatLng()
-      onPositionChange({ lat, lng })
-    },
+    dragend: handleDragEnd
   })
+  
   return position?.lat != null && position?.lng != null ? (
     <Marker
       ref={markerRef}
       position={[position.lat, position.lng]}
       icon={PIN_ICON}
       draggable={true}
-      eventHandlers={{ dragend: () => {
-        const { lat, lng } = markerRef.current.getLatLng()
-        onPositionChange({ lat, lng })
-      }}}
+      eventHandlers={{ dragend: handleDragEnd }}
     />
   ) : null
 }
@@ -107,8 +130,11 @@ const ChevronIcon = ({ open }) => (
 
 function ProvinceDropdown({ value, onChange, provinceList, loading }) {
   const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
   const ref = useRef(null)
   const selected = provinceList.find((p) => p.value === value)
+  
+  const filteredList = provinceList.filter(p => p.label.toLowerCase().includes(search.toLowerCase()))
 
   useEffect(() => {
     const handler = (e) => {
@@ -138,18 +164,28 @@ function ProvinceDropdown({ value, onChange, provinceList, loading }) {
           <ChevronIcon open={open} />
         </button>
         {open && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-lg shadow-lg z-[9999] overflow-hidden">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-lg shadow-lg z-[9999] overflow-hidden flex flex-col">
+            <div className="p-2 border-b border-[hsl(var(--admin-border))]">
+              <input
+                type="text"
+                placeholder="Tìm kiếm..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full px-3 py-1.5 text-sm bg-[hsl(var(--admin-surface-hover))] border border-[hsl(var(--admin-border))] rounded-md focus:outline-none focus:ring-1 focus:ring-[hsl(var(--admin-accent))]"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
             <ul className="max-h-48 overflow-y-auto py-1">
               {loading ? (
                 <li className="px-3 py-2 text-sm text-[hsl(var(--admin-text-muted))] text-center">Đang tải...</li>
-              ) : provinceList.length === 0 ? (
-                <li className="px-3 py-2 text-sm text-[hsl(var(--admin-text-muted))] text-center">Không có dữ liệu</li>
+              ) : filteredList.length === 0 ? (
+                <li className="px-3 py-2 text-sm text-[hsl(var(--admin-text-muted))] text-center">Không tìm thấy kết quả</li>
               ) : (
-                provinceList.map((p) => (
+                filteredList.map((p) => (
                   <li key={p.value}>
                     <button
                       type="button"
-                      onClick={() => { onChange(p.value); setOpen(false) }}
+                      onClick={() => { onChange(p.value); setOpen(false); setSearch('') }}
                       className={`w-full px-3 py-2 text-sm text-left hover:bg-[hsl(var(--admin-accent-subtle))] transition-colors ${value === p.value ? 'font-medium text-[hsl(var(--admin-accent))]' : ''}`}
                     >
                       {p.label}
@@ -167,8 +203,11 @@ function ProvinceDropdown({ value, onChange, provinceList, loading }) {
 
 function WardDropdown({ value, onChange, wardList, loading, disabled }) {
   const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
   const ref = useRef(null)
   const selected = wardList.find((w) => w.value === value)
+
+  const filteredList = wardList.filter(w => w.label.toLowerCase().includes(search.toLowerCase()))
 
   useEffect(() => {
     const handler = (e) => {
@@ -207,18 +246,28 @@ function WardDropdown({ value, onChange, wardList, loading, disabled }) {
           <ChevronIcon open={open} />
         </button>
         {open && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-lg shadow-lg z-[9999] overflow-hidden">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-lg shadow-lg z-[9999] overflow-hidden flex flex-col">
+            <div className="p-2 border-b border-[hsl(var(--admin-border))]">
+              <input
+                type="text"
+                placeholder="Tìm kiếm..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full px-3 py-1.5 text-sm bg-[hsl(var(--admin-surface-hover))] border border-[hsl(var(--admin-border))] rounded-md focus:outline-none focus:ring-1 focus:ring-[hsl(var(--admin-accent))]"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
             <ul className="max-h-48 overflow-y-auto py-1">
               {loading ? (
                 <li className="px-3 py-2 text-sm text-[hsl(var(--admin-text-muted))] text-center">Đang tải...</li>
-              ) : wardList.length === 0 ? (
-                <li className="px-3 py-2 text-sm text-[hsl(var(--admin-text-muted))] text-center">Không có dữ liệu</li>
+              ) : filteredList.length === 0 ? (
+                <li className="px-3 py-2 text-sm text-[hsl(var(--admin-text-muted))] text-center">Không tìm thấy kết quả</li>
               ) : (
-                wardList.map((w) => (
+                filteredList.map((w) => (
                   <li key={w.value}>
                     <button
                       type="button"
-                      onClick={() => { onChange(w.value); setOpen(false) }}
+                      onClick={() => { onChange(w.value); setOpen(false); setSearch('') }}
                       className={`w-full px-3 py-2 text-sm text-left hover:bg-[hsl(var(--admin-accent-subtle))] transition-colors ${value === w.value ? 'font-medium text-[hsl(var(--admin-accent))]' : ''}`}
                     >
                       {w.label}
@@ -256,7 +305,8 @@ export default function LocationPicker({
   const [geocoding, setGeocoding] = useState(false)
   const [mapKey, setMapKey] = useState(0)
 
-  const debouncedAddress = useDebounce(address, 600)
+  const debouncedAddress = useDebounce(address, 1200)
+  const prevProvinceRef = useRef(province)
 
   // Load provinces
   useEffect(() => {
@@ -270,31 +320,32 @@ export default function LocationPicker({
   useEffect(() => {
     if (!province) { setWardList([]); return }
     setLoadingWards(true)
-    onWardChange('')
     fetchWards(province).then((data) => {
       setWardList(data)
       setLoadingWards(false)
     })
   }, [province])
 
-  // When province changes → update map center to centroid
+  // When province actually changes → update map center to centroid
   useEffect(() => {
     if (!province) return
-    fetchProvinceByCode(province).then((prov) => {
-      if (prov && prov.lat && prov.lng) {
-        onCoordinatesChange({ lat: prov.lat, lng: prov.lng })
-        setMapKey((k) => k + 1)
-      }
-    })
-  }, [province])
+    if (prevProvinceRef.current !== province) {
+      fetchProvinceByCode(province).then((prov) => {
+        if (prov && prov.lat && prov.lng) {
+          onCoordinatesChange({ lat: prov.lat, lng: prov.lng })
+          setMapKey((k) => k + 1)
+        }
+      })
+      prevProvinceRef.current = province
+    }
+  }, [province, onCoordinatesChange])
 
-  // Geocode when address + ward both non-empty
   const doGeocode = useCallback(async () => {
-    if (!province) return
     setGeocoding(true)
     try {
-      const provLabel = await getProvinceLabel(province)
-      let query = [address, ward, provLabel].filter(Boolean).join(', ')
+      const provLabel = province ? await getProvinceLabel(province) : ''
+      const wardLabel = ward ? wardList.find((w) => w.value === ward)?.label || '' : ''
+      let query = [debouncedAddress, wardLabel, provLabel].filter(Boolean).join(', ')
       if (!query.trim()) { setGeocoding(false); return }
       const result = await geocode(query)
       if (result) {
@@ -304,13 +355,13 @@ export default function LocationPicker({
     } finally {
       setGeocoding(false)
     }
-  }, [province, ward, debouncedAddress])
+  }, [province, ward, debouncedAddress, wardList])
 
   useEffect(() => {
-    if (debouncedAddress && ward) {
+    if (debouncedAddress || ward) {
       doGeocode()
     }
-  }, [debouncedAddress, ward])
+  }, [debouncedAddress, ward, doGeocode])
 
   const mapCenter =
     coordinates?.lat != null && coordinates?.lng != null
@@ -319,21 +370,6 @@ export default function LocationPicker({
 
   return (
     <div className="space-y-4">
-      {/* Address */}
-      <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-          Địa chỉ chi tiết <span className="text-red-500">*</span>
-        </label>
-        <Input
-          placeholder="VD: 123 Nguyễn Huệ, Quận 1"
-          value={address}
-          onChange={(e) => onAddressChange(e.target.value)}
-        />
-        {errors.address && (
-          <p className="text-xs text-red-500">{errors.address}</p>
-        )}
-      </div>
-
       {/* Province + Ward row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-[9999]">
         <ProvinceDropdown
@@ -349,6 +385,21 @@ export default function LocationPicker({
           loading={loadingWards}
           disabled={!province}
         />
+      </div>
+
+      {/* Address */}
+      <div className="space-y-1.5">
+        <label className="block text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
+          Địa chỉ chi tiết <span className="text-red-500">*</span>
+        </label>
+        <Input
+          placeholder="VD: 123 Nguyễn Huệ, Quận 1"
+          value={address}
+          onChange={(e) => onAddressChange(e.target.value)}
+        />
+        {errors.address && (
+          <p className="text-xs text-red-500">{errors.address}</p>
+        )}
       </div>
 
       {/* Map */}
@@ -376,6 +427,9 @@ export default function LocationPicker({
             <DraggableMarker
               position={coordinates}
               onPositionChange={onCoordinatesChange}
+              onAddressFound={(newAddress) => {
+                if (onAddressChange) onAddressChange(newAddress)
+              }}
             />
           </MapContainer>
         </div>

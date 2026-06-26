@@ -165,22 +165,25 @@ export default function CourseDetailPage() {
     setEnrolling(true);
     try {
       const res = await enrollCourse(data);
-      const resultStatus = res.result?.status;
-      const warnings = res.result?.prerequisiteWarnings || [];
+      const resultData = res.data || res.result; // Handle both potential structures
+      const resultStatus = resultData?.status;
+      const warnings = resultData?.prerequisiteWarnings || [];
 
       if (warnings.length > 0) {
         toast.success(
-          `Đăng ký thành công! Chúc bạn học tốt 🎉\nLưu ý: Bạn chưa hoàn thành khóa tiên quyết: ${warnings.join(', ')}`,
+          `${res.message || 'Đăng ký thành công!'} 🎉\nLưu ý: Bạn chưa hoàn thành khóa tiên quyết: ${warnings.join(', ')}`,
           { duration: 6000 }
         );
       } else if (resultStatus === 'waitlist') {
         toast.success('Bạn đã được thêm vào danh sách chờ!');
+      } else if (resultStatus === 'pending_review') {
+        toast.success(res.message || 'Đăng ký thành công. Đang chờ phê duyệt từ nhà tài trợ.', { duration: 5000, icon: '⏳' });
       } else {
-        toast.success('Đăng ký thành công! Chúc bạn học tốt 🎉');
+        toast.success(res.message || 'Đăng ký thành công! Chúc bạn học tốt 🎉');
       }
 
       // Refresh enrollment status
-      setExistingEnrollment(res.data);
+      setExistingEnrollment(resultData);
     } catch (err) {
       const msg =
         err?.response?.data?.message ||
@@ -504,7 +507,7 @@ export default function CourseDetailPage() {
                   {location?.type === 'offline' && location?.address && (
                     <div className="flex items-start gap-3 text-sm text-zinc-600">
                       <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                      <span>Địa điểm: <strong>{location.address}</strong></span>
+                      <span>Địa điểm: <strong>{[location.address, location.ward, location.district, location.province].filter(Boolean).join(', ')}</strong></span>
                     </div>
                   )}
                 </div>

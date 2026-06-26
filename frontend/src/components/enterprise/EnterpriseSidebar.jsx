@@ -1,5 +1,7 @@
 import { LayoutDashboard, Handshake, Briefcase, Users, Calendar, Wallet, Building2, Package } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useSocket } from '@/contexts/SocketContext';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils/cn';
 
@@ -21,6 +23,39 @@ const navItems = [
 
 const EnterpriseSidebar = ({ collapsed, onToggle }) => {
   const location = useLocation();
+  const { socket } = useSocket();
+  const [unreadJobs, setUnreadJobs] = useState(false);
+  const [unreadApplications, setUnreadApplications] = useState(false);
+  const [unreadPartnerships, setUnreadPartnerships] = useState(false);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification.type === 'NEW_APPLICATION') {
+        setUnreadApplications(true);
+      }
+      if (notification.type === 'JOB_APPROVED' || notification.type === 'JOB_REJECTED') {
+        setUnreadJobs(true);
+      }
+      if (notification.type === 'PARTNERSHIP_RESPONDED' || notification.type === 'PARTNERSHIP_CONFIRMED') {
+        setUnreadPartnerships(true);
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/enterprise/applications')) {
+      setUnreadApplications(false);
+    }
+    if (location.pathname.startsWith('/enterprise/recruitment') || location.pathname === '/enterprise/jobs') {
+      setUnreadJobs(false);
+    }
+    if (location.pathname.startsWith('/enterprise/partnerships')) {
+      setUnreadPartnerships(false);
+    }
+  }, [location.pathname]);
 
   return (
     <aside className={cn(
@@ -61,7 +96,7 @@ const EnterpriseSidebar = ({ collapsed, onToggle }) => {
               key={href}
               to={href}
               className={cn(
-                'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200',
+                'relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200',
                 active
                   ? 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))]'
                   : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
@@ -71,7 +106,30 @@ const EnterpriseSidebar = ({ collapsed, onToggle }) => {
                 'shrink-0',
                 active ? 'text-[hsl(var(--admin-accent))]' : 'text-[hsl(var(--admin-text-muted))]'
               )} />
-              {!collapsed && <span>{label}</span>}
+              {!collapsed && <span className="flex-1">{label}</span>}
+              
+              {/* Notification Badges */}
+              {active && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[hsl(var(--admin-accent))] rounded-l-full" />
+              )}
+              {href === '/enterprise/recruitment' && unreadJobs && (
+                <span className={cn(
+                  "rounded-full bg-red-500 shadow-sm shadow-red-500/50",
+                  collapsed ? "absolute top-2 right-2 w-2 h-2" : "w-2 h-2 shrink-0"
+                )} />
+              )}
+              {href === '/enterprise/applications' && unreadApplications && (
+                <span className={cn(
+                  "rounded-full bg-red-500 shadow-sm shadow-red-500/50",
+                  collapsed ? "absolute top-2 right-2 w-2 h-2" : "w-2 h-2 shrink-0"
+                )} />
+              )}
+              {href === '/enterprise/partnerships' && unreadPartnerships && (
+                <span className={cn(
+                  "rounded-full bg-red-500 shadow-sm shadow-red-500/50",
+                  collapsed ? "absolute top-2 right-2 w-2 h-2" : "w-2 h-2 shrink-0"
+                )} />
+              )}
             </Link>
           );
         })}

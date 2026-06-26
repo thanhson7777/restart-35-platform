@@ -97,7 +97,7 @@ export default function NgoEventCreatePage() {
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  placeholder="Địa chỉ hoặc Link Google Meet"
+                  placeholder="Địa chỉ hoặc Link Jitsi Meet"
                   className="w-full h-10 pl-10 pr-3 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-sm"
                   required
                 />

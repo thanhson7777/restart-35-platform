@@ -13,8 +13,13 @@ import {
   DEFAULT_ITEM_PER_PAGE,
   PARTNERSHIP_STATUS,
   USER_ROLES,
-  ENROLLMENT_STATUS_V2
+  ENROLLMENT_STATUS_V2,
+  COURSE_SPONSORSHIP_STATUS,
+  SCHOLARSHIP_COVERAGE,
+  ORGANIZATION_TYPES
 } from '~/utils/constants'
+import { notificationService } from '~/services/notificationService'
+import { organizationModel } from '~/models/organizationModel'
 
 const ensureEnterprise = async (userId) => {
   const user = await userModel.findOneById(userId)
@@ -213,21 +218,38 @@ const createPartnership = async (enterpriseId, data) => {
     )
   }
 
+  // Notify trainer
+  try {
+    const enterprise = await userModel.findOneById(enterpriseId)
+    await notificationService.createUserNotification({
+      recipientId: data.trainerId.toString(),
+      senderId: enterpriseId.toString(),
+      type: 'NEW_PARTNERSHIP_REQUEST',
+      entityType: 'partnership',
+      entityId: result.insertedId.toString(),
+      title: 'Yêu cầu hợp tác mới',
+      message: `Doanh nghiệp ${enterprise?.displayName || enterprise?.email || 'Đối tác'} vừa gửi một yêu cầu hợp tác mới cho bạn.`,
+      link: '/trainer/partnerships'
+    })
+  } catch (notifyError) {
+    console.error('Error sending notification to trainer:', notifyError)
+  }
+
   return await partnershipModel.findOneById(result.insertedId)
 }
 
 const getPartnerships = async (actorId, role, queryParams) => {
   const {
-    page = DEFAULT_PAGE,
-    limit = DEFAULT_ITEM_PER_PAGE,
+    page = 1,
+    limit = 10,
     status,
     enterpriseId,
     trainerId,
     courseId
   } = queryParams
 
-  const currentPage = parseInt(page, 10) || DEFAULT_PAGE
-  const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
+  const currentPage = parseInt(page, 10) || 1
+  const recordLimit = parseInt(limit, 10) || 10
   const skip = (currentPage - 1) * recordLimit
 
   const filters = {}
@@ -276,7 +298,26 @@ const respondPartnership = async (partnershipId, trainerId, data) => {
     throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không thể phản hồi partnership này!')
   }
 
-  return await partnershipModel.respond(partnershipId, data)
+  const result = await partnershipModel.respond(partnershipId, data)
+
+  // Notify enterprise
+  try {
+    const trainer = await userModel.findOneById(trainerId)
+    await notificationService.createUserNotification({
+      recipientId: partnership.enterpriseId.toString(),
+      senderId: trainerId.toString(),
+      type: 'PARTNERSHIP_RESPONDED',
+      entityType: 'partnership',
+      entityId: partnershipId.toString(),
+      title: 'Đối tác đã phản hồi yêu cầu hợp tác',
+      message: `Giảng viên ${trainer?.displayName || trainer?.email || 'Đối tác'} vừa gửi phản hồi cho yêu cầu hợp tác của bạn.`,
+      link: '/enterprise/partnerships'
+    })
+  } catch (notifyError) {
+    console.error('Error sending notification to enterprise:', notifyError)
+  }
+
+  return result
 }
 
 const confirmPartnership = async (partnershipId, actorId, role, data) => {
@@ -318,7 +359,6 @@ const confirmPartnership = async (partnershipId, actorId, role, data) => {
       });
 
       // 2. Lưu lại Transaction
-      const { transactionModel } = await import('~/models/transactionModel');
       await transactionModel.createNew({
         walletId: String(wallet._id),
         userId: partnership.enterpriseId,
@@ -334,8 +374,6 @@ const confirmPartnership = async (partnershipId, actorId, role, data) => {
       partnership.proposedSponsorship.budget = totalBudget;
 
       // 3. Tạo Course Sponsorship
-      const { COURSE_SPONSORSHIP_STATUS, SCHOLARSHIP_COVERAGE, ORGANIZATION_TYPES } = await import('~/utils/constants');
-      
       let coverage = SCHOLARSHIP_COVERAGE.NONE;
       if (partnership.proposedSponsorship.coverageType === 'FULL') {
         coverage = SCHOLARSHIP_COVERAGE.FULL;
@@ -345,7 +383,6 @@ const confirmPartnership = async (partnershipId, actorId, role, data) => {
 
       let sponsorTitle = `Tài trợ từ ${partnership.enterprise?.displayName || 'Doanh nghiệp'}`;
       if (partnership.enterprise?.organizationId) {
-        const { organizationModel } = await import('~/models/organizationModel');
         const org = await organizationModel.findOneById(partnership.enterprise.organizationId);
         if (org && org.name) {
           sponsorTitle = `Tài trợ từ ${org.name}`;
@@ -372,6 +409,21 @@ const confirmPartnership = async (partnershipId, actorId, role, data) => {
       const course = await courseModel.findOneById(cId)
       if (course && course.status === 'draft') {
         await courseModel.updateStatus(cId, 'pending') // COURSE_STATUS.PENDING
+
+        // Notify admins
+        try {
+          await notificationService.notifyAdmins({
+            senderId: actorId.toString(),
+            type: 'COURSE_SUBMITTED',
+            entityType: 'course',
+            entityId: cId,
+            title: 'Yêu cầu duyệt khóa học B2B mới',
+            message: `Doanh nghiệp vừa xác nhận Hợp tác và tự động gửi yêu cầu duyệt khóa học "${course.title}".`,
+            link: '/admin/courses/pending'
+          })
+        } catch (notifyError) {
+          console.error('Error notifying admins about B2B course submission:', notifyError)
+        }
       }
     }
   }

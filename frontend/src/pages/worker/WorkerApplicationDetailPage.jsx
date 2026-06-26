@@ -9,8 +9,10 @@ import { Button, Badge, Card, CardContent, CardHeader, CardTitle, Textarea } fro
 import {
   fetchMyApplicationDetails,
   fetchJobDetails,
+  fetchMyInterviewDetails,
   selectMyApplicationDetails,
   selectSelectedJob,
+  selectMyInterviewDetails,
   acceptMyOffer,
   rejectMyOffer
 } from '@/redux/recruitment/recruitmentSlice';
@@ -56,6 +58,7 @@ export default function WorkerApplicationDetailPage() {
   const dispatch = useDispatch();
   const application = useSelector(selectMyApplicationDetails);
   const jobDetails = useSelector(selectSelectedJob);
+  const applicationInterview = useSelector(selectMyInterviewDetails);
 
   const [loading, setLoading] = useState(true);
   const [withdrawModal, setWithdrawModal] = useState({ open: false, reason: '' });
@@ -83,6 +86,9 @@ export default function WorkerApplicationDetailPage() {
     if (application?.jobId || application?.job?._id) {
       const jobId = application.jobId || application.job._id;
       dispatch(fetchJobDetails(jobId));
+    }
+    if (application?.interviewId) {
+      dispatch(fetchMyInterviewDetails(application.interviewId)).unwrap().catch(() => {});
     }
   }, [application, dispatch]);
 
@@ -182,12 +188,12 @@ export default function WorkerApplicationDetailPage() {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <h1 className="text-2xl font-bold text-[hsl(var(--foreground))]">
-                  {application.jobTitle || application.job?.title}
+                  {application.jobTitle || application.job?.title || jobDetails?.job?.title || 'Đang cập nhật'}
                 </h1>
                 <Badge className={`${status.className} text-xs`}>{status.label}</Badge>
               </div>
               <p className="text-[hsl(var(--muted-foreground))]">
-                {application.enterpriseName || application.enterprise?.name}
+                {application.enterpriseName || application.enterprise?.name || jobDetails?.enterpriseInfo?.name || 'Đang cập nhật'}
               </p>
             </div>
           </div>
@@ -278,21 +284,21 @@ export default function WorkerApplicationDetailPage() {
                         <MapPin size={18} className="text-[hsl(var(--muted-foreground))]" />
                         <div>
                           <p className="text-xs text-[hsl(var(--muted-foreground))]">Địa điểm</p>
-                          <p className="text-sm">{application.job?.location?.province || application.job?.province || '—'}</p>
+                          <p className="text-sm">{application.job?.location?.province || application.job?.province || jobDetails?.location?.province || '—'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <DollarSign size={18} className="text-[hsl(var(--muted-foreground))]" />
                         <div>
                           <p className="text-xs text-[hsl(var(--muted-foreground))]">Lương</p>
-                          <p className="text-sm">{formatSalary(application.job?.salary)}</p>
+                          <p className="text-sm">{formatSalary(application.job?.salary || jobDetails?.job?.salary)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <Calendar size={18} className="text-[hsl(var(--muted-foreground))]" />
                         <div>
                           <p className="text-xs text-[hsl(var(--muted-foreground))]">Hạn nộp</p>
-                          <p className="text-sm">{formatDateTime(application.job?.deadline)}</p>
+                          <p className="text-sm">{formatDateTime(application.job?.deadline || jobDetails?.deadline)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -316,42 +322,36 @@ export default function WorkerApplicationDetailPage() {
                   </div>
                 )}
                 {activeTab === 'description' && (
-                  <div className="space-y-4">
-                    {application.job?.description && (
-                      <div>
-                        <p className="text-sm font-medium mb-2">Mô tả công việc</p>
-                        <p className="text-sm whitespace-pre-wrap text-[hsl(var(--muted-foreground))]">
-                          {application.job.description}
+                  <div className="space-y-6">
+                    {(application.job?.description || jobDetails?.job?.description) && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-semibold mb-2">Mô tả công việc</h4>
+                        <p className="text-sm text-[hsl(var(--muted-foreground))] whitespace-pre-wrap">
+                          {application.job?.description || jobDetails?.job?.description}
                         </p>
                       </div>
                     )}
-                    {application.job?.requirements?.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium mb-2">Yêu cầu công việc</p>
-                        <ul className="space-y-1">
-                          {application.job.requirements.map((req, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-sm text-[hsl(var(--muted-foreground))]">
-                              <CheckCircle size={14} className="text-[hsl(var(--primary))] shrink-0 mt-0.5" />
-                              {req}
-                            </li>
+                    {(application.job?.requirements?.length > 0 || jobDetails?.requirements?.skills?.length > 0) && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-semibold mb-2">Yêu cầu</h4>
+                        <ul className="list-disc list-inside text-sm text-[hsl(var(--muted-foreground))] space-y-1">
+                          {(application.job?.requirements || jobDetails?.requirements?.skills || []).map((req, index) => (
+                            <li key={index}>{req}</li>
                           ))}
                         </ul>
                       </div>
                     )}
-                    {application.job?.benefits?.length > 0 && (
+                    {(application.job?.benefits?.length > 0 || jobDetails?.job?.benefits?.length > 0) && (
                       <div>
-                        <p className="text-sm font-medium mb-2">Phúc lợi</p>
-                        <ul className="space-y-1">
-                          {application.job.benefits.map((b, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-sm text-[hsl(var(--muted-foreground))]">
-                              <CheckCircle size={14} className="text-emerald-600 shrink-0 mt-0.5" />
-                              {b}
-                            </li>
+                        <h4 className="text-sm font-semibold mb-2">Quyền lợi</h4>
+                        <ul className="list-disc list-inside text-sm text-[hsl(var(--muted-foreground))] space-y-1">
+                          {(application.job?.benefits || jobDetails?.job?.benefits || []).map((benefit, index) => (
+                            <li key={index}>{benefit}</li>
                           ))}
                         </ul>
                       </div>
                     )}
-                    {!application.job?.description && !application.job?.requirements?.length && !application.job?.benefits?.length && (
+                    {!application.job?.description && !jobDetails?.job?.description && !(application.job?.requirements?.length || jobDetails?.requirements?.skills?.length) && !(application.job?.benefits?.length || jobDetails?.job?.benefits?.length) && (
                       <p className="text-sm text-[hsl(var(--muted-foreground))]">Không có mô tả chi tiết.</p>
                     )}
                   </div>
@@ -418,16 +418,16 @@ export default function WorkerApplicationDetailPage() {
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-[hsl(var(--foreground))]">
-                      {application.enterpriseName || application.enterprise?.name}
+                      {application.enterpriseName || application.enterprise?.name || jobDetails?.enterpriseInfo?.name || 'Đang cập nhật'}
                     </p>
-                    {application.enterprise?.industry && (
+                    {(application.enterprise?.industry || jobDetails?.enterpriseInfo?.industry) && (
                       <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                        {application.enterprise.industry}
+                        {application.enterprise?.industry || jobDetails?.enterpriseInfo?.industry}
                       </p>
                     )}
-                    {application.enterprise?.size && (
+                    {(application.enterprise?.size || jobDetails?.enterpriseInfo?.size) && (
                       <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                        {application.enterprise.size}
+                        {application.enterprise?.size || jobDetails?.enterpriseInfo?.size}
                       </p>
                     )}
                   </div>
@@ -435,39 +435,6 @@ export default function WorkerApplicationDetailPage() {
               </CardContent>
             </Card>
 
-            {/* Interview Info */}
-            {(application.interviewId || application.interview) && (
-              <Card className="bg-[hsl(var(--card))] border-[hsl(var(--border))]">
-                <CardHeader>
-                  <CardTitle className="text-lg">Lịch phỏng vấn</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))]">Thời gian</p>
-                    <p className="text-sm font-medium">
-                      {formatDateTime(application.interview?.scheduledAt)}
-                    </p>
-                  </div>
-                  {application.interview?.meetingLink && (
-                    <a
-                      href={application.interview.meetingLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-[hsl(var(--primary))] hover:underline"
-                    >
-                      {application.interview.meetingLink}
-                    </a>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate(`/my/interviews/${application.interviewId || application.interview?._id}`)}
-                  >
-                    Xem chi tiết
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Offer Info */}
             {(application.offerId || application.offer) && (

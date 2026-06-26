@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Users, GraduationCap, MessageCircle, Calendar } from 'lucide-react';
+import { MessageCircle, Calendar } from 'lucide-react';
 import { Navbar } from '@/components/landing';
 import TabNavigation from '@/components/community/TabNavigation';
-import RecruitmentSection from '@/components/community/RecruitmentSection';
 import EventListSection from '@/components/community/EventListSection';
-import CommunityCourseSection from '@/components/community/CommunityCourseSection';
 import CommunityForumSection from '@/components/community/CommunityForumSection';
+import CampaignListSection from '@/components/community/CampaignListSection';
 
 const TABS = [
-  { id: 'jobs', label: 'Doanh nghiệp tuyển dụng', icon: Users, description: 'Việc làm từ các doanh nghiệp' },
-  { id: 'courses', label: 'Khóa học', icon: GraduationCap, description: 'Khóa học từ Trainer' },
+  { id: 'campaigns', label: 'Quỹ Khởi Nghiệp', icon: Calendar, description: 'Hỗ trợ vốn khởi nghiệp' },
   { id: 'community', label: 'Chia sẻ kinh nghiệm', icon: MessageCircle, description: 'Trao đổi với cộng đồng' },
   { id: 'events', label: 'Sự kiện & Tài trợ', icon: Calendar, description: 'Sự kiện và chương trình tài trợ' }
 ];
@@ -81,18 +79,16 @@ export default function CommunityHubPage() {
 
         <div className="container mx-auto px-4 py-8">
           {/* Tab Navigation */}
-          <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+          <TabNavigation tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
           {/* Tab Content */}
           <div className="py-8">
-            {activeTab === 'jobs' && <RecruitmentSection />}
-
-            {activeTab === 'courses' && (
-              <CommunityCourseSection />
-            )}
-
             {activeTab === 'community' && (
               <CommunityForumSection />
+            )}
+
+            { activeTab === 'campaigns' && (
+              <CampaignListSection />
             )}
 
             {activeTab === 'events' && (

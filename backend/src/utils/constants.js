@@ -446,7 +446,8 @@ export const RECRUITMENT_INTERVIEW_STATUS = {
   RESCHEDULED: 'rescheduled',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',
-  NO_SHOW: 'no_show'
+  NO_SHOW: 'no_show',
+  EXPIRED: 'expired'
 }
 
 // ============ RECRUITMENT OFFER STATUS ============

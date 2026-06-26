@@ -7,6 +7,7 @@ import { getMasterDataAdminAPI, createMasterDataAPI, updateMasterDataAPI, delete
 
 const TABS = [
   { value: 'industry', label: 'Lĩnh vực Doanh nghiệp' },
+  { value: 'company_size', label: 'Quy mô nhân sự' },
   { value: 'training_category', label: 'Lĩnh vực Giảng dạy (Trainer)' },
   { value: 'ngo_focus', label: 'Mục tiêu hỗ trợ (NGO)' }
 ]
@@ -46,7 +47,21 @@ const AdminMasterDataPage = () => {
 
   const handleCreate = () => {
     setSelectedItem(null)
-    setFormData({ type: activeTab, label: '', value: '', description: '', order: 0, isActive: true })
+    
+    // Tìm thứ tự lớn nhất hiện tại của tab đang chọn để tự đề xuất thứ tự tiếp theo
+    const currentTabItems = dataList.filter(item => item.type === activeTab)
+    const maxOrder = currentTabItems.length > 0 
+      ? Math.max(...currentTabItems.map(item => item.order || 0)) 
+      : 0
+
+    setFormData({ 
+      type: activeTab, 
+      label: '', 
+      value: '', 
+      description: '', 
+      order: maxOrder + 1, 
+      isActive: true 
+    })
     setShowModal(true)
   }
 
@@ -140,7 +155,6 @@ const AdminMasterDataPage = () => {
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-[80px] text-center font-semibold text-[hsl(var(--admin-text-muted))]">Vị trí</TableHead>
                 <TableHead className="font-semibold text-[hsl(var(--admin-text-muted))]">Tên hiển thị</TableHead>
-                <TableHead className="font-semibold text-[hsl(var(--admin-text-muted))]">Giá trị (Slug)</TableHead>
                 <TableHead className="font-semibold text-[hsl(var(--admin-text-muted))]">Trạng thái</TableHead>
                 <TableHead className="text-right font-semibold text-[hsl(var(--admin-text-muted))]">Thao tác</TableHead>
               </TableRow>
@@ -148,11 +162,11 @@ const AdminMasterDataPage = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-[hsl(var(--admin-text-muted))]">Đang tải dữ liệu...</TableCell>
+                  <TableCell colSpan={4} className="h-24 text-center text-[hsl(var(--admin-text-muted))]">Đang tải dữ liệu...</TableCell>
                 </TableRow>
               ) : currentDataList.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-[hsl(var(--admin-text-muted))]">Chưa có dữ liệu nào</TableCell>
+                  <TableCell colSpan={4} className="h-24 text-center text-[hsl(var(--admin-text-muted))]">Chưa có dữ liệu nào</TableCell>
                 </TableRow>
               ) : (
                 currentDataList.map((item) => (
@@ -161,11 +175,6 @@ const AdminMasterDataPage = () => {
                     <TableCell>
                       <div className="font-medium text-[hsl(var(--admin-text-primary))]">{item.label}</div>
                       {item.description && <div className="text-xs text-[hsl(var(--admin-text-muted))] line-clamp-1">{item.description}</div>}
-                    </TableCell>
-                    <TableCell className="text-[hsl(var(--admin-text-secondary))] text-sm">
-                      <code className="px-1.5 py-0.5 bg-[hsl(var(--admin-surface-elevated))] rounded text-xs">
-                        {item.value}
-                      </code>
                     </TableCell>
                     <TableCell>
                       {item.isActive ? (

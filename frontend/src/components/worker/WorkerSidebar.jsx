@@ -10,9 +10,12 @@ import {
   UsersRound,
   GraduationCap,
   BarChart2,
-  MessageSquare
+  MessageSquare,
+  BadgeDollarSign
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useSocket } from '@/contexts/SocketContext';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils/cn';
 
@@ -38,7 +41,13 @@ const navGroups = [
     items: [
       { href: '/my/applications', label: 'Đơn ứng tuyển', icon: FileCheck },
       { href: '/my/interviews', label: 'Lịch phỏng vấn', icon: UsersRound },
-      { href: '/my-placements', label: 'Việc làm đối tác', icon: BriefcaseBusiness },
+      { href: '/my-placements', label: 'Việc làm được kết nối', icon: BriefcaseBusiness },
+    ],
+  },
+  {
+    section: 'KHỞI NGHIỆP',
+    items: [
+      { href: '/worker/campaigns', label: 'Dự án khởi nghiệp', icon: BadgeDollarSign },
     ],
   },
   {
@@ -51,6 +60,25 @@ const navGroups = [
 
 const WorkerSidebar = ({ collapsed, onToggle }) => {
   const location = useLocation();
+  const { socket } = useSocket();
+  const [unreadInterviews, setUnreadInterviews] = useState(false);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification.type === 'INTERVIEW_SCHEDULED') {
+        setUnreadInterviews(true);
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/my/interviews')) {
+      setUnreadInterviews(false);
+    }
+  }, [location.pathname]);
 
   const isActive = (href, end) => {
     if (end) return location.pathname === href;
@@ -119,7 +147,7 @@ const WorkerSidebar = ({ collapsed, onToggle }) => {
                     key={href}
                     to={href}
                     className={cn(
-                      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                      'relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                       active
                         ? 'bg-emerald-500/10 text-emerald-500'
                         : 'text-[hsl(var(--admin-text-secondary))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
@@ -130,7 +158,15 @@ const WorkerSidebar = ({ collapsed, onToggle }) => {
                       size={18}
                       className={cn('shrink-0', active ? 'text-emerald-500' : 'text-[hsl(var(--admin-text-muted))]')}
                     />
-                    {!collapsed && <span>{label}</span>}
+                    {!collapsed && <span className="flex-1">{label}</span>}
+
+                    {/* Badge for Interviews */}
+                    {href === '/my/interviews' && unreadInterviews && (
+                      <span className={cn(
+                        "rounded-full bg-red-500 shadow-sm shadow-red-500/50",
+                        collapsed ? "absolute top-2 right-2 w-2 h-2" : "w-2 h-2 shrink-0"
+                      )} />
+                    )}
                   </Link>
                 );
               })}

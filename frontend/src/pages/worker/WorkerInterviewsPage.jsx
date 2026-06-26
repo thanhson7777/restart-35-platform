@@ -13,6 +13,7 @@ import {
 } from '@/redux/recruitment/recruitmentSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { useSocket } from '@/contexts/SocketContext';
 import { confirmInterview } from '@/apis/recruitmentAPI';
 import {
   Dialog,
@@ -98,6 +99,19 @@ export default function WorkerInterviewsPage() {
   const fetchInterviews = useCallback(async () => {
     dispatch(fetchMyInterviews({ limit: 100 }));
   }, [dispatch]);
+
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification.type === 'INTERVIEW_SCHEDULED') {
+        fetchInterviews();
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket, fetchInterviews]);
 
   useEffect(() => {
     fetchInterviews();
@@ -203,17 +217,17 @@ export default function WorkerInterviewsPage() {
             <button
               key={filter.key}
               onClick={() => setStatusFilter(filter.key)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+              className={`group px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 flex items-center gap-2 ${
                 statusFilter === filter.key
-                  ? 'bg-[hsl(var(--primary))] text-white'
-                  : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
+                  ? 'bg-emerald-500 text-white shadow-sm'
+                  : 'bg-zinc-100 text-zinc-600 hover:bg-emerald-50 hover:text-emerald-600'
               }`}
             >
               <span>{filter.label}</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs ${
+              <span className={`px-2 py-0.5 rounded-full text-xs transition-colors duration-200 ${
                 statusFilter === filter.key
                   ? 'bg-white/20 text-white'
-                  : 'bg-[hsl(var(--background))] text-[hsl(var(--muted-foreground))]'
+                  : 'bg-zinc-200 text-zinc-500 group-hover:bg-emerald-100 group-hover:text-emerald-600'
               }`}>
                 {stats[filter.key] || 0}
               </span>
@@ -299,7 +313,7 @@ export default function WorkerInterviewsPage() {
                                   rel="noopener noreferrer"
                                   className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-xs font-medium hover:underline"
                                 >
-                                  <Video size={10} /> Mở Google Meet
+                                  <Video size={10} /> Mở Jitsi Meet
                                 </a>
                               )}
                             </div>
@@ -370,7 +384,7 @@ function InterviewDetailView({ interview, loading, onBack, onOpenConfirmModal })
   // dùng trực tiếp module-level constant, không cần nhận qua props
   if (loading) {
     return (
-      <div className="container-page py-8">
+      <div className="max-w-4xl py-8">
         <div className="h-64 bg-[hsl(var(--muted))] rounded-xl animate-pulse" />
       </div>
     );
@@ -378,7 +392,7 @@ function InterviewDetailView({ interview, loading, onBack, onOpenConfirmModal })
 
   if (!interview) {
     return (
-      <div className="container-page py-8 text-center">
+      <div className="max-w-4xl py-8 text-center">
         <p className="text-[hsl(var(--muted-foreground))]">Không tìm thấy lịch phỏng vấn.</p>
         <Button onClick={onBack} className="mt-4">Quay lại</Button>
       </div>
@@ -390,7 +404,7 @@ function InterviewDetailView({ interview, loading, onBack, onOpenConfirmModal })
   const isPast = new Date(interview.scheduledAt) < new Date();
 
   return (
-    <div className="container-page py-8">
+    <div className="max-w-4xl py-4">
       <button onClick={onBack} className="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))] hover:text-emerald-500 mb-6 transition-colors">
         <ArrowLeft size={16} /> Quay lại danh sách
       </button>
@@ -411,7 +425,7 @@ function InterviewDetailView({ interview, loading, onBack, onOpenConfirmModal })
                   rel="noopener noreferrer"
                   className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors"
                 >
-                  <Video size={14} /> Mở Google Meet
+                  <Video size={14} /> Mở Jitsi Meet
                 </a>
               )}
             </div>
@@ -436,7 +450,7 @@ function InterviewDetailView({ interview, loading, onBack, onOpenConfirmModal })
             <div>
               <p className="text-sm text-[hsl(var(--muted-foreground))]">Hình thức</p>
               <p className="font-medium">
-                {interview.meetingType === 'google_meet' ? 'Google Meet' :
+                {interview.meetingType === 'google_meet' ? 'Họp trực tuyến' :
                  interview.meetingType === 'phone' ? 'Điện thoại' : 'Tại văn phòng'}
               </p>
             </div>

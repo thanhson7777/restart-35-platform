@@ -1,4 +1,4 @@
-import { LayoutDashboard, BadgeDollarSign, Calendar, Users, Wallet, Settings } from 'lucide-react';
+import { LayoutDashboard, BadgeDollarSign, Calendar, Users, Wallet, Settings, Landmark } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils/cn';
@@ -8,6 +8,7 @@ const navItems = [
   { href: '/ngo/sponsorships', label: 'Tài trợ', icon: BadgeDollarSign },
   { href: '/ngo/events', label: 'Sự kiện', icon: Calendar },
   { href: '/ngo/dashboard/wallet', label: 'Ví & Giao dịch', icon: Wallet },
+  { href: '/ngo/campaigns', label: 'Dự án bảo lãnh', icon: Landmark },
   { href: '/ngo/profile', label: 'Cài đặt', icon: Settings }
 ];
 

@@ -259,7 +259,7 @@ const findAdminJobs = async (skip = 0, limit = 10, filters = {}) => {
 
     const jobs = await GET_DB().collection(RECRUITMENT_JOB_COLLECTION_NAME)
       .find(query)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .skip(skip)
       .limit(limit)
       .toArray()

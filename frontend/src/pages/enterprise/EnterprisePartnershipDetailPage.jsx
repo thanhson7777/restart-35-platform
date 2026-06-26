@@ -11,6 +11,7 @@ import { getPartnershipDetail, confirmPartnership, cancelPartnership, getPartner
 import { decideSponsorshipLearner } from '@/apis/courseSponsorshipApi';
 import toast from 'react-hot-toast';
 import { getCourseById } from '@/apis/courseApi';
+import { useSocket } from '@/contexts/SocketContext';
 import {
   Dialog,
   DialogContent,
@@ -67,6 +68,7 @@ export default function EnterprisePartnershipDetailPage() {
     sponsorshipId: null,
     status: null
   });
+  const { socket } = useSocket();
 
   useEffect(() => {
     const fetch = async () => {
@@ -87,6 +89,18 @@ export default function EnterprisePartnershipDetailPage() {
     };
     fetch();
   }, [id, navigate]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification.type === 'SPONSORSHIP_LEARNER_ENROLLED') {
+        getPartnershipDetail(id).then(res => setPartnership(res.data?.data || {}));
+        getPartnershipLearners(id, { limit: 50 }).then(res => setLearners(res.data?.data || []));
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket, id]);
 
   const handleConfirm = async () => {
     try {

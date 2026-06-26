@@ -29,7 +29,7 @@ const EDUCATION_OPTIONS = [
 ];
 
 const MEETING_TYPE_OPTIONS = [
-  { value: 'google_meet', label: 'Google Meet' },
+  { value: 'google_meet', label: 'Jitsi Meet' },
   { value: 'office', label: 'Tại văn phòng' }
 ];
 
@@ -489,17 +489,6 @@ export default function EnterpriseJobCreatePage() {
                     </Select>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                    Mô tả công việc <span className="text-red-500">*</span>
-                  </label>
-                  <Textarea
-                    placeholder="Mô tả chi tiết công việc, trách nhiệm, môi trường làm việc..."
-                    rows={6}
-                    value={formData.description}
-                    onChange={(e) => updateFormData('description', e.target.value)}
-                  />
-                </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
@@ -531,13 +520,24 @@ export default function EnterpriseJobCreatePage() {
                       <SelectTrigger>
                         <SelectValue placeholder="Chọn ngành nghề" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-60" side="bottom" avoidCollisions={false}>
                         {jobCategories.map(cat => (
                           <SelectItem key={cat._id} value={cat.name}>{cat.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
+                    Mô tả công việc <span className="text-red-500">*</span>
+                  </label>
+                  <Textarea
+                    placeholder="Mô tả chi tiết công việc, trách nhiệm, môi trường làm việc..."
+                    rows={6}
+                    value={formData.description}
+                    onChange={(e) => updateFormData('description', e.target.value)}
+                  />
                 </div>
               </>
             )}

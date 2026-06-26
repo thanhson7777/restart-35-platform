@@ -47,9 +47,10 @@ const createCourse = async (userId, data, reqFile = null) => {
     }
 
     const result = await courseModel.createNew(courseData)
-    
+
     // Automatically generate schedule if it's not a video course and has schedule config
-    if (data.delivery_type !== 'video' && data.scheduleConfig && data.scheduleConfig.totalSessions > 0) {
+    // DO NOT generate if it's linked to a partnership (it will be generated when admin approves)
+    if (data.delivery_type !== 'video' && data.scheduleConfig && data.scheduleConfig.totalSessions > 0 && !data.linkedPartnershipId) {
       try {
         await scheduleService.generateAutoSchedule(result.insertedId.toString(), userId)
       } catch (err) {
@@ -62,14 +63,32 @@ const createCourse = async (userId, data, reqFile = null) => {
     if (data.linkedPartnershipId) {
       try {
         const existingPartnership = await partnershipModel.findOneById(data.linkedPartnershipId)
-        const updatedCourseIds = existingPartnership?.proposedCourseIds 
+        const updatedCourseIds = existingPartnership?.proposedCourseIds
           ? [...existingPartnership.proposedCourseIds, result.insertedId.toString()]
           : [result.insertedId.toString()]
-          
+
         await partnershipModel.update(data.linkedPartnershipId, {
           status: PARTNERSHIP_STATUS.NEGOTIATING,
           proposedCourseIds: updatedCourseIds
         })
+
+        // Notify enterprise
+        try {
+          const { notificationService } = await import('~/services/notificationService')
+          await notificationService.createUserNotification({
+            recipientId: existingPartnership.enterpriseId.toString(),
+            senderId: userId.toString(),
+            type: 'PARTNERSHIP_RESPONDED',
+            entityType: 'partnership',
+            entityId: data.linkedPartnershipId,
+            title: 'Đối tác đã phản hồi và tạo khóa học',
+            message: `Giảng viên ${user?.displayName || user?.email || 'Đối tác'} vừa tạo giáo trình mới cho yêu cầu hợp tác của bạn.`,
+            link: '/enterprise/partnerships'
+          })
+        } catch (notifyError) {
+          console.error('Error sending notification to enterprise on course create:', notifyError)
+        }
+
       } catch (err) {
         console.error('Failed to link course to partnership:', err)
       }
@@ -105,34 +124,34 @@ const getCourseWithDetails = async (courseId, userId = null) => {
 
     // Get provider info
     const provider = await userModel.findOneById(course.providerId)
-    
-    let providerStats = null;
-    let organization = null;
+
+    let providerStats = null
+    let organization = null
     if (provider) {
       // Tính toán stats thật của provider
-      const providerCourses = await courseModel.findByProvider(course.providerId, 0, 1000, { status: 'approved' });
-      const coursesCount = providerCourses.totalCourses || 0;
-      const totalStudents = providerCourses.courses.reduce((sum, c) => sum + (c.enrollmentCount || 0), 0);
-      
-      let totalRating = 0;
-      let ratingCount = 0;
+      const providerCourses = await courseModel.findByProvider(course.providerId, 0, 1000, { status: 'approved' })
+      const coursesCount = providerCourses.totalCourses || 0
+      const totalStudents = providerCourses.courses.reduce((sum, c) => sum + (c.enrollmentCount || 0), 0)
+
+      let totalRating = 0
+      let ratingCount = 0
       providerCourses.courses.forEach(c => {
         if (c.rating && c.rating.count > 0) {
-          totalRating += (c.rating.average || 0) * c.rating.count;
-          ratingCount += c.rating.count;
+          totalRating += (c.rating.average || 0) * c.rating.count
+          ratingCount += c.rating.count
         }
-      });
-      const averageRating = ratingCount > 0 ? (totalRating / ratingCount) : 0;
-      
+      })
+      const averageRating = ratingCount > 0 ? (totalRating / ratingCount) : 0
+
       providerStats = {
         coursesCount,
         totalStudents,
         averageRating
-      };
+      }
 
       // Get organization if any
       if (provider.organizationId) {
-        organization = await GET_DB().collection('organizations').findOne({ _id: new ObjectId(provider.organizationId) });
+        organization = await GET_DB().collection('organizations').findOne({ _id: new ObjectId(provider.organizationId) })
       }
     }
 
@@ -238,9 +257,9 @@ const getCourses = async (queryParams) => {
     const enrichedCourses = await Promise.all(
       courses.map(async (course) => {
         const providerInfo = await userModel.findOneById(course.providerId)
-        
+
         // Find matching sponsorship
-        const sponsorshipsForCourse = activeSponsorships.filter(s => 
+        const sponsorshipsForCourse = activeSponsorships.filter(s =>
           s.linkedCourses?.some(lc => lc.courseId === course._id.toString())
         )
         let sponsorshipData = null
@@ -283,7 +302,7 @@ const getMyCourses = async (userId, queryParams) => {
     const currentPage = parseInt(page, 10) || DEFAULT_PAGE
     const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
     const skip = (currentPage - 1) * recordLimit
-    
+
     const filters = {}
     if (status) filters.status = status
     if (search) filters.search = search
@@ -299,7 +318,7 @@ const getMyCourses = async (userId, queryParams) => {
     }).toArray()
 
     const enrichedCourses = courses.map(course => {
-      const sponsorshipsForCourse = activeSponsorships.filter(s => 
+      const sponsorshipsForCourse = activeSponsorships.filter(s =>
         s.linkedCourses?.some(lc => lc.courseId === course._id.toString())
       )
       let sponsorshipData = null
@@ -506,6 +525,23 @@ const submitForApproval = async (courseId, userId) => {
       COURSE_STATUS.PENDING
     )
 
+    // Notify admins
+    try {
+      const { notificationService } = await import('~/services/notificationService')
+      const providerInfo = await userModel.findOneById(userId)
+      await notificationService.notifyAdmins({
+        senderId: userId.toString(),
+        type: 'COURSE_SUBMITTED',
+        entityType: 'course',
+        entityId: courseId,
+        title: 'Yêu cầu duyệt khóa học mới',
+        message: `Giảng viên ${providerInfo?.displayName || providerInfo?.email || 'Vô danh'} vừa gửi yêu cầu duyệt khóa học "${course.title}".`,
+        link: '/admin/courses/pending'
+      })
+    } catch (notifyError) {
+      console.error('Error notifying admins about course submission:', notifyError)
+    }
+
     return updatedCourse
   } catch (error) { throw error }
 }
@@ -547,6 +583,40 @@ const approveCourse = async (courseId, adminId, status = 'approved', rejectionRe
 
     const finalStatus = status === 'rejected' ? COURSE_STATUS.REJECTED : COURSE_STATUS.APPROVED
     const updatedCourse = await courseModel.updateStatus(courseId, finalStatus, adminId, rejectionReason)
+
+    // Notify the provider
+    try {
+      const { notificationService } = await import('~/services/notificationService')
+      const statusText = finalStatus === COURSE_STATUS.APPROVED ? 'được duyệt' : 'bị từ chối'
+      let message = `Khóa học "${course.title}" của bạn đã ${statusText} bởi Quản trị viên.`
+      if (finalStatus === COURSE_STATUS.REJECTED && rejectionReason) {
+        message += ` Lý do: ${rejectionReason}`
+      }
+
+      await notificationService.createUserNotification({
+        recipientId: course.providerId.toString(),
+        senderId: adminId.toString(),
+        type: finalStatus === COURSE_STATUS.APPROVED ? 'COURSE_APPROVED' : 'COURSE_REJECTED',
+        entityType: 'course',
+        entityId: courseId,
+        title: `Khóa học ${statusText}`,
+        message: message,
+        link: '/trainer/courses'
+      })
+    } catch (notifyError) {
+      console.error('Error notifying provider about course status change:', notifyError)
+    }
+
+    // Auto generate schedule upon approval if not yet generated
+    if (finalStatus === COURSE_STATUS.APPROVED && course.delivery_type !== 'video' && course.scheduleConfig && course.scheduleConfig.totalSessions > 0) {
+      try {
+        await scheduleService.generateAutoSchedule(courseId, course.providerId.toString())
+      } catch (err) {
+        if (err.statusCode !== StatusCodes.CONFLICT) {
+          console.error('Failed to auto-generate schedule upon approval:', err)
+        }
+      }
+    }
 
     return updatedCourse
   } catch (error) { throw error }

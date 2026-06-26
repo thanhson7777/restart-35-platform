@@ -53,6 +53,8 @@ import { adminAnalyticsRoute } from './adminAnalyticsRoute'
 import { walletRoute } from './walletRoute'
 import { masterDataRoute } from './masterDataRoute'
 import { servicePackageRoute } from './servicePackageRoute'
+import { campaignRoute } from './campaignRoute'
+import { notificationRoute } from './notificationRoute'
 
 const Router = express.Router()
 
@@ -88,7 +90,8 @@ Router.get('/', (req, res) => {
       partnerships: '/v1/partnerships',
       courseSponsorships: '/v1/course-sponsorships',
       contacts: '/v1/contacts',
-      adminAnalytics: '/v1/admin-analytics'
+      adminAnalytics: '/v1/admin-analytics',
+      notifications: '/v1/notifications'
     }
   })
 })
@@ -137,6 +140,8 @@ Router.use('/map', mapRoute)
 Router.use('/admin-analytics', adminAnalyticsRoute)
 Router.use('/wallets', walletRoute)
 Router.use('/service-packages', servicePackageRoute)
+Router.use('/campaigns', campaignRoute)
+Router.use('/notifications', notificationRoute)
 
 // Recruitment Module
 Router.use('/recruitments', workerApplicationRoute)
