@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -7,9 +7,12 @@ import { Button } from '@/components/ui/Button'
 import { Input, Label } from '@/components/ui/Input'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { SelectField } from '@/components/ui/SelectField'
+import { MultiSelectField } from '@/components/ui/index'
 import GenderField from '@/components/worker-profile/GenderField'
 import ProvinceField from '@/components/worker-profile/ProvinceField'
 import { registerUserAPI } from '@/redux/user/userSlice'
+import { publicAxiosInstance } from '~/utils/authorizeAxios'
+import { fetchProvinces } from '~/services/locationService'
 import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE,
@@ -271,6 +274,53 @@ function BasicInfoStep({ basicInfo, setBasicInfo, errors, touched, onChange }) {
 
 // ===== Component: EnterpriseInfoStep =====
 function EnterpriseInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
+  const [industryOptions, setIndustryOptions] = useState([])
+  const [companySizeOptions, setCompanySizeOptions] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchMasterData = async () => {
+      setIsLoading(true)
+      try {
+        // Lấy dữ liệu Lĩnh vực hoạt động
+        const industryResponse = await publicAxiosInstance.get('/v1/master-data?type=industry')
+        const industryList = industryResponse.data?.data || []
+        const formattedIndustryOptions = industryList.map(item => ({
+          value: item.value || item.code || item.id,
+          label: item.label || item.name
+        }))
+        
+        if (formattedIndustryOptions.length > 0) {
+          setIndustryOptions(formattedIndustryOptions)
+        } else {
+          setIndustryOptions(INDUSTRY_OPTIONS)
+        }
+
+        // Lấy dữ liệu Quy mô nhân sự
+        const companySizeResponse = await publicAxiosInstance.get('/v1/master-data?type=company_size')
+        const companySizeList = companySizeResponse.data?.data || []
+        const formattedCompanySizeOptions = companySizeList.map(item => ({
+          value: item.value || item.code || item.id,
+          label: item.label || item.name
+        }))
+        
+        if (formattedCompanySizeOptions.length > 0) {
+          setCompanySizeOptions(formattedCompanySizeOptions)
+        } else {
+          setCompanySizeOptions(COMPANY_SIZE_OPTIONS)
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu master data:', error)
+        setIndustryOptions(INDUSTRY_OPTIONS)
+        setCompanySizeOptions(COMPANY_SIZE_OPTIONS)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchMasterData()
+  }, [])
+
   const handleChange = (field, value) => {
     setOrgInfo(prev => ({ ...prev, [field]: value }))
     if (errors[field]) onChange(field, '')
@@ -323,18 +373,20 @@ function EnterpriseInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) 
         <SelectField
           label="Lĩnh vực hoạt động"
           value={orgInfo.industry}
-          options={INDUSTRY_OPTIONS}
+          options={industryOptions.length > 0 ? industryOptions : INDUSTRY_OPTIONS}
           onChange={(val) => handleChange('industry', val)}
-          placeholder="-- Chọn lĩnh vực --"
+          placeholder={isLoading ? "-- Đang tải... --" : "-- Chọn lĩnh vực --"}
           error={touched.industry ? errors.industry : ''}
           required
+          disabled={isLoading}
         />
         <SelectField
           label="Quy mô nhân sự"
           value={orgInfo.size}
-          options={COMPANY_SIZE_OPTIONS}
+          options={companySizeOptions.length > 0 ? companySizeOptions : COMPANY_SIZE_OPTIONS}
           onChange={(val) => handleChange('size', val)}
-          placeholder="-- Chọn quy mô --"
+          placeholder={isLoading ? "-- Đang tải... --" : "-- Chọn quy mô --"}
+          disabled={isLoading}
         />
       </motion.div>
     </motion.div>
@@ -343,6 +395,34 @@ function EnterpriseInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) 
 
 // ===== Component: TrainerInfoStep =====
 function TrainerInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
+  const [categories, setCategories] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoading(true)
+      try {
+        const response = await publicAxiosInstance.get('/v1/master-data?type=training_category')
+        const dataList = response.data?.data || []
+        const formattedOptions = dataList.map(item => ({
+          value: item.value || item.code || item.id,
+          label: item.label || item.name
+        }))
+        if (formattedOptions.length > 0) {
+          setCategories(formattedOptions)
+        } else {
+          setCategories(TRAINING_CATEGORIES_OPTIONS)
+        }
+      } catch (error) {
+        console.error('Lỗi lấy master data training_category:', error)
+        setCategories(TRAINING_CATEGORIES_OPTIONS)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchCategories()
+  }, [])
+
   const handleChange = (field, value) => {
     setOrgInfo(prev => ({ ...prev, [field]: value }))
     if (errors[field]) onChange(field, '')
@@ -444,12 +524,13 @@ function TrainerInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
       )}
 
       <motion.div variants={itemVariants}>
-        <CheckboxGroup
-          label="Lĩnh vực giảng dạy"
-          options={TRAINING_CATEGORIES_OPTIONS}
+        <MultiSelectField
+          label={isLoading ? "Lĩnh vực giảng dạy (Đang tải...)" : "Lĩnh vực giảng dạy"}
+          options={categories.length > 0 ? categories : TRAINING_CATEGORIES_OPTIONS}
           selectedValues={orgInfo.trainingCategories}
           onChange={(vals) => handleChange('trainingCategories', vals)}
           error={touched.trainingCategories ? errors.trainingCategories : ''}
+          placeholder="-- Chọn lĩnh vực --"
         />
       </motion.div>
     </motion.div>
@@ -458,13 +539,64 @@ function TrainerInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
 
 // ===== Component: NGOInfoStep =====
 function NGOInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
+  const [focusAreasOptions, setFocusAreasOptions] = useState([])
+  const [provinceOptions, setProvinceOptions] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true)
+      try {
+        const [focusRes, provData] = await Promise.all([
+          publicAxiosInstance.get('/v1/master-data?type=ngo_focus'),
+          fetchProvinces()
+        ])
+
+        const dataList = focusRes.data?.data || []
+        const formattedOptions = dataList.map(item => ({
+          value: item.value || item.code || item.id,
+          label: item.label || item.name
+        }))
+        if (formattedOptions.length > 0) {
+          setFocusAreasOptions(formattedOptions)
+        } else {
+          setFocusAreasOptions(NGO_FOCUS_AREAS_OPTIONS)
+        }
+
+        setProvinceOptions(provData || [])
+      } catch (error) {
+        console.error('Lỗi lấy master data ngo_focus hoặc provinces:', error)
+        setFocusAreasOptions(NGO_FOCUS_AREAS_OPTIONS)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
   const handleChange = (field, value) => {
     setOrgInfo(prev => ({ ...prev, [field]: value }))
     if (errors[field]) onChange(field, '')
   }
 
+  const handleAutoFill = (name, address) => {
+    setOrgInfo(prev => ({ ...prev, name: name || prev.name, address: address || prev.address }))
+    onChange('name', '')
+    onChange('address', '')
+  }
+
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-4">
+      <motion.div variants={itemVariants}>
+        <TaxCodeInput
+          value={orgInfo.taxCode}
+          onChange={handleChange}
+          onAutoFill={handleAutoFill}
+          error={errors.taxCode}
+          touched={touched.taxCode}
+          label="Giấy phép hoạt động / Mã số thuế"
+        />
+      </motion.div>
       <motion.div variants={itemVariants} className="space-y-1.5">
         <label className="block text-sm font-medium text-foreground">
           Tên tổ chức / Quỹ <span className="text-destructive">*</span>
@@ -480,33 +612,36 @@ function NGOInfoStep({ orgInfo, setOrgInfo, errors, touched, onChange }) {
       </motion.div>
       <motion.div variants={itemVariants} className="space-y-1.5">
         <label className="block text-sm font-medium text-foreground">
-          Giấy phép hoạt động / Mã số thuế <span className="text-destructive">*</span>
+          Địa chỉ trụ sở <span className="text-destructive">*</span>
         </label>
         <input
           type="text"
-          placeholder="Nhập số giấy phép hoặc mã số thuế..."
-          value={orgInfo.taxCode}
-          onChange={(e) => handleChange('taxCode', e.target.value)}
-          className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.taxCode && errors.taxCode ? 'border-destructive' : 'border-input'}`}
+          placeholder="Số nhà, đường, phường, quận..."
+          value={orgInfo.address}
+          onChange={(e) => handleChange('address', e.target.value)}
+          className={`w-full bg-background border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary ${touched.address && errors.address ? 'border-destructive' : 'border-input'}`}
         />
-        {touched.taxCode && errors.taxCode && <p className="text-xs text-destructive">{errors.taxCode}</p>}
+        {touched.address && errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
       </motion.div>
+
       <motion.div variants={itemVariants}>
-        <CheckboxGroup
-          label="Mục tiêu hỗ trợ chính"
-          options={NGO_FOCUS_AREAS_OPTIONS}
+        <MultiSelectField
+          label={isLoading ? "Mục tiêu hỗ trợ chính (Đang tải...)" : "Mục tiêu hỗ trợ chính"}
+          options={focusAreasOptions.length > 0 ? focusAreasOptions : NGO_FOCUS_AREAS_OPTIONS}
           selectedValues={orgInfo.focusAreas}
           onChange={(vals) => handleChange('focusAreas', vals)}
           error={touched.focusAreas ? errors.focusAreas : ''}
+          placeholder="-- Chọn mục tiêu --"
         />
       </motion.div>
       <motion.div variants={itemVariants}>
-        <CheckboxGroup
-          label="Địa bàn hoạt động"
-          options={VIETNAM_PROVINCES.slice(0, 8)} // Just showing a few for UI demo
+        <MultiSelectField
+          label={isLoading ? "Địa bàn hoạt động (Đang tải...)" : "Địa bàn hoạt động"}
+          options={provinceOptions}
           selectedValues={orgInfo.operatingRegions}
           onChange={(vals) => handleChange('operatingRegions', vals)}
           error={touched.operatingRegions ? errors.operatingRegions : ''}
+          placeholder="-- Chọn địa bàn --"
         />
       </motion.div>
     </motion.div>

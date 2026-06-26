@@ -5,7 +5,7 @@ import { GET_DB } from '~/config/mongodb'
 const MASTER_DATA_COLLECTION_NAME = 'master_data'
 
 const MASTER_DATA_COLLECTION_SCHEMA = Joi.object({
-  type: Joi.string().valid('industry', 'training_category', 'ngo_focus').required(),
+  type: Joi.string().valid('industry', 'training_category', 'ngo_focus', 'company_size').required(),
   value: Joi.string().required().trim().max(100),
   label: Joi.string().required().trim().max(100),
   description: Joi.string().allow(null, '').max(500),
@@ -41,11 +41,11 @@ const generateValue = (label) => {
 // ============ CREATE ============
 const createNew = async (data) => {
   try {
-    const validData = await validateBeforeCreate(data)
-
-    if (!validData.value) {
-      validData.value = generateValue(validData.label)
+    if (!data.value && data.label) {
+      data.value = generateValue(data.label)
     }
+    
+    const validData = await validateBeforeCreate(data)
 
     // Check duplicate value within the same type
     const exists = await GET_DB().collection(MASTER_DATA_COLLECTION_NAME).findOne({
@@ -115,6 +115,10 @@ const update = async (id, data) => {
     if (data.label && !data.value) {
       data.value = generateValue(data.label)
     }
+    
+    // We shouldn't validate the whole schema since some fields might be missing in partial updates, 
+    // or if we do, we need to handle it carefully. The existing code didn't use validateBeforeCreate for updates, 
+    // so we just generate the value if it's missing.
 
     if (data.value && data.type) {
       const exists = await GET_DB().collection(MASTER_DATA_COLLECTION_NAME).findOne({

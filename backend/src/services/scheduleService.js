@@ -79,6 +79,11 @@ const generateAutoSchedule = async (courseId, trainerId) => {
       const endMinute = endTotalMinutes % 60
       const endTimeStr = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`
 
+      const sessionLocation = { ...(course.location || { type: 'online' }) };
+      if ((sessionLocation.type === 'online' || sessionLocation.type === 'hybrid') && !sessionLocation.link) {
+        sessionLocation.link = `https://meet.jit.si/Restart35-Course-${courseId}-Session-${i}-${Date.now().toString().slice(-4)}`;
+      }
+
       sessions.push({
         sessionNumber: i,
         title: `Buổi ${i}`,
@@ -87,7 +92,7 @@ const generateAutoSchedule = async (courseId, trainerId) => {
         endTime: endTimeStr,
         duration: sessionDuration,
         instructorId: course.providerId.toString(),
-        location: course.location || { type: 'online' },
+        location: sessionLocation,
         status: SESSION_STATUS.SCHEDULED,
         attendance: []
       })
@@ -152,12 +157,20 @@ const createSchedule = async (courseId, data, trainerId) => {
       totalSessions: data.sessions ? data.sessions.length : 0,
       completedSessions: 0,
       location: data.location || course.location,
-      sessions: (data.sessions || []).map(s => ({
-        ...s,
-        date: new Date(s.date),
-        status: SESSION_STATUS.SCHEDULED,
-        attendance: []
-      })),
+      sessions: (data.sessions || []).map(s => {
+        const sessionLocation = { ...(s.location || data.location || course.location || { type: 'online' }) };
+        if ((sessionLocation.type === 'online' || sessionLocation.type === 'hybrid') && !sessionLocation.link) {
+          sessionLocation.link = `https://meet.jit.si/Restart35-Course-${courseId}-Session-${s.sessionNumber}-${Date.now().toString().slice(-4)}`;
+        }
+
+        return {
+          ...s,
+          date: new Date(s.date),
+          location: sessionLocation,
+          status: SESSION_STATUS.SCHEDULED,
+          attendance: []
+        };
+      }),
       reminders: []
     }
 
@@ -460,8 +473,14 @@ const addSession = async (scheduleId, sessionData, trainerId) => {
       throw new ApiError(StatusCodes.CONFLICT, `Buổi học số ${sessionData.sessionNumber} đã tồn tại!`)
     }
 
+    const sessionLocation = { ...(sessionData.location || { type: 'online' }) };
+    if ((sessionLocation.type === 'online' || sessionLocation.type === 'hybrid') && !sessionLocation.link) {
+      sessionLocation.link = `https://meet.jit.si/Restart35-Course-${schedule.courseId}-Session-${sessionData.sessionNumber}-${Date.now().toString().slice(-4)}`;
+    }
+
     const newSession = {
       ...sessionData,
+      location: sessionLocation,
       date: new Date(sessionData.date),
       status: SESSION_STATUS.SCHEDULED,
       attendance: []
@@ -492,6 +511,14 @@ const updateSession = async (scheduleId, sessionNumber, sessionData, trainerId) 
     }
 
     if (sessionData.date) sessionData.date = new Date(sessionData.date)
+
+    if (sessionData.location) {
+      const sessionLocation = { ...sessionData.location };
+      if ((sessionLocation.type === 'online' || sessionLocation.type === 'hybrid') && !sessionLocation.link) {
+        sessionLocation.link = `https://meet.jit.si/Restart35-Course-${schedule.courseId}-Session-${sessionNumber}-${Date.now().toString().slice(-4)}`;
+      }
+      sessionData.location = sessionLocation;
+    }
 
     return await scheduleModel.updateSession(scheduleId, sessionNumber, sessionData)
   } catch (error) { throw error }

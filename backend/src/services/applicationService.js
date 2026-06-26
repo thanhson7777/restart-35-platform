@@ -2,6 +2,7 @@ import { applicationModel } from '~/models/applicationModel'
 import { recruitmentJobModel } from '~/models/recruitmentJobModel'
 import { workerProfileModel } from '~/models/workerProfileModel'
 import { userModel } from '~/models/userModel'
+import { notificationService } from '~/services/notificationService'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import {
@@ -64,6 +65,23 @@ const applyToJob = async (jobId, workerId, data = {}) => {
     await recruitmentJobModel.incrementStats(jobId, 'applications')
 
     const application = await applicationModel.findOneById(result.insertedId)
+
+    // Notify enterprise
+    try {
+      await notificationService.createUserNotification({
+        recipientId: job.enterpriseId.toString(),
+        senderId: workerId.toString(),
+        type: 'NEW_APPLICATION',
+        title: 'Có ứng viên mới',
+        message: `Một ứng viên vừa ứng tuyển vào vị trí ${job.job?.title || job.title || 'của bạn'}`,
+        link: `/enterprise/applications/${result.insertedId.toString()}`,
+        entityType: 'APPLICATION',
+        entityId: result.insertedId.toString()
+      })
+    } catch (notifErr) {
+      console.error('Lỗi khi tạo thông báo cho doanh nghiệp:', notifErr)
+    }
+
     return application
   } catch (error) { throw error }
 }
@@ -139,6 +157,46 @@ const getApplications = async (enterpriseId, page = DEFAULT_PAGE, limit = DEFAUL
       })
     )
 
+    // Calculate stats
+    const db = await import('~/config/mongodb').then(m => m.GET_DB())
+    const matchQuery = { 
+      enterpriseId: { $in: [enterpriseId, enterpriseId.toString()] },
+      _destroy: { $ne: true } 
+    }
+    if (filters.jobId) matchQuery.jobId = filters.jobId
+
+    const rawStats = await db.collection(applicationModel.APPLICATION_COLLECTION_NAME).aggregate([
+      { $match: matchQuery },
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]).toArray()
+
+    const statusCounts = {
+      new: 0,
+      reviewing: 0,
+      shortlisted: 0,
+      interview_scheduled: 0,
+      interviewed: 0,
+      offered: 0,
+      hired: 0,
+      rejected: 0,
+      withdrawn: 0,
+      all: 0
+    }
+
+    rawStats.forEach(item => {
+      statusCounts[item._id] = item.count
+      statusCounts.all += item.count
+    })
+
+    const stats = {
+      all: statusCounts.all,
+      new: statusCounts.new,
+      reviewing: statusCounts.reviewing + statusCounts.shortlisted,
+      interviewing: statusCounts.interview_scheduled + statusCounts.interviewed,
+      hired: statusCounts.hired + statusCounts.offered,
+      rejected: statusCounts.rejected + statusCounts.withdrawn
+    }
+
     return {
       applications: enrichedApplications,
       pagination: {
@@ -146,7 +204,8 @@ const getApplications = async (enterpriseId, page = DEFAULT_PAGE, limit = DEFAUL
         limit,
         totalItems: total,
         totalPages: Math.ceil(total / limit)
-      }
+      },
+      stats
     }
   } catch (error) { throw error }
 }

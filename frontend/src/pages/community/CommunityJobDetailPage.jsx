@@ -19,7 +19,13 @@ import {
   selectSimilarJobsLoading
 } from '@/redux/recruitment/recruitmentSlice';
 import toast from 'react-hot-toast';
-import { VIETNAM_PROVINCES } from '@/data/profileData';
+import { VIETNAM_PROVINCES, EDUCATION_OPTIONS } from '@/data/profileData';
+
+const getEducationLabel = (value) => {
+  if (!value) return null;
+  const edu = EDUCATION_OPTIONS.find(e => e.value === value);
+  return edu ? edu.label : value;
+};
 
 const getProvinceLabel = (value) => {
   if (!value) return null;
@@ -426,7 +432,7 @@ export default function CommunityJobDetailPage() {
                     <CardTitle className="text-base">Trình độ học vấn</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm">{job.requirements.education}</p>
+                    <p className="text-sm">{getEducationLabel(job.requirements.education)}</p>
                   </CardContent>
                 </Card>
               )}
@@ -494,7 +500,7 @@ export default function CommunityJobDetailPage() {
                       <p className="text-sm text-[hsl(var(--muted-foreground))]">
                         {job.location?.address || '—'}
                         {job.location?.district && `, ${job.location.district}`}
-                        {job.location?.province && `, ${job.location.province}`}
+                        {job.location?.province && `, ${getProvinceLabel(job.location.province)}`}
                       </p>
                     </div>
                   </div>
@@ -583,7 +589,7 @@ export default function CommunityJobDetailPage() {
                             <div className="text-sm">
                               <p className="font-semibold">{job.location?.address}</p>
                               {job.location?.district && <p>{job.location.district}</p>}
-                              {job.location?.province && <p>{job.location.province}</p>}
+                              {job.location?.province && <p>{getProvinceLabel(job.location.province)}</p>}
                             </div>
                           </Popup>
                         </Marker>
@@ -593,7 +599,7 @@ export default function CommunityJobDetailPage() {
                       <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed">
                         {job.location?.address || '—'}
                         {job.location?.district && `, ${job.location.district}`}
-                        {job.location?.province && `, ${job.location.province}`}
+                        {job.location?.province && `, ${getProvinceLabel(job.location.province)}`}
                       </p>
                       <Button
                         as="a"
@@ -622,7 +628,7 @@ export default function CommunityJobDetailPage() {
                     <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed">
                       {job.location?.address || '—'}
                       {job.location?.district && `, ${job.location.district}`}
-                      {job.location?.province && `, ${job.location.province}`}
+                      {job.location?.province && `, ${getProvinceLabel(job.location.province)}`}
                     </p>
                     {job.location?.type === 'remote' && (
                       <div className="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 text-sm text-blue-700">

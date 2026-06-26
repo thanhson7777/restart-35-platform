@@ -1,16 +1,10 @@
 import React from 'react';
-import { Briefcase, BookOpen, MessageSquare, CalendarDays } from 'lucide-react';
 
-const tabs = [
-  { id: 'community', label: 'Chia sẻ kinh nghiệm', icon: MessageSquare },
-  { id: 'events', label: 'Sự kiện & Tài trợ', icon: CalendarDays }
-];
-
-export default function TabNavigation({ activeTab, onTabChange, counts }) {
+export default function TabNavigation({ tabs, activeTab, onTabChange, counts }) {
   return (
     <div className="mb-8">
       <nav className="flex flex-wrap gap-3">
-        {tabs.map((tab) => {
+        {tabs?.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (

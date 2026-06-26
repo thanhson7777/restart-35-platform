@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 
 const MEETING_TYPE_OPTIONS = [
-  { value: 'google_meet', label: 'Google Meet', icon: Video },
+  { value: 'google_meet', label: 'Jitsi Meet', icon: Video },
   { value: 'office', label: 'Tại văn phòng', icon: Building },
   { value: 'phone', label: 'Điện thoại', icon: Phone }
 ];
@@ -229,7 +229,7 @@ export default function EnterpriseInterviewSchedulePage() {
               {formData.meetingType === 'google_meet' && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">
-                    Google Meet Link
+                    Jitsi Meet Link
                   </label>
                   <Input
                     type="url"

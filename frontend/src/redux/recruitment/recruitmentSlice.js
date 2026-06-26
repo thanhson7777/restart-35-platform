@@ -118,7 +118,7 @@ export const fetchMyApplications = createAsyncThunk(
       const data = response?.data?.data || response?.data;
       return {
         applications: data?.applications || data || [],
-        total: data?.total || 0,
+        total: response?.data?.pagination?.totalItems || data?.total || 0,
       };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch applications');
@@ -311,7 +311,7 @@ export const fetchJobApplications = createAsyncThunk(
       return {
         jobId,
         applications: data?.applications || data || [],
-        total: data?.total || 0,
+        total: response?.data?.pagination?.totalItems || data?.total || 0,
       };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch applications');
@@ -344,7 +344,8 @@ export const fetchEnterpriseApplications = createAsyncThunk(
       const data = response?.data?.data || response?.data;
       return {
         applications: data?.applications || data || [],
-        total: data?.total || 0,
+        total: response?.data?.pagination?.totalItems || data?.total || 0,
+        stats: response?.data?.stats || null,
       };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch applications');
@@ -509,6 +510,7 @@ const initialState = {
 
   enterpriseApplications: [],
   enterpriseApplicationsTotal: 0,
+  enterpriseApplicationsStats: null,
   enterpriseApplicationsLoading: false,
 
   enterpriseApplicationDetails: null,
@@ -744,6 +746,7 @@ const recruitmentSlice = createSlice({
         state.enterpriseApplicationsLoading = false;
         state.enterpriseApplications = action.payload.applications;
         state.enterpriseApplicationsTotal = action.payload.total;
+        state.enterpriseApplicationsStats = action.payload.stats;
       })
       .addCase(fetchEnterpriseApplications.rejected, (state) => {
         state.enterpriseApplicationsLoading = false;
@@ -869,6 +872,7 @@ export const selectJobStats = (state) => state.recruitment.jobStats;
 
 export const selectEnterpriseApplications = (state) => state.recruitment.enterpriseApplications;
 export const selectEnterpriseApplicationsTotal = (state) => state.recruitment.enterpriseApplicationsTotal;
+export const selectEnterpriseApplicationsStats = (state) => state.recruitment.enterpriseApplicationsStats;
 export const selectEnterpriseApplicationsLoading = (state) => state.recruitment.enterpriseApplicationsLoading;
 export const selectEnterpriseApplicationDetails = (state) => state.recruitment.enterpriseApplicationDetails;
 export const selectCurrentApplicationInterview = (state) => state.recruitment.currentApplicationInterview;

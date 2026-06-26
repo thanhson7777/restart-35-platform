@@ -232,7 +232,7 @@ export default function EnterprisePartnershipCreatePage() {
                     <SelectTrigger className="w-full bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]">
                       <SelectValue placeholder="Chọn danh mục..." />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" side="bottom" avoidCollisions={false} className="max-h-[200px] overflow-y-auto bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))]">
                       {categories.map(c => (
                         <SelectItem key={c._id} value={c._id}>{c.name}</SelectItem>
                       ))}
@@ -245,7 +245,7 @@ export default function EnterprisePartnershipCreatePage() {
                     <SelectTrigger className="w-full bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))] text-[hsl(var(--admin-text-primary))]">
                       <SelectValue placeholder="Chọn hình thức..." />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" side="bottom" avoidCollisions={false} className="bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border-strong))]">
                       <SelectItem value="live">Học trực tuyến (Online Live)</SelectItem>
                       <SelectItem value="offline">Học trực tiếp (Offline)</SelectItem>
                     </SelectContent>

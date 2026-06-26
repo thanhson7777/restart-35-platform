@@ -235,18 +235,23 @@ const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, 
     
     let sponsoredAmount = 0
     const lc = sponsorship.linkedCourses?.find(item => String(item.courseId) === String(course._id))
+    
+    // Đối với Partnership, lấy maxAmount (tuitionFeePerLearner) được thỏa thuận
+    const agreedAmount = lc?.maxAmount || sponsorship.maxAmountPerLearner || 0
+
     if (lc) {
-      if (lc.coverage === 'FULL' || sponsorship.coverageType === 'FULL') {
-        sponsoredAmount = basePrice
+      if (lc.coverage?.toLowerCase() === 'full' || sponsorship.coverageType?.toLowerCase() === 'full') {
+        // Ưu tiên giá thỏa thuận nếu có (Partnership), nếu không dùng basePrice
+        sponsoredAmount = agreedAmount > 0 ? agreedAmount : basePrice
       } else {
-        sponsoredAmount = lc.maxAmount || sponsorship.maxAmountPerLearner || 0
+        sponsoredAmount = agreedAmount
       }
     } else {
-      sponsoredAmount = sponsorship.maxAmountPerLearner || 0
+      sponsoredAmount = agreedAmount
     }
 
-    // Không tài trợ vượt quá học phí
-    if (sponsoredAmount > basePrice) {
+    // Không tài trợ vượt quá học phí (nếu là tài trợ thông thường)
+    if (agreedAmount === 0 && basePrice > 0 && sponsoredAmount > basePrice) {
       sponsoredAmount = basePrice
     }
 

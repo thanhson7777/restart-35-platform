@@ -40,8 +40,10 @@ import {
 import { getMyCourses, getMyCourseStats, deleteCourse, cancelCourseApproval } from '@/apis/trainerApi';
 import TrainerCourseCard from '@/components/trainer/TrainerCourseCard';
 import toast from 'react-hot-toast';
+import { useSocket } from '@/contexts/SocketContext';
 
 const TrainerCoursesPage = () => {
+  const { socket } = useSocket();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grid');
@@ -115,6 +117,24 @@ const TrainerCoursesPage = () => {
     fetchCourses();
     fetchStats();
   }, [fetchCourses, fetchStats]);
+
+  // Lắng nghe realtime từ socket để cập nhật trạng thái khóa học
+  useEffect(() => {
+    if (!socket) return;
+    
+    const handleNewNotification = (notification) => {
+      if (notification?.type === 'COURSE_APPROVED' || notification?.type === 'COURSE_REJECTED') {
+        fetchCourses();
+        fetchStats();
+      }
+    };
+    
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    
+    return () => {
+      socket.off('NEW_NOTIFICATION', handleNewNotification);
+    };
+  }, [socket, fetchCourses, fetchStats]);
 
   // Handle Search Input Change
   const handleSearchChange = (e) => {

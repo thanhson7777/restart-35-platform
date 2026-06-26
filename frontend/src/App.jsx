@@ -107,6 +107,10 @@ import NgoImpactDashboardPage from '@/pages/ngo/NgoImpactDashboardPage';
 import NgoSponsorshipsPage from '@/pages/ngo/NgoSponsorshipsPage';
 import NgoSponsorshipCreatePage from '@/pages/ngo/NgoSponsorshipCreatePage';
 import NgoSponsorshipLearnersPage from '@/pages/ngo/NgoSponsorshipLearnersPage';
+import NgoCampaignApprovalPage from '@/pages/ngo/NgoCampaignApprovalPage';
+import WorkerCampaignListPage from '@/pages/worker/WorkerCampaignListPage';
+import WorkerCampaignCreatePage from '@/pages/worker/WorkerCampaignCreatePage';
+import CampaignDetailPage from '@/pages/community/CampaignDetailPage';
 import NgoWalletPage from '@/pages/ngo/NgoWalletPage';
 import NgoEventsPage from '@/pages/ngo/NgoEventsPage';
 import NgoEventCreatePage from '@/pages/ngo/NgoEventCreatePage';
@@ -275,12 +279,15 @@ function App() {
         <Route path="/ngo/events" element={<NgoLayout><NgoEventsPage /></NgoLayout>} />
         <Route path="/ngo/events/create" element={<NgoLayout><NgoEventCreatePage /></NgoLayout>} />
         <Route path="/ngo/profile" element={<NgoLayout><NgoProfilePage /></NgoLayout>} />
+        <Route path="/ngo/campaigns" element={<NgoLayout><NgoCampaignApprovalPage /></NgoLayout>} />
 
         {/* Worker Layout Routes */}
         <Route path="/worker" element={<Navigate to="/my-enrollments" replace />} />
         <Route path="/worker/profile" element={<WorkerLayout><WorkerProfilePage /></WorkerLayout>} />
         <Route path="/worker/account-settings" element={<WorkerLayout><WorkerAccountSettingsPage /></WorkerLayout>} />
         <Route path="/worker/analytics" element={<WorkerLayout><WorkerAnalyticsPage /></WorkerLayout>} />
+        <Route path="/worker/campaigns" element={<WorkerLayout><WorkerCampaignListPage /></WorkerLayout>} />
+        <Route path="/worker/campaigns/create" element={<WorkerLayout><WorkerCampaignCreatePage /></WorkerLayout>} />
         <Route path="/worker/community" element={<WorkerLayout><Outlet /></WorkerLayout>}>
           <Route index element={<Navigate to="/worker/community/forum" replace />} />
           <Route path="forum" element={<ForumPage />} />
@@ -293,6 +300,7 @@ function App() {
         <Route path="/community/forum/:id" element={<ForumPostDetailPage />} />
         <Route path="/community/jobs/:id" element={<CommunityJobDetailPage />} />
         <Route path="/community/events/:id" element={<EventDetailPage />} />
+        <Route path="/community/campaigns/:id" element={<CampaignDetailPage />} />
         {/* Partner Jobs */}
         <Route path="/partner-jobs" element={<PartnerJobsPage />} />
         <Route path="/partner-jobs/:id" element={<CommunityJobDetailPage />} />

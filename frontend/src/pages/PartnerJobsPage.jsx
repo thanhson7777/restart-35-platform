@@ -14,10 +14,18 @@ import {
   selectJobsLoading,
   selectFilters
 } from '@/redux/recruitment/recruitmentSlice';
-import { JOB_TYPE_OPTIONS } from '@/data/profileData';
+import { JOB_TYPE_OPTIONS, VIETNAM_PROVINCES } from '@/data/profileData';
+
+const getProvinceLabel = (value) => {
+  if (!value) return null;
+  const province = VIETNAM_PROVINCES.find(p => p.value === value);
+  return province ? province.label : value;
+};
 
 const formatSalary = (salary) => {
   if (!salary) return 'Thoả thuận';
+  if (salary.negotiable) return 'Thoả thuận';
+  if (!salary.min && !salary.max) return 'Thoả thuận';
   const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 });
   if (salary.min && salary.max) return `${formatter.format(salary.min)} - ${formatter.format(salary.max)}`;
   if (salary.min) return `Từ ${formatter.format(salary.min)}`;
@@ -75,10 +83,10 @@ const FeaturedJobCard = ({ job, onClick }) => (
         </p>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-xs text-zinc-500 font-medium">
           <span className="flex items-center gap-1">
-            <MapPin size={13} className="text-blue-500" />{job.location?.province || '—'}
+            <MapPin size={13} className="text-blue-500" />{getProvinceLabel(job.location?.province || job.province) || '—'}
           </span>
           <span className="flex items-center gap-1">
-            <DollarSign size={13} className="text-emerald-500" />{formatSalary(job.salary)}
+            <DollarSign size={13} className="text-emerald-500" />{formatSalary(job.job?.salary || job.salary)}
           </span>
         </div>
       </div>
@@ -114,11 +122,11 @@ const JobCard = ({ job, onClick }) => {
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-500 mt-4">
           <span className="flex items-center gap-1.5 font-medium">
             <MapPin size={15} className="text-blue-500" />
-            {job.location?.province || job.province || '—'}
+            {getProvinceLabel(job.location?.province || job.province) || '—'}
           </span>
           <span className="flex items-center gap-1.5 font-semibold text-emerald-600 bg-emerald-50/50 px-2 py-0.5 rounded-md">
             <DollarSign size={15} className="text-emerald-500" />
-            {formatSalary(job.salary)}
+            {formatSalary(job.job?.salary || job.salary)}
           </span>
         </div>
 

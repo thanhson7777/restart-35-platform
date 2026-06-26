@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import express from 'express'
+import http from 'http'
 import exitHook from 'async-exit-hook'
 import { CONNECT_DB, CLOSE_DB, GET_DB } from '~/config/mongodb'
 import { connectRedis, closeRedis, getRedis, isRedisAvailable } from '~/config/redis'
@@ -10,6 +11,8 @@ import { corsOptions } from './config/cors'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { initJobScheduler } from './services/jobScheduler.js'
+import { initSocket } from './config/socket'
+import { startInterviewCron } from './crons/interviewCron.js'
 
 const START_SERVER = () => {
   const app = express()
@@ -73,7 +76,10 @@ const START_SERVER = () => {
 
   app.use(errorHandlingMiddleware)
 
-  app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+  const server = http.createServer(app)
+  initSocket(server)
+
+  server.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
     console.log(`Xin chào ${env.AUTHOR}, Server đang chạy thành công trên cổng: http://${env.LOCAL_DEV_APP_HOST}:${env.LOCAL_DEV_APP_PORT}/ `)
   })
 
@@ -101,6 +107,9 @@ const START_SERVER = () => {
 
     // Khoi tao job scheduler
     initJobScheduler()
+
+    // Khởi tạo tiến trình chạy ngầm gửi nhắc nhở phỏng vấn
+    startInterviewCron()
   } catch (error) {
     console.log(error)
     process.exit(0)

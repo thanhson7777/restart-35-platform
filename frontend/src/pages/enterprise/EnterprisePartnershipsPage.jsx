@@ -6,6 +6,7 @@ import PartnershipCard from '@/components/shared/PartnershipCard';
 import { Button } from '@/components/ui';
 import { getEnterprisePartnerships } from '@/apis/partnershipApi';
 import toast from 'react-hot-toast';
+import { useSocket } from '@/contexts/SocketContext';
 
 const statusFilters = [
   { value: '', label: 'Tất cả' },
@@ -21,6 +22,7 @@ export default function EnterprisePartnershipsPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
+  const { socket } = useSocket();
 
   const fetchPartnerships = useCallback(async (page = 1) => {
     setLoading(true);
@@ -40,6 +42,17 @@ export default function EnterprisePartnershipsPage() {
   useEffect(() => {
     fetchPartnerships(1);
   }, [fetchPartnerships]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification.type === 'PARTNERSHIP_RESPONDED' || notification.type === 'PARTNERSHIP_CONFIRMED') {
+        fetchPartnerships(pagination.currentPage || 1);
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket, fetchPartnerships, pagination.currentPage]);
 
   return (
     <>

@@ -24,7 +24,12 @@ import {
   Label, 
   Textarea, 
   SelectField, 
-  Checkbox 
+  Checkbox,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui';
 import LocationPicker from '@/components/location/LocationPicker';
 import toast from 'react-hot-toast';
@@ -530,23 +535,39 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-1">
                   <Label htmlFor="categoryId" className="text-[hsl(var(--admin-text-secondary))]">Danh mục <span className="text-[hsl(var(--admin-danger))]">*</span></Label>
-                  <select
-                    id="categoryId"
-                    value={categoryId}
-                    onChange={(e) => setCategoryId(e.target.value)}
+                  <Select 
+                    value={categoryId || undefined} 
+                    onValueChange={setCategoryId}
                     disabled={isPartnership && !!initialData?.categoryId}
-                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <option value="">Chọn danh mục</option>
-                    {categories.map((cat) => (
-                      <option key={cat._id} value={cat._id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                    <option value="other" className="font-semibold text-[hsl(var(--admin-accent))]">
-                      + Đề xuất danh mục khác...
-                    </option>
-                  </select>
+                    <SelectTrigger 
+                      id="categoryId"
+                      className="w-full h-[42px] rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:ring-1 focus:ring-[hsl(var(--admin-accent))] focus:border-[hsl(var(--admin-accent))] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <SelectValue placeholder="Chọn danh mục" />
+                    </SelectTrigger>
+                    <SelectContent 
+                      position="popper" 
+                      side="bottom" 
+                      className="max-h-[250px] z-[100] bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))]"
+                    >
+                      {categories.map((cat) => (
+                        <SelectItem 
+                          key={cat._id} 
+                          value={cat._id}
+                          className="text-[hsl(var(--admin-text-primary))] focus:bg-[hsl(var(--admin-surface))] focus:text-[hsl(var(--admin-accent))] cursor-pointer"
+                        >
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem 
+                        value="other" 
+                        className="font-semibold text-[hsl(var(--admin-accent))] focus:bg-[hsl(var(--admin-surface))] cursor-pointer"
+                      >
+                        + Đề xuất danh mục khác...
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   {categoryId === 'other' && (
                     <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-top-2">
                       <Label htmlFor="newCategoryName" className="text-xs text-[hsl(var(--admin-accent))] font-medium">Tên danh mục đề xuất</Label>
@@ -571,16 +592,36 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
 
                 <div className="space-y-2 md:col-span-1">
                   <Label htmlFor="deliveryType" className="text-[hsl(var(--admin-text-secondary))]">Hình thức giảng dạy</Label>
-                  <select
-                    id="deliveryType"
-                    value={deliveryType}
-                    onChange={(e) => setDeliveryType(e.target.value)}
+                  <Select 
+                    value={deliveryType || undefined} 
+                    onValueChange={setDeliveryType}
                     disabled={isPartnership && !!initialData?.delivery_type}
-                    className="w-full rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:border-[hsl(var(--admin-accent))] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <option value="live">Học Online (Zoom/Meet)</option>
-                    <option value="offline">Học trực tiếp (Offline)</option>
-                  </select>
+                    <SelectTrigger 
+                      id="deliveryType"
+                      className="w-full h-[42px] rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] px-3 py-2 text-sm text-[hsl(var(--admin-text-primary))] focus:ring-1 focus:ring-[hsl(var(--admin-accent))] focus:border-[hsl(var(--admin-accent))] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <SelectValue placeholder="Chọn hình thức" />
+                    </SelectTrigger>
+                    <SelectContent 
+                      position="popper" 
+                      side="bottom" 
+                      className="max-h-[250px] z-[100] bg-[hsl(var(--admin-surface-elevated))] border-[hsl(var(--admin-border))]"
+                    >
+                      <SelectItem 
+                        value="live"
+                        className="text-[hsl(var(--admin-text-primary))] focus:bg-[hsl(var(--admin-surface))] focus:text-[hsl(var(--admin-accent))] cursor-pointer"
+                      >
+                        Học Online (Zoom/Meet)
+                      </SelectItem>
+                      <SelectItem 
+                        value="offline"
+                        className="text-[hsl(var(--admin-text-primary))] focus:bg-[hsl(var(--admin-surface))] focus:text-[hsl(var(--admin-accent))] cursor-pointer"
+                      >
+                        Học trực tiếp (Offline)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -631,7 +672,7 @@ const TrainerCourseForm = ({ initialData, categories = [], onSubmit, isSubmittin
                 <div className="bg-[hsl(var(--admin-accent-subtle))] border border-[hsl(var(--admin-accent))/30] p-4 rounded-lg flex items-start gap-3 text-[hsl(var(--admin-accent))]">
                   <Info className="h-5 w-5 mt-0.5 flex-shrink-0" />
                   <p className="text-sm">
-                    <strong>Lớp học Online:</strong> Hệ thống sẽ tự động tạo phòng học (Google Meet) và gửi link cho học viên khi đến thời gian học. Bạn không cần thiết lập địa điểm.
+                    <strong>Lớp học Online:</strong> Hệ thống sẽ tự động tạo phòng học (Jitsi Meet) và gửi link cho học viên khi đến thời gian học. Bạn không cần thiết lập địa điểm.
                   </p>
                 </div>
               )}

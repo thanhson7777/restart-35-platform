@@ -445,6 +445,16 @@ const enrollCourse = async (userId, courseId, data) => {
       )
     }
 
+    if (fundingMetadata.enterpriseId) {
+      await notificationService.createUserNotification({
+        recipientId: fundingMetadata.enterpriseId.toString(),
+        type: 'SPONSORSHIP_LEARNER_ENROLLED',
+        title: 'Học viên mới đăng ký',
+        message: `Học viên vừa đăng ký thành công khóa học "${course.title}" thuộc chương trình tài trợ của bạn.`,
+        link: `/enterprise/partnerships/${fundingMetadata.partnershipId}`
+      }).catch(err => console.error('Failed to notify enterprise:', err))
+    }
+
     // Auto-create ISA record nếu khóa học có funding_model = ISA
     if (course.funding_model === FUNDING_LEARNER_PAY_MODE.ISA && enrollment) {
       try {

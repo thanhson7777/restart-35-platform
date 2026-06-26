@@ -1,4 +1,6 @@
 import { GET_DB } from '~/config/mongodb'
+import { notificationModel } from '~/models/notificationModel'
+import { getIO } from '~/config/socket'
 
 const NOTIFICATION_COLLECTION_NAME = 'notification_jobs'
 
@@ -27,39 +29,34 @@ const buildNotification = (eventType, context = {}) => {
       message: `Enrollment ${context.enrollmentId || ''} phù hợp với ${context.matches?.length || 0} sponsorship.`
     },
     [NOTIFICATION_EVENT_TYPES.SPONSORSHIP_DISBURSEMENT_CREATED]: {
-      title: 'Đã tạo disbursement tài trợ',
-      message: `Đã ghi nhận disbursement ${context.amount || 0} cho sponsorship ${context.sponsorshipId}.`
+      title: 'Yêu cầu giải ngân được tạo',
+      message: `Disbursement cho sponsorship ${context.sponsorshipId} được tạo với số tiền ${context.amount}.`
     },
     [NOTIFICATION_EVENT_TYPES.SPONSORSHIP_CLAWBACK_CREATED]: {
-      title: 'Đã tạo clawback tài trợ',
-      message: `Đã ghi nhận clawback ${context.amount || 0} cho sponsorship ${context.sponsorshipId}.`
+      title: 'Yêu cầu thu hồi quỹ được tạo',
+      message: `Clawback cho sponsorship ${context.sponsorshipId} được tạo.`
     },
     [NOTIFICATION_EVENT_TYPES.ENROLLMENT_DROPPED_WITH_FUNDING]: {
-      title: 'Enrollment bị drop có funding',
-      message: `Enrollment ${context.enrollmentId} đã drop và cần xử lý funding.`
+      title: 'Học viên có tài trợ dừng học',
+      message: `Enrollment ${context.enrollmentId} dừng học. Đang xử lý hoàn tiền.`
     },
     [NOTIFICATION_EVENT_TYPES.REFERRAL_BONUS_CREATED]: {
-      title: 'Đã tạo referral bonus',
-      message: `Referral bonus ${context.amount || 0} đã được tính cho placement ${context.placementId}.`
+      title: 'Thưởng giới thiệu mới',
+      message: `Bạn nhận được thưởng giới thiệu cho learner ${context.learnerId}.`
     }
   }
 
   const template = templates[eventType] || {
-    title: eventType,
-    message: context.message || 'Notification nội bộ'
+    title: 'Thông báo hệ thống',
+    message: 'Có sự kiện mới trong hệ thống.'
   }
 
   return {
-    eventType,
-    title: template.title,
-    message: template.message,
-    recipients: context.recipients || [],
-    entityType: context.entityType || null,
-    entityId: context.entityId || null,
-    payload: context,
+    ...template,
+    type: eventType,
     status: 'pending',
-    createdAt: Date.now(),
-    processedAt: null
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 }
 
@@ -93,11 +90,86 @@ const notifySponsors = async (sponsorshipRecords = [], eventType, context = {}) 
   return jobs
 }
 
+// ================= USER NOTIFICATIONS (UI) =================
+
+const createUserNotification = async (data) => {
+  try {
+    const newNotification = await notificationModel.createNew(data)
+    
+    try {
+      const io = getIO()
+      if (io) {
+        io.to(newNotification.recipientId.toString()).emit('NEW_NOTIFICATION', newNotification)
+      }
+    } catch (ioError) {
+      // Bỏ qua lỗi socket để không làm gián đoạn luồng API chính
+      console.error('Socket.io error emitting notification:', ioError.message)
+    }
+    
+    return newNotification
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const getUserNotifications = async (userId, page = 1, limit = 20) => {
+  try {
+    return await notificationModel.findByUserId(userId, page, limit)
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const markAsRead = async (notificationId, userId) => {
+  try {
+    const updatedNotification = await notificationModel.markAsRead(notificationId, userId)
+    if (!updatedNotification) {
+      throw new Error('Notification not found or access denied')
+    }
+    return updatedNotification
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const markAllAsRead = async (userId) => {
+  try {
+    return await notificationModel.markAllAsRead(userId)
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const notifyAdmins = async (data) => {
+  try {
+    const { userModel } = await import('~/models/userModel')
+    const { users: admins } = await userModel.getUsers({ role: 'admin' }, 0, 100)
+    
+    const notifications = []
+    for (const admin of admins) {
+      const notificationData = {
+        ...data,
+        recipientId: admin._id.toString()
+      }
+      const newNotification = await createUserNotification(notificationData)
+      notifications.push(newNotification)
+    }
+    return notifications
+  } catch (error) {
+    console.error('Failed to notify admins:', error.message)
+  }
+}
+
 export const notificationService = {
   NOTIFICATION_COLLECTION_NAME,
   NOTIFICATION_EVENT_TYPES,
   buildNotification,
   queueNotification,
   notifyPartnershipParticipants,
-  notifySponsors
+  notifySponsors,
+  createUserNotification,
+  getUserNotifications,
+  markAsRead,
+  markAllAsRead,
+  notifyAdmins
 }

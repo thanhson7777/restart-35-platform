@@ -8,6 +8,7 @@ import {
   getTrainerPartnerships
 } from '@/apis/trainerApi';
 import toast from 'react-hot-toast';
+import { useSocket } from '@/contexts/SocketContext';
 
 const STATUS_CONFIG = {
   pending: {
@@ -90,6 +91,19 @@ export default function TrainerPartnershipsPage() {
       setLoading(false);
     }
   }, [statusFilter]);
+
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification.type === 'NEW_PARTNERSHIP_REQUEST') {
+        fetchPartnerships(1);
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket, fetchPartnerships]);
 
   useEffect(() => {
     fetchPartnerships(1);

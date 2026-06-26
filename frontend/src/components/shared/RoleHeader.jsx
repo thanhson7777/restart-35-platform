@@ -6,6 +6,7 @@ import { ChatCircle } from '@phosphor-icons/react';
 import { Button, Avatar } from '@/components/ui';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentUser, logoutUser } from '@/redux/user/userSlice';
+import { NotificationDropdown } from './NotificationDropdown';
 
 const RoleHeader = ({ title, subtitle, onMenuClick, sidebarCollapsed }) => {
   const dispatch = useDispatch();
@@ -32,7 +33,7 @@ const RoleHeader = ({ title, subtitle, onMenuClick, sidebarCollapsed }) => {
 
   return (
     <header className={`
-      fixed top-0 right-0 z-20 h-[64px]
+      fixed top-0 right-0 z-[999] h-[64px]
       border-b border-[hsl(var(--admin-border))]
       bg-[hsl(var(--admin-sidebar))]/95 backdrop-blur-xl
       transition-all duration-300
@@ -56,9 +57,7 @@ const RoleHeader = ({ title, subtitle, onMenuClick, sidebarCollapsed }) => {
 
         <div className="flex items-center gap-2 sm:gap-3">
 
-          <Button variant="ghost" size="icon" className="text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))]">
-            <Bell size={17} />
-          </Button>
+          <NotificationDropdown />
 
           <div className="relative" ref={dropdownRef}>
             <button

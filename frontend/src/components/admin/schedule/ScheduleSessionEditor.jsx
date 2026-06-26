@@ -268,7 +268,7 @@ const ScheduleSessionEditor = ({
           {locationType !== LOCATION_TYPES.OFFLINE && (
             <div className="space-y-1.5">
               <label className="block text-[10px] font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider flex items-center gap-1">
-                <LinkIcon className="w-3 h-3 text-emerald-500" /> Link meeting online (Google Meet, Zoom...)
+                <LinkIcon className="w-3 h-3 text-emerald-500" /> Link meeting online (Jitsi Meet, Zoom...)
               </label>
               <Input
                 type="url"

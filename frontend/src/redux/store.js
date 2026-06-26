@@ -11,6 +11,7 @@ import placementReducer from './placement/placementSlice'
 import learningRecordReducer from './learningRecord/learningRecordSlice'
 import recruitmentReducer from './recruitment/recruitmentSlice'
 import eventReducer from './event/eventSlice'
+import campaignReducer from './campaign/campaignSlice'
 
 const rootPersistConfig = {
   key: 'root',
@@ -27,7 +28,8 @@ const reducers = combineReducers({
   placement: placementReducer,
   learningRecord: learningRecordReducer,
   recruitment: recruitmentReducer,
-  event: eventReducer
+  event: eventReducer,
+  campaign: campaignReducer
 })
 
 const persistedReducers = persistReducer(rootPersistConfig, reducers)

@@ -7,6 +7,7 @@ import AdminHeader from '@/components/layout/AdminHeader';
 import AdminSidebar from '@/components/layout/AdminSidebar';
 import toast from 'react-hot-toast';
 import { cn } from '@/utils/cn';
+import { useSocket } from '@/contexts/SocketContext';
 
 const formatSalary = (salary) => {
   if (!salary || (!salary.min && !salary.max)) return 'Thoả thuận';
@@ -234,16 +235,6 @@ const ReviewModal = ({ job, onClose, onAction }) => {
               Bắt buộc đóng (Vi phạm)
             </Button>
           )}
-
-          <Button
-            variant="destructive"
-            onClick={() => handleActionClick('force_delete')}
-            disabled={!!actionLoading}
-            className="gap-2 bg-rose-700 hover:bg-rose-800"
-          >
-            {actionLoading === 'force_delete' ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-            Xóa vĩnh viễn
-          </Button>
         </div>
       </div>
     </div>
@@ -269,7 +260,15 @@ export default function AdminJobsPage() {
     try {
       const res = await getAllJobsAdmin({ page, limit: 10, status: activeTab !== 'all' ? activeTab : undefined, search: searchQuery });
       const data = res?.data?.data || res?.data || {};
-      setJobs(data.jobs || data || []);
+      let fetchedJobs = data.jobs || data || [];
+      if (Array.isArray(fetchedJobs)) {
+        fetchedJobs = [...fetchedJobs].sort((a, b) => {
+          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return timeB - timeA; // newest first
+        });
+      }
+      setJobs(fetchedJobs);
       setPagination(res?.data?.pagination || { page: 1, limit: 10, totalPages: 1, totalItems: 0 });
       setStats(res?.data?.stats || {});
     } catch (err) {
@@ -286,6 +285,25 @@ export default function AdminJobsPage() {
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
+
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewNotification = (notification) => {
+      // If the notification is about a new job submitted, refetch jobs to update the UI
+      if (notification.type === 'JOB_SUBMITTED_FOR_APPROVAL') {
+        fetchJobs();
+      }
+    };
+
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+
+    return () => {
+      socket.off('NEW_NOTIFICATION', handleNewNotification);
+    };
+  }, [socket, fetchJobs]);
 
   const handleReview = async (job) => {
     setReviewLoading(true);

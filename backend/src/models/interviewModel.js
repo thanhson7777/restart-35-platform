@@ -218,6 +218,100 @@ const findUpcoming = async (userId, role, skip = 0, limit = 10) => {
   }
 }
 
+const findInterviewsForReminder = async (startTimeMs, endTimeMs, reminderType) => {
+  try {
+    const query = {
+      status: RECRUITMENT_INTERVIEW_STATUS.CONFIRMED,
+      scheduledAt: {
+        $gte: startTimeMs,
+        $lte: endTimeMs
+      },
+      'reminders.type': { $ne: reminderType }, // avoid duplicates
+      _destroy: { $ne: true }
+    }
+    return await GET_DB().collection(INTERVIEW_COLLECTION_NAME).find(query).toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const findPastInterviewsForReminder = async (endTimeMs, reminderType) => {
+  try {
+    const query = {
+      status: RECRUITMENT_INTERVIEW_STATUS.CONFIRMED,
+      scheduledAt: { $lt: endTimeMs }, // endTimeMs could be (now - 2h)
+      'reminders.type': { $ne: reminderType }, // avoid duplicates
+      _destroy: { $ne: true }
+    }
+    return await GET_DB().collection(INTERVIEW_COLLECTION_NAME).find(query).toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const findExpiredInterviews = async (endTimeMs) => {
+  try {
+    const query = {
+      status: RECRUITMENT_INTERVIEW_STATUS.CONFIRMED,
+      scheduledAt: { $lt: endTimeMs }, // endTimeMs could be (now - 3d)
+      _destroy: { $ne: true }
+    }
+    return await GET_DB().collection(INTERVIEW_COLLECTION_NAME).find(query).toArray()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const markAsExpired = async (interviewId) => {
+  try {
+    const objectId = new ObjectId(interviewId)
+    const result = await GET_DB().collection(INTERVIEW_COLLECTION_NAME).findOneAndUpdate(
+      { _id: objectId },
+      {
+        $set: {
+          status: RECRUITMENT_INTERVIEW_STATUS.EXPIRED,
+          updatedAt: Date.now()
+        }
+      },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+const checkOverlap = async (workerId, enterpriseId, scheduledAt, duration) => {
+  try {
+    const startTime = scheduledAt
+    const endTime = scheduledAt + (duration * 60 * 1000)
+    
+    // Find all active interviews for the worker or enterprise
+    const interviews = await GET_DB().collection(INTERVIEW_COLLECTION_NAME).find({
+      $or: [{ workerId: String(workerId) }, { enterpriseId: String(enterpriseId) }],
+      status: { $in: [
+        RECRUITMENT_INTERVIEW_STATUS.PENDING_CONFIRMATION, 
+        RECRUITMENT_INTERVIEW_STATUS.RESCHEDULED, 
+        RECRUITMENT_INTERVIEW_STATUS.CONFIRMED
+      ]},
+      _destroy: { $ne: true }
+    }).toArray()
+    
+    // Check in memory for overlap
+    for (const interview of interviews) {
+      const existingStart = interview.scheduledAt
+      const existingEnd = existingStart + ((interview.duration || 60) * 60 * 1000)
+      
+      if (existingStart < endTime && existingEnd > startTime) {
+        return interview
+      }
+    }
+    return null
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 // ============ UPDATE ============
 const update = async (interviewId, data) => {
   try {
@@ -533,6 +627,10 @@ export const interviewModel = {
   findByWorker,
   findByEnterprise,
   findUpcoming,
+  findInterviewsForReminder,
+  findPastInterviewsForReminder,
+  findExpiredInterviews,
+  checkOverlap,
 
   // Update
   update,
@@ -542,6 +640,7 @@ export const interviewModel = {
   cancelInterview,
   completeInterview,
   markNoShow,
+  markAsExpired,
   addReminder,
   updateReminderSent,
 

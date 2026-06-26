@@ -66,7 +66,8 @@ const getApplications = async (req, res, next) => {
       success: true,
       message: 'Lấy danh sách đơn ứng tuyển thành công!',
       data: result.applications,
-      pagination: result.pagination
+      pagination: result.pagination,
+      stats: result.stats
     })
   } catch (error) { next(error) }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
 import { AdminLayout, AdminPageTitle } from '@/components/layout';
@@ -28,8 +29,9 @@ const AdminCoursesPage = () => {
     approved: 0,
     rejected: 0,
   });
+  const [searchParams] = useSearchParams();
   const [filters, setFilters] = useState({
-    status: 'all',
+    status: searchParams.get('status') || 'all',
     search: '',
     category: '',
     location: '',

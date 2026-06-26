@@ -314,7 +314,7 @@ export default function EnterpriseJobDetailPage() {
                   <div className="flex items-center gap-2">
                     <Video size={16} className="text-[hsl(var(--admin-text-muted))]" />
                     <span>
-                      {job.interviewConfig.meetingType === 'google_meet' ? 'Google Meet' :
+                      {job.interviewConfig.meetingType === 'google_meet' ? 'Jitsi Meet' :
                        job.interviewConfig.meetingType === 'office' ? 'Tại văn phòng' : 'Điện thoại'}
                     </span>
                   </div>

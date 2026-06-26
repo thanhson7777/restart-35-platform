@@ -442,7 +442,7 @@ const getPendingCourses = async (skip = 0, limit = 10) => {
     }
     const courses = await GET_DB().collection(COURSE_COLLECTION_NAME)
       .find(query)
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .toArray()

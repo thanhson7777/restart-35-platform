@@ -188,8 +188,7 @@ export const TrainerAttendanceModal = ({
                 </div>
                 <Button
                   onClick={handleMarkAllPresent}
-                  size="sm"
-                  className="bg-[hsl(var(--admin-surface-elevated))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-success))] hover:text-[hsl(var(--admin-success))] font-semibold border border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-strong))] text-xs py-1"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white border-none font-bold text-xs py-1.5 px-3 flex items-center transition-colors"
                 >
                   <UserCheck className="h-3.5 w-3.5 mr-1" />
                   Có mặt tất cả

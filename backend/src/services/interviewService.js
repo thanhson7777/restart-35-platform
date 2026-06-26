@@ -2,6 +2,7 @@ import { interviewModel } from '~/models/interviewModel'
 import { applicationModel } from '~/models/applicationModel'
 import { recruitmentJobModel } from '~/models/recruitmentJobModel'
 import { userModel } from '~/models/userModel'
+import { notificationService } from '~/services/notificationService'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import {
@@ -13,6 +14,8 @@ import {
   USER_ROLES
 } from '~/utils/constants'
 import { placementModel } from '~/models/placementModel'
+
+import { BrevoProvider } from '~/providers/BrevoProvider'
 
 // ============ ENTERPRISE: INTERVIEW MANAGEMENT ============
 
@@ -34,15 +37,37 @@ const createInterview = async (enterpriseId, data) => {
     // Lấy interview config từ job
     const job = await recruitmentJobModel.findOneById(data.jobId)
 
+    const duration = data.duration || job?.interviewConfig?.duration || 60
+    const scheduledAt = data.scheduledAt
+
+    // Kiểm tra trùng lịch (Overlap Checking)
+    const overlapInterview = await interviewModel.checkOverlap(application.workerId, enterpriseId, scheduledAt, duration)
+    if (overlapInterview) {
+      const isEnterpriseOverlap = overlapInterview.enterpriseId === String(enterpriseId)
+      const message = isEnterpriseOverlap 
+        ? 'Khung giờ này doanh nghiệp đã có một lịch phỏng vấn khác!' 
+        : 'Khung giờ này ứng viên đang vướng lịch phỏng vấn khác!'
+      throw new ApiError(StatusCodes.CONFLICT, message)
+    }
+
+    const meetingType = data.meetingType || job?.interviewConfig?.meetingType || 'google_meet'
+    let meetingLink = data.meetingLink || ''
+
+    // Tự động tạo link Jitsi Meet
+    if (meetingType === 'google_meet' && !meetingLink) {
+      const uniqueSuffix = data.applicationId.toString().slice(-6) + '-' + Date.now().toString().slice(-4)
+      meetingLink = `https://meet.jit.si/Restart35-Interview-${uniqueSuffix}`
+    }
+
     const interviewData = {
       applicationId: data.applicationId,
       jobId: data.jobId,
       workerId: application.workerId,
       enterpriseId,
-      scheduledAt: data.scheduledAt,
-      duration: data.duration || job?.interviewConfig?.duration || 60,
-      meetingType: data.meetingType || job?.interviewConfig?.meetingType || 'google_meet',
-      meetingLink: data.meetingLink || '',
+      scheduledAt,
+      duration,
+      meetingType,
+      meetingLink,
       officeAddress: data.officeAddress || job?.interviewConfig?.officeAddress || '',
       enterpriseInterviewer: {
         name: data.interviewerName || '',
@@ -75,6 +100,67 @@ const createInterview = async (enterpriseId, data) => {
     await recruitmentJobModel.incrementStats(data.jobId, 'interviews')
 
     const interview = await interviewModel.findOneById(result.insertedId)
+
+    // Notify worker
+    try {
+      const worker = await userModel.findOneById(application.workerId)
+      const enterprise = await userModel.findOneById(enterpriseId)
+
+      await notificationService.createUserNotification({
+        recipientId: application.workerId.toString(),
+        senderId: enterpriseId.toString(),
+        type: 'INTERVIEW_SCHEDULED',
+        title: 'Lịch phỏng vấn mới',
+        message: `Bạn có một lịch phỏng vấn mới từ ${job.enterpriseInfo?.name || job.enterprise?.name || 'doanh nghiệp'} cho vị trí ${job.job?.title || job.title}`,
+        link: `/my/interviews`,
+        entityType: 'INTERVIEW',
+        entityId: result.insertedId.toString()
+      })
+
+      // Send Email with Calendar Invite (.ics) to worker
+      if (worker?.email) {
+        const jobTitle = job.job?.title || job.title || 'Vị trí ứng tuyển'
+        const enterpriseName = job.enterpriseInfo?.name || job.enterprise?.name || 'doanh nghiệp'
+        const startIcs = new Date(scheduledAt).toISOString().replace(/-|:|\.\d+/g, '')
+        const endIcs = new Date(scheduledAt + duration * 60 * 1000).toISOString().replace(/-|:|\.\d+/g, '')
+
+        const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Restart-35//NONSGML v1.0//EN
+BEGIN:VEVENT
+UID:${result.insertedId}@restart35.com
+DTSTAMP:${new Date().toISOString().replace(/-|:|\.\d+/g, '')}
+DTSTART:${startIcs}
+DTEND:${endIcs}
+SUMMARY:Phỏng vấn: ${jobTitle}
+DESCRIPTION:Lời mời phỏng vấn từ ${enterpriseName}. Link họp: ${meetingLink || 'Chưa có link'}
+LOCATION:${meetingLink || interviewData.officeAddress || 'Trực tuyến'}
+END:VEVENT
+END:VCALENDAR`
+
+        const htmlContent = `
+          <h2>Xin chào ${worker.firstName || 'Ứng viên'},</h2>
+          <p>Bạn đã được mời tham gia phỏng vấn cho vị trí <strong>${jobTitle}</strong> tại <strong>${enterpriseName}</strong>.</p>
+          <p><strong>Thời gian:</strong> ${new Date(scheduledAt).toLocaleString('vi-VN')}</p>
+          ${meetingLink ? `<p><strong>Link cuộc họp (Jitsi Meet):</strong> <a href="${meetingLink}">${meetingLink}</a></p>` : ''}
+          ${interviewData.officeAddress ? `<p><strong>Địa điểm:</strong> ${interviewData.officeAddress}</p>` : ''}
+          <p>Vui lòng kiểm tra file đính kèm để thêm lịch vào Google Calendar / Outlook của bạn.</p>
+          <br/>
+          <p>Trân trọng,</p>
+          <p>Hệ thống Restart-35</p>
+        `
+
+        const attachment = {
+          name: 'invite.ics',
+          content: Buffer.from(icsContent).toString('base64')
+        }
+
+        await BrevoProvider.sendEmail(worker.email, `[Restart-35] Lời mời phỏng vấn: ${jobTitle}`, htmlContent, attachment)
+      }
+    } catch (notifErr) {
+      console.error('Lỗi khi tạo thông báo/email lịch phỏng vấn cho ứng viên:', notifErr)
+    }
+
     return interview
   } catch (error) { throw error }
 }
@@ -221,6 +307,21 @@ const completeInterview = async (interviewId, enterpriseId, feedback) => {
         enterpriseId,
         'Không trúng tuyển sau phỏng vấn'
       )
+      
+      const job = await recruitmentJobModel.findOneById(result.jobId)
+      const enterprise = await userModel.findOneById(enterpriseId)
+      try {
+        await notificationService.createUserNotification({
+          recipientId: result.workerId.toString(),
+          senderId: enterpriseId.toString(),
+          type: 'APPLICATION_REJECTED',
+          title: 'Kết quả phỏng vấn',
+          message: `Rất tiếc, bạn không trúng tuyển cho vị trí ${job?.job?.title || job?.title} tại ${enterprise?.organization?.name || enterprise?.displayName || 'Doanh nghiệp'}`,
+          link: `/my/interviews/${result._id.toString()}`,
+          entityType: 'INTERVIEW',
+          entityId: result._id.toString()
+        })
+      } catch (err) { console.error('Notification error', err) }
     } else if (feedback.enterpriseDecision === 'hire') {
       await applicationModel.updateStatus(
         result.applicationId,
@@ -267,6 +368,19 @@ const completeInterview = async (interviewId, enterpriseId, feedback) => {
       await applicationModel.update(result.applicationId, {
         placementId: placement.insertedId.toString()
       })
+
+      try {
+        await notificationService.createUserNotification({
+          recipientId: result.workerId.toString(),
+          senderId: enterpriseId.toString(),
+          type: 'APPLICATION_HIRED',
+          title: 'Kết quả phỏng vấn',
+          message: `Chúc mừng! Bạn đã trúng tuyển vị trí ${job?.job?.title || job?.title} tại ${enterprise?.organization?.name || enterprise?.displayName || 'Doanh nghiệp'}`,
+          link: `/my/interviews/${result._id.toString()}`,
+          entityType: 'INTERVIEW',
+          entityId: result._id.toString()
+        })
+      } catch (err) { console.error('Notification error', err) }
     } else {
       // Default fallback
       await applicationModel.updateStatus(

@@ -500,7 +500,13 @@ const JobsPage = () => {
                 {currentUser && (
                   <Button
                     variant="outline"
-                    onClick={() => navigate('/worker/profile')}
+                    onClick={() => {
+                      if (currentUser?.role === 'worker') navigate('/worker/profile')
+                      else if (currentUser?.role === 'trainer') navigate('/trainer/profile')
+                      else if (currentUser?.role === 'enterprise') navigate('/enterprise/profile')
+                      else if (currentUser?.role === 'ngo') navigate('/ngo/profile')
+                      else navigate('/profile') // fallback
+                    }}
                     className="shrink-0"
                   >
                     <User className="w-4 h-4 mr-2" />
@@ -537,7 +543,7 @@ const JobsPage = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/worker-profile')}
+                    onClick={() => navigate('/worker/profile')}
                     className="shrink-0"
                   >
                     Tạo hồ sơ ngay
@@ -831,7 +837,7 @@ const JobsPage = () => {
                         : 'Không có công việc nào khớp với tiêu chí của bạn. Hãy thử thay đổi bộ lọc nhé.'}
                     </p>
                     {activeTab === 'recommended' && (
-                      <Button variant="outline" onClick={() => navigate('/worker-profile')}>
+                      <Button variant="outline" onClick={() => navigate('/worker/profile')}>
                         Cập nhật hồ sơ năng lực
                       </Button>
                     )}

@@ -3,7 +3,7 @@ import { Calendar, Clock, Video, Phone, Building, User, Mail } from 'lucide-reac
 import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 
 const MEETING_TYPE_OPTIONS = [
-  { value: 'google_meet', label: 'Google Meet', icon: Video },
+  { value: 'google_meet', label: 'Jitsi Meet', icon: Video },
   { value: 'office', label: 'Tại văn phòng', icon: Building },
   { value: 'phone', label: 'Điện thoại', icon: Phone }
 ];
@@ -66,18 +66,13 @@ export default function ScheduleInterviewForm({
 
     const hourStr = String(formData.scheduledTime).padStart(2, '0');
     const scheduledAt = new Date(`${formData.scheduledDate}T${hourStr}:00:00`);
-    
-    // Auto generate mock Google Meet Link
-    const generateRandomStr = (length) => Math.random().toString(36).substring(2, 2 + length);
-    const mockMeetLink = `https://meet.google.com/${generateRandomStr(3)}-${generateRandomStr(4)}-${generateRandomStr(3)}`;
-
     const data = {
       applicationId,
       jobId,
       scheduledAt: scheduledAt.getTime(),
       duration: formData.duration,
       meetingType: 'google_meet',
-      meetingLink: formData.meetingLink || mockMeetLink,
+      // meetingLink sẽ do Backend tự động sinh thông qua Google Calendar API
       officeAddress: '',
       interviewerName: formData.interviewerName || 'Bộ phận Tuyển dụng',
       interviewerEmail: formData.interviewerEmail,
@@ -140,6 +135,15 @@ export default function ScheduleInterviewForm({
               </SelectContent>
             </Select>
           </div>
+        </div>
+      </div>
+
+      <div className="rounded-md bg-emerald-50 p-3 text-sm text-emerald-800 border border-emerald-200">
+        <div className="flex items-start gap-2">
+          <Video className="w-4 h-4 mt-0.5 text-emerald-600 shrink-0" />
+          <p>
+            Hệ thống sẽ tự động tạo link <strong>Jitsi Meet</strong> và gửi lời mời lịch (Calendar Invite) qua email cho cả Ứng viên và Doanh nghiệp.
+          </p>
         </div>
       </div>
 

@@ -697,7 +697,7 @@ export default function MyEnrollmentDetailPage() {
                   </h4>
                   <div className="p-3 bg-zinc-50 dark:bg-zinc-900/40 rounded-xl space-y-2.5">
                     <p className="text-xs text-zinc-650 dark:text-zinc-400 leading-relaxed">
-                      {course.location.address || 'Tòa nhà A, 123 Nguyễn Huệ, Quận 1, TP.HCM'}
+                      {[course.location.address, course.location.ward, course.location.district, course.location.province].filter(Boolean).join(', ') || 'Chưa cập nhật địa chỉ'}
                     </p>
                     <Button
                       variant="outline"

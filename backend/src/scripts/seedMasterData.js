@@ -12,6 +12,12 @@ const MOCK_MASTER_DATA = [
   { type: 'industry', label: 'Logistics & Vận tải', description: 'Vận chuyển, kho bãi, xuất nhập khẩu', order: 7 },
   { type: 'industry', label: 'Xây dựng & Bất động sản', description: 'Thi công, thiết kế, quản lý BĐS', order: 8 },
 
+  // ================= company_size =================
+  { type: 'company_size', label: 'Dưới 50 nhân viên', description: 'Quy mô siêu nhỏ hoặc nhỏ', order: 1, customValue: '1-50' },
+  { type: 'company_size', label: '50 - 200 nhân viên', description: 'Quy mô vừa', order: 2, customValue: '50-200' },
+  { type: 'company_size', label: '200 - 500 nhân viên', description: 'Quy mô lớn', order: 3, customValue: '200-500' },
+  { type: 'company_size', label: 'Trên 500 nhân viên', description: 'Tập đoàn, doanh nghiệp rất lớn', order: 4, customValue: '500+' },
+
   // ================= training_category =================
   { type: 'training_category', label: 'Lập trình & Công nghệ', description: 'Lập trình web, mobile, data, AI', order: 1 },
   { type: 'training_category', label: 'Ngoại ngữ', description: 'Tiếng Anh, Nhật, Hàn, Trung', order: 2 },
@@ -59,9 +65,13 @@ const seedMasterData = async () => {
     // Thêm dữ liệu mới
     console.log('Đang thêm master data mới...')
     for (const item of MOCK_MASTER_DATA) {
+      const value = item.customValue || generateValue(item.label)
+      const dataToInsert = { ...item }
+      delete dataToInsert.customValue // Không lưu trường phụ customValue vào db
+
       const result = await masterDataModel.createNew({
-        ...item,
-        value: generateValue(item.label),
+        ...dataToInsert,
+        value: value,
         isActive: true
       })
       console.log(`- Đã thêm [${item.type}]: ${item.label} (Value: ${result.value})`)

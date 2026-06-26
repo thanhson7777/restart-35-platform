@@ -114,12 +114,23 @@ const findOneByIdAndEnterprise = async (applicationId, enterpriseId) => {
   }
 }
 
+const processStatusFilter = (filters) => {
+  if (!filters || !filters.status) return filters;
+  const newFilters = { ...filters };
+  if (newFilters.status === 'reviewing') newFilters.status = { $in: [RECRUITMENT_APPLICATION_STATUS.REVIEWING, RECRUITMENT_APPLICATION_STATUS.SHORTLISTED] };
+  else if (newFilters.status === 'interviewing') newFilters.status = { $in: [RECRUITMENT_APPLICATION_STATUS.INTERVIEW_SCHEDULED, RECRUITMENT_APPLICATION_STATUS.INTERVIEWED] };
+  else if (newFilters.status === 'hired') newFilters.status = { $in: [RECRUITMENT_APPLICATION_STATUS.OFFERED, RECRUITMENT_APPLICATION_STATUS.HIRED] };
+  else if (newFilters.status === 'rejected') newFilters.status = { $in: [RECRUITMENT_APPLICATION_STATUS.REJECTED, RECRUITMENT_APPLICATION_STATUS.WITHDRAWN] };
+  return newFilters;
+}
+
 const findByWorker = async (workerId, skip = 0, limit = 10, filters = {}) => {
   try {
+    const processedFilters = processStatusFilter(filters);
     const query = {
       workerId: workerId,
       _destroy: { $ne: true },
-      ...filters
+      ...processedFilters
     }
 
     const applications = await GET_DB().collection(APPLICATION_COLLECTION_NAME)
@@ -139,11 +150,12 @@ const findByWorker = async (workerId, skip = 0, limit = 10, filters = {}) => {
 
 const findByJob = async (jobId, enterpriseId, skip = 0, limit = 10, filters = {}) => {
   try {
+    const processedFilters = processStatusFilter(filters);
     const query = {
       jobId: jobId,
       enterpriseId: enterpriseId,
       _destroy: { $ne: true },
-      ...filters
+      ...processedFilters
     }
 
     const applications = await GET_DB().collection(APPLICATION_COLLECTION_NAME)
@@ -163,10 +175,11 @@ const findByJob = async (jobId, enterpriseId, skip = 0, limit = 10, filters = {}
 
 const findByEnterprise = async (enterpriseId, skip = 0, limit = 10, filters = {}) => {
   try {
+    const processedFilters = processStatusFilter(filters);
     const query = {
       enterpriseId: enterpriseId,
       _destroy: { $ne: true },
-      ...filters
+      ...processedFilters
     }
 
     const applications = await GET_DB().collection(APPLICATION_COLLECTION_NAME)
@@ -600,9 +613,10 @@ const getEnterpriseApplicationStats = async () => {
 
 const findAll = async (skip = 0, limit = 10, filters = {}, sortBy = 'appliedAt', sortOrder = 'desc') => {
   try {
+    const processedFilters = processStatusFilter(filters);
     const query = {
       _destroy: { $ne: true },
-      ...filters
+      ...processedFilters
     }
 
     const sortDirection = sortOrder === 'asc' ? 1 : -1;

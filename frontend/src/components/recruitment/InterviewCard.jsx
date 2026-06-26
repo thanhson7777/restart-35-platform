@@ -97,7 +97,7 @@ export default function InterviewCard({ interview, onClick, compact = false }) {
         <div className="flex items-center gap-2 text-sm">
           {interview.meetingType === 'google_meet' && (
             <span className="text-[hsl(var(--primary))]">
-              {interview.meetingType === 'google_meet' ? 'Google Meet' :
+              {interview.meetingType === 'google_meet' ? 'Jitsi Meet' :
                interview.meetingType === 'office' ? 'Tại văn phòng' : 'Điện thoại'}
             </span>
           )}
