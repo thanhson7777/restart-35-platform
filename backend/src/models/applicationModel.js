@@ -91,11 +91,74 @@ const findOneById = async (applicationId) => {
 const findOneByIdAndWorker = async (applicationId, workerId) => {
   try {
     const objectId = new ObjectId(applicationId)
-    return await GET_DB().collection(APPLICATION_COLLECTION_NAME).findOne({
-      _id: objectId,
-      workerId: workerId,
-      _destroy: { $ne: true }
-    })
+    const pipeline = [
+      { 
+        $match: {
+          _id: objectId,
+          workerId: workerId,
+          _destroy: { $ne: true }
+        }
+      },
+      {
+        $addFields: {
+          jobObjId: { $toObjectId: "$jobId" },
+          enterpriseObjId: { $toObjectId: "$enterpriseId" },
+          workerObjId: { $toObjectId: "$workerId" }
+        }
+      },
+      {
+        $lookup: {
+          from: 'recruitment_jobs',
+          localField: 'jobObjId',
+          foreignField: '_id',
+          as: 'job'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'enterpriseObjId',
+          foreignField: '_id',
+          as: 'enterprise'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'workerObjId',
+          foreignField: '_id',
+          as: 'worker'
+        }
+      },
+      {
+        $addFields: {
+          job: { $arrayElemAt: ['$job', 0] },
+          enterprise: { $arrayElemAt: ['$enterprise', 0] },
+          worker: { $arrayElemAt: ['$worker', 0] }
+        }
+      },
+      {
+        $addFields: {
+          jobTitle: { $ifNull: ["$job.job.title", "$job.title"] },
+          enterpriseName: "$enterprise.name",
+          workerName: "$worker.name"
+        }
+      },
+      {
+        $project: {
+          jobObjId: 0,
+          enterpriseObjId: 0,
+          workerObjId: 0,
+          'enterprise.password': 0,
+          'enterprise.tokens': 0,
+          'worker.password': 0,
+          'worker.tokens': 0
+        }
+      }
+    ]
+
+    const result = await GET_DB().collection(APPLICATION_COLLECTION_NAME).aggregate(pipeline).toArray()
+    return result[0] || null
   } catch (error) {
     throw new Error(error.message)
   }
@@ -104,11 +167,74 @@ const findOneByIdAndWorker = async (applicationId, workerId) => {
 const findOneByIdAndEnterprise = async (applicationId, enterpriseId) => {
   try {
     const objectId = new ObjectId(applicationId)
-    return await GET_DB().collection(APPLICATION_COLLECTION_NAME).findOne({
-      _id: objectId,
-      enterpriseId: enterpriseId,
-      _destroy: { $ne: true }
-    })
+    const pipeline = [
+      { 
+        $match: {
+          _id: objectId,
+          enterpriseId: enterpriseId,
+          _destroy: { $ne: true }
+        }
+      },
+      {
+        $addFields: {
+          jobObjId: { $toObjectId: "$jobId" },
+          enterpriseObjId: { $toObjectId: "$enterpriseId" },
+          workerObjId: { $toObjectId: "$workerId" }
+        }
+      },
+      {
+        $lookup: {
+          from: 'recruitment_jobs',
+          localField: 'jobObjId',
+          foreignField: '_id',
+          as: 'job'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'enterpriseObjId',
+          foreignField: '_id',
+          as: 'enterprise'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'workerObjId',
+          foreignField: '_id',
+          as: 'worker'
+        }
+      },
+      {
+        $addFields: {
+          job: { $arrayElemAt: ['$job', 0] },
+          enterprise: { $arrayElemAt: ['$enterprise', 0] },
+          worker: { $arrayElemAt: ['$worker', 0] }
+        }
+      },
+      {
+        $addFields: {
+          jobTitle: { $ifNull: ["$job.job.title", "$job.title"] },
+          enterpriseName: "$enterprise.name",
+          workerName: "$worker.name"
+        }
+      },
+      {
+        $project: {
+          jobObjId: 0,
+          enterpriseObjId: 0,
+          workerObjId: 0,
+          'enterprise.password': 0,
+          'enterprise.tokens': 0,
+          'worker.password': 0,
+          'worker.tokens': 0
+        }
+      }
+    ]
+
+    const result = await GET_DB().collection(APPLICATION_COLLECTION_NAME).aggregate(pipeline).toArray()
+    return result[0] || null
   } catch (error) {
     throw new Error(error.message)
   }
@@ -133,11 +259,57 @@ const findByWorker = async (workerId, skip = 0, limit = 10, filters = {}) => {
       ...processedFilters
     }
 
+    const pipeline = [
+      { $match: query },
+      { $sort: { appliedAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $addFields: {
+          jobObjId: { $toObjectId: "$jobId" },
+          enterpriseObjId: { $toObjectId: "$enterpriseId" }
+        }
+      },
+      {
+        $lookup: {
+          from: 'recruitment_jobs',
+          localField: 'jobObjId',
+          foreignField: '_id',
+          as: 'job'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'enterpriseObjId',
+          foreignField: '_id',
+          as: 'enterprise'
+        }
+      },
+      {
+        $addFields: {
+          job: { $arrayElemAt: ['$job', 0] },
+          enterprise: { $arrayElemAt: ['$enterprise', 0] }
+        }
+      },
+      {
+        $addFields: {
+          jobTitle: { $ifNull: ["$job.job.title", "$job.title"] },
+          enterpriseName: "$enterprise.name"
+        }
+      },
+      {
+        $project: {
+          jobObjId: 0,
+          enterpriseObjId: 0,
+          'enterprise.password': 0,
+          'enterprise.tokens': 0
+        }
+      }
+    ]
+
     const applications = await GET_DB().collection(APPLICATION_COLLECTION_NAME)
-      .find(query)
-      .sort({ appliedAt: -1 })
-      .skip(skip)
-      .limit(limit)
+      .aggregate(pipeline)
       .toArray()
 
     const total = await GET_DB().collection(APPLICATION_COLLECTION_NAME).countDocuments(query)
@@ -158,11 +330,71 @@ const findByJob = async (jobId, enterpriseId, skip = 0, limit = 10, filters = {}
       ...processedFilters
     }
 
+    const pipeline = [
+      { $match: query },
+      { $sort: { appliedAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $addFields: {
+          jobObjId: { $toObjectId: "$jobId" },
+          enterpriseObjId: { $toObjectId: "$enterpriseId" },
+          workerObjId: { $toObjectId: "$workerId" }
+        }
+      },
+      {
+        $lookup: {
+          from: 'recruitment_jobs',
+          localField: 'jobObjId',
+          foreignField: '_id',
+          as: 'job'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'enterpriseObjId',
+          foreignField: '_id',
+          as: 'enterprise'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'workerObjId',
+          foreignField: '_id',
+          as: 'worker'
+        }
+      },
+      {
+        $addFields: {
+          job: { $arrayElemAt: ['$job', 0] },
+          enterprise: { $arrayElemAt: ['$enterprise', 0] },
+          worker: { $arrayElemAt: ['$worker', 0] }
+        }
+      },
+      {
+        $addFields: {
+          jobTitle: { $ifNull: ["$job.job.title", "$job.title"] },
+          enterpriseName: "$enterprise.name",
+          workerName: "$worker.name"
+        }
+      },
+      {
+        $project: {
+          jobObjId: 0,
+          enterpriseObjId: 0,
+          workerObjId: 0,
+          'enterprise.password': 0,
+          'enterprise.tokens': 0,
+          'worker.password': 0,
+          'worker.tokens': 0
+        }
+      }
+    ]
+
     const applications = await GET_DB().collection(APPLICATION_COLLECTION_NAME)
-      .find(query)
-      .sort({ appliedAt: -1 })
-      .skip(skip)
-      .limit(limit)
+      .aggregate(pipeline)
       .toArray()
 
     const total = await GET_DB().collection(APPLICATION_COLLECTION_NAME).countDocuments(query)
@@ -182,11 +414,71 @@ const findByEnterprise = async (enterpriseId, skip = 0, limit = 10, filters = {}
       ...processedFilters
     }
 
+    const pipeline = [
+      { $match: query },
+      { $sort: { appliedAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $addFields: {
+          jobObjId: { $toObjectId: "$jobId" },
+          enterpriseObjId: { $toObjectId: "$enterpriseId" },
+          workerObjId: { $toObjectId: "$workerId" }
+        }
+      },
+      {
+        $lookup: {
+          from: 'recruitment_jobs',
+          localField: 'jobObjId',
+          foreignField: '_id',
+          as: 'job'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'enterpriseObjId',
+          foreignField: '_id',
+          as: 'enterprise'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'workerObjId',
+          foreignField: '_id',
+          as: 'worker'
+        }
+      },
+      {
+        $addFields: {
+          job: { $arrayElemAt: ['$job', 0] },
+          enterprise: { $arrayElemAt: ['$enterprise', 0] },
+          worker: { $arrayElemAt: ['$worker', 0] }
+        }
+      },
+      {
+        $addFields: {
+          jobTitle: { $ifNull: ["$job.job.title", "$job.title"] },
+          enterpriseName: "$enterprise.name",
+          workerName: "$worker.name"
+        }
+      },
+      {
+        $project: {
+          jobObjId: 0,
+          enterpriseObjId: 0,
+          workerObjId: 0,
+          'enterprise.password': 0,
+          'enterprise.tokens': 0,
+          'worker.password': 0,
+          'worker.tokens': 0
+        }
+      }
+    ]
+
     const applications = await GET_DB().collection(APPLICATION_COLLECTION_NAME)
-      .find(query)
-      .sort({ appliedAt: -1 })
-      .skip(skip)
-      .limit(limit)
+      .aggregate(pipeline)
       .toArray()
 
     const total = await GET_DB().collection(APPLICATION_COLLECTION_NAME).countDocuments(query)

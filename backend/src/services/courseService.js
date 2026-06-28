@@ -622,6 +622,54 @@ const approveCourse = async (courseId, adminId, status = 'approved', rejectionRe
   } catch (error) { throw error }
 }
 
+const startCourse = async (courseId, providerId) => {
+  try {
+    const course = await courseModel.findOneById(courseId)
+    if (!course) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Khóa học không tồn tại!')
+    }
+
+    if (course.providerId.toString() !== providerId) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền thao tác trên khóa học này!')
+    }
+
+    if (course.status !== COURSE_STATUS.APPROVED) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Khóa học chưa được duyệt, không thể bắt đầu!')
+    }
+
+    // 1. Cập nhật trạng thái khóa học thành ONGOING
+    const updatedCourse = await courseModel.updateStatus(courseId, COURSE_STATUS.ONGOING)
+
+    // 2. Lấy tất cả Sponsorships đang active của khóa này
+    const { courseSponsorshipService } = await import('~/services/courseSponsorshipService')
+    const activeSponsorships = await GET_DB().collection('course_sponsorships').find({
+      'linkedCourses.courseId': courseId,
+      status: 'active',
+      _destroy: { $ne: true }
+    }).toArray()
+    for (const sp of activeSponsorships) {
+      await courseSponsorshipService.refundRemainingBudget(sp._id.toString())
+    }
+
+    // 3. Lấy tất cả Partnerships đang active của khóa này
+    const { partnershipService } = await import('~/services/partnershipService')
+    const activePartnerships = await GET_DB().collection('partnerships').find({
+      $or: [
+        { 'linkedCourseIds': courseId },
+        { 'agreedTerms.linkedCourseIds': courseId }
+      ],
+      status: 'active',
+      _destroy: { $ne: true }
+    }).toArray()
+    for (const p of activePartnerships) {
+      await partnershipService.refundPartnershipRemainingBudget(p._id.toString())
+    }
+
+    return updatedCourse
+  } catch (error) { throw error }
+}
+
+
 const getPendingCourses = async (queryParams) => {
   try {
     const { page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE } = queryParams
@@ -868,6 +916,7 @@ export const courseService = {
   getNewCourses,
   getRelatedCourses,
   getCoursesByCategory,
+  startCourse,
   getPendingCourses,
   getAdminCourseStats,
   getAdminCourses,

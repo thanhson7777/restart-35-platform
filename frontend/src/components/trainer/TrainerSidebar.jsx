@@ -36,12 +36,16 @@ const TrainerSidebar = ({ collapsed, onToggle }) => {
   const location = useLocation();
   const { socket } = useSocket();
   const [unreadPartnerships, setUnreadPartnerships] = useState(false);
+  const [unreadEnrollments, setUnreadEnrollments] = useState(false);
 
   useEffect(() => {
     if (!socket) return;
     const handleNewNotification = (notification) => {
       if (notification.type === 'NEW_PARTNERSHIP_REQUEST') {
         setUnreadPartnerships(true);
+      }
+      if (notification.type === 'NEW_ENROLLMENT') {
+        setUnreadEnrollments(true);
       }
     };
     socket.on('NEW_NOTIFICATION', handleNewNotification);
@@ -51,6 +55,9 @@ const TrainerSidebar = ({ collapsed, onToggle }) => {
   useEffect(() => {
     if (location.pathname.startsWith('/trainer/partnerships')) {
       setUnreadPartnerships(false);
+    }
+    if (location.pathname.startsWith('/trainer/enrollments')) {
+      setUnreadEnrollments(false);
     }
   }, [location.pathname]);
 
@@ -129,6 +136,11 @@ const TrainerSidebar = ({ collapsed, onToggle }) => {
                         <span className="w-2 h-2 shrink-0 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
                       )}
                       
+                      {/* Red dot badge for enrollments */}
+                      {item.href === '/trainer/enrollments' && unreadEnrollments && (
+                        <span className="w-2 h-2 shrink-0 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
+                      )}
+                      
                       {item.badge && (
                         <Badge
                           className={cn(
@@ -144,6 +156,9 @@ const TrainerSidebar = ({ collapsed, onToggle }) => {
                     </>
                   )}
                   {collapsed && item.href === '/trainer/partnerships' && unreadPartnerships && (
+                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
+                  )}
+                  {collapsed && item.href === '/trainer/enrollments' && unreadEnrollments && (
                     <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
                   )}
                   {collapsed && item.badge && (

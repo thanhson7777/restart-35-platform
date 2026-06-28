@@ -256,6 +256,14 @@ Router.put(
   courseController.cancelSubmitCourse
 )
 
+// Chốt danh sách và bắt đầu khóa học
+Router.put(
+  '/:id/start',
+  authMiddleware.isAuthorized,
+  courseValidation.checkId,
+  courseController.startCourse
+)
+
 // Upload tài liệu giáo trình
 Router.post(
   '/upload-resource',

@@ -455,6 +455,17 @@ const enrollCourse = async (userId, courseId, data) => {
       }).catch(err => console.error('Failed to notify enterprise:', err))
     }
 
+    // Notify the trainer
+    if (course.providerId) {
+      await notificationService.createUserNotification({
+        recipientId: course.providerId.toString(),
+        type: 'NEW_ENROLLMENT',
+        title: 'Có học viên mới',
+        message: `Một học viên vừa ghi danh vào khóa học "${course.title}" của bạn.`,
+        link: `/trainer/courses/${courseId}`
+      }).catch(err => console.error('Failed to notify trainer:', err))
+    }
+
     // Auto-create ISA record nếu khóa học có funding_model = ISA
     if (course.funding_model === FUNDING_LEARNER_PAY_MODE.ISA && enrollment) {
       try {

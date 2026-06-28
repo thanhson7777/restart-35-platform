@@ -121,21 +121,31 @@ const softDelete = async (id) => {
 
 const findByUser = async (userId, query = {}) => {
   try {
-    const { page = 1, item_per_page = 10 } = query
+    const { page = 1, item_per_page = 10, status, search } = query
     const skip = (page - 1) * item_per_page
     const limit = parseInt(item_per_page)
 
+    const matchCondition = { userId: String(userId), _destroy: { $ne: true } }
+
+    if (status) {
+      matchCondition.status = status
+    }
+
+    if (search) {
+      matchCondition.$or = [
+        { 'employer.name': { $regex: search, $options: 'i' } },
+        { 'job.title': { $regex: search, $options: 'i' } }
+      ]
+    }
+
     const [placements, total] = await Promise.all([
       GET_DB().collection(PLACEMENT_COLLECTION_NAME)
-        .find({ userId: String(userId), _destroy: { $ne: true } })
+        .find(matchCondition)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .toArray(),
-      GET_DB().collection(PLACEMENT_COLLECTION_NAME).countDocuments({
-        userId: String(userId),
-        _destroy: { $ne: true }
-      })
+      GET_DB().collection(PLACEMENT_COLLECTION_NAME).countDocuments(matchCondition)
     ])
     return { placements, total }
   } catch (error) {

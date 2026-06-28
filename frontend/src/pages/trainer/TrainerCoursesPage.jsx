@@ -15,7 +15,8 @@ import {
   Edit,
   Trash2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ArrowRight
 } from 'lucide-react';
 import {
   Button,
@@ -37,7 +38,7 @@ import {
   DialogDescription,
   DialogFooter
 } from '@/components/ui';
-import { getMyCourses, getMyCourseStats, deleteCourse, cancelCourseApproval } from '@/apis/trainerApi';
+import { getMyCourses, getMyCourseStats, deleteCourse, cancelCourseApproval, startCourse } from '@/apis/trainerApi';
 import TrainerCourseCard from '@/components/trainer/TrainerCourseCard';
 import toast from 'react-hot-toast';
 import { useSocket } from '@/contexts/SocketContext';
@@ -69,6 +70,9 @@ const TrainerCoursesPage = () => {
   // Confirm Modals
   const [confirmCancelModal, setConfirmCancelModal] = useState({ open: false, courseId: null });
   const [confirmingCancel, setConfirmingCancel] = useState(false);
+
+  const [confirmStartModal, setConfirmStartModal] = useState({ open: false, courseId: null, courseTitle: '' });
+  const [confirmingStart, setConfirmingStart] = useState(false);
 
   // Fetch all courses (to compute stats accurately)
   const fetchStats = useCallback(async () => {
@@ -121,16 +125,16 @@ const TrainerCoursesPage = () => {
   // Lắng nghe realtime từ socket để cập nhật trạng thái khóa học
   useEffect(() => {
     if (!socket) return;
-    
+
     const handleNewNotification = (notification) => {
       if (notification?.type === 'COURSE_APPROVED' || notification?.type === 'COURSE_REJECTED') {
         fetchCourses();
         fetchStats();
       }
     };
-    
+
     socket.on('NEW_NOTIFICATION', handleNewNotification);
-    
+
     return () => {
       socket.off('NEW_NOTIFICATION', handleNewNotification);
     };
@@ -183,6 +187,28 @@ const TrainerCoursesPage = () => {
 
   const openCancelConfirmModal = (courseId) => {
     setConfirmCancelModal({ open: true, courseId });
+  };
+
+  // Handle Start Course
+  const handleStartCourse = async () => {
+    if (!confirmStartModal.courseId) return;
+    setConfirmingStart(true);
+    try {
+      await startCourse(confirmStartModal.courseId);
+      toast.success('Bắt đầu khóa học thành công!');
+      setConfirmStartModal({ open: false, courseId: null, courseTitle: '' });
+      fetchCourses();
+      fetchStats();
+    } catch (err) {
+      console.error('Error starting course:', err);
+      toast.error(err.response?.data?.message || 'Không thể bắt đầu khóa học.');
+    } finally {
+      setConfirmingStart(false);
+    }
+  };
+
+  const openStartConfirmModal = (courseId, courseTitle) => {
+    setConfirmStartModal({ open: true, courseId, courseTitle });
   };
 
   // Status mapping for table view
@@ -269,8 +295,8 @@ const TrainerCoursesPage = () => {
               key={status}
               onClick={() => handleFilterChange(status)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${statusFilter === status
-                  ? 'bg-[hsl(var(--admin-accent))] text-white'
-                  : 'bg-transparent text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
+                ? 'bg-[hsl(var(--admin-accent))] text-white'
+                : 'bg-transparent text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-text-primary))]'
                 }`}
             >
               {status === 'all' ? 'Tất cả' : status === 'approved' ? 'Đã xuất bản' : status === 'pending' ? 'Chờ duyệt' : 'Bản nháp'}
@@ -338,11 +364,12 @@ const TrainerCoursesPage = () => {
         /* Grid Layout */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
-            <TrainerCourseCard 
-              key={course._id} 
-              course={course} 
+            <TrainerCourseCard
+              key={course._id}
+              course={course}
               onRefresh={() => { fetchCourses(); fetchStats(); }}
               onCancelApproval={openCancelConfirmModal}
+              onStartCourse={openStartConfirmModal}
             />
           ))}
         </div>
@@ -396,10 +423,10 @@ const TrainerCoursesPage = () => {
                     </div>
                   </TableCell>
                   <TableCell className="py-4 text-[hsl(var(--admin-text-secondary))] font-medium">
-                    {course.fundingConfig?.type === 'FREE' 
-                      ? 'Miễn phí' 
-                      : course.fundingConfig?.price 
-                        ? `${course.fundingConfig.price.toLocaleString('vi-VN')} đ` 
+                    {course.fundingConfig?.type === 'FREE'
+                      ? 'Miễn phí'
+                      : course.fundingConfig?.price
+                        ? `${course.fundingConfig.price.toLocaleString('vi-VN')} đ`
                         : 'Không xác định'}
                   </TableCell>
                   <TableCell className="py-4 text-right">
@@ -424,11 +451,23 @@ const TrainerCoursesPage = () => {
                           </Button>
                         </div>
                       ) : (
-                        <Button asChild size="sm" variant="outline" className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]" title="Chỉnh sửa">
-                          <Link to={`/trainer/courses/${course._id}/edit`}>
-                            <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                        <>
+                          {course.status === 'approved' && (
+                            <Button
+                              size="sm"
+                              onClick={() => openStartConfirmModal(course._id, course.title)}
+                              className="bg-[hsl(var(--admin-warning))] hover:bg-[hsl(var(--admin-warning-hover))] text-white shadow-sm"
+                              title="Chốt danh sách & Bắt đầu"
+                            >
+                              <ArrowRight className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button asChild size="sm" variant="outline" className="border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]" title="Chỉnh sửa">
+                            <Link to={`/trainer/courses/${course._id}/edit`}>
+                              <Edit className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </>
                       )}
                       <Button
                         size="sm"
@@ -495,6 +534,40 @@ const TrainerCoursesPage = () => {
             </Button>
             <Button onClick={handleCancelApproval} disabled={confirmingCancel} className="bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white">
               {confirmingCancel ? 'Đang xử lý...' : 'Xác nhận rút'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Start Course Confirm Modal */}
+      <Dialog open={confirmStartModal.open} onOpenChange={(open) => !open && setConfirmStartModal({ open: false, courseId: null, courseTitle: '' })}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-[hsl(var(--admin-text-primary))]">Chốt danh sách & Bắt đầu khóa học</DialogTitle>
+            <DialogDescription className="text-[hsl(var(--admin-text-secondary))] pt-2">
+              Bạn có chắc chắn muốn chốt danh sách và bắt đầu khóa học <strong>{confirmStartModal.courseTitle}</strong>?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="bg-[hsl(var(--admin-warning)_/_10%)] text-[hsl(var(--admin-warning-hover))] p-3 rounded-md text-sm border border-[hsl(var(--admin-warning)_/_20%)]">
+            <strong>Lưu ý quan trọng:</strong> Sau khi chốt danh sách, học viên tiếp theo sẽ không thể tiếp tục đăng ký khóa học này.
+          </div>
+
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setConfirmStartModal({ open: false, courseId: null, courseTitle: '' })}
+              disabled={confirmingStart}
+              className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-secondary))] bg-[hsl(var(--admin-surface))]"
+            >
+              Đóng
+            </Button>
+            <Button
+              onClick={handleStartCourse}
+              disabled={confirmingStart}
+              className="bg-[hsl(var(--admin-warning))] hover:bg-[hsl(var(--admin-warning-hover))] text-white font-medium shadow-sm"
+            >
+              {confirmingStart ? 'Đang xử lý...' : 'Chốt & Bắt đầu'}
             </Button>
           </DialogFooter>
         </DialogContent>

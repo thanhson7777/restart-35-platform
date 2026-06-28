@@ -253,6 +253,21 @@ const approveCourse = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const startCourse = async (req, res, next) => {
+  try {
+    const courseId = req.params.id
+    const providerId = req.user._id.toString()
+    const course = await courseService.startCourse(courseId, providerId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Chốt danh sách và bắt đầu khóa học thành công! Ngân sách tài trợ thừa đã được hoàn trả.',
+      data: course
+    })
+  } catch (error) { next(error) }
+}
+
+
 // ============ ADMIN ============
 const getPendingCourses = async (req, res, next) => {
   try {
@@ -314,7 +329,9 @@ const getCourseLessons = async (req, res, next) => {
     let lessons = []
     const course = await courseModel.findOneById(req.params.id)
     if (course && course.syllabus && course.syllabus.length > 0) {
-      lessons = course.syllabus.map((item, index) => ({
+      lessons = course.syllabus
+        .filter(item => item.videoUrl || item.fileUrl)
+        .map((item, index) => ({
         _id: item._id,
         id: item._id,
         courseId: req.params.id,
@@ -347,7 +364,7 @@ const getPreviewLessons = async (req, res, next) => {
     let lessons = []
     const course = await courseModel.findOneById(req.params.id)
     if (course && course.syllabus && course.syllabus.length > 0) {
-      const videoSyllabus = course.syllabus.filter(item => item.videoUrl)
+      const videoSyllabus = course.syllabus.filter(item => item.videoUrl || item.fileUrl)
       const previewItems = videoSyllabus.slice(0, 3)
       lessons = previewItems.map((item, index) => ({
         _id: item._id,
@@ -403,6 +420,7 @@ export const courseController = {
   submitForApproval,
   cancelSubmitCourse,
   approveCourse,
+  startCourse,
   uploadCourseResource,
 
   // Admin

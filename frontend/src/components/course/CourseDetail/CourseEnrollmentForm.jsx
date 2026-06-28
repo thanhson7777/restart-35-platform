@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import { Users, AlertTriangle, BookOpen, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import { ENROLLMENT_SOURCE } from '@/utils/constants';
 
 // Import Funding Sidebar sub-cards
@@ -25,6 +26,7 @@ export const CourseEnrollmentForm = ({
   onSubmit,
   isSubmitting,
 }) => {
+  const navigate = useNavigate();
   const currentUser = useSelector(selectCurrentUser);
   const [motivation, setMotivation] = useState('');
   const [activeCount, setActiveCount] = useState(0);
@@ -94,6 +96,7 @@ export const CourseEnrollmentForm = ({
   const handleEnrollSubmit = async (additionalData = {}) => {
     if (!currentUser) {
       toast.error('Vui lòng đăng nhập để đăng ký khóa học.');
+      navigate('/login');
       return;
     }
 

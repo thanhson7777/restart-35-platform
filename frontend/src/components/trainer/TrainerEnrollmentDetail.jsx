@@ -281,51 +281,6 @@ export const TrainerEnrollmentDetail = ({
         </div>
       </div>
 
-      {/* Footer Section: Actions */}
-      <BezelCard className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]/80 p-5 flex flex-col sm:flex-row items-center justify-between gap-4" padding="default">
-        <div>
-          <h3 className="text-sm font-bold text-[hsl(var(--admin-text-primary))]">Quản trị trạng thái học tập</h3>
-          <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Thay đổi tình trạng tham gia học tập của học viên đối với khóa học này.</p>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-3">
-          {status !== 'suspended' && status !== 'completed' && status !== 'failed' && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onSuspend}
-              className="border-[hsl(var(--admin-warning)/30%)] text-[hsl(var(--admin-warning))] hover:bg-[hsl(var(--admin-warning)/10%)] gap-1.5 transition-all duration-200 font-semibold"
-            >
-              <UserX size={14} />
-              Tạm ngưng học
-            </Button>
-          )}
-          
-          {status !== 'completed' && status !== 'failed' && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onComplete}
-                className="border-[hsl(var(--admin-success)/30%)] text-[hsl(var(--admin-success))] hover:bg-[hsl(var(--admin-success)/10%)] gap-1.5 transition-all duration-200 font-semibold"
-              >
-                <CheckCircle size={14} />
-                Hoàn thành khóa học
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onFail}
-                className="border-[hsl(var(--admin-danger)/30%)] text-[hsl(var(--admin-danger))] hover:bg-[hsl(var(--admin-danger)/10%)] gap-1.5 transition-all duration-200 font-semibold"
-              >
-                <XCircle size={14} />
-                Đánh trượt học viên
-              </Button>
-            </>
-          )}
-        </div>
-      </BezelCard>
     </div>
   );
 };

@@ -446,6 +446,50 @@ export default function EnterpriseApplicationDetailPage() {
               </Card>
             )}
 
+            {/* Certifications */}
+            {profileData.certifications && profileData.certifications.length > 0 && (
+              <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <GraduationCap size={18} /> Chứng chỉ & Đào tạo
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3">
+                    {profileData.certifications.map((cert, idx) => {
+                      if (typeof cert === 'string') {
+                        return (
+                          <div key={idx} className="flex items-center p-3 rounded-lg border border-[hsl(var(--admin-border))]">
+                            <p className="text-sm font-medium">{cert}</p>
+                          </div>
+                        )
+                      }
+                      return (
+                        <div key={cert._id || idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border border-[hsl(var(--admin-border))]">
+                          <div className="mb-2 sm:mb-0">
+                            <p className="text-sm font-semibold text-[hsl(var(--admin-text-primary))]">{cert.courseTitle || 'Chứng chỉ khóa học'}</p>
+                            <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-0.5">
+                              Ngày cấp: {formatDate(cert.issuedDate)} • Giảng viên: {cert.trainerName || 'Hệ thống'}
+                            </p>
+                          </div>
+                          {cert.verificationCode && (
+                            <a 
+                              href={`/verify/${cert.verificationCode}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center justify-center text-xs font-medium text-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent)/0.1)] border border-[hsl(var(--admin-accent)/0.2)] px-3 py-1.5 rounded-md transition-colors"
+                            >
+                              Xem
+                            </a>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Aspirations */}
             {(profileData.aspirations) && (
               <Card className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]">

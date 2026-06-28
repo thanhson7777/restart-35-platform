@@ -48,6 +48,14 @@ Router.get(
   placementController.getPlacementById
 )
 
+// Tiến độ học tập của placement (Enterprise)
+Router.get(
+  '/:id/learning-progress',
+  authMiddleware.isAuthorized,
+  placementValidation.checkPlacementId,
+  placementController.getPlacementLearningProgress
+)
+
 // Gửi feedback cho placement
 Router.post(
   '/:id/feedback',

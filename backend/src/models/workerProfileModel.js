@@ -304,15 +304,38 @@ const updateAIData = async (profileId, aiData) => {
   }
 }
 
+const addSkillsToProfile = async (userId, skills) => {
+  try {
+    if (!skills || skills.length === 0) return null
+    
+    // We append the new skills to `aspirations.skills`
+    // using $addToSet to avoid duplication
+    const result = await GET_DB().collection(WORKER_PROFILE_COLLECTION_NAME).findOneAndUpdate(
+      { userId: userId },
+      {
+        $addToSet: {
+          'aspirations.skills': { $each: skills }
+        },
+        $set: { updatedAt: Date.now() }
+      },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 export const workerProfileModel = {
   WORKER_PROFILE_COLLECTION_NAME,
+  WORKER_PROFILE_COLLECTION_SCHEMA,
   createNew,
-  findOneByUserId,
   findOneById,
+  findOneByUserId,
   update,
-  upsertByUserId,
   updateStep,
   completeProfile,
   getProfiles,
-  updateAIData
+  updateAIData,
+  addSkillsToProfile
 }

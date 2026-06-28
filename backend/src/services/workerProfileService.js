@@ -1,5 +1,7 @@
 import { workerProfileModel } from '~/models/workerProfileModel'
 import { userModel } from '~/models/userModel'
+import { certificateModel } from '~/models/certificateModel'
+import { courseModel } from '~/models/courseModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { WORKER_PROFILE_STEPS, DEFAULT_PAGE, DEFAULT_ITEM_PER_PAGE } from '~/utils/constants'
@@ -36,12 +38,38 @@ const createNew = async (userId) => {
   } catch (error) { throw error }
 }
 
+const fetchProfileCertificates = async (userId) => {
+  const result = await certificateModel.findByUser(userId)
+  const certs = result?.certificates || []
+  if (certs.length === 0) return []
+  
+  const mapped = []
+  for (const cert of certs) {
+    const course = await courseModel.findOneById(cert.courseId)
+    let trainerName = 'Giảng viên'
+    if (cert.issuedBy) {
+      const issuer = await userModel.findOneById(cert.issuedBy)
+      if (issuer) trainerName = issuer.displayName || issuer.username
+    }
+    mapped.push({
+      ...cert,
+      courseTitle: course?.title || 'Khóa học',
+      trainerName
+    })
+  }
+  return mapped
+}
+
 const getMyProfile = async (userId) => {
   try {
     const profile = await workerProfileModel.findOneByUserId(userId)
     if (!profile) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Hồ sơ không tồn tại!')
     }
+    
+    // Đính kèm chứng chỉ
+    profile.certifications = await fetchProfileCertificates(userId)
+    
     return profile
   } catch (error) { throw error }
 }
@@ -52,6 +80,12 @@ const getProfileById = async (profileId) => {
     if (!profile) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Hồ sơ không tồn tại!')
     }
+    
+    // Đính kèm chứng chỉ
+    if (profile.userId) {
+      profile.certifications = await fetchProfileCertificates(profile.userId)
+    }
+    
     return profile
   } catch (error) { throw error }
 }
@@ -191,6 +225,11 @@ const getProfileWithUserInfo = async (profileId) => {
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Người dùng không tồn tại!')
     }
+    
+    // Đính kèm chứng chỉ
+    if (profile.userId) {
+      profile.certifications = await fetchProfileCertificates(profile.userId)
+    }
 
     return {
       ...profile,
@@ -214,5 +253,6 @@ export const workerProfileService = {
   reopenProfile,
   getProfiles,
   updateAIData,
-  getProfileWithUserInfo
+  getProfileWithUserInfo,
+  fetchProfileCertificates
 }

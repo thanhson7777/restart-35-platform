@@ -146,18 +146,14 @@ export const TrainerStudentTable = ({
                   )}
                   <TableCell className="py-4">
                     {(() => {
-                      const isOffline = item.course?.delivery_type !== 'video';
-                      let current = item.progress?.currentLesson || 0;
-                      let total = item.progress?.totalLessons || 0;
-                      let percentage = item.progress?.percentage || 0;
-                      let label = 'bài';
+                      // Platform only uses sessions (no video courses)
+                      const totalSess = item.attendance?.totalSessions || item.progress?.totalLessons || 0;
+                      const attended = (item.attendance?.present || 0) + (item.attendance?.late || 0);
                       
-                      if (isOffline && item.attendance && item.attendance.totalSessions > 0) {
-                        current = (item.attendance.present || 0) + (item.attendance.late || 0);
-                        total = item.attendance.totalSessions;
-                        percentage = Math.round((current / total) * 100) || 0;
-                        label = 'buổi';
-                      }
+                      const current = attended;
+                      const total = totalSess;
+                      const percentage = totalSess > 0 ? Math.round((current / totalSess) * 100) : 0;
+                      const label = 'buổi';
 
                       return (
                         <div className="flex flex-col gap-1 w-32">

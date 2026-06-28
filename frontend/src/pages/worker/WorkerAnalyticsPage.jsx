@@ -412,7 +412,7 @@ export default function WorkerAnalyticsPage() {
                       <tbody>
                         {applications.map(app => (
                           <tr key={app._id} className="border-b border-[hsl(var(--border))] last:border-0 hover:bg-[hsl(var(--muted)/0.5)]">
-                            <td className="px-4 py-3 font-medium text-[hsl(var(--foreground))]">{app.job?.title || 'N/A'}</td>
+                            <td className="px-4 py-3 font-medium text-[hsl(var(--foreground))]">{app.jobTitle || app.job?.title || 'N/A'}</td>
                             <td className="px-4 py-3">
                               <span className="px-2 py-1 text-xs font-medium rounded-full bg-[hsl(var(--muted))] text-[hsl(var(--foreground))]">
                                 {APP_STATUS_MAP[app.status] || app.status}

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, CheckCircle, XCircle, RefreshCw, ExternalLink, Info, Calendar } from 'lucide-react';
+import { Briefcase, CheckCircle, XCircle, RefreshCw, ExternalLink, Info, Calendar, Search } from 'lucide-react';
 
-import { Button, Badge, Card, CardContent } from '@/components/ui';
+import { Button, Badge, Card, CardContent, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui';
 import { getMyPlacements, updatePlacementStatus } from '@/apis/placementApi';
 import toast from 'react-hot-toast';
 import {
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/Dialog';
 
 const STATUS_UI = {
-  referred: { label: 'Chờ phỏng vấn', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+  referred: { label: 'Chờ xét duyệt', color: 'bg-blue-100 text-blue-700 border-blue-200' },
   interviewing: { label: 'Đang phỏng vấn', color: 'bg-amber-100 text-amber-700 border-amber-200' },
   offered: { label: 'Đã nhận Offer', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   accepted: { label: 'Đã chấp nhận', color: 'bg-green-100 text-green-700 border-green-200' },
@@ -39,21 +39,51 @@ export default function WorkerPlacementsPage() {
   const [placements, setPlacements] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  // Search and Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Simple useDebounce effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [acceptModal, setAcceptModal] = useState({ open: false, placementId: null });
   const [rejectModal, setRejectModal] = useState({ open: false, placementId: null });
   const [actionLoading, setActionLoading] = useState(null);
 
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter]);
+
   const fetchPlacements = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getMyPlacements();
-      setPlacements(res.data?.data?.placements || []);
+      const params = { page, item_per_page: 5 }; // Giới hạn 5 item mỗi trang cho dễ test
+      if (statusFilter !== 'all') params.status = statusFilter;
+      if (debouncedSearch) params.search = debouncedSearch;
+
+      const res = await getMyPlacements(params);
+      setPlacements(res.data?.data || []);
+      
+      const total = res.data?.pagination?.total || 0;
+      const limit = res.data?.pagination?.item_per_page || 5;
+      setTotalPages(Math.ceil(total / limit) || 1);
     } catch (error) {
       toast.error('Không thể tải danh sách cơ hội việc làm!');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [statusFilter, debouncedSearch, page]);
 
   useEffect(() => {
     fetchPlacements();
@@ -98,12 +128,13 @@ export default function WorkerPlacementsPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           {[
             { key: 'all', label: 'Tổng số', className: 'bg-slate-100 text-slate-700' },
+            { key: 'referred', label: 'Chờ xét duyệt', className: 'bg-blue-100 text-blue-700' },
             { key: 'offered', label: 'Đang chờ xác nhận', className: 'bg-emerald-100 text-emerald-700' },
-            { key: 'interviewing', label: 'Đang phỏng vấn', className: 'bg-amber-100 text-amber-700' },
-            { key: 'accepted', label: 'Đã nhận việc', className: 'bg-blue-100 text-blue-700' }
+            { key: 'accepted', label: 'Đã nhận việc', className: 'bg-indigo-100 text-indigo-700' },
+            { key: 'rejected', label: 'Đã từ chối', className: 'bg-rose-100 text-rose-700' }
           ].map(stat => (
             <div
               key={stat.key}
@@ -119,9 +150,34 @@ export default function WorkerPlacementsPage() {
           ))}
         </div>
 
-        <Button variant="outline" onClick={fetchPlacements} className="mb-6 gap-2">
-          <RefreshCw size={13} /> Làm mới
-        </Button>
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+          <div className="relative w-full sm:max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Tìm tên công ty, công việc..." 
+              className="pl-9 bg-white"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-[180px] bg-white">
+              <SelectValue placeholder="Trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả trạng thái</SelectItem>
+              <SelectItem value="referred">Chờ xét duyệt</SelectItem>
+              <SelectItem value="offered">Đang chờ xác nhận</SelectItem>
+              <SelectItem value="accepted">Đã nhận việc</SelectItem>
+              <SelectItem value="rejected">Đã từ chối</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button variant="outline" onClick={fetchPlacements} className="gap-2 ml-auto">
+            <RefreshCw size={13} /> Làm mới
+          </Button>
+        </div>
 
         {loading ? (
           <div className="space-y-4">
@@ -187,15 +243,6 @@ export default function WorkerPlacementsPage() {
                         </button>
                       </div>
                       
-                      {placement.interviewDate && (
-                        <div>
-                          <p className="text-xs text-[hsl(var(--muted-foreground))]">Lịch phỏng vấn</p>
-                          <p className="text-sm font-medium flex items-center gap-1">
-                            <Calendar size={13} className="text-amber-600" />
-                            {new Date(placement.interviewDate).toLocaleString('vi-VN')}
-                          </p>
-                        </div>
-                      )}
                       
                       {hasOffer && placement.offerDetails?.startDate && (
                         <div>
@@ -258,6 +305,31 @@ export default function WorkerPlacementsPage() {
                 </Card>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {!loading && totalPages > 1 && (
+          <div className="flex justify-center items-center gap-4 mt-8">
+            <Button 
+              variant="outline" 
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="bg-white"
+            >
+              Trang trước
+            </Button>
+            <span className="text-sm font-medium text-slate-600 bg-slate-100 px-4 py-2 rounded-lg border border-slate-200">
+              Trang {page} / {totalPages}
+            </span>
+            <Button 
+              variant="outline" 
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="bg-white"
+            >
+              Trang sau
+            </Button>
           </div>
         )}
       </div>

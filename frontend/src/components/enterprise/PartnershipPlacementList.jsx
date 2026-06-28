@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Avatar, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Badge, Button } from '@/components/ui';
-import { Calendar, CheckCircle, XCircle, MoreHorizontal, Clock } from 'lucide-react';
+import { Avatar, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Badge, Button, Progress } from '@/components/ui';
+import { Calendar, CheckCircle, XCircle, MoreHorizontal, Clock, Eye } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
-import { getPlacements, updatePlacementStatus } from '@/apis/placementApi';
+import { getPlacements, updatePlacementStatus, getPlacementLearningProgress } from '@/apis/placementApi';
 import toast from 'react-hot-toast';
 
 const STATUS_UI = {
@@ -29,8 +29,19 @@ const PartnershipPlacementList = ({ partnershipId }) => {
   const [loading, setLoading] = useState(true);
   
   // Dialog states
-  const [interviewDialog, setInterviewDialog] = useState({ isOpen: false, placementId: null, date: '' });
   const [offerDialog, setOfferDialog] = useState({ isOpen: false, placementId: null, salary: '', startDate: '' });
+  const [progressDialog, setProgressDialog] = useState({ isOpen: false, placement: null, data: null, loading: false });
+
+  const fetchProgressData = async (placement) => {
+    setProgressDialog(prev => ({ ...prev, isOpen: true, placement, loading: true }));
+    try {
+      const res = await getPlacementLearningProgress(placement._id);
+      setProgressDialog(prev => ({ ...prev, data: res.data?.data, loading: false }));
+    } catch (error) {
+      toast.error('Không thể tải thông tin quá trình học!');
+      setProgressDialog(prev => ({ ...prev, loading: false }));
+    }
+  };
 
   const fetchPlacements = async () => {
     setLoading(true);
@@ -58,14 +69,6 @@ const PartnershipPlacementList = ({ partnershipId }) => {
     } catch (error) {
       toast.error(error.response?.data?.message || 'Có lỗi xảy ra!');
     }
-  };
-
-  const submitInterview = () => {
-    if (!interviewDialog.date) return toast.error('Vui lòng chọn ngày phỏng vấn!');
-    handleUpdateStatus(interviewDialog.placementId, 'interviewing', {
-      interviewDate: new Date(interviewDialog.date).getTime()
-    });
-    setInterviewDialog({ isOpen: false, placementId: null, date: '' });
   };
 
   const submitOffer = () => {
@@ -122,9 +125,6 @@ const PartnershipPlacementList = ({ partnershipId }) => {
                   </TableCell>
                   <TableCell>
                     <div className="text-xs text-[hsl(var(--admin-text-secondary))] space-y-1">
-                      {placement.status === 'interviewing' && placement.interviewDate && (
-                        <p>Lịch PV: <span className="font-medium text-[hsl(var(--admin-text-primary))]">{new Date(placement.interviewDate).toLocaleString('vi-VN')}</span></p>
-                      )}
                       {placement.status === 'offered' && placement.offerDetails?.offeredSalary && (
                         <>
                           <p>Lương: <span className="font-medium text-emerald-600">{new Intl.NumberFormat('vi-VN').format(placement.offerDetails.offeredSalary)} đ</span></p>
@@ -132,7 +132,7 @@ const PartnershipPlacementList = ({ partnershipId }) => {
                         </>
                       )}
                       {(placement.status === 'accepted' || placement.status === 'started') && (
-                        <p className="text-green-600 font-medium flex items-center gap-1"><CheckCircle size={12} /> Đã chốt</p>
+                        <p className="text-green-600 font-medium flex items-center gap-1"><CheckCircle size={12} /> Đã chấp nhận</p>
                       )}
                       {placement.status === 'rejected' && (
                         <p className="text-rose-500 flex items-center gap-1"><XCircle size={12} /> Không phù hợp</p>
@@ -145,9 +145,9 @@ const PartnershipPlacementList = ({ partnershipId }) => {
                         <Button 
                           variant="outline" 
                           className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                          onClick={() => setInterviewDialog({ isOpen: true, placementId: placement._id, date: '' })}
+                          onClick={() => fetchProgressData(placement)}
                         >
-                          <Calendar className="mr-1 h-3.5 w-3.5" /> Lịch PV
+                          <Eye className="mr-1 h-3.5 w-3.5" /> Xem quá trình học
                         </Button>
                       )}
                       
@@ -184,22 +184,68 @@ const PartnershipPlacementList = ({ partnershipId }) => {
         </Table>
       </div>
 
-      {/* Lên lịch phỏng vấn Modal */}
-      <Dialog open={interviewDialog.isOpen} onOpenChange={(v) => setInterviewDialog(prev => ({ ...prev, isOpen: v }))}>
-        <DialogContent>
+      {/* Xem quá trình học Modal */}
+      <Dialog open={progressDialog.isOpen} onOpenChange={(v) => setProgressDialog(prev => ({ ...prev, isOpen: v }))}>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Lên lịch phỏng vấn</DialogTitle>
-            <DialogDescription>Chọn thời gian phỏng vấn cho ứng viên này.</DialogDescription>
+            <DialogTitle>Quá trình học của {progressDialog.placement?.user?.displayName || 'học viên'}</DialogTitle>
+            <DialogDescription>Đánh giá tiến độ học tập trước khi đưa ra quyết định.</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Thời gian phỏng vấn</label>
-              <Input type="datetime-local" value={interviewDialog.date} onChange={e => setInterviewDialog(prev => ({ ...prev, date: e.target.value }))} />
-            </div>
+          <div className="py-4">
+            {progressDialog.loading ? (
+              <div className="text-center text-sm text-[hsl(var(--admin-text-muted))] py-8">Đang tải dữ liệu...</div>
+            ) : progressDialog.data ? (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-[hsl(var(--admin-border))] p-4 bg-[hsl(var(--admin-surface-subtle))]">
+                  <h4 className="font-medium text-[hsl(var(--admin-text-primary))] mb-1">{progressDialog.data.course?.title}</h4>
+                  
+                  <div className="mt-4 flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-[hsl(var(--admin-text-secondary))]">Tiến độ hoàn thành</span>
+                    <span className="text-sm font-bold text-blue-600">{progressDialog.data.progress?.percentage || 0}%</span>
+                  </div>
+                  <Progress value={progressDialog.data.progress?.percentage || 0} className="h-2 bg-slate-200 [&>div]:bg-blue-600" />
+                  
+                  <div className="mt-4 pt-4 border-t border-[hsl(var(--admin-border))] flex justify-between items-center">
+                    <span className="text-sm text-[hsl(var(--admin-text-secondary))]">Trạng thái khóa học:</span>
+                    <Badge variant={progressDialog.data.status === 'completed' ? 'default' : 'outline'} className={progressDialog.data.status === 'completed' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : ''}>
+                      {progressDialog.data.status === 'completed' ? 'Đã hoàn thành' : 'Đang học'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-sm text-rose-500 py-8">Không có dữ liệu quá trình học.</div>
+            )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setInterviewDialog(prev => ({ ...prev, isOpen: false }))}>Hủy</Button>
-            <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={submitInterview}>Xác nhận</Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center border-t border-[hsl(var(--admin-border))] pt-4 mt-2">
+            <div>
+              <Button variant="outline" onClick={() => setProgressDialog(prev => ({ ...prev, isOpen: false }))}>Đóng</Button>
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+              {progressDialog.placement?.status === 'referred' && (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="text-rose-500 border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                    onClick={() => {
+                      handleUpdateStatus(progressDialog.placement._id, 'rejected');
+                      setProgressDialog(prev => ({ ...prev, isOpen: false }));
+                    }}
+                  >
+                    Từ chối
+                  </Button>
+                  <Button 
+                    className="bg-emerald-600 text-white hover:bg-emerald-700"
+                    onClick={() => {
+                      setOfferDialog({ isOpen: true, placementId: progressDialog.placement._id, salary: '', startDate: '' });
+                      setProgressDialog(prev => ({ ...prev, isOpen: false }));
+                    }}
+                  >
+                    Gửi Offer
+                  </Button>
+                </>
+              )}
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

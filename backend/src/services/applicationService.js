@@ -238,6 +238,12 @@ const getWorkerProfile = async (applicationId, enterpriseId) => {
 
     // Lấy worker profile
     const workerProfile = await workerProfileModel.findOneByUserId(application.workerId)
+    
+    // Đính kèm chứng chỉ
+    if (workerProfile && workerProfile.userId) {
+      const { workerProfileService } = await import('~/services/workerProfileService')
+      workerProfile.certifications = await workerProfileService.fetchProfileCertificates(workerProfile.userId)
+    }
 
     return {
       user: {

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { BookOpen, Users, Calendar, Edit3, ArrowRight, Video, Globe, MapPin, XCircle } from 'lucide-react';
 import { Card, CardContent, Badge, Button, SafeImage } from '@/components/ui';
 
-const TrainerCourseCard = ({ course, onRefresh, onCancelApproval }) => {
+const TrainerCourseCard = ({ course, onRefresh, onCancelApproval, onStartCourse }) => {
   const {
     _id,
     title,
@@ -30,6 +30,7 @@ const TrainerCourseCard = ({ course, onRefresh, onCancelApproval }) => {
     draft: { text: 'Nháp', className: 'bg-gray-500/15 text-gray-400 border-gray-500/30' },
     pending: { text: 'Chờ duyệt', className: 'bg-[hsl(var(--admin-warning))]/15 text-[hsl(var(--admin-warning))] border-[hsl(var(--admin-warning))]/30' },
     approved: { text: 'Đã duyệt', className: 'bg-[hsl(var(--admin-accent-subtle))] text-[hsl(var(--admin-accent))] border-[hsl(var(--admin-accent))]/30' },
+    ongoing: { text: 'Đang diễn ra', className: 'bg-blue-500/15 text-blue-400 border-blue-500/30 font-semibold' },
     published: { text: 'Đã xuất bản', className: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 font-semibold' }
   };
 
@@ -132,25 +133,40 @@ const TrainerCourseCard = ({ course, onRefresh, onCancelApproval }) => {
               </Button>
             </>
           ) : (
-            <Button
-              size="sm"
-              className="col-span-2 bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white shadow-sm p-0"
-            >
-              <Link to={`/trainer/courses/${_id}/edit`} className="flex items-center justify-center gap-2 w-full h-full">
-                <Edit3 className="h-4 w-4 shrink-0" />
-                <span>Chỉnh sửa khóa học</span>
-              </Link>
-            </Button>
+            <>
+              {status === 'approved' && (
+                <Button
+                  size="sm"
+                  onClick={() => onStartCourse && onStartCourse(_id, title)}
+                  className="col-span-1 bg-[hsl(var(--admin-warning))] hover:bg-[hsl(var(--admin-warning-hover))] text-white shadow-sm p-0"
+                  title="Chốt danh sách, chặn đăng ký và hoàn tiền thừa cho nhà tài trợ"
+                >
+                  <div className="flex items-center justify-center gap-1.5 w-full h-full px-2">
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Chốt danh sách</span>
+                  </div>
+                </Button>
+              )}
+              <Button
+                size="sm"
+                className={`${status === 'approved' ? 'col-span-1' : 'col-span-2'} bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent-hover))] text-white shadow-sm p-0`}
+              >
+                <Link to={`/trainer/courses/${_id}/edit`} className="flex items-center justify-center gap-1.5 w-full h-full px-2">
+                  <Edit3 className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">Sửa</span>
+                </Link>
+              </Button>
+            </>
           )}
 
           <Button
             variant="outline"
             size="sm"
-            className={`border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] p-0 ${delivery_type === 'video' ? 'col-span-2' : ''}`}
+            className={`border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] p-0 ${delivery_type === 'video' && status !== 'approved' ? 'col-span-2' : 'col-span-1'}`}
           >
-            <Link to={`/trainer/courses/${_id}/students`} className="flex items-center justify-center gap-2 w-full h-full">
-              <Users className="h-4 w-4 shrink-0" />
-              <span>Học viên</span>
+            <Link to={`/trainer/courses/${_id}/students`} className="flex items-center justify-center gap-1.5 w-full h-full px-2">
+              <Users className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Học viên</span>
             </Link>
           </Button>
 
@@ -158,11 +174,11 @@ const TrainerCourseCard = ({ course, onRefresh, onCancelApproval }) => {
             <Button
               variant="outline"
               size="sm"
-              className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] p-0"
+              className={`border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] hover:text-[hsl(var(--admin-accent))] text-[hsl(var(--admin-text-secondary))] p-0 ${delivery_type !== 'video' && status !== 'approved' ? 'col-span-1' : 'col-span-1'}`}
             >
-              <Link to={`/trainer/courses/${_id}/schedule`} className="flex items-center justify-center gap-2 w-full h-full">
-                <Calendar className="h-4 w-4 shrink-0" />
-                <span>Lịch học</span>
+              <Link to={`/trainer/courses/${_id}/schedule`} className="flex items-center justify-center gap-1.5 w-full h-full px-2">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Lịch học</span>
               </Link>
             </Button>
           )}

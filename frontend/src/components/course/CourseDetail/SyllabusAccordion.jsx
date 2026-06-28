@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Badge } from '@/components/ui';
-import { ChevronDown, Play, FileText, HelpCircle, Lock, CheckCircle2 } from 'lucide-react';
+import { ChevronDown, Play, FileText, HelpCircle, Lock, CheckCircle2, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -42,13 +42,20 @@ export const SyllabusAccordion = ({
   return (
     <div className="space-y-4">
       {/* Syllabus Header Summary */}
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-base font-bold text-zinc-900 dark:text-white">
-          Nội dung chi tiết khóa học
-        </h3>
-        <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">
-          {syllabus.length} buổi {lessons.length > 0 && `• ${lessons.length} bài học`}
-        </span>
+      <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-100 dark:border-zinc-800">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-500 shadow-sm">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-white leading-none mb-1">
+              Nội dung chương trình
+            </h3>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Khám phá lộ trình học tập chi tiết
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Week Cards Accordion */}
@@ -87,13 +94,7 @@ export const SyllabusAccordion = ({
                   </div>
 
                   <div className="flex items-center gap-3 text-xs text-zinc-400 shrink-0 font-medium">
-                    {weekLessons.length > 0 ? (
-                      <span className="px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-900 text-[11px]">
-                        {completedCount}/{weekLessons.length} bài
-                      </span>
-                    ) : (
-                      week.duration && <span>{week.duration}</span>
-                    )}
+                    {week.duration && <span>{week.duration}</span>}
                   </div>
                 </button>
 
@@ -166,8 +167,8 @@ const LessonRow = ({ lesson, isEnrolled, delivery_type, courseId, enrollmentId }
           <Icon className="w-4 h-4 text-zinc-500 dark:text-zinc-400 stroke-[1.5]" />
         </div>
 
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-250 truncate">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 line-clamp-2 leading-snug">
             {lesson.title}
           </p>
           {lesson.duration > 0 && (
@@ -237,16 +238,44 @@ const LessonRow = ({ lesson, isEnrolled, delivery_type, courseId, enrollmentId }
             </div>
           )}
           
-          {lesson.content ? (
+          {lesson.resources?.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="font-semibold text-zinc-900 dark:text-zinc-100">Tài liệu đính kèm</h4>
+              <div className="grid gap-2">
+                {lesson.resources.map((resource, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+                    <div className="flex items-center gap-3 min-w-0 pr-4">
+                      <FileText className="w-5 h-5 text-emerald-500 shrink-0" />
+                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 truncate">
+                        {resource.title}
+                      </span>
+                    </div>
+                    <a 
+                      href={resource.url} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="shrink-0 px-3 py-1.5 text-xs font-semibold rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+                    >
+                      Xem tài liệu
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {lesson.description ? (
             <div 
               className="prose prose-zinc dark:prose-invert max-w-none text-sm leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: lesson.content }}
+              dangerouslySetInnerHTML={{ __html: lesson.description }}
             />
           ) : (
-            <div className="text-center py-10 bg-zinc-50 dark:bg-zinc-900/20 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
-              <FileText className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
-              <p className="text-zinc-500 font-medium">Tài liệu đang được cập nhật...</p>
-            </div>
+            (!lesson.videoUrl && !lesson.resources?.length) && (
+              <div className="text-center py-10 bg-zinc-50 dark:bg-zinc-900/20 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+                <FileText className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
+                <p className="text-zinc-500 font-medium">Tài liệu đang được cập nhật...</p>
+              </div>
+            )
           )}
         </div>
       </DialogContent>

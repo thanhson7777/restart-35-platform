@@ -41,15 +41,18 @@ const createCourseSponsorship = async (sponsorId, data) => {
     sponsorId,
     title: data.title,
     description: data.description || null,
-    fundingModel: data.fundingModel,
-    linkedCourses: data.linkedCourses,
+    fundingModel: data.fundingModel || (data.sponsorType === 'ngo' ? 'ngo' : 'enterprise'),
+    linkedCourses: (data.linkedCourses || []).map(lc => ({
+      ...lc,
+      coverage: lc.coverage || data.coverageType || 'full'
+    })),
     budget: data.budget,
     targetLearners: data.targetLearners,
     remaining: data.budget,
-    coverageType: data.coverageType,
+    coverageType: data.coverageType || 'full',
     maxAmountPerLearner: data.maxAmountPerLearner || null,
     eligibilityCriteria: data.eligibilityCriteria,
-    disbursementModel: data.disbursementModel,
+    disbursementModel: data.disbursementModel || 'upfront',
     autoApprove: data.autoApprove || false,
     priorityRecruitment: data.priorityRecruitment || false,
     clawbackPolicy: data.clawbackPolicy,
@@ -153,6 +156,41 @@ const approveCourseSponsorship = async (sponsorshipId) => {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Course sponsorship không tồn tại!')
   }
   return await courseSponsorshipModel.updateStatus(sponsorshipId, COURSE_SPONSORSHIP_STATUS.ACTIVE)
+}
+
+const refundRemainingBudget = async (sponsorshipId) => {
+  const sponsorship = await courseSponsorshipModel.findOneById(sponsorshipId)
+  if (!sponsorship) return null
+
+  // Chỉ hoàn tiền nếu có remaining > 0
+  if (sponsorship.remaining > 0) {
+    const wallet = await walletModel.findOneByUserId(sponsorship.sponsorId)
+    if (wallet) {
+      await walletModel.update(sponsorship.sponsorId, {
+        availableBalance: (wallet.availableBalance || 0) + sponsorship.remaining,
+        lockedBalance: Math.max(0, (wallet.lockedBalance || 0) - sponsorship.remaining)
+      })
+
+      // Lưu transaction
+      const { transactionModel } = await import('~/models/transactionModel')
+      await transactionModel.createNew({
+        walletId: String(wallet._id),
+        userId: sponsorship.sponsorId,
+        type: 'REFUND',
+        amount: sponsorship.remaining,
+        description: `Hoàn tiền dư khi khóa học chốt danh sách: ${sponsorship.title}`,
+        referenceId: sponsorshipId,
+        referenceModel: 'Sponsorship',
+        status: 'COMPLETED'
+      })
+    }
+  }
+
+  // Cập nhật trạng thái sponsorship thành EXPIRED và remaining = 0
+  return await courseSponsorshipModel.update(sponsorshipId, {
+    remaining: 0,
+    status: COURSE_SPONSORSHIP_STATUS.EXPIRED
+  })
 }
 
 const pauseCourseSponsorship = async (sponsorshipId, actorId, role) => {
@@ -374,6 +412,7 @@ export const courseSponsorshipService = {
   getCourseSponsorshipById,
   updateCourseSponsorship,
   approveCourseSponsorship,
+  refundRemainingBudget,
   pauseCourseSponsorship,
   resumeCourseSponsorship,
   linkCourse,
