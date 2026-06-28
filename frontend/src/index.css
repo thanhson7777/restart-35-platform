@@ -126,10 +126,13 @@
 
     /* Semantic */
     --admin-success: 142 71% 45%;
+    --admin-success-hover: 142 71% 40%;
     --admin-success-subtle: 142 71% 45% / 10%;
     --admin-danger: 0 72% 51%;
+    --admin-danger-hover: 0 72% 45%;
     --admin-danger-subtle: 0 72% 51% / 10%;
     --admin-warning: 38 92% 50%;
+    --admin-warning-hover: 38 92% 45%;
     --admin-warning-subtle: 38 92% 50% / 10%;
 
     /* Shadows - subtle for light theme */

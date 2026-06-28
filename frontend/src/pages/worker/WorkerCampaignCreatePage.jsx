@@ -28,8 +28,8 @@ const WorkerCampaignCreatePage = () => {
     // Fetch NGOs list for the dropdown
     const fetchNGOs = async () => {
       try {
-        const response = await authorizeAxiosInstance.get('/v1/users', { params: { role: 'ngo', limit: 100 } });
-        setNgos(response?.data?.data || []);
+        const response = await authorizeAxiosInstance.get('/v1/users/public/ngos', { params: { limit: 100 } });
+        setNgos(response?.data?.data?.users || []);
       } catch (error) {
         console.error('Error fetching NGOs', error);
       }
@@ -44,7 +44,7 @@ const WorkerCampaignCreatePage = () => {
         targetAmount: Number(data.targetAmount),
         deadline: new Date(data.deadline).getTime()
       };
-      
+
       await dispatch(submitCampaign(payload)).unwrap();
       toast.success('Gửi hồ sơ dự án khởi nghiệp thành công! Vui lòng chờ NGO duyệt.');
       navigate('/worker/campaigns');
@@ -65,19 +65,19 @@ const WorkerCampaignCreatePage = () => {
           </Button>
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tạo dự án khởi nghiệp</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Tạo dự án lập nghiệp</h1>
           <p className="text-sm text-gray-500 mt-1">Mô tả ý tưởng kinh doanh của bạn để nhận được sự bảo trợ và vốn từ cộng đồng</p>
         </div>
       </div>
 
       <Card className="p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          
+
           <div className="space-y-2">
             <Label htmlFor="title">Tên dự án kinh doanh <span className="text-red-500">*</span></Label>
-            <Input 
-              id="title" 
-              placeholder="VD: Mở tiệm giặt ủi tại Tân Bình" 
+            <Input
+              id="title"
+              placeholder="VD: Mở tiệm giặt ủi tại Tân Bình"
               {...register('title', { required: 'Vui lòng nhập tên dự án', minLength: { value: 10, message: 'Tên dự án tối thiểu 10 ký tự' } })}
             />
             {errors.title && <span className="text-sm text-red-500">{errors.title.message}</span>}
@@ -88,14 +88,14 @@ const WorkerCampaignCreatePage = () => {
             <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
               <Info className="w-3.5 h-3.5" /> NGO sẽ trực tiếp thẩm định và giải ngân tiền cho bạn nếu dự án thành công.
             </p>
-            <select 
-              id="ngoId" 
+            <select
+              id="ngoId"
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               {...register('ngoId', { required: 'Vui lòng chọn một tổ chức bảo lãnh' })}
             >
               <option value="">-- Chọn tổ chức NGO --</option>
               {ngos.map(ngo => (
-                <option key={ngo._id} value={ngo._id}>{ngo.displayName || ngo.username}</option>
+                <option key={ngo._id} value={ngo._id}>{ngo.organization?.name || ngo.displayName || ngo.username}</option>
               ))}
             </select>
             {errors.ngoId && <span className="text-sm text-red-500">{errors.ngoId.message}</span>}
@@ -104,11 +104,11 @@ const WorkerCampaignCreatePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="targetAmount">Số tiền cần gọi vốn (VNĐ) <span className="text-red-500">*</span></Label>
-              <Input 
-                id="targetAmount" 
+              <Input
+                id="targetAmount"
                 type="number"
-                placeholder="VD: 15000000" 
-                {...register('targetAmount', { 
+                placeholder="VD: 15000000"
+                {...register('targetAmount', {
                   required: 'Vui lòng nhập số tiền',
                   min: { value: 1000000, message: 'Số tiền tối thiểu 1.000.000đ' }
                 })}
@@ -118,8 +118,8 @@ const WorkerCampaignCreatePage = () => {
 
             <div className="space-y-2">
               <Label htmlFor="deadline">Hạn chót gọi vốn <span className="text-red-500">*</span></Label>
-              <Input 
-                id="deadline" 
+              <Input
+                id="deadline"
                 type="date"
                 {...register('deadline', { required: 'Vui lòng chọn hạn chót' })}
               />
@@ -129,10 +129,10 @@ const WorkerCampaignCreatePage = () => {
 
           <div className="space-y-2">
             <Label htmlFor="description">Kế hoạch kinh doanh chi tiết <span className="text-red-500">*</span></Label>
-            <Textarea 
-              id="description" 
+            <Textarea
+              id="description"
               rows={8}
-              placeholder="Vui lòng trình bày chi tiết về hoàn cảnh, ý tưởng kinh doanh, và bạn sẽ sử dụng số tiền gọi vốn như thế nào (VD: Mua 2 máy may, tiền thuê mặt bằng tháng đầu...)" 
+              placeholder="Vui lòng trình bày chi tiết về hoàn cảnh, ý tưởng kinh doanh, và bạn sẽ sử dụng số tiền gọi vốn như thế nào (VD: Mua 2 máy may, tiền thuê mặt bằng tháng đầu...)"
               {...register('description', { required: 'Vui lòng nhập kế hoạch chi tiết', minLength: { value: 50, message: 'Mô tả tối thiểu 50 ký tự' } })}
             />
             {errors.description && <span className="text-sm text-red-500">{errors.description.message}</span>}

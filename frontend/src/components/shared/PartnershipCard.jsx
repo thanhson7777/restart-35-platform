@@ -46,7 +46,7 @@ const PartnershipCard = ({ partnership, onClick, actionLabel = 'Xem chi tiết' 
             <p className="font-bold text-[hsl(var(--admin-text-primary))]">{recruitment.jobQuantity || 0} học viên</p>
           </div>
           <div className="rounded-xl border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))] p-3">
-            <div className="flex items-center gap-2 text-[hsl(var(--admin-text-secondary))] mb-1"><Users size={14} /> Đã placement</div>
+            <div className="flex items-center gap-2 text-[hsl(var(--admin-text-secondary))] mb-1"><Users size={14} /> Đã tuyển dụng</div>
             <p className="font-bold text-[hsl(var(--admin-text-primary))]">{stats.placedLearners || 0}</p>
           </div>
         </div>

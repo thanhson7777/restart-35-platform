@@ -151,18 +151,40 @@ export default function WorkerProfileCard({ profile, compact = false, onClick })
         {/* Certifications */}
         {profileData.certifications.length > 0 && (
           <div>
-            <h4 className="text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase mb-2 flex items-center gap-1">
-              <GraduationCap size={12} /> Chứng chỉ
+            <h4 className="text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase mb-3 flex items-center gap-1">
+              <GraduationCap size={12} /> Chứng chỉ & Đào tạo
             </h4>
-            <div className="flex flex-wrap gap-2">
-              {profileData.certifications.map((cert, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-1 text-xs rounded-full bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
-                >
-                  {cert}
-                </span>
-              ))}
+            <div className="grid gap-3">
+              {profileData.certifications.map((cert, idx) => {
+                if (typeof cert === 'string') {
+                  // Fallback for old string certs
+                  return (
+                    <span key={idx} className="inline-block px-2 py-1 text-xs rounded-full bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]">
+                      {cert}
+                    </span>
+                  )
+                }
+                return (
+                  <div key={cert._id || idx} className="flex items-center justify-between p-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))]">
+                    <div>
+                      <p className="text-sm font-medium text-[hsl(var(--foreground))]">{cert.courseTitle || 'Chứng chỉ khóa học'}</p>
+                      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">
+                        Ngày cấp: {formatDate(cert.issuedDate)} • {cert.trainerName || 'Hệ thống'}
+                      </p>
+                    </div>
+                    {cert.verificationCode && (
+                      <a 
+                        href={`/verify/${cert.verificationCode}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-medium text-[hsl(var(--primary))] hover:underline px-3 py-1.5 rounded-md bg-[hsl(var(--primary)/10)] shrink-0 ml-3"
+                      >
+                        Xác minh
+                      </a>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}

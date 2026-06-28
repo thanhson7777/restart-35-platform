@@ -263,7 +263,7 @@ export default function CertificatePage() {
             {/* ─── Certify Body Text ─── */}
             <div className="text-center relative z-10 space-y-3.5 my-auto">
               <p className="font-sans text-[11.5px] text-slate-600 font-medium">
-                Chứng nhận này được trân trọng trao cho / <span className="italic font-serif text-[10px] text-slate-400">This is to certify that</span>
+                Xác nhận học viên / <span className="italic font-serif text-[10px] text-slate-400">This is to certify that</span>
               </p>
               
               {/* Learner Name (Display Serif font lock for formal authenticity) */}
@@ -278,7 +278,7 @@ export default function CertificatePage() {
               </div>
 
               <p className="font-sans text-[11px] text-slate-600 font-medium">
-                Đã hoàn thành xuất sắc khóa học chuyên đề / <span className="italic font-serif text-[9.5px] text-slate-400">has successfully completed the specialized course</span>
+                Đã hoàn thành chương trình đào tạo / <span className="italic font-serif text-[9.5px] text-slate-400">has successfully completed the training program</span>
               </p>
 
               {/* Course Title */}
@@ -312,19 +312,17 @@ export default function CertificatePage() {
                 </p>
               </div>
 
-              {/* Center Column: Golden Seal Circle Graphic */}
+              {/* Center Column: Red Stamp Graphic */}
               <div className="w-[30%] flex flex-col items-center justify-center select-none">
                 <motion.div 
                   whileHover={{ rotate: 10 }}
-                  className="relative w-14 h-14 rounded-full bg-gradient-to-b from-[#FCD34D] to-[#D97706] flex items-center justify-center p-[2.5px] shadow-[0_3px_10px_rgba(217,119,6,0.25)] border border-[#B45309]/30"
+                  className="relative w-16 h-16 rounded-full border-[3px] border-double border-red-600/80 flex items-center justify-center p-[2px]"
                 >
-                  {/* Outer Seal dotted border */}
-                  <div className="absolute inset-[2px] rounded-full border border-dashed border-[#78350F]/20" />
-                  {/* Inner gold disk */}
-                  <div className="w-full h-full rounded-full bg-[#F59E0B] flex flex-col items-center justify-center text-center leading-none border border-[#FCD34D]/40">
-                    <span className="font-sans font-extrabold text-[5px] text-[#78350F] tracking-wider uppercase">SEAL</span>
-                    <span className="font-sans font-extrabold text-[5.5px] text-white tracking-widest mt-0.5">RESTART</span>
-                    <span className="font-sans font-bold text-[4px] text-[#78350F]/65 mt-0.5 font-mono">35+</span>
+                  {/* Inner red disk/ring */}
+                  <div className="w-full h-full rounded-full border border-red-600/60 flex flex-col items-center justify-center text-center leading-none">
+                    <span className="font-sans font-extrabold text-[5px] text-red-600 tracking-wider uppercase opacity-90">CHỨNG NHẬN</span>
+                    <span className="font-sans font-extrabold text-[7px] text-red-700 tracking-widest mt-0.5">RESTART</span>
+                    <span className="font-sans font-bold text-[5px] text-red-600/80 mt-0.5 font-mono">35+</span>
                   </div>
                 </motion.div>
               </div>
@@ -346,20 +344,20 @@ export default function CertificatePage() {
                   </span>
                 </div>
 
-                {/* Director Signature Block */}
+                {/* Signature Block */}
                 <div className="text-center font-sans pr-2">
                   {/* Mock Script Signature Representation */}
                   <div className="h-7 flex items-center justify-center">
                     <span className="font-serif italic text-sm text-slate-700 tracking-wide select-none opacity-85">
-                      Tran Viet Son
+                      {certData.trainerName || 'Giảng viên'}
                     </span>
                   </div>
                   <div className="w-20 mx-auto h-[0.75px] bg-slate-300" />
                   <p className="font-sans font-extrabold text-[7.5px] text-slate-900 mt-1 uppercase leading-none">
-                    TRẦN VIỆT SƠN
+                    {certData.trainerName || 'GIẢNG VIÊN'}
                   </p>
                   <p className="text-[6.5px] text-slate-400 mt-0.5 leading-none">
-                    Giám đốc Chương trình
+                    Giảng viên Chương trình
                   </p>
                 </div>
               </div>
@@ -420,7 +418,7 @@ export default function CertificatePage() {
               variant="outline"
               size="md"
               onClick={handleCopyLink}
-              className="rounded-xl text-xs font-bold px-4 py-2.5 border-zinc-800 bg-zinc-900/40 text-zinc-250 hover:bg-zinc-900 hover:text-white gap-1.5 min-w-[150px] justify-center"
+              className="rounded-xl text-xs font-bold px-4 py-2.5 border-zinc-800 bg-zinc-900/40 text-zinc-200 hover:bg-zinc-900 hover:text-white gap-1.5 min-w-[150px] justify-center"
             >
               {copied ? (
                 <>

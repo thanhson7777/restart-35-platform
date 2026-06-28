@@ -234,6 +234,24 @@ const givePlacementFeedback = async (req, res, next) => {
   }
 }
 
+// ============ LEARNING PROGRESS ============
+const getPlacementLearningProgress = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const enterpriseId = req.jwtDecoded._id.toString()
+
+    const data = await placementService.getPlacementLearningProgress(id, enterpriseId)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thông tin tiến độ học tập thành công!',
+      data
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const placementController = {
   createPlacement,
   getPlacements,
@@ -244,5 +262,6 @@ export const placementController = {
   resignPlacement,
   softDeletePlacement,
   getPlacementStats,
-  givePlacementFeedback
+  givePlacementFeedback,
+  getPlacementLearningProgress
 }

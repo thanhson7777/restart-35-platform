@@ -74,6 +74,9 @@ const getCampaigns = async (skip = 0, limit = 10, filters = {}) => {
       ...filters
     }
 
+    if (query.ngoId) query.ngoId = new ObjectId(String(query.ngoId))
+    if (query.workerId) query.workerId = new ObjectId(String(query.workerId))
+
     const campaigns = await GET_DB().collection(CAMPAIGN_COLLECTION_NAME)
       .find(query)
       .sort({ createdAt: -1 })

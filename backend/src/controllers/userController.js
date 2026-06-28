@@ -145,6 +145,21 @@ const getPublicTrainers = async (req, res, next) => {
   }
 }
 
+const getPublicNgos = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query
+    const result = await userService.getPublicNgos({ page, limit })
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy danh sách NGO thành công',
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 const updateUserStatus = async (req, res, next) => {
   try {
     const userId = req.params.id
@@ -258,5 +273,6 @@ export const userController = {
   getUserStats,
   updateOrganizationId,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  getPublicNgos
 }

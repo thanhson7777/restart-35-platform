@@ -203,13 +203,30 @@ export const TrainerSessionCard = ({
   const presentCount = session.attendance?.filter(a => a.status === 'present').length || 0;
   const dynamicStatus = getDynamicStatus(session);
 
+  const now = new Date();
   let isBeforeStartTime = false;
-  if (session && session.date && session.startTime) {
-    const now = new Date();
+  let isPastStartGracePeriod = false;
+  let isPastCompleteGracePeriod = false;
+  let isOverdueEnd = false;
+
+  if (session && session.date && session.startTime && session.endTime) {
     const sessionDate = new Date(session.date);
+    
     const [startHour, startMin] = session.startTime.split(':').map(Number);
-    sessionDate.setHours(startHour, startMin, 0, 0);
-    isBeforeStartTime = now < sessionDate;
+    const startDateTime = new Date(sessionDate);
+    startDateTime.setHours(startHour, startMin, 0, 0);
+    
+    const [endHour, endMin] = session.endTime.split(':').map(Number);
+    const endDateTime = new Date(sessionDate);
+    endDateTime.setHours(endHour, endMin, 0, 0);
+    
+    isBeforeStartTime = now < startDateTime;
+    isOverdueEnd = now > endDateTime;
+    
+    // Bắt đầu học: khóa sau khi kết thúc 2 giờ
+    isPastStartGracePeriod = now > new Date(endDateTime.getTime() + 2 * 60 * 60 * 1000);
+    // Hoàn thành: khóa sau khi kết thúc 24 giờ
+    isPastCompleteGracePeriod = now > new Date(endDateTime.getTime() + 24 * 60 * 60 * 1000);
   }
 
   return (
@@ -342,41 +359,45 @@ export const TrainerSessionCard = ({
 
         {/* Action Button */}
         <div className="pt-2 border-t border-[hsl(var(--admin-border))] flex flex-col gap-2">
-          {['scheduled', 'in_progress', 'overdue'].includes(dynamicStatus) && (
+          {['scheduled', 'in_progress', 'overdue', 'rescheduled'].includes(dynamicStatus) && (
             <>
-              <Button
-                onClick={() => {
-                  setHasStartedSession(true);
-                  if (locationType === 'online') {
-                    const link = session.location?.link || 'https://meet.google.com/new';
-                    window.open(link, '_blank');
-                  } else {
-                    toast.success('Lớp học đang diễn ra trực tiếp tại địa điểm đã định.');
-                  }
-                }}
-                disabled={courseStatus === 'pending' || courseStatus === 'draft' || isBeforeStartTime}
-                className={`w-full py-2.5 rounded-xl border-none font-bold text-xs flex items-center justify-center gap-2 ${
-                  courseStatus === 'pending' || courseStatus === 'draft' || isBeforeStartTime
-                    ? 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] cursor-not-allowed'
-                    : 'bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))]/90 text-white'
-                }`}
-              >
-                <Play className="h-4 w-4" />
-                Bắt đầu học
-              </Button>
+              {!isPastStartGracePeriod && (
+                <Button
+                  onClick={() => {
+                    setHasStartedSession(true);
+                    if (locationType === 'online') {
+                      const link = session.location?.link || 'https://meet.google.com/new';
+                      window.open(link, '_blank');
+                    } else {
+                      toast.success('Lớp học đang diễn ra trực tiếp tại địa điểm đã định.');
+                    }
+                  }}
+                  disabled={courseStatus === 'pending' || courseStatus === 'draft' || isBeforeStartTime}
+                  className={`w-full py-2.5 rounded-xl border-none font-bold text-xs flex items-center justify-center gap-2 ${
+                    courseStatus === 'pending' || courseStatus === 'draft' || isBeforeStartTime
+                      ? 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] cursor-not-allowed'
+                      : 'bg-[hsl(var(--admin-accent))] hover:bg-[hsl(var(--admin-accent))]/90 text-white'
+                  }`}
+                >
+                  <Play className="h-4 w-4" />
+                  Bắt đầu học
+                </Button>
+              )}
 
-              <Button
-                onClick={() => onCompleteSession && onCompleteSession(selectedSession)}
-                disabled={!hasStartedSession || courseStatus === 'pending' || courseStatus === 'draft'}
-                className={`w-full py-2.5 rounded-xl border-none font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
-                  !hasStartedSession || courseStatus === 'pending' || courseStatus === 'draft'
-                    ? 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] cursor-not-allowed border border-[hsl(var(--admin-border))]'
-                    : 'bg-[hsl(var(--admin-success))] hover:bg-[hsl(var(--admin-success))]/90 text-white' 
-                }`}
-              >
-                <CheckCircle className="h-4 w-4" />
-                Đánh dấu hoàn thành
-              </Button>
+              {!isPastCompleteGracePeriod && (
+                <Button
+                  onClick={() => onCompleteSession && onCompleteSession(selectedSession)}
+                  disabled={(!isOverdueEnd && !hasStartedSession) || courseStatus === 'pending' || courseStatus === 'draft'}
+                  className={`w-full py-2.5 rounded-xl border-none font-bold text-xs flex items-center justify-center gap-2 transition-colors ${
+                    (!isOverdueEnd && !hasStartedSession) || courseStatus === 'pending' || courseStatus === 'draft'
+                      ? 'bg-[hsl(var(--admin-surface-elevated))] text-[hsl(var(--admin-text-muted))] cursor-not-allowed border border-[hsl(var(--admin-border))]'
+                      : 'bg-[hsl(var(--admin-success))] hover:bg-[hsl(var(--admin-success))]/90 text-white' 
+                  }`}
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Đánh dấu hoàn thành
+                </Button>
+              )}
             </>
           )}
 
@@ -392,14 +413,16 @@ export const TrainerSessionCard = ({
             <UserCheck className="h-4 w-4" />
             {attendanceCount > 0 ? 'Cập nhật điểm danh' : 'Điểm danh học viên'}
           </Button>
-          <Button
-            onClick={() => navigate(`/trainer/courses/${courseId}/schedule`)}
-            variant="outline"
-            className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]"
-          >
-            <Calendar className="h-4 w-4" />
-            Sắp xếp / Sửa lịch học
-          </Button>
+          {dynamicStatus !== 'completed' && courseStatus !== 'completed' && (
+            <Button
+              onClick={() => navigate(`/trainer/courses/${courseId}/schedule`)}
+              variant="outline"
+              className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text-secondary))]"
+            >
+              <Calendar className="h-4 w-4" />
+              Sắp xếp / Sửa lịch học
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

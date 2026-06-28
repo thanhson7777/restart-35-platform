@@ -165,8 +165,8 @@ export const CourseCard = ({
               >
                 <Gift className="w-3 h-3 text-white" />
                 {sponsorshipData.coverageType === 'FULL' || sponsorshipData.coverageType === 'full'
-                  ? 'DN Tài trợ 100%' 
-                  : `DN Tài trợ ${formatPrice(sponsorshipData.amount)}`}
+                  ? `${sponsorshipData.sponsorType === 'ngo' ? 'NGO' : 'DN'} Tài trợ 100%` 
+                  : `${sponsorshipData.sponsorType === 'ngo' ? 'NGO' : 'DN'} Tài trợ ${formatPrice(sponsorshipData.amount)}`}
               </Badge>
             )}
           </div>

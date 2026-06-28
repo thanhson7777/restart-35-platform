@@ -13,7 +13,7 @@ import {
 
 // ============ VALID STATUS TRANSITIONS ============
 const VALID_STATUS_TRANSITIONS = {
-  [PLACEMENT_STATUS.REFERRED]: [PLACEMENT_STATUS.INTERVIEWING, PLACEMENT_STATUS.REJECTED],
+  [PLACEMENT_STATUS.REFERRED]: [PLACEMENT_STATUS.INTERVIEWING, PLACEMENT_STATUS.OFFERED, PLACEMENT_STATUS.REJECTED],
   [PLACEMENT_STATUS.INTERVIEWING]: [PLACEMENT_STATUS.OFFERED, PLACEMENT_STATUS.REJECTED],
   [PLACEMENT_STATUS.OFFERED]: [PLACEMENT_STATUS.ACCEPTED, PLACEMENT_STATUS.REJECTED],
   [PLACEMENT_STATUS.ACCEPTED]: [PLACEMENT_STATUS.STARTED, PLACEMENT_STATUS.RESIGNED],
@@ -433,6 +433,40 @@ const givePlacementFeedback = async (id, userId, feedbackData) => {
   }
 }
 
+// ============ GET PLACEMENT LEARNING PROGRESS ============
+const getPlacementLearningProgress = async (id, enterpriseId) => {
+  try {
+    const placement = await placementModel.findOneById(id)
+    if (!placement) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Placement không tồn tại!')
+    }
+
+    if (placement.partnershipId) {
+      const partnership = await partnershipModel.findOneById(placement.partnershipId)
+      if (!partnership || partnership.enterpriseId.toString() !== enterpriseId) {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không có quyền truy cập thông tin học tập của ứng viên này!')
+      }
+    }
+
+    const { enrollmentService } = await import('./enrollmentService')
+    const enrollment = await enrollmentService.getEnrollmentById(placement.enrollmentId, null, 'admin')
+    
+    return {
+      course: {
+        _id: enrollment.course._id,
+        title: enrollment.course.title
+      },
+      progress: {
+        percentage: enrollment.progress.percentage,
+        completionStatus: enrollment.progress.completionStatus
+      },
+      status: enrollment.status
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const placementService = {
   createPlacement,
   getPlacements,
@@ -443,5 +477,6 @@ export const placementService = {
   resignPlacement,
   softDeletePlacement,
   getPlacementStats,
-  givePlacementFeedback
+  givePlacementFeedback,
+  getPlacementLearningProgress
 }

@@ -367,6 +367,26 @@ const getPublicTrainers = async ({ page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER
   } catch (error) { throw error }
 }
 
+const getPublicNgos = async ({ page = DEFAULT_PAGE, limit = DEFAULT_ITEM_PER_PAGE }) => {
+  try {
+    const currentPage = parseInt(page, 10) || DEFAULT_PAGE
+    const recordLimit = parseInt(limit, 10) || DEFAULT_ITEM_PER_PAGE
+    const skip = (currentPage - 1) * recordLimit
+
+    const { users, totalUsers } = await userModel.getPublicNgos(skip, recordLimit)
+
+    return {
+      users,
+      pagination: {
+        totalRecords: totalUsers,
+        totalPages: Math.ceil(totalUsers / recordLimit),
+        currentPage: currentPage,
+        limit: recordLimit
+      }
+    }
+  } catch (error) { throw error }
+}
+
 const updateUserStatus = async (userId, updateData) => {
   try {
     const dataToUpdate = {}
@@ -614,5 +634,6 @@ export const userService = {
   getUserStats,
   updateOrganizationId,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  getPublicNgos
 }

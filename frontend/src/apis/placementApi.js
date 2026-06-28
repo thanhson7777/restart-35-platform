@@ -4,11 +4,14 @@ import { API_ROOT } from '~/utils/constants';
 export const getPlacements = (params) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/placements`, { params });
 
-export const getMyPlacements = () =>
-  authorizeAxiosInstance.get(`${API_ROOT}/v1/placements/my`);
+export const getMyPlacements = (params) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/placements/my`, { params });
 
 export const getPlacementById = (id) =>
   authorizeAxiosInstance.get(`${API_ROOT}/v1/placements/${id}`);
+
+export const getPlacementLearningProgress = (id) =>
+  authorizeAxiosInstance.get(`${API_ROOT}/v1/placements/${id}/learning-progress`);
 
 export const createPlacement = (data) =>
   authorizeAxiosInstance.post(`${API_ROOT}/v1/placements`, data);

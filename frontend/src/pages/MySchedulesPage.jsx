@@ -39,10 +39,10 @@ const MySchedulesPage = () => {
   const now = new Date()
   const filteredSchedules = schedules.filter(schedule => {
     if (filter === 'upcoming') {
-      return schedule.sessions?.some(s => parseSessionTime(s.date, s.startTime) > now)
+      return schedule.sessions?.some(s => s.status !== 'completed')
     }
     if (filter === 'past') {
-      return schedule.sessions?.every(s => parseSessionTime(s.date, s.startTime) <= now)
+      return schedule.sessions?.every(s => s.status === 'completed')
     }
     return true
   })
@@ -66,14 +66,15 @@ const MySchedulesPage = () => {
   }
 
   const getSessionStatusBadge = (session) => {
-    const start = parseSessionTime(session.date, session.startTime)
-    const end = parseSessionTime(session.date, session.endTime)
-    if (now >= start && now <= end) {
-      return <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">Đang diễn ra</Badge>
-    }
-    if (now > end) {
+    if (session.status === 'completed') {
       return <Badge className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">Đã qua</Badge>
     }
+    
+    const start = parseSessionTime(session.date, session.startTime)
+    if (now >= start) {
+      return <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">Đang diễn ra</Badge>
+    }
+    
     return <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Sắp tới</Badge>
   }
 
@@ -156,8 +157,7 @@ const MySchedulesPage = () => {
                                 const isOnline = session.location?.type === 'online' || schedule.sessionType === 'online' || schedule.location?.type === 'online';
                                 const link = session.location?.link || schedule.location?.link;
                                 const isTime = now >= new Date(parseSessionTime(session.date, session.startTime).getTime() - 15 * 60000);
-                                const isTimeEnded = now > parseSessionTime(session.date, session.endTime);
-                                const isEnded = isTimeEnded || session.status === 'completed';
+                                const isEnded = session.status === 'completed';
                                 const hasAttendance = session.myAttendance && session.myAttendance !== 'upcoming';
 
                                 return (

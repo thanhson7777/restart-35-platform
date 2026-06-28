@@ -2,6 +2,7 @@ import { certificateModel } from '~/models/certificateModel'
 import { enrollmentModel } from '~/models/enrollmentModel'
 import { userModel } from '~/models/userModel'
 import { courseModel } from '~/models/courseModel'
+import { scheduleModel } from '~/models/scheduleModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { BrevoProvider } from '~/providers/BrevoProvider'
@@ -222,10 +223,20 @@ const getCertificateByEnrollment = async (enrollmentId, requestingUserId, role) 
     const user = await userModel.findOneById(cert.userId)
     const course = await courseModel.findOneById(cert.courseId)
     
+    // Get Trainer from issuedBy
+    let trainerName = 'Giảng viên'
+    if (cert.issuedBy) {
+      const issuer = await userModel.findOneById(cert.issuedBy)
+      if (issuer) {
+        trainerName = issuer.displayName || issuer.username
+      }
+    }
+    
     const enriched = byEnrollment.map(c => ({
       ...c,
       userName: user?.displayName || user?.username || 'Học viên',
-      courseTitle: course?.title || 'Khóa học'
+      courseTitle: course?.title || 'Khóa học',
+      trainerName
     }))
 
     return enriched
@@ -250,6 +261,15 @@ const verifyCertificate = async (code) => {
     const userName = user?.displayName || user?.username || 'Học viên'
     const courseTitle = course?.title || 'Khóa học'
 
+    // Get Trainer from issuedBy
+    let trainerName = 'Giảng viên'
+    if (certificate.issuedBy) {
+      const issuer = await userModel.findOneById(certificate.issuedBy)
+      if (issuer) {
+        trainerName = issuer.displayName || issuer.username
+      }
+    }
+
     return {
       valid: certificate.status === 'active' && !isExpired,
       certificate: {
@@ -263,6 +283,7 @@ const verifyCertificate = async (code) => {
         isExpired,
         userName,
         courseTitle,
+        trainerName,
         credentialUrl: certificate.credentialUrl
       }
     }
@@ -453,6 +474,17 @@ const createCertificateForEnrollment = async (enrollmentId, issuedBy = null) => 
     const result = await certificateModel.createNew(certificateData)
     const created = { _id: result.insertedId, ...certificateData }
     console.log(`Certificate auto-created for enrollment ${enrollmentId}: ${certificateData.certificateNumber}`)
+
+    // Auto-merge skills into WorkerProfile
+    try {
+      if (certificateData.skills && certificateData.skills.length > 0) {
+        const { workerProfileModel } = await import('~/models/workerProfileModel')
+        await workerProfileModel.addSkillsToProfile(enrollment.userId.toString(), certificateData.skills)
+        console.log(`Auto-merged skills to profile for user ${enrollment.userId}`)
+      }
+    } catch (skillErr) {
+      console.warn(`Failed to merge skills into worker profile for user ${enrollment.userId}:`, skillErr)
+    }
 
     // Send email notification to user
     try {

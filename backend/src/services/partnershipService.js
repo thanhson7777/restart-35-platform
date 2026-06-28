@@ -485,6 +485,45 @@ const expirePartnership = async (partnershipId) => {
   return await partnershipModel.update(partnershipId, { status: PARTNERSHIP_STATUS.EXPIRED })
 }
 
+const refundPartnershipRemainingBudget = async (partnershipId) => {
+  const partnership = await partnershipModel.findOneById(partnershipId)
+  if (!partnership) return null
+
+  // Chú ý: Dữ liệu remaining nằm trong proposedSponsorship
+  if (partnership.proposedSponsorship && partnership.proposedSponsorship.remaining > 0) {
+    const remainingBudget = partnership.proposedSponsorship.remaining
+    const wallet = await walletModel.findOneByUserId(partnership.enterpriseId)
+    if (wallet) {
+      await walletModel.update(partnership.enterpriseId, {
+        availableBalance: (wallet.availableBalance || 0) + remainingBudget,
+        lockedBalance: Math.max(0, (wallet.lockedBalance || 0) - remainingBudget)
+      })
+
+      // Lưu transaction
+      const { transactionModel } = await import('~/models/transactionModel')
+      await transactionModel.createNew({
+        walletId: String(wallet._id),
+        userId: partnership.enterpriseId,
+        type: 'REFUND',
+        amount: remainingBudget,
+        description: `Hoàn tiền ký quỹ dư khi khóa học chốt danh sách: ${partnership.title}`,
+        referenceId: partnershipId,
+        referenceModel: 'Partnership',
+        status: 'COMPLETED'
+      })
+    }
+
+    // Cập nhật remaining = 0
+    await partnershipModel.update(partnershipId, {
+      'proposedSponsorship.remaining': 0,
+      status: PARTNERSHIP_STATUS.EXPIRED
+    })
+  } else {
+    await partnershipModel.update(partnershipId, { status: PARTNERSHIP_STATUS.EXPIRED })
+  }
+}
+
+
 const getPartnershipLearners = async (partnershipId, actorId, role, queryParams = {}) => {
   const partnership = await getPartnershipById(partnershipId, actorId, role)
   const currentPage = parseInt(queryParams.page, 10) || DEFAULT_PAGE
@@ -578,6 +617,7 @@ export const partnershipService = {
   cancelPartnership,
   negotiatePartnership,
   expirePartnership,
+  refundPartnershipRemainingBudget,
   getPartnershipLearners,
   getPartnershipGraduates,
   getPartnershipStats,

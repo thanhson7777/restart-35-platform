@@ -285,6 +285,49 @@ const getPublicTrainers = async (skip = 0, limit = 100) => {
   }
 }
 
+const getPublicNgos = async (skip = 0, limit = 100) => {
+  try {
+    const db = await GET_DB()
+    const matchCondition = { role: 'ngo', isActive: true, _destroy: false }
+    
+    const users = await db.collection(USER_COLLECTION_NAME).aggregate([
+      { $match: matchCondition },
+      {
+        $addFields: {
+          organizationIdObj: {
+            $cond: {
+              if: { $and: [{ $ne: ["$organizationId", null] }, { $ne: ["$organizationId", ""] }] },
+              then: { $toObjectId: "$organizationId" },
+              else: null
+            }
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'organizations',
+          localField: 'organizationIdObj',
+          foreignField: '_id',
+          as: 'organization'
+        }
+      },
+      {
+        $unwind: {
+          path: '$organization',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $project: { password: 0, organizationIdObj: 0 } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit }
+    ]).toArray()
+
+    const totalUsers = await db.collection(USER_COLLECTION_NAME).countDocuments(matchCondition)
+    return { users, totalUsers }
+  } catch (error) { throw error }
+}
+
 export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
@@ -298,6 +341,7 @@ export const userModel = {
   updateUserStatus,
   countTotalUsers,
   getUserStats,
-  getPublicTrainers
+  getPublicTrainers,
+  getPublicNgos
 }
 
