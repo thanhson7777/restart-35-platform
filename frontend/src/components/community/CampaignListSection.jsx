@@ -18,7 +18,7 @@ const CampaignListSection = () => {
     const filters = {};
     if (filter !== 'all') filters.status = filter;
     else filters.status = 'funding,funded,disbursing,completed';
-    
+
     dispatch(fetchCampaigns(filters));
   }, [dispatch, filter]);
 
@@ -26,20 +26,20 @@ const CampaignListSection = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Dự án Khởi nghiệp (Micro-grant)</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Dự án lập nghiệp (Micro-grant)</h2>
           <p className="text-gray-500">Chung tay góp vốn giúp lực lượng lao động 35+ hiện thực hóa ý tưởng</p>
         </div>
-        
+
         <div className="flex bg-gray-100 p-1 rounded-lg">
-          <button 
+          <button
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${filter === 'funding' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
             onClick={() => setFilter('funding')}
           >
             Đang gọi vốn
           </button>
-          <button 
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${filter === 'funded' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
-            onClick={() => setFilter('funded')}
+          <button
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${filter === 'completed' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+            onClick={() => setFilter('completed')}
           >
             Đã thành công
           </button>
@@ -78,19 +78,19 @@ const CampaignListSection = () => {
                     </Badge>
                   </div>
                 </div>
-                
+
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">
                     <Info className="w-3.5 h-3.5" />
                     Bảo lãnh bởi {camp.ngoName}
                   </div>
-                  
+
                   <h3 className="font-bold text-lg mb-2 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors">
                     <Link to={`/community/campaigns/${camp._id}`}>{camp.title}</Link>
                   </h3>
-                  
+
                   <p className="text-sm text-gray-500 mb-5 flex-1 line-clamp-3">{camp.description}</p>
-                  
+
                   <div className="space-y-3 mt-auto">
                     <div className="flex justify-between items-end mb-1">
                       <div>
@@ -102,20 +102,22 @@ const CampaignListSection = () => {
                         <div className="text-xs text-gray-500 mt-0.5">Mục tiêu: {formatCurrency(camp.targetAmount)}</div>
                       </div>
                     </div>
-                    
+
                     <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                      <div 
+                      <div
                         className={`h-full rounded-full transition-all duration-1000 ${progress >= 100 ? 'bg-green-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'}`}
-                        style={{ width: `${progress}%` }} 
+                        style={{ width: `${progress}%` }}
                       />
                     </div>
-                    
+
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
                         Hạn: {dayjs(camp.deadline).format('DD/MM/YYYY')}
                       </span>
-                      <Button size="sm" asChild className="rounded-full px-5">
-                        <Link to={`/community/campaigns/${camp._id}`}>Ủng hộ</Link>
+                      <Button size="sm" asChild variant={camp.status === 'funding' ? 'default' : 'outline'} className="rounded-full px-5">
+                        <Link to={`/community/campaigns/${camp._id}`}>
+                          {camp.status === 'funding' ? 'Ủng hộ' : 'Xem chi tiết'}
+                        </Link>
                       </Button>
                     </div>
                   </div>

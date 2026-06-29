@@ -2,13 +2,19 @@ import express from 'express'
 import { eventController } from '~/controllers/eventController'
 import { eventValidation } from '~/validations/eventValidation'
 import { authMiddleware } from '~/middlewares/authMiddleware'
+import { multerUploadMiddleware } from '~/middlewares/multerUploadMiddleware'
 
 const Router = express.Router()
 
 // Worker + Ngo can get all events
 Router.route('/')
   .get(authMiddleware.isAuthorized, eventValidation.getEvents, eventController.getEvents)
-  .post(authMiddleware.isAuthorizedNGO, eventValidation.createEvent, eventController.createEvent)
+  .post(
+    authMiddleware.isAuthorizedNGO, 
+    multerUploadMiddleware.uploadMulter.single('coverImage'), 
+    eventValidation.createEvent, 
+    eventController.createEvent
+  )
 
 Router.route('/:id')
   .get(authMiddleware.isAuthorized, eventController.getEventById)

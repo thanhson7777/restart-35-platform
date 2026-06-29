@@ -23,6 +23,10 @@ export const approveCampaign = (campaignId) => {
   return authorizeAxiosInstance.put(`/v1/campaigns/${campaignId}/approve`);
 };
 
+export const rejectCampaign = (campaignId) => {
+  return authorizeAxiosInstance.put(`/v1/campaigns/${campaignId}/reject`);
+};
+
 export const addCampaignMilestone = (campaignId, data) => {
   return authorizeAxiosInstance.post(`/v1/campaigns/${campaignId}/milestones`, data);
 };

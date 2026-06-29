@@ -11,7 +11,8 @@ import {
   GraduationCap,
   BarChart2,
   MessageSquare,
-  BadgeDollarSign
+  BadgeDollarSign,
+  Wallet
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -25,6 +26,7 @@ const navGroups = [
     items: [
       { href: '/worker/analytics', label: 'Thống kê', icon: BarChart2 },
       { href: '/worker/profile', label: 'Hồ sơ của tôi', icon: UserCircle },
+      { href: '/worker/wallet', label: 'Ví của tôi', icon: Wallet },
       { href: '/worker/account-settings', label: 'Cài đặt tài khoản', icon: Settings },
     ],
   },
@@ -47,7 +49,7 @@ const navGroups = [
   {
     section: 'KHỞI NGHIỆP',
     items: [
-      { href: '/worker/campaigns', label: 'Dự án khởi nghiệp', icon: BadgeDollarSign },
+      { href: '/worker/campaigns', label: 'Dự án lập nghiệp', icon: BadgeDollarSign },
     ],
   },
   {

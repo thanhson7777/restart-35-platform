@@ -21,9 +21,7 @@ import { TrainerQuickActions } from '@/components/trainer/TrainerQuickActions';
 
 import { Skeleton } from '@/components/ui';
 import { FileSpreadsheet, FileText, BookOpen, Clock, CheckCircle2, XCircle, Wallet, TrendingUp, Handshake } from 'lucide-react';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { exportToExcel, exportToPDF } from '@/utils/exportUtils';
 import { formatCurrency } from '@/utils/formatter';
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
@@ -37,52 +35,6 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
     </div>
   </div>
 );
-
-// Utility functions for Export
-const exportToExcel = (data, filename, headersMap) => {
-  if (!data || !data.length) return;
-  const headers = Object.keys(headersMap);
-  const formattedData = data.map(row => {
-    const newRow = {};
-    headers.forEach(h => {
-      newRow[headersMap[h]] = row[h];
-    });
-    return newRow;
-  });
-
-  const worksheet = XLSX.utils.json_to_sheet(formattedData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-  XLSX.writeFile(workbook, `${filename}.xlsx`);
-};
-
-const exportToPDF = (data, filename, headersMap, title) => {
-  if (!data || !data.length) return;
-  const doc = new jsPDF();
-  
-  const headers = Object.keys(headersMap);
-  const tableHeaders = [headers.map(h => headersMap[h])];
-  const tableData = data.map(row => headers.map(h => row[h]));
-
-  const removeAccents = (str) => {
-    if (str === null || str === undefined) return '';
-    return str.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
-  };
-
-  const safeTitle = removeAccents(title);
-  const safeTableHeaders = [tableHeaders[0].map(h => removeAccents(h))];
-  const safeTableData = tableData.map(row => row.map(cell => removeAccents(cell)));
-
-  doc.text(safeTitle, 14, 15);
-  autoTable(doc, {
-    startY: 20,
-    head: safeTableHeaders,
-    body: safeTableData,
-    styles: { font: 'helvetica' }
-  });
-
-  doc.save(`${filename}-${new Date().getTime()}.pdf`);
-};
 
 const ExportButtons = ({ onExcel, onPDF }) => (
   <div className="flex items-center gap-2">
@@ -211,7 +163,7 @@ const TrainerDashboardPage = () => {
     });
     
     if (type === 'excel') exportToExcel(data, 'danh-sach-khoa-hoc', headers);
-    if (type === 'pdf') exportToPDF(data, 'danh-sach-khoa-hoc', headers, 'Danh sach khoa hoc');
+    if (type === 'pdf') exportToPDF(data, 'danh-sach-khoa-hoc', headers, 'Danh sách khóa học');
   };
 
   const handleExportTransactions = (type) => {
@@ -231,7 +183,7 @@ const TrainerDashboardPage = () => {
     }));
     
     if (type === 'excel') exportToExcel(data, 'lich-su-giao-dich', headers);
-    if (type === 'pdf') exportToPDF(data, 'lich-su-giao-dich', headers, 'Lich su giao dich');
+    if (type === 'pdf') exportToPDF(data, 'lich-su-giao-dich', headers, 'Lịch sử giao dịch');
   };
 
   const handleExportEnterpriseStudents = (type) => {
@@ -251,7 +203,7 @@ const TrainerDashboardPage = () => {
     }));
     
     if (type === 'excel') exportToExcel(data, 'hoc-vien-doanh-nghiep', headers);
-    if (type === 'pdf') exportToPDF(data, 'hoc-vien-doanh-nghiep', headers, 'Danh sach hoc vien doanh nghiep');
+    if (type === 'pdf') exportToPDF(data, 'hoc-vien-doanh-nghiep', headers, 'Danh sách học viên doanh nghiệp');
   };
 
   if (loading) {

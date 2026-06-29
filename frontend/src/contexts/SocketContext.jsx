@@ -15,37 +15,29 @@ export const SocketProvider = ({ children }) => {
   const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
-    // Chỉ kết nối khi có thông tin user (đã đăng nhập)
-    if (currentUser) {
-      const token = localStorage.getItem('accessToken');
-      
-      const socketInstance = io(API_ROOT || 'http://localhost:8017', {
-        auth: {
-          token
-        }
-      });
-
-      socketInstance.on('connect', () => {
-        console.log('Đã kết nối Socket.io:', socketInstance.id);
-      });
-
-      socketInstance.on('connect_error', (err) => {
-        console.error('Lỗi kết nối Socket:', err.message);
-      });
-
-      setSocket(socketInstance);
-
-      return () => {
-        socketInstance.disconnect();
-      };
-    } else {
-      // Nếu đăng xuất, ngắt kết nối
-      if (socket) {
-        socket.disconnect();
-        setSocket(null);
+    // Luôn kết nối Socket.io để nhận broadcast event
+    const token = currentUser ? localStorage.getItem('accessToken') : 'null';
+    
+    const socketInstance = io(API_ROOT || 'http://localhost:8017', {
+      auth: {
+        token
       }
-    }
-  }, [currentUser]); // Chạy lại hiệu ứng nếu currentUser thay đổi (login/logout)
+    });
+
+    socketInstance.on('connect', () => {
+      console.log('Đã kết nối Socket.io (Anonymous/User):', socketInstance.id);
+    });
+
+    socketInstance.on('connect_error', (err) => {
+      console.error('Lỗi kết nối Socket:', err.message);
+    });
+
+    setSocket(socketInstance);
+
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, [currentUser]);
 
   return (
     <SocketContext.Provider value={{ socket }}>

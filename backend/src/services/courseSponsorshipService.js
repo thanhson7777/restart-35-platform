@@ -58,7 +58,7 @@ const createCourseSponsorship = async (sponsorId, data) => {
     clawbackPolicy: data.clawbackPolicy,
     startsAt: data.startsAt || null,
     expiresAt: data.expiresAt || null,
-    status: COURSE_SPONSORSHIP_STATUS.DRAFT
+    status: COURSE_SPONSORSHIP_STATUS.ACTIVE
   }
 
   // Khóa tiền trong ví (Wallet)
@@ -86,10 +86,19 @@ const createCourseSponsorship = async (sponsorId, data) => {
       type: 'RESERVE',
       amount: data.budget,
       description: `Lập quỹ tài trợ: ${data.title}`,
-      referenceId: String(result._id),
+      referenceId: String(result.insertedId),
       referenceModel: 'Sponsorship',
       status: 'COMPLETED'
     })
+  }
+
+  // Cập nhật model Course để bật cờ hasSponsorship
+  if (sponsorshipData.linkedCourses && sponsorshipData.linkedCourses.length > 0) {
+    await Promise.all(
+      sponsorshipData.linkedCourses.map(lc => 
+        courseModel.addActiveSponsorship(lc.courseId, String(result.insertedId))
+      )
+    )
   }
 
   return await courseSponsorshipModel.findOneById(result.insertedId)
@@ -114,10 +123,15 @@ const getCourseSponsorships = async (actorId, role, queryParams) => {
   if (status) filters.status = status
   if (courseId) filters['linkedCourses.courseId'] = courseId
 
-  if (role === USER_ROLES.ENTERPRISE || role === USER_ROLES.NGO) {
+  if ((role === USER_ROLES.ENTERPRISE || role === USER_ROLES.NGO) && !courseId) {
     filters.sponsorId = actorId
   } else if (sponsorId) {
     filters.sponsorId = sponsorId
+  }
+
+  // Nếu là người dùng vãng lai, tự động chỉ lấy các gói ACTIVE
+  if (!actorId) {
+    filters.status = COURSE_SPONSORSHIP_STATUS.ACTIVE
   }
 
   const { sponsorships, total } = await courseSponsorshipModel.findByPaginate(filters, skip, recordLimit)
@@ -231,9 +245,27 @@ const getCourseSponsorshipLearners = async (sponsorshipId, actorId, role, queryP
     'sponsorships.sponsorshipId': sponsorshipId
   })
 
+  const enrichedEnrollments = await Promise.all(
+    enrollments.map(async (enrollment) => {
+      const user = await userModel.findOneById(enrollment.userId)
+      const spData = enrollment.sponsorships?.find(s => s.sponsorshipId === sponsorshipId)
+      return {
+        ...enrollment,
+        user: user ? {
+          _id: user._id,
+          displayName: user.displayName,
+          email: user.email,
+          avatar: user.avatar
+        } : null,
+        status: spData?.status || enrollment.status,
+        fundedAmount: spData?.amount || 0
+      }
+    })
+  )
+
   return {
     sponsorship,
-    learners: enrollments,
+    learners: enrichedEnrollments,
     pagination: {
       totalRecords: totalEnrollments,
       totalPages: Math.ceil(totalEnrollments / recordLimit),
@@ -257,6 +289,8 @@ const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, 
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Ghi danh này không thuộc chương trình tài trợ của bạn!')
   }
 
+  let sponsoredAmount = 0
+
   if (status === 'approved') {
     if ((sponsorship.stats?.approvedLearners || 0) >= sponsorship.targetLearners) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Quỹ tài trợ đã hết suất!')
@@ -271,7 +305,7 @@ const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, 
     const course = await courseModel.findOneById(enrollment.courseId)
     const basePrice = course?.fundingConfig?.price ?? course?.fee ?? 0
     
-    let sponsoredAmount = 0
+    sponsoredAmount = 0
     const lc = sponsorship.linkedCourses?.find(item => String(item.courseId) === String(course._id))
     
     // Đối với Partnership, lấy maxAmount (tuitionFeePerLearner) được thỏa thuận
@@ -356,12 +390,35 @@ const decideSponsorshipLearner = async (sponsorshipId, enrollmentId, sponsorId, 
   }
 
   // Cập nhật trạng thái trong mảng sponsorships của enrollment
+  const updateData = { 'sponsorships.$.status': status }
+  if (status === 'approved' && sponsoredAmount > 0) {
+    updateData['sponsorships.$.amount'] = sponsoredAmount
+  }
+
   await GET_DB().collection('enrollments').updateOne(
     { _id: new ObjectId(enrollmentId), 'sponsorships.sponsorshipId': sponsorshipId },
-    { $set: { 'sponsorships.$.status': status } }
+    { $set: updateData }
   )
 
-  return await enrollmentModel.findOneById(enrollmentId)
+  const finalEnrollment = await enrollmentModel.findOneById(enrollmentId)
+  
+  if (finalEnrollment) {
+    const { notificationService } = await import('~/services/notificationService')
+    const { courseModel } = await import('~/models/courseModel')
+    const course = await courseModel.findOneById(finalEnrollment.courseId)
+    
+    await notificationService.createUserNotification({
+      recipientId: finalEnrollment.userId.toString(),
+      type: 'SPONSORSHIP_DECISION',
+      title: status === 'approved' ? 'Tài trợ đã được duyệt!' : 'Tài trợ bị từ chối',
+      message: status === 'approved' 
+        ? `Yêu cầu tài trợ của bạn cho khóa học "${course?.title || 'đã chọn'}" đã được duyệt.` 
+        : `Rất tiếc, yêu cầu tài trợ của bạn cho khóa học "${course?.title || 'đã chọn'}" đã bị từ chối.`,
+      link: `/worker/my-courses`
+    }).catch(err => console.error('Failed to notify worker:', err))
+  }
+
+  return finalEnrollment
 }
 
 const getCourseSponsorshipStats = async (sponsorshipId, actorId, role) => {

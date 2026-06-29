@@ -455,6 +455,19 @@ const enrollCourse = async (userId, courseId, data) => {
       }).catch(err => console.error('Failed to notify enterprise:', err))
     }
 
+    // Notify NGOs
+    for (const match of sponsorshipMatches) {
+      if (match.sponsorType === 'ngo' && match._sponsorship && match._sponsorship.sponsorId) {
+        await notificationService.createUserNotification({
+          recipientId: match._sponsorship.sponsorId.toString(),
+          type: 'NEW_SPONSORSHIP_REQUEST',
+          title: 'Yêu cầu tài trợ mới',
+          message: `Một học viên vừa yêu cầu tài trợ khóa học "${course.title}".`,
+          link: `/ngo/sponsorships/${match.sponsorshipId}/learners`
+        }).catch(err => console.error('Failed to notify NGO:', err))
+      }
+    }
+
     // Notify the trainer
     if (course.providerId) {
       await notificationService.createUserNotification({

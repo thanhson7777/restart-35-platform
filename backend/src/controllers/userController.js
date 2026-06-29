@@ -236,7 +236,6 @@ const getUserStats = async (req, res, next) => {
     next(error)
   }
 }
-
 const forgotPassword = async (req, res, next) => {
   try {
     const result = await userService.forgotPassword(req.body.email)
@@ -253,6 +252,19 @@ const resetPassword = async (req, res, next) => {
     res.status(StatusCodes.OK).json({
       success: true,
       message: result.message
+    })
+  } catch (error) { next(error) }
+}
+
+const getPublicWorkerProfile = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const result = await userService.getPublicWorkerProfile(id)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy hồ sơ người lao động thành công',
+      data: result
     })
   } catch (error) { next(error) }
 }
@@ -274,5 +286,6 @@ export const userController = {
   updateOrganizationId,
   forgotPassword,
   resetPassword,
-  getPublicNgos
+  getPublicNgos,
+  getPublicWorkerProfile
 }

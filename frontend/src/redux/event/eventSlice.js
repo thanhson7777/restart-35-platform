@@ -85,6 +85,18 @@ const eventSlice = createSlice({
   reducers: {
     clearCurrentEvent: (state) => {
       state.currentEvent = null
+    },
+    updateEventParticipantCount: (state, action) => {
+      const { eventId, participantCount } = action.payload
+      // Update in list
+      const eventInList = state.events.find(e => e._id === eventId)
+      if (eventInList) {
+        eventInList.participantCount = participantCount
+      }
+      // Update in detail
+      if (state.currentEvent && state.currentEvent._id === eventId) {
+        state.currentEvent.participantCount = participantCount
+      }
     }
   },
   extraReducers: (builder) => {
@@ -160,7 +172,7 @@ const eventSlice = createSlice({
   }
 })
 
-export const { clearCurrentEvent } = eventSlice.actions
+export const { clearCurrentEvent, updateEventParticipantCount } = eventSlice.actions
 
 export const selectEvents = (state) => state.event.events
 export const selectEventsLoading = (state) => state.event.loading

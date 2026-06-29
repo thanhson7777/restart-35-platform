@@ -68,6 +68,9 @@ Router.route('/public/trainers')
 Router.route('/public/ngos')
   .get(userController.getPublicNgos)
 
+Router.route('/public/workers/:id')
+  .get(userController.getPublicWorkerProfile)
+
 Router.route('/')
   .get(
     authMiddleware.isAuthorized,

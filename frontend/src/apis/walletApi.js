@@ -16,3 +16,9 @@ export const createTopupUrl = async (data) => {
   const request = await authorizeAxiosInstance.post(`${API_ROOT}/v1/wallets/topup`, data)
   return request.data
 }
+
+export const withdrawWallet = async (data) => {
+  // data: { amount: Number, bankCode: String, bankAccount: String }
+  const request = await authorizeAxiosInstance.post(`${API_ROOT}/v1/wallets/withdraw`, data)
+  return request.data
+}

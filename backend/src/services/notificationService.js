@@ -11,7 +11,8 @@ const NOTIFICATION_EVENT_TYPES = {
   SPONSORSHIP_DISBURSEMENT_CREATED: 'sponsorship_disbursement_created',
   SPONSORSHIP_CLAWBACK_CREATED: 'sponsorship_clawback_created',
   ENROLLMENT_DROPPED_WITH_FUNDING: 'enrollment_dropped_with_funding',
-  REFERRAL_BONUS_CREATED: 'referral_bonus_created'
+  REFERRAL_BONUS_CREATED: 'referral_bonus_created',
+  EVENT_NEW_PARTICIPANT: 'event_new_participant'
 }
 
 const buildNotification = (eventType, context = {}) => {
@@ -43,6 +44,10 @@ const buildNotification = (eventType, context = {}) => {
     [NOTIFICATION_EVENT_TYPES.REFERRAL_BONUS_CREATED]: {
       title: 'Thưởng giới thiệu mới',
       message: `Bạn nhận được thưởng giới thiệu cho learner ${context.learnerId}.`
+    },
+    [NOTIFICATION_EVENT_TYPES.EVENT_NEW_PARTICIPANT]: {
+      title: 'Có người đăng ký tham gia sự kiện mới',
+      message: `Người dùng ${context.workerName || 'Một học viên'} đã đăng ký tham gia sự kiện "${context.eventTitle}".`
     }
   }
 
@@ -160,6 +165,17 @@ const notifyAdmins = async (data) => {
   }
 }
 
+const broadcastEvent = (eventName, payload) => {
+  try {
+    const io = getIO()
+    if (io) {
+      io.emit(eventName, payload)
+    }
+  } catch (err) {
+    console.error('Socket broadcast error:', err.message)
+  }
+}
+
 export const notificationService = {
   NOTIFICATION_COLLECTION_NAME,
   NOTIFICATION_EVENT_TYPES,
@@ -171,5 +187,6 @@ export const notificationService = {
   getUserNotifications,
   markAsRead,
   markAllAsRead,
-  notifyAdmins
+  notifyAdmins,
+  broadcastEvent
 }

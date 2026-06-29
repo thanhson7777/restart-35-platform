@@ -2,9 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, Users, Calendar, CheckCircle2, UserPlus, Building2, Download, Wallet, CreditCard, Clock, XCircle, FileText, FileSpreadsheet, HeartHandshake, ShoppingCart, Send, Lock } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { exportToExcel, exportToPDF } from '@/utils/exportUtils';
 
 import { getEnterpriseDashboard } from '@/apis/enterpriseDashboardApi';
 import { getEnterpriseJobs, getEnterpriseApplications } from '@/apis/recruitmentAPI';
@@ -91,50 +89,6 @@ const COVERAGE_MAP = {
 
 const shortId = (id) => id ? id.toString().slice(-6).toUpperCase() : 'N/A';
 
-const exportToExcel = (data, filename, headersMap) => {
-  if (!data || !data.length) return;
-  const headers = Object.keys(headersMap);
-  const formattedData = data.map(row => {
-    const newRow = {};
-    headers.forEach(h => {
-      newRow[headersMap[h]] = row[h];
-    });
-    return newRow;
-  });
-
-  const worksheet = XLSX.utils.json_to_sheet(formattedData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-  XLSX.writeFile(workbook, `${filename}.xlsx`);
-};
-
-const exportToPDF = (data, filename, headersMap, title) => {
-  if (!data || !data.length) return;
-  const doc = new jsPDF();
-  
-  const headers = Object.keys(headersMap);
-  const tableHeaders = [headers.map(h => headersMap[h])];
-  const tableData = data.map(row => headers.map(h => row[h]));
-
-  // Remove accents for PDF to avoid gibberish as standard jsPDF font doesn't support VN well
-  const removeAccents = (str) => {
-    if (str === null || str === undefined) return '';
-    return str.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
-  };
-
-  const safeTitle = removeAccents(title);
-  const safeTableHeaders = [tableHeaders[0].map(h => removeAccents(h))];
-  const safeTableData = tableData.map(row => row.map(cell => removeAccents(cell)));
-
-  doc.text(safeTitle, 14, 15);
-  doc.autoTable({
-    startY: 20,
-    head: safeTableHeaders,
-    body: safeTableData,
-    styles: { font: 'helvetica' }
-  });
-  doc.save(`${filename}.pdf`);
-};
 
 const ExportButtons = ({ onExcel, onPDF }) => (
   <div className="flex items-center gap-2">
@@ -244,7 +198,7 @@ export default function EnterpriseDashboardPage() {
       createdAt: new Date(j.createdAt).toLocaleDateString('vi-VN') 
     }));
     if (type === 'excel') exportToExcel(data, 'danh-sach-viec-lam', headers);
-    if (type === 'pdf') exportToPDF(data, 'danh-sach-viec-lam', headers, 'Danh sach viec lam');
+    if (type === 'pdf') exportToPDF(data, 'danh-sach-viec-lam', headers, 'Danh sách việc làm');
   };
 
   const handleExportApplications = (type) => {
@@ -257,7 +211,7 @@ export default function EnterpriseDashboardPage() {
       appliedAt: new Date(a.appliedAt).toLocaleString('vi-VN')
     }));
     if (type === 'excel') exportToExcel(data, 'danh-sach-ung-vien', headers);
-    if (type === 'pdf') exportToPDF(data, 'danh-sach-ung-vien', headers, 'Danh sach ung vien');
+    if (type === 'pdf') exportToPDF(data, 'danh-sach-ung-vien', headers, 'Danh sách ứng viên');
   };
 
   const handleExportPartnerships = (type) => {
@@ -271,7 +225,7 @@ export default function EnterpriseDashboardPage() {
       linkedCourses: p.linkedCourses?.map(c => c.title).join(', ') || 'Chưa có'
     }));
     if (type === 'excel') exportToExcel(data, 'danh-sach-hop-tac', headers);
-    if (type === 'pdf') exportToPDF(data, 'danh-sach-hop-tac', headers, 'Danh sach du an hop tac');
+    if (type === 'pdf') exportToPDF(data, 'danh-sach-hop-tac', headers, 'Danh sách dự án hợp tác');
   };
 
   const handleExportSponsorships = (type) => {
@@ -286,7 +240,7 @@ export default function EnterpriseDashboardPage() {
       status: SPONSORSHIP_STATUS_MAP[s.status] || s.status
     }));
     if (type === 'excel') exportToExcel(data, 'danh-sach-tai-tro', headers);
-    if (type === 'pdf') exportToPDF(data, 'danh-sach-tai-tro', headers, 'Danh sach tai tro');
+    if (type === 'pdf') exportToPDF(data, 'danh-sach-tai-tro', headers, 'Danh sách tài trợ');
   };
 
   const handleExportTransactions = (type) => {
@@ -299,7 +253,7 @@ export default function EnterpriseDashboardPage() {
       createdAt: new Date(t.createdAt).toLocaleString('vi-VN')
     }));
     if (type === 'excel') exportToExcel(data, 'lich-su-giao-dich', headers);
-    if (type === 'pdf') exportToPDF(data, 'lich-su-giao-dich', headers, 'Lich su giao dich');
+    if (type === 'pdf') exportToPDF(data, 'lich-su-giao-dich', headers, 'Lịch sử giao dịch');
   };
 
   const handleExportSponsoredLearners = (type) => {
@@ -312,7 +266,7 @@ export default function EnterpriseDashboardPage() {
       enrolledAt: new Date(l.enrolledAt).toLocaleString('vi-VN')
     }));
     if (type === 'excel') exportToExcel(data, 'danh-sach-hoc-vien-tai-tro', headers);
-    if (type === 'pdf') exportToPDF(data, 'danh-sach-hoc-vien-tai-tro', headers, 'Danh sach hoc vien tai tro');
+    if (type === 'pdf') exportToPDF(data, 'danh-sach-hoc-vien-tai-tro', headers, 'Danh sách học viên được tài trợ');
   };
 
   const tabs = [

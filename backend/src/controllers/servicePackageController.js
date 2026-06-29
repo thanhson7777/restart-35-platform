@@ -88,7 +88,14 @@ const buyPackage = async (req, res, next) => {
 // Webhook từ VNPay
 const vnpayIpn = async (req, res, next) => {
   try {
-    const verifyResult = vnpayInstance.verifyIpnCall(req.query)
+    const vnpParams = {}
+    for (const key in req.query) {
+      if (key.startsWith('vnp_')) {
+        vnpParams[key] = req.query[key]
+      }
+    }
+
+    const verifyResult = vnpayInstance.verifyIpnCall(vnpParams)
     
     if (!verifyResult.isSuccess) {
       return res.status(200).json({ RspCode: '97', Message: 'Invalid signature' })

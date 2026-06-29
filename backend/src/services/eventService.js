@@ -8,6 +8,11 @@ const createEvent = async (data) => {
   try {
     const newEvent = await eventModel.createNew(data)
     const getNewEvent = await eventModel.findOneById(newEvent.insertedId)
+
+    // Phát sóng cho tất cả người dùng (Realtime public event)
+    const { notificationService } = await import('~/services/notificationService')
+    notificationService.broadcastEvent('PUBLIC_EVENT_CREATED', { eventId: newEvent.insertedId })
+
     return getNewEvent
   } catch (error) {
     throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
@@ -60,7 +65,40 @@ const joinEvent = async (eventId, userId) => {
     await eventRegistrationModel.createNew({ eventId, userId })
 
     // Increment participant count
-    await eventModel.incrementParticipantCount(eventId)
+    const updatedEvent = await eventModel.incrementParticipantCount(eventId)
+
+    // Send realtime public event and notification
+    const { notificationService } = await import('~/services/notificationService')
+    const { getIO } = await import('~/config/socket')
+    const { userModel } = await import('~/models/userModel')
+    
+    // Phát sự kiện broadcast cho tất cả client
+    notificationService.broadcastEvent('EVENT_PARTICIPANT_UPDATED', {
+      eventId: eventId.toString(),
+      participantCount: updatedEvent ? updatedEvent.participantCount : event.participantCount + 1
+    })
+
+    // Lấy tên người dùng để tạo thông báo
+    const worker = await userModel.findOneById(userId)
+    const workerName = worker?.fullName || 'Một học viên'
+
+    // Gửi thông báo cho NGO (organizerId)
+    const notificationData = notificationService.buildNotification(
+      'event_new_participant',
+      {
+        eventId: eventId.toString(),
+        eventTitle: event.title,
+        workerName: workerName
+      }
+    )
+    
+    await notificationService.createUserNotification({
+      ...notificationData,
+      recipientId: event.organizerId.toString(),
+      entityType: 'event',
+      entityId: eventId.toString(),
+      link: '/ngo/events'
+    })
 
     return { message: 'Đăng ký tham gia thành công' }
   } catch (error) {

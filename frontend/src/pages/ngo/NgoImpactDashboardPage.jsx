@@ -10,15 +10,15 @@ import { Skeleton, Button, Badge } from '@/components/ui';
 import { getNgoImpactDashboard } from '@/apis/ngoDashboardApi';
 import { fetchEventsAPI } from '@/apis/eventAPI';
 import { getMyWallet, getMyTransactions } from '@/apis/walletApi';
+import { getCampaigns } from '@/apis/campaignAPI';
 import { selectCurrentUser } from '~/redux/user/userSlice';
 import { 
   PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend,
+  BarChart, Bar
 } from 'recharts';
 import { formatPrice, formatCurrency } from '@/utils/formatter';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { exportToExcel, exportToPDF } from '@/utils/exportUtils';
 
 const formatMonthYear = (date) => {
   const m = date.getMonth() + 1;
@@ -68,50 +68,6 @@ const TRANSACT_TYPE_MAP = {
 
 const shortId = (id) => id ? id.toString().slice(-6).toUpperCase() : 'N/A';
 
-const exportToExcel = (data, filename, headersMap) => {
-  if (!data || !data.length) return;
-  const headers = Object.keys(headersMap);
-  const formattedData = data.map(row => {
-    const newRow = {};
-    headers.forEach(h => {
-      newRow[headersMap[h]] = row[h];
-    });
-    return newRow;
-  });
-
-  const worksheet = XLSX.utils.json_to_sheet(formattedData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-  XLSX.writeFile(workbook, `${filename}.xlsx`);
-};
-
-const exportToPDF = (data, filename, headersMap, title) => {
-  if (!data || !data.length) return;
-  const doc = new jsPDF();
-  
-  const headers = Object.keys(headersMap);
-  const tableHeaders = [headers.map(h => headersMap[h])];
-  const tableData = data.map(row => headers.map(h => row[h]));
-
-  const removeAccents = (str) => {
-    if (str === null || str === undefined) return '';
-    return str.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
-  };
-
-  const safeTitle = removeAccents(title);
-  const safeTableHeaders = [tableHeaders[0].map(h => removeAccents(h))];
-  const safeTableData = tableData.map(row => row.map(cell => removeAccents(cell)));
-
-  doc.text(safeTitle, 14, 15);
-  doc.autoTable({
-    startY: 20,
-    head: safeTableHeaders,
-    body: safeTableData,
-    styles: { font: 'helvetica' }
-  });
-  doc.save(`${filename}.pdf`);
-};
-
 const ExportButtons = ({ onExcel, onPDF }) => (
   <div className="flex items-center gap-2">
     <button onClick={onExcel} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-colors border border-green-200">
@@ -151,6 +107,14 @@ export default function NgoImpactDashboardPage() {
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [eventsList, setEventsList] = useState([]);
+  const [campaignList, setCampaignList] = useState([]);
+  const [campaignStats, setCampaignStats] = useState({
+    totalApproved: 0,
+    totalSuccess: 0,
+    targetAmount: 0,
+    raisedAmount: 0,
+    statusCounts: []
+  });
   const [loading, setLoading] = useState(true);
 
   const fetchStats = useCallback(async () => {
@@ -167,11 +131,47 @@ export default function NgoImpactDashboardPage() {
       let eventsData = [];
       let totalEvents = 0;
       let totalParticipants = 0;
+      let campaignsData = [];
+      
       if (currentUser?._id) {
-        const eventsRes = await fetchEventsAPI({ organizerId: currentUser._id, limit: 100 }).catch(() => ({ data: [] }));
+        const [eventsRes, campaignsRes] = await Promise.all([
+          fetchEventsAPI({ organizerId: currentUser._id, limit: 100 }).catch(() => ({ data: [] })),
+          getCampaigns({ ngoId: currentUser._id, limit: 100 }).catch(() => ({ data: { data: [] } }))
+        ]);
+        
         eventsData = eventsRes.data || [];
         totalEvents = eventsData.length;
         totalParticipants = eventsData.reduce((acc, ev) => acc + (ev.participantCount || 0), 0);
+        
+        campaignsData = campaignsRes.data?.data || [];
+        const approvedCampaigns = campaignsData.filter(c => c.status !== 'pending_ngo' && c.status !== 'rejected_ngo');
+        
+        const totalApproved = approvedCampaigns.length;
+        const totalSuccess = approvedCampaigns.filter(c => ['funded', 'disbursing', 'completed'].includes(c.status)).length;
+        const targetAmount = approvedCampaigns.reduce((acc, c) => acc + (c.targetAmount || 0), 0);
+        const raisedAmount = approvedCampaigns.reduce((acc, c) => acc + (c.raisedAmount || 0), 0);
+        
+        const statusMap = {
+          funding: 'Đang gọi vốn',
+          funded: 'Đã đủ vốn',
+          disbursing: 'Đang giải ngân',
+          completed: 'Hoàn thành',
+          cancelled: 'Đã hủy'
+        };
+        const counts = approvedCampaigns.reduce((acc, c) => {
+          const label = statusMap[c.status] || c.status;
+          acc[label] = (acc[label] || 0) + 1;
+          return acc;
+        }, {});
+        
+        setCampaignList(approvedCampaigns);
+        setCampaignStats({
+          totalApproved,
+          totalSuccess,
+          targetAmount,
+          raisedAmount,
+          statusCounts: Object.entries(counts).map(([name, value]) => ({ name, value }))
+        });
       }
 
       setStats({
@@ -200,6 +200,21 @@ export default function NgoImpactDashboardPage() {
   }, [currentUser]);
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
+
+  const topCampaignsData = useMemo(() => {
+    if (!campaignList || campaignList.length === 0) return [];
+    
+    return campaignList
+      .filter(c => c.status === 'funding')
+      .map(c => ({
+        name: c.title,
+        percent: Math.min(100, Math.round(((c.raisedAmount || 0) / (c.targetAmount || 1)) * 100)),
+        raisedAmount: c.raisedAmount || 0,
+        targetAmount: c.targetAmount || 0
+      }))
+      .sort((a, b) => b.percent - a.percent)
+      .slice(0, 5);
+  }, [campaignList]);
 
   // Group transactions by month for Cash Flow Chart
   const cashFlowData = useMemo(() => {
@@ -251,7 +266,7 @@ export default function NgoImpactDashboardPage() {
       status: SPONSORSHIP_STATUS_MAP[s.status] || s.status
     }));
     if (type === 'excel') exportToExcel(data, 'danh-sach-quy-tai-tro-ngo', headers);
-    if (type === 'pdf') exportToPDF(data, 'danh-sach-quy-tai-tro-ngo', headers, 'Danh sach quy tai tro ngo');
+    if (type === 'pdf') exportToPDF(data, 'danh-sach-quy-tai-tro-ngo', headers, 'Danh sách quỹ tài trợ');
   };
 
   const handleExportEvents = (type) => {
@@ -264,7 +279,7 @@ export default function NgoImpactDashboardPage() {
       status: 'Đã xuất bản'
     }));
     if (type === 'excel') exportToExcel(data, 'danh-sach-su-kien-ngo', headers);
-    if (type === 'pdf') exportToPDF(data, 'danh-sach-su-kien-ngo', headers, 'Danh sach su kien ngo');
+    if (type === 'pdf') exportToPDF(data, 'danh-sach-su-kien-ngo', headers, 'Danh sách sự kiện và hoạt động');
   };
 
   const handleExportTransactions = (type) => {
@@ -278,12 +293,36 @@ export default function NgoImpactDashboardPage() {
       createdAt: formatDateTime(t.createdAt)
     }));
     if (type === 'excel') exportToExcel(data, 'lich-su-giao-dich-ngo', headers);
-    if (type === 'pdf') exportToPDF(data, 'lich-su-giao-dich-ngo', headers, 'Lich su giao dich ngo');
+    if (type === 'pdf') exportToPDF(data, 'lich-su-giao-dich-ngo', headers, 'Lịch sử giao dịch tài chính');
+  };
+
+  const handleExportCampaigns = (type) => {
+    const headers = { _id: 'Mã Dự án', title: 'Tên Dự án', targetAmount: 'Mục tiêu', raisedAmount: 'Đã huy động', status: 'Trạng thái', createdAt: 'Ngày tạo' };
+    const data = campaignList.map(c => {
+      const statusMap = {
+        funding: 'Đang gọi vốn',
+        funded: 'Đã đủ vốn',
+        disbursing: 'Đang giải ngân',
+        completed: 'Hoàn thành',
+        cancelled: 'Đã hủy'
+      };
+      return {
+        ...c,
+        _id: shortId(c._id),
+        targetAmount: formatCurrency(c.targetAmount || 0),
+        raisedAmount: formatCurrency(c.raisedAmount || 0),
+        status: statusMap[c.status] || c.status,
+        createdAt: formatDateTime(c.createdAt)
+      };
+    });
+    if (type === 'excel') exportToExcel(data, 'danh-sach-du-an-bao-lanh', headers);
+    if (type === 'pdf') exportToPDF(data, 'danh-sach-du-an-bao-lanh', headers, 'Danh sách dự án bảo lãnh');
   };
 
   const tabs = [
     { id: 'overview', label: 'Tổng quan' },
     { id: 'sponsorships', label: 'Quỹ tài trợ' },
+    { id: 'campaigns', label: 'Dự án bảo lãnh' },
     { id: 'events', label: 'Sự kiện & Hoạt động' },
     { id: 'transactions', label: 'Giao dịch & Tài chính' }
   ];
@@ -501,6 +540,134 @@ export default function NgoImpactDashboardPage() {
                     ))}
                     {stats.activeSponsorships.length === 0 && (
                       <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-500">Chưa có dữ liệu chương trình</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB CAMPAIGNS: DỰ ÁN BẢO LÃNH */}
+        {activeTab === 'campaigns' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <StatCard icon={HeartHandshake} label="Tổng dự án bảo lãnh" value={campaignStats.totalApproved} color={{ bg: 'bg-emerald-100/50 text-emerald-600', text: 'text-emerald-600' }} />
+              <StatCard icon={Award} label="Dự án thành công" value={campaignStats.totalSuccess} color={{ bg: 'bg-blue-100/50 text-blue-600', text: 'text-blue-600' }} />
+              <StatCard icon={TrendingUp} label="Tổng mục tiêu gọi vốn" value={formatCurrency(campaignStats.targetAmount || 0)} color={{ bg: 'bg-amber-100/50 text-amber-600', text: 'text-amber-600' }} />
+              <StatCard icon={Wallet} label="Đã huy động" value={formatCurrency(campaignStats.raisedAmount || 0)} color={{ bg: 'bg-purple-100/50 text-purple-600', text: 'text-purple-600' }} />
+            </div>
+
+            {/* Campaign Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Donut Chart: Status */}
+              <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-[2.5rem] p-6 shadow-sm">
+                <h3 className="font-bold text-[hsl(var(--admin-text-primary))] text-lg mb-6">Trạng thái dự án</h3>
+                <div className="h-64 w-full flex items-center justify-center">
+                  {campaignStats.statusCounts.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={campaignStats.statusCounts}
+                          cx="50%"
+                          cy="45%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {campaignStats.statusCounts.map((entry, index) => {
+                            const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#64748b'];
+                            return <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />;
+                          })}
+                        </Pie>
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: 'hsl(var(--admin-surface))', borderColor: 'hsl(var(--admin-border))', borderRadius: '12px' }}
+                        />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="text-[hsl(var(--admin-text-muted))] text-sm">Chưa có dữ liệu</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Bar Chart: Top 5 */}
+              <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-[2.5rem] p-6 shadow-sm">
+                <h3 className="font-bold text-[hsl(var(--admin-text-primary))] text-lg mb-6">Top dự án đang gọi vốn</h3>
+                <div className="h-64 w-full">
+                  {topCampaignsData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={topCampaignsData} layout="vertical" margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--admin-border))" />
+                        <XAxis type="number" hide domain={[0, 100]} />
+                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'hsl(var(--admin-text-muted))' }} width={120} />
+                        <RechartsTooltip 
+                          cursor={{ fill: 'hsl(var(--admin-surface-hover))' }}
+                          contentStyle={{ backgroundColor: 'hsl(var(--admin-surface))', borderColor: 'hsl(var(--admin-border))', borderRadius: '12px' }}
+                          formatter={(value, name) => [name === 'percent' ? `${value}%` : formatCurrency(value), name === 'percent' ? 'Tiến độ' : (name === 'raisedAmount' ? 'Đã huy động' : 'Mục tiêu')]}
+                        />
+                        <Bar dataKey="percent" name="Tiến độ" fill="#10b981" radius={[0, 4, 4, 0]} barSize={16}>
+                          {topCampaignsData.map((entry, index) => {
+                            const colors = ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'];
+                            return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                          })}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-[hsl(var(--admin-text-muted))] text-sm">Chưa có dự án đang gọi vốn</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Campaign Table list */}
+            <div className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-[2.5rem] p-6 lg:p-8 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold text-[hsl(var(--admin-text-primary))] text-lg">Danh sách dự án đang bảo lãnh</h3>
+                <ExportButtons onExcel={() => handleExportCampaigns('excel')} onPDF={() => handleExportCampaigns('pdf')} />
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0 z-10">
+                    <tr className="border-b border-slate-200">
+                      <th className="px-4 py-3">Mã dự án</th>
+                      <th className="px-4 py-3">Tên dự án</th>
+                      <th className="px-4 py-3 text-right">Mục tiêu</th>
+                      <th className="px-4 py-3 text-right">Đã huy động</th>
+                      <th className="px-4 py-3 text-center">Tiến độ</th>
+                      <th className="px-4 py-3">Trạng thái</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {campaignList.map(camp => {
+                      const percent = Math.min(100, Math.round(((camp.raisedAmount || 0) / (camp.targetAmount || 1)) * 100));
+                      const statusMap = {
+                        funding: 'Đang gọi vốn',
+                        funded: 'Đã đủ vốn',
+                        disbursing: 'Đang giải ngân',
+                        completed: 'Hoàn thành',
+                        cancelled: 'Đã hủy'
+                      };
+                      return (
+                        <tr key={camp._id} className="border-b border-slate-100 hover:bg-slate-50/50">
+                          <td className="px-4 py-3 font-semibold text-slate-600">#{shortId(camp._id)}</td>
+                          <td className="px-4 py-3 font-bold text-slate-800 line-clamp-1" title={camp.title}>{camp.title}</td>
+                          <td className="px-4 py-3 text-right text-slate-700">{formatCurrency(camp.targetAmount || 0)}</td>
+                          <td className="px-4 py-3 text-right text-emerald-600 font-bold">{formatCurrency(camp.raisedAmount || 0)}</td>
+                          <td className="px-4 py-3 text-center font-bold text-slate-700">{percent}%</td>
+                          <td className="px-4 py-3">
+                            <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                              {statusMap[camp.status] || camp.status}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                    {campaignList.length === 0 && (
+                      <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-500">Chưa có dự án nào</td></tr>
                     )}
                   </tbody>
                 </table>

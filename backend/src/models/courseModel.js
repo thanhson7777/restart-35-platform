@@ -477,6 +477,22 @@ const update = async (courseId, data) => {
     throw new Error(error.message)
   }
 }
+const addActiveSponsorship = async (courseId, sponsorshipId) => {
+  try {
+    const objectId = new ObjectId(courseId)
+    const result = await GET_DB().collection(COURSE_COLLECTION_NAME).findOneAndUpdate(
+      { _id: objectId },
+      { 
+        $set: { 'sponsorship.hasSponsorship': true, updatedAt: Date.now() },
+        $addToSet: { 'sponsorship.activeSponsorshipIds': sponsorshipId }
+      },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
 
 const updateStatus = async (courseId, status, adminId, rejectionReason = null) => {
   try {
@@ -802,6 +818,7 @@ export const courseModel = {
   getAdminCourses,
   // Update
   update,
+  addActiveSponsorship,
   updateStatus,
   incrementViewCount,
   incrementEnrollmentCount,

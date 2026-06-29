@@ -46,7 +46,7 @@ const WorkerCampaignCreatePage = () => {
       };
 
       await dispatch(submitCampaign(payload)).unwrap();
-      toast.success('Gửi hồ sơ dự án khởi nghiệp thành công! Vui lòng chờ NGO duyệt.');
+      toast.success('Gửi hồ sơ dự án lập nghiệp thành công! Vui lòng chờ NGO duyệt.');
       navigate('/worker/campaigns');
     } catch (error) {
       toast.error(error || 'Có lỗi xảy ra, vui lòng thử lại');

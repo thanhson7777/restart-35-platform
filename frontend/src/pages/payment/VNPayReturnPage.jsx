@@ -36,6 +36,14 @@ export const VNPayReturnPage = () => {
           } else {
             setStatus('failed');
           }
+        } else if (type === 'campaign') {
+          // Logic thanh toán chiến dịch
+          const res = await publicAxiosInstance.get(`${API_ROOT}/v1/campaigns/vnpay-ipn?${searchParams.toString()}`);
+          if (res.data?.RspCode === '00' || res.data?.RspCode === '02') {
+            setStatus('success');
+          } else {
+            setStatus('failed');
+          }
         } else {
           // Logic thanh toán khóa học cũ
           const res = await publicAxiosInstance.get(`${API_ROOT}/v1/paymentTest/vnpay_ipn?${searchParams.toString()}`);
@@ -56,8 +64,10 @@ export const VNPayReturnPage = () => {
 
   const isWallet = new URLSearchParams(location.search).get('type') === 'wallet';
   const isPackage = new URLSearchParams(location.search).get('type') === 'package';
+  const isCampaign = new URLSearchParams(location.search).get('type') === 'campaign';
   const walletPath = currentUser?.role === 'enterprise' ? '/enterprise/wallet' : '/ngo/dashboard/wallet';
   const packagePath = '/enterprise/packages';
+  const campaignPath = '/community?tab=campaigns';
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-4">
@@ -77,10 +87,11 @@ export const VNPayReturnPage = () => {
             <p className="text-zinc-500">
               {isWallet ? 'Hệ thống đã ghi nhận số tiền nạp vào Ví tài trợ của bạn.' : 
                isPackage ? 'Hệ thống đã ghi nhận thanh toán. Gói dịch vụ của bạn đã được kích hoạt thành công.' :
+               isCampaign ? 'Cảm ơn bạn đã đóng góp! Hệ thống đã ghi nhận thanh toán của bạn cho dự án.' :
                'Hệ thống đã ghi nhận thanh toán. Bạn đã được ghi danh thành công vào lớp học.'}
             </p>
-            <Button onClick={() => navigate(isWallet ? walletPath : isPackage ? packagePath : '/my-enrollments')} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-              {isWallet ? 'Quay lại Ví tài trợ' : isPackage ? 'Quay lại danh sách gói' : 'Vào lớp học ngay'}
+            <Button onClick={() => navigate(isWallet ? walletPath : isPackage ? packagePath : isCampaign ? campaignPath : '/my-enrollments')} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              {isWallet ? 'Quay lại Ví tài trợ' : isPackage ? 'Quay lại danh sách gói' : isCampaign ? 'Quay lại quỹ khởi nghiệp' : 'Vào lớp học ngay'}
             </Button>
           </div>
         )}
@@ -90,8 +101,8 @@ export const VNPayReturnPage = () => {
             <AlertTriangle className="w-16 h-16 text-rose-500 mx-auto" />
             <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Giao dịch thất bại</h2>
             <p className="text-zinc-500">Giao dịch của bạn đã bị hủy hoặc xảy ra lỗi trong quá trình xử lý.</p>
-            <Button variant="outline" onClick={() => navigate(isWallet ? walletPath : isPackage ? packagePath : '/courses')} className="w-full">
-              {isWallet ? 'Quay lại Ví tài trợ' : isPackage ? 'Quay lại danh sách gói' : 'Quay lại danh sách khóa học'}
+            <Button variant="outline" onClick={() => navigate(isWallet ? walletPath : isPackage ? packagePath : isCampaign ? campaignPath : '/courses')} className="w-full">
+              {isWallet ? 'Quay lại Ví tài trợ' : isPackage ? 'Quay lại danh sách gói' : isCampaign ? 'Quay lại quỹ khởi nghiệp' : 'Quay lại danh sách khóa học'}
             </Button>
           </div>
         )}

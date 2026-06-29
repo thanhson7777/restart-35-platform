@@ -39,11 +39,11 @@ export default function NgoSponsorshipsPage() {
     <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Quản lý Sponsorship</h1>
+            <h1 className="text-3xl font-extrabold text-[hsl(var(--admin-text-primary))]">Quản lý tài trợ</h1>
             <p className="text-[hsl(var(--admin-text-muted))] text-sm mt-1">Theo dõi các chương trình tài trợ học bổng của tổ chức.</p>
           </div>
           <Button onClick={() => navigate('/ngo/sponsorships/create')} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
-            <Plus size={14} /> Tạo Sponsorship
+            <Plus size={14} /> Tạo gói tài trợ
           </Button>
         </div>
 
@@ -58,9 +58,9 @@ export default function NgoSponsorshipsPage() {
         ) : sponsorships.length === 0 ? (
           <div className="flex flex-col items-center py-20 text-center">
             <Heart size={40} className="text-[hsl(var(--admin-text-faint))] mb-4" />
-            <p className="text-[hsl(var(--admin-text-muted))] font-medium">Chưa có sponsorship nào.</p>
+            <p className="text-[hsl(var(--admin-text-muted))] font-medium">Chưa có gói tài trợ nào.</p>
             <Button onClick={() => navigate('/ngo/sponsorships/create')} className="mt-4 gap-2 bg-emerald-600 hover:bg-emerald-700">
-              <Plus size={14} /> Tạo sponsorship đầu tiên
+              <Plus size={14} /> Tạo gói tài trợ đầu tiên
             </Button>
           </div>
         ) : (
@@ -95,8 +95,8 @@ export default function NgoSponsorshipsPage() {
 
                   <div className="text-xs text-[hsl(var(--admin-text-muted))] flex justify-between pt-2 border-t border-[hsl(var(--admin-border))] items-center mt-4">
                     <div className="flex flex-col gap-1">
-                      <span>Max: {formatCurrency(sp.maxAmountPerLearner)} / người</span>
-                      <span>Budget: {formatCurrency(sp.budget)}</span>
+                      <span>Mức tài trợ: {sp.maxAmountPerLearner ? `${formatCurrency(sp.maxAmountPerLearner)}/người` : (sp.coverageType === 'full' ? 'Toàn phần' : 'Không giới hạn')}</span>
+                      <span>Ngân sách: {formatCurrency(sp.budget)}</span>
                     </div>
                     <Button 
                       onClick={() => navigate(`/ngo/sponsorships/${sp._id}/learners`)}

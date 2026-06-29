@@ -1,18 +1,20 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, Button, Badge } from '@/components/ui';
-import { fetchCampaigns, ngoApproveCampaign, selectCampaigns, selectCampaignLoading } from '@/redux/campaign/campaignSlice';
+import { fetchCampaigns, ngoApproveCampaign, ngoRejectCampaign, selectCampaigns, selectCampaignLoading } from '@/redux/campaign/campaignSlice';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import { CheckCircle, XCircle, Info } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { formatCurrency } from '@/utils/formatter';
 import dayjs from 'dayjs';
+import { useSocket } from '@/contexts/SocketContext';
 
 const NgoCampaignApprovalPage = () => {
   const dispatch = useDispatch();
   const currentUser = useSelector(selectCurrentUser);
   const campaigns = useSelector(selectCampaigns);
   const loading = useSelector(selectCampaignLoading);
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (currentUser?._id) {
@@ -20,8 +22,19 @@ const NgoCampaignApprovalPage = () => {
     }
   }, [dispatch, currentUser]);
 
+  useEffect(() => {
+    if (!socket || !currentUser?._id) return;
+    const handleNewNotification = (notification) => {
+      if (notification?.type === 'NEW_CAMPAIGN_REQUEST') {
+        dispatch(fetchCampaigns({ ngoId: currentUser._id }));
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket, dispatch, currentUser]);
+
   const handleApprove = async (id) => {
-    if (window.confirm('Bạn có chắc chắn muốn bảo lãnh cho dự án khởi nghiệp này?')) {
+    if (window.confirm('Bạn có chắc chắn muốn bảo lãnh cho dự án lập nghiệp này?')) {
       try {
         await dispatch(ngoApproveCampaign(id)).unwrap();
         toast.success('Đã bảo lãnh thành công! Dự án hiện đang gọi vốn.');
@@ -32,13 +45,25 @@ const NgoCampaignApprovalPage = () => {
     }
   };
 
+  const handleReject = async (id) => {
+    if (window.confirm('Bạn có chắc chắn muốn từ chối dự án này?')) {
+      try {
+        await dispatch(ngoRejectCampaign(id)).unwrap();
+        toast.success('Đã từ chối dự án.');
+        dispatch(fetchCampaigns({ ngoId: currentUser._id }));
+      } catch (error) {
+        toast.error(error || 'Có lỗi xảy ra khi từ chối');
+      }
+    }
+  };
+
   const pendingCampaigns = campaigns.filter(c => c.status === 'pending_ngo');
   const approvedCampaigns = campaigns.filter(c => c.status !== 'pending_ngo');
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Quản lý Dự án Khởi nghiệp</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Quản lý Dự án lập nghiệp</h1>
         <p className="text-sm text-gray-500">Xem xét và bảo lãnh cho các ý tưởng kinh doanh của người lao động</p>
       </div>
 
@@ -49,9 +74,9 @@ const NgoCampaignApprovalPage = () => {
             <span className="w-2 h-2 rounded-full bg-amber-500" />
             Hồ sơ đang chờ thẩm định ({pendingCampaigns.length})
           </h2>
-          
+
           {loading ? (
-             <div className="py-8 flex justify-center"><div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
+            <div className="py-8 flex justify-center"><div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
           ) : pendingCampaigns.length === 0 ? (
             <Card className="p-8 text-center text-gray-500">Không có hồ sơ nào đang chờ duyệt.</Card>
           ) : (
@@ -64,7 +89,7 @@ const NgoCampaignApprovalPage = () => {
                   </div>
                   <h3 className="font-bold text-lg mb-1">{camp.title}</h3>
                   <p className="text-sm text-gray-600 mb-4 line-clamp-3 flex-1">{camp.description}</p>
-                  
+
                   <div className="bg-gray-50 p-3 rounded-lg mb-4 text-sm">
                     <div className="flex justify-between mb-1">
                       <span className="text-gray-500">Mục tiêu:</span>
@@ -77,7 +102,7 @@ const NgoCampaignApprovalPage = () => {
                   </div>
 
                   <div className="flex gap-2 mt-auto">
-                    <Button variant="outline" className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50">
+                    <Button variant="outline" className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleReject(camp._id)}>
                       <XCircle className="w-4 h-4 mr-2" /> Từ chối
                     </Button>
                     <Button className="flex-1" onClick={() => handleApprove(camp._id)}>
@@ -96,7 +121,7 @@ const NgoCampaignApprovalPage = () => {
             <span className="w-2 h-2 rounded-full bg-green-500" />
             Dự án đã bảo lãnh ({approvedCampaigns.length})
           </h2>
-          
+
           {approvedCampaigns.length === 0 ? (
             <p className="text-gray-500">Bạn chưa bảo lãnh dự án nào.</p>
           ) : (
@@ -110,12 +135,9 @@ const NgoCampaignApprovalPage = () => {
                   </div>
                   <h3 className="font-bold text-base mb-1">{camp.title}</h3>
                   <div className="text-sm text-gray-500 mb-4 line-clamp-2">{camp.description}</div>
-                  
+
                   <div className="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
                     <span className="text-sm font-bold text-blue-600">{formatCurrency(camp.raisedAmount)} / {formatCurrency(camp.targetAmount)}</span>
-                    <Button variant="ghost" size="sm" className="text-blue-600">
-                      Cập nhật tiến độ
-                    </Button>
                   </div>
                 </Card>
               ))}

@@ -63,3 +63,10 @@ export const getWorkerProfileByIdAPI = async (id) => {
   )
   return response.data
 }
+
+export const getPublicWorkerProfileAPI = async (id) => {
+  const response = await authorizeAxiosInstance.get(
+    `${API_ROOT}/v1/users/public/workers/${id}`
+  )
+  return response.data
+}

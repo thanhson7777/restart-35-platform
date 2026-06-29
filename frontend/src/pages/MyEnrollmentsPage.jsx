@@ -7,10 +7,12 @@ import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/user/userSlice';
 import toast from 'react-hot-toast';
 import { BookOpen, Plus, Sparkles, AlertTriangle } from 'lucide-react';
+import { useSocket } from '@/contexts/SocketContext';
 
 export default function MyEnrollmentsPage() {
   const navigate = useNavigate();
   const currentUser = useSelector(selectCurrentUser);
+  const { socket } = useSocket();
 
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,17 @@ export default function MyEnrollmentsPage() {
   useEffect(() => {
     fetchEnrollments();
   }, [fetchEnrollments]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewNotification = (notification) => {
+      if (notification?.type === 'SPONSORSHIP_DECISION') {
+        fetchEnrollments();
+      }
+    };
+    socket.on('NEW_NOTIFICATION', handleNewNotification);
+    return () => socket.off('NEW_NOTIFICATION', handleNewNotification);
+  }, [socket, fetchEnrollments]);
 
   const handleCancel = (enrollment) => {
     setCancelDialog({ isOpen: true, enrollment, isSubmitting: false });

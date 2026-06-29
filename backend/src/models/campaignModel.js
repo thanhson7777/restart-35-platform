@@ -76,6 +76,10 @@ const getCampaigns = async (skip = 0, limit = 10, filters = {}) => {
 
     if (query.ngoId) query.ngoId = new ObjectId(String(query.ngoId))
     if (query.workerId) query.workerId = new ObjectId(String(query.workerId))
+    
+    if (query.status && typeof query.status === 'string' && query.status.includes(',')) {
+      query.status = { $in: query.status.split(',') }
+    }
 
     const campaigns = await GET_DB().collection(CAMPAIGN_COLLECTION_NAME)
       .find(query)
