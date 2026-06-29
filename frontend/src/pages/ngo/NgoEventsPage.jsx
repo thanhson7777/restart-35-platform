@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { Calendar, Users, MapPin, Plus, ExternalLink, RefreshCw } from 'lucide-react'
 import { Button, Badge } from '~/components/ui'
-import { fetchEvents, fetchEventParticipants, selectEvents, selectEventsLoading, selectEventParticipants } from '~/redux/event/eventSlice'
+import { fetchEvents, fetchEventParticipants, selectEvents, selectEventsLoading, selectEventParticipants, updateEventParticipantCount } from '~/redux/event/eventSlice'
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import {
   DialogDescription,
 } from '~/components/ui/Dialog'
 import { selectCurrentUser } from '~/redux/user/userSlice'
+import { useSocket } from '~/contexts/SocketContext'
 
 export default function NgoEventsPage() {
   const dispatch = useDispatch()
@@ -20,6 +21,7 @@ export default function NgoEventsPage() {
   const loading = useSelector(selectEventsLoading)
   const participants = useSelector(selectEventParticipants)
   const currentUser = useSelector(selectCurrentUser)
+  const { socket } = useSocket()
 
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false)
@@ -30,6 +32,22 @@ export default function NgoEventsPage() {
     }
   }, [dispatch, currentUser])
 
+  useEffect(() => {
+    if (!socket) return;
+    
+    const handleParticipantUpdated = (data) => {
+      if (data.eventId && data.participantCount !== undefined) {
+        dispatch(updateEventParticipantCount({
+          eventId: data.eventId,
+          participantCount: data.participantCount
+        }))
+      }
+    }
+
+    socket.on('EVENT_PARTICIPANT_UPDATED', handleParticipantUpdated)
+    return () => socket.off('EVENT_PARTICIPANT_UPDATED', handleParticipantUpdated)
+  }, [socket, dispatch])
+
   const handleViewParticipants = (event) => {
     setSelectedEvent(event)
     dispatch(fetchEventParticipants({ id: event._id, params: { limit: 100 } }))
@@ -37,7 +55,7 @@ export default function NgoEventsPage() {
   }
 
   return (
-    <div className="max-w-6xl space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-[hsl(var(--foreground))] mb-2">Quản lý sự kiện</h1>

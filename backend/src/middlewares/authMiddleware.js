@@ -106,8 +106,24 @@ const isAuthorizedWorkerOrAdmin = async (req, res, next) => {
   return await verifyRoleAccess([USER_ROLES.WORKER, USER_ROLES.ADMIN], req, next)
 }
 
+const isAuthorizedOptional = async (req, res, next) => {
+  const clientAccessToken = req.cookies?.clientAccessToken || req.headers.authorization?.split(' ')[1]
+  if (!clientAccessToken) {
+    return next()
+  }
+  try {
+    const accessTokenDecoded = await jwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_SIGNATURE)
+    req.user = accessTokenDecoded
+    req.jwtDecoded = accessTokenDecoded
+    next()
+  } catch (error) {
+    next()
+  }
+}
+
 export const authMiddleware = {
   isAuthorized,
+  isAuthorizedOptional,
   isAuthorizedAdmin,
   isAuthorizedNGO,
   isAuthorizedEnterprise,

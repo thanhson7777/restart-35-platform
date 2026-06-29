@@ -19,4 +19,7 @@ Router.route('/my-transactions')
 Router.route('/topup')
   .post(walletController.createTopupUrl)
 
+Router.route('/withdraw')
+  .post(walletController.withdrawWallet)
+
 export const walletRoute = Router

@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, Badge, Skeleton } from '@/components/ui';
 import { getSponsorshipById, getSponsorshipLearners, decideSponsorshipLearner } from '@/apis/courseSponsorshipApi';
 import toast from 'react-hot-toast';
-import { Skeleton } from '@/components/ui';
 
 const formatCurrency = (v) => v ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(v) : '—';
 
@@ -39,9 +38,22 @@ export default function NgoSponsorshipLearnersPage() {
     try {
       await decideSponsorshipLearner(id, enrollmentId, status);
       toast.success(status === 'approved' ? 'Đã chấp nhận học viên!' : 'Đã từ chối học viên!');
-      // Refresh list
-      const lrRes = await getSponsorshipLearners(id, { limit: 50 });
-      setLearners(lrRes.data?.data || []);
+      
+      // Cập nhật trạng thái học viên cục bộ
+      setLearners(prev => prev.map(lr => 
+        lr._id === enrollmentId ? { ...lr, status } : lr
+      ));
+      
+      // Cập nhật thống kê của quỹ nếu duyệt
+      if (status === 'approved') {
+        setSponsorship(prev => ({
+          ...prev,
+          stats: {
+            ...prev?.stats,
+            approvedLearners: (prev?.stats?.approvedLearners || 0) + 1
+          }
+        }));
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Có lỗi xảy ra.');
     }
@@ -118,10 +130,10 @@ export default function NgoSponsorshipLearnersPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium text-[hsl(var(--admin-success))]">{formatCurrency(learner.fundedAmount || sponsorship?.maxAmountPerLearner)}</p>
-                        <Badge variant="outline" className={`mt-1 ${learner.status === 'pending_review' ? 'border-amber-500/30 text-amber-500 bg-amber-500/10' : learner.status === 'approved' ? 'border-emerald-500/30 text-emerald-500 bg-emerald-500/10' : 'border-rose-500/30 text-rose-500 bg-rose-500/10'}`}>
-                          {learner.status === 'pending_review' ? 'Chờ duyệt' : learner.status === 'approved' ? 'Đã duyệt' : 'Từ chối'}
+                        <Badge variant="outline" className={`mt-1 ${learner.status === 'matched' ? 'border-amber-500/30 text-amber-500 bg-amber-500/10' : learner.status === 'approved' ? 'border-emerald-500/30 text-emerald-500 bg-emerald-500/10' : 'border-rose-500/30 text-rose-500 bg-rose-500/10'}`}>
+                          {learner.status === 'matched' ? 'Chờ duyệt' : learner.status === 'approved' ? 'Đã duyệt' : 'Từ chối'}
                         </Badge>
-                        {learner.status === 'pending_review' && (
+                        {learner.status === 'matched' && (
                           <div className="flex gap-2 mt-3">
                             <Button size="sm" onClick={() => handleDecision(learner._id, 'approved')} className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm border-none">Phê duyệt</Button>
                             <Button size="sm" variant="outline" onClick={() => handleDecision(learner._id, 'rejected')} className="h-8 text-xs border-[hsl(var(--admin-border))] hover:bg-rose-500 hover:text-white hover:border-rose-500 text-[hsl(var(--admin-text-secondary))]">Từ chối</Button>

@@ -3,12 +3,18 @@ import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 
 const createEvent = async (req, res, next) => {
+  if (req.body.eventDate) {
+    req.body.eventDate = Number(req.body.eventDate)
+  }
   const schema = Joi.object({
-    title: Joi.string().required().trim().strict(),
+    title: Joi.string().required().trim(),
     coverImage: Joi.string().allow('', null),
-    eventDate: Joi.date().timestamp('javascript').required(),
-    location: Joi.string().required().trim().strict(),
-    description: Joi.string().required().trim().strict(),
+    eventDate: Joi.alternatives().try(
+      Joi.date().timestamp('javascript'),
+      Joi.number()
+    ).required(),
+    location: Joi.string().required().trim(),
+    description: Joi.string().required().trim(),
   })
 
   try {

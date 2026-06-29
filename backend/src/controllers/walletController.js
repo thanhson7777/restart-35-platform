@@ -81,7 +81,14 @@ const createTopupUrl = async (req, res, next) => {
 // 4. Handle VNPay IPN (Webhook from VNPay)
 const vnpayIpnWallet = async (req, res, next) => {
   try {
-    const verifyResult = vnpayInstance.verifyIpnCall(req.query)
+    const vnpParams = {}
+    for (const key in req.query) {
+      if (key.startsWith('vnp_')) {
+        vnpParams[key] = req.query[key]
+      }
+    }
+
+    const verifyResult = vnpayInstance.verifyIpnCall(vnpParams)
     
     if (!verifyResult.isSuccess) {
       return res.status(200).json({ RspCode: '97', Message: 'Invalid signature' })
@@ -121,9 +128,56 @@ const vnpayIpnWallet = async (req, res, next) => {
   }
 }
 
+// 5. Mock Auto Payout / Withdrawal
+const withdrawWallet = async (req, res, next) => {
+  try {
+    const { amount, bankCode, bankAccount } = req.body
+    if (!amount || amount < 50000) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Số tiền rút tối thiểu là 50,000đ')
+    }
+    if (!bankCode || !bankAccount) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng cung cấp đầy đủ thông tin ngân hàng')
+    }
+
+    const wallet = await walletModel.findOrCreateByUserId(req.user._id)
+    if (wallet.availableBalance < amount) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Số dư khả dụng không đủ')
+    }
+
+    // Giả lập độ trễ của API Ngân hàng (Mock Payout)
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    // Trừ tiền trong ví
+    await walletModel.update(wallet.userId, {
+      availableBalance: wallet.availableBalance - amount,
+      totalDisbursed: (wallet.totalDisbursed || 0) + amount
+    })
+
+    // Ghi lại giao dịch Rút tiền
+    const tx = await transactionModel.createNew({
+      walletId: String(wallet._id),
+      userId: req.user._id,
+      type: 'WITHDRAW',
+      amount: amount,
+      description: `Rút tiền về tài khoản ${bankCode} - ${bankAccount}`,
+      status: 'COMPLETED'
+    })
+
+    // (Tùy chọn: Gửi thông báo Notification tại đây nếu có notificationService)
+
+    res.status(StatusCodes.OK).json({ 
+      message: 'Rút tiền thành công', 
+      data: tx 
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const walletController = {
   getMyWallet,
   getMyTransactions,
   createTopupUrl,
-  vnpayIpnWallet
+  vnpayIpnWallet,
+  withdrawWallet
 }

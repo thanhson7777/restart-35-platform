@@ -159,10 +159,9 @@ const profileSlice = createSlice({
     updateFormData: (state, action) => {
       const { step, data } = action.payload
       const stepFieldMap = {
-        1: 'basicInfo',
-        2: 'employmentHistory',
-        3: 'barriers',
-        4: 'aspirations'
+        1: 'employmentHistory',
+        2: 'barriers',
+        3: 'aspirations'
       }
       if (stepFieldMap[step]) {
         state.formData[stepFieldMap[step]] = data
@@ -277,10 +276,9 @@ const profileSlice = createSlice({
         }
         if (action.payload.step && action.payload.stepData) {
           const stepFieldMap = {
-            1: 'basicInfo',
-            2: 'employmentHistory',
-            3: 'barriers',
-            4: 'aspirations'
+            1: 'employmentHistory',
+            2: 'barriers',
+            3: 'aspirations'
           }
           const field = stepFieldMap[action.payload.step]
           if (field) {

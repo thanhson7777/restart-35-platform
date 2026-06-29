@@ -16,8 +16,8 @@ const createCourseSponsorship = async (req, res, next) => {
 
 const getCourseSponsorships = async (req, res, next) => {
   try {
-    const actorId = req.user._id.toString()
-    const role = req.user.role
+    const actorId = req.user?._id?.toString()
+    const role = req.user?.role
     const result = await courseSponsorshipService.getCourseSponsorships(actorId, role, req.query)
 
     res.status(StatusCodes.OK).json({

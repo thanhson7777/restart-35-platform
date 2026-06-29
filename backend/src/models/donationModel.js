@@ -12,6 +12,7 @@ const DONATION_COLLECTION_SCHEMA = Joi.object({
   
   paymentStatus: Joi.string().valid('pending', 'success', 'failed').default('pending'),
   transactionId: Joi.string().allow('', null).default(null),
+  isAnonymous: Joi.boolean().default(false),
   
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),

@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb'
 const MILESTONE_COLLECTION_NAME = 'campaign_milestones'
 const MILESTONE_COLLECTION_SCHEMA = Joi.object({
   campaignId: Joi.string().pattern(/^[a-f\d]{24}$/i).required(),
-  ngoId: Joi.string().pattern(/^[a-f\d]{24}$/i).required(),
+  workerId: Joi.string().pattern(/^[a-f\d]{24}$/i).required(),
   
   title: Joi.string().required().min(5).max(100).trim().strict(),
   description: Joi.string().required(),
@@ -26,7 +26,7 @@ const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
     validData.campaignId = new ObjectId(String(validData.campaignId))
-    validData.ngoId = new ObjectId(String(validData.ngoId))
+    validData.workerId = new ObjectId(String(validData.workerId))
     const createdMilestone = await GET_DB().collection(MILESTONE_COLLECTION_NAME).insertOne(validData)
     return createdMilestone
   } catch (error) { throw new Error(error.message) }

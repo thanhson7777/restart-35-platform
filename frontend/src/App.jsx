@@ -102,6 +102,7 @@ import WorkerPostsPage from '@/pages/worker/WorkerPostsPage';
 import CommunityHubPage from '@/pages/CommunityHubPage';
 import PartnerJobsPage from '@/pages/PartnerJobsPage';
 import CommunityJobDetailPage from '@/pages/community/CommunityJobDetailPage';
+import WorkerPublicProfilePage from '@/pages/community/WorkerPublicProfilePage';
 import EventDetailPage from '@/pages/community/EventDetailPage';
 import NgoImpactDashboardPage from '@/pages/ngo/NgoImpactDashboardPage';
 import NgoSponsorshipsPage from '@/pages/ngo/NgoSponsorshipsPage';
@@ -110,6 +111,7 @@ import NgoSponsorshipLearnersPage from '@/pages/ngo/NgoSponsorshipLearnersPage';
 import NgoCampaignApprovalPage from '@/pages/ngo/NgoCampaignApprovalPage';
 import WorkerCampaignListPage from '@/pages/worker/WorkerCampaignListPage';
 import WorkerCampaignCreatePage from '@/pages/worker/WorkerCampaignCreatePage';
+import WorkerWalletPage from '@/pages/worker/WorkerWalletPage';
 import CampaignDetailPage from '@/pages/community/CampaignDetailPage';
 import NgoWalletPage from '@/pages/ngo/NgoWalletPage';
 import NgoEventsPage from '@/pages/ngo/NgoEventsPage';
@@ -285,6 +287,7 @@ function App() {
         <Route path="/worker" element={<Navigate to="/my-enrollments" replace />} />
         <Route path="/worker/profile" element={<WorkerLayout><WorkerProfilePage /></WorkerLayout>} />
         <Route path="/worker/account-settings" element={<WorkerLayout><WorkerAccountSettingsPage /></WorkerLayout>} />
+        <Route path="/worker/wallet" element={<WorkerLayout><WorkerWalletPage /></WorkerLayout>} />
         <Route path="/worker/analytics" element={<WorkerLayout><WorkerAnalyticsPage /></WorkerLayout>} />
         <Route path="/worker/campaigns" element={<WorkerLayout><WorkerCampaignListPage /></WorkerLayout>} />
         <Route path="/worker/campaigns/create" element={<WorkerLayout><WorkerCampaignCreatePage /></WorkerLayout>} />
@@ -301,6 +304,7 @@ function App() {
         <Route path="/community/jobs/:id" element={<CommunityJobDetailPage />} />
         <Route path="/community/events/:id" element={<EventDetailPage />} />
         <Route path="/community/campaigns/:id" element={<CampaignDetailPage />} />
+        <Route path="/community/workers/:id" element={<WorkerPublicProfilePage />} />
         {/* Partner Jobs */}
         <Route path="/partner-jobs" element={<PartnerJobsPage />} />
         <Route path="/partner-jobs/:id" element={<CommunityJobDetailPage />} />

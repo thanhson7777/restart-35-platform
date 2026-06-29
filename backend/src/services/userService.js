@@ -618,6 +618,87 @@ const resetPassword = async (resetToken, newPassword) => {
     return { message: 'Đặt lại mật khẩu thành công!' }
   } catch (error) { throw error }
 }
+const getPublicWorkerProfile = async (workerId) => {
+  try {
+    const user = await userModel.findOneById(workerId)
+    if (!user || user.role !== 'worker' || !user.isActive) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy người lao động hợp lệ!')
+    }
+
+    // Get worker profile (skills, experience)
+    const { workerProfileModel } = await import('~/models/workerProfileModel')
+    const workerProfile = await workerProfileModel.findOneByUserId(workerId)
+
+    // Get campaigns
+    const { campaignModel } = await import('~/models/campaignModel')
+    const campaignsResult = await campaignModel.getCampaigns(0, 50, { 
+      workerId: workerId,
+      status: 'funding,funded,completed'
+    })
+
+    // Extract unique skills from aspirations or employment history
+    let skillsList = []
+    if (workerProfile?.aspirations?.skills) {
+      skillsList = workerProfile.aspirations.skills.map(s => ({
+        name: typeof s === 'string' ? s : s.titleVi || s.titleEn
+      }))
+    } else if (workerProfile?.employmentHistory) {
+      const allSkills = new Set()
+      workerProfile.employmentHistory.forEach(job => {
+        if (job.skills) {
+          job.skills.forEach(s => {
+            allSkills.add(typeof s === 'string' ? s : s.titleVi || s.titleEn)
+          })
+        }
+      })
+      skillsList = Array.from(allSkills).map(s => ({ name: s }))
+    }
+
+    // Determine education from basicInfo
+    const educationStr = workerProfile?.basicInfo?.education || ''
+
+    // Synthesize a bio from available data since 'bio' is not directly in the schema
+    let synthesizedBio = ''
+    if (workerProfile?.basicInfo) {
+      synthesizedBio += `Tôi ${workerProfile.basicInfo.age} tuổi, hiện đang sống tại ${workerProfile.basicInfo.province}. `
+    }
+    if (workerProfile?.aspirations?.targetJob) {
+      const jobName = typeof workerProfile.aspirations.targetJob === 'string' 
+        ? workerProfile.aspirations.targetJob 
+        : (workerProfile.aspirations.targetJob.titleVi || workerProfile.aspirations.targetJob.titleEn)
+      if (jobName) {
+        synthesizedBio += `Tôi đang tìm kiếm cơ hội làm việc trong lĩnh vực ${jobName}. `
+      }
+    }
+    if (workerProfile?.aspirations?.wantsToStartBusiness) {
+      synthesizedBio += `Tôi cũng có nguyện vọng khởi nghiệp và mong muốn xây dựng một dự án của riêng mình.`
+    }
+
+    // Get certificates
+    const { workerProfileService } = await import('~/services/workerProfileService')
+    const certificatesList = await workerProfileService.fetchProfileCertificates(workerId)
+
+    return {
+      user: {
+        _id: user._id,
+        displayName: user.displayName,
+        avatar: user.avatar,
+        email: user.email,
+        phone: user.phone,
+        createdAt: user.createdAt
+      },
+      profile: workerProfile ? {
+        skills: skillsList,
+        experience: workerProfile.employmentHistory || [],
+        certificates: certificatesList || [],
+        education: educationStr,
+        bio: synthesizedBio.trim(),
+        barriers: workerProfile.barriers || {}
+      } : null,
+      campaigns: campaignsResult.campaigns
+    }
+  } catch (error) { throw error }
+}
 
 export const userService = {
   createNew,
@@ -635,5 +716,6 @@ export const userService = {
   updateOrganizationId,
   forgotPassword,
   resetPassword,
-  getPublicNgos
+  getPublicNgos,
+  getPublicWorkerProfile
 }

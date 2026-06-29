@@ -27,6 +27,7 @@ const CampaignDetailPage = () => {
   
   const [donationAmount, setDonationAmount] = useState('50000');
   const [donationMessage, setDonationMessage] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -50,17 +51,21 @@ const CampaignDetailPage = () => {
     try {
       const payload = {
         amount: Number(donationAmount),
-        message: donationMessage
+        message: donationMessage,
+        isAnonymous
       };
       const res = await dispatch(submitDonation({ campaignId: id, data: payload })).unwrap();
       
       toast.success('Ghi nhận đóng góp thành công! Chuyển hướng đến cổng thanh toán VNPAY...');
       setIsModalOpen(false);
       
-      // Giả lập chuyển hướng thanh toán thành công (Trong thực tế sẽ dùng res.paymentUrl)
-      setTimeout(() => {
-        dispatch(fetchCampaignDetails(id));
-      }, 2000);
+      if (res.paymentUrl) {
+        window.location.href = res.paymentUrl;
+      } else {
+        setTimeout(() => {
+          dispatch(fetchCampaignDetails(id));
+        }, 2000);
+      }
       
     } catch (error) {
       toast.error(error || 'Có lỗi xảy ra khi quyên góp');
@@ -101,7 +106,7 @@ const CampaignDetailPage = () => {
       <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-6">
           <Button variant="ghost" className="text-gray-500 hover:text-gray-900 pl-0" asChild>
-            <Link to="/community?tab=campaigns">
+            <Link to="/community?tab=campaigns" className="flex items-center">
               <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại quỹ khởi nghiệp
             </Link>
           </Button>
@@ -136,14 +141,18 @@ const CampaignDetailPage = () => {
                 
                 <div className="flex items-center gap-4 py-4 border-y border-gray-100 mb-8">
                   <div className="flex items-center gap-3">
-                    <Avatar 
-                      src={campaign.workerAvatar} 
-                      fallback={campaign.workerName?.charAt(0) || 'W'}
-                      className="h-12 w-12 border-2 border-white shadow-sm" 
-                    />
+                    <Link to={`/community/workers/${campaign.workerId}`}>
+                      <Avatar 
+                        src={campaign.workerAvatar} 
+                        fallback={campaign.workerName?.charAt(0) || 'W'}
+                        className="h-12 w-12 border-2 border-white shadow-sm hover:ring-2 hover:ring-blue-500 transition-all cursor-pointer" 
+                      />
+                    </Link>
                     <div>
                       <p className="text-sm text-gray-500">Khởi xướng bởi</p>
-                      <p className="font-bold text-gray-900">{campaign.workerName}</p>
+                      <Link to={`/community/workers/${campaign.workerId}`} className="font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                        {campaign.workerName}
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -157,32 +166,37 @@ const CampaignDetailPage = () => {
               </div>
             </div>
 
-            {/* Milestones / Báo cáo tiến độ */}
+
+            {/* Lời nhắn từ người ủng hộ */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
               <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <Flag className="w-5 h-5 text-blue-600" />
-                Báo cáo tiến độ từ NGO
+                <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+                Lời nhắn từ người ủng hộ
               </h3>
-              
-              {!campaign.milestones || campaign.milestones.length === 0 ? (
-                <p className="text-gray-500 italic text-center py-6">Chưa có báo cáo tiến độ nào được cập nhật.</p>
+
+              {!campaign.donations || campaign.donations.length === 0 ? (
+                <p className="text-gray-500 italic text-center py-6">Hãy là người đầu tiên ủng hộ dự án này!</p>
               ) : (
-                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
-                  {campaign.milestones.map((milestone, idx) => (
-                    <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-blue-100 text-blue-600 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                        <CheckCircle2 className="w-5 h-5" />
-                      </div>
-                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                        <div className="flex items-center justify-between space-x-2 mb-1">
-                          <div className="font-bold text-gray-900">{milestone.title}</div>
-                          <time className="font-medium text-xs text-blue-600">{dayjs(milestone.createdAt).format('DD/MM/YYYY')}</time>
+                <div className="space-y-4">
+                  {campaign.donations.map((donation, idx) => (
+                    <div key={idx} className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+                      <Avatar 
+                        src={donation.donorAvatar} 
+                        fallback={donation.donorName?.charAt(0) || 'U'}
+                        className="h-10 w-10 border border-white shadow-sm shrink-0" 
+                      />
+                      <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
+                          <p className="font-bold text-gray-900">{donation.donorName}</p>
+                          <span className="text-sm font-semibold text-blue-600">{formatCurrency(donation.amount)}</span>
                         </div>
-                        <div className="text-gray-600 text-sm">{milestone.description}</div>
-                        {milestone.disbursedAmount > 0 && (
-                          <div className="mt-2 text-xs font-semibold text-green-600 bg-green-50 inline-block px-2 py-1 rounded">
-                            Giải ngân: {formatCurrency(milestone.disbursedAmount)}
-                          </div>
+                        <div className="text-xs text-gray-400 mb-2">
+                          {dayjs(donation.createdAt).format('DD/MM/YYYY HH:mm')}
+                        </div>
+                        {donation.message && (
+                          <p className="text-gray-600 text-sm bg-white p-3 rounded-lg border border-gray-100 shadow-sm inline-block w-full">
+                            "{donation.message}"
+                          </p>
                         )}
                       </div>
                     </div>
@@ -265,6 +279,19 @@ const CampaignDetailPage = () => {
                         value={donationMessage}
                         onChange={(e) => setDonationMessage(e.target.value)}
                       />
+                    </div>
+
+                    <div className="flex items-center space-x-2 pt-1">
+                      <input 
+                        type="checkbox" 
+                        id="isAnonymous" 
+                        checked={isAnonymous}
+                        onChange={(e) => setIsAnonymous(e.target.checked)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+                      />
+                      <label htmlFor="isAnonymous" className="text-sm text-gray-700 cursor-pointer select-none">
+                        Quyên góp ẩn danh <span className="text-gray-500 font-normal">(Chỉ ẩn tên trên trang công khai)</span>
+                      </label>
                     </div>
                     
                     <Button type="submit" className="w-full h-12 text-base font-bold bg-blue-600 hover:bg-blue-700">

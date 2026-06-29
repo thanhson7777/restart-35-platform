@@ -4,7 +4,14 @@ import { enrollmentModel } from '~/models/enrollmentModel'
 import { ENROLLMENT_PAYMENT_STATUS, PAYMENT_STATUS, ENROLLMENT_STATUS_V2 } from '~/utils/constants'
 import crypto from 'crypto'
 
-const verifyVnpayIpn = async (vnp_Params) => {
+const verifyVnpayIpn = async (vnp_Params_Raw) => {
+    const vnp_Params = {}
+    for (const key in vnp_Params_Raw) {
+      if (key.startsWith('vnp_')) {
+        vnp_Params[key] = vnp_Params_Raw[key]
+      }
+    }
+
     const verifyResult = vnpayInstance.verifyIpnCall(vnp_Params)
     if (!verifyResult.isSuccess) {
         return { RspCode: '97', Message: 'Checksum failed' }

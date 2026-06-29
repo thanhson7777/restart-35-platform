@@ -10,30 +10,32 @@ export const initSocket = (httpServer) => {
     cors: corsOptions
   });
 
-  // Middleware xác thực JWT cho Socket
+  // Middleware xác thực JWT cho Socket (hoặc ẩn danh)
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
-      if (!token) {
-        return next(new Error('Authentication error'));
+      if (!token || token === 'null') {
+        socket.user = null; // Khách vãng lai (Anonymous)
+        return next();
       }
 
       const decoded = await jwtProvider.verifyToken(token, env.ACCESS_TOKEN_SECRET_SIGNATURE);
       socket.user = decoded;
       next();
     } catch (err) {
-      next(new Error('Authentication error'));
+      // Token sai thì vẫn cho vào với quyền ẩn danh
+      socket.user = null;
+      next();
     }
   });
 
   io.on('connection', (socket) => {
-    // console.log(`User connected to Socket.IO: ${socket.id}, User ID: ${socket.user._id}`);
-    
     // Join vào room mang tên của chính user (chứa _id) để dễ dàng bắn thông báo riêng
-    socket.join(socket.user._id.toString());
+    if (socket.user && socket.user._id) {
+      socket.join(socket.user._id.toString());
+    }
 
     socket.on('disconnect', () => {
-      // console.log(`User disconnected from Socket.IO: ${socket.id}`);
     });
   });
 

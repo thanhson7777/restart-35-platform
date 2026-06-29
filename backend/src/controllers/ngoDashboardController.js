@@ -12,10 +12,12 @@ const getOverview = async (req, res, next) => {
       scholarshipModel.getStatsByNgo(ngoId)
     ])
 
+    const sponsorshipIds = sponsorships.map(s => String(s._id))
+
     const db = await GET_DB()
     const [totalLearners, totalGraduates] = await Promise.all([
-      db.collection('enrollments').countDocuments({ 'sponsorships.sponsorType': 'ngo', 'sponsorships.sponsorId': ngoId }),
-      db.collection('enrollments').countDocuments({ 'sponsorships.sponsorType': 'ngo', 'sponsorships.sponsorId': ngoId, status: 'completed' })
+      db.collection('enrollments').countDocuments({ 'sponsorships.sponsorshipId': { $in: sponsorshipIds } }),
+      db.collection('enrollments').countDocuments({ 'sponsorships.sponsorshipId': { $in: sponsorshipIds }, status: 'completed' })
     ])
 
     res.status(StatusCodes.OK).json({
@@ -51,13 +53,14 @@ const getImpact = async (req, res, next) => {
     const db = await GET_DB()
 
     const sponsorships = await courseSponsorshipService.getNgoSponsorshipOverview(ngoId)
+    const sponsorshipIds = sponsorships.map(s => String(s._id))
 
     const learnersPipeline = [
-      { $match: { 'sponsorships.sponsorType': 'ngo', 'sponsorships.sponsorId': ngoId } },
+      { $match: { 'sponsorships.sponsorshipId': { $in: sponsorshipIds } } },
       { $count: 'total' }
     ]
     const graduatesPipeline = [
-      { $match: { 'sponsorships.sponsorType': 'ngo', 'sponsorships.sponsorId': ngoId, status: 'completed' } },
+      { $match: { 'sponsorships.sponsorshipId': { $in: sponsorshipIds }, status: 'completed' } },
       { $count: 'total' }
     ]
     const [learnersResult, graduatesResult] = await Promise.all([

@@ -1,10 +1,20 @@
 import { eventService } from '~/services/eventService'
 import { StatusCodes } from 'http-status-codes'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 const createEvent = async (req, res, next) => {
   try {
+    let coverImageUrl = req.body.coverImage || ''
+    
+    // Nếu có file upload, xử lý upload qua Cloudinary
+    if (req.file) {
+      const uploadResult = await CloudinaryProvider.streamUpload(req.file.buffer, 'events')
+      coverImageUrl = uploadResult.secure_url
+    }
+
     const data = {
       ...req.body,
+      coverImage: coverImageUrl,
       organizerId: req.user._id // Get from authenticated user (NGO)
     }
     const newEvent = await eventService.createEvent(data)

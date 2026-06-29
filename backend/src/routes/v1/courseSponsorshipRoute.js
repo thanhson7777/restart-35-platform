@@ -15,7 +15,7 @@ Router.post(
 
 Router.get(
   '/',
-  authMiddleware.isAuthorized,
+  authMiddleware.isAuthorizedOptional,
   courseSponsorshipValidation.queryCourseSponsorships,
   courseSponsorshipController.getCourseSponsorships
 )

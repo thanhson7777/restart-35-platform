@@ -4,6 +4,7 @@ import {
   getCampaignById,
   createCampaign,
   approveCampaign,
+  rejectCampaign,
   donateToCampaign,
   addCampaignMilestone
 } from '~/apis/campaignAPI';
@@ -60,6 +61,18 @@ export const ngoApproveCampaign = createAsyncThunk(
       return response?.data?.data || response?.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Lỗi duyệt dự án');
+    }
+  }
+);
+
+export const ngoRejectCampaign = createAsyncThunk(
+  'campaign/ngoRejectCampaign',
+  async (campaignId, { rejectWithValue }) => {
+    try {
+      const response = await rejectCampaign(campaignId);
+      return response?.data?.data || response?.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Lỗi từ chối dự án');
     }
   }
 );

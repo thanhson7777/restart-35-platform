@@ -3,17 +3,42 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { Calendar, MapPin, Users, Info } from 'lucide-react'
 import { Button } from '~/components/ui'
-import { fetchEvents, selectEvents, selectEventsLoading } from '~/redux/event/eventSlice'
+import { fetchEvents, selectEvents, selectEventsLoading, updateEventParticipantCount } from '~/redux/event/eventSlice'
+import { useSocket } from '~/contexts/SocketContext'
 
 export default function EventListSection() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const events = useSelector(selectEvents)
   const loading = useSelector(selectEventsLoading)
+  const { socket } = useSocket()
 
   useEffect(() => {
     dispatch(fetchEvents({})) // Get all published events
   }, [dispatch])
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleEventCreated = (notification) => {
+      dispatch(fetchEvents({}))
+    }
+    const handleParticipantUpdated = (data) => {
+      if (data.eventId && data.participantCount !== undefined) {
+        dispatch(updateEventParticipantCount({
+          eventId: data.eventId,
+          participantCount: data.participantCount
+        }))
+      }
+    }
+
+    socket.on('PUBLIC_EVENT_CREATED', handleEventCreated)
+    socket.on('EVENT_PARTICIPANT_UPDATED', handleParticipantUpdated)
+
+    return () => {
+      socket.off('PUBLIC_EVENT_CREATED', handleEventCreated)
+      socket.off('EVENT_PARTICIPANT_UPDATED', handleParticipantUpdated)
+    }
+  }, [socket, dispatch])
 
   if (loading) {
     return (

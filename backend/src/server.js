@@ -13,6 +13,7 @@ import cookieParser from 'cookie-parser'
 import { initJobScheduler } from './services/jobScheduler.js'
 import { initSocket } from './config/socket'
 import { startInterviewCron } from './crons/interviewCron.js'
+import { campaignCron } from './crons/campaignCron.js'
 
 const START_SERVER = () => {
   const app = express()
@@ -110,6 +111,7 @@ const START_SERVER = () => {
 
     // Khởi tạo tiến trình chạy ngầm gửi nhắc nhở phỏng vấn
     startInterviewCron()
+    campaignCron()
   } catch (error) {
     console.log(error)
     process.exit(0)
