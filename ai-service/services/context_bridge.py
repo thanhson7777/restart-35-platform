@@ -431,24 +431,14 @@ class ContextBridge:
                 return skill.get("name") or skill.get("skill_name") or skill.get("skill") or ""
             return ""
 
-        # From employment history - take top 3 skills per job
+        # From employment history - extract ALL skills context without slicing
         if "employment_history" in user_profile:
             for exp in user_profile["employment_history"]:
                 if "skills" in exp and exp["skills"]:
-                    # Take up to 3 skills per job as strengths
-                    for skill in exp["skills"][:3]:
+                    for skill in exp["skills"]:
                         name = _get_skill_name(skill)
                         if name:
                             strengths.append(name)
-
-        # From aspirations - take top 2
-        if "aspirations" in user_profile:
-            asp = user_profile["aspirations"]
-            if "skills" in asp and asp["skills"]:
-                for skill in asp["skills"][:2]:
-                    name = _get_skill_name(skill)
-                    if name:
-                        strengths.append(name)
 
         # Deduplicate and return
         return sorted(list(set(strengths)))

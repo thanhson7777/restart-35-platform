@@ -6,6 +6,7 @@ import { userModel } from '~/models/userModel'
 import { courseModel } from '~/models/courseModel'
 import { walletModel } from '~/models/walletModel'
 import { transactionModel } from '~/models/transactionModel'
+import { GET_DB } from '~/config/mongodb'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import {
@@ -47,10 +48,12 @@ const ensureParticipantAccess = (partnership, actorId, role) => {
 }
 
 const buildPartnershipSummary = async (partnership) => {
-  const [enterprise, trainer, linkedCourses] = await Promise.all([
+  const [enterprise, trainer, linkedCourses, enrolledCount, placedCount] = await Promise.all([
     userModel.findOneById(partnership.enterpriseId),
     userModel.findOneById(partnership.trainerId),
-    Promise.all((partnership.linkedCourseIds || []).concat(partnership.proposedCourseIds || []).filter(Boolean).map(courseId => courseModel.findOneById(courseId)))
+    Promise.all((partnership.linkedCourseIds || []).concat(partnership.proposedCourseIds || []).filter(Boolean).map(courseId => courseModel.findOneById(courseId))),
+    GET_DB().collection('enrollments').countDocuments({ partnershipId: partnership._id.toString(), _destroy: { $ne: true } }),
+    GET_DB().collection('placements').countDocuments({ partnershipId: partnership._id.toString(), _destroy: { $ne: true } })
   ])
 
   let organizationName = null;
@@ -69,6 +72,11 @@ const buildPartnershipSummary = async (partnership) => {
 
   return {
     ...partnership,
+    stats: {
+      ...(partnership.stats || {}),
+      enrolledLearners: enrolledCount || 0,
+      placedLearners: placedCount || 0
+    },
     enterprise: enterprise ? {
       _id: enterprise._id?.toString?.() || partnership.enterpriseId,
       displayName: enterprise.displayName,

@@ -235,6 +235,18 @@ async def startup_event():
     prediction_log = logs_dir / "predictions.jsonl"
     logger.info(f"📝 Prediction log: {prediction_log}")
 
+    # Pre-load JobRecommender
+    logger.info("🔄 Pre-loading JobRecommender...")
+    try:
+        from services.job_recommender import JobRecommender
+        import routers.ai as ai_router_module
+        
+        recommender = JobRecommender()
+        logger.info("✅ JobRecommender loaded successfully")
+        ai_router_module._recommender = recommender
+    except Exception as e:
+        logger.warning(f"⚠️  JobRecommender not available: {e}")
+
     # =============================================================================
     # RAG System Initialization
     # =============================================================================
@@ -374,6 +386,6 @@ if __name__ == "__main__":
         "main:app",
         host=host,
         port=port,
-        reload=False,
+        reload=True,
         log_level="info"
     )

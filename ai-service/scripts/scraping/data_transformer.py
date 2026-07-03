@@ -33,6 +33,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
 import pandas as pd
+from spam_filter import SpamFilter
 
 # Import constants (direct import)
 from constants import (
@@ -58,6 +59,13 @@ try:
 except ImportError:
     HAS_SKILL_EXTRACTOR = False
 
+# Import LLM extractor (optional)
+try:
+    from llm_extractor import llm_extractor
+    HAS_LLM_EXTRACTOR = True
+except ImportError:
+    HAS_LLM_EXTRACTOR = False
+
 
 class DataTransformer:
     """
@@ -70,10 +78,12 @@ class DataTransformer:
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        self.spam_filter = SpamFilter()
         self.stats = {
             'total_processed': 0,
             'transformed': 0,
             'skipped': 0,
+            'spam_filtered': 0,
             'errors': 0,
             'skills_extracted_from_description': 0,
             'skills_extracted_from_title': 0,
@@ -127,6 +137,30 @@ class DataTransformer:
         if not job.get('title'):
             self.logger.warning(f"Job {index}: No title, skipping")
             return None
+            
+        description = job.get('description', '')
+        raw_title = job.get('title', '')
+        
+        # Kiem tra spam
+        is_spam, spam_reason, spam_tier = self.spam_filter.check_spam(job)
+        if is_spam:
+            self.logger.warning(f"Job {index}: Spam detected ({spam_tier}) - {spam_reason}. Skipping.")
+            self._save_spam_job(job, spam_reason, spam_tier)
+            self.stats['spam_filtered'] += 1
+            return None
+        
+        # Filter English jobs (Vấn đề 3)
+        if description:
+            try:
+                from langdetect import detect
+                text_to_detect = description[:500] if len(description) > 500 else description
+                if detect(text_to_detect) == 'en':
+                    self.logger.warning(f"Job {index}: English job detected, skipping (Title: {raw_title})")
+                    return None
+            except ImportError:
+                pass
+            except Exception:
+                pass
         
         # Build transformed job
         raw_skills = job.get('skills', '')
@@ -177,8 +211,9 @@ class DataTransformer:
                 self.stats['salary_extracted'] += 1
             else:
                 # Infer from category
+                normalized_loc = self.normalize_location(raw_location)
                 inferred_min, inferred_max = infer_salary_from_category(
-                    raw_category, raw_location
+                    raw_category, normalized_loc
                 )
                 salary_min = inferred_min
                 salary_max = inferred_max
@@ -212,6 +247,28 @@ class DataTransformer:
             'job_url': job.get('job_url', ''),
             'scraped_at': datetime.now().isoformat(),
         }
+
+        # Apply LLM Extractor if available
+        if HAS_LLM_EXTRACTOR and transformed['description']:
+            # LLM is slow, we should ideally use it selectively, but for 35+ labor jobs it's very useful
+            try:
+                llm_info = llm_extractor.extract_job_info(transformed['description'])
+                if llm_info:
+                    # Update age preference if LLM found something and original was 'any'
+                    if llm_info.get('age_preference') and llm_info['age_preference'] != 'any' and transformed['age_preference'] == 'any':
+                        transformed['age_preference'] = self.normalize_age_preference(llm_info['age_preference'])
+                    
+                    # Add new fields for barriers and intensity
+                    transformed['labor_intensity'] = llm_info.get('labor_intensity', 'trung_binh')
+                    transformed['suitable_for_family_barrier'] = llm_info.get('suitable_for_family_barrier', True)
+                    transformed['suitable_for_health_issues'] = llm_info.get('suitable_for_health_issues', True)
+            except Exception as e:
+                self.logger.warning(f"Failed to use LLM extractor: {e}")
+        else:
+            # Default values if no LLM
+            transformed['labor_intensity'] = 'trung_binh'
+            transformed['suitable_for_family_barrier'] = True
+            transformed['suitable_for_health_issues'] = True
 
         # Map job title to standard categories
         transformed['category'] = self.map_job_category(transformed['title'])
@@ -625,6 +682,7 @@ class DataTransformer:
         self.logger.info(f"  Total processed: {self.stats['total_processed']}")
         self.logger.info(f"  Transformed: {self.stats['transformed']}")
         self.logger.info(f"  Skipped: {self.stats['skipped']}")
+        self.logger.info(f"  Spam filtered: {self.stats['spam_filtered']}")
         self.logger.info(f"  Errors: {self.stats['errors']}")
 
         if self.stats['total_processed'] > 0:
@@ -647,7 +705,45 @@ class DataTransformer:
             'total_processed': 0,
             'transformed': 0,
             'skipped': 0,
+            'spam_filtered': 0,
             'errors': 0,
             'skills_extracted_from_description': 0,
             'skills_extracted_from_title': 0,
         }
+        
+    def _save_spam_job(self, job: Dict, reason: str, tier: str):
+        """Lưu job bị đánh cờ spam ra file riêng"""
+        import csv
+        import os
+        from datetime import datetime
+        
+        spam_file = Path('data/spam_jobs.csv')
+        file_exists = spam_file.exists()
+        
+        job['spam_reason'] = reason
+        job['spam_tier'] = tier
+        job['detected_at'] = datetime.now().isoformat()
+        
+        # Lấy các trường cơ bản
+        row = {
+            'title': job.get('title', ''),
+            'company': job.get('company', ''),
+            'salary_text': job.get('salary_text', ''),
+            'job_url': job.get('job_url', ''),
+            'source': job.get('source', ''),
+            'spam_reason': reason,
+            'spam_tier': tier,
+            'description': job.get('description', '')
+        }
+        
+        # Đảm bảo thư mục tồn tại
+        os.makedirs('data', exist_ok=True)
+        
+        try:
+            with open(spam_file, 'a', encoding='utf-8', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=row.keys())
+                if not file_exists:
+                    writer.writeheader()
+                writer.writerow(row)
+        except Exception as e:
+            self.logger.error(f"Error saving spam job: {e}")

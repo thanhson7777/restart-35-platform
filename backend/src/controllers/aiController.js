@@ -11,6 +11,24 @@ import { StatusCodes } from 'http-status-codes'
 import axios from 'axios'
 
 /**
+ * Gợi ý công việc cho user qua Worker Profile đầy đủ
+ * POST /v1/ai/recommend-jobs-profile
+ */
+const recommendJobsProfile = async (req, res, next) => {
+  try {
+    const result = await aiService.getRecommendedJobsProfile(req.body)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Gợi ý việc làm thành công',
+      data: result.data
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
  * Gợi ý công việc cho user
  * POST /v1/ai/recommend-jobs
  *
@@ -1134,6 +1152,7 @@ const federatedCareerAnalysis = async (req, res, next) => {
 // Export controller functions
 export const aiController = {
   recommendJobs,
+  recommendJobsProfile,
   getAllJobs,
   getJobById,
   predictRisk,

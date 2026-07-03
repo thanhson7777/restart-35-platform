@@ -151,6 +151,7 @@ class RAGStartupRequest(BaseModel):
 class RAGCareerResponse(BaseModel):
     """Response model for RAG career recommendation"""
     success: bool
+    intro_message: Optional[str] = None
     best_fits: List[Dict[str, Any]] = []
     income_boost: List[Dict[str, Any]] = []
     progression: List[Dict[str, Any]] = []
@@ -365,7 +366,7 @@ async def post_rag_career_recommendation(request: RAGCareerRequest):
         try:
             response = _llm_client.generate(
                 prompt=user_prompt,
-                temperature=0.1,
+                temperature=0.5,
                 max_tokens=4096,  # Increased from 2048 to avoid JSON truncation
                 system_prompt=system_prompt
             )
@@ -425,6 +426,7 @@ async def post_rag_career_recommendation(request: RAGCareerRequest):
             logger.warning("All JSON parsing attempts failed, returning basic response")
             return RAGCareerResponse(
                 success=True,
+                intro_message="Hệ thống AI đang quá tải nên chỉ trả về kết quả cơ bản. Dưới đây là các gợi ý phù hợp dựa trên kinh nghiệm của bạn:",
                 best_fits=[],
                 income_boost=[],
                 progression=[],
@@ -441,6 +443,7 @@ async def post_rag_career_recommendation(request: RAGCareerRequest):
         # Step 6: Build response
         response = RAGCareerResponse(
             success=True,
+            intro_message=result.get("intro_message"),
             best_fits=result.get("best_fits", []),
             income_boost=result.get("income_boost", []),
             progression=result.get("progression", []),
@@ -455,6 +458,7 @@ async def post_rag_career_recommendation(request: RAGCareerRequest):
         global _rag_cache
         profile_hash = _hash_profile(request.profile)
         _rag_cache["data"] = {
+            "intro_message": result.get("intro_message"),
             "best_fits": result.get("best_fits", []),
             "income_boost": result.get("income_boost", []),
             "progression": result.get("progression", [])
@@ -718,8 +722,8 @@ async def get_startup_suggestions(request: RAGStartupRequest):
         aspirations = request.profile.get("aspirations", {})
         logger.info(f"[STARTUP DEBUG] aspirations: {aspirations}")
 
-        # Step 1: Get RAG context
-        rag_context = _rag_engine.get_recommendation_context_sync(request.profile)
+        # Step 1: Get RAG context with mode='startup'
+        rag_context = _rag_engine.get_recommendation_context_sync(request.profile, mode="startup")
         sources = _rag_engine.get_sources()
 
         logger.info(f"RAG retrieved {len(sources)} sources for startup")
@@ -740,7 +744,7 @@ async def get_startup_suggestions(request: RAGStartupRequest):
         try:
             response = _llm_client.generate(
                 prompt=user_prompt,
-                temperature=0.1,
+                temperature=0.5,
                 max_tokens=4096,  # Increased from 2048 to avoid truncation
                 system_prompt=system_prompt
             )

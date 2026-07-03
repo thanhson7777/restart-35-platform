@@ -149,7 +149,7 @@ class SkillGapService:
         context = self.context_bridge.extract_shared_context(user_profile)
         return context.user_existing_skills
 
-    def analyze_esco_skill_gaps(
+    def _legacy_analyze_esco_skill_gaps(
         self,
         user_skills: List[str],
         target_occupation: str,
@@ -182,35 +182,89 @@ class SkillGapService:
             logger.warning("No target occupation provided")
             return []
         
-        logger.info(f"Analyzing ESCO skill gaps for: {target_occupation}")
+        logger.info(f"Analyzing skill gaps using hybrid taxonomy for: {target_occupation}")
         
-        # Translate Vietnamese to English for better ESCO matching
-        en_occupation = self.translate_to_english(target_occupation)
-        if en_occupation != target_occupation:
-            logger.info(f"Translated '{target_occupation}' -> '{en_occupation}'")
+        # 1. Initialize normalizer
+        from services.esco_normalizer import get_normalizer
+        normalizer = get_normalizer()
         
-        # Normalize user skills to lowercase for comparison
+        required_skills_vi = []
+        target_occupation_lower = target_occupation.lower().strip()
+        
+        # 2. Get required skills from vietnam_taxonomy or local_taxonomy
+        # Normalizer loads vietnam_taxonomy into its exact match index, but we can also read it directly
+        local_tax_path = normalizer.data_dir.parent / "vietnam_taxonomy.json"
+        if local_tax_path.exists():
+            import json
+            with open(local_tax_path, 'r', encoding='utf-8') as f:
+                local_tax = json.load(f)
+                if target_occupation_lower in local_tax:
+                    required_skills_vi = local_tax[target_occupation_lower].get("skills", [])
+        
+        # Fallback to local_taxonomy (informal jobs)
+        if not required_skills_vi:
+            informal_tax_path = normalizer.data_dir.parent / "local_taxonomy.json"
+            if informal_tax_path.exists():
+                with open(informal_tax_path, 'r', encoding='utf-8') as f:
+                    informal_tax = json.load(f)
+                    if target_occupation_lower in informal_tax:
+                        required_skills_vi = informal_tax[target_occupation_lower].get("skills", [])
+        
+        # Fallback to ESCO embeddings search if not found in local taxonomy
+        if not required_skills_vi:
+            logger.info(f"'{target_occupation}' not found in local taxonomy. Falling back to ESCO embeddings.")
+            # Search ESCO directly using multilingual embeddings
+            esco_matches = self.prefilter.search_esco_by_occupation(
+                occupation=target_occupation, # no need to translate to English since it's multilingual
+                top_k=max_gaps * 2
+            )
+            required_skills_vi = [match.get("name") for match in esco_matches if match.get("name")]
+            
+        # 3. Normalize user skills for fast checking
         user_skills_lower = {s.lower().strip() for s in user_skills if s}
         
-        # Get ESCO skills for target occupation
-        # search_esco_by_occupation returns List[Dict] with {name, score, source}
-        esco_skills = self.prefilter.search_esco_by_occupation(
-            occupation=en_occupation,
-            top_k=max_gaps * 2  # Get more to filter
-        )
+        # We can also semantically embed user skills to match against required skills
+        # Since ESCONormalizer has _embedding_match, we can use it.
+        # But for simplicity, we just use the SentenceTransformer model to compute similarity
+        model = normalizer._get_model()
         
+        user_embeddings = None
+        if user_skills_lower:
+            user_embeddings = model.encode(list(user_skills_lower), convert_to_numpy=True, normalize_embeddings=True)
+            
         gaps = []
+        total_skills = len(required_skills_vi)
         
-        # Process ESCO skills - use top 1/3 as essential, next 1/3 as important
-        # Based on the returned list order (sorted by similarity)
-        total_skills = len(esco_skills)
+        # Deduplicate required skills
+        seen_skills = set()
+        unique_required_skills = []
+        for sk in required_skills_vi:
+            if sk.lower() not in seen_skills:
+                unique_required_skills.append(sk)
+                seen_skills.add(sk.lower())
+                
+        total_skills = len(unique_required_skills)
         
-        for idx, skill_data in enumerate(esco_skills):
-            skill_name = skill_data.get("name", "")
-            if not skill_name or skill_name.lower() in user_skills_lower:
+        for idx, skill_name in enumerate(unique_required_skills):
+            skill_lower = skill_name.lower().strip()
+            
+            # Exact match first
+            if skill_lower in user_skills_lower:
                 continue
                 
-            # Assign priority based on position in results (top = essential)
+            # Semantic match
+            is_matched = False
+            if user_embeddings is not None:
+                skill_emb = model.encode([skill_lower], convert_to_numpy=True, normalize_embeddings=True)
+                from sklearn.metrics.pairwise import cosine_similarity
+                sims = cosine_similarity(skill_emb, user_embeddings)[0]
+                if len(sims) > 0 and max(sims) >= 0.75: # threshold for having the skill
+                    is_matched = True
+                    
+            if is_matched:
+                continue
+                
+            # It's a gap!
             if idx < total_skills // 3:
                 priority = "essential"
                 reason = f"Kỹ năng thiết yếu cho vị trí {target_occupation}"
@@ -225,9 +279,12 @@ class SkillGapService:
                 "skill_name": skill_name,
                 "priority": priority,
                 "reason": reason,
-                "source": "esco",
-                "score": skill_data.get("score", 0)
+                "source": "hybrid_taxonomy",
+                "score": 1.0 - (idx / max(total_skills, 1))
             })
+            
+            if len(gaps) >= max_gaps:
+                break
         
         # Get job-related skills as additional nice_to_have
         job_result = self.prefilter.search_jobs_by_occupation(
@@ -272,6 +329,86 @@ class SkillGapService:
         
         logger.info(f"Found {len(result)} skill gaps")
         return result
+
+    def analyze_llm_skill_gaps(
+        self,
+        user_skills: List[str],
+        target_occupation: str,
+        age: int = 30,
+        career_context: Optional[dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Analyze skill gaps using Pure LLM Generative Approach.
+        Returns a dictionary containing skill_gaps, trending_skills, and soft_skills.
+        """
+        try:
+            import re
+            import json
+            from config.groq_client import get_llm_client
+            from prompts.skill_gap_llm import format_skill_gap_llm_prompt
+
+            llm = get_llm_client()
+            if not llm or not llm.available:
+                logger.warning("GROQ not available, falling back to legacy ESCO gap")
+                return {
+                    "skill_gaps": self._legacy_analyze_esco_skill_gaps(user_skills, target_occupation, age),
+                    "trending_skills": [],
+                    "soft_skills": []
+                }
+
+            system_prompt, user_prompt = format_skill_gap_llm_prompt(
+                occupation=target_occupation,
+                user_skills=user_skills,
+                age=age,
+                career_context=career_context
+            )
+
+            logger.info(f"Calling GROQ for skill gap analysis: {target_occupation}")
+            # Try to get JSON response
+            response = llm.generate(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                temperature=0.2,
+                max_tokens=2048,
+                # Depending on the Groq client implementation, we might not have response_format param available.
+                # So we parse from markdown/regex.
+            )
+
+            if not response:
+                logger.warning("Empty response from GROQ, falling back to legacy ESCO gap")
+                return {
+                    "skill_gaps": self._legacy_analyze_esco_skill_gaps(user_skills, target_occupation, age),
+                    "trending_skills": [],
+                    "soft_skills": []
+                }
+
+            # Extract JSON block
+            json_match = re.search(r'\{.*\}', response, re.DOTALL)
+            if not json_match:
+                logger.warning("No JSON found in GROQ response, falling back to legacy ESCO gap")
+                return {
+                    "skill_gaps": self._legacy_analyze_esco_skill_gaps(user_skills, target_occupation, age),
+                    "trending_skills": [],
+                    "soft_skills": []
+                }
+
+            result = json.loads(json_match.group())
+            
+            # Ensure safe structure
+            return {
+                "skill_gaps": result.get("skill_gaps", []),
+                "trending_skills": result.get("trending_skills", []),
+                "soft_skills": result.get("soft_skills", [])
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in LLM skill gap analysis: {e}")
+            # Fallback to legacy
+            return {
+                "skill_gaps": self._legacy_analyze_esco_skill_gaps(user_skills, target_occupation, age),
+                "trending_skills": [],
+                "soft_skills": []
+            }
 
     def analyze_from_profile(
         self,

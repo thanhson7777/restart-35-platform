@@ -34,7 +34,7 @@ class GeminiConfig:
     """Cấu hình Gemini API"""
     
     # Model settings
-    MODEL_FLASH = "gemini-2.0-flash"           # Free tier - nhanh, rẻ
+    MODEL_FLASH = "gemini-flash-latest"           # Free tier - nhanh, rẻ
     MODEL_PRO = "gemini-2.0-pro-exp-02-05"      # Paid - accurate hơn
     MODEL = MODEL_FLASH  # Default = free
     

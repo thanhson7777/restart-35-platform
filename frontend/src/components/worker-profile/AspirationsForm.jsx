@@ -345,27 +345,10 @@ function AspirationsForm({ onComplete }) {
         invalidateRAGCacheAPI().catch(err => {
           console.error('[AspirationsForm] Failed to invalidate RAG cache:', err)
         })
-        toast.success('Đã cập nhật thay đổi!')
+        toast.success('Đã cập nhật hồ sơ!')
+        setIsRedirecting(true)
+        setTimeout(() => navigate('/jobs'), 1500)
       }
-    } catch (err) {
-      toast.error('Đã xảy ra lỗi. Vui lòng thử lại.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  // Handle update profile (khi đã hoàn thành)
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault()
-    if (!validate()) return
-    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current)
-    setIsSubmitting(true)
-    try {
-      dispatch(updateFormData({ step: STEP_NUMBER, data: aspirations }))
-      await dispatch(autosave({ step: STEP_NUMBER, data: aspirations }))
-      toast.success('Đã cập nhật hồ sơ!')
-      setIsRedirecting(true)
-      setTimeout(() => navigate('/jobs'), 1500)
     } catch (err) {
       toast.error('Đã xảy ra lỗi. Vui lòng thử lại.')
     } finally {
@@ -419,36 +402,7 @@ function AspirationsForm({ onComplete }) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Target Job - Using ESCO Search + Autocomplete */}
-        <motion.div variants={itemVariants} data-error="targetJob">
-          <div className="space-y-1.5">
-            <Label htmlFor="targetJob" className="text-foreground">
-              Công việc mong muốn
-            </Label>
-            <OccupationSelect
-              value={aspirations.targetJob}
-              onChange={handleTargetJobChange}
-              placeholder="Tìm và chọn nghề nghiệp..."
-              error={errors.targetJob}
-            />
-            <div className="mt-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={aspirations.targetJobNoPreference || false}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setAspirations(prev => ({ ...prev, targetJob: null }))
-                    }
-                    updateField('targetJobNoPreference', e.target.checked)
-                  }}
-                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <span className="text-sm text-muted-foreground">Không có</span>
-              </label>
-            </div>
-          </div>
-        </motion.div>
+
 
         {/* Salary & Province - 2 columns on desktop */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -504,24 +458,28 @@ function AspirationsForm({ onComplete }) {
           </label>
         </motion.div>
 
-        {/* Submit Buttons */}
+        {/* Submit Button */}
         <motion.div variants={itemVariants} className="space-y-3 pt-2">
-          {/* Nút Hoàn thành hồ sơ - disabled khi đã hoàn thành */}
           <Button
             type="submit"
             isLoading={isSubmitting || isCompleting}
-            disabled={isCompleted}
             size="xl"
             className={cn(
               "w-full transition-all duration-300",
-              !isProfileComplete && !agreedToIncompleteProfile && "opacity-50 cursor-not-allowed",
-              isCompleted && "opacity-50 cursor-not-allowed"
+              !isProfileComplete && !agreedToIncompleteProfile && "opacity-50 cursor-not-allowed"
             )}
           >
-            <Sparkles size={18} className="mr-2" />
-            {isProfileComplete || agreedToIncompleteProfile
-              ? 'Hoàn thành hồ sơ'
-              : 'Vui lòng đồng ý với điều kiện'
+            {isCompleted ? (
+              <RefreshCw className="w-5 h-5 mr-2" />
+            ) : (
+              <Sparkles size={18} className="mr-2" />
+            )}
+            
+            {isCompleted 
+              ? 'Cập nhật hồ sơ' 
+              : (isProfileComplete || agreedToIncompleteProfile
+                ? 'Hoàn thành hồ sơ'
+                : 'Vui lòng đồng ý với điều kiện')
             }
             {!isCompleted && (
               <svg className="w-4 h-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
@@ -529,21 +487,6 @@ function AspirationsForm({ onComplete }) {
               </svg>
             )}
           </Button>
-
-          {/* Nút Cập nhật hồ sơ - chỉ hiện khi đã hoàn thành */}
-          {isProfileCompleted && (
-            <Button
-              type="button"
-              onClick={handleUpdateProfile}
-              isLoading={isSubmitting}
-              size="xl"
-              variant="outline"
-              className="w-full"
-            >
-              <RefreshCw className="w-5 h-5 mr-2" />
-              Cập nhật hồ sơ
-            </Button>
-          )}
         </motion.div>
       </form>
 

@@ -287,7 +287,35 @@ class ESCONormalizer:
                     self.metadata = json.load(f)
                 logger.info(f"Loaded metadata: {self.metadata}")
 
-            logger.info("ESCO data loaded successfully")
+            # --- INTEGRATE LOCAL TAXONOMY (vietnam_taxonomy.json) ---
+            # We inject local skills into exact matching list. Embeddings are kept purely ESCO.
+            local_tax_path = self.data_dir.parent / "vietnam_taxonomy.json"
+            if local_tax_path.exists():
+                with open(local_tax_path, 'r', encoding='utf-8') as f:
+                    local_tax = json.load(f)
+                    
+                local_skills_count = 0
+                for occ_key, occ_data in local_tax.items():
+                    # Thêm chức danh nghề nghiệp như một kỹ năng lớn
+                    title = occ_data.get("title", occ_key)
+                    skills_list = occ_data.get("skills", [])
+                    if title not in skills_list:
+                        skills_list.append(title)
+                        
+                    for skill in skills_list:
+                        skill_lower = skill.lower().strip()
+                        if skill_lower and skill_lower not in self._label_to_idx:
+                            idx = len(self.labels)
+                            self.labels.append(skill.strip())
+                            # Tạo URI nội bộ để Frontend không bị lỗi
+                            safe_skill = skill_lower.replace(" ", "-").replace("/", "-")
+                            self.uris.append(f"http://restart35.local/skill/{occ_key}/{safe_skill}")
+                            self._label_to_idx[skill_lower] = idx
+                            local_skills_count += 1
+                
+                logger.info(f"🇻🇳 Tích hợp thành công {local_skills_count} kỹ năng địa phương (Local Taxonomy)")
+
+            logger.info("✅ ESCO Normalizer data loaded successfully (Hybrid mode)")
             return True
 
         except Exception as e:

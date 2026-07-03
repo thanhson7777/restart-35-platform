@@ -52,6 +52,8 @@ class DocumentLoader:
             chunks.extend(self._process_requirements(data))
         elif file_name == "skill_matrix":
             chunks.extend(self._process_skills(data))
+        elif file_name == "startup_playbooks":
+            chunks.extend(self._process_startups(data))
 
         return chunks
 
@@ -205,33 +207,78 @@ Chứng chỉ khuyến nghị: {certs_text}
 
         return chunks
 
+    def _process_startups(self, data: Dict) -> List[Dict]:
+        """Process startup playbooks thành chunks"""
+        chunks = []
+        models = data.get("startup_models", {})
+
+        for model_key, model_data in models.items():
+            name = model_data.get("name", "")
+            target_audience = model_data.get("target_audience", "")
+            estimated_budget = model_data.get("estimated_budget", "")
+            timeline = model_data.get("timeline", "")
+            expected_profit = model_data.get("expected_profit", "")
+            
+            essential_skills = model_data.get("essential_skills", [])
+            important_skills = model_data.get("important_skills", [])
+            risks = model_data.get("risks", [])
+
+            essential_text = ", ".join(essential_skills) if essential_skills else "N/A"
+            important_text = ", ".join(important_skills) if important_skills else "N/A"
+            risks_text = ", ".join(risks) if risks else "N/A"
+
+            chunk_text = f"""
+Mô hình Khởi nghiệp: {name}
+Phù hợp với: {target_audience}
+Vốn dự kiến: {estimated_budget}
+Thời gian triển khai: {timeline}
+Lợi nhuận dự kiến: {expected_profit}
+Kỹ năng bắt buộc (Essential): {essential_text}
+Kỹ năng quan trọng (Important): {important_text}
+Rủi ro cần lưu ý: {risks_text}
+""".strip()
+
+            chunks.append({
+                "content": chunk_text,
+                "metadata": {
+                    "type": "startup",
+                    "model_key": model_key,
+                    "source": "startup_playbooks.json"
+                }
+            })
+
+        return chunks
+
     def _process_skills(self, data: Dict) -> List[Dict]:
         """Process skill matrix thành chunks"""
         chunks = []
-        skill_transfers = data.get("skill_transfers", {})
+        skill_clusters = data.get("skill_clusters", {})
 
-        for industry, industry_data in skill_transfers.items():
-            industry_label = industry_data.get("label", industry)
-            can_transfer = industry_data.get("can_transfer_to", [])
-            transferable = industry_data.get("transferable_skills", [])
-            skill_gap = industry_data.get("skill_gap", [])
+        for cluster_key, cluster_data in skill_clusters.items():
+            cluster_label = cluster_data.get("label", cluster_key)
+            common_jobs = cluster_data.get("common_jobs", [])
+            transferable_to = cluster_data.get("transferable_to", [])
+            transferable_skills = cluster_data.get("transferable_skills", [])
+            skill_gap = cluster_data.get("skill_gap", [])
 
-            transfer_text = ", ".join(can_transfer) if can_transfer else "N/A"
-            skills_text = ", ".join(transferable) if transferable else "N/A"
+            jobs_text = ", ".join(common_jobs) if common_jobs else "N/A"
+            transfer_text = ", ".join(transferable_to) if transferable_to else "N/A"
+            skills_text = ", ".join(transferable_skills) if transferable_skills else "N/A"
             gap_text = ", ".join(skill_gap) if skill_gap else "N/A"
 
             chunk_text = f"""
-Ngành hiện tại: {industry_label}
-Có thể chuyển sang ngành: {transfer_text}
+Nhóm kỹ năng cốt lõi: {cluster_label}
+Các nghề thường có kỹ năng này: {jobs_text}
+Có thể chuyển đổi ngang sang: {transfer_text}
 Kỹ năng hiện tại có thể dùng: {skills_text}
-Kỹ năng cần bổ sung: {gap_text}
+Kỹ năng cần học thêm: {gap_text}
 """.strip()
 
             chunks.append({
                 "content": chunk_text,
                 "metadata": {
                     "type": "skill_transfer",
-                    "industry": industry,
+                    "cluster": cluster_key,
                     "source": "skill_matrix.json"
                 }
             })

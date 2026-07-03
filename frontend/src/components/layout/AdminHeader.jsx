@@ -32,30 +32,10 @@ const AdminHeader = ({ onMenuClick, sidebarCollapsed }) => {
         >
           <Menu className="w-[18px] h-[18px]" />
         </button>
-
-        {/* Search */}
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--admin-text-muted))] pointer-events-none" />
-          <input
-            type="search"
-            placeholder="Tìm kiếm..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-80 pl-10 pr-4 py-2 rounded-xl text-[13px]
-              text-[hsl(var(--admin-text-primary))]
-              bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))]
-              placeholder:text-[hsl(var(--admin-text-muted))]
-              focus:outline-none focus:border-[hsl(var(--admin-accent))] focus:ring-1 focus:ring-[hsl(var(--admin-accent))]/20
-              transition-all duration-200"
-          />
-        </div>
       </div>
 
       {/* Right Section */}
       <div className="flex items-center gap-1">
-        <button className="md:hidden p-2 rounded-xl text-[hsl(var(--admin-text-secondary))] hover:text-[hsl(var(--admin-text-primary))] hover:bg-[hsl(var(--admin-surface-hover))] transition-all duration-200">
-          <Search className="w-[18px] h-[18px]" />
-        </button>
 
         {/* Notifications */}
         <NotificationDropdown />

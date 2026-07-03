@@ -114,7 +114,12 @@ const JobCard = ({
     sourceUrl: job?.source_url || job?.sourceUrl || job?.job_url || '',
     isActive: job?.is_active !== false,
     qualityScore: job?.quality_score || job?.qualityScore || 0,
-    source: job?.source || ''
+    source: job?.source || '',
+    // AI Explainability scores
+    ageScore: job?.age_score || 0,
+    locationScore: job?.location_score || 0,
+    familyScore: job?.family_score || 0,
+    jobTitleMatch: job?.job_title_match || false
   }
 
   // Calculate matching skills if user skills provided
@@ -165,6 +170,35 @@ const JobCard = ({
     reasons.push({
       type: 'warning',
       text: 'Cần thêm kỹ năng để phù hợp hơn'
+    })
+  }
+
+  // AI Profile Reasons
+  if (jobData.jobTitleMatch) {
+    reasons.push({
+      type: 'success',
+      text: 'Khớp chức danh cũ'
+    })
+  }
+
+  if (jobData.ageScore >= 0.7) {
+    reasons.push({
+      type: 'success',
+      text: 'Phù hợp độ tuổi'
+    })
+  }
+
+  if (jobData.locationScore >= 0.8) {
+    reasons.push({
+      type: 'success',
+      text: 'Gần khu vực sinh sống'
+    })
+  }
+
+  if (jobData.familyScore >= 0.8) {
+    reasons.push({
+      type: 'success',
+      text: 'Thuận tiện chăm sóc gia đình'
     })
   }
 

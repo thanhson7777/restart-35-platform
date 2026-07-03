@@ -42,6 +42,13 @@ Router.get('/health', aiController.healthCheck)
 Router.post('/recommend-jobs', aiController.recommendJobs)
 
 /**
+ * @route   POST /v1/ai/recommend-jobs-profile
+ * @desc    Gợi ý việc làm cho user dựa trên hồ sơ (worker profile)
+ * @access  Private (requires auth)
+ */
+Router.post('/recommend-jobs-profile', aiController.recommendJobsProfile)
+
+/**
  * @route   GET /v1/ai/jobs
  * @desc    Lấy danh sách tất cả jobs
  * @access  Public

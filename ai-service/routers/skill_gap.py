@@ -490,13 +490,17 @@ async def analyze_esco_skill_gaps(request: EscoSkillGapRequest):
 
         service = get_skill_gap_service()
 
-        # Step 1: ESCO analysis
-        gaps = service.analyze_esco_skill_gaps(
+        # Call LLM logic
+        llm_result = service.analyze_llm_skill_gaps(
             user_skills=request.user_skills,
             target_occupation=request.target_occupation,
             age=request.age,
-            max_gaps=request.max_gaps
+            career_context=request.career_context
         )
+        
+        gaps = llm_result.get("skill_gaps", [])
+        trending_skills = llm_result.get("trending_skills", [])
+        soft_skills = llm_result.get("soft_skills", [])
 
         # Calculate stats
         stats = {
@@ -506,36 +510,6 @@ async def analyze_esco_skill_gaps(request: EscoSkillGapRequest):
             "nice_to_have": len([g for g in gaps if g.get("priority") == "nice_to_have"])
         }
 
-        # Step 2: GROQ enhancement (optional)
-        trending_skills = []
-        soft_skills = []
-        groq_enhanced = False
-
-        if request.enable_groq_enhance and gaps:
-            try:
-                enhanced = service.enhance_with_groq(
-                    gaps=gaps,
-                    occupation=request.target_occupation,
-                    age=request.age,
-                    user_skills=request.user_skills,
-                    career_context=request.career_context
-                )
-                trending_skills = [
-                    {"name": s.get("name", s), "reason": s.get("reason", ""), "source": "groq"}
-                    for s in enhanced.get("trending_skills", [])
-                ]
-                soft_skills = [
-                    {"name": s.get("name", s), "reason": s.get("reason", ""), "source": "groq"}
-                    for s in enhanced.get("soft_skills", [])
-                ]
-                groq_enhanced = True
-                logger.info(
-                    f"GROQ enhanced: {len(trending_skills)} trending, "
-                    f"{len(soft_skills)} soft skills for {request.target_occupation}"
-                )
-            except Exception as e:
-                logger.warning(f"GROQ enhancement error: {e}")
-
         return {
             "success": True,
             "skill_gaps": gaps,
@@ -544,7 +518,7 @@ async def analyze_esco_skill_gaps(request: EscoSkillGapRequest):
             "stats": stats,
             "trending_skills": trending_skills,
             "soft_skills": soft_skills,
-            "groq_enhanced": groq_enhanced
+            "groq_enhanced": True
         }
 
     except Exception as e:

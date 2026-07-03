@@ -87,12 +87,13 @@ class CareerRAGEngine:
 
         return context
 
-    def get_recommendation_context_sync(self, profile: Dict) -> str:
+    def get_recommendation_context_sync(self, profile: Dict, mode: str = "career") -> str:
         """
         Synchronous version of get_recommendation_context
 
         Args:
             profile: User profile dict
+            mode: "career" or "startup" (determines RAG search queries)
 
         Returns:
             Formatted context string for prompt
@@ -100,7 +101,7 @@ class CareerRAGEngine:
         if not self._initialized:
             self.initialize_index()
 
-        retrieved = self.retriever.retrieve_for_profile(profile)
+        retrieved = self.retriever.retrieve_for_profile(profile, mode=mode)
         context = self.retriever.format_retrieved_context(retrieved)
 
         return context

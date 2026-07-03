@@ -53,6 +53,8 @@ from viecoi_scraper import ViecOiScraper
 from viecoi_selenium_scraper import ViecOiSeleniumScraper
 from vietjobs_scraper import VietJobsScraper
 from jobstreet_scraper import JobStreetScraper
+from muaban_scraper import MuabanScraper
+from vieclamhcm_scraper import VieclamhcmScraper
 from data_transformer import DataTransformer
 from deduplicator import Deduplicator
 from constants import OUTPUT_COLUMNS
@@ -166,6 +168,8 @@ class ScrapingOrchestrator:
             'timviec365': lambda: Timviec365Scraper(delay=2.0),
             'vieclamtot': lambda: VieclamtotScraper(delay=2.0),
             'vieclau': lambda: ViecLauScraper(delay=2.0),
+            'muaban': lambda: MuabanScraper(delay=3.0),
+            'vieclamhcm': lambda: VieclamhcmScraper(delay=2.0),
             # Selenium scrapers (bypass Cloudflare)
             'viecoi': lambda: ViecOiSeleniumScraper(delay=3.0),
             # Playwright scrapers
@@ -600,10 +604,10 @@ def parse_args():
     parser.add_argument(
         '--source', '-s',
         choices=[
-            'mywork', 'itviec', 'vieclam24h', 'vnw', 'vnw_api', 'vnw_algolia', 'vnw_v2', 'cb', 'topcv',
-            'timviec365', 'vieclamtot', 'vieclau',
-            'viecoi', 'vietjobs', 'jobstreet',  # NEW
-            'all'
+            'mywork', 'itviec', 'vieclam24h', 'vnw', 'vnw_api', 'vnw_algolia', 'vnw_v2', 'cb',
+            'topcv', 'timviec365', 'vieclamtot', 'vieclau', 'viecoi', 'vietjobs', 'jobstreet',
+            'muaban', 'vieclamhcm',
+            'all', 'target_35'
         ],
         default='vnw_v2',
         help='Source to scrape (default: vnw_v2 - VietnamWorks API v2, working as of 2026-06-09)'
@@ -665,8 +669,12 @@ def main():
         'viecoi': ['viecoi'],
         'vietjobs': ['vietjobs'],
         'jobstreet': ['jobstreet'],
+        'muaban': ['muaban'],
+        'vieclamhcm': ['vieclamhcm'],
         # ALL sources
         'all': ['mywork', 'vieclam24h', 'topcv', 'vietnamworks_algolia', 'viecoi', 'vietjobs', 'jobstreet'],
+        # Target 35+ Campaign
+        'target_35': ['vieclamhcm', 'muaban', 'vieclamtot', 'vieclam24h']
     }
 
     sources = source_mapping.get(args.source, ['vieclam24h'])

@@ -10,7 +10,7 @@ import CareerRecommendations from '@/components/worker-profile/CareerRecommendat
 import MainLayout from '@/components/layout/MainLayout'
 import Footer from '@/components/layout/Footer'
 import {
-  fetchRecommendedJobs,
+  fetchRecommendedJobsFromProfile,
   fetchAllJobs,
   fetchSimilarJobs,
   selectRecommendedJobs,
@@ -82,7 +82,18 @@ const JobsPage = () => {
   const location = useLocation()
 
   // State
-  const [activeTab, setActiveTab] = useState('recommended')
+  const [activeTab, setActiveTab] = useState(() => {
+    const savedTab = localStorage.getItem('jobs_active_tab')
+    // Validate savedTab against available tabs
+    if (savedTab && ['recommended', 'career'].includes(savedTab)) {
+      return savedTab
+    }
+    return 'recommended'
+  })
+  
+  useEffect(() => {
+    localStorage.setItem('jobs_active_tab', activeTab)
+  }, [activeTab])
   const [selectedJob, setSelectedJob] = useState(null)
   const [skillFilterMode, setSkillFilterMode] = useState('all') // 'all' | 'latest' | 'custom'
   const [selectedJobIndex, setSelectedJobIndex] = useState(null)
@@ -159,7 +170,7 @@ const JobsPage = () => {
       setAppliedJobIds(new Set())
       setShowCustomDropdown(false)
       setSkillFilterMode('all')
-      setActiveTab('all')
+      setActiveTab('recommended')
     }
   }, [currentUser?._id])
 
@@ -272,10 +283,9 @@ const JobsPage = () => {
 
   // Check if profile has required data for recommendations
   const hasProfileForRecommendations = useMemo(() => {
-    // FIX: Check both aspirations.skills AND employment_history skills
-    // This allows matching even when aspirations.skills is empty but employment_history has skills
-    return skillsForRecommendation.length > 0
-  }, [skillsForRecommendation])
+    // New API uses full profile (demographics, etc.), so we only need formData to be loaded
+    return isProfileCompleted && !!formData
+  }, [isProfileCompleted, formData])
 
   // Calculate experience from employment history (convert months to years)
   const totalExperience = useMemo(() => {
@@ -301,29 +311,58 @@ const JobsPage = () => {
     }
   }, [skillFilterMode, selectedJobIndex, activeTab])
 
+  // Helper to build profile payload for AI
+  const buildProfilePayload = () => {
+    const jobSelectionMode = 
+      skillFilterMode === 'all' ? 'all_jobs' :
+      skillFilterMode === 'latest' ? 'recent_job' :
+      'recent_job' // custom
+
+    const payload = {
+      age: formData?.basicInfo?.age || 35,
+      gender: formData?.basicInfo?.gender,
+      education: formData?.education?.level || 'upper_secondary',
+      province: formData?.basicInfo?.province,
+      employment_history: (formData?.employmentHistory || []).map(job => ({
+        industry: formData?.basicInfo?.industry || 'Khác',
+        role: getJobTitle(job),
+        years: (job.duration || 0) / 12,
+        skills: transformSkillsToStrings(job.skills || [])
+      })),
+      job_selection: {
+        mode: jobSelectionMode,
+        selected_job_index: skillFilterMode === 'custom' ? selectedJobIndex : null
+      },
+      target_industry: formData?.aspirations?.industry,
+      target_salary: formData?.aspirations?.targetSalary,
+      preferred_job_type: formData?.aspirations?.preferredJobType,
+      barrier_health: formData?.barriers?.health ? 1 : 0,
+      barrier_family: formData?.barriers?.family ? 1 : 0,
+      barrier_tech_gap: formData?.barriers?.techGap ? 1 : 0
+    }
+
+    if (payload.employment_history.length === 0) {
+      payload.employment_history.push({
+        industry: 'Khác',
+        role: formData?.aspirations?.targetJob || 'Chưa xác định',
+        years: 0,
+        skills: skillsForRecommendation || []
+      })
+      if (skillsForRecommendation?.length > 0) {
+        payload.job_selection.mode = 'new_job'
+        payload.job_selection.new_job_title = formData?.aspirations?.targetJob || 'Chưa xác định'
+      }
+    }
+    return payload
+  }
+
   // Fetch jobs based on active tab
   useEffect(() => {
     // Only fetch recommended jobs once when tab is 'recommended' and profile is ready
     if (activeTab === 'recommended' && hasProfileForRecommendations && !recommendedLoading) {
       if (!hasFetchedRecommended.current) {
         hasFetchedRecommended.current = true
-        dispatch(fetchRecommendedJobs({
-          skills: skillsByFilterMode,
-          experience: totalExperience,
-          location: formData.basicInfo?.province,
-          targetJob: formData.aspirations?.targetJob,
-          targetSalary: formData.aspirations?.targetSalary,
-          preferredJobType: formData.aspirations?.preferredJobType,
-          limit: 50
-        }))
-      }
-    } else if (activeTab === 'all' && !jobsLoading) {
-      if (!hasFetchedAll.current) {
-        hasFetchedAll.current = true
-        dispatch(fetchAllJobs({
-          limit: 50,
-          ...filters
-        }))
+        dispatch(fetchRecommendedJobsFromProfile(buildProfilePayload()))
       }
     } else if (activeTab === 'career' && isProfileCompleted && !careerPathLoading) {
       if (!hasFetchedCareer.current && formData.basicInfo?.age) {
@@ -351,15 +390,9 @@ const JobsPage = () => {
   }, [
     activeTab,
     hasProfileForRecommendations,
-    skillsByFilterMode,
-    formData?.aspirations?.targetJob,
-    formData?.aspirations?.targetSalary,
-    formData?.aspirations?.preferredJobType,
-    formData?.basicInfo?.province,
-    formData?.basicInfo?.age,
-    formData?.basicInfo?.industry,
-    formData?.employmentHistory,
-    totalExperience,
+    skillFilterMode,
+    selectedJobIndex,
+    formData,
     filters,
     recommendedLoading,
     jobsLoading,
@@ -372,21 +405,7 @@ const JobsPage = () => {
   const handleRefresh = () => {
     if (activeTab === 'recommended') {
       hasFetchedRecommended.current = false
-      dispatch(fetchRecommendedJobs({
-        skills: skillsByFilterMode,
-        experience: totalExperience,
-        location: formData.basicInfo?.province,
-        targetJob: formData.aspirations?.targetJob,
-        targetSalary: formData.aspirations?.targetSalary,
-        preferredJobType: formData.aspirations?.preferredJobType,
-        limit: 20
-      }))
-    } else if (activeTab === 'all') {
-      hasFetchedAll.current = false
-      dispatch(fetchAllJobs({
-        limit: 50,
-        ...filters
-      }))
+      dispatch(fetchRecommendedJobsFromProfile(buildProfilePayload()))
     } else if (activeTab === 'career') {
       hasFetchedCareer.current = false
       const experiences = (formData.employmentHistory || [])
@@ -455,24 +474,12 @@ const JobsPage = () => {
     // })
     switch (activeTab) {
       case 'recommended':
-        return recommendedJobs
-      case 'all':
-        // Apply client-side filters for "all" tab
-        return allJobs.filter(job => {
-          if (filters.matchMin && (job.match_score || job.matchScore || 0) < filters.matchMin) {
-            return false
-          }
-          if (filters.jobType) {
-            const jobTypes = filters.jobType.split(',')
-            const jobType = job.job_type || job.jobType
-            if (!jobTypes.includes(jobType)) {
-              return false
-            }
-          }
-          return true
-        })
+        return Array.isArray(recommendedJobs) ? recommendedJobs : []
       case 'saved':
-        return savedJobs
+        return Array.isArray(savedJobs) ? savedJobs : []
+      case 'career':
+        // the career logic doesn't use currentJobs array directly in the same way, but let's return []
+        return []
       default:
         return []
     }
@@ -606,25 +613,25 @@ const JobsPage = () => {
             </Card>
           )}
 
-          {/* Missing Skills Banner - Chỉ hiển thị khi thực sự không có skills */}
-          {activeTab === 'recommended' && !hasProfileForRecommendations && (
+          {/* Missing Basic Info Banner */}
+          {activeTab === 'recommended' && (!formData?.employmentHistory?.length && !formData?.aspirations?.targetJob) && (
             <Card className="mb-6 border-primary/50 bg-primary/5">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   <User className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">Mở khóa sức mạnh của bạn</p>
+                    <p className="font-medium text-foreground">Hồ sơ chưa đủ thông tin</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Hệ thống cần biết những kỹ năng bạn đang có để đề xuất công việc chính xác. Hãy thêm kỹ năng vào mục "Kinh nghiệm làm việc" hoặc "Nguyện vọng" nhé!
+                      Hệ thống cần biết kinh nghiệm làm việc hoặc công việc bạn đang tìm kiếm để đề xuất chính xác nhất. Hãy thêm vào hồ sơ nhé!
                     </p>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/worker-profile?step=3')}
+                    onClick={() => navigate('/worker-profile?step=2')}
                     className="shrink-0"
                   >
-                    Bổ sung kỹ năng
+                    Bổ sung hồ sơ
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>

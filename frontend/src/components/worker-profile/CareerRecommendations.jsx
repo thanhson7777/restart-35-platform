@@ -64,7 +64,8 @@ import {
   clearCourseRecommendations,
   // RAG Skill Gap selectors
   selectRAGSkillsGap,
-  selectRAGSkillsGapLoading
+  selectRAGSkillsGapLoading,
+  selectCareerIntroMessage
 } from '@/redux/ai/aiSlice'
 import {
   getCachedCareerPathAPI,
@@ -150,11 +151,11 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
           <div className="bg-emerald-50 rounded-lg p-3 border-l-4 border-emerald-500">
             <div className="flex items-center gap-2 mb-2">
               <Lightbulb size={15} weight="fill" className="text-emerald-600 shrink-0" />
-              <p className="text-sm font-medium text-emerald-800">Tại sao gợi ý nghề này?</p>
+              <p className="text-base font-medium text-emerald-800">Tại sao gợi ý nghề này?</p>
             </div>
             <ul className="space-y-1">
               {path.reasoning.map((reason, i) => (
-                <li key={i} className="text-xs text-emerald-700 flex items-start gap-1.5">
+                <li key={i} className="text-sm text-emerald-700 flex items-start gap-1.5">
                   <span className="text-emerald-500 mt-0.5"><Check size={11} weight="bold" className="shrink-0" /></span>
                   <span>{reason}</span>
                 </li>
@@ -163,23 +164,21 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
           </div>
         )}
 
-        {/* User Strengths: Điểm mạnh của bạn */}
-        {path.user_strengths?.length > 0 && (
-          <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+        {/* Risks: Lưu ý */}
+        {path.risks?.length > 0 && (
+          <div className="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-500">
             <div className="flex items-center gap-2 mb-2">
-              <ThumbsUp size={15} weight="fill" className="text-blue-600 shrink-0" />
-              <p className="text-sm font-medium text-blue-800">Điểm mạnh của bạn</p>
+              <Warning size={14} className="text-amber-600" />
+              <p className="text-base font-medium text-amber-800">Lưu ý</p>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {path.user_strengths.map((strength, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs"
-                >
-                  {strength}
-                </span>
+            <ul className="space-y-1">
+              {path.risks.map((risk, i) => (
+                <li key={i} className="text-sm text-amber-700 flex items-start gap-1.5">
+                  <span className="text-amber-500 mt-0.5">!</span>
+                  <span>{risk}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 
@@ -188,34 +187,41 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
           <div className="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500">
             <div className="flex items-center gap-2 mb-3">
               <Target size={15} weight="duotone" className="text-orange-500 shrink-0" />
-              <p className="text-sm font-medium text-orange-800">Kỹ năng cần phát triển</p>
+              <p className="text-base font-medium text-orange-800">Kỹ năng cần phát triển</p>
             </div>
             <div className="animate-pulse flex flex-wrap gap-2 mb-3">
               <div className="h-6 w-24 bg-orange-200/60 rounded"></div>
               <div className="h-6 w-32 bg-orange-200/60 rounded"></div>
               <div className="h-6 w-20 bg-orange-200/60 rounded"></div>
             </div>
-            <div className="flex items-center gap-2 text-xs text-orange-600">
+            <div className="flex items-center gap-2 text-sm text-orange-600">
               <CircleNotch size={12} className="animate-spin" />
               <span>Đang phân tích kỹ năng...</span>
             </div>
           </div>
         )}
 
-        {/* Skill Gaps Preview - ESCO-based */}
-        {skillGaps?.length > 0 && (() => {
-          const essential = skillGaps.filter(g => g.priority === 'essential').slice(0, 3)
-          const important = skillGaps.filter(g => g.priority === 'important').slice(0, Math.max(0, 3 - essential.length))
+        {/* Skill Gaps Preview - ESCO-based or Fallback */}
+        {(skillGaps?.length > 0 || (!loading && path.required_skills?.length > 0)) && (() => {
+          let sourceGaps = skillGaps?.length > 0 ? skillGaps : path.required_skills;
+          // Format in case required_skills are plain strings instead of objects
+          const formattedGaps = sourceGaps.map(g => {
+            if (typeof g === 'string') return { skill_name: g, priority: 'important' };
+            return { skill_name: g.skill_name || g.name, priority: g.priority || 'important' };
+          });
+
+          const essential = formattedGaps.filter(g => g.priority === 'essential').slice(0, 3)
+          const important = formattedGaps.filter(g => g.priority === 'important').slice(0, Math.max(0, 3 - essential.length))
           const preview = [...essential, ...important].slice(0, 3)
           return (
             <div className="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Target size={15} weight="duotone" className="text-orange-500 shrink-0" />
-                  <p className="text-sm font-medium text-orange-800">Kỹ năng cần phát triển</p>
+                  <p className="text-base font-medium text-orange-800">Kỹ năng cần phát triển</p>
                 </div>
-                <span className="text-xs text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-full">
-                  {skillGaps.length} kỹ năng
+                <span className="text-sm text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-full">
+                  {formattedGaps.length} kỹ năng
                 </span>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -223,7 +229,7 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
                   <span
                     key={i}
                     className={cn(
-                      'inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium',
+                      'inline-flex items-center gap-1 px-2 py-1 rounded text-sm font-medium',
                       gap.priority === 'essential'
                         ? 'bg-red-100 text-red-700'
                         : 'bg-amber-100 text-amber-700'
@@ -238,13 +244,13 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
                   </span>
                 ))}
               </div>
-              {skillGaps.length > 3 && onViewAllSkills && (
+              {formattedGaps.length > 3 && onViewAllSkills && (
                 <button
-                  onClick={() => onViewAllSkills(path.job_title || path.title, skillGaps)}
-                  className="mt-2 flex items-center gap-1 text-xs text-orange-700 font-semibold hover:text-orange-900 hover:underline transition-colors"
+                  onClick={() => onViewAllSkills(path.job_title || path.title, formattedGaps)}
+                  className="mt-2 flex items-center gap-1 text-sm text-orange-700 font-semibold hover:text-orange-900 hover:underline transition-colors"
                 >
                   <BookOpenText size={12} />
-                  Xem tất cả {skillGaps.length} kỹ năng
+                  Xem tất cả {formattedGaps.length} kỹ năng
                   <ArrowRight size={12} />
                 </button>
               )}
@@ -264,40 +270,22 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
 
 
 
-        {/* Required Skills: Kỹ năng bắt buộc (Federated API) */}
-        {path.required_skills?.length > 0 && (
-          <div className="bg-rose-50 rounded-lg p-3 border-l-4 border-rose-500">
-            <div className="flex items-center gap-2 mb-2">
-              <Warning size={14} className="text-rose-600" />
-              <p className="text-sm font-medium text-rose-800">Kỹ năng bắt buộc</p>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {path.required_skills.map((skill, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-rose-100 text-rose-700 rounded text-xs"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+
 
         {/* Preferred Skills: Kỹ năng ưu tiên (Federated API) */}
         {path.preferred_skills?.length > 0 && (
           <div className="bg-cyan-50 rounded-lg p-3 border-l-4 border-cyan-500">
             <div className="flex items-center gap-2 mb-2">
               <Sparkle size={14} className="text-cyan-600" />
-              <p className="text-sm font-medium text-cyan-800">Kỹ năng ưu tiên</p>
+              <p className="text-base font-medium text-cyan-800">Kỹ năng ưu tiên</p>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {path.preferred_skills.map((skill, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-700 rounded text-xs"
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-700 rounded text-sm"
                 >
-                  {skill}
+                  {typeof skill === 'object' ? skill.skill_name || skill.name : skill}
                 </span>
               ))}
             </div>
@@ -306,7 +294,7 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
 
         {/* Salary & Growth: Thông tin bổ sung (Federated API) */}
         {(path.salary_range || path.growth_outlook) && (
-          <div className="flex gap-4 text-xs text-muted-foreground">
+          <div className="flex gap-4 text-sm text-muted-foreground">
             {path.salary_range && (
               <div className="flex items-center gap-1">
                 <CurrencyDollar size={12} />
@@ -322,32 +310,15 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
           </div>
         )}
 
-        {/* Risks: Lưu ý */}
-        {path.risks?.length > 0 && (
-          <div className="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-500">
-            <div className="flex items-center gap-2 mb-2">
-              <Warning size={14} className="text-amber-600" />
-              <p className="text-sm font-medium text-amber-800">Lưu ý</p>
-            </div>
-            <ul className="space-y-1">
-              {path.risks.map((risk, i) => (
-                <li key={i} className="text-xs text-amber-700 flex items-start gap-1.5">
-                  <span className="text-amber-500 mt-0.5">!</span>
-                  <span>{risk}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
 
         {/* Legacy: Description fallback if no reasoning */}
         {!path.reasoning?.length > 0 && path.description && (
-          <p className="text-sm text-muted-foreground">{path.description}</p>
+          <p className="text-base text-muted-foreground">{path.description}</p>
         )}
 
         {/* Legacy: Pros/Cons fallback */}
         {(path.pros?.length > 0 || path.cons?.length > 0) && (
-          <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="grid grid-cols-2 gap-2 text-sm">
             {path.pros?.length > 0 && (
               <div>
                 <p className="text-green-600 font-medium mb-1">Ưu điểm:</p>
@@ -380,7 +351,7 @@ const PathCard = ({ path, type, index, skillGaps, courses, learningPath, loading
         {/* Leverage Experience (Startup) */}
         {path.leverage_experience && (
           <div className="mt-3 p-3 bg-slate-50 rounded-lg">
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-sm text-slate-600 leading-relaxed">
               {path.leverage_experience}
             </p>
           </div>
@@ -500,11 +471,11 @@ const StartupCard = ({ idea, index, onViewAllSkills, courses, learningPath, load
           <div className="bg-emerald-50 rounded-lg p-3 border-l-4 border-emerald-500">
             <div className="flex items-center gap-2 mb-2">
               <Lightbulb size={15} weight="fill" className="text-emerald-600 shrink-0" />
-              <p className="text-sm font-medium text-emerald-800">Tại sao gợi ý ý tưởng này?</p>
+              <p className="text-base font-medium text-emerald-800">Tại sao gợi ý ý tưởng này?</p>
             </div>
             <ul className="space-y-1">
               {idea.reasoning.map((reason, i) => (
-                <li key={i} className="text-xs text-emerald-700 flex items-start gap-1.5">
+                <li key={i} className="text-sm text-emerald-700 flex items-start gap-1.5">
                   <span className="text-emerald-500 mt-0.5"><Check size={11} weight="bold" className="shrink-0" /></span>
                   <span>{reason}</span>
                 </li>
@@ -513,37 +484,23 @@ const StartupCard = ({ idea, index, onViewAllSkills, courses, learningPath, load
           </div>
         )}
 
-        {/* User Strengths: Điểm mạnh của bạn */}
-        {idea.user_strengths?.length > 0 && (
-          <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+        {/* Risks: Lưu ý */}
+        {idea.risks?.length > 0 && (
+          <div className="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-500">
             <div className="flex items-center gap-2 mb-2">
-              <ThumbsUp size={15} weight="fill" className="text-blue-600 shrink-0" />
-              <p className="text-sm font-medium text-blue-800">Điểm mạnh của bạn</p>
+              <Warning size={14} className="text-amber-600" />
+              <p className="text-base font-medium text-amber-800">Lưu ý</p>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {idea.user_strengths.map((strength, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs"
-                >
-                  {strength}
-                </span>
+            <ul className="space-y-1">
+              {idea.risks.map((risk, i) => (
+                <li key={i} className="text-sm text-amber-700 flex items-start gap-1.5">
+                  <span className="text-amber-500 mt-0.5">!</span>
+                  <span>{risk}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
-
-        {/* What to Learn: Cần học thêm — thay bằng course recommendations */}
-        {(courses !== undefined || loading) && (
-          <CourseRecommendationSection
-            courses={courses || []}
-            loading={loading && (!courses || courses.length === 0)}
-            skillGapTotal={idea.required_skills?.length || idea.what_to_learn?.length || 0}
-            jobTitle={idea.name}
-          />
-        )}
-
-
 
         {/* Skill Gaps Preview - Startup-specific */}
         {idea.required_skills?.length > 0 && (() => {
@@ -555,9 +512,9 @@ const StartupCard = ({ idea, index, onViewAllSkills, courses, learningPath, load
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Target size={15} weight="duotone" className="text-orange-500 shrink-0" />
-                  <p className="text-sm font-medium text-orange-800">Kỹ năng cần phát triển</p>
+                  <p className="text-base font-medium text-orange-800">Kỹ năng cần phát triển</p>
                 </div>
-                <span className="text-xs text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-full">
+                <span className="text-sm text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-full">
                   {idea.required_skills.length} kỹ năng
                 </span>
               </div>
@@ -584,7 +541,7 @@ const StartupCard = ({ idea, index, onViewAllSkills, courses, learningPath, load
               {idea.required_skills.length > 3 && onViewAllSkills && (
                 <button
                   onClick={() => onViewAllSkills(idea.name, idea.required_skills)}
-                  className="mt-2 flex items-center gap-1 text-xs text-orange-700 font-semibold hover:text-orange-900 hover:underline transition-colors"
+                  className="mt-2 flex items-center gap-1 text-sm text-orange-700 font-semibold hover:text-orange-900 hover:underline transition-colors"
                 >
                   <BookOpenText size={12} />
                   Xem tất cả {idea.required_skills.length} kỹ năng
@@ -595,33 +552,25 @@ const StartupCard = ({ idea, index, onViewAllSkills, courses, learningPath, load
           )
         })()}
 
-        {/* Risks: Lưu ý */}
-        {idea.risks?.length > 0 && (
-          <div className="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-500">
-            <div className="flex items-center gap-2 mb-2">
-              <Warning size={14} className="text-amber-600" />
-              <p className="text-sm font-medium text-amber-800">Lưu ý</p>
-            </div>
-            <ul className="space-y-1">
-              {idea.risks.map((risk, i) => (
-                <li key={i} className="text-xs text-amber-700 flex items-start gap-1.5">
-                  <span className="text-amber-500 mt-0.5">!</span>
-                  <span>{risk}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* What to Learn: Cần học thêm — thay bằng course recommendations */}
+        {(courses !== undefined || loading) && (
+          <CourseRecommendationSection
+            courses={courses || []}
+            loading={loading && (!courses || courses.length === 0)}
+            skillGapTotal={idea.required_skills?.length || idea.what_to_learn?.length || 0}
+            jobTitle={idea.name}
+          />
         )}
 
         {/* Legacy: Description fallback if no reasoning */}
         {!idea.reasoning?.length > 0 && idea.description && (
-          <p className="text-sm text-muted-foreground">{idea.description}</p>
+          <p className="text-base text-muted-foreground">{idea.description}</p>
         )}
 
         {/* Legacy: leverage_experience fallback */}
         {idea.leverage_experience && (
           <div className="p-3 bg-slate-50 rounded-lg">
-            <p className="text-xs text-slate-600">
+            <p className="text-sm text-slate-600">
               <span className="font-medium">Tận dụng kinh nghiệm:</span> {idea.leverage_experience}
             </p>
           </div>
@@ -656,6 +605,7 @@ function CareerRecommendations({ className, userProfile }) {
   const bestFits = useSelector(selectBestFits)
   const incomeBoost = useSelector(selectIncomeBoost)
   const progression = useSelector(selectProgression)
+  const careerIntroMessage = useSelector(selectCareerIntroMessage)
   // Startup state
   const ragIsFresh = useSelector(selectRAGIsFresh)
   const ragIsExpired = useSelector(selectRAGIsExpired)
@@ -1205,7 +1155,7 @@ function CareerRecommendations({ className, userProfile }) {
               </div>
             </div>
           )}
-
+          
           {/* Best Fits */}
           {bestFits.length > 0 && (
             <div>
@@ -1315,8 +1265,9 @@ function CareerRecommendations({ className, userProfile }) {
               ) : startupError ? (
                 <ErrorState error={startupError} onRetry={handleRetry} />
               ) : startupIdeas.length > 0 ? (
-                <div className="space-y-3">
-                  {startupIdeas.map((idea, i) => (
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    {startupIdeas.map((idea, i) => (
                     <StartupCard 
                       key={`startup-${i}`} 
                       idea={idea} 
@@ -1327,6 +1278,7 @@ function CareerRecommendations({ className, userProfile }) {
                       onViewAllSkills={handleOpenStartupSkillModal} 
                     />
                   ))}
+                  </div>
                 </div>
               ) : (
                 <EmptyState type="startup" missingAge={!hasAgeForRender} />
