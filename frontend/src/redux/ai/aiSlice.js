@@ -565,7 +565,7 @@ const initialState = {
   ragIsFresh: null,               // boolean - is data fresh or expired
   ragIsExpired: null,               // boolean - is data expired
 
-  // Startup state
+  // Startup RAG Recommendation State
   startupIdeas: [],
   startupLoading: false,
   startupError: null,
@@ -1218,6 +1218,7 @@ export const selectRAGIsExpired = (state) => state.ai.ragIsExpired
 export const selectBestFits = (state) => state.ai.ragRecommendation?.best_fits ?? []
 export const selectIncomeBoost = (state) => state.ai.ragRecommendation?.income_boost ?? []
 export const selectProgression = (state) => state.ai.ragRecommendation?.progression ?? []
+export const selectCareerIntroMessage = (state) => state.ai.ragRecommendation?.intro_message ?? null
 
 // Startup selectors
 export const selectStartupIdeas = (state) => state.ai.startupIdeas

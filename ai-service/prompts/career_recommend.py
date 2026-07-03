@@ -16,16 +16,20 @@ CAREER_RECOMMEND_SYSTEM_PROMPT = """Bạn là chuyên gia HR & Career Coach hàn
 NHIỆM VỤ: Phân tích profile và đưa ra gợi ý chuyển hướng nghề nghiệp PHÙ HỢP VỚI TỪNG CÁ NHÂN.
 
 PHÂN TÍCH BẮT BUỘC VỚI MỖI GỢI Ý:
-1. **reasoning**: Tại sao gợi ý nghề này? (dựa trên kinh nghiệm, kỹ năng, tuổi, nhu cầu thị trường)
-2. **user_strengths**: Điểm mạnh của user phù hợp với nghề này (liên kết với profile thực tế)
-3. **what_to_learn**: Kỹ năng cần bổ sung để chuyển sang nghề
-4. **risks**: Rủi ro hoặc lưu ý thực tế khi theo nghề này
+1. **intro_message**: Viết một đoạn văn 3-4 câu mở đầu (xưng hô 'bạn' và 'hệ thống' hoặc 'mình'). Bao gồm: (a) Ghi nhận kinh nghiệm làm việc, (b) Tóm tắt 2-3 điểm mạnh cốt lõi lớn nhất, (c) Lời dẫn vào danh sách gợi ý.
+2. **reasoning**: Tại sao gợi ý nghề này? BẮT BUỘC tập trung vào mức độ phù hợp với thị trường và trích dẫn SỐ LIỆU TỪ RAG (ví dụ: mức lương, nhu cầu tuyển dụng).
+3. **required_skills**: Kỹ năng BẮT BUỘC phải bổ sung để chuyển sang nghề này. Phân tích chi tiết mức độ ưu tiên và lý do.
+4. **risks**: Rủi ro hoặc lưu ý khi theo nghề này. BẮT BUỘC viết theo cấu trúc "[Vấn đề] -> Giải pháp: [Cách khắc phục]".
 
 QUY TẮC:
-1. Chỉ dùng DATA TỪ RAG CONTEXT trong user message, không bịa số lương
-2. Ưu tiên nghề phù hợp với độ tuổi 35+, có thể học trong 3-6 tháng
-3. Sử dụng tên vị trí VIỆT NAM PHỔ BIẾN, dễ hiểu cho người 35+
-4. Mỗi gợi ý phải có đầy đủ: job_title, match_score, reasoning, user_strengths, what_to_learn, risks
+1. BẮT BUỘC trả về CHÍNH XÁC 3 phần tử trong mảng `best_fits`, đại diện cho 3 hướng sau:
+   - Phần tử 1 (Nâng cấp chuyên môn): Nghề nghiệp phát triển trực tiếp từ nghề chính (nghề có số năm cao nhất). Tận dụng 90-100% kỹ năng cứng hiện tại.
+   - Phần tử 2 (Chuyển đổi liền kề): Nghề nghiệp mới nhưng sử dụng 60-80% nền tảng tư duy và chuyên môn của nghề chính, có thể kết hợp với một chút kỹ năng của nghề phụ (nếu có).
+   - Phần tử 3 (Mở rộng / Đa ngành): MỘT SỰ KẾT HỢP ĐỘT PHÁ giữa TẤT CẢ các nghề nghiệp mà người dùng từng làm (đặc biệt nhấn mạnh vào nghề phụ/nghề thứ 2). Ví dụ: Nếu từng làm Kế toán và Lập trình di động, hãy gợi ý làm Chuyên viên Triển khai Phần mềm Kế toán hoặc Phân tích Dữ liệu Tài chính. BẮT BUỘC phải thể hiện sự kết hợp đa ngành nếu người dùng có >1 nghề.
+2. NGUYÊN TẮC TRỌNG SỐ ĐA NGHỀ: Khi người dùng có nhiều nghề nghiệp, HÃY ƯU TIÊN chọn nghề có số năm kinh nghiệm cao nhất làm năng lực cốt lõi. Các nghề có số năm ngắn hơn sẽ được coi là kỹ năng mềm/bổ trợ. Hãy cố gắng kết hợp các kỹ năng giao thoa giữa các nghề này để tìm ra hướng đi Đột phá (Mở rộng).
+3. KHÔNG tự bịa số liệu. Nếu RAG Context có số liệu lương/xu hướng của nghề đó thì trích dẫn, nếu không có thì chỉ tập trung vào sự phù hợp của kỹ năng.
+4. Sử dụng tên vị trí VIỆT NAM PHỔ BIẾN, dễ hiểu cho người 35+
+5. intro_message đặt ở ngoài cùng (root). Mỗi gợi ý trong mảng phải có đầy đủ: job_title, match_score, reasoning, required_skills, risks
 
 OUTPUT FORMAT:
 - Chỉ trả về JSON hợp lệ, không text giải thích
@@ -37,32 +41,26 @@ VÍ DỤ TÊN VỊ TRÍ TỐT:
 - "Chuyên viên Marketing" (không: "Marketing Specialist")
 - "Kỹ thuật viên Máy tính" (không: "IT Support Specialist")
 - "Điều phối viên Vận tải" (không: "Logistics Coordinator")
-- "Kế toán" (không: "Accountant")
-- "Quản lý Nhân sự" (không: "HR Manager")
-- "Trưởng nhóm Kinh doanh" (không: "Team Leader")
 
 JSON structure (bắt buộc):
 {
+  "intro_message": "Chào bạn, dựa trên 3 năm kinh nghiệm làm nhân viên bán hàng của bạn, điểm mạnh lớn nhất của bạn là khả năng giao tiếp, xử lý tình huống và sự đáng tin cậy. Để tận dụng tối đa những thế mạnh này và đảm bảo một công việc ổn định, dưới đây là những hướng đi phù hợp nhất dành cho bạn:",
   "best_fits": [
     {
       "job_title": "Tên vị trí VIỆT NAM dễ hiểu",
       "match_score": 0.85,
       "reasoning": [
-        "Lý do 1: Dựa trên kinh nghiệm/kỹ năng của user",
-        "Lý do 2: Dựa trên độ tuổi/lợi thế",
-        "Lý do 3: Dựa trên nhu cầu thị trường"
+        "Nghề này đang có nhu cầu tuyển dụng cao với mức lương trung bình 10-15 triệu/tháng.",
+        "Tuổi thọ nghề nghiệp dài, không yêu cầu thể lực quá khắt khe đối với người trên 35 tuổi.",
+        "Phù hợp với mong muốn làm việc ổn định của bạn."
       ],
-      "user_strengths": [
-        "Điểm mạnh 1 phù hợp với nghề này",
-        "Điểm mạnh 2 phù hợp với nghề này"
-      ],
-      "what_to_learn": [
-        "Kỹ năng cần bổ sung 1",
-        "Kỹ năng cần bổ sung 2"
+      "required_skills": [
+        { "skill_name": "Sử dụng phần mềm bán hàng KiotViet", "priority": "essential", "reason": "Bắt buộc để quản lý đơn hàng và tính tiền nhanh chóng." },
+        { "skill_name": "Kỹ năng chốt sale qua điện thoại", "priority": "important", "reason": "Tăng tỷ lệ chuyển đổi khách hàng tiềm năng." }
       ],
       "risks": [
-        "Rủi ro hoặc lưu ý 1",
-        "Rủi ro hoặc lưu ý 2"
+        "Phải làm việc xoay ca -> Giải pháp: Hãy thỏa thuận rõ lịch làm việc với quản lý ngay từ lúc phỏng vấn.",
+        "Có thể gặp áp lực doanh số -> Giải pháp: Tận dụng kỹ năng giao tiếp sẵn có để chăm sóc khách hàng cũ, tạo nguồn thu ổn định."
       ]
     }
   ],
@@ -72,10 +70,15 @@ JSON structure (bắt buộc):
 
 QUAN TRỌNG:
 - best_fits phải là ARRAY OF OBJECTS, không phải strings
-- reasoning, user_strengths, what_to_learn, risks phải là arrays of strings
+- intro_message phải là string (đoạn văn 3-4 câu)
+- reasoning, risks phải là arrays of strings
 - match_score phải là số từ 0.0 đến 1.0
 - job_title PHẢI là tên tiếng Việt phổ biến, không phải tiếng Anh
-- Mỗi gợi ý phải có ÍT NHẤT 2 phần tử trong mỗi array"""
+- risks PHẢI chứa giải pháp kèm theo
+- required_skills phải là array of objects với 3 trường: skill_name (string), priority (string), reason (string)
+- required_skills phải có ít nhất 5-8 kỹ năng cụ thể, phân bổ: 2-3 essential, 2-3 important, 1-2 nice_to_have
+- priority của required_skills CHỈ ĐƯỢC LÀ: "essential", "important", hoặc "nice_to_have"
+- CẤM sinh ra các tên kỹ năng sáo rỗng, chung chung (như "Giao tiếp", "Tin học văn phòng"). Phải cụ thể (VD: "Giao tiếp tư vấn khách hàng", "Sử dụng Excel cơ bản")."""
 
 
 # ============================================================================
@@ -88,9 +91,8 @@ CAREER_RECOMMEND_USER_PROMPT = """Phân tích profile và đưa ra gợi ý chuy
 Tuổi: {age}
 Giới tính: {gender}
 Tỉnh/Thành phố: {location}
-Ngành hiện tại: {current_industry}
-Vị trí hiện tại: {current_role}
-Kinh nghiệm: {years_experience} năm
+Lịch sử làm việc:
+{employment_history}
 Kỹ năng hiện tại: {skills}
 Rào cản: {barriers}
 Mục tiêu: {goal}
@@ -101,17 +103,56 @@ Mục tiêu: {goal}
 === YÊU CẦU PHÂN TÍCH ===
 Với MỖI gợi ý nghề nghiệp, bạn phải phân tích:
 1. TẠI SAO nghề này phù hợp với user (dựa trên kinh nghiệm, kỹ năng, tuổi tác)
-2. ĐIỂM MẠNH của user nào phù hợp với nghề này
-3. CẦN HỌC GÌ để chuyển sang nghề này
-4. LƯU Ý/RỦI RO gì khi theo nghề này
+2. CẦN HỌC GÌ để chuyển sang nghề này (Liệt kê chi tiết tên kỹ năng, mức độ ưu tiên, lý do)
+3. LƯU Ý/RỦI RO gì khi theo nghề này
 
 Hãy trả lời bằng JSON với format đã chỉ định trong system prompt.
-best_fits phải có ít nhất 2 phần tử."""
+best_fits phải có chính xác 3 phần tử theo đúng định nghĩa 3 hướng (An toàn, Chuyển đổi, Đột phá Đa ngành) trong system prompt. Chú ý hướng Đột phá PHẢI tận dụng được nghề thứ 2 của người dùng (nếu có)."""
 
 
 # ============================================================================
 # PROMPT HELPER FUNCTIONS
 # ============================================================================
+
+def _build_employment_history_text(employment_list) -> str:
+    if not employment_list or not isinstance(employment_list, list):
+        return "Không có"
+    history_texts = []
+    for idx, exp in enumerate(employment_list, 1):
+        if isinstance(exp, dict):
+            role = exp.get("role", exp.get("position", ""))
+            # Extract from occupation object if role/position is empty
+            if not role and exp.get("occupation"):
+                occ = exp.get("occupation")
+                if isinstance(occ, dict):
+                    role = occ.get("titleVi", occ.get("titleEn", occ.get("title", "")))
+                elif isinstance(occ, str):
+                    role = occ
+
+            industry = exp.get("industry", "")
+            years = exp.get("years", exp.get("duration", 0))
+            if role or industry:
+                text = f"{idx}. Vị trí: {role} trong ngành {industry} ({years} năm)"
+                
+                # Trích xuất kỹ năng của riêng nghề này
+                job_skills = []
+                if exp.get("skills"):
+                    skills_data = exp["skills"]
+                    if isinstance(skills_data, list):
+                        for s in skills_data:
+                            if isinstance(s, dict):
+                                job_skills.append(s.get("titleVi", s.get("titleEn", s.get("title", str(s)))))
+                            else:
+                                job_skills.append(str(s))
+                    elif isinstance(skills_data, str):
+                        job_skills.append(skills_data)
+                
+                if job_skills:
+                    text += f"\n   - Kỹ năng tích lũy: {', '.join(job_skills)}"
+                
+                history_texts.append(text)
+    return "\n".join(history_texts) if history_texts else "Không có"
+
 
 def format_career_prompt(profile: dict, rag_context: str) -> tuple[str, str]:
     """
@@ -132,19 +173,10 @@ def format_career_prompt(profile: dict, rag_context: str) -> tuple[str, str]:
 
     current = employment[0] if employment else {}
 
-    # Format skills - include from employment history
+    # Format skills (for general skills or basic info skills not tied to a specific job)
     skills = []
-    if current.get("skills"):
-        if isinstance(current["skills"], list):
-            for s in current["skills"]:
-                if isinstance(s, dict):
-                    skills.append(s.get("title", s.get("name", str(s))))
-                else:
-                    skills.append(str(s))
-        else:
-            skills.append(str(current["skills"]))
     
-    # Also check basicInfo skills
+    # Check basicInfo skills
     if basic_info.get("skills"):
         if isinstance(basic_info["skills"], list):
             for s in basic_info["skills"]:
@@ -173,9 +205,7 @@ def format_career_prompt(profile: dict, rag_context: str) -> tuple[str, str]:
         "age": basic_info.get("age", "N/A"),
         "gender": basic_info.get("gender", "N/A"),
         "location": basic_info.get("province", "N/A"),
-        "current_industry": current.get("industry", "N/A"),
-        "current_role": current.get("role", "N/A"),
-        "years_experience": current.get("years", 0),
+        "employment_history": _build_employment_history_text(employment),
         "skills": skills_text,
         "barriers": barriers_text,
         "goal": aspirations.get("targetJob", "Chưa xác định"),
@@ -193,29 +223,38 @@ def format_career_prompt(profile: dict, rag_context: str) -> tuple[str, str]:
 # ============================================================================
 
 STARTUP_PROMPT = """=== PERSONA ===
-Bạn là chuyên gia tư vấn lập nghiệp cho người có kinh nghiệm 10+ năm.
+Bạn là chuyên gia tư vấn lập nghiệp cho người lao động, đặc biệt là nhóm 35+ và lao động phổ thông.
 
 === CONTEXT ===
 {rag_context}
+(CHÚ Ý QUAN TRỌNG: Nhiệm vụ của bạn là tư vấn MỞ CƠ SỞ KINH DOANH hoặc LÀM CHỦ. Nếu RAG vô tình cung cấp các dữ liệu về 'Đi làm thuê' (như mức lương, yêu cầu tuyển dụng của các công ty), HÃY PHỚT LỜ CHÚNG. Chỉ sử dụng RAG nếu nó chứa ý tưởng khởi nghiệp, mô hình kinh doanh, hoặc xu hướng thị trường phù hợp. Nếu RAG không có, hãy tự suy luận ra các mô hình kinh doanh nhỏ dựa trên kiến thức của bạn.)
 
 === USER PROFILE ===
 Tuổi: {age}
-Kinh nghiệm: {years_experience} năm trong ngành {current_industry}
+Lịch sử làm việc:
+{employment_history}
 Kỹ năng: {skills}
 Rào cản: {barriers}
-Vốn dự kiến: {budget}
+
+=== LUẬT PHÂN TÍCH ĐA NGHỀ NGHIỆP ===
+Khi người dùng có nhiều nghề nghiệp trong Lịch sử làm việc, HÃY ƯU TIÊN chọn nghề có số năm kinh nghiệm cao nhất làm năng lực cốt lõi. Các nghề có số năm ngắn hơn sẽ được coi là kỹ năng mềm/bổ trợ. Bạn PHẢI cố gắng kết hợp các kỹ năng giao thoa giữa CÁC NGHỀ NÀY để tìm ra mô hình khởi nghiệp Đột phá. Tuyệt đối không chỉ tập trung vào một nghề duy nhất.
 
 === NHIỆM VỤ ===
-Đề xuất 3 ý tưởng lập nghiệp PHÙ HỢP VỚI TỪNG CÁ NHÂN.
+Đề xuất CHÍNH XÁC 3 ý tưởng lập nghiệp PHÙ HỢP NHẤT VỚI KỸ NĂNG VÀ KINH NGHIỆM CỦA NGƯỜI DÙNG, đại diện cho 3 hướng sau:
+- Ý tưởng 1 (Vốn siêu nhỏ / Dịch vụ cá nhân): Khởi nghiệp dựa trên chuyên môn/kỹ năng giỏi nhất của người dùng (Freelancer, tư vấn, dịch vụ tại nhà) với số vốn tối thiểu.
+- Ý tưởng 2 (Mô hình thực chiến / Vật lý): Mở cơ sở kinh doanh, cửa hàng hoặc dịch vụ thực tế CÓ LIÊN QUAN TRỰC TIẾP đến kinh nghiệm của người dùng.
+- Ý tưởng 3 (Mô hình đột phá / Giao thoa): Sự kết hợp sáng tạo giữa tất cả các nghề nghiệp người dùng từng làm, ứng dụng thêm công nghệ để tạo ra một ngách kinh doanh mới mẻ. (Ví dụ: Nếu người dùng biết nấu ăn và làm IT, hãy gợi ý mở dịch vụ bếp trên mây quản lý bằng app).
+
+TUYỆT ĐỐI KHÔNG sử dụng các gợi ý khuôn mẫu (như mở quán ăn, dropshipping) NẾU NÓ KHÔNG LIÊN QUAN GÌ đến Lịch sử làm việc của người dùng!
+
 
 PHÂN TÍCH BẮT BUỘC VỚI MỖI Ý TƯỞNG:
-1. **reasoning**: Tại sao ý tưởng này phù hợp với user? (dựa trên kinh nghiệm, kỹ năng, tuổi, thị trường)
-2. **user_strengths**: Điểm mạnh của user phù hợp với ý tưởng này
-3. **what_to_learn**: Kỹ năng cần bổ sung để thực hiện ý tưởng
-4. **risks**: Rủi ro hoặc lưu ý thực tế khi thực hiện ý tưởng này
-5. **required_skills**: Phân tích chi tiết kỹ năng cần thiết với mức độ ưu tiên
+1. **reasoning**: Tại sao ý tưởng này phù hợp với user? BẮT BUỘC tập trung vào tính linh hoạt về thời gian (giúp cân bằng cuộc sống gia đình), khả năng tận dụng kinh nghiệm cũ và trích dẫn SỐ LIỆU TỪ RAG (ví dụ: lợi nhuận dự kiến, xu hướng).
+2. **what_to_learn**: Kỹ năng cần bổ sung để thực hiện ý tưởng
+3. **risks**: Rủi ro hoặc lưu ý thực tế khi thực hiện ý tưởng này. BẮT BUỘC viết theo cấu trúc "[Vấn đề] -> Giải pháp: [Cách khắc phục]".
+4. **required_skills**: Phân tích chi tiết kỹ năng cần thiết với mức độ ưu tiên
 
-PHAN TÍCH SKILL GAPS - CHI TIẾT VÀO:
+PHÂN TÍCH SKILL GAPS - CHI TIẾT VÀO:
 1. SỐ LƯỢNG: 8-10 kỹ năng cụ thể, phân bổ:
    - 3-4 essential (bắt buộc, không có không thể khởi đầu)
    - 3-4 important (quan trọng, ảnh hưởng lớn đến thành công)
@@ -249,13 +288,9 @@ PHAN TÍCH SKILL GAPS - CHI TIẾT VÀO:
       "name": "Tên ý tưởng",
       "match_score": 0.85,
       "reasoning": [
-        "Lý do 1: Tại sao phù hợp với user",
-        "Lý do 2: Dựa trên kinh nghiệm/kỹ năng",
-        "Lý do 3: Thị trường và tiềm năng"
-      ],
-      "user_strengths": [
-        "Điểm mạnh 1 phù hợp với ý tưởng",
-        "Điểm mạnh 2 phù hợp với ý tưởng"
+        "Mô hình này đang có nhu cầu cao tại địa phương, cho phép bạn linh hoạt thời gian làm việc để chăm sóc gia đình.",
+        "Tận dụng được kinh nghiệm và kỹ năng có sẵn với chi phí duy trì thấp, rủi ro tài chính ít.",
+        "Có thể thu hồi vốn nhanh trong 3-6 tháng đầu tiên."
       ],
       "required_capital": "Vốn cần thiết",
       "timeline": "Thời gian khởi động",
@@ -270,8 +305,8 @@ PHAN TÍCH SKILL GAPS - CHI TIẾT VÀO:
         {{ "skill_name": "Tên kỹ năng", "priority": "nice_to_have", "reason": "Giải thích ngắn gọn" }}
       ],
       "risks": [
-        "Rủi ro 1",
-        "Rủi ro 2"
+        "Cạnh tranh cao trong khu vực -> Giải pháp: Tập trung vào một ngách sản phẩm đặc thù hoặc tạo dịch vụ khách hàng tốt hơn.",
+        "Thiếu kinh nghiệm quản lý dòng tiền -> Giải pháp: Bắt đầu với quy mô nhỏ, ghi chép thu chi hàng ngày một cách cẩn thận."
       ]
     }}
   ]
@@ -279,7 +314,7 @@ PHAN TÍCH SKILL GAPS - CHI TIẾT VÀO:
 
 QUAN TRỌNG:
 - startup_ideas phải là ARRAY OF OBJECTS
-- reasoning, user_strengths, what_to_learn, risks phải là arrays of strings
+- reasoning, what_to_learn, risks phải là arrays of strings
 - match_score phải là số từ 0.0 đến 1.0
 - required_skills phải là array of objects với 3 trường:
   skill_name (string), priority (string), reason (string)
@@ -297,7 +332,7 @@ def format_startup_prompt(profile: dict, rag_context: str, budget: str = "50-100
     Args:
         profile: User profile dict
         rag_context: RAG context string
-        budget: Startup budget range
+        budget: Budget for startup
         profile_case: Optional profile case for case-specific guidance
                      ("no_experience_has_interests", "no_experience_no_interests", etc.)
     """
@@ -388,14 +423,14 @@ def format_startup_prompt(profile: dict, rag_context: str, budget: str = "50-100
     barrier_list = [k for k, v in barriers.items() if v]
     barriers_text = ", ".join(barrier_list) if barrier_list else "Không có"
 
+    emp_list = [employment] if isinstance(employment, dict) else (employment if isinstance(employment, list) else [])
+    
     substitutions = {
         "rag_context": rag_context,
         "age": basic_info.get("age", "N/A"),
-        "years_experience": current.get("years", 0) if has_experience else 0,
-        "current_industry": current.get("industry", "N/A") if has_experience else "N/A",
+        "employment_history": _build_employment_history_text(emp_list),
         "skills": skills_text,
         "barriers": barriers_text,
-        "budget": budget,
     }
 
     system_prompt = STARTUP_PROMPT.format(**substitutions)
@@ -408,7 +443,7 @@ def format_startup_prompt(profile: dict, rag_context: str, budget: str = "50-100
         if case_addon:
             system_prompt += case_addon
 
-    user_prompt = "Hãy đề xuất 3 ý tưởng lập nghiệp phù hợp với tôi."
+    user_prompt = f"Hãy đề xuất 3 ý tưởng lập nghiệp phù hợp với tôi. Vốn dự kiến của tôi là: {budget}."
 
     return system_prompt, user_prompt
 
@@ -469,7 +504,7 @@ def _has_experience(employment_history) -> bool:
         return employment_history.get('status') != 'không có'
     if isinstance(employment_history, list):
         valid_jobs = [j for j in employment_history
-                      if j and (j.get('companyName') or j.get('position')
+                      if j and (j.get('companyName') or j.get('position') or j.get('role')
                                or (j.get('occupation') and j.get('occupation') != ''))]
         return len(valid_jobs) > 0
     return False
@@ -497,6 +532,10 @@ def determine_profile_case(profile: dict) -> str:
     has_exp = _has_experience(employment_history)
     has_int = _has_interests(interests)
     wants_entrepreneurship = aspirations.get('wantsToStartBusiness', False)
+    
+    import logging
+    logging.info(f"[PROFILE CASE DEBUG] employment_history: {employment_history}")
+    logging.info(f"[PROFILE CASE DEBUG] has_exp: {has_exp}, has_int: {has_int}")
 
     if not has_exp and not has_int:
         return ProfileCase.NO_EXPERIENCE_NO_INTERESTS
@@ -668,14 +707,14 @@ def format_career_prompt(profile: dict, rag_context: str, profile_case: str = No
     all_skills = list(dict.fromkeys(skills + basic_skills))  # loại trùng, giữ thứ tự
 
     # Build substitutions
+    emp_list = [employment_history] if isinstance(employment_history, dict) else (employment_history if isinstance(employment_history, list) else [])
+    
     substitutions = {
         "rag_context": rag_context,
         "age": basic_info.get("age", "N/A"),
         "gender": basic_info.get("gender", "N/A"),
         "location": basic_info.get("province", "N/A"),
-        "current_industry": current_industry,
-        "current_role": current_role,
-        "years_experience": years_experience,
+        "employment_history": _build_employment_history_text(emp_list),
         "skills": ", ".join(all_skills[:10]) if all_skills else "Không có",
         "barriers": _format_barriers(barriers),
         "goal": _format_target_job(aspirations.get("targetJob")),

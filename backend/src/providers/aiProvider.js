@@ -161,7 +161,7 @@ const MOCK_JOBS = [
  */
 const aiApiClient = axios.create({
   baseURL: AI_SERVICE_BASE_URL,
-  timeout: 60000, // 60s cho ML predictions
+  timeout: 180000, // Tăng lên 180s (3 phút) cho các tác vụ LLM/RAG nặng
   headers: {
     'Content-Type': 'application/json'
   }
@@ -226,7 +226,20 @@ class AIProvider {
   }
 
   /**
-   * Gợi ý công việc cho user dựa trên kỹ năng
+   * POST /api/v1/ai/recommend-jobs
+   */
+  async recommendJobsProfile(profileRequest) {
+    try {
+      const response = await aiApiClient.post('/api/v1/ai/recommend-jobs-profile', profileRequest)
+      return response.data
+    } catch (error) {
+      console.warn('[AIProvider] recommendJobsProfile - AI Service error')
+      throw error
+    }
+  }
+
+  /**
+   * Lấy gợi ý công việc từ AI Service dựa trên skills
    * POST /api/v1/ai/recommend-jobs
    */
   async recommendJobs({

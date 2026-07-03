@@ -1,11 +1,6 @@
 import { Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui';
 
-const formatCurrency = (value) => {
-  if (!value && value !== 0) return '0đ';
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(value);
-};
-
 const formatDate = (date) => {
   if (!date) return '-';
   try { return new Date(date).toLocaleDateString('vi-VN'); }
@@ -13,47 +8,61 @@ const formatDate = (date) => {
 };
 
 const statusConfig = {
-  active: { label: 'Đang làm', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
-  resigned: { label: 'Đã nghỉ', className: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
-  promoted: { label: 'Được thăng', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+  active: { label: 'Đang chạy', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  completed: { label: 'Hoàn thành', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+  pending: { label: 'Chờ duyệt', className: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+  cancelled: { label: 'Đã hủy', className: 'bg-red-500/10 text-red-500 border-red-500/20' },
+  expired: { label: 'Hết hạn', className: 'bg-gray-500/10 text-gray-500 border-gray-500/20' },
+  negotiating: { label: 'Đang thương lượng', className: 'bg-purple-500/10 text-purple-500 border-purple-500/20' }
 };
 
-const AdminPlacementRow = ({ placement, onView }) => {
-  const statusInfo = statusConfig[placement.status] || { label: placement.status, className: '' };
+const AdminPartnershipRow = ({ partnership, onView }) => {
+  const statusInfo = statusConfig[partnership.status] || { label: partnership.status, className: 'bg-gray-500/10 text-gray-500' };
 
   return (
     <tr className="border-b border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-accent))]/[0.03] transition-colors border-l-[2px] border-l-transparent hover:border-l-[hsl(var(--admin-accent))]">
       <td className="px-4 py-3">
         <div className="min-w-0">
           <p className="font-medium text-sm text-[hsl(var(--admin-text-primary))] truncate max-w-[160px]">
-            {placement.worker?.fullName || '-'}
+            {partnership.enterprise?.organizationName || partnership.enterprise?.displayName || '-'}
           </p>
           <span className="text-xs text-[hsl(var(--admin-text-muted))]">
-            {placement.worker?.email || '-'}
+            {partnership.enterprise?.email || '-'}
           </span>
         </div>
       </td>
       <td className="px-4 py-3">
         <div className="min-w-0">
           <p className="font-medium text-sm text-[hsl(var(--admin-text-primary))] truncate max-w-[160px]">
-            {placement.companyName || '-'}
+            {partnership.trainer?.displayName || '-'}
           </p>
-          <p className="text-xs text-[hsl(var(--admin-text-muted))]">{placement.jobTitle || '-'}</p>
+          <span className="text-xs text-[hsl(var(--admin-text-muted))]">
+            {partnership.trainer?.email || '-'}
+          </span>
         </div>
       </td>
       <td className="px-4 py-3">
+        <div className="min-w-0">
+          <p className="font-medium text-sm text-[hsl(var(--admin-text-primary))] truncate max-w-[160px]">
+            {partnership.recruitmentNeeds?.jobTitle || 'Không xác định'}
+          </p>
+          <span className="text-xs text-[hsl(var(--admin-text-muted))]">
+            Cần tuyển: {partnership.recruitmentNeeds?.jobQuantity || 0}
+          </span>
+        </div>
+      </td>
+      <td className="px-4 py-3 text-center">
         <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">
-          {placement.salary ? formatCurrency(placement.salary) : '-'}
+          {partnership.stats?.enrolledLearners || 0}
+        </p>
+      </td>
+      <td className="px-4 py-3 text-center">
+        <p className="text-sm font-medium text-emerald-500">
+          {partnership.stats?.placedLearners || 0}
         </p>
       </td>
       <td className="px-4 py-3">
-        <span className="text-xs text-[hsl(var(--admin-text-muted))]">{placement.industry || '-'}</span>
-      </td>
-      <td className="px-4 py-3">
-        <span className="text-xs text-[hsl(var(--admin-text-muted))]">{placement.location || '-'}</span>
-      </td>
-      <td className="px-4 py-3">
-        <span className="text-xs text-[hsl(var(--admin-text-secondary))]">{formatDate(placement.startDate)}</span>
+        <span className="text-xs text-[hsl(var(--admin-text-secondary))]">{formatDate(partnership.createdAt)}</span>
       </td>
       <td className="px-4 py-3">
         <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full border ${statusInfo.className}`}>
@@ -61,7 +70,7 @@ const AdminPlacementRow = ({ placement, onView }) => {
         </span>
       </td>
       <td className="px-4 py-3">
-        <button onClick={() => onView?.(placement)} className="p-2 hover:bg-[hsl(var(--admin-surface-elevated))] rounded-lg transition-colors" title="Xem chi tiết">
+        <button onClick={() => onView?.(partnership)} className="p-2 hover:bg-[hsl(var(--admin-surface-elevated))] rounded-lg transition-colors" title="Xem chi tiết">
           <Eye className="w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
         </button>
       </td>
@@ -79,7 +88,7 @@ const AdminPlacementTable = ({ placements, loading, pagination, onPageChange, on
           <svg className="w-12 h-12 text-[hsl(var(--admin-text-muted))] opacity-30 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
           </svg>
-          <p className="text-[hsl(var(--admin-text-muted))] font-medium">Chưa có placement nào</p>
+          <p className="text-[hsl(var(--admin-text-muted))] font-medium">Chưa có dự án hợp tác nào</p>
         </div>
       </div>
     );
@@ -91,8 +100,8 @@ const AdminPlacementTable = ({ placements, loading, pagination, onPageChange, on
         <table className="w-full">
           <thead>
             <tr className="border-b border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface-elevated))]">
-              {['Worker', 'Công ty / Vị trí', 'Lương', 'Ngành', 'Địa điểm', 'Bắt đầu', 'Trạng thái', 'Hành động'].map((col) => (
-                <th key={col} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))]">{col}</th>
+              {['Doanh nghiệp', 'Giảng viên', 'Vị trí tuyển dụng', 'Học viên', 'Nhận việc', 'Ngày tạo', 'Trạng thái', 'Hành động'].map((col) => (
+                <th key={col} className={`px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] ${['Học viên', 'Nhận việc'].includes(col) ? 'text-center' : ''}`}>{col}</th>
               ))}
             </tr>
           </thead>
@@ -105,7 +114,7 @@ const AdminPlacementTable = ({ placements, loading, pagination, onPageChange, on
               ))
             ) : (
               placements.map((p) => (
-                <AdminPlacementRow key={p._id || p.id} placement={p} onView={onView} />
+                <AdminPartnershipRow key={p._id || p.id} partnership={p} onView={onView} />
               ))
             )}
           </tbody>

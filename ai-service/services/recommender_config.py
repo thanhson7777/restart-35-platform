@@ -22,6 +22,7 @@ class RecommenderConfig:
     # === Final Score Weights (from Phase 3) ===
     BASE_SCORE_FINAL_WEIGHT: float = 0.35
     SKILLS_BONUS_WEIGHT: float = 0.15
+    JOB_TITLE_MATCH_WEIGHT: float = 0.10
     SALARY_SCORE_WEIGHT: float = 0.08
     JOB_TYPE_SCORE_WEIGHT: float = 0.05
     LOCATION_SCORE_WEIGHT: float = 0.08

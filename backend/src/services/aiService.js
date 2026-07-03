@@ -35,6 +35,30 @@ const computeProfileHash = (profile) => {
  * @param {boolean} [params.allowRemote] - Cho phép làm việc từ xa
  * @returns {Promise<Object>} Kết quả gợi ý việc làm
  */
+const getRecommendedJobsProfile = async (profileRequest) => {
+  try {
+    const result = await aiProvider.recommendJobsProfile(profileRequest)
+    return {
+      data: result.data || result
+    }
+  } catch (error) {
+    if (error.isApiError) throw error
+    
+    console.error('[AIService] getRecommendedJobsProfile error:', error)
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      throw new ApiError(
+        StatusCodes.SERVICE_UNAVAILABLE,
+        'AI Service hiện không khả dụng. Vui lòng thử lại sau.'
+      )
+    }
+    
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Lỗi khi lấy gợi ý công việc từ AI'
+    )
+  }
+}
+
 const getRecommendedJobs = async ({
   skills,
   experience,
@@ -829,6 +853,7 @@ const triggerRAGCareerRecommendation = async (userId, profile) => {
     const profileHash = computeProfileHash(profile)
     const updateData = {
       ragRecommendations: {
+        intro_message: ragResult.intro_message || 'Dựa trên kinh nghiệm và kỹ năng của bạn, hệ thống đã phân tích và tìm ra những lộ trình phù hợp nhất. Hãy tận dụng tối đa thế mạnh của mình để phát triển trong những công việc dưới đây nhé:',
         best_fits: ragResult.best_fits || [],
         income_boost: ragResult.income_boost || [],
         progression: ragResult.progression || []
@@ -988,9 +1013,11 @@ const refreshRAGRecommendation = async (userId, profile) => {
     // Get current recommendation to check refresh count
     const currentData = await careerRecommendationModel.getRAGRecommendationsByUserId(userId)
     const currentCount = currentData?.ragRefreshCount || 0
+    const oldHash = currentData?.profileHash
+    const newHash = computeProfileHash(profile)
 
-    // Rate limit: max 1 refresh per day (consider 24 hours)
-    if (currentCount > 0) {
+    // Rate limit: max 1 refresh per day, UNLESS profile has changed
+    if (currentCount > 0 && oldHash === newHash) {
       const lastRefresh = currentData?.ragGeneratedAt
       if (lastRefresh) {
         const hoursSinceLastRefresh = (Date.now() - new Date(lastRefresh).getTime()) / (1000 * 60 * 60)
@@ -1283,6 +1310,7 @@ const invalidateAIRAGCache = async () => {
 // Export các functions
 export const aiService = {
   getRecommendedJobs,
+  getRecommendedJobsProfile,
   getAllJobs,
   getJobById,
   predictRisk,

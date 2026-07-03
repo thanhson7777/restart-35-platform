@@ -7,10 +7,11 @@ Job Recommender Service
 
 import pandas as pd
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from rapidfuzz import fuzz
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
+from functools import lru_cache
 import logging
 
 # Import from worker_profile module
@@ -147,7 +148,7 @@ class JobRecommender:
 
         self.data_path = Path(data_path)
         self.jobs_df = None
-        self.tfidf_vectorizer = None
+        self.embedding_model = None
         self.job_vectors = None
         self.esco_normalizer = None
 
@@ -157,8 +158,29 @@ class JobRecommender:
         self.ngram_range = config.NGRAM_RANGE
 
         self._load_data()
-        self._build_tfidf_model()
+        self._build_semantic_model()
         self._load_esco_normalizer()
+        self._prepare_records()
+
+    def _prepare_records(self) -> None:
+        """Chuyển đổi DataFrame sang list dicts và pre-compute dữ liệu để tăng tốc độ"""
+        # Thay thế NaN bằng None một cách triệt để cho mọi kiểu dữ liệu (tránh NodeJS JSON parse error do NaN)
+        df_clean = self.jobs_df.astype(object).where(pd.notna(self.jobs_df), None)
+        self.jobs_records = df_clean.to_dict('records')
+        for row in self.jobs_records:
+            # Pre-compute title_str và title_lower
+            row['title_str'] = str(row.get('title', '')) if row.get('title') else ''
+            row['title_lower'] = row['title_str'].lower()
+            
+            # Đảm bảo salary luôn là số
+            row['salary_min'] = int(row.get('salary_min') or 0)
+            row['salary_max'] = int(row.get('salary_max') or 0)
+            
+            # Pre-compute skills_lower_set
+            job_skills = row.get('skills_list', [])
+            if not isinstance(job_skills, list):
+                job_skills = []
+            row['skills_lower_set'] = set(str(s).lower() for s in job_skills)
 
     def _load_data(self) -> None:
         """Load jobs.csv vào memory"""
@@ -176,13 +198,14 @@ class JobRecommender:
 
         logger.info(f"Loaded {len(self.jobs_df)} jobs from {jobs_file}")
 
-    def _build_tfidf_model(self) -> None:
-        """Build TF-IDF model từ jobs data"""
-
-        # Tạo combined text: title + skills + location
+    def _build_semantic_model(self) -> None:
+        """Build Semantic model từ jobs data bằng SentenceTransformer"""
+        
+        # Tạo combined text: title + description + skills + location
         def create_combined_text(row):
             parts = [
                 str(row['title']) if pd.notna(row['title']) else '',
+                str(row.get('description', ''))[:1000] if pd.notna(row.get('description', '')) else '',
                 str(row.get('location', '')) if pd.notna(row.get('location', '')) else '',
                 ' '.join(row['skills_list']) if isinstance(row['skills_list'], list) else ''
             ]
@@ -192,20 +215,23 @@ class JobRecommender:
             create_combined_text, axis=1
         )
 
-        # Khởi tạo TF-IDF Vectorizer
-        self.tfidf_vectorizer = TfidfVectorizer(
-            lowercase=True,
-            token_pattern=r'(?u)\b\w+\b',  # Match single word tokens
-            max_features=1000,
-            ngram_range=(1, 2)  # Unigrams and bigrams
-        )
-
-        # Fit và transform jobs
-        self.job_vectors = self.tfidf_vectorizer.fit_transform(
-            self.jobs_df['combined_text'].values
-        )
-
-        logger.info(f"TF-IDF model built with {self.job_vectors.shape[1]} features")
+        try:
+            from sentence_transformers import SentenceTransformer
+            # Reusing the model name from ESCONormalizer
+            self.embedding_model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+            
+            logger.info("Encoding jobs using SentenceTransformer (this may take a moment)...")
+            # Encode all jobs
+            self.job_vectors = self.embedding_model.encode(
+                self.jobs_df['combined_text'].tolist(),
+                show_progress_bar=False,
+                convert_to_numpy=True
+            )
+            logger.info(f"Semantic model built with {self.job_vectors.shape} shape")
+        except Exception as e:
+            logger.error(f"Failed to load SentenceTransformer: {e}")
+            # Fallback random matrix if failed
+            self.job_vectors = np.random.rand(len(self.jobs_df), 384)
 
     def _load_esco_normalizer(self):
         """Load ESCO normalizer với lazy loading"""
@@ -493,9 +519,10 @@ class JobRecommender:
         Returns:
             float: score từ 0.0 đến 1.0
         """
-        if not worker_age or job_age_pref == 'any':
+        if not worker_age or pd.isna(job_age_pref) or job_age_pref == 'any':
             return 1.0
 
+        job_age_pref = str(job_age_pref)
         # Parse age preference
         if '-' in str(job_age_pref):
             parts = job_age_pref.split('-')
@@ -586,9 +613,13 @@ class JobRecommender:
 
         # Extract job gender requirement from title
         job_gender = None
-        if 'Nữ' in job_title or '_Nữ' in job_title or 'nữ' in job_title.lower():
+        if pd.isna(job_title):
+            job_title = ''
+        job_title_str = str(job_title)
+        
+        if 'Nữ' in job_title_str or '_Nữ' in job_title_str or 'nữ' in job_title_str.lower():
             job_gender = 'female'
-        elif 'Nam' in job_title or '_Nam' in job_title or 'nam' in job_title.lower():
+        elif 'Nam' in job_title_str or '_Nam' in job_title_str or 'nam' in job_title_str.lower():
             job_gender = 'male'
 
         if not job_gender:
@@ -617,7 +648,10 @@ class JobRecommender:
         if not barrier_family:
             return 1.0
 
-        job_text = job_description.lower()
+        if pd.isna(job_description):
+            return 1.0
+            
+        job_text = str(job_description).lower()
 
         # Negative keywords - night shift
         if any(kw in job_text for kw in ['ca dem', 'ca đêm', 'đêm', 'night shift']):
@@ -721,7 +755,7 @@ class JobRecommender:
         query_keywords = set(query_parts)
         results = []
 
-        for _, row in self.jobs_df.iterrows():
+        for row in self.jobs_records:
             # Kiểm tra title và skills có chứa keywords không
             title_lower = str(row.get('title', '')).lower()
             skills_lower = ' '.join(row.get('skills_list', [])).lower()
@@ -743,7 +777,7 @@ class JobRecommender:
                     'id': row['id'],
                     'title': row['title'],
                     'company': row['company'],
-                    'score': min(1.0, match_score / 10),  # Normalize
+                    'score': float(min(1.0, match_score / 10)),  # Normalize
                     'skills': row['skills_list'],
                     'skills_match': sum(1 for k in query_keywords if k in skills_lower),
                     'salary_range': f"{int(row['salary_min']/1000000)}-{int(row['salary_max']/1000000)} triệu",
@@ -819,38 +853,54 @@ class JobRecommender:
 
         user_text = ' '.join(user_parts)
 
-        # 2. Vectorize user profile
-        user_vector = self.tfidf_vectorizer.transform([user_text])
+        # 2. Vectorize user profile bằng SentenceTransformer
+        # Áp dụng bộ nhớ đệm (LRU cache) thủ công hoặc gọi trực tiếp
+        if self.embedding_model:
+            # We can use a simple dict cache for user vectors to avoid heavy lru_cache issues
+            if not hasattr(self, '_vector_cache'):
+                self._vector_cache = {}
+            if user_text not in self._vector_cache:
+                self._vector_cache[user_text] = self.embedding_model.encode([user_text], convert_to_numpy=True)
+                # Giới hạn cache size
+                if len(self._vector_cache) > 1000:
+                    self._vector_cache.pop(next(iter(self._vector_cache)))
+            user_vector = self._vector_cache[user_text]
+        else:
+            user_vector = np.random.rand(1, 384)
 
         # 3. Calculate Cosine Similarity
         similarities = cosine_similarity(user_vector, self.job_vectors)[0]
 
         # 4. Prepare results với Hybrid Scoring + Soft Location
         results = []
+        
+        target_job_lower = target_job.lower() if target_job else None
+        skills_lower = set(str(s).lower() for s in skills) if skills else set()
 
-        for idx, row in self.jobs_df.iterrows():
+        for idx, row in enumerate(self.jobs_records):
             base_score = similarities[idx]
 
-            # Calculate skills match - use ESCO only if enabled (slow!)
-            if use_esco and self.esco_normalizer:
-                exact_match, esco_similarity = self.calculate_skill_match(skills, row)
-            else:
-                # Fast path: exact match only
-                job_skills = row['skills_list']
-                skills_lower = set(str(s).lower() for s in skills)
-                row_skills_lower = set(str(s).lower() for s in job_skills)
-                exact_match = len(skills_lower & row_skills_lower)
-                esco_similarity = 0.0
-
-            skills_match = exact_match
-            has_skill_match = skills_match > 0 or esco_similarity > 0
-
-            # Check target_job match
-            has_job_match = target_job and target_job.lower() in str(row.get('title', '')).lower()
-
-            # Skip nếu base_score quá thấp VÀ không có skill/job match
+            # --- FAST PATH: Skip jobs có base_score quá thấp ---
+            # Chỉ skip nếu thật sự không có match nào, tính exact_match trước cho lẹ
+            exact_match = len(skills_lower & row['skills_lower_set'])
+            
+            # Fuzzy match chỉ khi có target_job và base_score > 0.05
+            has_job_match = False
+            if target_job_lower and row['title_lower']:
+                if base_score >= 0.05 or exact_match > 0:
+                    title_match_score = fuzz.token_set_ratio(target_job_lower, row['title_lower'])
+                    has_job_match = title_match_score >= 85
+                    
+            has_skill_match = exact_match > 0
+            
+            # Nếu base_score < 0.05 và không có skill match hay job match thì skip luôn
             if base_score < 0.05 and not has_skill_match and not has_job_match:
                 continue
+
+            # Calculate ESCO if enabled
+            esco_similarity = 0.0
+            if use_esco and self.esco_normalizer:
+                exact_match, esco_similarity = self.calculate_skill_match(skills, row)
 
             # --- SOFT FILTER: Location Scoring ---
             job_location = row.get('location', '')
@@ -868,8 +918,8 @@ class JobRecommender:
 
             # 5. Calculate Bonus Scores
             salary_score = self._calculate_salary_score(
-                row['salary_min'],
-                row['salary_max'],
+                row.get('salary_min', 0),
+                row.get('salary_max', 0),
                 target_salary
             )
 
@@ -918,25 +968,31 @@ class JobRecommender:
             # 7. Final Score = Weighted Average (with demographics)
             location_bonus = location_score * config.LOCATION_SCORE_WEIGHT
             recency_bonus = recency_score * config.RECENCY_SCORE_WEIGHT
+            
+            # Tính thưởng chức danh
+            job_title_bonus = config.JOB_TITLE_MATCH_WEIGHT if has_job_match else 0.0
 
-            # SOFT FILTER: Áp dụng location multiplier vào final score
-            # Jobs ở region khác sẽ có score thấp hơn nhưng vẫn hiển thị
+            # Xoá bỏ location_bonus (tránh double-counting)
+            # final_score = base + skills + title + salary + job_type + experience + recency + demographics
             final_score = (
                 base_score * config.BASE_SCORE_FINAL_WEIGHT +
                 skills_bonus +
+                job_title_bonus +
                 salary_score * config.SALARY_SCORE_WEIGHT +
                 job_type_score * config.JOB_TYPE_SCORE_WEIGHT +
                 experience_bonus +
-                location_bonus +
                 recency_bonus +
                 age_score * config.AGE_SCORE_WEIGHT +
                 education_score * config.EDUCATION_SCORE_WEIGHT +
                 gender_score * config.GENDER_SCORE_WEIGHT +
                 family_score * config.FAMILY_SCORE_WEIGHT
-            ) * location_multiplier  # SOFT FILTER: Nhan them location multiplier
+            ) * location_multiplier  # SOFT FILTER: Nhân thêm location multiplier
 
-            # Normalize final score về 0-1
-            final_score = min(1.0, final_score)
+            # Normalize final score về 0-1 and cast to standard python float
+            final_score = float(min(1.0, final_score))
+            skills_match = int(exact_match)
+            esco_similarity = float(esco_similarity)
+            location_score = float(location_score)
 
             # 8. Create job result object
             job_result = {
@@ -944,7 +1000,7 @@ class JobRecommender:
                 'title': row['title'],
                 'company': row['company'],
                 'score': round(final_score, 3),
-                'skills': row['skills_list'],
+                'skills': row.get('skills_list', []),
                 'skills_match': skills_match,
                 'esco_similarity': round(esco_similarity, 3),
                 'salary_range': f"{int(row['salary_min']/1000000)}-{int(row['salary_max']/1000000)} triệu",
@@ -967,6 +1023,7 @@ class JobRecommender:
                 'education_score': round(education_score, 2),
                 'gender_score': round(gender_score, 2),
                 'family_score': round(family_score, 2),
+                'job_title_match': has_job_match,
             }
 
             results.append(job_result)
@@ -1010,29 +1067,29 @@ class JobRecommender:
         Returns:
             Job dict hoặc None nếu không tìm thấy
         """
-        job = self.jobs_df[self.jobs_df['id'] == job_id]
-
-        if job.empty:
+        # Search in memory list
+        job = next((item for item in self.jobs_records if item['id'] == job_id), None)
+        
+        if not job:
             return None
 
-        row = job.iloc[0]
         return {
-            'id': row['id'],
-            'title': row['title'],
-            'company': row['company'],
-            'skills': row['skills_list'],
-            'location': row.get('location', ''),
-            'salary_min': int(row['salary_min']),
-            'salary_max': int(row['salary_max']),
-            'type': row.get('type', ''),
-            'age_preference': row.get('age_preference', ''),
-            'experience_required': row.get('experience_required', 0),
-            'description': row.get('description', ''),
+            'id': job['id'],
+            'title': job['title'],
+            'company': job['company'],
+            'skills': job.get('skills_list', []),
+            'location': job.get('location', ''),
+            'salary_min': int(job['salary_min']),
+            'salary_max': int(job['salary_max']),
+            'type': job.get('type', ''),
+            'age_preference': job.get('age_preference', ''),
+            'experience_required': job.get('experience_required', 0),
+            'description': job.get('description', ''),
             # New fields
-            'source_url': row.get('job_url', ''),
+            'source_url': job.get('job_url', ''),
             'is_active': True,
-            'quality_score': self._compute_quality_score(row),
-            'source': row.get('source', ''),
+            'quality_score': self._compute_quality_score(job),
+            'source': job.get('source', ''),
         }
 
     def get_all_jobs(self, limit: int = 50) -> List[Dict]:
@@ -1045,18 +1102,18 @@ class JobRecommender:
         Returns:
             List of jobs
         """
-        jobs = []
-        for _, row in self.jobs_df.head(limit).iterrows():
-            jobs.append({
+        results = []
+        for row in self.jobs_records[:limit]:
+            results.append({
                 'id': row['id'],
                 'title': row['title'],
                 'company': row['company'],
-                'skills': row['skills_list'],
+                'skills': row.get('skills_list', []),
                 'location': row.get('location', ''),
                 'salary_range': f"{int(row['salary_min']/1000000)}-{int(row['salary_max']/1000000)} triệu",
                 'type': row.get('type', '')
             })
-        return jobs
+        return results
 
     # ============================================================
     # Labor Job Detection & Filtering
@@ -1084,18 +1141,18 @@ class JobRecommender:
         'may mac', 'det',
     ]
 
-    def is_labor_job(self, job: 'pd.Series') -> bool:
+    def is_labor_job(self, job: Dict) -> bool:
         """
         Detect if a job is a labor job.
 
         Args:
-            job: Job row from dataframe
+            job: Job dict from jobs_records
 
         Returns:
             True if labor job
         """
         title_lower = str(job.get('title', '')).lower()
-        skills_lower = str(job.get('skills', '')).lower()
+        skills_lower = ' '.join(job.get('skills_list', [])).lower()
         category_lower = str(job.get('category', '')).lower()
 
         for keyword in self.LABOR_JOB_KEYWORDS:
@@ -1187,35 +1244,37 @@ class JobRecommender:
         Returns:
             Dict of category -> count
         """
-        if self.jobs_df is None:
-            return {}
-
-        return self.jobs_df['category'].value_counts().to_dict()
+        stats = {}
+        for job in self.jobs_records:
+            cat = job.get('category', 'unknown')
+            stats[cat] = stats.get(cat, 0) + 1
+        return stats
 
     def get_labor_jobs_stats(self) -> Dict:
         """
-        Get statistics about labor jobs in database.
-
+        Lấy thống kê về các công việc lao động phổ thông.
+        
         Returns:
             Dict with labor job stats
         """
-        if self.jobs_df is None:
-            return {}
-
-        # Count labor vs non-labor
-        labor_count = sum(1 for _, row in self.jobs_df.iterrows() if self.is_labor_job(row))
-        total = len(self.jobs_df)
+        # Calculate labor stats
+        labor_jobs = [row for row in self.jobs_records if self.is_labor_job(row)]
+        labor_count = len(labor_jobs)
+        total = len(self.jobs_records)
 
         # Location distribution for labor jobs
-        labor_df = self.jobs_df[self.jobs_df['category'] == 'labor']
-        if labor_df.empty:
-            labor_df = self.jobs_df[self.jobs_df.apply(self.is_labor_job, axis=1)]
-
-        loc_stats = labor_df['location'].value_counts().head(10).to_dict() if not labor_df.empty else {}
+        loc_counts = {}
+        for job in labor_jobs:
+            loc = job.get('location', '')
+            if loc:
+                loc_counts[loc] = loc_counts.get(loc, 0) + 1
+                
+        # Sort and get top 10
+        loc_stats = dict(sorted(loc_counts.items(), key=lambda item: item[1], reverse=True)[:10])
 
         # Salary range
-        salaries = labor_df['salary_min'] if not labor_df.empty else self.jobs_df['salary_min']
-        avg_salary = salaries.mean() if not salaries.empty else 0
+        valid_salaries = [job['salary_min'] for job in labor_jobs if job.get('salary_min', 0) > 0]
+        avg_salary = sum(valid_salaries) / len(valid_salaries) if valid_salaries else 0
 
         return {
             'total_jobs': total,
@@ -1293,4 +1352,8 @@ class JobRecommender:
             barrier_tech_gap=profile.barrier_tech_gap
         )
 
-        return results
+        # Extract the list of jobs from the recommend dict response
+        if isinstance(results, dict) and 'data' in results and 'jobs' in results['data']:
+            return results['data']['jobs']
+        
+        return results if isinstance(results, list) else []

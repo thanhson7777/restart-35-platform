@@ -211,56 +211,57 @@ class Deduplicator:
     
     def _remove_fuzzy_duplicates(self, jobs: List[Dict]) -> List[Dict]:
         """
-        Loại bỏ fuzzy duplicates dựa trên title similarity
-        
-        Args:
-            jobs: List các jobs
-            
-        Returns:
-            List các jobs unique (fuzzy)
+        Loại bỏ fuzzy duplicates dựa trên title, company, salary.
+        Gộp tin và giữ lại bản ghi có mô tả chi tiết nhất.
         """
         if len(jobs) <= 1:
             return jobs
         
         unique_jobs = []
-        unique_keys = []  # Lưu keys để so sánh
         
         for job in jobs:
-            key = self._create_exact_key(job)
-
             # Ensure all fields are strings, handle NaN
             def safe_str(val):
                 if val is None or (isinstance(val, float) and val != val):
                     return ''
                 return str(val).lower()
-
+                
             title = safe_str(job.get('title', ''))
             company = safe_str(job.get('company', ''))
+            salary = str(job.get('salary_min', '')) + str(job.get('salary_max', ''))
+            description = safe_str(job.get('description', ''))
             
             is_duplicate = False
             
-            for existing_key in unique_keys:
-                # Compare title similarity
-                title_sim = fuzz.ratio(title, existing_key['title'])
-                company_sim = fuzz.ratio(company, existing_key['company'])
+            for idx, existing_job in enumerate(unique_jobs):
+                ex_title = safe_str(existing_job.get('title', ''))
+                ex_company = safe_str(existing_job.get('company', ''))
+                ex_salary = str(existing_job.get('salary_min', '')) + str(existing_job.get('salary_max', ''))
+                ex_desc = safe_str(existing_job.get('description', ''))
                 
-                # Nếu cả title và company đều giống nhau > threshold
-                if title_sim >= self.fuzzy_threshold * 100 and company_sim >= self.fuzzy_threshold * 100:
+                # So khớp Title, Company
+                title_sim = fuzz.ratio(title, ex_title)
+                company_sim = fuzz.token_set_ratio(company, ex_company)
+                
+                # So sánh cả mức lương (chặn spam đăng lại với lương khác)
+                salary_sim = 100 if salary == ex_salary else 0
+                
+                # Nếu giống hệt công ty, chức danh và lương
+                if title_sim >= self.fuzzy_threshold * 100 and company_sim >= self.fuzzy_threshold * 100 and salary_sim == 100:
                     is_duplicate = True
+                    # Gộp tin: Giữ lại tin có mô tả dài hơn
+                    if len(description) > len(ex_desc):
+                        # Ghi đè job hiện tại bằng job mới chi tiết hơn
+                        unique_jobs[idx] = job
                     break
-            
+                    
             if not is_duplicate:
                 unique_jobs.append(job)
-                unique_keys.append({
-                    'title': title,
-                    'company': company,
-                    'key': key
-                })
             else:
                 self.stats['fuzzy_duplicates'] += 1
-                self.logger.debug(f"Fuzzy duplicate: {job.get('title', 'No title')}")
+                self.logger.debug(f"Fuzzy duplicate merged: {job.get('title', 'No title')}")
         
-        self.logger.info(f"Removed {self.stats['fuzzy_duplicates']} fuzzy duplicates")
+        self.logger.info(f"Removed {self.stats['fuzzy_duplicates']} fuzzy duplicates (kept detailed versions)")
         return unique_jobs
     
     def _filter_outdated(self, jobs: List[Dict]) -> List[Dict]:

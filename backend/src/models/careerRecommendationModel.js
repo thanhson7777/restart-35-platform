@@ -42,6 +42,7 @@ const CAREER_RECOMMENDATION_COLLECTION_SCHEMA = Joi.object({
   })),
   // RAG-based recommendations (from AI Service with RAG)
   ragRecommendations: Joi.object({
+    intro_message: Joi.string().allow('').allow(null),
     best_fits: Joi.array().items(Joi.object({
       job_title: Joi.string().allow(''),
       match_score: Joi.number().min(0).max(1),

@@ -20,18 +20,17 @@ class CareerRetriever:
     def retrieve_for_profile(
         self,
         profile: Dict,
-        n_results: int = 5
+        n_results: int = 5,
+        mode: str = "career"
     ) -> List[Dict]:
         """
         Retrieve relevant documents cho user profile
 
         Args:
-            profile: User profile dict với fields:
-                - basicInfo: {age, gender, province, education}
-                - employmentHistory: [{industry, role}]
-                - aspirations: {targetJob, skills, targetSalary}
-                - barriers: {health, family, techGap}
+            profile: User profile dict
             n_results: Number of results per query
+            mode: "career" or "startup"
+
 
         Returns:
             List of retrieved document dicts
@@ -45,38 +44,51 @@ class CareerRetriever:
         # Query with filters
         results = []
 
-        # 1. Query salary data
-        salary_results = self.vector_store.query(
-            query_embedding=self.embedding_model.embed_query(query),
-            n_results=n_results,
-            filter_dict={"type": {"$eq": "salary"}}
-        )
-        results.extend(self._format_results(salary_results, "salary"))
-
-        # 2. Query trend data for industry
-        if industry:
+        if mode == "startup":
+            # Chế độ khởi nghiệp: Tìm mô hình kinh doanh thay vì tìm lương
+            startup_query = self._build_query_from_profile(profile, query_type="startup_models")
+            startup_results = self.vector_store.query(
+                query_embedding=self.embedding_model.embed_query(startup_query),
+                n_results=n_results * 2,  # Lấy nhiều hơn vì chỉ query 1 lần
+                filter_dict={"type": {"$in": ["trend", "skill_transfer", "startup"]}} # Lấy đa dạng loại
+            )
+            results.extend(self._format_results(startup_results, "startup_models"))
+        else:
+            # 1. Query salary data
+            salary_query = self._build_query_from_profile(profile, query_type="salary")
+            salary_results = self.vector_store.query(
+                query_embedding=self.embedding_model.embed_query(salary_query),
+                n_results=n_results,
+                filter_dict={"type": {"$eq": "salary"}}
+            )
+            results.extend(self._format_results(salary_results, "salary"))
+    
+            # 2. Query trend data for industry
+            trend_query = self._build_query_from_profile(profile, query_type="trend")
             trend_results = self.vector_store.query(
-                query_embedding=self.embedding_model.embed_query(f"{industry} xu hướng 2026"),
+                query_embedding=self.embedding_model.embed_query(trend_query),
                 n_results=n_results,
                 filter_dict={"type": {"$eq": "trend"}}
             )
             results.extend(self._format_results(trend_results, "trend"))
-
-        # 3. Query requirements
-        req_results = self.vector_store.query(
-            query_embedding=self.embedding_model.embed_query(query),
-            n_results=n_results,
-            filter_dict={"type": {"$eq": "requirements"}}
-        )
-        results.extend(self._format_results(req_results, "requirements"))
-
-        # 4. Query skill transfer
-        skill_results = self.vector_store.query(
-            query_embedding=self.embedding_model.embed_query(query),
-            n_results=n_results,
-            filter_dict={"type": {"$eq": "skill_transfer"}}
-        )
-        results.extend(self._format_results(skill_results, "skill_transfer"))
+    
+            # 3. Query requirements
+            req_query = self._build_query_from_profile(profile, query_type="requirements")
+            req_results = self.vector_store.query(
+                query_embedding=self.embedding_model.embed_query(req_query),
+                n_results=n_results,
+                filter_dict={"type": {"$eq": "requirements"}}
+            )
+            results.extend(self._format_results(req_results, "requirements"))
+    
+            # 4. Query skill transfer
+            skill_query = self._build_query_from_profile(profile, query_type="skill_transfer")
+            skill_results = self.vector_store.query(
+                query_embedding=self.embedding_model.embed_query(skill_query),
+                n_results=n_results,
+                filter_dict={"type": {"$eq": "skill_transfer"}}
+            )
+            results.extend(self._format_results(skill_results, "skill_transfer"))
 
         # Track sources
         sources_set = set()
@@ -87,51 +99,81 @@ class CareerRetriever:
 
         return results
 
-    def _build_query_from_profile(self, profile: Dict) -> str:
-        """Build query string từ user profile"""
-        parts = []
-
-        # Basic info
-        basic = profile.get("basicInfo", {})
-        if basic.get("age"):
-            parts.append(f"tuổi {basic['age']}")
-        if basic.get("province"):
-            parts.append(f"tỉnh {basic['province']}")
-
+    def _build_query_from_profile(self, profile: Dict, query_type: str = "general") -> str:
+        """Build query string từ user profile theo từng loại query_type cụ thể (laser-focused)"""
         # Employment
         history = profile.get("employmentHistory", [])
+        industry = ""
+        role = ""
         if history:
-            latest = history[0]
-            if latest.get('industry'):
-                parts.append(f"ngành {latest['industry']}")
-            if latest.get('role'):
-                parts.append(f"vị trí {latest['role']}")
+            # Extract up to top 2 jobs for context
+            roles = []
+            for h in history:
+                r = h.get('role', h.get('position', ''))
+                if not r and h.get('occupation'):
+                    occ = h.get('occupation')
+                    if isinstance(occ, dict):
+                        r = occ.get("titleVi", occ.get("titleEn", occ.get("title", "")))
+                    elif isinstance(occ, str):
+                        r = occ
+                if r:
+                    roles.append(r)
+            
+            industries = [h.get('industry', '') for h in history if h.get('industry')]
+            
+            role = " và ".join(roles[:2])
+            industry = " và ".join(industries[:2])
 
         # Aspirations
         aspirations = profile.get("aspirations", {})
-        if aspirations.get("targetJob"):
-            parts.append(f"mong muốn {aspirations['targetJob']}")
+        target_job = aspirations.get("targetJob", "")
+        
+        # Determine the primary job to search for (use target job if they want to change, otherwise use current role)
+        primary_job = target_job if target_job else role
+        primary_ind = industry
+
+        # Tối ưu hóa câu truy vấn theo từng mục đích (Laser-focused Queries)
+        if query_type == "salary":
+            return f"Mức lương vị trí {primary_job}" if primary_job else "Mức lương thị trường"
+        
+        elif query_type == "trend":
+            if primary_ind and primary_job:
+                return f"Xu hướng ngành {primary_ind} và vị trí {primary_job}"
+            elif primary_job:
+                return f"Xu hướng công việc {primary_job}"
+            else:
+                return "Xu hướng thị trường việc làm 2026"
+                
+        elif query_type == "requirements":
+            return f"Kỹ năng và yêu cầu cho vị trí {primary_job}" if primary_job else "Yêu cầu kỹ năng cơ bản"
+            
+        elif query_type == "skill_transfer":
+            if role:
+                return f"Kỹ năng của nghề {role} có thể làm công việc gì khác"
+            return "Chuyển đổi nghề nghiệp"
+            
+        elif query_type == "startup_models":
+            return f"Mô hình kinh doanh nhỏ, khởi nghiệp tự do cho chuyên môn {primary_job}" if primary_job else "Mô hình kinh doanh nhỏ và khởi nghiệp"
+
+        # Fallback for general query
+        parts = []
+        basic = profile.get("basicInfo", {})
+        if basic.get("age"): parts.append(f"tuổi {basic['age']}")
+        if basic.get("province"): parts.append(f"tỉnh {basic['province']}")
+        if primary_ind: parts.append(f"ngành {primary_ind}")
+        if primary_job: parts.append(f"vị trí {primary_job}")
+        
         if aspirations.get("skills"):
             skills = aspirations["skills"]
-            if isinstance(skills, list):
-                skills_text = ", ".join(skills[:5])  # Limit to 5 skills
-            else:
-                skills_text = str(skills)
+            skills_text = ", ".join(skills[:5]) if isinstance(skills, list) else str(skills)
             parts.append(f"kỹ năng {skills_text}")
-        if aspirations.get("targetSalary"):
-            parts.append(f"mức lương mong muốn {aspirations['targetSalary']}")
-
-        # Barriers
+        
         barriers = profile.get("barriers", {})
         if barriers:
-            barrier_list = []
-            for key, value in barriers.items():
-                if value:
-                    barrier_list.append(key)
-            if barrier_list:
-                parts.append(f"rào cản {', '.join(barrier_list)}")
+            barrier_list = [k for k, v in barriers.items() if v]
+            if barrier_list: parts.append(f"rào cản {', '.join(barrier_list)}")
 
-        return " ".join(parts)
+        return " ".join(parts) if parts else "thông tin nghề nghiệp"
 
     def _get_primary_industry(self, profile: Dict) -> Optional[str]:
         """Get primary industry from profile"""

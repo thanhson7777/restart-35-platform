@@ -77,7 +77,8 @@ const findByUris = async (uris) => {
 const search = async (query, options = {}) => {
   try {
     const { lang = 'vi', limit = 20, offset = 0 } = options
-    const searchRegex = new RegExp(query, 'i')
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const searchRegex = new RegExp(escapedQuery, 'i')
 
     const searchQuery = {
       $or: [

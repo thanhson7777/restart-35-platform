@@ -1,103 +1,101 @@
-import { X, User, Briefcase, DollarSign, Calendar, MapPin } from 'lucide-react';
+import { X, Building, Users, Briefcase, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { updatePlacementStatus, resignPlacement } from '@/apis/trainerApi';
+import { getPartnershipLearners } from '@/apis';
 
-const statusConfig = {
-  active: { label: 'Đang làm', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
-  resigned: { label: 'Đã nghỉ', className: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
-  promoted: { label: 'Được thăng', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+const getStatusConfig = (learner) => {
+  const enterpriseSponsorship = learner.sponsorships?.find(s => s.sponsorType === 'enterprise') || learner.sponsorships?.[0];
+  if (enterpriseSponsorship?.status === 'rejected') {
+    return { label: 'Bị từ chối', className: 'bg-red-500/10 text-red-500 border-red-500/20' };
+  }
+  
+  if (learner.status === 'completed' || learner.progress?.percentage === 100 || learner.progress?.completionStatus === 'completed') {
+    return { label: 'Đã hoàn thành', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' };
+  }
+  
+  switch (learner.status) {
+    case 'active':
+    case 'in_progress':
+      return { label: 'Đang học', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' };
+    case 'completed':
+      return { label: 'Đã hoàn thành', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' };
+    case 'dropped':
+      return { label: 'Bỏ học', className: 'bg-red-500/10 text-red-500 border-red-500/20' };
+    case 'failed':
+      return { label: 'Thất bại', className: 'bg-red-500/10 text-red-500 border-red-500/20' };
+    case 'suspended':
+      return { label: 'Đình chỉ', className: 'bg-red-500/10 text-red-500 border-red-500/20' };
+    case 'pending_review':
+      return { label: 'Chờ duyệt', className: 'bg-amber-500/10 text-amber-500 border-amber-500/20' };
+    default:
+      return { label: learner.status || 'Chưa rõ', className: 'bg-gray-100 text-gray-700 border-gray-200' };
+  }
 };
 
-const formatCurrency = (value) => {
-  if (!value && value !== 0) return '0đ';
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(value);
+const formatSalaryRange = (salaryRange) => {
+  if (!salaryRange) return '-';
+  const { min, max, currency = 'VND' } = salaryRange;
+  const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency });
+  if (min && max) return `${formatter.format(min)} - ${formatter.format(max)}`;
+  if (min) return `Từ ${formatter.format(min)}`;
+  if (max) return `Đến ${formatter.format(max)}`;
+  return '-';
 };
 
-const formatDate = (date) => {
-  if (!date) return '-';
-  try { return format(new Date(date), 'dd/MM/yyyy', { locale: vi }); }
-  catch { return '-'; }
-};
-
-const AdminPlacementDetailModal = ({ placement, open, onClose, onUpdated }) => {
+const AdminPartnershipDetailModal = ({ placement: partnership, open, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [showResignForm, setShowResignForm] = useState(false);
-  const [resignReason, setResignReason] = useState('');
-  const [updating, setUpdating] = useState(false);
+  const [learners, setLearners] = useState([]);
+  const [placedLearners, setPlacedLearners] = useState([]);
+  const [loadingLearners, setLoadingLearners] = useState(false);
 
-  if (!open || !placement) return null;
-
-  const statusInfo = statusConfig[placement.status] || { label: placement.status, className: '' };
-
-  const handleUpdateStatus = async (newStatus) => {
-    try {
-      setUpdating(true);
-      const response = await updatePlacementStatus(placement._id || placement.id, { status: newStatus });
-      if (response.success) {
-        toast.success('Cập nhật trạng thái thành công');
-        onUpdated?.();
-        onClose();
-      } else {
-        toast.error(response.message || 'Cập nhật thất bại');
-      }
-    } catch {
-      toast.error('Cập nhật thất bại');
-    } finally {
-      setUpdating(false);
+  useEffect(() => {
+    if (open && partnership && (activeTab === 'learners' || activeTab === 'placed')) {
+      const fetchData = async () => {
+        try {
+          setLoadingLearners(true);
+          if (activeTab === 'learners' && learners.length === 0) {
+            const { data: result } = await getPartnershipLearners(partnership._id || partnership.id, { limit: 100 });
+            if (result.success) setLearners(result.data || []);
+          } else if (activeTab === 'placed' && placedLearners.length === 0) {
+            const { getPartnershipGraduates } = await import('@/apis');
+            const { data: result } = await getPartnershipGraduates(partnership._id || partnership.id, { limit: 100 });
+            if (result.success) setPlacedLearners(result.data || []);
+          }
+        } catch (error) {
+          toast.error('Không thể tải danh sách học viên');
+        } finally {
+          setLoadingLearners(false);
+        }
+      };
+      fetchData();
     }
-  };
+  }, [open, partnership, activeTab]);
 
-  const handleResign = async () => {
-    if (!resignReason.trim()) {
-      toast.error('Vui lòng nhập lý do nghỉ');
-      return;
-    }
-    try {
-      setUpdating(true);
-      const response = await resignPlacement(placement._id || placement.id, { reason: resignReason });
-      if (response.success) {
-        toast.success('Đã ghi nhận nghỉ việc');
-        setShowResignForm(false);
-        onUpdated?.();
-        onClose();
-      } else {
-        toast.error(response.message || 'Thao tác thất bại');
-      }
-    } catch {
-      toast.error('Thao tác thất bại');
-    } finally {
-      setUpdating(false);
-    }
-  };
+  if (!open || !partnership) return null;
 
   const tabs = [
     { key: 'overview', label: 'Tổng quan' },
-    { key: 'timeline', label: 'Timeline' },
+    { key: 'learners', label: 'Tất cả Học viên' },
+    { key: 'placed', label: 'Đã nhận việc' },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
       <div className="relative bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[hsl(var(--admin-border))]">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-indigo-500" />
+              <Building className="w-6 h-6 text-indigo-500" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-[hsl(var(--admin-text-primary))]">
-                {placement.companyName || 'Placement'}
+                Hợp tác: {partnership.enterprise?.organizationName || partnership.enterprise?.displayName || 'Doanh nghiệp'} & {partnership.trainer?.displayName || 'Giảng viên'}
               </h2>
               <div className="flex items-center gap-2 mt-1.5">
-                <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full border ${statusInfo.className}`}>
-                  {statusInfo.label}
-                </span>
-                <span className="text-xs text-[hsl(var(--admin-text-muted))]">{placement.jobTitle}</span>
+                <span className="text-xs text-[hsl(var(--admin-text-muted))]">Vị trí: {partnership.recruitmentNeeds?.jobTitle || 'Chưa xác định'}</span>
               </div>
             </div>
           </div>
@@ -127,118 +125,138 @@ const AdminPlacementDetailModal = ({ placement, open, onClose, onUpdated }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-5 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl">
                   <div className="flex items-center gap-2 text-[hsl(var(--admin-text-muted))] mb-2">
-                    <User className="w-4 h-4 text-rose-500" />
-                    <span className="text-sm font-medium">Worker</span>
+                    <Building className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm font-medium">Doanh nghiệp</span>
                   </div>
                   <p className="text-base font-semibold text-[hsl(var(--admin-text-primary))]">
-                    {placement.worker?.fullName || '-'}
+                    {partnership.enterprise?.organizationName || partnership.enterprise?.displayName || '-'}
                   </p>
                   <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-                    {placement.worker?.email || '-'}
+                    {partnership.enterprise?.email || '-'}
                   </p>
                 </div>
                 <div className="p-5 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl">
                   <div className="flex items-center gap-2 text-[hsl(var(--admin-text-muted))] mb-2">
-                    <DollarSign className="w-4 h-4 text-emerald-500" />
-                    <span className="text-sm font-medium">Lương</span>
+                    <GraduationCap className="w-4 h-4 text-purple-500" />
+                    <span className="text-sm font-medium">Giảng viên (Trainer)</span>
                   </div>
-                  <p className="text-2xl font-bold text-[hsl(var(--admin-text-primary))]">
-                    {formatCurrency(placement.salary)}
+                  <p className="text-base font-semibold text-[hsl(var(--admin-text-primary))]">
+                    {partnership.trainer?.displayName || '-'}
                   </p>
-                  <p className="text-xs text-[hsl(var(--admin-text-muted))]">/tháng</p>
+                  <p className="text-xs text-[hsl(var(--admin-text-muted))]">
+                    {partnership.trainer?.email || '-'}
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl">
                   <div className="flex items-center gap-2 text-[hsl(var(--admin-text-muted))] mb-2">
-                    <MapPin className="w-4 h-4 text-purple-500" />
-                    <span className="text-sm font-medium">Địa điểm</span>
+                    <Briefcase className="w-4 h-4 text-emerald-500" />
+                    <span className="text-sm font-medium">Nhu cầu tuyển dụng</span>
                   </div>
-                  <p className="text-sm text-[hsl(var(--admin-text-primary))]">{placement.location || '-'}</p>
-                  {placement.industry && <p className="text-xs text-[hsl(var(--admin-text-muted))]">Ngành: {placement.industry}</p>}
+                  <p className="text-sm text-[hsl(var(--admin-text-primary))]">Vị trí: {partnership.recruitmentNeeds?.jobTitle || '-'}</p>
+                  <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1">Số lượng: {partnership.recruitmentNeeds?.jobQuantity || 0}</p>
                 </div>
                 <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl">
                   <div className="flex items-center gap-2 text-[hsl(var(--admin-text-muted))] mb-2">
-                    <Calendar className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm font-medium">Thời gian</span>
+                    <Users className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm font-medium">Thống kê Học viên</span>
                   </div>
                   <p className="text-sm text-[hsl(var(--admin-text-primary))]">
-                    {formatDate(placement.startDate)}
+                    Tham gia: {partnership.stats?.enrolledLearners || 0}
                   </p>
-                  {placement.endDate && (
-                    <p className="text-xs text-[hsl(var(--admin-text-muted))]">
-                      Đến: {formatDate(placement.endDate)}
-                    </p>
-                  )}
+                  <p className="text-xs text-emerald-500 mt-1">
+                    Đã có việc: {partnership.stats?.placedLearners || 0}
+                  </p>
                 </div>
               </div>
+            </div>
+          )}
 
-              {placement.resignationReason && (
-                <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
-                  <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">Lý do nghỉ</p>
-                  <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-1">{placement.resignationReason}</p>
-                </div>
-              )}
-
-              {/* Status actions */}
-              {placement.status === 'active' && !showResignForm && (
-                <div className="p-4 bg-[hsl(var(--admin-surface-elevated))] border border-[hsl(var(--admin-border))] rounded-xl flex items-center justify-between">
-                  <p className="text-sm text-[hsl(var(--admin-text-secondary))]">Cập nhật trạng thái placement</p>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleUpdateStatus('promoted')} disabled={updating}
-                      className="border-blue-200 text-blue-500 hover:bg-blue-50">
-                      Đánh dấu thăng
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setShowResignForm(true)} disabled={updating}
-                      className="border-rose-200 text-rose-500 hover:bg-rose-50">
-                      Ghi nhận nghỉ
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {showResignForm && (
-                <div className="p-4 bg-rose-500/5 border border-rose-500/20 rounded-xl space-y-3">
-                  <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">Ghi nhận nghỉ việc</p>
-                  <textarea
-                    value={resignReason}
-                    onChange={(e) => setResignReason(e.target.value)}
-                    placeholder="Lý do nghỉ việc..."
-                    rows={3}
-                    className="w-full px-4 py-3 border border-[hsl(var(--admin-border))] rounded-xl
-                      bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-primary))]
-                      focus:outline-none focus:ring-2 focus:ring-rose-500/30 resize-none text-sm"
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={handleResign} disabled={updating} className="bg-rose-500 hover:bg-rose-600 text-white">
-                      {updating ? 'Đang xử lý...' : 'Xác nhận nghỉ'}
-                    </Button>
-                    <Button variant="outline" onClick={() => { setShowResignForm(false); setResignReason(''); }}>
-                      Hủy
-                    </Button>
-                  </div>
+          {activeTab === 'learners' && (
+            <div className="space-y-4">
+              {loadingLearners ? (
+                <p className="text-center text-sm text-[hsl(var(--admin-text-muted))]">Đang tải...</p>
+              ) : learners.length === 0 ? (
+                <p className="text-center text-sm text-[hsl(var(--admin-text-muted))]">Chưa có học viên nào tham gia dự án này.</p>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-[hsl(var(--admin-border))]">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[hsl(var(--admin-text-muted))]">Học viên</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[hsl(var(--admin-text-muted))]">Khóa học</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[hsl(var(--admin-text-muted))]">Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[hsl(var(--admin-border))]">
+                      {learners.map((learner) => (
+                        <tr key={learner._id || learner.id} className="hover:bg-[hsl(var(--admin-surface-elevated))]">
+                          <td className="px-4 py-3">
+                            <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">{learner.user?.displayName || '-'}</p>
+                            <p className="text-xs text-[hsl(var(--admin-text-muted))]">{learner.user?.email || '-'}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="text-sm text-[hsl(var(--admin-text-primary))]">{learner.course?.title || '-'}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`text-xs font-medium px-2 py-1 rounded-full border ${getStatusConfig(learner).className}`}>
+                              {getStatusConfig(learner).label}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
           )}
 
-          {activeTab === 'timeline' && (
+          {activeTab === 'placed' && (
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <div>
-                  <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">Bắt đầu làm việc</p>
-                  <p className="text-xs text-[hsl(var(--admin-text-muted))]">{formatDate(placement.startDate)}</p>
-                </div>
-              </div>
-              {placement.resignationReason && (
-                <div className="flex items-center gap-4">
-                  <div className="w-3 h-3 rounded-full bg-amber-500" />
-                  <div>
-                    <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">Nghỉ việc</p>
-                    <p className="text-xs text-[hsl(var(--admin-text-muted))]">{placement.resignationReason}</p>
-                  </div>
+              {loadingLearners ? (
+                <p className="text-center text-sm text-[hsl(var(--admin-text-muted))]">Đang tải...</p>
+              ) : placedLearners.length === 0 ? (
+                <p className="text-center text-sm text-[hsl(var(--admin-text-muted))]">Chưa có học viên nào nhận việc trong dự án này.</p>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-[hsl(var(--admin-border))]">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-[hsl(var(--admin-surface-elevated))] border-b border-[hsl(var(--admin-border))]">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[hsl(var(--admin-text-muted))]">Học viên</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[hsl(var(--admin-text-muted))]">Vị trí</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[hsl(var(--admin-text-muted))]">Lương</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-[hsl(var(--admin-text-muted))]">Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[hsl(var(--admin-border))]">
+                      {placedLearners.map((learner) => (
+                        <tr key={learner._id || learner.id} className="hover:bg-[hsl(var(--admin-surface-elevated))]">
+                          <td className="px-4 py-3">
+                            <p className="text-sm font-medium text-[hsl(var(--admin-text-primary))]">{learner.worker?.fullName || learner.user?.displayName || '-'}</p>
+                            <p className="text-xs text-[hsl(var(--admin-text-muted))]">{learner.worker?.email || learner.user?.email || '-'}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="text-sm text-[hsl(var(--admin-text-primary))]">{learner.jobTitle || partnership.recruitmentNeeds?.jobTitle || '-'}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="text-sm text-[hsl(var(--admin-text-primary))]">
+                              {learner.salary 
+                                ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(learner.salary) 
+                                : formatSalaryRange(partnership.recruitmentNeeds?.salaryRange)}
+                            </p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`text-xs font-medium px-2 py-1 rounded-full border ${getStatusConfig(learner).className}`}>
+                              {getStatusConfig(learner).label}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
@@ -257,4 +275,4 @@ const AdminPlacementDetailModal = ({ placement, open, onClose, onUpdated }) => {
   );
 };
 
-export default AdminPlacementDetailModal;
+export default AdminPartnershipDetailModal;

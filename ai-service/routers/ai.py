@@ -1030,3 +1030,31 @@ async def get_similar_jobs(job_id: str, limit: int = Query(default=5, ge=1, le=2
             status_code=500,
             detail=f"Error finding similar jobs: {str(e)}"
         )
+
+# ============================================================================
+# SYSTEM ENDPOINTS
+# ============================================================================
+
+@router.post("/reload-data", response_model=dict)
+async def reload_data():
+    """
+    Reload jobs.csv and rebuild models without restarting the server.
+    """
+    try:
+        recommender = get_recommender()
+        recommender._load_data()
+        recommender._build_tfidf_model()
+        
+        return {
+            "success": True,
+            "message": "Data reloaded successfully",
+            "data": {
+                "total_jobs": len(recommender.jobs_df)
+            }
+        }
+    except Exception as e:
+        logger.error(f"Error reloading data: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error reloading data: {str(e)}"
+        )

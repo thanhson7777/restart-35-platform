@@ -145,7 +145,7 @@ class UnifiedLLMClient:
                 if self.provider == 'groq' and self._groq_client:
                     return self._call_groq(model, prompt, temperature, max_tokens, system_prompt)
                 elif self.provider == 'gemini' and self._gemini_client:
-                    return self._call_gemini(model, prompt, temperature, max_tokens)
+                    return self._call_gemini(model, prompt, temperature, max_tokens, system_prompt)
                 else:
                     # Fallback: try other provider
                     if self._groq_client and self.provider != 'groq':
@@ -153,7 +153,7 @@ class UnifiedLLMClient:
                         return self._call_groq(LLMConfig.GROQ_LLAMA, prompt, temperature, max_tokens, system_prompt)
                     elif self._gemini_client:
                         logger.info("Falling back to Gemini")
-                        return self._call_gemini(LLMConfig.GEMINI_FLASH, prompt, temperature, max_tokens)
+                        return self._call_gemini(LLMConfig.GEMINI_FLASH, prompt, temperature, max_tokens, system_prompt)
                         
             except Exception as e:
                 last_error = e
@@ -197,15 +197,19 @@ class UnifiedLLMClient:
         )
         return response.choices[0].message.content
     
-    def _call_gemini(self, model: str, prompt: str, temperature: float, max_tokens: int) -> Optional[str]:
+    def _call_gemini(self, model: str, prompt: str, temperature: float, max_tokens: int, system_prompt: str = None) -> Optional[str]:
         """Call Gemini API"""
+        config = {
+            "temperature": temperature,
+            "max_output_tokens": max_tokens
+        }
+        if system_prompt:
+            config["system_instruction"] = system_prompt
+            
         response = self._gemini_client.models.generate_content(
             model=model,
             contents=prompt,
-            config={
-                "temperature": temperature,
-                "max_output_tokens": max_tokens
-            }
+            config=config
         )
         return response.text if response.text else None
     

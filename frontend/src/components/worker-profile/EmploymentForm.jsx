@@ -20,7 +20,7 @@ import {
 } from '@/redux/ai/aiSlice'
 import { invalidateCareerPathCacheAPI, invalidateRAGCacheAPI } from '@/apis/aiAPI'
 
-const MAX_JOBS = 3
+const MAX_JOBS = 2
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -132,12 +132,17 @@ function EmploymentForm({ onNext }) {
     e.preventDefault()
 
     // Validate
-    const hasDurationWarning = jobs.some(
-      (j) => (j.companyName || j.position) && j.duration === 0
+    if (jobs.length === 0) {
+      toast.error('Vui lòng nhập ít nhất 1 kinh nghiệm làm việc.')
+      return
+    }
+
+    const hasEmptyFields = jobs.some(
+      (j) => !j.companyName?.trim() || (!j.occupation && !j.position) || j.duration === 0 || !j.jobType
     )
 
-    if (hasDurationWarning) {
-      toast.error('Vui lòng chọn thời gian làm việc cho công việc đã nhập.')
+    if (hasEmptyFields) {
+      toast.error('Vui lòng điền đầy đủ thông tin (Tên công ty, Vị trí, Thời gian, Loại hình) cho tất cả công việc.')
       return
     }
 

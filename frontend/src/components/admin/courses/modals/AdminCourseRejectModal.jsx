@@ -24,7 +24,7 @@ const AdminCourseRejectModal = ({ course, onClose, onConfirm, loading }) => {
   const isValid = reason.trim().length >= 10;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
       <div className="relative bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">

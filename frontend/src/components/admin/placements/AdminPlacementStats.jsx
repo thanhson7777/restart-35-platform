@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui';
+import { Briefcase, Users, Building, Percent } from 'lucide-react';
 
 const formatCurrency = (value) => {
   if (!value && value !== 0) return '0đ';
@@ -34,41 +35,41 @@ const AdminPlacementStats = ({ stats, loading }) => {
   }
 
   const {
-    total = 0,
-    successRate = 0,
-    avgSalary = 0,
-    topIndustries = [],
+    totalPartnerships = 0,
+    totalLearners = 0,
+    placementRate = 0,
+    totalPlaced = 0,
   } = stats || {};
 
   return (
     <div className="grid grid-cols-4 gap-4 mb-6">
       <StatCard
-        label="Tổng Placements"
-        value={total}
-        sub="Đã ghi nhận"
+        label="Dự án Hợp tác"
+        value={totalPartnerships}
+        sub="Doanh nghiệp & Giảng viên"
         colorClass="text-blue-500"
-        icon={({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>}
+        icon={Building}
       />
       <StatCard
-        label="Tỷ lệ Thành công"
-        value={`${successRate}%`}
-        sub="Đang làm việc"
-        colorClass="text-emerald-500"
-        icon={({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>}
-      />
-      <StatCard
-        label="Lương TB"
-        value={formatCurrency(avgSalary)}
-        sub="Mức lương trung bình"
+        label="Tổng học viên"
+        value={totalLearners}
+        sub="Đang & đã tham gia"
         colorClass="text-purple-500"
-        icon={({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>}
+        icon={Users}
       />
       <StatCard
-        label="Top Ngành"
-        value={topIndustries?.[0] || '-'}
-        sub={topIndustries?.[1] ? `2. ${topIndustries[1]}` : 'Ngành hàng đầu'}
+        label="Đã nhận việc"
+        value={totalPlaced}
+        sub="Học viên có việc làm"
         colorClass="text-amber-500"
-        icon={({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>}
+        icon={Briefcase}
+      />
+      <StatCard
+        label="Tỷ lệ thành công"
+        value={`${placementRate}%`}
+        sub="Placement Rate"
+        colorClass="text-emerald-500"
+        icon={Percent}
       />
     </div>
   );

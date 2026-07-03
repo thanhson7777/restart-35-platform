@@ -58,6 +58,27 @@ export const fetchRecommendedJobs = createAsyncThunk(
   }
 )
 
+// Fetch AI-recommended jobs using the FULL Worker Profile (New API)
+export const fetchRecommendedJobsFromProfile = createAsyncThunk(
+  'jobs/fetchRecommendedFromProfile',
+  async (profileRequest, { rejectWithValue }) => {
+    try {
+      const response = await authorizeAxiosInstance.post(
+        `${API_URL}/recommend-jobs-profile`,
+        profileRequest
+      )
+      const data = response?.data?.data || response?.data
+      return {
+        jobs: data?.recommendations || data?.jobs || data || [],
+        total: data?.total || (data?.recommendations?.length || data?.jobs?.length || 0),
+        worker_profile: data?.worker_profile || {}
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch recommended jobs from profile')
+    }
+  }
+)
+
 // Fetch similar jobs for a specific job
 export const fetchSimilarJobs = createAsyncThunk(
   'jobs/fetchSimilar',
@@ -218,20 +239,32 @@ const jobSlice = createSlice({
         state.error = action.payload
       })
 
-    // fetchRecommendedJobs
-    builder
+      // Fetch recommended jobs
       .addCase(fetchRecommendedJobs.pending, (state) => {
         state.recommendedLoading = true
         state.error = null
       })
       .addCase(fetchRecommendedJobs.fulfilled, (state, action) => {
         state.recommendedLoading = false
-        // console.log('=== DEBUG recommendedJobs ===', action.payload)
         state.recommendedJobs = action.payload.jobs
         state.totalRecommended = action.payload.total
-        state.filters_applied = action.payload.filters_applied || {}
       })
       .addCase(fetchRecommendedJobs.rejected, (state, action) => {
+        state.recommendedLoading = false
+        state.error = action.payload
+      })
+      
+      // Fetch recommended jobs from full profile (New API)
+      .addCase(fetchRecommendedJobsFromProfile.pending, (state) => {
+        state.recommendedLoading = true
+        state.error = null
+      })
+      .addCase(fetchRecommendedJobsFromProfile.fulfilled, (state, action) => {
+        state.recommendedLoading = false
+        state.recommendedJobs = action.payload.jobs
+        state.totalRecommended = action.payload.total
+      })
+      .addCase(fetchRecommendedJobsFromProfile.rejected, (state, action) => {
         state.recommendedLoading = false
         state.error = action.payload
       })
